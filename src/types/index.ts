@@ -1,0 +1,23 @@
+
+export type UserRole = "parent" | "tutor" | "admin";
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatar?: string; // URL to avatar image
+}
+
+export interface TuitionRequirement {
+  id: string;
+  parentId: string;
+  parentName?: string; // Optional, denormalized
+  subject: string;
+  gradeLevel: string;
+  scheduleDetails: string;
+  location?: string; // e.g., "Online", "Student's Home", "Tutor's Home"
+  additionalNotes?: string;
+  status: "open" | "matched" | "closed";
+  postedAt: string; // ISO date string
+}
