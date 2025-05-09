@@ -1,11 +1,15 @@
 
 import type { Metadata } from "next";
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+import { Inter } from 'next/font/google';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AppHeader } from "@/components/shared/AppHeader";
 import { Providers } from "./providers"; // Jotai Provider
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: "Tutorzila - Find Your Perfect Tutor",
@@ -18,9 +22,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable}`} suppressHydrationWarning>
       <body
-        className="antialiased min-h-screen flex flex-col"
+        className="antialiased min-h-screen flex flex-col font-sans"
       >
         <Providers> {/* Jotai Provider */}
           <AppHeader />
