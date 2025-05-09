@@ -12,9 +12,7 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: [`var(--font-inter)`, ...defaultTheme.fontFamily.sans],
-        // If you also want a different mono font, you can define it here
-        // mono: [`var(--font-your-mono-font)`, ...defaultTheme.fontFamily.mono],
+        sans: [`var(--font-montserrat)`, ...defaultTheme.fontFamily.sans], // Changed from --font-poppins to --font-montserrat
       },
   		colors: {
   			background: 'hsl(var(--background))',
@@ -99,3 +97,4 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
