@@ -26,19 +26,29 @@ import { Logo } from "@/components/shared/Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated } = useAuthMock();
   const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  if (!isAuthenticated || !user) {
-    // In a real app, this might be handled by middleware or a higher-order component
-    if (typeof window !== 'undefined') {
-       router.push("/sign-in");
+  useEffect(() => {
+    // Check auth status on mount and when user/isAuthenticated changes
+    if (!isAuthenticated) {
+      router.push("/sign-in");
+    } else {
+      setIsCheckingAuth(false);
     }
-    return <div className="flex h-screen items-center justify-center">Redirecting to sign in...</div>; // Or a loading spinner
+  }, [isAuthenticated, router]);
+
+  if (isCheckingAuth || !user) {
+    // Display a loading state or redirect if auth check is in progress or user is not available after check
+    // This prevents rendering the layout before auth status is confirmed.
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
+
 
   const commonNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -55,6 +65,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const adminNavItems = [
+    { href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck }, // Link to admin dashboard
     { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: Users, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
   ];
@@ -96,6 +107,20 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+             {user.role === "admin" && pathname.startsWith('/dashboard/admin') && !navItems.find(item => item.href === "/dashboard/admin") && (
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/dashboard/admin"}
+                    tooltip={{ children: "Admin Panel", className: "ml-1"}}
+                    >
+                        <Link href="/dashboard/admin">
+                            <ShieldCheck />
+                            <span>Admin Panel</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            )}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-2">
