@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning> {/* Changed variable */}
+    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning>
       <body
         className="antialiased min-h-screen flex flex-col font-sans"
       >
@@ -35,4 +35,3 @@ export default function RootLayout({
     </html>
   );
 }
-
