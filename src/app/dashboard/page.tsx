@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -376,7 +377,7 @@ function ActionCard({
   
 
   return (
-    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
+    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50">
       {showImage && imageHint && (
         <div className="overflow-hidden rounded-t-xl relative">
           <Image
@@ -435,5 +436,6 @@ function ActionCard({
     </Card>
   );
 }
+
 
 

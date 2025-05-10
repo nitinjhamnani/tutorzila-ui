@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { TutorProfile } from "@/types";
@@ -41,7 +42,7 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
   }, [user]);
 
   return (
-    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
+    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50">
       <CardHeader className={cn("p-4 md:p-5", "pt-6")}> {/* Adjusted padding for consistency */}
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
