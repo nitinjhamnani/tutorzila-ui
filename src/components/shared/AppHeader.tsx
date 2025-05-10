@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LayoutDashboard, LogOut, UserCircle, Settings, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, LifeBuoy } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { usePathname } from "next/navigation";
@@ -30,7 +30,6 @@ export function AppHeader() {
     };
 
     window.addEventListener("scroll", handleScroll);
-    // Call handler once on mount to set initial state based on scroll position
     handleScroll(); 
 
     return () => {
@@ -45,7 +44,7 @@ export function AppHeader() {
 
   const headerClasses = cn(
     "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
-    isScrolled ? "bg-card shadow-sm border-b border-border" : "bg-transparent shadow-none border-b border-transparent"
+    isScrolled ? "bg-card shadow-sm border-b border-border" : "bg-gradient-to-br from-primary/10 via-secondary to-secondary border-b border-transparent"
   );
 
   const linkClasses = (href: string) => cn(
@@ -54,8 +53,8 @@ export function AppHeader() {
   );
 
   const authButtonVariant = isScrolled ? "outline" : "secondary";
-  const authButtonTextColor = isScrolled ? "" : "text-primary-foreground";
-  const signUpButtonClass = isScrolled ? "" : "bg-primary/80 hover:bg-primary text-primary-foreground";
+  // const authButtonTextColor = isScrolled ? "" : "text-primary-foreground"; // This caused contrast issues with 'secondary' variant
+  const signUpButtonClass = isScrolled ? "" : "bg-primary hover:bg-primary/90 text-primary-foreground";
 
 
   return (
@@ -117,7 +116,7 @@ export function AppHeader() {
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant={authButtonVariant} asChild className={cn("transform transition-transform hover:scale-105 active:scale-95", authButtonTextColor)}>
+              <Button variant={authButtonVariant} asChild className={cn("transform transition-transform hover:scale-105 active:scale-95")}>
                 <Link href="/sign-in">Sign In</Link>
               </Button>
               <Button asChild className={cn("transform transition-transform hover:scale-105 active:scale-95", signUpButtonClass)}>
@@ -130,3 +129,4 @@ export function AppHeader() {
     </header>
   );
 }
+
