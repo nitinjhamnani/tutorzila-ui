@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin } from "lucide-react";
+import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle } from "lucide-react"; // Added HelpCircle
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"; 
 
@@ -22,6 +22,7 @@ const footerLinks = [
       // { label: "About Us", href: "/privacy-policy", icon: Info }, // Removed "About Us"
       { label: "Privacy Policy", href: "/privacy-policy", icon: ShieldCheck },
       { label: "Terms & Conditions", href: "/terms-and-conditions", icon: FileText },
+      { label: "FAQ", href: "/faq", icon: HelpCircle }, // Added FAQ link
     ],
   },
   {
@@ -111,4 +112,3 @@ export function AppFooter() {
     </footer>
   );
 }
-
