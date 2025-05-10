@@ -12,7 +12,7 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: [`var(--font-poppins)`, ...defaultTheme.fontFamily.sans], // Changed from --font-montserrat to --font-poppins
+        sans: [`var(--font-poppins)`, ...defaultTheme.fontFamily.sans],
       },
   		colors: {
   			background: 'hsl(var(--background))',
@@ -87,15 +87,18 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'pulse-once': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+        }
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+        'pulse-once': 'pulse-once 0.5s ease-in-out',
   		}
   	}
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-
-

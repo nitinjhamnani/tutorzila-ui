@@ -1,15 +1,15 @@
 
 import type { Metadata } from "next";
-import { Poppins } from 'next/font/google'; // Changed from Montserrat to Poppins
+import { Poppins } from 'next/font/google';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AppHeader } from "@/components/shared/AppHeader";
 import { Providers } from "./providers"; // Jotai Provider
 
-const poppins = Poppins({ // Changed from montserrat to poppins
+const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'], // Added common weights for Poppins
-  variable: '--font-poppins', // Changed variable name
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
 });
 
 export const metadata: Metadata = {
@@ -29,11 +29,10 @@ export default function RootLayout({
       >
         <Providers> {/* Jotai Provider */}
           <AppHeader />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow animate-in fade-in duration-500 ease-out">{children}</main>
           <Toaster />
         </Providers>
       </body>
     </html>
   );
 }
-

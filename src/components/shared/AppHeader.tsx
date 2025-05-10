@@ -31,14 +31,14 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-        <Logo />
+        <Logo className="transition-opacity hover:opacity-80" />
         <nav className="hidden items-center space-x-6 md:flex">
-          {isAuthenticated && navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
+          {isAuthenticated && user && navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                "text-sm font-medium transition-colors hover:text-primary/80",
                 pathname === link.href ? "text-primary" : "text-muted-foreground"
               )}
             >
@@ -50,7 +50,7 @@ export function AppHeader() {
           {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full transform transition-transform hover:scale-110">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
                     <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
@@ -89,14 +89,14 @@ export function AppHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Button variant="outline" asChild>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" asChild className="transform transition-transform hover:scale-105 active:scale-95">
                 <Link href="/sign-in">Sign In</Link>
               </Button>
-              <Button asChild>
+              <Button asChild className="transform transition-transform hover:scale-105 active:scale-95">
                 <Link href="/sign-up">Sign Up</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

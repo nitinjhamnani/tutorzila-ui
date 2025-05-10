@@ -54,7 +54,7 @@ export function SignInForm() {
   }
 
   return (
-    <Card className="w-full max-w-md shadow-xl">
+    <Card className="w-full max-w-md shadow-xl hover:shadow-2xl transition-shadow duration-300">
       <CardHeader>
         <CardTitle className="text-2xl">Sign In to Tutorzila</CardTitle>
         <CardDescription>Enter your credentials to access your account.</CardDescription>
@@ -69,7 +69,7 @@ export function SignInForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
+                    <Input placeholder="you@example.com" {...field} className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,7 +82,7 @@ export function SignInForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input type="password" placeholder="••••••••" {...field} className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,7 +124,7 @@ export function SignInForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">Sign In</Button>
+            <Button type="submit" className="w-full transform transition-transform hover:scale-105 active:scale-95">Sign In</Button>
           </form>
         </Form>
       </CardContent>

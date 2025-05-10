@@ -31,10 +31,8 @@ export function TuitionSearch() {
   const [locationFilter, setLocationFilter] = useState("All");
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
 
-  // Simulate fetching data
   useEffect(() => {
-    // In a real app, fetch from an API
-    setRequirements(MOCK_REQUIREMENTS.filter(r => r.status === 'open')); // Initially show only open requirements
+    setRequirements(MOCK_REQUIREMENTS.filter(r => r.status === 'open'));
   }, []);
 
   const filteredRequirements = useMemo(() => {
@@ -61,7 +59,7 @@ export function TuitionSearch() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-lg">
+      <Card className="shadow-lg animate-in fade-in duration-300 ease-out">
         <CardHeader>
           <CardTitle className="text-2xl">Find Tuition Opportunities</CardTitle>
         </CardHeader>
@@ -73,14 +71,14 @@ export function TuitionSearch() {
               placeholder="Search by subject, grade, or keywords..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 text-base"
+              className="pl-10 pr-4 py-2 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/50"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1">
               <label htmlFor="subject-filter" className="text-sm font-medium text-muted-foreground flex items-center"><BookOpen className="w-4 h-4 mr-1.5"/>Subject</label>
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger id="subject-filter"><SelectValue /></SelectTrigger>
+                <SelectTrigger id="subject-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
@@ -89,7 +87,7 @@ export function TuitionSearch() {
             <div className="space-y-1">
               <label htmlFor="grade-filter" className="text-sm font-medium text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1.5"/>Grade Level</label>
               <Select value={gradeLevelFilter} onValueChange={setGradeLevelFilter}>
-                <SelectTrigger id="grade-filter"><SelectValue /></SelectTrigger>
+                <SelectTrigger id="grade-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {gradeLevels.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
                 </SelectContent>
@@ -98,13 +96,13 @@ export function TuitionSearch() {
             <div className="space-y-1">
               <label htmlFor="location-filter" className="text-sm font-medium text-muted-foreground flex items-center"><MapPin className="w-4 h-4 mr-1.5"/>Location</label>
               <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger id="location-filter"><SelectValue /></SelectTrigger>
+                <SelectTrigger id="location-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={resetFilters} variant="outline" className="self-end h-10">
+            <Button onClick={resetFilters} variant="outline" className="self-end h-10 transform transition-transform hover:scale-105 active:scale-95">
               <XIcon className="w-4 h-4 mr-2" />
               Reset Filters
             </Button>
@@ -114,12 +112,18 @@ export function TuitionSearch() {
 
       {filteredRequirements.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRequirements.map((req) => (
-            <TuitionRequirementCard key={req.id} requirement={req} />
+          {filteredRequirements.map((req, index) => (
+            <div 
+              key={req.id}
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <TuitionRequirementCard requirement={req} />
+            </div>
           ))}
         </div>
       ) : (
-        <Card className="text-center py-12 shadow-md">
+        <Card className="text-center py-12 shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out">
           <CardContent>
             <SearchIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <p className="text-xl font-semibold text-muted-foreground">No matching tuition requirements found.</p>

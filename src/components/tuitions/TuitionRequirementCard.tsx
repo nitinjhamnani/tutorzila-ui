@@ -15,11 +15,14 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
 
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow flex flex-col">
+    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col transform hover:scale-102 hover:-translate-y-1">
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl mb-1">{requirement.subject}</CardTitle>
-          <Badge variant={requirement.status === 'open' ? 'default' : 'secondary'} className={requirement.status === 'open' ? 'bg-green-500 hover:bg-green-600 text-white' : ''}>
+          <Badge 
+            variant={requirement.status === 'open' ? 'default' : 'secondary'} 
+            className={`transition-all duration-300 group-hover:scale-105 ${requirement.status === 'open' ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
+          >
             {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
           </Badge>
         </div>
@@ -27,22 +30,22 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
       </CardHeader>
       <CardContent className="space-y-3 text-sm flex-grow">
         <div className="flex items-center">
-          <Tag className="w-4 h-4 mr-2 text-primary" />
+          <Tag className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
           <strong>Grade:</strong>&nbsp;{requirement.gradeLevel}
         </div>
         <div className="flex items-center">
-          <CalendarDays className="w-4 h-4 mr-2 text-primary" />
+          <CalendarDays className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
           <strong>Schedule:</strong>&nbsp;{requirement.scheduleDetails.length > 100 ? requirement.scheduleDetails.substring(0,97) + "..." : requirement.scheduleDetails}
         </div>
         {requirement.location && (
           <div className="flex items-center">
-            <MapPin className="w-4 h-4 mr-2 text-primary" />
+            <MapPin className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
             <strong>Location:</strong>&nbsp;{requirement.location}
           </div>
         )}
         {requirement.parentName && (
              <div className="flex items-center">
-                <UserCircle className="w-4 h-4 mr-2 text-primary" />
+                <UserCircle className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
                 <strong>Posted by:</strong>&nbsp;{requirement.parentName}
             </div>
         )}
@@ -53,7 +56,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full" variant="outline">
+        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95" variant="outline">
           View Details & Apply
         </Button>
       </CardFooter>

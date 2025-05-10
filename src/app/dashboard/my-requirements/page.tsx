@@ -22,19 +22,17 @@ export default function MyRequirementsPage() {
 
   useEffect(() => {
     if (user) {
-      // In a real app, fetch requirements for this user.id (parentId)
-      // For mock, filter MOCK_REQUIREMENTS or use specific mock data
-      setMyRequirements(MOCK_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id || req.parentName === user.name)); // Mock logic
+      setMyRequirements(MOCK_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id || req.parentName === user.name));
     }
   }, [user]);
 
-  if (!user) return <p>Loading...</p>; // Or redirect
+  if (!user) return <p className="animate-in fade-in duration-300">Loading...</p>;
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
         <h1 className="text-3xl font-bold flex items-center"><ListChecks className="w-8 h-8 mr-3 text-primary"/>My Posted Requirements</h1>
-        <Button asChild>
+        <Button asChild className="transform transition-transform hover:scale-105 active:scale-95">
           <Link href="/dashboard/post-requirement">
             <PlusCircle className="mr-2 h-4 w-4" /> Post New Requirement
           </Link>
@@ -43,14 +41,18 @@ export default function MyRequirementsPage() {
 
       {myRequirements.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {myRequirements.map((req) => (
-            <div key={req.id} className="relative group">
+          {myRequirements.map((req, index) => (
+            <div 
+              key={req.id} 
+              className="relative group animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <TuitionRequirementCard requirement={req} />
-              <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="outline" size="icon" className="h-8 w-8 bg-background hover:bg-accent" title="Edit Requirement" disabled>
+              <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 translate-x-2">
+                <Button variant="outline" size="icon" className="h-8 w-8 bg-background hover:bg-accent transform hover:scale-110 transition-transform" title="Edit Requirement" disabled>
                   <Edit3 className="h-4 w-4" />
                 </Button>
-                <Button variant="destructive" size="icon" className="h-8 w-8" title="Delete Requirement" disabled>
+                <Button variant="destructive" size="icon" className="h-8 w-8 transform hover:scale-110 transition-transform" title="Delete Requirement" disabled>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -58,7 +60,7 @@ export default function MyRequirementsPage() {
           ))}
         </div>
       ) : (
-        <Card className="text-center py-12 shadow-md">
+        <Card className="text-center py-12 shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out">
           <CardContent>
             <ListChecks className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <p className="text-xl font-semibold text-muted-foreground">You haven&apos;t posted any requirements yet.</p>

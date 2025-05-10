@@ -59,7 +59,7 @@ export function TuitionRequirementForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-lg">
+    <Card className="w-full max-w-2xl mx-auto shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
         <CardTitle>Post a New Tuition Requirement</CardTitle>
         <CardDescription>Fill in the details below to find the perfect tutor for your needs.</CardDescription>
@@ -75,7 +75,7 @@ export function TuitionRequirementForm() {
                   <FormLabel>Subject</FormLabel>
                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/50">
                         <SelectValue placeholder="Select a subject" />
                       </SelectTrigger>
                     </FormControl>
@@ -99,7 +99,7 @@ export function TuitionRequirementForm() {
                   <FormLabel>Grade Level</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/50">
                         <SelectValue placeholder="Select a grade level" />
                       </SelectTrigger>
                     </FormControl>
@@ -124,7 +124,7 @@ export function TuitionRequirementForm() {
                   <FormControl>
                     <Textarea
                       placeholder="e.g., Weekdays after 5 PM, 2-3 times a week, flexible on weekends..."
-                      className="resize-none"
+                      className="resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/50"
                       {...field}
                     />
                   </FormControl>
@@ -144,7 +144,7 @@ export function TuitionRequirementForm() {
                   <FormLabel>Preferred Location</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/50">
                         <SelectValue placeholder="Select a location preference" />
                       </SelectTrigger>
                     </FormControl>
@@ -166,7 +166,7 @@ export function TuitionRequirementForm() {
                   <FormControl>
                     <Textarea
                       placeholder="Any specific requirements, learning style, or goals..."
-                      className="resize-none"
+                      className="resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/50"
                       {...field}
                     />
                   </FormControl>
@@ -174,7 +174,7 @@ export function TuitionRequirementForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full md:w-auto">Post Requirement</Button>
+            <Button type="submit" className="w-full md:w-auto transform transition-transform hover:scale-105 active:scale-95">Post Requirement</Button>
           </form>
         </Form>
       </CardContent>

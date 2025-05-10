@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function SearchTuitionsPage() {
   return (
-    <div>
+    <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
       <TuitionSearch />
     </div>
   );

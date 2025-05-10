@@ -21,21 +21,22 @@ import {
   SidebarGroupLabel
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, Search, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks } from "lucide-react";
+import { Home, Search, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, Menu } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated } = useAuthMock();
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Check auth status on mount and when user/isAuthenticated changes
     if (!isAuthenticated) {
       router.push("/sign-in");
     } else {
@@ -44,11 +45,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [isAuthenticated, router]);
 
   if (isCheckingAuth || !user) {
-    // Display a loading state or redirect if auth check is in progress or user is not available after check
-    // This prevents rendering the layout before auth status is confirmed.
     return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
-
 
   const commonNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -61,11 +59,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const tutorNavItems = [
     { href: "/dashboard/search-tuitions", label: "Search Tuitions", icon: Search },
-    { href: "/dashboard/my-applications", label: "My Applications", icon: Briefcase, disabled: true }, // Example disabled
+    { href: "/dashboard/my-applications", label: "My Applications", icon: Briefcase, disabled: true },
   ];
 
   const adminNavItems = [
-    { href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck }, // Link to admin dashboard
+    { href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck },
     { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: Users, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
   ];
@@ -75,16 +73,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   else if (user.role === "tutor") roleNavItems = tutorNavItems;
   else if (user.role === "admin") roleNavItems = [...parentNavItems, ...tutorNavItems, ...adminNavItems];
 
-
   const navItems = [...commonNavItems, ...roleNavItems];
 
   return (
-    <SidebarProvider defaultOpen>
-      <Sidebar collapsible="icon" className="border-r">
+    <SidebarProvider defaultOpen={!isMobile}>
+      <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r">
         <SidebarHeader className="p-4">
           <div className="flex items-center justify-between">
              <Logo className="text-xl group-data-[collapsible=icon]:hidden" />
-             <div className="group-data-[collapsible=icon]:mx-auto">
+             <div className={cn("group-data-[collapsible=icon]:mx-auto", isMobile && "ml-auto")}>
                 <SidebarTrigger />
              </div>
           </div>
@@ -98,7 +95,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   isActive={pathname === item.href}
                   tooltip={{ children: item.label, className: "ml-1" }}
                   disabled={item.disabled}
-                  className={cn(item.disabled && "opacity-50 cursor-not-allowed")}
+                  className={cn("transition-transform duration-200 hover:translate-x-1", item.disabled && "opacity-50 cursor-not-allowed")}
                 >
                   <Link href={item.disabled ? "#" : item.href}>
                     <item.icon />
@@ -113,6 +110,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     asChild
                     isActive={pathname === "/dashboard/admin"}
                     tooltip={{ children: "Admin Panel", className: "ml-1"}}
+                    className="transition-transform duration-200 hover:translate-x-1"
                     >
                         <Link href="/dashboard/admin">
                             <ShieldCheck />
@@ -150,7 +148,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="p-4 md:p-6 bg-background">
-        {children}
+        <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+         {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
