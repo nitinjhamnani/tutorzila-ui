@@ -44,7 +44,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
+      <section className="w-full py-8 md:py-16 lg:py-20 bg-secondary">
         <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-8 items-center">
           <div className="text-center lg:text-left">
             <h2
@@ -88,7 +88,7 @@ export default function HomePage() {
       </section>
 
       {/* Popular Subjects Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-background/50">
+      <section className="w-full py-8 md:py-16 lg:py-20 bg-background/50">
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">
             Explore Popular Subjects
@@ -134,7 +134,7 @@ export default function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32">
+      <section className="w-full py-8 md:py-16 lg:py-20">
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">How Tutorzila Works</h2>
           <div className="grid gap-8 md:grid-cols-3">
@@ -160,7 +160,7 @@ export default function HomePage() {
       </section>
 
       {/* Placeholder for Image Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-background/50">
+      <section className="w-full py-8 md:py-16 lg:py-20 bg-background/50">
         <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <Image
@@ -185,7 +185,7 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action */}
-      <section className="w-full py-12 md:py-24 lg:py-32 border-t">
+      <section className="w-full py-8 md:py-16 lg:py-20 border-t">
         <div className="container px-4 md:px-6 text-center animate-in fade-in duration-700 ease-out">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Start?</h2>
           <p className="mt-4 text-lg text-foreground/80 md:text-xl">
