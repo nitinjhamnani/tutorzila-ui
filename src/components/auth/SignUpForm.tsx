@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, User, Users, Briefcase, Type } from "lucide-react";
+import { Mail, Lock, User, Users, Briefcase, Palette, Building, School } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -74,8 +74,15 @@ export function SignUpForm() {
     form.setValue("role", role, { shouldValidate: true });
   };
 
+  const RoleIcon = ({ role, selected }: { role: UserRole, selected: boolean }) => {
+    const commonClass = cn("mb-2 transition-all duration-300 ease-in-out", selected ? "text-primary scale-110" : "text-muted-foreground group-hover:text-primary/70");
+    if (role === "parent") return <Users size={28} className={commonClass} />;
+    if (role === "tutor") return <School size={28} className={commonClass} />; // Changed from Briefcase
+    return <Palette size={28} className={commonClass} />; // Fallback
+  };
+
   return (
-    <Card className="w-full shadow-none border-0 rounded-lg bg-card animate-in fade-in zoom-in-95 duration-500 ease-out sm:max-w-lg">
+    <Card className="w-full max-w-3xl shadow-lg rounded-xl bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="flex flex-col items-center pt-8 pb-6">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
@@ -91,40 +98,40 @@ export function SignUpForm() {
               name="role"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel className="text-base font-semibold text-foreground">I am signing up as:</FormLabel>
+                  <FormLabel className="text-base font-semibold text-foreground sr-only">I am signing up as:</FormLabel>
                   <RadioGroup
                     onValueChange={(value) => handleRoleChange(value as UserRole)}
                     value={selectedRole}
-                    className="grid grid-cols-2 gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                   >
-                    <FormItem>
+                    <FormItem className="relative">
                       <FormControl>
                         <RadioGroupItem value="parent" id="role-parent-signup" className="sr-only" />
                       </FormControl>
                       <Label
                         htmlFor="role-parent-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
-                          selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-lg scale-105 bg-primary/5"
+                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-lg scale-[1.03] bg-primary/5"
                         )}
                       >
-                        <Users className={cn("mr-2 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
-                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Parent</span>
+                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80')} />
+                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/80')}>Parent</span>
                       </Label>
                     </FormItem>
-                    <FormItem>
+                    <FormItem className="relative">
                       <FormControl>
                         <RadioGroupItem value="tutor" id="role-tutor-signup" className="sr-only" />
                       </FormControl>
                       <Label
                         htmlFor="role-tutor-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
-                          selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-lg scale-105 bg-primary/5"
+                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-lg scale-[1.03] bg-primary/5"
                         )}
                       >
-                        <Briefcase className={cn("mr-2 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
-                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Tutor</span>
+                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80')} />
+                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/80')}>Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -165,38 +172,40 @@ export function SignUpForm() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Password</FormLabel>
-                  <FormControl>
-                     <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Confirm Password</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Confirm Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
