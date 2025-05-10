@@ -1,10 +1,11 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -37,7 +38,7 @@ const howItWorksSteps = [
 
 const becomeTutorBenefits = [
   {
-    icon: Users,
+    icon: BriefcaseBusiness, // Changed icon
     title: "Reach Students",
     description: "Connect with thousands of potential students actively looking for tutors like you.",
   },
@@ -96,7 +97,7 @@ export default function HomePage() {
                   <Search className="mr-2 h-5 w-5" /> Search Tutors
                 </Link>
               </Button>
-              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-card/90">
+              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-primary/5">
                 <Link href="/dashboard/post-requirement"> 
                   <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
@@ -119,7 +120,7 @@ export default function HomePage() {
       {/* Popular Subjects Section */}
       <section className="w-full py-8 md:py-12 bg-background/50">
         <div className="container px-6 sm:px-8 md:px-10 lg:px-12">
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
+          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out text-primary">
             Explore Popular Subjects
           </h2>
           <Carousel
@@ -287,4 +288,5 @@ export default function HomePage() {
     </div>
   );
 }
+
 
