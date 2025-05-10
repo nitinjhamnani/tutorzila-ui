@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { TutorProfile } from "@/types";
@@ -42,7 +43,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           </div>
         )}
       </CardHeader>
-      <CardContent className="space-y-3 text-xs flex-grow p-5 pt-2"> 
+      <CardContent className="space-y-4 text-xs flex-grow p-5 pt-2"> 
         
         <div className="flex items-center pt-1.5">
           <BookOpen className="w-4 h-4 mr-2.5 text-primary shrink-0" />
