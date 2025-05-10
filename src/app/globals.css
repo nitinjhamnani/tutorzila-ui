@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-poppins), sans-serif; /* Changed from --font-montserrat to --font-poppins and added sans-serif fallback */
+  font-family: var(--font-roboto), sans-serif; /* Changed from --font-poppins to --font-roboto */
 }
 
 @layer base {

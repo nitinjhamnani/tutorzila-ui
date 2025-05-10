@@ -12,7 +12,7 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: [`var(--font-poppins)`, ...defaultTheme.fontFamily.sans],
+        sans: [`var(--font-roboto)`, ...defaultTheme.fontFamily.sans], // Changed from --font-poppins to --font-roboto
       },
   		colors: {
   			background: 'hsl(var(--background))',
