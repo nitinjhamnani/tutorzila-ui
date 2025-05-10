@@ -115,7 +115,7 @@ export default function DashboardPage() {
       {/* Welcome Card & My Leads Card Row (for Tutors) */}
       <div className="grid gap-6 md:grid-cols-3">
          <Card className={cn("border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
-          <CardHeader className="p-6 md:p-8">
+          <CardHeader className="p-4 md:p-5"> {/* Reduced padding */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
                 <div className="relative group shrink-0">
@@ -177,13 +177,13 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           {(user.role === 'parent' || user.role === 'admin') && (
-              <CardContent className="p-6 md:p-8 pt-0">
+              <CardContent className="p-4 md:p-5 pt-0"> {/* Reduced padding */}
                   <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
               </CardContent>
           )}
           {user.role === 'tutor' && (
-            <CardContent className="p-6 md:p-8 pt-4 space-y-4 border-t">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <CardContent className="p-4 md:p-5 pt-2 space-y-3 border-t"> {/* Reduced padding and spacing */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 items-start"> {/* Adjusted gap */}
                 <div className="space-y-2">
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Coins className="w-4 h-4 mr-2 text-primary/80" />
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                   <p className="text-lg font-medium">Dec 31, 2024</p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2"> {/* Reduced pt */}
                  <Badge variant="outline" className="border-green-500 text-green-600 bg-green-500/10 py-1.5 px-3 text-sm font-medium">
                     <Award className="w-4 h-4 mr-1.5" /> Premium Plan
                  </Badge>
@@ -353,22 +353,27 @@ function ActionCard({
   disabled2,
 }: ActionCardProps) {
 
-  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => (
-    <Button 
-      asChild 
-      variant={actionButtonVariant || (btnDisabled ? "default" : "default")}
-      className={cn(
-        "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", 
-        actionButtonClassName 
-      )} 
-      disabled={btnDisabled}
-    >
-      <Link href={btnDisabled || !btnHref ? "#" : btnHref}>
-        {BtnIcon && <BtnIcon className="mr-2 h-4 w-4" />}
-        {text || (btnDisabled ? "Coming Soon" : title)}
-      </Link>
-    </Button>
-  );
+  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => {
+    // Ensure BtnIcon is capitalized for JSX if it's a component
+    const ButtonIconComponent = BtnIcon; 
+    return (
+      <Button 
+        asChild 
+        variant={actionButtonVariant || (btnDisabled ? "default" : "default")}
+        className={cn(
+          "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", 
+          actionButtonClassName 
+        )} 
+        disabled={btnDisabled}
+      >
+        <Link href={btnDisabled || !btnHref ? "#" : btnHref}>
+          {ButtonIconComponent && <ButtonIconComponent className="mr-2 h-4 w-4" />}
+          {text || (btnDisabled ? "Coming Soon" : title)}
+        </Link>
+      </Button>
+    );
+  };
+  
 
   return (
     <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
@@ -430,7 +435,5 @@ function ActionCard({
     </Card>
   );
 }
-
-
 
 
