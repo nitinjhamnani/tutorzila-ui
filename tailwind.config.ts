@@ -12,7 +12,7 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: [`var(--font-montserrat)`, ...defaultTheme.fontFamily.sans], // Changed from --font-poppins to --font-montserrat
+        sans: [`var(--font-poppins)`, ...defaultTheme.fontFamily.sans], // Changed from --font-montserrat to --font-poppins
       },
   		colors: {
   			background: 'hsl(var(--background))',
@@ -97,4 +97,5 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
 

@@ -1,14 +1,15 @@
 
 import type { Metadata } from "next";
-import { Montserrat } from 'next/font/google'; // Changed from Poppins to Montserrat
+import { Poppins } from 'next/font/google'; // Changed from Montserrat to Poppins
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AppHeader } from "@/components/shared/AppHeader";
 import { Providers } from "./providers"; // Jotai Provider
 
-const montserrat = Montserrat({ // Changed from poppins to montserrat
+const poppins = Poppins({ // Changed from montserrat to poppins
   subsets: ['latin'],
-  variable: '--font-montserrat', // Changed variable name
+  weight: ['300', '400', '500', '600', '700'], // Added common weights for Poppins
+  variable: '--font-poppins', // Changed variable name
 });
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${poppins.variable}`} suppressHydrationWarning>
       <body
         className="antialiased min-h-screen flex flex-col font-sans"
       >
@@ -35,3 +36,4 @@ export default function RootLayout({
     </html>
   );
 }
+
