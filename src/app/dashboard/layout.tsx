@@ -1,3 +1,4 @@
+
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppHeader } from "@/components/shared/AppHeader"; 
+import { AppFooter } from "@/components/shared/AppFooter"; // Added import for AppFooter
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -82,6 +84,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             {children}
           </div>
         </div>
+        <AppFooter /> {/* Added AppFooter */}
         <style jsx global>{`
           :root {
             --header-height: 7rem; 
@@ -193,3 +196,4 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
+
