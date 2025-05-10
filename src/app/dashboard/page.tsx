@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
@@ -12,7 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
 import { Badge } from "@/components/ui/badge";
-import { CardFooter } from "@/components/ui/card"; // Ensure CardFooter is imported
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -66,6 +65,7 @@ export default function DashboardPage() {
       />
     );
   } else if (user.role === "tutor") {
+    // These general action cards are displayed below the profile/class/payment management cards for tutors
     actionCards.push(
       <ActionCard
         key="search-tuitions"
@@ -110,8 +110,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-6 md:grid-cols-1"> {/* Changed md:grid-cols-3 to md:grid-cols-1 for tutors to stack cards */}
-        <Card className="border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card"> {/* Removed conditional col-span */}
+      {/* Welcome Card */}
+      <div className="grid gap-6 md:grid-cols-1">
+        <Card className="border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card">
           <CardHeader className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -179,18 +180,48 @@ export default function DashboardPage() {
               </CardContent>
           )}
         </Card>
-        
-        {user.role === 'tutor' && (
+      </div>
+
+      {/* Profile Management Row for Tutors */}
+      {user.role === 'tutor' && (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" // Removed conditional col-span
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.1s` }}
           >
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
-        )}
-      </div>
+          <div 
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            style={{ animationDelay: `0.2s` }}
+          >
+            <ActionCard
+              title="My Classes"
+              description="View and manage your scheduled classes and student interactions."
+              href="#"
+              icon={ListChecks} 
+              imageHint="classroom schedule"
+              disabled
+            />
+          </div>
+          <div 
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            style={{ animationDelay: `0.3s` }}
+          >
+            <ActionCard
+              title="My Payments"
+              description="Track your earnings, view payment history, and manage payout settings."
+              href="#"
+              icon={DollarSign}
+              imageHint="finance money"
+              disabled
+            />
+          </div>
+        </div>
+      )}
 
 
+      {/* General Action Cards & Recent Activity */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {actionCards.map((card, index) => (
           <div 
@@ -204,7 +235,9 @@ export default function DashboardPage() {
 
         <Card 
           className="shadow-lg hover:shadow-xl transition-all duration-300 col-span-full lg:col-span-1 group bg-card border border-border/30 hover:border-primary/50 rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-          style={{ animationDelay: `${actionCards.length * 0.1 + (user.role === 'tutor' ? 0.4 : 0.2)}s` }}
+          style={{ 
+            animationDelay: `${actionCards.length * 0.1 + (user.role === 'tutor' ? 0.4 + (actionCards.length > 0 ? actionCards.length * 0.1 : 0) : 0.2)}s` 
+          }}
         >
           <CardHeader className="p-0 relative">
              <Image
@@ -276,3 +309,4 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     </Card>
   );
 }
+
