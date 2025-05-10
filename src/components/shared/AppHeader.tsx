@@ -44,16 +44,15 @@ export function AppHeader() {
 
   const headerClasses = cn(
     "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
-    isScrolled ? "bg-card shadow-sm border-b border-border" : "bg-gradient-to-br from-primary/10 via-secondary to-secondary border-b border-transparent"
+    isScrolled ? "bg-card shadow-sm border-b border-border" : "bg-transparent border-b border-transparent"
   );
 
   const linkClasses = (href: string) => cn(
     "text-sm font-medium transition-colors hover:opacity-80",
     pathname === href ? "text-primary" : (isScrolled ? "text-muted-foreground" : "text-foreground hover:text-primary/80"),
   );
-
+  
   const authButtonVariant = isScrolled ? "outline" : "secondary";
-  // const authButtonTextColor = isScrolled ? "" : "text-primary-foreground"; // This caused contrast issues with 'secondary' variant
   const signUpButtonClass = isScrolled ? "" : "bg-primary hover:bg-primary/90 text-primary-foreground";
 
 
@@ -129,4 +128,3 @@ export function AppHeader() {
     </header>
   );
 }
-
