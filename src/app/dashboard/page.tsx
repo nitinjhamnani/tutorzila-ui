@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -199,7 +200,8 @@ export default function DashboardPage() {
           >
             <ActionCard
               title="My Classes"
-              description="View your scheduled classes, manage attendance, and update class details. You have 5 active classes."
+              cardDescriptionText="View and manage your scheduled classes." // Added CardDescription text
+              description="You have 5 active classes. Manage attendance and update class details easily." // Updated description for CardContent
               href="#"
               icon={ListChecks} 
               showImage={false}
@@ -258,7 +260,8 @@ interface ActionCardProps {
   actionButtonIcon?: React.ElementType;
   actionButtonVariant?: ButtonProps['variant'];
   actionButtonClassName?: string;
-  buttonInContent?: boolean; 
+  buttonInContent?: boolean;
+  cardDescriptionText?: string; // Added new prop for CardDescription in header
 }
 
 function ActionCard({ 
@@ -274,6 +277,7 @@ function ActionCard({
   actionButtonVariant,
   actionButtonClassName,
   buttonInContent = false,
+  cardDescriptionText, // Added new prop
 }: ActionCardProps) {
   const buttonTextContent = actionButtonText || (disabled ? "Coming Soon" : title);
 
@@ -309,15 +313,20 @@ function ActionCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/40 transition-all duration-300"></div>
         </div>
       )}
-      <CardHeader className={cn("p-4 md:p-5", !showImage && "pt-6")}>
+      <CardHeader className={cn("p-4 md:p-5", !showImage && "pt-6", cardDescriptionText && "pb-2")}> {/* Adjust padding if cardDescriptionText exists */}
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
              <Icon className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
           </div>
           <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{title}</CardTitle>
         </div>
+        {cardDescriptionText && ( // Render CardDescription if text is provided
+          <CardDescription className="text-sm mt-1 text-muted-foreground">
+            {cardDescriptionText}
+          </CardDescription>
+        )}
       </CardHeader>
-      <CardContent className="flex-grow p-4 md:p-5 pt-0">
+      <CardContent className={cn("flex-grow p-4 md:p-5", cardDescriptionText ? "pt-2" : "pt-0")}> {/* Adjust padding if cardDescriptionText exists */}
         <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
         {buttonInContent && <div className="mt-4">{renderButton()}</div>}
       </CardContent>
@@ -331,3 +340,4 @@ function ActionCard({
 }
 
     
+
