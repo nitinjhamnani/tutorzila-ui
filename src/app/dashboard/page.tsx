@@ -1,16 +1,17 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2 } from "lucide-react"; // Added Edit2
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall } from "lucide-react"; // Added MailCheck, PhoneCall
 import Image from "next/image";
 import Link from "next/link";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import type { TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRef, type ChangeEvent } from "react"; // Added useRef, ChangeEvent
-import { useToast } from "@/hooks/use-toast"; // Added useToast
+import { useRef, type ChangeEvent } from "react"; 
+import { useToast } from "@/hooks/use-toast"; 
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -110,9 +111,9 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <Card className="bg-card border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none">
         <CardHeader className="p-6 md:p-8">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             {user.role === 'tutor' && (
-              <div className="relative group">
+              <div className="relative group shrink-0">
                 <Avatar
                   className="h-16 w-16 border-2 border-primary/30 cursor-pointer group-hover:opacity-80 transition-opacity"
                   onClick={handleAvatarClick}
@@ -138,12 +139,26 @@ export default function DashboardPage() {
                 />
               </div>
             )}
-            <div>
+            <div className="flex-grow">
               <CardTitle className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">Welcome back, {user.name}!</CardTitle>
               {(user.role === 'parent' || user.role === 'admin') && (
                 <CardDescription className="text-md md:text-lg text-foreground/80 mt-1">
                     You are logged in as a {user.role}. Here's your dashboard overview.
                 </CardDescription>
+              )}
+              {user.role === 'tutor' && (
+                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                  <Button variant="link" asChild className="p-0 h-auto text-sm text-primary hover:text-primary/80 hover:underline">
+                    <Link href="#">
+                      <MailCheck className="mr-1.5 h-4 w-4" /> Verify Email
+                    </Link>
+                  </Button>
+                  <Button variant="link" asChild className="p-0 h-auto text-sm text-primary hover:text-primary/80 hover:underline">
+                    <Link href="#">
+                      <PhoneCall className="mr-1.5 h-4 w-4" /> Verify Phone
+                    </Link>
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -251,3 +266,4 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
   );
 }
 
+    
