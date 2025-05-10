@@ -6,9 +6,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, Users, Briefcase, UserCircle } from "lucide-react"; // Added UserCircle
+import { Mail, Lock, Users, Briefcase } from "lucide-react"; 
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -27,7 +27,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label"; // Added import for Label
+import { Label } from "@/components/ui/label";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
@@ -68,6 +68,7 @@ export function SignInForm() {
       title: "Signed In!",
       description: `Welcome back! You are logged in as a ${values.role}.`,
     });
+    // Modal will be closed by parent component or Dialog's default behavior
   }
 
   const handleRoleChange = (role: UserRole) => {
@@ -77,7 +78,8 @@ export function SignInForm() {
 
 
   return (
-    <Card className="w-full max-w-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
+    // Removed fixed width and max-width, as modal will control this. Added padding for modal content.
+    <Card className="w-full shadow-none border-0 rounded-lg bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="flex flex-col items-center pt-8 pb-6">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
@@ -101,32 +103,32 @@ export function SignInForm() {
                   >
                     <FormItem>
                       <FormControl>
-                        <RadioGroupItem value="parent" id="role-parent" className="sr-only" />
+                        <RadioGroupItem value="parent" id="role-parent-modal" className="sr-only" />
                       </FormControl>
                       <Label
-                        htmlFor="role-parent"
+                        htmlFor="role-parent-modal"
                         className={cn(
                           "flex flex-col items-center justify-center rounded-lg border-2 border-border bg-card p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
                           selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-xl scale-105 bg-primary/5"
                         )}
                       >
-                        <Users className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} /> {/* Increased icon size and added group hover effect */}
-                        <span className={cn("font-semibold text-lg", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Parent</span> {/* Increased font size and weight */}
+                        <Users className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
+                        <span className={cn("font-semibold text-lg", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Parent</span>
                       </Label>
                     </FormItem>
                     <FormItem>
                       <FormControl>
-                        <RadioGroupItem value="tutor" id="role-tutor" className="sr-only" />
+                        <RadioGroupItem value="tutor" id="role-tutor-modal" className="sr-only" />
                       </FormControl>
                       <Label
-                        htmlFor="role-tutor"
+                        htmlFor="role-tutor-modal"
                         className={cn(
                           "flex flex-col items-center justify-center rounded-lg border-2 border-border bg-card p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
                           selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-xl scale-105 bg-primary/5"
                         )}
                       >
-                        <Briefcase className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} /> {/* Increased icon size and added group hover effect */}
-                         <span className={cn("font-semibold text-lg", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Tutor</span> {/* Increased font size and weight */}
+                        <Briefcase className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
+                         <span className={cn("font-semibold text-lg", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -176,7 +178,7 @@ export function SignInForm() {
       <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
         <Button variant="link" size="sm" asChild>
          <Link
-            href="#"
+            href="#" // In a real app, this would go to a forgot password page/modal
             className={cn(
               "text-muted-foreground hover:text-primary transition-colors"
             )}

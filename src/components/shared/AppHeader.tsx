@@ -12,7 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetHeader, 
+  SheetTitle, 
+  SheetTrigger 
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -20,6 +31,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
+import { SignInForm } from "@/components/auth/SignInForm";
 
 
 export function AppHeader() {
@@ -27,6 +39,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [signInModalOpen, setSignInModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,19 +54,16 @@ export function AppHeader() {
     };
   }, []);
 
-  const navLinks = [
+  const navLinks: { href: string; label: string; icon: React.ElementType; roles: UserRole[] }[] = [
     // For authenticated users, specific links can be added here based on role if needed in the future
   ];
 
+  type UserRole = "parent" | "tutor" | "admin";
+
+
   const headerClasses = cn(
     "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
-    isScrolled ? "bg-card shadow-md border-b border-border" : "bg-transparent border-b border-transparent"
-  );
-
-  const linkClasses = (href: string) => cn(
-    "text-sm font-medium transition-colors hover:text-primary/80 flex items-center gap-2 py-2 px-3 rounded-md",
-    isScrolled ? (pathname === href ? "text-primary bg-primary/10" : "text-foreground hover:bg-muted") : (pathname === href ? "text-primary bg-white/20" : "text-card-foreground hover:bg-white/10"),
-    "transform hover:scale-105 active:scale-95"
+    isScrolled ? "bg-card shadow-md border-b border-border" : "bg-transparent"
   );
   
   const actionButtonClass = cn(
@@ -71,12 +81,11 @@ export function AppHeader() {
         <Link
           href="/"
           className={cn(
-            "flex items-center space-x-2 text-2xl font-bold", // Base link styling from original Logo
-            "transition-opacity hover:opacity-80", // Original className from AppHeader for Logo
-            isScrolled ? "" : "text-card-foreground" // Original className from AppHeader for Logo
+            "transition-opacity hover:opacity-80", 
+            isScrolled ? "" : "text-card-foreground" 
           )}
         >
-          <Logo /> {/* Logo component now just renders the Image */}
+          <Logo className="h-24 w-auto"/>
         </Link>
         
         <nav className="hidden items-center space-x-1 md:flex">
@@ -85,7 +94,11 @@ export function AppHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className={linkClasses(link.href)}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary/80 flex items-center gap-2 py-2 px-3 rounded-md",
+                isScrolled ? (pathname === link.href ? "text-primary bg-primary/10" : "text-foreground hover:bg-muted") : (pathname === link.href ? "text-primary bg-white/20" : "text-card-foreground hover:bg-white/10"),
+                "transform hover:scale-105 active:scale-95"
+              )}
             >
               <link.icon className="h-5 w-5" />
               <span>{link.label}</span>
@@ -142,9 +155,15 @@ export function AppHeader() {
                 <Button asChild variant="ghost" className={cn("transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold", isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10")}>
                   <Link href="/dashboard/search-tuitions">Find Tutors</Link>
                 </Button>
-                <Button asChild className={actionButtonClass}>
-                  <Link href="/sign-in">Sign In</Link>
-                </Button>
+                <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button className={actionButtonClass}>Sign In</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[500px] p-0">
+                    {/* SignInForm will handle its own styling within the modal */}
+                    <SignInForm /> 
+                  </DialogContent>
+                </Dialog>
               </>
             )}
           </div>
@@ -164,11 +183,11 @@ export function AppHeader() {
                       href="/"
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center space-x-2 text-2xl font-bold", // Base link styling
-                        isScrolled ? "" : "text-card-foreground" // Ensure text color contrasts with transparent/scrolled header
+                        "transition-opacity hover:opacity-80",
+                        isScrolled ? "" : "text-card-foreground"
                       )}
                     >
-                       <Logo />
+                       <Logo className="h-10 w-auto" />
                     </Link>
                   </SheetTitle>
                 </SheetHeader>
@@ -189,7 +208,6 @@ export function AppHeader() {
                       <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                         <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
                       </Link>
-                      {/* Authenticated nav links for mobile (if any added to navLinks based on role) */}
                       {navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
                         <Link
                           key={link.href}
@@ -201,7 +219,6 @@ export function AppHeader() {
                           <span>{link.label}</span>
                         </Link>
                       ))}
-                      {/* Specific role based links if not covered by navLinks */}
                       {user.role === "parent" && (
                         <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <Edit className="h-5 w-5 text-primary" /> Post Requirement
@@ -212,8 +229,6 @@ export function AppHeader() {
                             <Search className="h-5 w-5 text-primary" /> Search Tuitions
                         </Link>
                       )}
-
-
                       <Separator className="my-3" />
                       <Link href="#" onClick={(e) => {e.preventDefault(); setMobileMenuOpen(false);}} className={cn(mobileLinkClass, "text-muted-foreground cursor-not-allowed opacity-70")}>
                         <Settings className="h-5 w-5" /> Settings
@@ -228,13 +243,25 @@ export function AppHeader() {
                     </>
                   ) : (
                     <>
-                      <Link href="/dashboard/search-tuitions" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                      <Link href="/dashboard/search-tuitions" onClick={() => { setMobileMenuOpen(false);}} className={mobileLinkClass}>
                         <Search className="h-5 w-5 text-primary" /> Find Tutors
                       </Link>
-                      <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
-                        <LogIn className="h-5 w-5 text-primary" /> Sign In
-                      </Link>
-                       <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                      
+                      <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
+                        setSignInModalOpen(isOpen);
+                        if(isOpen) setMobileMenuOpen(false); // Close mobile menu when modal opens
+                      }}>
+                        <DialogTrigger asChild>
+                           <Button variant="ghost" className={mobileButtonClass}>
+                            <LogIn className="h-5 w-5 text-primary" /> Sign In
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[500px] p-0">
+                          <SignInForm />
+                        </DialogContent>
+                      </Dialog>
+
+                       <Link href="/sign-up" onClick={() => {setMobileMenuOpen(false);}} className={mobileLinkClass}>
                         <UserPlus className="h-5 w-5 text-primary" /> Sign Up
                       </Link>
                     </>
