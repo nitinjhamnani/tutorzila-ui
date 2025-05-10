@@ -164,17 +164,17 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto"
+            className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto"
           >
             <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
                 <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
-                      className={`group rounded-full shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
+                      className={`group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
                                   border-b-2 active:border-b-1 border-border/30
                                   bg-secondary text-primary hover:bg-primary/10 
-                                  w-24 h-24 sm:w-28 sm:h-28 
+                                  w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
@@ -187,8 +187,10 @@ export default function HomePage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute -left-4 sm:-left-6 md:-left-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
-            <CarouselNext className="absolute -right-4 sm:-right-6 md:-right-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
+            <div className="flex justify-center items-center gap-4 mt-6">
+                <CarouselPrevious className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+                <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+            </div>
           </Carousel>
            <div className="text-center mt-10 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
             <Button asChild variant="ghost" className="text-primary hover:text-primary/80 group">
@@ -369,8 +371,10 @@ export default function HomePage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute -left-3 sm:-left-4 md:-left-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-9 w-9 sm:h-10 sm:w-10" />
-            <CarouselNext className="absolute -right-3 sm:-right-4 md:-right-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-9 w-9 sm:h-10 sm:w-10" />
+             <div className="flex justify-center items-center gap-4 mt-6">
+                <CarouselPrevious className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+                <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+            </div>
           </Carousel>
         </div>
       </section>
