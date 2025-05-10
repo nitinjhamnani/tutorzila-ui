@@ -64,28 +64,16 @@ export default function DashboardPage() {
         href="/dashboard/my-requirements"
         icon={ListChecks} 
         imageHint="task checklist"
-      />
-    );
-  } else if (user.role === "tutor") {
-    // These general action cards are displayed below the profile/class/payment management cards for tutors
-    actionCards.push(
-      <ActionCard
-        key="search-tuitions"
-        title="Search Tuitions"
-        description="Find tuition opportunities that match your expertise and schedule."
-        href="/search-tuitions" 
-        icon={Search}
-        imageHint="magnifying glass map"
       />,
-      <ActionCard
-        key="my-applications" 
-        title="My Applications"
-        description="Track your applications for tuition jobs." 
-        href="/dashboard/my-applications" 
-        icon={Briefcase} 
-        // imageHint="profile curriculum" // No image for this card
-        showImage={false}
-        disabled 
+       <ActionCard
+        key="recent-activity-parent"
+        title="Recent Activity"
+        description="Updates on your postings and applications."
+        href="#"
+        icon={Activity}
+        imageHint="activity chart"
+        showImage={true} // Explicitly show image for this card
+        disabled
       />
     );
   } else if (user.role === "admin") {
@@ -107,9 +95,21 @@ export default function DashboardPage() {
         icon={BookOpen}
         imageHint="library books"
         disabled
+      />,
+       <ActionCard
+        key="recent-activity-admin"
+        title="Recent Activity"
+        description="Updates on platform activity and reports."
+        href="#"
+        icon={Activity}
+        imageHint="admin dashboard activity"
+        showImage={true}
+        disabled
       />
     );
   }
+  // For tutors, general action cards are no longer added here.
+  // The "Recent Activity" card is also removed for tutors.
 
   return (
     <div className="space-y-8">
@@ -224,48 +224,20 @@ export default function DashboardPage() {
       )}
 
 
-      {/* General Action Cards & Recent Activity */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {actionCards.map((card, index) => (
-          <div 
-            key={index} 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `${index * 0.1 + (user.role === 'tutor' ? 0.4 : 0.2)}s` }} 
-          >
-            {card}
-          </div>
-        ))}
-
-        <Card 
-          className="shadow-lg hover:shadow-xl transition-all duration-300 col-span-full lg:col-span-1 group bg-card border border-border/30 hover:border-primary/50 rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-          style={{ 
-            animationDelay: `${actionCards.length * 0.1 + (user.role === 'tutor' ? 0.4 + (actionCards.length > 0 ? actionCards.length * 0.1 : 0) : 0.2)}s` 
-          }}
-        >
-          <CardHeader className="p-0 relative">
-             <Image
-                src={`https://picsum.photos/seed/${user.id}activity/400/200`}
-                alt="Activity Feed Illustration"
-                width={400}
-                height={200}
-                className="rounded-t-xl object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-105"
-                data-ai-hint="activity chart"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-t-xl"></div>
-              <div className="absolute bottom-0 left-0 p-4 md:p-5">
-                <CardTitle className="text-xl font-semibold text-white flex items-center">
-                  <Activity className="w-5 h-5 mr-2" />
-                  Recent Activity
-                </CardTitle>
-              </div>
-          </CardHeader>
-          <CardContent className="p-4 md:p-5">
-            <CardDescription className="mb-3">Updates on your postings and applications.</CardDescription>
-            <p className="text-muted-foreground">No recent activity to display yet.</p>
-            {/* Placeholder for activity feed items */}
-          </CardContent>
-        </Card>
-      </div>
+      {/* General Action Cards (only for parent and admin) */}
+      {(user.role === 'parent' || user.role === 'admin') && actionCards.length > 0 && (
+         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {actionCards.map((card, index) => (
+            <div 
+              key={index} 
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              style={{ animationDelay: `${index * 0.1 + 0.2}s` }} 
+            >
+              {card}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -315,3 +287,4 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, showImage
     </Card>
   );
 }
+
