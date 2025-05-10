@@ -16,12 +16,14 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle, 
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus } from "lucide-react";
@@ -160,7 +162,9 @@ export function AppHeader() {
                     <Button className={actionButtonClass}>Sign In</Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[500px] p-0">
-                    {/* SignInForm will handle its own styling within the modal */}
+                     <DialogHeader className="sr-only">
+                      <DialogTitle>Sign In to Tutorzila</DialogTitle>
+                    </DialogHeader>
                     <SignInForm /> 
                   </DialogContent>
                 </Dialog>
@@ -178,7 +182,7 @@ export function AppHeader() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
                 <SheetHeader className="p-4 border-b">
-                  <SheetTitle>
+                  <SheetTitleComponent>
                     <Link
                       href="/"
                       onClick={() => setMobileMenuOpen(false)}
@@ -189,7 +193,7 @@ export function AppHeader() {
                     >
                        <Logo className="h-10 w-auto" />
                     </Link>
-                  </SheetTitle>
+                  </SheetTitleComponent>
                 </SheetHeader>
                 <div className="flex flex-col space-y-2 p-4 overflow-y-auto flex-grow">
                   {isAuthenticated && user ? (
@@ -249,7 +253,7 @@ export function AppHeader() {
                       
                       <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
                         setSignInModalOpen(isOpen);
-                        if(isOpen) setMobileMenuOpen(false); // Close mobile menu when modal opens
+                        if(isOpen) setMobileMenuOpen(false); 
                       }}>
                         <DialogTrigger asChild>
                            <Button variant="ghost" className={mobileButtonClass}>
@@ -257,6 +261,9 @@ export function AppHeader() {
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[500px] p-0">
+                           <DialogHeader className="sr-only">
+                             <DialogTitle>Sign In to Tutorzila</DialogTitle>
+                           </DialogHeader>
                           <SignInForm />
                         </DialogContent>
                       </Dialog>
@@ -275,3 +282,4 @@ export function AppHeader() {
     </header>
   );
 }
+
