@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -220,7 +221,7 @@ export default function HomePage() {
                   className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
                   style={{ animationDelay: `${index * 0.15}s` }}
                 >
-                  <div className="flex-shrink-0 bg-primary/10 text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <div className="flex-shrink-0 bg-card text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                     <step.icon className="w-6 h-6" />
                   </div>
                   <div>
@@ -261,7 +262,7 @@ export default function HomePage() {
                   className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
                   style={{ animationDelay: `${index * 0.15}s` }}
                 >
-                  <div className="flex-shrink-0 bg-primary/10 text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <div className="flex-shrink-0 bg-card text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                     <benefit.icon className="w-6 h-6" />
                   </div>
                   <div>
