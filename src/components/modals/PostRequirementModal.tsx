@@ -124,15 +124,15 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
   };
 
   return (
-    <>
-      <DialogHeader className="text-left">
+    <div className="bg-card p-0 rounded-lg"> {/* Ensure modal content itself has white background */}
+      <DialogHeader className="text-left pt-6 px-6">
         <DialogTitle className="text-2xl font-semibold">Post Your Tuition Requirement</DialogTitle>
         <DialogDescription>
           Fill in the details below in {totalSteps} easy steps to find the perfect tutor.
         </DialogDescription>
       </DialogHeader>
 
-      <div className="my-6">
+      <div className="my-6 px-6">
         <Progress value={(currentStep / totalSteps) * 100} className="w-full h-2" />
         <p className="text-sm text-muted-foreground mt-2 text-center font-medium">
           Step {currentStep} of {totalSteps}
@@ -140,7 +140,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6">
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Personal Details</h3>
@@ -307,6 +307,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
           </DialogFooter>
         </form>
       </Form>
-    </>
+    </div>
   );
 }
+

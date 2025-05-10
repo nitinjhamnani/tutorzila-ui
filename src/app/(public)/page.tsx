@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookUser, BookOpen } from "lucide-react"; // Added BookOpen
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookUser, BookOpen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -123,7 +124,7 @@ export default function HomePage() {
                       <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[625px] p-6">
+                  <DialogContent className="sm:max-w-[625px] p-0 bg-card"> {/* Ensure DialogContent has bg-card and remove padding here */}
                     <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
                   </DialogContent>
                 </Dialog>
@@ -221,7 +222,7 @@ export default function HomePage() {
                         <PlusCircle className="mr-2 h-5 w-5" /> Request A Tutor
                       </Button>
                     </DialogTrigger>
-                     <DialogContent className="sm:max-w-[625px] p-6">
+                     <DialogContent className="sm:max-w-[625px] p-0 bg-card"> {/* Ensure DialogContent has bg-card and remove padding here */}
                        <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
                      </DialogContent>
                   </Dialog>
