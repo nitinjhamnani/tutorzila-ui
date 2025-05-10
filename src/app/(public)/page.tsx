@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,6 +34,10 @@ const popularSubjects = [
   { name: "Art", icon: Palette, hoverColor: "hover:bg-pink-600" },
   { name: "Music", icon: Music, hoverColor: "hover:bg-indigo-600" },
   { name: "Physics", icon: Lightbulb, hoverColor: "hover:bg-teal-600" },
+  { name: "Chemistry", icon: Atom, hoverColor: "hover:bg-cyan-600" },
+  { name: "Biology", icon: Atom, hoverColor: "hover:bg-lime-600" },
+  { name: "Geography", icon: Globe, hoverColor: "hover:bg-orange-600" },
+  { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
 ];
 
 export default function HomePage() {
@@ -88,24 +93,36 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">
             Explore Popular Subjects
           </h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-3 md:gap-4">
-            {popularSubjects.map((subject, index) => (
-              <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} key={subject.name}>
-                <Card
-                  className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
-                              border-b-4 active:border-b-2 border-border
-                              bg-secondary text-primary hover:bg-primary/10 
-                              animate-in fade-in slide-in-from-bottom-5 duration-500`}
-                  style={{ animationDelay: `${index * 0.08}s` }}
-                >
-                  <CardContent className="flex flex-col items-center justify-center p-3 sm:p-4 aspect-square">
-                    <subject.icon className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 transition-transform duration-300 group-hover:scale-110" />
-                    <p className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{subject.name}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4 py-4">
+              {popularSubjects.map((subject, index) => (
+                <CarouselItem key={subject.name} className="pl-2 md:pl-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
+                  <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
+                    <Card
+                      className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
+                                  border-b-4 active:border-b-2 border-border
+                                  bg-secondary text-primary hover:bg-primary/10 
+                                  animate-in fade-in slide-in-from-bottom-5 duration-500`}
+                      style={{ animationDelay: `${index * 0.08}s` }}
+                    >
+                      <CardContent className="flex flex-col items-center justify-center p-3 sm:p-4 aspect-square">
+                        <subject.icon className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 transition-transform duration-300 group-hover:scale-110" />
+                        <p className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{subject.name}</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-[-10px] sm:left-[-20px] md:left-[-40px] top-1/2 -translate-y-1/2" />
+            <CarouselNext className="absolute right-[-10px] sm:right-[-20px] md:right-[-40px] top-1/2 -translate-y-1/2" />
+          </Carousel>
            <div className="text-center mt-12 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
             <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
               <Link href="/search-tuitions">
@@ -184,3 +201,4 @@ export default function HomePage() {
     </div>
   );
 }
+
