@@ -30,17 +30,12 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
            <span className="ml-1.5 text-xs text-muted-foreground">(Mock)</span>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm flex-grow p-4 md:p-6">
-        <div className="flex items-center">
-          <BookOpen className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-5deg]" />
-           {/* Subjects label removed */}
-        </div>
-        <div className="flex flex-wrap gap-1.5 ml-0"> {/* Adjusted ml-6 to ml-0 or removed if icon provides enough space */}
-          {tutor.subjects.map(subject => (
-            <Badge key={subject} variant="secondary" className="transition-all group-hover:bg-primary/20 group-hover:text-primary text-xs px-2 py-0.5">
-              {subject}
-            </Badge>
-          ))}
+      <CardContent className="space-y-2 text-sm flex-grow p-4 md:p-6">
+        <div className="flex items-start">
+          <BookOpen className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-5deg] shrink-0 mt-0.5" />
+           <p className="text-foreground/80 line-clamp-2">
+            {tutor.subjects.join(", ")}
+          </p>
         </div>
       </CardContent>
     </Card>
