@@ -194,15 +194,7 @@ body {
   background: hsl(var(--primary));
 }
 
-.h-\\[var\\(--header-height\\)\\] {
-  height: var(--header-height);
-}
-.pt-\\[var\\(--header-height\\)\\] {
-  padding-top: var(--header-height);
-}
-.pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
-  padding-top: calc(var(--header-height) + 1rem);
-}
-.h-\\[var\\(--logo-height\\)\\] {
-  height: var(--logo-height);
-}
+/* Removed manual definitions for .h-[var(--header-height)], .pt-[var(--header-height)], etc.
+   as Tailwind JIT should handle these when used in components.
+   The CSS variables --header-height and --logo-height are defined in :root.
+*/
