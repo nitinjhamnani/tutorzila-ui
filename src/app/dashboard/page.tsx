@@ -129,7 +129,7 @@ export default function DashboardPage() {
                   className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer"
                   aria-label="Update profile picture"
                 >
-                  <Edit2 className="w-6 h-6 text-white" />
+                  <Camera className="w-6 h-6 text-white" />
                 </button>
                 <input
                   type="file"
