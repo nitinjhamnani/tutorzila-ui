@@ -186,10 +186,7 @@ export function AppHeader() {
                     <Link
                       href="/"
                       onClick={() => setMobileMenuOpen(false)}
-                      className={cn(
-                        "transition-opacity hover:opacity-80",
-                        isScrolled ? "" : "text-card-foreground"
-                      )}
+                      className="transition-opacity hover:opacity-80"
                     >
                        <Logo className="h-10 w-auto" />
                     </Link>
@@ -261,16 +258,18 @@ export function AppHeader() {
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[500px] p-0">
-                           <DialogHeader className="sr-only">
-                             <DialogTitle>Sign In to Tutorzila</DialogTitle>
+                           <DialogHeader>
+                             <DialogTitle className="sr-only">Sign In to Tutorzila</DialogTitle>
                            </DialogHeader>
                           <SignInForm />
                         </DialogContent>
                       </Dialog>
 
-                       <Link href="/sign-up" onClick={() => {setMobileMenuOpen(false);}} className={mobileLinkClass}>
-                        <UserPlus className="h-5 w-5 text-primary" /> Sign Up
-                      </Link>
+                       <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => setMobileMenuOpen(false)}>
+                         <Link href="/sign-up">
+                          <UserPlus className="h-5 w-5 text-primary" /> Sign Up
+                         </Link>
+                       </Button>
                     </>
                   )}
                 </div>
@@ -282,4 +281,3 @@ export function AppHeader() {
     </header>
   );
 }
-
