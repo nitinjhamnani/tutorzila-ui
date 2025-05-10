@@ -1,10 +1,9 @@
-
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
@@ -108,8 +107,7 @@ export default function DashboardPage() {
       />
     );
   }
-  // For tutors, general action cards are no longer added here.
-  // The "Recent Activity" card is also removed for tutors.
+
 
   return (
     <div className="space-y-8">
@@ -200,11 +198,15 @@ export default function DashboardPage() {
           >
             <ActionCard
               title="My Classes"
-              description="View and manage your scheduled classes and student interactions."
+              description="You have 5 active classes. View and manage them."
               href="#"
               icon={ListChecks} 
               showImage={false}
-              disabled
+              disabled={false} // Assuming this should be enabled to manage
+              actionButtonText="Manage Class"
+              actionButtonIcon={ClipboardList}
+              actionButtonVariant="outline"
+              actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
             />
           </div>
           <div 
@@ -250,9 +252,27 @@ interface ActionCardProps {
   imageHint?: string;
   showImage?: boolean;
   disabled?: boolean;
+  actionButtonText?: string;
+  actionButtonIcon?: React.ElementType;
+  actionButtonVariant?: ButtonProps['variant'];
+  actionButtonClassName?: string;
 }
 
-function ActionCard({ title, description, href, icon: Icon, imageHint, showImage = true, disabled }: ActionCardProps) {
+function ActionCard({ 
+  title, 
+  description, 
+  href, 
+  icon: Icon, 
+  imageHint, 
+  showImage = true, 
+  disabled,
+  actionButtonText,
+  actionButtonIcon: ActionButtonIcon,
+  actionButtonVariant,
+  actionButtonClassName
+}: ActionCardProps) {
+  const buttonTextContent = actionButtonText || (disabled ? "Coming Soon" : title);
+
   return (
     <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
       {showImage && imageHint && (
@@ -280,11 +300,21 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, showImage
         <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
       </CardContent>
       <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
-        <Button asChild className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5" disabled={disabled}>
-          <Link href={disabled ? "#" : href}>{disabled ? "Coming Soon" : title}</Link>
+        <Button 
+          asChild 
+          variant={actionButtonVariant || (disabled ? "default" : "default")}
+          className={cn(
+            "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", // Default classes
+            actionButtonClassName // Custom classes to override/extend
+          )} 
+          disabled={disabled}
+        >
+          <Link href={disabled ? "#" : href}>
+            {ActionButtonIcon && <ActionButtonIcon className="mr-2 h-4 w-4" />}
+            {buttonTextContent}
+          </Link>
         </Button>
       </CardFooter>
     </Card>
   );
 }
-
