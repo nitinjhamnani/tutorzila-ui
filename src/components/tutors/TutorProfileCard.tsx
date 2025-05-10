@@ -4,7 +4,7 @@
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Award, Presentation } from "lucide-react";
+import { BookOpen, GraduationCap, Award } from "lucide-react"; // Removed Presentation icon
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
@@ -41,13 +41,9 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           <p className="text-foreground/70 leading-tight">{tutor.experience}</p>
         </div>
 
-        {tutor.availability && (
-          <div className="flex items-center pt-0.5">
-            <Presentation className="w-3 h-3 mr-1.5 text-primary shrink-0" />
-            <p className="text-foreground/70 leading-tight">{tutor.availability}</p>
-          </div>
-        )}
+        {/* Availability (Teaching Mode) field removed */}
       </CardContent>
     </Card>
   );
 }
+

@@ -28,7 +28,8 @@ export interface TutorProfile extends User {
   experience: string; // e.g., "5+ years", "1-3 years"
   hourlyRate?: string; // e.g., "$25 - $40"
   bio?: string;
-  availability?: string; // e.g., "Weekends, Evenings" - can represent teaching mode
+  // availability?: string; // e.g., "Weekends, Evenings" - can represent teaching mode - REMOVED
   qualifications?: string;
 }
+
 
