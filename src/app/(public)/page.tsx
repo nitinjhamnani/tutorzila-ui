@@ -45,7 +45,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
       {/* Hero Section */}
-      <section className="w-full py-8 md:py-16 lg:py-20 bg-secondary">
+      <section className="w-full py-8 md:py-12 lg:py-16 bg-secondary">
         <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-8 items-center">
           <div className="text-center lg:text-left">
             <h2
@@ -77,13 +77,12 @@ export default function HomePage() {
           </div>
            <div className="hidden lg:flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out" style={{ animationDelay: "0.3s" }}>
             <Image
-              src={bannerImage} // Use the imported local image
+              src={bannerImage} 
               alt="Learning Illustration"
               width={500}
               height={500}
-              className="rounded-lg object-contain shadow-2xl" // Changed rounded-full to rounded-lg and object-cover to object-contain
+              className="rounded-lg object-contain" 
               priority
-              // data-ai-hint can be removed if the image is specific and not a placeholder
             />
           </div>
         </div>
