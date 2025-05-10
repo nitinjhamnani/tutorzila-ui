@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -230,27 +230,25 @@ export default function HomePage() {
 
       {/* Meet Our Tutors Section */}
       <section className={`w-full ${sectionPadding} bg-background/50`}>
-        <div className={`${containerPadding} grid lg:grid-cols-5 gap-12 items-center`}>
-          <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out text-center lg:text-left lg:col-span-2"> 
+        <div className={`${containerPadding}`}>
+          <div className="text-center mb-10 space-y-4 animate-in fade-in duration-700 ease-out">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
               Meet Our Tutors
             </h2>
-            <p className="text-foreground/80 md:text-lg">
+            <p className="text-foreground/80 md:text-lg max-w-2xl mx-auto">
               Discover some of our top-rated and experienced tutors ready to help you achieve your learning goals.
             </p>
-            <div className="flex justify-center lg:justify-start">
-              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+             <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                 <Link href="/search-tuitions">
                   <Search className="mr-2 h-5 w-5" /> View All Tutors
                 </Link>
               </Button>
-            </div>
           </div>
-          <div className="w-full max-w-md lg:max-w-none mx-auto relative animate-in fade-in slide-in-from-right-10 duration-700 ease-out lg:col-span-3"> 
+          <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto relative animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
             <Carousel opts={{ align: "start", loop: true }} className="w-full">
               <CarouselContent className="-ml-4 py-2">
                 {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
-                  <CarouselItem key={tutor.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/1 xl:basis-1/2"> 
+                  <CarouselItem key={tutor.id} className="pl-4 basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3 xl:basis-1/3"> 
                     <div className="p-1">
                       <TutorProfileCard tutor={tutor} />
                     </div>
@@ -324,7 +322,7 @@ export default function HomePage() {
       {/* Call to Action */}
       <section className={`w-full ${sectionPadding} bg-background/50`}>
         <div className={`${containerPadding} text-center animate-in fade-in duration-700 ease-out`}>
-          <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
+          <TrendingUpIcon className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
           <p className="mt-4 text-foreground/80 md:text-lg max-w-2xl mx-auto">
             Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
@@ -341,5 +339,6 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
