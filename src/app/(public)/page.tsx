@@ -133,7 +133,7 @@ export default function HomePage() {
                   <Search className="mr-2 h-5 w-5" /> Search Tutors
                 </Link>
               </Button>
-              <Button asChild size="lg" className="bg-card text-primary border border-primary hover:bg-primary/10 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                 <Link href="/dashboard/post-requirement"> 
                   <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
@@ -166,9 +166,9 @@ export default function HomePage() {
             }}
             className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
-            <CarouselContent className="-ml-1 md:-ml-2 py-4">
+            <CarouselContent className="-ml-4 md:-ml-4 py-4"> {/* Adjusted negative margin */}
               {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-auto sm:basis-auto md:basis-auto lg:basis-auto">
+                <CarouselItem key={subject.name} className="pl-4 md:pl-4 basis-auto sm:basis-auto md:basis-auto lg:basis-auto"> {/* Increased padding */}
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
                       className={`group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
@@ -452,6 +452,7 @@ export default function HomePage() {
 }
 
     
+
 
 
 
