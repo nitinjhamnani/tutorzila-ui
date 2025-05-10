@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -15,7 +16,7 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
+  SheetTitle as SheetTitleComponent,
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
@@ -23,9 +24,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger, // Added DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, Briefcase, HomeIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { usePathname } from "next/navigation";
@@ -62,17 +63,12 @@ export function AppHeader() {
   
   const actionButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
-     "bg-primary hover:bg-primary/90 text-primary-foreground" // Always use primary button style
+     "bg-primary hover:bg-primary/90 text-primary-foreground" 
   );
   
-  const ghostButtonClass = cn(
-    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
-    isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10"
-  );
-
   const findTutorButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
-    "border-primary text-primary hover:bg-primary/10" // Always use primary outline style
+    "border-primary text-primary hover:bg-primary/10" 
   );
 
 
@@ -89,7 +85,7 @@ export function AppHeader() {
         
         <nav className="hidden items-center space-x-1 md:flex">
            {isAuthenticated && user && (
-             <Button asChild variant="ghost" className={ghostButtonClass}>
+             <Button asChild variant="ghost" className={cn("transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg", isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10")}>
                 <Link href="/dashboard">
                     <HomeIcon className="mr-2 h-4 w-4" /> Dashboard
                 </Link>
@@ -252,21 +248,6 @@ export function AppHeader() {
           </div>
         </div>
       </div>
-      <style jsx global>{`
-        :root {
-          --header-height: 7rem; 
-          --logo-height: 6rem;
-        }
-        .pt-\\[var\\(--header-height\\)\\] {
-          padding-top: var(--header-height);
-        }
-        .pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
-          padding-top: calc(var(--header-height) + 1rem);
-        }
-        .h-\\[var\\(--logo-height\\)\\] {
-          height: var(--logo-height);
-        }
-      `}</style>
     </header>
   );
 }

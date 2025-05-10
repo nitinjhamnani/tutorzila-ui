@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-montserrat), sans-serif; /* Changed from --font-roboto to --font-montserrat */
+  font-family: var(--font-montserrat), sans-serif;
   letter-spacing: 0.025em; 
 }
 
@@ -44,6 +44,10 @@ body {
     --sidebar-accent-foreground: 0 0% 15%; /* Dark text on hover */
     --sidebar-border: 0 0% 90%;
     --sidebar-ring: 0 65% 62%;
+
+    /* Header and Logo heights */
+    --header-height: 7rem; 
+    --logo-height: 6rem;
   }
 
   .dark {
