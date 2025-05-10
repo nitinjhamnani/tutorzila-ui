@@ -4,10 +4,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
+import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
 import type { TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent } from "react"; 
@@ -110,83 +110,85 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <Card className="bg-card border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none">
-        <CardHeader className="p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            {user.role === 'tutor' && (
-              <div className="relative group shrink-0">
-                <Avatar
-                  className="h-16 w-16 border-2 border-primary/30 cursor-pointer group-hover:opacity-80 transition-opacity"
-                  onClick={handleAvatarClick}
-                >
-                  <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl">
-                    {user.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <button
-                  onClick={handleAvatarClick}
-                  className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer"
-                  aria-label="Update profile picture"
-                >
-                  <Camera className="w-6 h-6 text-white" />
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="hidden"
-                />
-              </div>
-            )}
-            <div className="flex-grow">
-              <div className="flex items-center gap-2 mb-1">
-                <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
-                {user.status && (
-                  <Badge variant={user.status === "Active" ? "default" : "destructive"} className="text-xs py-0.5 px-2">
-                    {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                    {user.status}
-                  </Badge>
-                )}
-              </div>
-              {(user.role === 'parent' || user.role === 'admin') && (
-                <CardDescription className="text-md md:text-lg text-foreground/80 mt-1">
-                    You are logged in as a {user.role}. Here's your dashboard overview.
-                </CardDescription>
-              )}
+      <div className={`grid gap-6 ${user.role === 'tutor' ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
+        <Card className="bg-card border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none">
+          <CardHeader className="p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
-                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                   <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
-                    <Link href="#">
-                      <MailCheck className="mr-1.5 h-3.5 w-3.5" /> Verify Email
-                    </Link>
-                  </Button>
-                  <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
-                    <Link href="#">
-                      <PhoneCall className="mr-1.5 h-3.5 w-3.5" /> Verify Phone
-                    </Link>
-                  </Button>
+                <div className="relative group shrink-0">
+                  <Avatar
+                    className="h-16 w-16 border-2 border-primary/30 cursor-pointer group-hover:opacity-80 transition-opacity"
+                    onClick={handleAvatarClick}
+                  >
+                    <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
+                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl">
+                      {user.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                   <button
+                    onClick={handleAvatarClick}
+                    className="absolute -bottom-2 -right-2 flex items-center justify-center bg-primary text-primary-foreground p-1.5 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
+                    aria-label="Update profile picture"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
                 </div>
               )}
+              <div className="flex-grow">
+                <div className="flex items-center gap-2 mb-1">
+                  <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
+                  {user.status && (
+                    <Badge variant={user.status === "Active" ? "default" : "destructive"} className="text-xs py-0.5 px-2">
+                      {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                      {user.status}
+                    </Badge>
+                  )}
+                </div>
+                {(user.role === 'parent' || user.role === 'admin') && (
+                  <CardDescription className="text-md md:text-lg text-foreground/80 mt-1">
+                      You are logged in as a {user.role}. Here's your dashboard overview.
+                  </CardDescription>
+                )}
+                {user.role === 'tutor' && (
+                  <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                    <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
+                      <Link href="#">
+                        <MailCheck className="mr-1.5 h-3.5 w-3.5" /> Verify Email
+                      </Link>
+                    </Button>
+                    <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
+                      <Link href="#">
+                        <PhoneCall className="mr-1.5 h-3.5 w-3.5" /> Verify Phone
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
+          </CardHeader>
+          {(user.role === 'parent' || user.role === 'admin') && (
+              <CardContent className="p-6 md:p-8 pt-0">
+                  <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
+              </CardContent>
+          )}
+        </Card>
+        
+        {user.role === 'tutor' && (
+          <div 
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" 
+            style={{ animationDelay: `0.1s` }}
+          >
+            <UpdateProfileActionsCard />
           </div>
-        </CardHeader>
-         {(user.role === 'parent' || user.role === 'admin') && (
-            <CardContent className="p-6 md:p-8 pt-0">
-                <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
-            </CardContent>
         )}
-      </Card>
-      
-      {user.role === 'tutor' && (
-        <div 
-          className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" 
-          style={{ animationDelay: `0.1s` }}
-        >
-          <ProfileCompletionCard tutor={user as TutorProfile} />
-        </div>
-      )}
+      </div>
 
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -274,7 +276,8 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     </Card>
   );
 }
-
+    
     
 
     
+
