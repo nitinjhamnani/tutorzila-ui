@@ -1,13 +1,13 @@
 
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle } from "lucide-react";
+import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
 import hireTutorImage from '@/assets/images/banner-8.png';
+import becomeTutorImage from '@/assets/images/banner-11.png';
 
 
 const howItWorksSteps = [
@@ -30,6 +30,24 @@ const howItWorksSteps = [
     icon: UserRoundCheck,
     title: "Start Learning",
     description: "Finalize with your chosen tutor and begin personalized sessions.",
+  },
+];
+
+const becomeTutorBenefits = [
+  {
+    icon: Users,
+    title: "Reach Students",
+    description: "Connect with thousands of potential students actively looking for tutors like you.",
+  },
+  {
+    icon: Briefcase, // Changed from Award
+    title: "Flexible Schedule & Rates",
+    description: "Set your own working hours and competitive rates that suit your expertise.",
+  },
+  {
+    icon: CalendarCheck, // Changed from Share2
+    title: "Manage Easily",
+    description: "Utilize our user-friendly platform to manage your profile, bookings, and communication.",
   },
 ];
 
@@ -107,7 +125,7 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto"
+            className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xl xl:max-w-2xl mx-auto"
           >
             <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
@@ -202,34 +220,37 @@ export default function HomePage() {
             <p className="text-lg text-foreground/80 md:text-xl">
               Share your knowledge, inspire students, and earn on your own schedule. Join our community of passionate educators today.
             </p>
-            <ul className="space-y-3 text-foreground/70">
-              <li className="flex items-center gap-3">
-                <Users className="w-5 h-5 text-primary" />
-                <span>Reach thousands of potential students.</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Award className="w-5 h-5 text-primary" />
-                <span>Set your own rates and availability.</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Share2 className="w-5 h-5 text-primary" />
-                <span>Easy-to-use platform to manage your profile and bookings.</span>
-              </li>
-            </ul>
+            <div className="space-y-5 mt-6">
+              {becomeTutorBenefits.map((benefit, index) => (
+                <div 
+                  key={benefit.title} 
+                  className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
+                  style={{ animationDelay: `${index * 0.15}s` }}
+                >
+                  <div className="flex-shrink-0 bg-primary/10 text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                    <benefit.icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground/90">{benefit.title}</h3>
+                    <p className="text-foreground/70 text-sm">{benefit.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
             <Button 
               asChild 
               size="lg" 
               className="mt-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-5 duration-500"
-              style={{ animationDelay: "0.3s" }}
+              style={{ animationDelay: `${becomeTutorBenefits.length * 0.15 + 0.1}s` }}
             >
-              <Link href="/sign-up"> {/* Assuming sign-up handles tutor registration */}
+              <Link href="/sign-up"> 
                 <PlusCircle className="mr-2 h-5 w-5" /> Start Teaching Today
               </Link>
             </Button>
           </div>
           <div className="animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
             <Image
-              src="https://picsum.photos/seed/become-tutor/550/550" 
+              src={becomeTutorImage} 
               alt="Tutor teaching online"
               width={550}
               height={550}
@@ -282,4 +303,3 @@ export default function HomePage() {
     </div>
   );
 }
-
