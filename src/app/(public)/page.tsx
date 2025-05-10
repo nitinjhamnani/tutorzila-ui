@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Search, UserPlus, Edit, Users } from "lucide-react";
+import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,6 +21,16 @@ const howItWorksItems = [
     title: "3. Connect",
     description: "Connect with suitable matches and start the learning journey."
   }
+];
+
+const popularSubjects = [
+  { name: "Mathematics", icon: Calculator, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", borderColor: "border-blue-700" },
+  { name: "Science", icon: Atom, color: "bg-green-500", hoverColor: "hover:bg-green-600", borderColor: "border-green-700" },
+  { name: "English", icon: Book, color: "bg-red-500", hoverColor: "hover:bg-red-600", borderColor: "border-red-700" },
+  { name: "Coding", icon: Code, color: "bg-purple-500", hoverColor: "hover:bg-purple-600", borderColor: "border-purple-700" },
+  { name: "History", icon: Globe, color: "bg-yellow-500", hoverColor: "hover:bg-yellow-600", borderColor: "border-yellow-700" },
+  { name: "Art", icon: Palette, color: "bg-pink-500", hoverColor: "hover:bg-pink-600", borderColor: "border-pink-700" },
+  { name: "Music", icon: Music, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", borderColor: "border-indigo-700" },
 ];
 
 export default function HomePage() {
@@ -56,6 +66,40 @@ export default function HomePage() {
                 </Link>
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Popular Subjects Section */}
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-background/50">
+        <div className="container px-4 md:px-6">
+          <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">
+            Explore Popular Subjects
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+            {popularSubjects.map((subject, index) => (
+              <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} key={subject.name}>
+                <Card
+                  className={`group rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
+                              border-b-4 active:border-b-2
+                              ${subject.borderColor} ${subject.color} text-white
+                              animate-in fade-in slide-in-from-bottom-5 duration-500`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6 aspect-square">
+                    <subject.icon className="w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 transition-transform duration-300 group-hover:scale-110" />
+                    <p className="text-sm sm:text-base font-semibold text-center">{subject.name}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+           <div className="text-center mt-12 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
+            <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
+              <Link href="/search-tuitions">
+                View All Subjects <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
