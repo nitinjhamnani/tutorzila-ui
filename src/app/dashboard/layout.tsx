@@ -159,7 +159,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </SidebarProvider>
       <style jsx global>{`
         :root {
-          --header-height: 4rem; /* Or your actual header height */
+          --header-height: 7rem; /* Updated header height */
         }
         .pt-\\[var\\(--header-height\\)\\] {
           padding-top: var(--header-height);

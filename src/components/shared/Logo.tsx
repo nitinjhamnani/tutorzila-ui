@@ -17,10 +17,11 @@ export function Logo({ className }: LogoProps) {
       width={405} // Intrinsic width of the logo image
       height={96} // Intrinsic height of the logo image
       className={cn(
-        "h-24 w-auto", // Default: 6rem height, auto width to maintain aspect ratio
+        "h-28 w-auto", // Default: 7rem height (h-28), auto width to maintain aspect ratio
         className // Allows overriding or extending styles from parent
       )}
       priority
     />
   );
 }
+
