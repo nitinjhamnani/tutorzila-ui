@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { AppHeader } from '@/components/shared/AppHeader';
 
-export default function DefaultLayout({ children }: { children: ReactNode }) {
+export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <AppHeader />

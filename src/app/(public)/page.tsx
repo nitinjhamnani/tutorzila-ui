@@ -26,7 +26,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary"> {/* Changed background to bg-secondary */}
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
         <div className="container px-4 md:px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h1 
