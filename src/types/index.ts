@@ -32,5 +32,13 @@ export interface TutorProfile extends User {
   teachingMode?: "Online" | "In-person" | "Hybrid"; // Added teachingMode
 }
 
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: "Parent" | "Tutor";
+  text: string;
+  avatarSeed: string; 
+  rating: number; // e.g. 1-5
+}
 
 

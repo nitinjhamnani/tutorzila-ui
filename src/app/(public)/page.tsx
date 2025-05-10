@@ -5,14 +5,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2 } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
 import hireTutorImage from '@/assets/images/banner-8.png';
 import becomeTutorImage from '@/assets/images/banner-11.png';
-import type { TutorProfile } from "@/types";
+import type { TutorProfile, Testimonial } from "@/types";
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
+import { TestimonialCard } from "@/components/shared/TestimonialCard";
 
 
 const howItWorksSteps = [
@@ -79,6 +80,14 @@ const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "4500", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", teachingMode: "Hybrid" },
   { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "4800", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", teachingMode: "Online" },
   { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "3500", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", teachingMode: "In-person" },
+];
+
+const MOCK_TESTIMONIALS: Testimonial[] = [
+  { id: "testimonial1", name: "Sarah L. (Parent)", avatarSeed: "sarahparent", role: "Parent", text: "Tutorzila helped us find the perfect math tutor for our son. His grades have improved significantly!", rating: 5 },
+  { id: "testimonial2", name: "David K. (Tutor)", avatarSeed: "davidtutor", role: "Tutor", text: "I love the flexibility of teaching on Tutorzila. I can set my own hours and connect with students who genuinely want to learn.", rating: 5 },
+  { id: "testimonial3", name: "Maria P. (Parent)", avatarSeed: "mariaparent", role: "Parent", text: "The platform is user-friendly, and the quality of tutors is excellent. Highly recommend!", rating: 4 },
+  { id: "testimonial4", name: "Ahmed R. (Tutor)", avatarSeed: "ahmedtutor", role: "Tutor", text: "A great way to find students and manage my tutoring business. The support team is also very responsive.", rating: 5 },
+  { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5 },
 ];
 
 
@@ -332,13 +341,41 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <section className={`w-full ${sectionPadding} bg-secondary`}>
+        <div className={`${containerPadding}`}>
+          <div className="text-center mb-10 space-y-4 animate-in fade-in duration-700 ease-out">
+            <Quote className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
+              What Our Users Say
+            </h2>
+          </div>
+          <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto relative animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4 py-2">
+                {MOCK_TESTIMONIALS.map((testimonial, index) => (
+                  <CarouselItem key={testimonial.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                    <div className="p-1 h-full">
+                      <TestimonialCard testimonial={testimonial} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-center items-center gap-4 mt-6">
+                <CarouselPrevious className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+                <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+              </div>
+            </Carousel>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-
-
-
-
-
-
