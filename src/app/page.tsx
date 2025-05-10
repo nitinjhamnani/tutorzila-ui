@@ -25,9 +25,9 @@ const howItWorksItems = [
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center overflow-x-hidden"> {/* Added overflow-x-hidden to prevent horizontal scroll from animations */}
+    <div className="flex flex-col items-center overflow-x-hidden bg-secondary"> {/* Added bg-secondary */}
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-br from-primary/10 via-background to-background">
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-br from-primary/10 via-secondary to-secondary"> {/* Changed via-background to via-secondary and to-background to to-secondary */}
         <div className="container px-4 md:px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h1 
@@ -64,7 +64,7 @@ export default function HomePage() {
             {howItWorksItems.map((item, index) => (
               <Card 
                 key={item.title} 
-                className="group shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+                className="group shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card" // Added bg-card to ensure cards stand out on secondary background
                 style={{ animationDelay: `${index * 0.15 + 0.2}s` }}
               >
                 <CardHeader className="items-center">
@@ -83,7 +83,7 @@ export default function HomePage() {
       </section>
 
       {/* Placeholder for Image Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-background/50"> {/* Kept this section's distinct background for contrast */}
         <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <Image
