@@ -133,7 +133,7 @@ export default function HomePage() {
                   <Search className="mr-2 h-5 w-5" /> Search Tutors
                 </Link>
               </Button>
-              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-card">
+              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-card/90">
                 <Link href="/dashboard/post-requirement"> 
                   <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
@@ -306,12 +306,14 @@ export default function HomePage() {
             {counterData.map((item, index) => (
               <Card 
                 key={item.label} 
-                className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 animate-in fade-in zoom-in-95 duration-500 ease-out bg-card"
+                className="text-center p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 animate-in fade-in zoom-in-95 duration-500 ease-out bg-card rounded-xl"
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
-                <item.icon className={`w-12 h-12 mx-auto mb-4 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
-                <p className={`text-4xl font-bold ${item.color}`}>{item.count}</p>
-                <p className="text-muted-foreground mt-1">{item.label}</p>
+                <CardContent className="flex flex-col items-center justify-center p-0">
+                  <item.icon className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
+                  <p className={`text-3xl sm:text-4xl font-bold ${item.color}`}>{item.count}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{item.label}</p>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -332,7 +334,7 @@ export default function HomePage() {
               {testimonials.map((testimonial, index) => (
                 <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/2">
                   <Card 
-                    className="h-full flex flex-col p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-102 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card"
+                    className="h-full flex flex-col p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-102 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card rounded-xl"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <CardHeader className="flex flex-row items-center gap-4 pb-3">
@@ -452,3 +454,4 @@ export default function HomePage() {
 }
 
     
+
