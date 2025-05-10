@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  // DialogClose, // Not explicitly used for closing, relying on onSuccess
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -24,7 +23,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -32,32 +30,57 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox"; // Added Checkbox
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send } from "lucide-react";
-import { MultiSelectCommand } from "@/components/ui/multi-select-command"; // New Import
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock } from "lucide-react"; // Added CalendarDays, Clock
+import { MultiSelectCommand } from "@/components/ui/multi-select-command";
 
 const subjectsList = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
+
 const teachingModeOptions = [
   { id: "online", label: "Online" },
-  { id: "in-person", label: "In-person" },
-  { id: "hybrid", label: "Hybrid" },
+  { id: "offline", label: "Offline (In-person)" },
 ];
+
+const daysOptions = [
+  { id: "mon", label: "Monday" },
+  { id: "tue", label: "Tuesday" },
+  { id: "wed", label: "Wednesday" },
+  { id: "thu", label: "Thursday" },
+  { id: "fri", label: "Friday" },
+  { id: "sat", label: "Saturday" },
+  { id: "sun", label: "Sunday" },
+];
+
+const timeSlotsOptions = [
+  // Morning
+  { value: "0800-1000", label: "8:00 AM - 10:00 AM" },
+  { value: "1000-1200", label: "10:00 AM - 12:00 PM" },
+  // Afternoon
+  { value: "1200-1400", label: "12:00 PM - 2:00 PM" },
+  { value: "1400-1600", label: "2:00 PM - 4:00 PM" },
+  { value: "1600-1800", label: "4:00 PM - 6:00 PM" },
+  // Evening
+  { value: "1800-2000", label: "6:00 PM - 8:00 PM" },
+  { value: "2000-2200", label: "8:00 PM - 10:00 PM" },
+];
+
 
 const postRequirementSchema = z.object({
   // Step 1
   name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
   phone: z.string().min(10, { message: "Phone number must be at least 10 digits." }).regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format."),
   // Step 2
-  subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }), // Changed to array
+  subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
   // Step 3
-  teachingMode: z.enum(["online", "in-person", "hybrid"], { required_error: "Please select a teaching mode." }),
-  availability: z.string().min(10, { message: "Availability details must be at least 10 characters." }),
+  teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
+  preferredDays: z.array(z.string()).min(1, { message: "Please select at least one preferred day." }),
+  preferredTimeSlots: z.array(z.string()).min(1, { message: "Please select at least one preferred time slot." }),
 });
 
 type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
@@ -76,11 +99,12 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
     defaultValues: {
       name: "",
       phone: "",
-      subject: [], // Changed to empty array
+      subject: [],
       gradeLevel: "",
       board: "",
-      teachingMode: undefined, 
-      availability: "",
+      teachingMode: [],
+      preferredDays: [],
+      preferredTimeSlots: [],
     },
   });
 
@@ -90,7 +114,10 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
       fieldsToValidate = ['name', 'phone'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['subject', 'gradeLevel', 'board'];
+    } else if (currentStep === 3) {
+      fieldsToValidate = ['teachingMode', 'preferredDays', 'preferredTimeSlots'];
     }
+
 
     const isValid = await form.trigger(fieldsToValidate);
     if (isValid) {
@@ -101,9 +128,13 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
         if (form.formState.errors.name) form.setFocus("name");
         else if (form.formState.errors.phone) form.setFocus("phone");
       } else if (currentStep === 2) {
-         if (form.formState.errors.subject) { /* Focus might be tricky for custom component, handled by FormMessage */ }
+         if (form.formState.errors.subject) { /* Focus handled by FormMessage */ }
          else if (form.formState.errors.gradeLevel) form.setFocus("gradeLevel");
          else if (form.formState.errors.board) form.setFocus("board");
+      } else if (currentStep === 3) {
+        if (form.formState.errors.teachingMode) { /* Focus handled by FormMessage */ }
+        else if (form.formState.errors.preferredDays) { /* Focus handled by FormMessage */ }
+        else if (form.formState.errors.preferredTimeSlots) { /* Focus handled by FormMessage */ }
       }
     }
   };
@@ -235,48 +266,85 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
           )}
 
           {currentStep === 3 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="space-y-6 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><Settings2 className="mr-2 h-5 w-5" />Preferences</h3>
+              
               <FormField
                 control={form.control}
                 name="teachingMode"
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Preferred Teaching Mode</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col sm:flex-row gap-3"
-                      >
-                        {teachingModeOptions.map(opt => (
-                           <FormItem key={opt.id} className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value={opt.id} />
-                            </FormControl>
-                            <FormLabel className="font-normal">{opt.label}</FormLabel>
-                          </FormItem>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
+                  <FormItem>
+                    <FormLabel className="text-base">Preferred Teaching Mode</FormLabel>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                      {teachingModeOptions.map((option) => (
+                        <FormItem key={option.id} className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(option.id)}
+                              onCheckedChange={(checked) => {
+                                const currentValues = field.value || [];
+                                if (checked) {
+                                  form.setValue("teachingMode", [...currentValues, option.id], { shouldValidate: true });
+                                } else {
+                                  form.setValue("teachingMode", currentValues.filter(v => v !== option.id), { shouldValidate: true });
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">{option.label}</FormLabel>
+                        </FormItem>
+                      ))}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="availability"
+                name="preferredDays"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Availability &amp; Schedule</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., Weekdays 5 PM - 7 PM, Weekends flexible, 3 classes per week..."
-                        className="resize-none bg-input border-border focus:border-primary focus:ring-primary/30"
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
+                    <FormLabel className="text-base flex items-center"><CalendarDays className="mr-2 h-4 w-4"/>Preferred Days</FormLabel>
+                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-3 pt-2">
+                      {daysOptions.map((option) => (
+                        <FormItem key={option.id} className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(option.id)}
+                              onCheckedChange={(checked) => {
+                                const currentValues = field.value || [];
+                                if (checked) {
+                                  form.setValue("preferredDays", [...currentValues, option.id], { shouldValidate: true });
+                                } else {
+                                  form.setValue("preferredDays", currentValues.filter(v => v !== option.id), { shouldValidate: true });
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal text-sm">{option.label}</FormLabel>
+                        </FormItem>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="preferredTimeSlots"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-base flex items-center"><Clock className="mr-2 h-4 w-4"/>Preferred Time Slots</FormLabel>
+                    <MultiSelectCommand
+                      options={timeSlotsOptions}
+                      selectedValues={field.value}
+                      onValueChange={(values) => field.onChange(values)}
+                      placeholder="Select preferred time slots..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
+                    />
+                    <FormDescription>You can select multiple time slots.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -311,4 +379,3 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
     </div>
   );
 }
-
