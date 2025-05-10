@@ -2,8 +2,8 @@
 import type { Testimonial } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, QuoteIcon, CalendarDays } from "lucide-react"; // Added CalendarDays
-import { format } from 'date-fns'; // Added for date formatting
+import { Star, QuoteIcon, CalendarDays } from "lucide-react"; 
+import { format } from 'date-fns'; 
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
@@ -33,13 +33,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           {testimonial.text}
         </p>
       </CardContent>
-      <CardFooter className="px-6 pb-6 pt-3 border-t bg-muted/20 flex items-center justify-between">
-        <p className="text-xs text-muted-foreground italic">Shared their experience</p>
-        <div className="flex items-center text-xs text-muted-foreground">
-          <CalendarDays className="w-3.5 h-3.5 mr-1.5 text-primary/70" />
-          <span>{format(testimonialDate, 'MMM d, yyyy')}</span>
-        </div>
-      </CardFooter>
+      {/* Footer removed as per user request */}
     </Card>
   );
 }
