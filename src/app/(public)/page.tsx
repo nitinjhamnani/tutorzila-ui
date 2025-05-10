@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, HomeIcon } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, HomeIcon, UserPlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -173,7 +173,7 @@ export default function HomePage() {
                     <Card
                       className={`group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
                                   border-b-2 active:border-b-1 border-border/30
-                                  bg-secondary text-primary hover:bg-primary/10 
+                                  bg-card text-primary hover:bg-primary/10 
                                   w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
@@ -452,3 +452,5 @@ export default function HomePage() {
 }
 
     
+
+
