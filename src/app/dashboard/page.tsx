@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -227,7 +228,9 @@ export default function DashboardPage() {
               href="#"
               icon={DollarSign}
               showImage={false}
-              disabled
+              disabled // This will make the button "Coming Soon"
+              buttonInContent={true} // Ensures footer is not rendered, and if a button were defined for content, it would show there
+              cardDescriptionText="View your earnings and manage payout details." // Updated description text
             />
           </div>
         </div>
@@ -386,9 +389,23 @@ function ActionCard({
         ) : (
           <>
             <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
-            {buttonInContent && (
+            {buttonInContent && actionButtonText && ( // Only render button in content if actionButtonText is provided
               <div className="mt-4"> 
                 {renderSingleButton()}
+              </div>
+            )}
+             {buttonInContent && disabled && !actionButtonText && ( // Render "Coming Soon" if disabled and no specific button text
+              <div className="mt-4">
+                <Button 
+                  variant="default"
+                  className={cn(
+                    "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", 
+                    actionButtonClassName 
+                  )} 
+                  disabled={true}
+                >
+                  Coming Soon
+                </Button>
               </div>
             )}
           </>
@@ -402,3 +419,4 @@ function ActionCard({
     </Card>
   );
 }
+
