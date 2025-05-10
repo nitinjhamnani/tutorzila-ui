@@ -50,7 +50,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div 
     ref={ref}
-    className={cn("text-[15px] text-muted-foreground", className)} 
+    className={cn("text-foreground/80", className)} 
     {...props}
   />
 ))
@@ -77,3 +77,4 @@ const CardFooter = React.forwardRef<
 CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+

@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall } from "lucide-react"; // Added MailCheck, PhoneCall
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
@@ -147,15 +146,15 @@ export default function DashboardPage() {
                 </CardDescription>
               )}
               {user.role === 'tutor' && (
-                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                  <Button variant="link" asChild className="p-0 h-auto text-sm text-primary hover:text-primary/80 hover:underline">
+                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                   <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto hover:bg-secondary/90">
                     <Link href="#">
-                      <MailCheck className="mr-1.5 h-4 w-4" /> Verify Email
+                      <MailCheck className="mr-1.5 h-3.5 w-3.5" /> Verify Email
                     </Link>
                   </Button>
-                  <Button variant="link" asChild className="p-0 h-auto text-sm text-primary hover:text-primary/80 hover:underline">
+                  <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto hover:bg-secondary/90">
                     <Link href="#">
-                      <PhoneCall className="mr-1.5 h-4 w-4" /> Verify Phone
+                      <PhoneCall className="mr-1.5 h-3.5 w-3.5" /> Verify Phone
                     </Link>
                   </Button>
                 </div>
@@ -165,7 +164,7 @@ export default function DashboardPage() {
         </CardHeader>
          {(user.role === 'parent' || user.role === 'admin') && (
             <CardContent className="p-6 md:p-8 pt-0">
-                <p className="text-foreground/70 text-[15px]">Manage your tuition activities and settings from here.</p>
+                <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
             </CardContent>
         )}
       </Card>
@@ -213,8 +212,8 @@ export default function DashboardPage() {
               </div>
           </CardHeader>
           <CardContent className="p-4 md:p-5">
-            <CardDescription className="mb-3 text-[15px]">Updates on your postings and applications.</CardDescription>
-            <p className="text-muted-foreground text-[15px]">No recent activity to display yet.</p>
+            <CardDescription className="mb-3">Updates on your postings and applications.</CardDescription>
+            <p className="text-muted-foreground">No recent activity to display yet.</p>
             {/* Placeholder for activity feed items */}
           </CardContent>
         </Card>
@@ -255,7 +254,7 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4 md:p-5 pt-0">
-        <p className="text-[15px] text-muted-foreground line-clamp-3">{description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
       </CardContent>
       <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
         <Button asChild className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5" disabled={disabled}>
