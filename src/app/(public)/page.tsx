@@ -6,6 +6,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, CircleCheckBig } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import bannerImage from '@/assets/images/banner-9.png'; // Import the local image
 
 const howItWorksItems = [
   {
@@ -19,7 +20,7 @@ const howItWorksItems = [
     description: "Parents post specific tuition requirements. Tutors search for opportunities matching their skills."
   },
   {
-    icon: CircleCheckBig, // Changed from CheckCircle for a different look
+    icon: CircleCheckBig, 
     title: "3. Connect",
     description: "Connect with suitable matches and start the learning journey."
   }
@@ -76,21 +77,22 @@ export default function HomePage() {
           </div>
            <div className="hidden lg:flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out" style={{ animationDelay: "0.3s" }}>
             <Image
-              src="https://picsum.photos/seed/hero-illustration/500/500"
+              src={bannerImage} // Use the imported local image
               alt="Learning Illustration"
               width={500}
               height={500}
-              className="rounded-full object-cover shadow-2xl"
-              data-ai-hint="education online learning"
+              className="rounded-lg object-contain shadow-2xl" // Changed rounded-full to rounded-lg and object-cover to object-contain
+              priority
+              // data-ai-hint can be removed if the image is specific and not a placeholder
             />
           </div>
         </div>
       </section>
 
       {/* Popular Subjects Section */}
-      <section className="w-full py-8 md:py-16 lg:py-20 bg-background/50">
+      <section className="w-full py-8 md:py-12 lg:py-16 bg-background/50">
         <div className="container px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">
+          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
             Explore Popular Subjects
           </h2>
           <Carousel
@@ -100,30 +102,30 @@ export default function HomePage() {
             }}
             className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto"
           >
-            <CarouselContent className="-ml-2 md:-ml-4 py-4">
+            <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-2 md:pl-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
+                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-[30%] sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
                       className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
-                                  border-b-4 active:border-b-2 border-border
+                                  border-b-4 active:border-b-2 border-border/50
                                   bg-secondary text-primary hover:bg-primary/10 
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
-                      <CardContent className="flex flex-col items-center justify-center p-2.5 sm:p-3 aspect-square">
-                        <subject.icon className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 transition-transform duration-300 group-hover:scale-110" />
-                        <p className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{subject.name}</p>
+                      <CardContent className="flex flex-col items-center justify-center p-2 sm:p-2.5 aspect-square">
+                        <subject.icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 transition-transform duration-300 group-hover:scale-110" />
+                        <p className="text-[9px] sm:text-[10px] font-semibold text-center leading-tight">{subject.name}</p>
                       </CardContent>
                     </Card>
                   </Link>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute -left-4 sm:-left-8 md:-left-12 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
-            <CarouselNext className="absolute -right-4 sm:-right-8 md:-right-12 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
+            <CarouselPrevious className="absolute -left-3 sm:-left-6 md:-left-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
+            <CarouselNext className="absolute -right-3 sm:-right-6 md:-right-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
           </Carousel>
-           <div className="text-center mt-12 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
+           <div className="text-center mt-10 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
             <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
               <Link href="/search-tuitions">
                 View All Subjects <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -134,10 +136,10 @@ export default function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="w-full py-8 md:py-16 lg:py-20">
+      <section className="w-full py-8 md:py-12 lg:py-16">
         <div className="container px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">How Tutorzila Works</h2>
-          <div className="grid gap-8 md:grid-cols-3">
+          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">How Tutorzila Works</h2>
+          <div className="grid gap-6 md:grid-cols-3">
             {howItWorksItems.map((item, index) => (
               <Card
                 key={item.title}
@@ -160,8 +162,8 @@ export default function HomePage() {
       </section>
 
       {/* Placeholder for Image Section */}
-      <section className="w-full py-8 md:py-16 lg:py-20 bg-background/50">
-        <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
+      <section className="w-full py-8 md:py-12 lg:py-16 bg-background/50">
+        <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <Image
               src="https://picsum.photos/600/400?random=1"
@@ -185,7 +187,7 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action */}
-      <section className="w-full py-8 md:py-16 lg:py-20 border-t">
+      <section className="w-full py-8 md:py-12 lg:py-16 border-t">
         <div className="container px-4 md:px-6 text-center animate-in fade-in duration-700 ease-out">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Start?</h2>
           <p className="mt-4 text-lg text-foreground/80 md:text-xl">
@@ -201,4 +203,3 @@ export default function HomePage() {
     </div>
   );
 }
-
