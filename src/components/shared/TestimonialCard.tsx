@@ -32,16 +32,10 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
         </p>
       </CardContent>
       <CardFooter className="px-6 pb-6 pt-3 border-t bg-muted/20">
-        <div className="flex items-center">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Star
-              key={index}
-              className={`w-4 h-4 ${index < testimonial.rating ? 'fill-primary text-primary' : 'fill-muted text-muted-foreground'}`}
-            />
-          ))}
-          <span className="ml-1.5 text-xs text-muted-foreground">({testimonial.rating}.0)</span>
-        </div>
+        {/* Rating display removed from here */}
+        <p className="text-xs text-muted-foreground italic">Shared their experience</p>
       </CardFooter>
     </Card>
   );
 }
+
