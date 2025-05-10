@@ -120,8 +120,8 @@ export default function HomePage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute left-[-12px] sm:left-[-24px] md:left-[-40px] top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
-            <CarouselNext className="absolute right-[-12px] sm:right-[-24px] md:right-[-40px] top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
+            <CarouselPrevious className="absolute -left-4 sm:-left-8 md:-left-12 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
+            <CarouselNext className="absolute -right-4 sm:-right-8 md:-right-12 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
           </Carousel>
            <div className="text-center mt-12 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
             <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
