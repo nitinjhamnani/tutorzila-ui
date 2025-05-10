@@ -199,7 +199,7 @@ export default function DashboardPage() {
           >
             <ActionCard
               title="My Classes"
-              description="You have 5 active classes. View and manage them."
+              description="View your scheduled classes, manage attendance, and update class details. You have 5 active classes."
               href="#"
               icon={ListChecks} 
               showImage={false}
@@ -322,7 +322,7 @@ function ActionCard({
         {buttonInContent && <div className="mt-4">{renderButton()}</div>}
       </CardContent>
       {!buttonInContent && (
-         <div className="p-4 md:p-5 border-t bg-muted/20"> {/* Replaced CardFooter with a div */}
+         <div className="p-4 md:p-5 border-t bg-muted/20">
           {renderButton()}
         </div>
       )}
