@@ -1,7 +1,8 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList } from "lucide-react";
 import Image from "next/image";
@@ -202,11 +203,12 @@ export default function DashboardPage() {
               href="#"
               icon={ListChecks} 
               showImage={false}
-              disabled={false} // Assuming this should be enabled to manage
+              disabled={false} 
               actionButtonText="Manage Class"
               actionButtonIcon={ClipboardList}
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+              buttonInContent={true} 
             />
           </div>
           <div 
@@ -256,6 +258,7 @@ interface ActionCardProps {
   actionButtonIcon?: React.ElementType;
   actionButtonVariant?: ButtonProps['variant'];
   actionButtonClassName?: string;
+  buttonInContent?: boolean; 
 }
 
 function ActionCard({ 
@@ -269,9 +272,27 @@ function ActionCard({
   actionButtonText,
   actionButtonIcon: ActionButtonIcon,
   actionButtonVariant,
-  actionButtonClassName
+  actionButtonClassName,
+  buttonInContent = false,
 }: ActionCardProps) {
   const buttonTextContent = actionButtonText || (disabled ? "Coming Soon" : title);
+
+  const renderButton = () => (
+    <Button 
+      asChild 
+      variant={actionButtonVariant || (disabled ? "default" : "default")}
+      className={cn(
+        "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", 
+        actionButtonClassName 
+      )} 
+      disabled={disabled}
+    >
+      <Link href={disabled ? "#" : href}>
+        {ActionButtonIcon && <ActionButtonIcon className="mr-2 h-4 w-4" />}
+        {buttonTextContent}
+      </Link>
+    </Button>
+  );
 
   return (
     <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
@@ -298,23 +319,15 @@ function ActionCard({
       </CardHeader>
       <CardContent className="flex-grow p-4 md:p-5 pt-0">
         <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
+        {buttonInContent && <div className="mt-4">{renderButton()}</div>}
       </CardContent>
-      <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
-        <Button 
-          asChild 
-          variant={actionButtonVariant || (disabled ? "default" : "default")}
-          className={cn(
-            "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", // Default classes
-            actionButtonClassName // Custom classes to override/extend
-          )} 
-          disabled={disabled}
-        >
-          <Link href={disabled ? "#" : href}>
-            {ActionButtonIcon && <ActionButtonIcon className="mr-2 h-4 w-4" />}
-            {buttonTextContent}
-          </Link>
-        </Button>
-      </CardFooter>
+      {!buttonInContent && (
+         <div className="p-4 md:p-5 border-t bg-muted/20"> {/* Replaced CardFooter with a div */}
+          {renderButton()}
+        </div>
+      )}
     </Card>
   );
 }
+
+    
