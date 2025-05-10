@@ -2,7 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -40,12 +42,12 @@ const becomeTutorBenefits = [
     description: "Connect with thousands of potential students actively looking for tutors like you.",
   },
   {
-    icon: Briefcase, // Changed from Award
+    icon: Briefcase, 
     title: "Flexible Schedule & Rates",
     description: "Set your own working hours and competitive rates that suit your expertise.",
   },
   {
-    icon: CalendarCheck, // Changed from Share2
+    icon: CalendarCheck, 
     title: "Manage Easily",
     description: "Utilize our user-friendly platform to manage your profile, bookings, and communication.",
   },
@@ -65,6 +67,43 @@ const popularSubjects = [
   { name: "Biology", icon: Atom, hoverColor: "hover:bg-lime-600" },
   { name: "Geography", icon: Globe, hoverColor: "hover:bg-orange-600" },
   { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
+];
+
+const counterData = [
+  { icon: UsersRound, count: "1,200+", label: "Expert Tutors", color: "text-primary" },
+  { icon: Users, count: "5,000+", label: "Happy Parents", color: "text-green-500" },
+  { icon: FileText, count: "10,000+", label: "Tuition Needs Met", color: "text-blue-500" },
+];
+
+const testimonials = [
+  {
+    name: "Sarah L.",
+    role: "Parent",
+    quote: "Finding a qualified math tutor for my son was so easy with Tutorzila. His grades have improved significantly!",
+    avatarSeed: "sarahlparent",
+    stars: 5,
+  },
+  {
+    name: "John B.",
+    role: "Tutor",
+    quote: "Tutorzila has connected me with wonderful students. The platform is user-friendly and helps me manage my schedule effortlessly.",
+    avatarSeed: "johnbtutor",
+    stars: 5,
+  },
+  {
+    name: "Maria K.",
+    role: "Parent",
+    quote: "The range of tutors available is fantastic. We found a perfect match for my daughter's chemistry lessons.",
+    avatarSeed: "mariakparent",
+    stars: 4,
+  },
+   {
+    name: "David P.",
+    role: "Tutor",
+    quote: "I appreciate the flexibility Tutorzila offers. I can set my own rates and availability, which is perfect for my lifestyle.",
+    avatarSeed: "davidptutor",
+    stars: 5,
+  },
 ];
 
 export default function HomePage() {
@@ -261,8 +300,110 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Unlock Potential Section (Placeholder for Image Section) */}
+      {/* Counter Section */}
       <section className="w-full py-8 md:py-12 bg-secondary">
+        <div className="container px-4 md:px-6">
+          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
+            Our Growing Community
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {counterData.map((item, index) => (
+              <Card 
+                key={item.label} 
+                className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 animate-in fade-in zoom-in-95 duration-500 ease-out bg-card"
+                style={{ animationDelay: `${index * 0.15}s` }}
+              >
+                <item.icon className={`w-12 h-12 mx-auto mb-4 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
+                <p className={`text-4xl font-bold ${item.color}`}>{item.count}</p>
+                <p className="text-lg text-muted-foreground mt-1">{item.label}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="w-full py-8 md:py-12 bg-background/50">
+        <div className="container px-4 md:px-6">
+          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
+            What Our Users Say
+          </h2>
+          <Carousel
+            opts={{ align: "start", loop: true }}
+            className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto"
+          >
+            <CarouselContent className="-ml-4 py-4">
+              {testimonials.map((testimonial, index) => (
+                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/2">
+                  <Card 
+                    className="h-full flex flex-col p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-102 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <CardHeader className="flex flex-row items-center gap-4 pb-3">
+                      <Avatar className="w-14 h-14 border-2 border-primary/50">
+                        <AvatarImage src={`https://picsum.photos/seed/${testimonial.avatarSeed}/100`} alt={testimonial.name} data-ai-hint="person portrait"/>
+                        <AvatarFallback className="bg-primary/20 text-primary">{testimonial.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-lg">{testimonial.name}</CardTitle>
+                        <CardDescription>{testimonial.role}</CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <blockquote className="text-foreground/80 italic border-l-4 border-primary pl-4 py-2">
+                        "{testimonial.quote}"
+                      </blockquote>
+                    </CardContent>
+                    <CardFooter className="pt-3">
+                      <div className="flex">
+                        {Array(testimonial.stars).fill(0).map((_, i) => (
+                          <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                        ))}
+                        {Array(5 - testimonial.stars).fill(0).map((_, i) => (
+                           <Star key={i+testimonial.stars} className="w-5 h-5 text-muted-foreground/50" />
+                        ))}
+                      </div>
+                    </CardFooter>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute -left-3 sm:-left-4 md:-left-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-9 w-9 sm:h-10 sm:w-10" />
+            <CarouselNext className="absolute -right-3 sm:-right-4 md:-right-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-9 w-9 sm:h-10 sm:w-10" />
+          </Carousel>
+        </div>
+      </section>
+
+       {/* Subscription Section */}
+      <section className="w-full py-8 md:py-12 bg-secondary">
+        <div className="container px-4 md:px-6 text-center">
+          <div 
+            className="max-w-xl mx-auto p-6 md:p-8 bg-card rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-700 ease-out"
+          >
+            <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-primary mb-3">
+              Stay Updated!
+            </h2>
+            <p className="text-foreground/80 mb-6">
+              Subscribe to our newsletter for the latest updates, tips, and offers from Tutorzila.
+            </p>
+            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <Input
+                type="email"
+                placeholder="Enter your email address"
+                className="flex-grow text-base py-3 px-4 shadow-sm focus:ring-primary/50"
+                aria-label="Email for newsletter"
+              />
+              <Button type="submit" size="lg" className="shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95">
+                Subscribe
+              </Button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Unlock Potential Section (Placeholder for Image Section) */}
+      <section className="w-full py-8 md:py-12 bg-background/50">
         <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <Image
@@ -275,7 +416,7 @@ export default function HomePage() {
             />
           </div>
           <div className="flex flex-col justify-center space-y-4 animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
-            <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">Unlock Your Potential</h3>
+            <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl text-primary">Unlock Your Potential</h3>
             <p className="max-w-[600px] text-foreground/80 md:text-lg">
               Tutorzila is dedicated to fostering a supportive learning environment where students can thrive and tutors can make a difference.
             </p>
@@ -287,15 +428,23 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action */}
-      <section className="w-full py-8 md:py-12 border-t">
+      <section className="w-full py-8 md:py-12 border-t bg-secondary">
         <div className="container px-4 md:px-6 text-center animate-in fade-in duration-700 ease-out">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Start?</h2>
-          <p className="mt-4 text-lg text-foreground/80 md:text-xl">
-            Join Tutorzila today and take the next step in your educational journey.
+          <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
+          <p className="mt-4 text-lg text-foreground/80 md:text-xl max-w-2xl mx-auto">
+            Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
           </p>
-          <div className="mt-8">
-            <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once">
-              <Link href="/sign-up">Sign Up Now</Link>
+          <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+            <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+              <Link href="/sign-up">
+                 <UserPlus className="mr-2 h-5 w-5" /> Sign Up Now
+              </Link>
+            </Button>
+             <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+              <Link href="/search-tuitions">
+                 <Search className="mr-2 h-5 w-5" /> Explore Tutors
+              </Link>
             </Button>
           </div>
         </div>
