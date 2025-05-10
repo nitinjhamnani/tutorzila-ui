@@ -1,11 +1,11 @@
-
+"use client"; 
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookUser, BookOpen } from "lucide-react"; // Added BookOpen
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -14,6 +14,9 @@ import becomeTutorImage from '@/assets/images/banner-11.png';
 import type { TutorProfile, Testimonial } from "@/types";
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
+import { useState } from "react"; 
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
+import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
 
 
 const howItWorksSteps = [
@@ -73,7 +76,6 @@ const popularSubjects = [
   { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
 ];
 
-// Mock data for Tutor Profiles - copied from TutorProfileSearch for use in this server component
 const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "5000", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", teachingMode: "Online" },
   { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "4000", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", teachingMode: "In-person" },
@@ -92,291 +94,280 @@ const MOCK_TESTIMONIALS: Testimonial[] = [
 
 
 export default function HomePage() {
-  const sectionPadding = "pt-8 md:pt-12 pb-16 md:pb-24"; 
+  const sectionPadding = "pt-8 md:pt-12 pb-12 md:pb-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
+  const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col items-center overflow-x-hidden bg-secondary text-sm">
-      {/* Hero Section */}
-      <section className={`w-full ${sectionPadding} bg-secondary`}>
-        <div className={`${containerPadding} grid lg:grid-cols-2 gap-8 items-center`}>
-          <div className="text-center lg:text-left">
-            <h2
-              className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
-            >
-              Find Your Perfect Learning Match with Tutorzila
-            </h2>
-            <p
-              className="mt-4 text-foreground/80 md:text-lg animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
-              style={{ animationDelay: "0.2s" }}
-            >
-              Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
-            </p>
-            <div
-              className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
-              style={{ animationDelay: "0.4s" }}
-            >
-              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <Link href="/search-tuitions">
-                  <Search className="mr-2 h-5 w-5" /> Search Tutors
-                </Link>
-              </Button>
-              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-primary/5">
-                <Link href="/dashboard/post-requirement"> 
-                  <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
-                </Link>
-              </Button>
-            </div>
-          </div>
-           <div className="hidden lg:flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out" style={{ animationDelay: "0.3s" }}>
-            <Image
-              src={bannerImage} 
-              alt="Learning Illustration"
-              width={500}
-              height={500}
-              className="rounded-lg object-contain" 
-              priority
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Subjects Section */}
-      <section className={`w-full ${sectionPadding} bg-background/50`}>
-        <div className={`${containerPadding}`}>
-          <div className="text-center mb-10 space-y-4 animate-in fade-in duration-700 ease-out">
-            <NotebookPen className="w-16 h-16 text-primary mx-auto mb-4" />
-            <h2 className="text-3xl font-bold tracking-tighter text-center sm:text-4xl animate-in fade-in duration-500 ease-out text-primary">
-              Explore Popular Subjects
-            </h2>
-          </div>
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto"
-          >
-            <CarouselContent className="-ml-4 md:-ml-4 py-4">
-              {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-4 md:pl-4 basis-auto sm:basis-auto md:basis-auto lg:basis-auto">
-                  <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
-                    <Card
-                      className={`group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
-                                  border-b-2 active:border-b-1 border-border/30
-                                  bg-card text-primary hover:bg-primary/10 
-                                  w-28 h-28 flex items-center justify-center
-                                  animate-in fade-in slide-in-from-bottom-5 duration-500`}
-                      style={{ animationDelay: `${index * 0.08}s` }}
-                    >
-                      <CardContent className="flex flex-col items-center justify-center gap-1 p-2 text-center h-full">
-                        <subject.icon className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
-                        <p className="text-xs font-semibold leading-tight line-clamp-2">{subject.name}</p>
-                      </CardContent>
-                    </Card>
+    <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
+      
+        {/* Hero Section */}
+        <section className={`w-full py-12 md:py-20 lg:py-28 bg-secondary ${sectionPadding}`}>
+          <div className={`grid items-center gap-6 lg:grid-cols-2 lg:gap-12 ${containerPadding}`}>
+            <div className="flex flex-col justify-center space-y-4 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-primary">
+                Find Your Perfect Learning Match with Tutorzila
+              </h2>
+              <p className="max-w-[600px] text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+                Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
+              </p>
+              <div className="flex flex-col gap-3 min-[400px]:flex-row">
+                <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                   <Link href="/search-tuitions">
+                    <Search className="mr-2 h-5 w-5" /> Search Tutors
                   </Link>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-center items-center gap-4 mt-6">
-                <CarouselPrevious className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
-                <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
-
-       {/* Get An Expert Tutor Section */}
-      <section className={`w-full ${sectionPadding} bg-secondary`}>
-        <div className={`${containerPadding} grid lg:grid-cols-2 gap-12 items-center`}>
-          <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out order-1 lg:order-none">
-            <Image
-              src={hireTutorImage} 
-              alt="Hiring a tutor illustration"
-              width={550}
-              height={550}
-              className="mx-auto rounded-lg object-contain"
-            />
-          </div>
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
-              Get An Expert Tutor
-            </h2>
-            <p className="text-foreground/80 md:text-lg">
-              Finding the right tutor is easy and straightforward with Tutorzila. Follow these steps to connect with qualified educators ready to help you succeed.
-            </p>
-            <div className="space-y-5 mt-6">
-              {howItWorksSteps.map((step, index) => (
-                <div 
-                  key={step.title} 
-                  className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="flex-shrink-0 bg-card text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                    <step.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground/90">{step.title}</h3>
-                    <p className="text-foreground/70">{step.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div 
-              className="mt-8 flex justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-5 duration-500"
-              style={{ animationDelay: `${howItWorksSteps.length * 0.1}s` }}
-            >
-              <Button 
-                asChild 
-                size="lg" 
-                className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
-              >
-                <Link href="/dashboard/post-requirement">
-                  <Send className="mr-2 h-5 w-5" /> Request A Tutor
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Meet Our Tutors Section */}
-      <section className={`w-full ${sectionPadding} bg-background/50`}>
-        <div className={`${containerPadding}`}>
-          <div className="text-center mb-10 space-y-4 animate-in fade-in duration-700 ease-out">
-            <Users2 className="w-16 h-16 text-primary mx-auto mb-4" />
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
-              Meet Our Tutors
-            </h2>
-          </div>
-          <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto relative animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
-            <Carousel opts={{ align: "start", loop: true }} className="w-full">
-              <CarouselContent className="-ml-4 py-2">
-                {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
-                  <CarouselItem key={tutor.id} className="pl-4 basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3 xl:basis-1/3"> 
-                    <div className="p-1">
-                      <TutorProfileCard tutor={tutor} />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <div className="flex justify-center items-center gap-4 mt-6">
-                <CarouselPrevious className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
-                <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+                </Button>
+                 <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
+                  <DialogTrigger asChild>
+                     <Button size="lg" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-card/90">
+                      <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[625px] p-6">
+                    <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
+                  </DialogContent>
+                </Dialog>
               </div>
-            </Carousel>
-          </div>
-        </div>
-      </section>
-
-      {/* Become A Tutor Section */}
-      <section className={`w-full ${sectionPadding} bg-secondary`}>
-        <div className={`${containerPadding} grid lg:grid-cols-2 gap-12 items-center`}>
-          <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
-              Become A Tutor with Tutorzila
-            </h2>
-            <p className="text-foreground/80 md:text-lg">
-              Share your knowledge, inspire students, and earn on your own schedule. Join our community of passionate educators today.
-            </p>
-            <div className="space-y-5 mt-6">
-              {becomeTutorBenefits.map((benefit, index) => (
-                <div 
-                  key={benefit.title} 
-                  className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="flex-shrink-0 bg-card text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                    <benefit.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground/90">{benefit.title}</h3>
-                    <p className="text-foreground/70">{benefit.description}</p>
-                  </div>
-                </div>
-              ))}
             </div>
-            <div 
-              className="mt-8 flex justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-5 duration-500"
-              style={{ animationDelay: `${becomeTutorBenefits.length * 0.1}s` }}
-            >
-              <Button 
-                asChild 
-                size="lg" 
-                className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
-              >
-                <Link href="/sign-up"> 
-                  <PlusCircle className="mr-2 h-5 w-5" /> Start Teaching Today
-                </Link>
-              </Button>
+            <div className="flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out order-first lg:order-last">
+              <Image
+                src={bannerImage}
+                alt="Learning Illustration"
+                width={500}
+                height={500}
+                className="rounded-lg object-contain"
+                priority
+                data-ai-hint="education online learning"
+              />
             </div>
           </div>
-          <div className="animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
-            <Image
-              src={becomeTutorImage} 
-              alt="Tutor teaching online"
-              width={550}
-              height={550}
-              className="mx-auto rounded-lg object-contain"
-              data-ai-hint="teaching online teacher"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Call to Action */}
-      <section className={`w-full ${sectionPadding} bg-background/50`}>
-        <div className={`${containerPadding} text-center animate-in fade-in duration-700 ease-out`}>
-          <TrendingUpIcon className="w-16 h-16 text-primary mx-auto mb-4" />
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
-          <p className="mt-4 text-foreground/80 md:text-lg max-w-2xl mx-auto">
-            Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-              <Link href="/sign-up">
-                 <UserPlus className="mr-2 h-5 w-5" /> Sign Up Now
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className={`w-full ${sectionPadding} bg-secondary`}>
-        <div className={`${containerPadding}`}>
-          <div className="text-center mb-10 space-y-4 animate-in fade-in duration-700 ease-out">
-            <Quote className="w-16 h-16 text-primary mx-auto mb-4" />
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
-              What Our Users Say
-            </h2>
-          </div>
-          <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto relative animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
+        {/* Popular Subjects Section */}
+        <section className={`w-full ${sectionPadding}`}>
+          <div className={`${containerPadding}`}>
+            <div className="text-center mb-10 md:mb-12 animate-in fade-in duration-500 ease-out">
+              <div className="inline-block p-3 bg-primary/10 rounded-full mb-3">
+                 <BookOpen className="w-7 h-7 text-primary"/>
+              </div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Explore Popular Subjects</h2>
+            </div>
             <Carousel
               opts={{
                 align: "start",
                 loop: true,
               }}
-              className="w-full"
+              className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
             >
-              <CarouselContent className="-ml-4 py-2">
-                {MOCK_TESTIMONIALS.map((testimonial, index) => (
-                  <CarouselItem key={testimonial.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                    <div className="p-1 h-full">
-                      <TestimonialCard testimonial={testimonial} />
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {popularSubjects.map((subject, index) => (
+                  <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 pl-3 md:pl-4">
+                    <div className="p-1">
+                      <Card className="group bg-card hover:shadow-lg transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-sm border-border/30 hover:border-primary/50 w-[120px] h-[120px] md:w-[130px] md:h-[130px] mx-auto">
+                        <CardContent className="p-0 flex flex-col items-center justify-center gap-1.5 md:gap-1">
+                          <subject.icon className="w-7 h-7 md:w-8 md:h-8 text-primary transition-transform duration-300 group-hover:scale-110" />
+                          <p className="text-xs md:text-[13px] font-medium text-foreground group-hover:text-primary transition-colors truncate w-full px-1">{subject.name}</p>
+                        </CardContent>
+                      </Card>
                     </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-center items-center gap-4 mt-6">
-                <CarouselPrevious className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
-                <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+              <div className="flex justify-center items-center mt-6 space-x-3">
+                <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+                <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
               </div>
             </Carousel>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+
+         {/* Get An Expert Tutor Section */}
+        <section className={`w-full bg-background/50 ${sectionPadding}`}>
+          <div className={`grid items-center gap-8 lg:grid-cols-2 lg:gap-16 ${containerPadding}`}>
+            <div className="flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out">
+              <Image
+                src={hireTutorImage} 
+                alt="Hiring a tutor illustration"
+                width={550}
+                height={550}
+                className="rounded-lg object-contain"
+                data-ai-hint="teacher student"
+              />
+            </div>
+            <div className="flex flex-col justify-center space-y-6 animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Get An Expert Tutor</h2>
+                <p className="max-w-[600px] text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+                  Finding the right tutor is easy and straightforward with Tutorzila. Follow these steps to connect with qualified educators ready to help you succeed.
+                </p>
+                <div className="space-y-5 mt-3">
+                  {howItWorksSteps.map((step, index) => (
+                    <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border border-border/30 hover:border-primary/40">
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
+                          <step.icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-md font-semibold text-foreground group-hover:text-primary transition-colors">{step.title}</h3>
+                          <p className="text-sm text-foreground/70 mt-0.5">{step.description}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+                <div className="flex justify-center lg:justify-start mt-6">
+                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
+                    <DialogTrigger asChild>
+                       <Button size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                        <PlusCircle className="mr-2 h-5 w-5" /> Request A Tutor
+                      </Button>
+                    </DialogTrigger>
+                     <DialogContent className="sm:max-w-[625px] p-6">
+                       <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
+                     </DialogContent>
+                  </Dialog>
+                </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Meet Our Tutors Section */}
+        <section className={`w-full ${sectionPadding}`}>
+          <div className={`${containerPadding}`}>
+            <div className="text-center mb-10 md:mb-12 animate-in fade-in duration-500 ease-out">
+                <div className="inline-block p-3 bg-primary/10 rounded-full mb-3">
+                    <UsersRoundIcon className="w-7 h-7 text-primary"/>
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Meet Our Tutors</h2>
+            </div>
+            <Carousel
+              opts={{
+                align: "start",
+                loop: MOCK_TUTOR_PROFILES.length > 4, 
+              }}
+              className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
+            >
+              <CarouselContent className="-ml-3 md:-ml-4">
+                {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
+                  <CarouselItem key={tutor.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 pl-3 md:pl-4">
+                    <div className="p-1 h-full">
+                      <TutorProfileCard tutor={tutor} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-center items-center mt-8 space-x-3">
+                <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+                <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+              </div>
+            </Carousel>
+          </div>
+        </section>
+
+        {/* Become A Tutor Section */}
+        <section className={`w-full bg-background/50 ${sectionPadding}`}>
+          <div className={`grid items-center gap-8 lg:grid-cols-2 lg:gap-16 ${containerPadding}`}>
+            <div className="flex flex-col justify-center space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Become A Tutor with Tutorzila</h2>
+                <p className="max-w-[600px] text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+                  Share your knowledge, inspire students, and earn on your own schedule. Join our community of passionate educators today.
+                </p>
+                <div className="space-y-5 mt-3">
+                  {becomeTutorBenefits.map((benefit, index) => (
+                     <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border border-border/30 hover:border-primary/40">
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
+                          <benefit.icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-md font-semibold text-foreground group-hover:text-primary transition-colors">{benefit.title}</h3>
+                          <p className="text-sm text-foreground/70 mt-0.5">{benefit.description}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+                 <div className="flex justify-center lg:justify-start mt-6">
+                    <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                      <Link href="/sign-up"> {/* Assuming sign-up page is the destination */}
+                        <BookUser className="mr-2 h-5 w-5" /> Start Teaching Today
+                      </Link>
+                    </Button>
+                  </div>
+            </div>
+             <div className="flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out order-first lg:order-last">
+              <Image
+                src={becomeTutorImage}
+                alt="Teacher explaining concepts"
+                width={550}
+                height={550}
+                className="rounded-lg object-contain"
+                data-ai-hint="teaching online teacher"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Call to Action */}
+        <section className={`w-full text-center ${sectionPadding}`}>
+          <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
+            <div className="inline-block p-3 bg-primary/10 rounded-full mb-4">
+                <Star className="w-8 h-8 text-primary"/>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary">
+              Ready to Start Your Journey?
+            </h2>
+            <p className="mt-4 max-w-xl mx-auto text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+              Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
+            </p>
+            <div className="mt-8">
+              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once">
+                <Link href="/sign-up">
+                   Sign Up Now <Send className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className={`w-full bg-background/50 ${sectionPadding}`}>
+          <div className={`${containerPadding}`}>
+            <div className="text-center mb-10 md:mb-12 animate-in fade-in duration-500 ease-out">
+                 <div className="inline-block p-3 bg-primary/10 rounded-full mb-3">
+                    <Quote className="w-7 h-7 text-primary"/>
+                </div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">What Our Users Say</h2>
+            </div>
+            <Carousel
+              opts={{
+                align: "start",
+                loop: MOCK_TESTIMONIALS.length > 2, 
+              }}
+              className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
+            >
+              <CarouselContent className="-ml-3 md:-ml-4">
+                {MOCK_TESTIMONIALS.map((testimonial, index) => (
+                  <CarouselItem key={testimonial.id} className="basis-full sm:basis-1/2 lg:basis-1/3 pl-3 md:pl-4">
+                     <div className="p-1 h-full">
+                        <TestimonialCard testimonial={testimonial} />
+                     </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+               <div className="flex justify-center items-center mt-8 space-x-3">
+                <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+                <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+              </div>
+            </Carousel>
+          </div>
+        </section>
+        
+          {/* This empty div was likely a mistake, removing it or adding content. Given it's at the end, likely safe to remove or was placeholder. */}
+        
+      </div>
+    
   );
 }
 
+
+    
