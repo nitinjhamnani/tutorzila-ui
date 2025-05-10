@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit } from "lucide-react";
 import Image from "next/image";
@@ -185,7 +185,7 @@ export default function DashboardPage() {
             className={`animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out ${user.role === 'tutor' ? 'md:col-span-1' : ''}`} 
             style={{ animationDelay: `0.1s` }}
           >
-            <UpdateProfileActionsCard />
+            <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
         )}
       </div>
@@ -280,5 +280,6 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     
 
     
+
 
 
