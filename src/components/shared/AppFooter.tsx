@@ -49,9 +49,11 @@ export function AppFooter() {
             <Link href="/">
               <Logo className="h-[var(--logo-height)] w-auto" />
             </Link>
+            {/* Removed paragraph:
             <p className="text-sm text-muted-foreground max-w-xs">
               Tutorzila: Connecting students with passionate tutors to unlock their full potential.
             </p>
+            */}
           </div>
 
           {footerLinks.map((section) => (
