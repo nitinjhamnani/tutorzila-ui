@@ -3,11 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck } from "lucide-react";
+import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
 import hireTutorImage from '@/assets/images/banner-8.png';
+
 
 const howItWorksSteps = [
   {
@@ -106,11 +107,11 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto"
+            className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto"
           >
-            <CarouselContent className="-ml-2 md:-ml-4 py-4">
+            <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-2 md:pl-4 basis-auto">
+                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-auto">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
                       className={`group rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
@@ -119,8 +120,8 @@ export default function HomePage() {
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
-                      <CardContent className="flex flex-col items-center justify-center gap-1 p-3 sm:gap-2 sm:p-4 aspect-square w-24 h-24 sm:w-28 sm:h-28">
-                        <subject.icon className="w-6 h-6 sm:w-8 sm:h-8 transition-transform duration-300 group-hover:scale-110" />
+                      <CardContent className="flex flex-col items-center justify-center gap-1 p-3 sm:gap-2 sm:p-4 aspect-square w-[5.5rem] h-[5.5rem] sm:w-[6.5rem] sm:h-[6.5rem]">
+                        <subject.icon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 group-hover:scale-110" />
                         <p className="text-xs sm:text-sm font-semibold text-center leading-tight">{subject.name}</p>
                       </CardContent>
                     </Card>
@@ -128,8 +129,8 @@ export default function HomePage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute -left-4 sm:-left-6 md:-left-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
-            <CarouselNext className="absolute -right-4 sm:-right-6 md:-right-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
+            <CarouselPrevious className="absolute -left-3 sm:-left-4 md:-left-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
+            <CarouselNext className="absolute -right-3 sm:-right-4 md:-right-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
           </Carousel>
            <div className="text-center mt-10 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
             <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
@@ -191,13 +192,60 @@ export default function HomePage() {
         </div>
       </section>
 
-
-      {/* Placeholder for Image Section */}
+      {/* Become A Tutor Section */}
       <section className="w-full py-8 md:py-12 bg-background/50">
+        <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
+              Become A Tutor with Tutorzila
+            </h2>
+            <p className="text-lg text-foreground/80 md:text-xl">
+              Share your knowledge, inspire students, and earn on your own schedule. Join our community of passionate educators today.
+            </p>
+            <ul className="space-y-3 text-foreground/70">
+              <li className="flex items-center gap-3">
+                <Users className="w-5 h-5 text-primary" />
+                <span>Reach thousands of potential students.</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Award className="w-5 h-5 text-primary" />
+                <span>Set your own rates and availability.</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Share2 className="w-5 h-5 text-primary" />
+                <span>Easy-to-use platform to manage your profile and bookings.</span>
+              </li>
+            </ul>
+            <Button 
+              asChild 
+              size="lg" 
+              className="mt-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-5 duration-500"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <Link href="/sign-up"> {/* Assuming sign-up handles tutor registration */}
+                <PlusCircle className="mr-2 h-5 w-5" /> Start Teaching Today
+              </Link>
+            </Button>
+          </div>
+          <div className="animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
+            <Image
+              src="https://picsum.photos/seed/become-tutor/550/550" 
+              alt="Tutor teaching online"
+              width={550}
+              height={550}
+              className="mx-auto rounded-lg object-contain"
+              data-ai-hint="teaching online teacher"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Unlock Potential Section (Placeholder for Image Section) */}
+      <section className="w-full py-8 md:py-12 bg-secondary">
         <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <Image
-              src="https://picsum.photos/600/400?random=1"
+              src="https://picsum.photos/seed/unlock-potential/600/400"
               alt="Happy student learning"
               width={600}
               height={400}
