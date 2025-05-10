@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -81,7 +83,8 @@ export default function DashboardPage() {
         description="Track your applications for tuition jobs." 
         href="/dashboard/my-applications" 
         icon={Briefcase} 
-        imageHint="profile curriculum"
+        // imageHint="profile curriculum" // No image for this card
+        showImage={false}
         disabled 
       />
     );
@@ -112,7 +115,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Welcome Card */}
       <div className="grid gap-6 md:grid-cols-1">
-        <Card className="border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card">
+         <Card className="border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card">
           <CardHeader className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -200,7 +203,7 @@ export default function DashboardPage() {
               description="View and manage your scheduled classes and student interactions."
               href="#"
               icon={ListChecks} 
-              imageHint="classroom schedule"
+              showImage={false}
               disabled
             />
           </div>
@@ -213,7 +216,7 @@ export default function DashboardPage() {
               description="Track your earnings, view payment history, and manage payout settings."
               href="#"
               icon={DollarSign}
-              imageHint="finance money"
+              showImage={false}
               disabled
             />
           </div>
@@ -272,25 +275,28 @@ interface ActionCardProps {
   description: string;
   href: string;
   icon: React.ElementType;
-  imageHint: string;
+  imageHint?: string;
+  showImage?: boolean;
   disabled?: boolean;
 }
 
-function ActionCard({ title, description, href, icon: Icon, imageHint, disabled }: ActionCardProps) {
+function ActionCard({ title, description, href, icon: Icon, imageHint, showImage = true, disabled }: ActionCardProps) {
   return (
     <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
-       <div className="overflow-hidden rounded-t-xl relative">
-        <Image
-          src={`https://picsum.photos/seed/${title.replace(/\s+/g, '')}/400/200`}
-          alt={title}
-          width={400}
-          height={200}
-          className="object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-110"
-          data-ai-hint={imageHint}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/40 transition-all duration-300"></div>
-      </div>
-      <CardHeader className="p-4 md:p-5">
+      {showImage && imageHint && (
+        <div className="overflow-hidden rounded-t-xl relative">
+          <Image
+            src={`https://picsum.photos/seed/${title.replace(/\s+/g, '')}/400/200`}
+            alt={title}
+            width={400}
+            height={200}
+            className="object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-110"
+            data-ai-hint={imageHint}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/40 transition-all duration-300"></div>
+        </div>
+      )}
+      <CardHeader className={cn("p-4 md:p-5", !showImage && "pt-6")}>
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
              <Icon className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
@@ -309,4 +315,3 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     </Card>
   );
 }
-
