@@ -104,7 +104,7 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-xs sm:max-w-md md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto"
+            className="w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto"
           >
             <CarouselContent className="-ml-2 md:-ml-4 py-4">
               {popularSubjects.map((subject, index) => (
@@ -233,3 +233,4 @@ export default function HomePage() {
     </div>
   );
 }
+
