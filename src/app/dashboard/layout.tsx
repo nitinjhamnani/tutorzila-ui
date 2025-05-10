@@ -1,3 +1,4 @@
+
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -27,7 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { AppHeader } from "@/components/shared/AppHeader"; // Added AppHeader
+import { AppHeader } from "@/components/shared/AppHeader"; 
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -38,7 +39,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/sign-in");
+      router.push("/"); // Redirect to home page, sign-in is via modal
     } else {
       setIsCheckingAuth(false);
     }
@@ -77,13 +78,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <AppHeader /> {/* AppHeader added here */}
+      <AppHeader /> 
       <SidebarProvider defaultOpen={!isMobile}>
-        <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r pt-[var(--header-height)]"> {/* Adjust pt for header height */}
+        <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r pt-[var(--header-height)]"> 
           <SidebarHeader className="p-4">
             <div className="flex items-center justify-between">
               <Link href="/" className="group-data-[collapsible=icon]:hidden">
-                <Logo className="text-xl" />
+                <Logo className="h-auto w-24" />
               </Link>
               <div className={cn("group-data-[collapsible=icon]:mx-auto", isMobile && "ml-auto")}>
                   <SidebarTrigger />
@@ -151,7 +152,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="p-4 md:p-6 bg-background pt-[calc(var(--header-height)_+_1rem)]"> {/* Adjust pt for header height */}
+        <SidebarInset className="p-4 md:p-6 bg-background pt-[calc(var(--header-height)_+_1rem)]"> 
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           {children}
           </div>
@@ -159,13 +160,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </SidebarProvider>
       <style jsx global>{`
         :root {
-          --header-height: 7rem; /* Updated header height */
+          --header-height: 7rem; 
+          --logo-height: 6rem;
         }
         .pt-\\[var\\(--header-height\\)\\] {
           padding-top: var(--header-height);
         }
         .pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
           padding-top: calc(var(--header-height) + 1rem);
+        }
+         .h-\\[var\\(--logo-height\\)\\] {
+          height: var(--logo-height);
         }
       `}</style>
     </>

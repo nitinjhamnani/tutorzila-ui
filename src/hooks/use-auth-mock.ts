@@ -1,8 +1,9 @@
+
 "use client";
 
 import type { User, UserRole } from "@/types";
 import { useRouter } from "next/navigation";
-import { atom, useAtom } from "jotai";
+import { useAtom } from "jotai";
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { useEffect } from "react";
 
@@ -45,9 +46,9 @@ export function useAuthMock() {
       role: determinedRole,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
     };
-    setUser(mockUser); // This updates the user state for the hook
+    setUser(mockUser); 
     router.push("/dashboard");
-    return Promise.resolve(mockUser); // Return user for potential immediate use
+    return Promise.resolve(mockUser);
   };
 
   const signup = (name: string, email: string, role: UserRole) => {
@@ -64,7 +65,7 @@ export function useAuthMock() {
 
   const logout = () => {
     setUser(null);
-    router.push("/sign-in");
+    router.push("/"); // Redirect to home page
   };
 
   return {

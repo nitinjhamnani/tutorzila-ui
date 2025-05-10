@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, LogIn } from "lucide-react"; // Added LogIn icon
+import { Mail, Lock, LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,6 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
 import { useState } from 'react';
-import { Label } from "@/components/ui/label"; 
 
 
 const signInSchema = z.object({
@@ -58,7 +57,6 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
     try {
-      // For mock, role is determined in useAuthMock based on email
       await login(values.email); 
       toast({
         title: "Signed In!",
@@ -79,15 +77,15 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   }
 
   return (
-    <Card className="w-full max-w-md shadow-lg rounded-xl bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
-      <CardHeader className="flex flex-col items-center pt-8 pb-6">
+    <Card className="w-full max-w-md shadow-xl rounded-xl bg-card animate-in fade-in zoom-in-95 duration-500 ease-out border-0">
+      <CardHeader className="flex flex-col items-center pt-8 pb-6 bg-card rounded-t-xl">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
         </Link>
         <CardTitle className="text-center text-3xl font-bold tracking-tight">Welcome Back!</CardTitle>
         <CardDescription className="text-center text-muted-foreground mt-2">Login to access your Tutorzila account.</CardDescription>
       </CardHeader>
-      <CardContent className="px-8 pb-8">
+      <CardContent className="px-8 pb-8 bg-card">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -95,7 +93,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Email Address</FormLabel>
+                  <FormLabel className="text-foreground text-left block w-full">Email Address</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -111,7 +109,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Password</FormLabel>
+                  <FormLabel className="text-foreground text-left block w-full">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -123,16 +121,16 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               )}
             />
             <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
-              <LogIn className="mr-2 h-5 w-5" /> {/* Added LogIn icon */}
+              <LogIn className="mr-2 h-5 w-5" /> 
               {isSubmitting ? 'Logging In...' : 'Login'}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
+      <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8 bg-card rounded-b-xl">
         <Button variant="link" size="sm" asChild className="text-muted-foreground hover:text-primary transition-colors">
          <Link
-            href="#" // In a real app, this would go to a forgot password page/modal
+            href="#" 
           >
             Forgot Password?
           </Link>

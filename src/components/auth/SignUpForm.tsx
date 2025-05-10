@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, User, Users, Briefcase, Palette, Building, School, CheckSquare } from "lucide-react";
+import { Mail, Lock, User, Users, School, CheckSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -252,7 +252,7 @@ export function SignUpForm() {
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
           <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            <Link href="/sign-in">
+            <Link href="/"> {/* Redirect to home to use Sign In modal */}
              Sign In
             </Link>
           </Button>
