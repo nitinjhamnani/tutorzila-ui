@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { User, UserRole, TutorProfile } from "@/types";
@@ -42,6 +43,7 @@ export function useAuthMock() {
       email,
       role: determinedRole,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
+      status: "Active", // Added status
     };
 
     if (determinedRole === 'tutor') {
@@ -66,6 +68,7 @@ export function useAuthMock() {
       email,
       role,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
+      status: "Active", // Added status
     };
 
     if (role === 'tutor') {
@@ -92,3 +95,4 @@ export function useAuthMock() {
     logout,
   };
 }
+

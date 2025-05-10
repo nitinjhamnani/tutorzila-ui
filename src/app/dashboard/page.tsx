@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
@@ -12,6 +12,7 @@ import type { TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -140,7 +141,15 @@ export default function DashboardPage() {
               </div>
             )}
             <div className="flex-grow">
-              <CardTitle className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">Welcome back, {user.name}!</CardTitle>
+              <div className="flex items-center gap-2 mb-1">
+                <CardTitle className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">Welcome back, {user.name}!</CardTitle>
+                {user.status && (
+                  <Badge variant={user.status === "Active" ? "default" : "destructive"} className="text-xs py-0.5 px-2">
+                    {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                    {user.status}
+                  </Badge>
+                )}
+              </div>
               {(user.role === 'parent' || user.role === 'admin') && (
                 <CardDescription className="text-md md:text-lg text-foreground/80 mt-1">
                     You are logged in as a {user.role}. Here's your dashboard overview.
@@ -267,3 +276,4 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
 }
 
     
+
