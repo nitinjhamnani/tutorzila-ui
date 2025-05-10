@@ -19,9 +19,9 @@ export function Logo({ className }: LogoProps) {
       <Image
         src={logoAsset}
         alt="Tutorzila Logo"
-        width={190} // Increased width to maintain aspect ratio
-        height={45} // Increased height
-        className="h-11 w-auto sm:h-12" // Adjusted height classes
+        width={405} // Adjusted to maintain aspect ratio with new height
+        height={96} // Corresponds to 6rem (h-24)
+        className="h-24 w-auto" // Increased height to 6rem (h-24)
         priority
       />
       {/* Fallback to icon and text logo if the image is problematic: */}
@@ -32,4 +32,3 @@ export function Logo({ className }: LogoProps) {
     </Link>
   );
 }
-

@@ -30,7 +30,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6"> {/* Increased height from h-16 to h-20 */}
+      <div className="container mx-auto flex h-28 items-center justify-between px-4 md:px-6"> {/* Increased height from h-20 to h-28 */}
         <Logo className="transition-opacity hover:opacity-80" />
         <nav className="hidden items-center space-x-6 md:flex">
           {isAuthenticated && user && navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
@@ -103,4 +103,3 @@ export function AppHeader() {
     </header>
   );
 }
-
