@@ -224,13 +224,13 @@ export default function DashboardPage() {
           >
             <ActionCard
               title="My Payments"
-              description="Track your earnings, view payment history, and manage payout settings."
+              description="₹12,500" // Mock pending payment amount
               href="#"
               icon={DollarSign}
               showImage={false}
               disabled // This will make the button "Coming Soon"
-              buttonInContent={true} // Ensures footer is not rendered, and if a button were defined for content, it would show there
-              cardDescriptionText="View your earnings and manage payout details." // Updated description text
+              buttonInContent={true} 
+              cardDescriptionText="View your earnings and manage payout details."
             />
           </div>
         </div>
@@ -269,10 +269,10 @@ interface ActionCardProps {
   actionButtonClassName?: string;
   buttonInContent?: boolean;
   cardDescriptionText?: string; 
-  actionButtonText2?: string; // New prop for second button text
-  actionButtonIcon2?: React.ElementType; // New prop for second button icon
-  href2?: string; // New prop for second button href
-  disabled2?: boolean; // New prop for second button disabled state
+  actionButtonText2?: string; 
+  actionButtonIcon2?: React.ElementType; 
+  href2?: string; 
+  disabled2?: boolean; 
 }
 
 function ActionCard({ 
@@ -296,19 +296,19 @@ function ActionCard({
 }: ActionCardProps) {
   const buttonTextContent = actionButtonText || (disabled ? "Coming Soon" : title);
 
-  const renderSingleButton = () => (
+  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, btnIcon?: React.ElementType) => (
     <Button 
       asChild 
-      variant={actionButtonVariant || (disabled ? "default" : "default")}
+      variant={actionButtonVariant || (btnDisabled ? "default" : "default")}
       className={cn(
         "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", 
         actionButtonClassName 
       )} 
-      disabled={disabled}
+      disabled={btnDisabled}
     >
-      <Link href={disabled ? "#" : href}>
-        {ActionButtonIcon && <ActionButtonIcon className="mr-2 h-4 w-4" />}
-        {buttonTextContent}
+      <Link href={btnDisabled || !btnHref ? "#" : btnHref}>
+        {btnIcon && <btnIcon className="mr-2 h-4 w-4" />}
+        {text || (btnDisabled ? "Coming Soon" : title)}
       </Link>
     </Button>
   );
@@ -349,59 +349,41 @@ function ActionCard({
               <span className="font-semibold text-primary">{description}</span>
             </div>
             <div className="mt-auto pt-4 space-y-3"> 
-              {/* Button 1: View Classes */}
-              <Button 
-                asChild 
-                variant={actionButtonVariant || "outline"}
-                className={cn(
-                  "w-full transform transition-transform hover:scale-105 active:scale-95", 
-                  actionButtonClassName,
-                  "py-2.5" 
-                )} 
-                disabled={disabled}
-              >
-                <Link href={disabled || !href ? "#" : href}>
-                  {ActionButtonIcon && <ActionButtonIcon className="mr-2 h-4 w-4" />}
-                  {actionButtonText || "View Classes"}
-                </Link>
-              </Button>
-              
-              {/* Button 2: Create Class */}
-              {actionButtonText2 && ActionButtonIcon2 && (
-                 <Button 
-                    asChild 
-                    variant={actionButtonVariant || "outline"} 
-                    className={cn(
-                      "w-full transform transition-transform hover:scale-105 active:scale-95", 
-                      actionButtonClassName, 
-                      "py-2.5"
-                    )} 
-                    disabled={disabled2} 
-                  >
-                    <Link href={disabled2 || !href2 ? "#" : href2}>
-                      <ActionButtonIcon2 className="mr-2 h-4 w-4" />
-                      {actionButtonText2}
-                    </Link>
-                  </Button>
-              )}
+              {renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
+              {actionButtonText2 && ActionButtonIcon2 && renderSingleButton(actionButtonText2, href2, disabled2, ActionButtonIcon2)}
             </div>
+          </>
+        ) : title === "My Payments" && buttonInContent ? (
+          <>
+            <div className="flex justify-between items-center text-sm mb-2">
+              <span className="font-medium text-foreground/80">Pending Payments</span>
+              <span className="font-semibold text-primary">{description}</span>
+            </div>
+            {disabled && (
+              <div className="mt-auto pt-4">
+                <Button
+                  variant="default"
+                  className={cn( "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", actionButtonClassName)}
+                  disabled={true}
+                >
+                  Coming Soon
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <>
             <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
-            {buttonInContent && actionButtonText && ( // Only render button in content if actionButtonText is provided
+            {buttonInContent && actionButtonText && !disabled && (
               <div className="mt-4"> 
-                {renderSingleButton()}
+                {renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
               </div>
             )}
-             {buttonInContent && disabled && !actionButtonText && ( // Render "Coming Soon" if disabled and no specific button text
+             {buttonInContent && disabled && !actionButtonText && ( 
               <div className="mt-4">
                 <Button 
                   variant="default"
-                  className={cn(
-                    "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", 
-                    actionButtonClassName 
-                  )} 
+                  className={cn("w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", actionButtonClassName)} 
                   disabled={true}
                 >
                   Coming Soon
@@ -413,10 +395,9 @@ function ActionCard({
       </CardContent>
       {!buttonInContent && (
          <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
-          {renderSingleButton()}
+          {renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
         </CardFooter>
       )}
     </Card>
   );
 }
-
