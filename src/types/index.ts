@@ -39,6 +39,7 @@ export interface Testimonial {
   text: string;
   avatarSeed: string; 
   rating: number; // e.g. 1-5
+  date: string; // ISO date string for when the testimonial was given
 }
 
 

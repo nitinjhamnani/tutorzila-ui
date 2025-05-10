@@ -2,13 +2,15 @@
 import type { Testimonial } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, QuoteIcon } from "lucide-react";
+import { Star, QuoteIcon, CalendarDays } from "lucide-react"; // Added CalendarDays
+import { format } from 'date-fns'; // Added for date formatting
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
 }
 
 export function TestimonialCard({ testimonial }: TestimonialCardProps) {
+  const testimonialDate = new Date(testimonial.date);
   return (
     <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 min-h-[18rem]">
       <CardHeader className="pt-6 pb-3 px-6">
@@ -31,9 +33,12 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           {testimonial.text}
         </p>
       </CardContent>
-      <CardFooter className="px-6 pb-6 pt-3 border-t bg-muted/20">
-        {/* Rating display removed from here */}
+      <CardFooter className="px-6 pb-6 pt-3 border-t bg-muted/20 flex items-center justify-between">
         <p className="text-xs text-muted-foreground italic">Shared their experience</p>
+        <div className="flex items-center text-xs text-muted-foreground">
+          <CalendarDays className="w-3.5 h-3.5 mr-1.5 text-primary/70" />
+          <span>{format(testimonialDate, 'MMM d, yyyy')}</span>
+        </div>
       </CardFooter>
     </Card>
   );

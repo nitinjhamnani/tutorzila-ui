@@ -83,16 +83,16 @@ const MOCK_TUTOR_PROFILES: TutorProfile[] = [
 ];
 
 const MOCK_TESTIMONIALS: Testimonial[] = [
-  { id: "testimonial1", name: "Sarah L. (Parent)", avatarSeed: "sarahparent", role: "Parent", text: "Tutorzila helped us find the perfect math tutor for our son. His grades have improved significantly!", rating: 5 },
-  { id: "testimonial2", name: "David K. (Tutor)", avatarSeed: "davidtutor", role: "Tutor", text: "I love the flexibility of teaching on Tutorzila. I can set my own hours and connect with students who genuinely want to learn.", rating: 5 },
-  { id: "testimonial3", name: "Maria P. (Parent)", avatarSeed: "mariaparent", role: "Parent", text: "The platform is user-friendly, and the quality of tutors is excellent. Highly recommend!", rating: 4 },
-  { id: "testimonial4", name: "Ahmed R. (Tutor)", avatarSeed: "ahmedtutor", role: "Tutor", text: "A great way to find students and manage my tutoring business. The support team is also very responsive.", rating: 5 },
-  { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5 },
+  { id: "testimonial1", name: "Sarah L. (Parent)", avatarSeed: "sarahparent", role: "Parent", text: "Tutorzila helped us find the perfect math tutor for our son. His grades have improved significantly!", rating: 5, date: new Date(Date.now() - 86400000 * 5).toISOString() },
+  { id: "testimonial2", name: "David K. (Tutor)", avatarSeed: "davidtutor", role: "Tutor", text: "I love the flexibility of teaching on Tutorzila. I can set my own hours and connect with students who genuinely want to learn.", rating: 5, date: new Date(Date.now() - 86400000 * 12).toISOString() },
+  { id: "testimonial3", name: "Maria P. (Parent)", avatarSeed: "mariaparent", role: "Parent", text: "The platform is user-friendly, and the quality of tutors is excellent. Highly recommend!", rating: 4, date: new Date(Date.now() - 86400000 * 20).toISOString() },
+  { id: "testimonial4", name: "Ahmed R. (Tutor)", avatarSeed: "ahmedtutor", role: "Tutor", text: "A great way to find students and manage my tutoring business. The support team is also very responsive.", rating: 5, date: new Date(Date.now() - 86400000 * 2).toISOString() },
+  { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5, date: new Date(Date.now() - 86400000 * 8).toISOString() },
 ];
 
 
 export default function HomePage() {
-  const sectionPadding = "pt-8 md:pt-12 pb-16 md:pb-24"; // Increased bottom padding
+  const sectionPadding = "pt-8 md:pt-12 pb-16 md:pb-24"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
 
   return (
@@ -379,3 +379,4 @@ export default function HomePage() {
     </div>
   );
 }
+
