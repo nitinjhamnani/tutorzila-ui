@@ -62,7 +62,8 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
               <span className="font-semibold text-primary">{completionPercentage}%</span>
             </div>
             <Progress value={completionPercentage} className="h-2.5" indicatorClassName={completionPercentage === 100 ? "bg-green-500" : "bg-primary"} />
-            <p className="text-xs text-muted-foreground text-right">{completedSteps} of {totalSteps} steps completed</p>
+            {/* Removed the step count display below */}
+            {/* <p className="text-xs text-muted-foreground text-right">{completedSteps} of {totalSteps} steps completed</p> */}
           </div>
         )}
         <Button asChild variant="outline" className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-3">
@@ -81,4 +82,5 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
     </Card>
   );
 }
+
 
