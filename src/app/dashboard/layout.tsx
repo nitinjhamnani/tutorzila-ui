@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppHeader } from "@/components/shared/AppHeader"; 
-import { AppFooter } from "@/components/shared/AppFooter"; // Added import for AppFooter
+import { AppFooter } from "@/components/shared/AppFooter"; 
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -80,11 +80,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <>
         <AppHeader />
         <div className="flex-grow bg-background pt-[var(--header-height)]">
-          <div className="p-4 md:p-6 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+          <div className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
             {children}
           </div>
         </div>
-        <AppFooter /> {/* Added AppFooter */}
+        <AppFooter /> 
         <style jsx global>{`
           :root {
             --header-height: 7rem; 
@@ -181,7 +181,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="p-4 md:p-6 bg-background pt-[calc(var(--header-height)_+_1.5rem)]"> 
+        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--header-height)_+_1.5rem)]"> 
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           {children}
           </div>
@@ -196,4 +196,3 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
-
