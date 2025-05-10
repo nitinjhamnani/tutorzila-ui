@@ -111,7 +111,7 @@ export default function HomePage() {
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
-                      <CardContent className="flex flex-col items-center justify-center p-3 sm:p-4 aspect-square">
+                      <CardContent className="flex flex-col items-center justify-center p-2.5 sm:p-3 aspect-square">
                         <subject.icon className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 transition-transform duration-300 group-hover:scale-110" />
                         <p className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{subject.name}</p>
                       </CardContent>
@@ -120,8 +120,8 @@ export default function HomePage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute left-[-10px] sm:left-[-20px] md:left-[-40px] top-1/2 -translate-y-1/2" />
-            <CarouselNext className="absolute right-[-10px] sm:right-[-20px] md:right-[-40px] top-1/2 -translate-y-1/2" />
+            <CarouselPrevious className="absolute left-[-10px] sm:left-[-20px] md:left-[-40px] top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
+            <CarouselNext className="absolute right-[-10px] sm:right-[-20px] md:right-[-40px] top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/50" />
           </Carousel>
            <div className="text-center mt-12 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
             <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
