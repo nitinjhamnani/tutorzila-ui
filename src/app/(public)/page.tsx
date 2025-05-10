@@ -171,7 +171,7 @@ export default function HomePage() {
                 <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-auto">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
-                      className={`group rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
+                      className={`group rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
                                   border-b-4 active:border-b-2 border-border/50
                                   bg-secondary text-primary hover:bg-primary/10 
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
