@@ -171,13 +171,13 @@ export default function HomePage() {
                 <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-auto">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
-                      className={`group rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
-                                  border-b-4 active:border-b-2 border-border/50
+                      className={`group rounded-full shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
+                                  border-b-2 active:border-b-1 border-border/30
                                   bg-secondary text-primary hover:bg-primary/10 
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
-                      <CardContent className="flex flex-col items-center justify-center gap-1 p-3 sm:gap-2 sm:p-4 aspect-square w-[5rem] h-[5rem] sm:w-[5.5rem] sm:h-[5.5rem]">
+                      <CardContent className="flex flex-col items-center justify-center gap-1 py-3 px-5 sm:py-3.5 sm:px-6">
                         <subject.icon className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:scale-110" />
                         <p className="text-xs sm:text-xs font-semibold text-center leading-tight">{subject.name}</p>
                       </CardContent>
