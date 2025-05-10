@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  // DialogClose, // Not explicitly used for closing, relying on onSuccess
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -36,8 +36,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send } from "lucide-react";
+import { MultiSelectCommand } from "@/components/ui/multi-select-command"; // New Import
 
-const subjectsList = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"];
+const subjectsList = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 const teachingModeOptions = [
@@ -51,7 +52,7 @@ const postRequirementSchema = z.object({
   name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
   phone: z.string().min(10, { message: "Phone number must be at least 10 digits." }).regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format."),
   // Step 2
-  subject: z.string({ required_error: "Please select a subject." }).min(1, "Please select a subject."),
+  subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }), // Changed to array
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
   // Step 3
@@ -75,7 +76,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
     defaultValues: {
       name: "",
       phone: "",
-      subject: "",
+      subject: [], // Changed to empty array
       gradeLevel: "",
       board: "",
       teachingMode: undefined, 
@@ -100,7 +101,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
         if (form.formState.errors.name) form.setFocus("name");
         else if (form.formState.errors.phone) form.setFocus("phone");
       } else if (currentStep === 2) {
-         if (form.formState.errors.subject) form.setFocus("subject");
+         if (form.formState.errors.subject) { /* Focus might be tricky for custom component, handled by FormMessage */ }
          else if (form.formState.errors.gradeLevel) form.setFocus("gradeLevel");
          else if (form.formState.errors.board) form.setFocus("board");
       }
@@ -124,7 +125,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
   };
 
   return (
-    <div className="bg-card p-0 rounded-lg"> {/* Ensure modal content itself has white background */}
+    <div className="bg-card p-0 rounded-lg">
       <DialogHeader className="text-left pt-6 px-6">
         <DialogTitle className="text-2xl font-semibold">Post Your Tuition Requirement</DialogTitle>
         <DialogDescription>
@@ -180,16 +181,16 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                 control={form.control}
                 name="subject"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a subject" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {subjectsList.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Subjects</FormLabel>
+                    <MultiSelectCommand
+                      options={subjectsList}
+                      selectedValues={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select subjects..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
+                    />
+                    <FormDescription>You can select multiple subjects.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
