@@ -79,7 +79,7 @@ export function SignInForm() {
 
   return (
     // Removed fixed width and max-width, as modal will control this. Added padding for modal content.
-    <Card className="w-full shadow-none border-0 rounded-lg bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
+    <Card className="w-full shadow-none border-0 rounded-lg bg-card animate-in fade-in zoom-in-95 duration-500 ease-out sm:max-w-lg">
       <CardHeader className="flex flex-col items-center pt-8 pb-6">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
@@ -103,32 +103,32 @@ export function SignInForm() {
                   >
                     <FormItem>
                       <FormControl>
-                        <RadioGroupItem value="parent" id="role-parent-modal" className="sr-only" />
+                        <RadioGroupItem value="parent" id="role-parent" className="sr-only" />
                       </FormControl>
                       <Label
-                        htmlFor="role-parent-modal"
+                        htmlFor="role-parent"
                         className={cn(
-                          "flex flex-col items-center justify-center rounded-lg border-2 border-border bg-card p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
-                          selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-xl scale-105 bg-primary/5"
+                          "flex flex-col items-center justify-center rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
+                          selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-lg scale-105 bg-primary/5"
                         )}
                       >
-                        <Users className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
-                        <span className={cn("font-semibold text-lg", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Parent</span>
+                        <Users className={cn("mb-2 h-8 w-8 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
+                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Parent</span>
                       </Label>
                     </FormItem>
                     <FormItem>
                       <FormControl>
-                        <RadioGroupItem value="tutor" id="role-tutor-modal" className="sr-only" />
+                        <RadioGroupItem value="tutor" id="role-tutor" className="sr-only" />
                       </FormControl>
                       <Label
-                        htmlFor="role-tutor-modal"
+                        htmlFor="role-tutor"
                         className={cn(
-                          "flex flex-col items-center justify-center rounded-lg border-2 border-border bg-card p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
-                          selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-xl scale-105 bg-primary/5"
+                          "flex flex-col items-center justify-center rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
+                          selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-lg scale-105 bg-primary/5"
                         )}
                       >
-                        <Briefcase className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
-                         <span className={cn("font-semibold text-lg", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Tutor</span>
+                        <Briefcase className={cn("mb-2 h-8 w-8 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
+                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -188,9 +188,11 @@ export function SignInForm() {
         </Button>
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            Sign Up
-          </Link>
+          <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
+            <Link href="/sign-up">
+             Sign Up
+            </Link>
+          </Button>
         </p>
       </CardFooter>
     </Card>
