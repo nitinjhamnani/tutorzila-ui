@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   const commonNavItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }, // Changed icon to LayoutDashboard
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }, 
   ];
 
   const parentNavItems = [
@@ -53,8 +53,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const tutorNavItems = [
-    { href: "/search-tuitions", label: "Search Tuitions", icon: Search }, 
-    { href: "/dashboard/my-applications", label: "My Applications", icon: Briefcase, disabled: true },
+    // These would normally be in the sidebar, but tutors won't have a sidebar.
+    // Tutors can navigate to search-tuitions via AppHeader or other links.
+    // My Applications is disabled anyway.
+    // { href: "/search-tuitions", label: "Search Tuitions", icon: Search }, 
+    // { href: "/dashboard/my-applications", label: "My Applications", icon: Briefcase, disabled: true },
   ];
 
   const adminNavItems = [
@@ -65,10 +68,29 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   let roleNavItems = [];
   if (user.role === "parent") roleNavItems = parentNavItems;
-  else if (user.role === "tutor") roleNavItems = tutorNavItems;
-  else if (user.role === "admin") roleNavItems = [...parentNavItems, ...tutorNavItems, ...adminNavItems]; // Admin gets all
+  // For tutors, roleNavItems will be empty as they won't have a sidebar.
+  else if (user.role === "admin") roleNavItems = [...parentNavItems, ...tutorNavItems, ...adminNavItems]; 
 
   const navItems = [...commonNavItems, ...roleNavItems];
+
+  if (user.role === 'tutor') {
+    return (
+      <>
+        <AppHeader />
+        <div className="flex-grow bg-background pt-[var(--header-height)]">
+          <div className="p-4 md:p-6 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+            {children}
+          </div>
+        </div>
+        <style jsx global>{`
+          :root {
+            --header-height: 7rem; 
+            --logo-height: 6rem;
+          }
+        `}</style>
+      </>
+    );
+  }
 
   return (
     <>
@@ -76,12 +98,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <SidebarProvider defaultOpen={!isMobile}>
         <Sidebar 
           collapsible={isMobile ? "offcanvas" : "icon"} 
-          className="border-r pt-[var(--header-height)] bg-card shadow-md" // Added shadow for depth
+          className="border-r pt-[var(--header-height)] bg-card shadow-md" 
         > 
-          <SidebarHeader className="p-4 border-b border-border/50"> {/* Added border */}
+          <SidebarHeader className="p-4 border-b border-border/50"> 
             <div className="flex items-center justify-between">
               <Link href="/" className="group-data-[collapsible=icon]:hidden">
-                <Logo className="h-auto w-28" /> {/* Slightly adjusted logo size */}
+                <Logo className="h-auto w-28" /> 
               </Link>
               <div className={cn("group-data-[collapsible=icon]:mx-auto", isMobile && "ml-auto")}>
                   <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"/>
@@ -95,12 +117,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.href}
-                    tooltip={{ children: item.label, className: "ml-1.5 text-xs" }} // Adjusted tooltip style
+                    tooltip={{ children: item.label, className: "ml-1.5 text-xs" }} 
                     disabled={item.disabled}
                     className={cn(
                       "transition-all duration-200 hover:bg-primary/10 hover:text-primary group", 
                       item.disabled && "opacity-50 cursor-not-allowed",
-                      pathname === item.href && "bg-primary/10 text-primary font-semibold" // Active state styling
+                      pathname === item.href && "bg-primary/10 text-primary font-semibold" 
                     )}
                   >
                     <Link href={item.disabled ? "#" : item.href} className="flex items-center gap-3">
@@ -110,7 +132,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              {/* Special case for admin panel to show if inside admin/* routes */}
               {user.role === "admin" && pathname.startsWith('/dashboard/admin') && !navItems.some(item => item.href === "/dashboard/admin") && (
                   <SidebarMenuItem>
                       <SidebarMenuButton
@@ -131,9 +152,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               )}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="p-2 border-t border-border/50"> {/* Added border */}
+          <SidebarFooter className="p-2 border-t border-border/50"> 
             <div className="group-data-[collapsible=icon]:hidden flex flex-col gap-2 p-2">
-                <div className="flex items-center gap-3 p-2 rounded-md bg-muted/30"> {/* Subtle background for user info */}
+                <div className="flex items-center gap-3 p-2 rounded-md bg-muted/30"> 
                   <Avatar className="h-10 w-10 border-2 border-primary/50">
                       <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
                       <AvatarFallback className="bg-primary/20 text-primary font-semibold">{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
@@ -157,7 +178,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="p-4 md:p-6 bg-background pt-[calc(var(--header-height)_+_1.5rem)]"> {/* Added bit more top padding */}
+        <SidebarInset className="p-4 md:p-6 bg-background pt-[calc(var(--header-height)_+_1.5rem)]"> 
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           {children}
           </div>
@@ -168,9 +189,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           --header-height: 7rem; 
           --logo-height: 6rem;
         }
-        /* These classes are dynamically generated by Tailwind JIT, no need to redefine here */
       `}</style>
     </>
   );
 }
-
