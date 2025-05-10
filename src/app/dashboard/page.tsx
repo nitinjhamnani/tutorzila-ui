@@ -190,14 +190,14 @@ export default function DashboardPage() {
                     <Coins className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
                     <span>Lead Balance</span>
                   </div>
-                  <p className="text-xl font-semibold text-primary">50</p>
+                  <p className="text-sm font-semibold text-primary">50</p>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center text-xs text-muted-foreground">
                     <CalendarClock className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
                     <span>Plan Expiry</span>
                   </div>
-                  <p className="text-base font-medium">Dec 31, 2024</p>
+                  <p className="text-sm font-medium">Dec 31, 2024</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2"> {/* Reduced pt */}
@@ -436,6 +436,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
