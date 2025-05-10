@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { User, UserRole } from "@/types";
@@ -13,17 +12,12 @@ const localStorageJSONStorage = createJSONStorage<User | null>(() => localStorag
 
 const userAtom = atomWithStorage<User | null>("mock_user", initialUser, {
   ...localStorageJSONStorage,
-  // getItem: (key) => { // Next.js specific handling for server/client mismatch
-  //   if (typeof window === 'undefined') return initialUser;
-  //   return localStorageJSONStorage.getItem(key);
-  // }
 });
 
 export function useAuthMock() {
   const [user, setUser] = useAtom(userAtom);
   const router = useRouter();
 
-  // This effect ensures that localStorage is only accessed on the client side.
   useEffect(() => {
     const storedUser = localStorage.getItem("mock_user");
     if (storedUser) {
@@ -36,24 +30,27 @@ export function useAuthMock() {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // setUser is stable from jotai
+  }, []); 
 
 
-  const login = (email: string, role: UserRole) => {
-    // In a real app, you'd verify credentials against a backend.
+  const login = (email: string, role?: UserRole) => {
+    // If role is not provided, default to 'parent' for the mock.
+    // In a real app, the backend would determine the role.
+    const determinedRole: UserRole = role || (email.includes("tutor") ? "tutor" : email.includes("admin") ? "admin" : "parent");
+
     const mockUser: User = {
       id: Date.now().toString(),
       name: email.split("@")[0] || "User",
       email,
-      role,
+      role: determinedRole,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
     };
-    setUser(mockUser);
+    setUser(mockUser); // This updates the user state for the hook
     router.push("/dashboard");
+    return Promise.resolve(mockUser); // Return user for potential immediate use
   };
 
   const signup = (name: string, email: string, role: UserRole) => {
-    // In a real app, you'd save the user to a backend.
     const mockUser: User = {
       id: Date.now().toString(),
       name,
