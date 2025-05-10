@@ -45,7 +45,7 @@ export function AppFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4 md:col-span-2 lg:col-span-1">
             <Link href="/">
-              <Logo className="h-16 w-auto" />
+              <Logo className="h-24 w-auto" /> {/* Increased height to 6rem (h-24) */}
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Tutorzila: Connecting students with passionate tutors to unlock their full potential.
@@ -89,4 +89,5 @@ export function AppFooter() {
     </footer>
   );
 }
+
 

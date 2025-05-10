@@ -182,7 +182,7 @@ export default function HomePage() {
                 <div 
                   key={step.title} 
                   className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
-                  style={{ animationDelay: `${index * 0.15}s` }}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="flex-shrink-0 bg-card text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                     <step.icon className="w-6 h-6" />
@@ -194,16 +194,20 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <Button 
-              asChild 
-              size="lg" 
-              className="mt-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-5 duration-500"
-              style={{ animationDelay: `${howItWorksSteps.length * 0.15 + 0.1}s` }}
+            <div 
+              className="mt-8 flex justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-5 duration-500"
+              style={{ animationDelay: `${howItWorksSteps.length * 0.1}s` }}
             >
-              <Link href="/dashboard/post-requirement">
-                <Send className="mr-2 h-5 w-5" /> Request A Tutor
-              </Link>
-            </Button>
+              <Button 
+                asChild 
+                size="lg" 
+                className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+              >
+                <Link href="/dashboard/post-requirement">
+                  <Send className="mr-2 h-5 w-5" /> Request A Tutor
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -223,7 +227,7 @@ export default function HomePage() {
                 <div 
                   key={benefit.title} 
                   className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
-                  style={{ animationDelay: `${index * 0.15}s` }}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="flex-shrink-0 bg-card text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                     <benefit.icon className="w-6 h-6" />
@@ -235,16 +239,20 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <Button 
-              asChild 
-              size="lg" 
-              className="mt-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-5 duration-500"
-              style={{ animationDelay: `${becomeTutorBenefits.length * 0.15 + 0.1}s` }}
+            <div 
+              className="mt-8 flex justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-5 duration-500"
+              style={{ animationDelay: `${becomeTutorBenefits.length * 0.1}s` }}
             >
-              <Link href="/sign-up"> 
-                <PlusCircle className="mr-2 h-5 w-5" /> Start Teaching Today
-              </Link>
-            </Button>
+              <Button 
+                asChild 
+                size="lg" 
+                className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+              >
+                <Link href="/sign-up"> 
+                  <PlusCircle className="mr-2 h-5 w-5" /> Start Teaching Today
+                </Link>
+              </Button>
+            </div>
           </div>
           <div className="animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
             <Image
@@ -279,3 +287,4 @@ export default function HomePage() {
     </div>
   );
 }
+
