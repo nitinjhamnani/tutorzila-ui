@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; // Added CardFooter
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks } from "lucide-react";
 import Image from "next/image";
@@ -86,9 +86,10 @@ export default function DashboardPage() {
         <CardHeader className="p-6 md:p-8">
           <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight">Welcome back, {user.name}!</CardTitle>
           <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
-            {user.role === 'tutor'
-              ? "Manage your tuition activities and profile from here."
-              : `You are logged in as a ${user.role}. Here's your dashboard overview.`}
+            {user.role === 'admin' || user.role === 'parent'
+              ? `You are logged in as a ${user.role}. Here's your dashboard overview.`
+              : null 
+            }
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8 pt-0">
