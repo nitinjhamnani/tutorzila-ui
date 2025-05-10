@@ -83,21 +83,19 @@ export function AppFooter() {
         <Separator className="my-8" /> 
         
         <div className="text-sm text-muted-foreground">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0 text-center md:text-left w-full md:justify-start">
-              <a href="mailto:contact@tutorzila.com" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start text-sm text-muted-foreground group">
-                <Mail className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
-                contact@tutorzila.com
-              </a>
-              <a href="tel:+1234567890" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start text-sm text-muted-foreground group">
-                <Phone className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
-                (123) 456-7890
-              </a>
-               <p className="flex items-center justify-center sm:justify-start text-sm text-muted-foreground group">
-                <MapPin className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
-                123 Learning Lane, Knowledge City, EDU 54321
-              </p>
-            </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0 text-center w-full">
+            <a href="mailto:contact@tutorzila.com" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start text-sm text-muted-foreground group sm:w-1/3">
+              <Mail className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
+              contact@tutorzila.com
+            </a>
+            <a href="tel:+1234567890" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start text-sm text-muted-foreground group sm:w-1/3">
+              <Phone className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
+              (123) 456-7890
+            </a>
+            <p className="flex items-center justify-center sm:justify-start text-sm text-muted-foreground group sm:w-1/3">
+              <MapPin className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
+              123 Learning Lane, Knowledge City, EDU 54321
+            </p>
           </div>
           <Separator className="my-4" /> 
           <p className="text-xs text-center text-muted-foreground"> 
