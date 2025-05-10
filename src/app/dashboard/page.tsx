@@ -1,8 +1,7 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit } from "lucide-react";
 import Image from "next/image";
@@ -13,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
 import { Badge } from "@/components/ui/badge";
+import { CardFooter } from "@/components/ui/card"; // Ensure CardFooter is imported
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -110,8 +110,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className={`grid gap-6 ${user.role === 'tutor' ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}>
-        <Card className={`border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card ${user.role === 'tutor' ? 'md:col-span-2' : ''}`}>
+      <div className="grid gap-6 md:grid-cols-1"> {/* Changed md:grid-cols-3 to md:grid-cols-1 for tutors to stack cards */}
+        <Card className="border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card"> {/* Removed conditional col-span */}
           <CardHeader className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -182,7 +182,7 @@ export default function DashboardPage() {
         
         {user.role === 'tutor' && (
           <div 
-            className={`animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out ${user.role === 'tutor' ? 'md:col-span-1' : ''}`} 
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" // Removed conditional col-span
             style={{ animationDelay: `0.1s` }}
           >
             <UpdateProfileActionsCard user={user as TutorProfile} />
@@ -276,10 +276,3 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     </Card>
   );
 }
-    
-    
-
-    
-
-
-
