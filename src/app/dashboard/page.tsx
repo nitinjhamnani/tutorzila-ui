@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -156,12 +157,12 @@ export default function DashboardPage() {
               )}
               {user.role === 'tutor' && (
                 <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                   <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary hover:underline hover:bg-secondary/90">
+                   <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
                     <Link href="#">
                       <MailCheck className="mr-1.5 h-3.5 w-3.5" /> Verify Email
                     </Link>
                   </Button>
-                  <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary hover:underline hover:bg-secondary/90">
+                  <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
                     <Link href="#">
                       <PhoneCall className="mr-1.5 h-3.5 w-3.5" /> Verify Phone
                     </Link>
@@ -273,5 +274,7 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     </Card>
   );
 }
+
+    
 
     
