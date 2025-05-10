@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
@@ -14,6 +13,7 @@ import { useRef, type ChangeEvent } from "react";
 import { useToast } from "@/hooks/use-toast"; 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -181,7 +181,36 @@ export default function DashboardPage() {
                   <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
               </CardContent>
           )}
+          {user.role === 'tutor' && (
+            <CardContent className="p-6 md:p-8 pt-4 space-y-4 border-t">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Coins className="w-4 h-4 mr-2 text-primary/80" />
+                    <span>Lead Balance</span>
+                  </div>
+                  <p className="text-2xl font-semibold text-primary">50</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <CalendarClock className="w-4 h-4 mr-2 text-primary/80" />
+                    <span>Plan Expiry</span>
+                  </div>
+                  <p className="text-lg font-medium">Dec 31, 2024</p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3">
+                 <Badge variant="outline" className="border-green-500 text-green-600 bg-green-500/10 py-1.5 px-3 text-sm font-medium">
+                    <Award className="w-4 h-4 mr-1.5" /> Premium Plan
+                 </Badge>
+                <Button size="sm" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95">
+                  <ShoppingBag className="w-4 h-4 mr-2" /> Buy More Leads
+                </Button>
+              </div>
+            </CardContent>
+          )}
         </Card>
+
         {user.role === 'tutor' && (
            <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out md:col-span-1"
@@ -207,16 +236,16 @@ export default function DashboardPage() {
 
       {/* Profile Management Row for Tutors */}
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3"> {/* Changed md:grid-cols-2 to md:grid-cols-3 */}
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.2s` }} // Adjusted delay
+            style={{ animationDelay: `0.2s` }} 
           >
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.3s` }} // Adjusted delay
+            style={{ animationDelay: `0.3s` }} 
           >
             <ActionCard
               title="My Classes"
@@ -241,7 +270,7 @@ export default function DashboardPage() {
           </div>
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.4s` }} // Adjusted delay
+            style={{ animationDelay: `0.4s` }} 
           >
             <ActionCard
               title="My Payments"
@@ -393,7 +422,7 @@ function ActionCard({
            <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
         )}
       </CardContent>
-      {!buttonInContent && href && ( // Conditionally render footer only if href is present
+      {!buttonInContent && href && ( 
          <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
           {renderSingleButton(actionButtonText || title, href, disabled, ActionButtonIcon)}
         </CardFooter>
@@ -401,6 +430,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
