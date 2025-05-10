@@ -133,9 +133,9 @@ export default function HomePage() {
                   <Search className="mr-2 h-5 w-5" /> Search Tutors
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+              <Button asChild size="lg" className="bg-card text-primary border border-primary hover:bg-primary/10 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                 <Link href="/dashboard/post-requirement"> 
-                  <NotebookPen className="mr-2 h-5 w-5" /> Post Your Requirement
+                  <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
               </Button>
             </div>
@@ -164,23 +164,23 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto"
+            className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
             <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6">
+                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-auto sm:basis-auto md:basis-auto lg:basis-auto">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
                       className={`group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
                                   border-b-2 active:border-b-1 border-border/30
                                   bg-card text-primary hover:bg-primary/10 
-                                  w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center
+                                  w-28 h-28 flex items-center justify-center
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
                       <CardContent className="flex flex-col items-center justify-center gap-1 p-2 text-center h-full">
-                        <subject.icon className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:scale-110" />
-                        <p className="text-xs sm:text-xs font-semibold leading-tight line-clamp-2">{subject.name}</p>
+                        <subject.icon className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
+                        <p className="text-xs font-semibold leading-tight line-clamp-2">{subject.name}</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -452,5 +452,6 @@ export default function HomePage() {
 }
 
     
+
 
 
