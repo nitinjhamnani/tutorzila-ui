@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-roboto), sans-serif; /* Changed from --font-poppins to --font-roboto */
-  letter-spacing: 0.025em; /* Added letter-spacing */
+  font-family: var(--font-montserrat), sans-serif; /* Changed from --font-roboto to --font-montserrat */
+  letter-spacing: 0.025em; 
 }
 
 @layer base {
@@ -94,4 +94,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
