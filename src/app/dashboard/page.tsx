@@ -110,8 +110,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className={`grid gap-6 ${user.role === 'tutor' ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
-        <Card className="bg-card border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none">
+      <div className={`grid gap-6 ${user.role === 'tutor' ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}>
+        <Card className={`border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card ${user.role === 'tutor' ? 'md:col-span-2' : ''}`}>
           <CardHeader className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -182,7 +182,7 @@ export default function DashboardPage() {
         
         {user.role === 'tutor' && (
           <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" 
+            className={`animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out ${user.role === 'tutor' ? 'md:col-span-1' : ''}`} 
             style={{ animationDelay: `0.1s` }}
           >
             <UpdateProfileActionsCard />
@@ -280,4 +280,5 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     
 
     
+
 
