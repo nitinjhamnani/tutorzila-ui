@@ -6,7 +6,6 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
 import type { TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent } from "react"; 
@@ -14,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -115,7 +115,7 @@ export default function DashboardPage() {
       {/* Welcome Card & My Leads Card Row (for Tutors) */}
       <div className="grid gap-6 md:grid-cols-3">
          <Card className={cn("border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
-          <CardHeader className={cn("p-4 md:p-5 relative", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}> {/* Added relative for icon positioning */}
+          <CardHeader className={cn("pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative")}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
                 <div className="relative group shrink-0">
