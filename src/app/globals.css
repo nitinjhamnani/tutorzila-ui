@@ -17,7 +17,7 @@ body {
     --popover-foreground: 0 0% 15%;
     --primary: 0 65% 62%; /* #DE6262 - reddish-pink */
     --primary-foreground: 0 0% 100%; /* White */
-    --secondary: 0 33% 94%; /* #f5ebeb - light pinkish gray */ /* Updated to match f5ebeb */
+    --secondary: 0 33% 94%; /* #f5ebeb - light pinkish gray */
     --secondary-foreground: 0 0% 15%;
     --muted: 0 0% 90%; /* Slightly darker gray than background */
     --muted-foreground: 0 0% 40%;
@@ -98,10 +98,17 @@ body {
     @apply bg-background text-foreground;
   }
   h2 {
-    font-size: 2rem; /* 32px */
+    @apply text-2xl; /* Equivalent to font-size: 2rem if base is 16px */
   }
   p {
-    font-size: 0.9375rem; /* 15px */
+    @apply font-normal text-foreground text-base leading-relaxed;
+    /* Tailwind equivalent for:
+       font-weight: 400; -> font-normal (default for p)
+       color: #333; -> text-foreground (hsl(0, 0%, 15%) which is #262626, close to #333)
+       font-size: 16px; -> text-base (1rem by default)
+       line-height: 26px; -> leading-relaxed (1.625rem or 26px if base font is 16px)
+       font-family: "Montserrat", sans-serif; is inherited from body
+    */
   }
 }
 
@@ -194,7 +201,26 @@ body {
   background: hsl(var(--primary));
 }
 
-/* Removed manual definitions for .h-[var(--header-height)], .pt-[var(--header-height)], etc.
-   as Tailwind JIT should handle these when used in components.
-   The CSS variables --header-height and --logo-height are defined in :root.
+/* 
+  The following classes were removed because they attempt to manually define 
+  Tailwind JIT-style arbitrary value classes. Tailwind generates these 
+  automatically when utilities like `pt-[var(--header-height)]` are used in 
+  components. Manually defining them can lead to PostCSS parsing errors.
+  The CSS variables like --header-height are correctly defined in :root.
+
+  .pt-\\[var\\(--header-height\\)\\] {
+    padding-top: var(--header-height);
+  }
+  .pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
+    padding-top: calc(var(--header-height) + 1rem);
+  }
+  .h-\\[var\\(--logo-height\\)\\] {
+    height: var(--logo-height);
+  }
+  .min-h-\\[calc\\(100vh-4rem\\)\\] {
+      min-height: calc(100vh - 4rem);
+  }
+  .min-h-\\[calc\\(100vh-4rem_-_var\\(--footer-height,0px\\)\\)\\] {
+      min-height: calc(100vh - 4rem - var(--footer-height,0px));
+  }
 */
