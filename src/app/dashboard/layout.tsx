@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const tutorNavItems = [
-    { href: "/dashboard/search-tuitions", label: "Search Tuitions", icon: Search },
+    { href: "/search-tuitions", label: "Search Tuitions", icon: Search }, // Updated href
     { href: "/dashboard/my-applications", label: "My Applications", icon: Briefcase, disabled: true },
   ];
 

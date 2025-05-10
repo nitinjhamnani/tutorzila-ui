@@ -49,7 +49,7 @@ export default function HomePage() {
                 <Link href="/sign-up">Get Started</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <Link href="/dashboard/search-tuitions">Browse Tuitions</Link>
+                <Link href="/search-tuitions">Browse Tuitions</Link>
               </Button>
             </div>
           </div>

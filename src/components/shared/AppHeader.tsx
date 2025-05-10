@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -16,7 +15,7 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent,
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
@@ -24,7 +23,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger, // Added DialogTrigger
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, Briefcase, HomeIcon } from "lucide-react";
 import { Logo } from "./Logo";
@@ -63,7 +62,7 @@ export function AppHeader() {
   
   const actionButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
-    isScrolled ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-primary hover:bg-primary/90 text-primary-foreground"
+     "bg-primary hover:bg-primary/90 text-primary-foreground" // Always use primary button style
   );
   
   const ghostButtonClass = cn(
@@ -73,7 +72,7 @@ export function AppHeader() {
 
   const findTutorButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
-    isScrolled ? "border-primary text-primary hover:bg-primary/10" : "border-primary text-primary hover:bg-primary/10"
+    "border-primary text-primary hover:bg-primary/10" // Always use primary outline style
   );
 
 
@@ -144,7 +143,7 @@ export function AppHeader() {
             ) : (
               <>
                 <Button asChild variant="outline" className={findTutorButtonClass}>
-                  <Link href="/dashboard/search-tuitions">Find Tutors</Link>
+                  <Link href="/search-tuitions">Find Tutors</Link>
                 </Button>
                 <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
                   <DialogTrigger asChild>
@@ -199,7 +198,7 @@ export function AppHeader() {
                         </Link>
                       )}
                        {user.role === "tutor" && (
-                        <Link href="/dashboard/search-tuitions" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                        <Link href="/search-tuitions" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <Search className="h-5 w-5 text-primary" /> Search Tuitions
                         </Link>
                       )}
@@ -218,7 +217,7 @@ export function AppHeader() {
                   ) : (
                     <>
                       <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => {setMobileMenuOpen(false)}}>
-                        <Link href="/dashboard/search-tuitions">
+                        <Link href="/search-tuitions">
                           <Search className="h-5 w-5 text-primary" /> Find Tutors
                          </Link>
                        </Button>
