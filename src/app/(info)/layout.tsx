@@ -1,23 +1,27 @@
-
+"use client";
 import type { ReactNode } from 'react';
-import { AppHeader } from '@/components/shared/AppHeader'; 
+import { AppHeader } from '@/components/shared/AppHeader';
 import { AppFooter } from '@/components/shared/AppFooter';
 
 export default function InfoPageLayout({ children }: { children: ReactNode }) {
   return (
-    <> 
-      <AppHeader /> 
-      <div className="bg-secondary min-h-[calc(100vh-4rem_-_var(--footer-height,0px))]"> {/* Adjust min-height for footer */}
+    <>
+      <AppHeader />
+      <div className="bg-secondary min-h-[calc(100vh-4rem_-_var(--footer-height,0px))]"> {/* Adjust min-height for footer, consumes --footer-height from AppFooter */}
         <div className="animate-in fade-in duration-500 ease-out">
           {children}
         </div>
       </div>
       <AppFooter />
+      {/* 
+      The <style jsx global> block previously here was removed:
       <style jsx global>{`
         :root {
-          --footer-height: 15rem; /* Approximate footer height, adjust as needed */
+          --footer-height: 15rem; 
         }
       `}</style>
+      The --footer-height CSS variable is now solely managed by the AppFooter component.
+      */}
     </>
   );
 }
