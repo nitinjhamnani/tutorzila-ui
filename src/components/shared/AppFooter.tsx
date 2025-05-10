@@ -49,7 +49,7 @@ export function AppFooter() {
             <Link href="/">
               <Logo className="h-[var(--logo-height)] w-auto" />
             </Link>
-            <div className="flex space-x-3 mt-4">
+            <div className="flex space-x-3"> {/* Removed mt-4 */}
               {socialLinks.map((social) => (
                 <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
                   <Link href={social.href} aria-label={social.label}>
@@ -94,3 +94,4 @@ export function AppFooter() {
     </footer>
   );
 }
+
