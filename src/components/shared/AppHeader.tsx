@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -13,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit } from "lucide-react"; // Added Edit for Post Requirement
+import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { usePathname } from "next/navigation";
@@ -41,7 +40,7 @@ export function AppHeader() {
 
   const navLinks = [
     { href: "/dashboard/search-tuitions", label: "Find Tuitions", icon: Search, roles: ["tutor", "parent", "admin"] },
-    { href: "/dashboard/post-requirement", label: "Post Requirement", icon: Edit, roles: ["parent", "admin"] }, // Changed icon for Post Requirement
+    { href: "/dashboard/post-requirement", label: "Post Requirement", icon: Edit, roles: ["parent", "admin"] },
   ];
 
   const headerClasses = cn(
@@ -55,9 +54,9 @@ export function AppHeader() {
     "transform hover:scale-105 active:scale-95"
   );
   
-  const signUpButtonClass = cn(
-    "transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold", // Added text-lg and font-semibold
-    isScrolled ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-primary hover:bg-primary/90 text-primary-foreground" // Kept primary style for visibility
+  const actionButtonClass = cn( // Renamed from signUpButtonClass for clarity
+    "transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold", 
+    isScrolled ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-primary hover:bg-primary/90 text-primary-foreground"
   );
 
 
@@ -76,13 +75,7 @@ export function AppHeader() {
               <span>{link.label}</span>
             </Link>
           ))}
-           {!isAuthenticated && ( // Show specific links for non-authenticated users
-            <>
-              <Link href="/dashboard/search-tuitions" className={linkClasses("/dashboard/search-tuitions")}>
-                <Search className="h-5 w-5" /> Find Tutors
-              </Link>
-            </>
-          )}
+          {/* Removed non-authenticated specific links from here, moved to button group below */}
         </nav>
         <div className="flex items-center space-x-4">
           {isAuthenticated && user ? (
@@ -128,8 +121,10 @@ export function AppHeader() {
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-3">
-              {/* Removed original "Sign In" button, repurposed "Sign Up" button below */}
-              <Button asChild className={signUpButtonClass}>
+              <Button asChild className={actionButtonClass}>
+                <Link href="/dashboard/search-tuitions">Find Tutors</Link>
+              </Button>
+              <Button asChild className={actionButtonClass}>
                 <Link href="/sign-in">Sign In</Link>
               </Button>
             </div>
@@ -139,3 +134,4 @@ export function AppHeader() {
     </header>
   );
 }
+
