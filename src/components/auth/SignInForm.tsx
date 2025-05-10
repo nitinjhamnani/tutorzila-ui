@@ -59,7 +59,7 @@ export function SignInForm() {
   }
 
   return (
-    <Card className="w-full max-w-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
+    <Card className="w-full max-w-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold">Welcome Back!</CardTitle>
         <CardDescription>Sign in to continue your Tutorzila journey.</CardDescription>
@@ -152,4 +152,3 @@ export function SignInForm() {
     </Card>
   );
 }
-
