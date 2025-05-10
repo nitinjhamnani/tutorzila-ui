@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -5,9 +6,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, Users, Briefcase } from "lucide-react";
+import { Mail, Lock, Users, Briefcase, UserCircle } from "lucide-react"; // Added UserCircle
 
-import { Button, buttonVariants } from "@/components/ui/button"; // Imported buttonVariants
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -26,6 +27,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label"; // Added import for Label
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
@@ -44,7 +46,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 export function SignInForm() {
   const { login } = useAuthMock();
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState<UserRole>("parent"); // Default to parent
+  const [selectedRole, setSelectedRole] = useState<UserRole>("parent");
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -56,7 +58,6 @@ export function SignInForm() {
   });
 
    useEffect(() => {
-    // Initialize form with the default selected role
     form.setValue("role", selectedRole);
   }, [selectedRole, form]);
 
@@ -109,8 +110,8 @@ export function SignInForm() {
                           selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-xl scale-105 bg-primary/5"
                         )}
                       >
-                        <Users className={cn("mb-2 h-10 w-10 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground')} />
-                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary' : 'text-foreground')}>Parent</span>
+                        <Users className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} /> {/* Increased icon size and added group hover effect */}
+                        <span className={cn("font-semibold text-lg", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Parent</span> {/* Increased font size and weight */}
                       </Label>
                     </FormItem>
                     <FormItem>
@@ -124,8 +125,8 @@ export function SignInForm() {
                           selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-xl scale-105 bg-primary/5"
                         )}
                       >
-                        <Briefcase className={cn("mb-2 h-10 w-10 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground')} />
-                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground')}>Tutor</span>
+                        <Briefcase className={cn("mb-3 h-12 w-12 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} /> {/* Increased icon size and added group hover effect */}
+                         <span className={cn("font-semibold text-lg", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Tutor</span> {/* Increased font size and weight */}
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -173,15 +174,16 @@ export function SignInForm() {
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
-        <Link
-          href="#"
-          className={cn(
-            buttonVariants({ variant: "link", size: "sm" }),
-            "text-muted-foreground hover:text-primary transition-colors"
-          )}
-        >
-          Forgot Password?
-        </Link>
+        <Button variant="link" size="sm" asChild>
+         <Link
+            href="#"
+            className={cn(
+              "text-muted-foreground hover:text-primary transition-colors"
+            )}
+          >
+            Forgot Password?
+          </Link>
+        </Button>
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link href="/sign-up" className="font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
