@@ -224,12 +224,20 @@ export default function DashboardPage() {
             <ActionCard
               title="My Payments"
               description="₹12,500" 
-              href="#"
+              cardDescriptionText="View your earnings and manage payout details."
               Icon={DollarSign}
               showImage={false}
-              disabled 
               buttonInContent={true} 
-              cardDescriptionText="View your earnings and manage payout details."
+              actionButtonText="View All Payments"
+              ActionButtonIcon={ClipboardList}
+              href="#"
+              disabled={false}
+              actionButtonText2="Collect Payment"
+              ActionButtonIcon2={DollarSign}
+              href2="#"
+              disabled2={false}
+              actionButtonVariant="outline"
+              actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
             />
           </div>
         </div>
@@ -341,55 +349,25 @@ function ActionCard({
         )}
       </CardHeader>
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
-        {title === "My Classes" && buttonInContent ? (
+        {buttonInContent ? (
           <>
-            <div className="flex justify-between items-center text-sm mb-2">
-              <span className="font-medium text-foreground/80">Active Classes</span>
-              <span className="font-semibold text-primary">{description}</span>
-            </div>
+            {(title === "My Classes" || title === "My Payments") && (
+                 <div className="flex justify-between items-center text-sm mb-2">
+                 <span className="font-medium text-foreground/80">{title === "My Classes" ? "Active Classes" : "Pending Payments"}</span>
+                 <span className="font-semibold text-primary">{description}</span>
+               </div>
+            )}
+             {!((title === "My Classes" || title === "My Payments")) && (
+                 <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
+             )}
+
             <div className="mt-auto pt-4 space-y-3"> 
-              {renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
+              {actionButtonText && renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
               {actionButtonText2 && ActionButtonIcon2 && renderSingleButton(actionButtonText2, href2, disabled2, ActionButtonIcon2)}
             </div>
           </>
-        ) : title === "My Payments" && buttonInContent ? (
-          <>
-            <div className="flex justify-between items-center text-sm mb-2">
-              <span className="font-medium text-foreground/80">Pending Payments</span>
-              <span className="font-semibold text-primary">{description}</span>
-            </div>
-            {disabled && (
-              <div className="mt-auto pt-4">
-                <Button
-                  variant="default"
-                  className={cn( "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", actionButtonClassName)}
-                  disabled={true}
-                >
-                  Coming Soon
-                </Button>
-              </div>
-            )}
-          </>
         ) : (
-          <>
-            <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
-            {buttonInContent && actionButtonText && !disabled && (
-              <div className="mt-4"> 
-                {renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
-              </div>
-            )}
-             {buttonInContent && disabled && !actionButtonText && ( 
-              <div className="mt-4">
-                <Button 
-                  variant="default"
-                  className={cn("w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", actionButtonClassName)} 
-                  disabled={true}
-                >
-                  Coming Soon
-                </Button>
-              </div>
-            )}
-          </>
+           <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
         )}
       </CardContent>
       {!buttonInContent && (
@@ -400,3 +378,4 @@ function ActionCard({
     </Card>
   );
 }
+
