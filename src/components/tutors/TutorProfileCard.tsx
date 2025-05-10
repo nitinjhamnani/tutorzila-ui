@@ -4,8 +4,7 @@
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { BookOpen, Star } from "lucide-react";
+import { BookOpen, GraduationCap, Award, Presentation } from "lucide-react";
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
@@ -13,32 +12,42 @@ interface TutorProfileCardProps {
 
 export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
   return (
-    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col transform hover:scale-102 hover:-translate-y-1 bg-card">
-      <CardHeader className="items-center text-center p-4 md:p-6">
-        <Avatar className="w-24 h-24 md:w-28 md:h-28 border-4 border-primary/30 group-hover:border-primary transition-all duration-300 transform group-hover:scale-105">
+    <Card className="group shadow-md hover:shadow-lg transition-all duration-300 flex flex-col transform hover:scale-102 hover:-translate-y-0.5 bg-card h-full">
+      <CardHeader className="items-center text-center p-4 pb-2 md:p-5 md:pb-2">
+        <Avatar className="w-20 h-20 md:w-20 md:h-20 border-2 border-primary/30 group-hover:border-primary transition-all duration-300">
           <AvatarImage src={tutor.avatar || `https://picsum.photos/seed/${tutor.id}/128`} alt={tutor.name} />
-          <AvatarFallback className="text-2xl bg-primary/20 text-primary">{tutor.name.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarFallback className="text-lg bg-primary/20 text-primary">{tutor.name.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
-        <CardTitle className="text-xl md:text-2xl mt-3">{tutor.name}</CardTitle>
-        <div className="flex items-center mt-1">
-          <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400 transition-transform duration-300 group-hover:rotate-[-5deg]" />
-          <div className="flex">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-            ))}
-          </div>
-           <span className="ml-1.5 text-xs text-muted-foreground">(Mock)</span>
-        </div>
+        <CardTitle className="text-sm font-semibold md:text-base mt-2 truncate w-full px-1">{tutor.name}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm flex-grow p-4 md:p-6">
-        <div className="flex items-start">
-          <BookOpen className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-5deg] shrink-0 mt-0.5" />
-           <p className="text-foreground/80 line-clamp-2">
+      <CardContent className="space-y-1 text-xs flex-grow p-4 pt-1 md:p-5 md:pt-1">
+        
+        <div className="flex items-start pt-1">
+          <BookOpen className="w-3 h-3 mr-1.5 text-primary shrink-0 mt-[2px]" />
+          <p className="text-foreground/70 leading-tight">
             {tutor.subjects.join(", ")}
           </p>
         </div>
+
+        {tutor.grade && (
+          <div className="flex items-center pt-0.5">
+            <GraduationCap className="w-3 h-3 mr-1.5 text-primary shrink-0" />
+            <p className="text-foreground/70 leading-tight">{tutor.grade}</p>
+          </div>
+        )}
+
+        <div className="flex items-center pt-0.5">
+          <Award className="w-3 h-3 mr-1.5 text-primary shrink-0" />
+          <p className="text-foreground/70 leading-tight">{tutor.experience}</p>
+        </div>
+
+        {tutor.availability && (
+          <div className="flex items-center pt-0.5">
+            <Presentation className="w-3 h-3 mr-1.5 text-primary shrink-0" />
+            <p className="text-foreground/70 leading-tight">{tutor.availability}</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
-

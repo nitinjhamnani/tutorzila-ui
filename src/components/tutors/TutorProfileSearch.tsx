@@ -7,26 +7,28 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TutorProfileCard } from "./TutorProfileCard";
-import { SearchIcon, XIcon, BookOpen, Star, Users } from "lucide-react";
+import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap } from "lucide-react"; // Added GraduationCap
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Mock data for Tutor Profiles
 const MOCK_TUTOR_PROFILES: TutorProfile[] = [
-  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], experience: "10+ years", hourlyRate: "$70", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", availability: "Weekends, Mon/Wed Evenings" },
-  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], experience: "5-7 years", hourlyRate: "$55", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", availability: "Weekdays After 5 PM" },
-  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], experience: "3-5 years", hourlyRate: "$60", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", availability: "Flexible, Online Only" },
-  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], experience: "7+ years", hourlyRate: "$65", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", availability: "Tue/Thu Evenings" },
-  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], experience: "3-5 years", hourlyRate: "$50", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", availability: "Weekends" },
+  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "$70", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", availability: "Weekends, Mon/Wed Evenings" },
+  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "$55", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", availability: "Weekdays After 5 PM" },
+  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "$60", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", availability: "Flexible, Online Only" },
+  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "$65", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", availability: "Tue/Thu Evenings" },
+  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "$50", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", availability: "Weekends" },
 ];
 
 const allSubjects = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i);
 const experienceLevels = ["All", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
+const gradeLevels = ["All", ...new Set(MOCK_TUTOR_PROFILES.map(t => t.grade).filter(Boolean) as string[])].filter((v,i,a) => a.indexOf(v) === i);
 
 
 export function TutorProfileSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [experienceFilter, setExperienceFilter] = useState("All");
+  const [gradeFilter, setGradeFilter] = useState("All"); // New filter state
   const [tutorProfiles, setTutorProfiles] = useState<TutorProfile[]>([]);
 
   useEffect(() => {
@@ -39,19 +41,23 @@ export function TutorProfileSearch() {
       const matchesSearchTerm = searchTerm === "" ||
         tutor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         tutor.subjects.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (tutor.bio && tutor.bio.toLowerCase().includes(searchTerm.toLowerCase()));
+        (tutor.bio && tutor.bio.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (tutor.grade && tutor.grade.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesSubject = subjectFilter === "All" || tutor.subjects.includes(subjectFilter);
       const matchesExperience = experienceFilter === "All" || tutor.experience === experienceFilter;
+      const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter;
 
-      return matchesSearchTerm && matchesSubject && matchesExperience;
+
+      return matchesSearchTerm && matchesSubject && matchesExperience && matchesGrade;
     });
-  }, [searchTerm, subjectFilter, experienceFilter, tutorProfiles]);
+  }, [searchTerm, subjectFilter, experienceFilter, gradeFilter, tutorProfiles]);
 
   const resetFilters = () => {
     setSearchTerm("");
     setSubjectFilter("All");
     setExperienceFilter("All");
+    setGradeFilter("All");
   };
 
   return (
@@ -68,19 +74,28 @@ export function TutorProfileSearch() {
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search by name, subject, or keywords..."
+              placeholder="Search by name, subject, grade, or keywords..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2.5 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/50 shadow-sm hover:shadow-md"
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1">
               <label htmlFor="subject-filter" className="text-sm font-medium text-muted-foreground flex items-center"><BookOpen className="w-4 h-4 mr-1.5"/>Subject</label>
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
                 <SelectTrigger id="subject-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50 shadow-sm hover:shadow-md"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {allSubjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+             <div className="space-y-1">
+              <label htmlFor="grade-filter" className="text-sm font-medium text-muted-foreground flex items-center"><GraduationCap className="w-4 h-4 mr-1.5"/>Grade Level</label>
+              <Select value={gradeFilter} onValueChange={setGradeFilter}>
+                <SelectTrigger id="grade-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50 shadow-sm hover:shadow-md"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {gradeLevels.map(level => <SelectItem key={level} value={level}>{level}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -102,7 +117,7 @@ export function TutorProfileSearch() {
       </Card>
 
       {filteredTutorProfiles.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {filteredTutorProfiles.map((tutor, index) => (
             <div 
               key={tutor.id}

@@ -74,11 +74,11 @@ const popularSubjects = [
 
 // Mock data for Tutor Profiles - copied from TutorProfileSearch for use in this server component
 const MOCK_TUTOR_PROFILES: TutorProfile[] = [
-  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], experience: "10+ years", hourlyRate: "$70", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", availability: "Weekends, Mon/Wed Evenings" },
-  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], experience: "5-7 years", hourlyRate: "$55", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", availability: "Weekdays After 5 PM" },
-  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], experience: "3-5 years", hourlyRate: "$60", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", availability: "Flexible, Online Only" },
-  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], experience: "7+ years", hourlyRate: "$65", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", availability: "Tue/Thu Evenings" },
-  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], experience: "3-5 years", hourlyRate: "$50", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", availability: "Weekends" },
+  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "$70", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", availability: "Weekends, Mon/Wed Evenings" },
+  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "$55", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", availability: "Weekdays After 5 PM" },
+  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "$60", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", availability: "Flexible, Online Only" },
+  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "$65", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", availability: "Tue/Thu Evenings" },
+  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "$50", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", availability: "Weekends" },
 ];
 
 
@@ -339,7 +339,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
-
-

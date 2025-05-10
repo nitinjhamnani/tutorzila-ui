@@ -24,9 +24,11 @@ export interface TuitionRequirement {
 
 export interface TutorProfile extends User {
   subjects: string[];
+  grade?: string; // Grade level the tutor specializes in
   experience: string; // e.g., "5+ years", "1-3 years"
   hourlyRate?: string; // e.g., "$25 - $40"
   bio?: string;
-  availability?: string; // e.g., "Weekends, Evenings"
+  availability?: string; // e.g., "Weekends, Evenings" - can represent teaching mode
   qualifications?: string;
 }
+
