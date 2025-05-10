@@ -1,5 +1,5 @@
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Roboto } from 'next/font/google';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,6 +15,27 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "Tutorzila - Find Your Perfect Tutor",
   description: "Connecting parents with qualified tutors.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Tutorzila",
+    // startupImage: [ // Optional: specify startup images for iOS
+    //   { url: '/assets/images/apple-splash-2048x2732.png', media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' },
+    // ],
+  },
+  icons: {
+    icon: "/assets/images/favicon.ico", // User should provide this
+    apple: "/assets/images/tutorzila-apple-touch-icon.png", // User should provide this
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#DE6262",
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -36,4 +57,3 @@ export default function RootLayout({
     </html>
   );
 }
-
