@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -5,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, LogIn } from "lucide-react"; // Added LogIn icon
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +30,7 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
 import { useState } from 'react';
-import { Label } from "@/components/ui/label"; // Ensure Label is imported
+import { Label } from "@/components/ui/label"; 
 
 
 const signInSchema = z.object({
@@ -86,7 +87,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
         <CardTitle className="text-center text-3xl font-bold tracking-tight">Welcome Back!</CardTitle>
         <CardDescription className="text-center text-muted-foreground mt-2">Login to access your Tutorzila account.</CardDescription>
       </CardHeader>
-      <CardContent className="px-8 pb-8"> {/* Reverted to px-8 for CardContent */}
+      <CardContent className="px-8 pb-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -94,7 +95,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground text-center block">Email Address</FormLabel>
+                  <FormLabel className="text-foreground">Email Address</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -110,7 +111,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground text-center block">Password</FormLabel>
+                  <FormLabel className="text-foreground">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -122,12 +123,13 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               )}
             />
             <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
+              <LogIn className="mr-2 h-5 w-5" /> {/* Added LogIn icon */}
               {isSubmitting ? 'Logging In...' : 'Login'}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8"> {/* Removed explicit px for CardFooter, will use default */}
+      <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
         <Button variant="link" size="sm" asChild className="text-muted-foreground hover:text-primary transition-colors">
          <Link
             href="#" // In a real app, this would go to a forgot password page/modal
@@ -138,7 +140,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            <Link href="/sign-up" onClick={onSuccess}>
+            <Link href="/sign-up" onClick={() => { if(onSuccess) onSuccess();}}>
              Sign Up
             </Link>
           </Button>
