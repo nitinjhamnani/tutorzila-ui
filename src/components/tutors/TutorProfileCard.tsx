@@ -1,10 +1,10 @@
-
 "use client";
 
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Award, Star, Laptop, Users } from "lucide-react"; 
+import { BookOpen, GraduationCap, Award, Star, Laptop, Users, CheckCircle, XCircle } from "lucide-react"; 
+import { Badge } from "@/components/ui/badge";
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
@@ -24,6 +24,17 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           <AvatarFallback className="text-xl bg-primary/20 text-primary">{tutor.name.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
         <CardTitle className="text-lg font-semibold mt-3 truncate w-full px-1">{tutor.name}</CardTitle>
+        
+        {tutor.status && (
+          <Badge
+            variant={tutor.status === "Active" ? "default" : "destructive"}
+            className="text-xs py-0.5 px-2 mt-1"
+          >
+            {tutor.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+            {tutor.status}
+          </Badge>
+        )}
+
         {tutor.teachingMode && (
           <div className="flex items-center text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors">
             <TeachingModeIcon className="w-3.5 h-3.5 mr-1.5" />
@@ -73,4 +84,3 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
     </Card>
   );
 }
-

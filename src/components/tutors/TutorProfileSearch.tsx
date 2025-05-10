@@ -11,11 +11,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 // Mock data for Tutor Profiles
 const MOCK_TUTOR_PROFILES: TutorProfile[] = [
-  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "5000", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", teachingMode: "Online" },
-  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "4000", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", teachingMode: "In-person" },
-  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "4500", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", teachingMode: "Hybrid" },
-  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "4800", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", teachingMode: "Online" },
-  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "3500", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", teachingMode: "In-person" },
+  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "5000", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", teachingMode: "Online", status: "Active" },
+  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "4000", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", teachingMode: "In-person", status: "Active" },
+  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "4500", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", teachingMode: "Hybrid", status: "Active" },
+  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "4800", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", teachingMode: "Online", status: "Inactive" },
+  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "3500", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", teachingMode: "In-person", status: "Active" },
 ];
 
 const allSubjects = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i);
@@ -108,7 +108,7 @@ export function TutorProfileSearch() {
       ) : (
         <Card className="text-center py-16 shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30">
           <CardContent className="flex flex-col items-center">
-            <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" /> {/* Changed icon */}
+            <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" />
             <p className="text-2xl font-semibold text-foreground/80 mb-2">No Tutors Found</p>
             <p className="text-md text-muted-foreground max-w-md mx-auto">
              Try adjusting your search filters or check back later as new tutors join.

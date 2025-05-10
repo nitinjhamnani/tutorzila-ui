@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookUser, BookOpen } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookUser, BookOpen, CheckCircle, XCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -78,11 +77,11 @@ const popularSubjects = [
 ];
 
 const MOCK_TUTOR_PROFILES: TutorProfile[] = [
-  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "5000", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", teachingMode: "Online" },
-  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "4000", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", teachingMode: "In-person" },
-  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "4500", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", teachingMode: "Hybrid" },
-  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "4800", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", teachingMode: "Online" },
-  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "3500", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", teachingMode: "In-person" },
+  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "5000", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", teachingMode: "Online", status: "Active" },
+  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "4000", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", teachingMode: "In-person", status: "Active" },
+  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "4500", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", teachingMode: "Hybrid", status: "Active" },
+  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "4800", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", teachingMode: "Online", status: "Active" },
+  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "3500", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", teachingMode: "In-person", status: "Inactive" },
 ];
 
 const MOCK_TESTIMONIALS: Testimonial[] = [
@@ -124,7 +123,7 @@ export default function HomePage() {
                       <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[625px] p-0 bg-card"> {/* Ensure DialogContent has bg-card and remove padding here */}
+                  <DialogContent className="sm:max-w-[625px] p-0 bg-card">
                     <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
                   </DialogContent>
                 </Dialog>
@@ -222,7 +221,7 @@ export default function HomePage() {
                         <PlusCircle className="mr-2 h-5 w-5" /> Request A Tutor
                       </Button>
                     </DialogTrigger>
-                     <DialogContent className="sm:max-w-[625px] p-0 bg-card"> {/* Ensure DialogContent has bg-card and remove padding here */}
+                     <DialogContent className="sm:max-w-[625px] p-0 bg-card">
                        <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
                      </DialogContent>
                   </Dialog>
@@ -289,7 +288,7 @@ export default function HomePage() {
                 </div>
                  <div className="flex justify-center lg:justify-start mt-6">
                     <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                      <Link href="/sign-up"> {/* Assuming sign-up page is the destination */}
+                      <Link href="/sign-up"> 
                         <BookUser className="mr-2 h-5 w-5" /> Start Teaching Today
                       </Link>
                     </Button>
@@ -363,13 +362,7 @@ export default function HomePage() {
           </div>
         </section>
         
-          {/* This empty div was likely a mistake, removing it or adding content. Given it's at the end, likely safe to remove or was placeholder. */}
-        
       </div>
     
   );
 }
-
-
-    
-
