@@ -1,15 +1,16 @@
 
 import type { Metadata, Viewport } from "next";
-import { Montserrat } from 'next/font/google'; // Changed from Roboto to Montserrat
+import { Montserrat } from 'next/font/google';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AppHeader } from "@/components/shared/AppHeader";
 import { Providers } from "./providers";
+import logoAsset from '@/assets/images/logo.png'; // Ensure this path is correct or remove if not used here
 
-const montserrat = Montserrat({ // Changed from roboto to montserrat
+const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['300', '400', '500', '700'],
-  variable: '--font-montserrat', // Changed variable name
+  variable: '--font-montserrat',
 });
 
 export const metadata: Metadata = {
@@ -20,9 +21,6 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "Tutorzila",
-    // startupImage: [ // Optional: specify startup images for iOS
-    //   { url: '/assets/images/apple-splash-2048x2732.png', media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' },
-    // ],
   },
   icons: {
     icon: "/assets/images/favicon.ico", 
@@ -44,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning> {/* Changed variable */}
+    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning>
       <body
         className="antialiased min-h-screen flex flex-col font-sans tracking-wide"
       >
