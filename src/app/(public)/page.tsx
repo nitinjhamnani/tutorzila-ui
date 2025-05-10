@@ -135,9 +135,12 @@ export default function HomePage() {
       {/* Popular Subjects Section */}
       <section className={`w-full ${sectionPadding} bg-background/50`}>
         <div className={`${containerPadding}`}>
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out text-primary">
-            Explore Popular Subjects
-          </h2>
+          <div className="text-center mb-10 space-y-4 animate-in fade-in duration-700 ease-out">
+            <NotebookPen className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h2 className="text-3xl font-bold tracking-tighter text-center sm:text-4xl animate-in fade-in duration-500 ease-out text-primary">
+              Explore Popular Subjects
+            </h2>
+          </div>
           <Carousel
             opts={{
               align: "start",
@@ -332,6 +335,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
