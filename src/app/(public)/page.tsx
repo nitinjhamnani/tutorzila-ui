@@ -230,8 +230,8 @@ export default function HomePage() {
 
       {/* Meet Our Tutors Section */}
       <section className={`w-full ${sectionPadding} bg-background/50`}>
-        <div className={`${containerPadding} grid lg:grid-cols-2 gap-12 items-center`}>
-          <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out text-center lg:text-left lg:w-1/3">
+        <div className={`${containerPadding} grid lg:grid-cols-5 gap-12 items-center`}> {/* Changed to lg:grid-cols-5 */}
+          <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out text-center lg:text-left lg:col-span-2"> {/* Changed to lg:col-span-2 */}
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
               Meet Our Tutors
             </h2>
@@ -246,11 +246,11 @@ export default function HomePage() {
               </Button>
             </div>
           </div>
-          <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl mx-auto relative animate-in fade-in slide-in-from-right-10 duration-700 ease-out lg:w-2/3">
+          <div className="w-full max-w-md lg:max-w-none mx-auto relative animate-in fade-in slide-in-from-right-10 duration-700 ease-out lg:col-span-3"> {/* Changed to lg:col-span-3 and removed max-w-lg/xl for better responsiveness within grid */}
             <Carousel opts={{ align: "start", loop: true }} className="w-full">
               <CarouselContent className="-ml-4 py-2">
                 {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
-                  <CarouselItem key={tutor.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/1"> {/* Adjusted basis */}
+                  <CarouselItem key={tutor.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/1 xl:basis-1/2"> {/* Adjusted basis for responsiveness */}
                     <div className="p-1">
                       <TutorProfileCard tutor={tutor} />
                     </div>
