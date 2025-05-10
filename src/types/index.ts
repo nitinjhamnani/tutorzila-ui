@@ -26,10 +26,11 @@ export interface TutorProfile extends User {
   subjects: string[];
   grade?: string; // Grade level the tutor specializes in
   experience: string; // e.g., "5+ years", "1-3 years"
-  hourlyRate?: string; // e.g., "$25 - $40"
+  hourlyRate?: string; 
   bio?: string;
-  // availability?: string; // e.g., "Weekends, Evenings" - can represent teaching mode - REMOVED
   qualifications?: string;
+  teachingMode?: "Online" | "In-person" | "Hybrid"; // Added teachingMode
 }
+
 
 
