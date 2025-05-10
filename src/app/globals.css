@@ -101,7 +101,7 @@ body {
     font-size: 2rem; /* 32px */
   }
   p {
-    font-size: 1rem; /* 16px */
+    font-size: 0.9375rem; /* 15px */
   }
 }
 
@@ -192,4 +192,17 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary));
+}
+
+.h-\\[var\\(--header-height\\)\\] {
+  height: var(--header-height);
+}
+.pt-\\[var\\(--header-height\\)\\] {
+  padding-top: var(--header-height);
+}
+.pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
+  padding-top: calc(var(--header-height) + 1rem);
+}
+.h-\\[var\\(--logo-height\\)\\] {
+  height: var(--logo-height);
 }
