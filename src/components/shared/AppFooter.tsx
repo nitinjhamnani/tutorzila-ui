@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -78,22 +79,24 @@ export function AppFooter() {
           ))}
         </div>
 
-        <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0">
-            <a href="mailto:contact@tutorzila.com" className="flex items-center hover:text-primary transition-colors">
-              <Mail className="w-4 h-4 mr-2 text-primary/80" />
-              contact@tutorzila.com
-            </a>
-            <a href="tel:+1234567890" className="flex items-center hover:text-primary transition-colors">
-              <Phone className="w-4 h-4 mr-2 text-primary/80" />
-              (123) 456-7890
-            </a>
-             <p className="flex items-center">
-              <MapPin className="w-4 h-4 mr-2 text-primary/80" />
-              123 Learning Lane, Knowledge City, EDU 54321
-            </p>
+        <div className="border-t border-border/50 pt-8 text-sm text-muted-foreground">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0">
+              <a href="mailto:contact@tutorzila.com" className="flex items-center hover:text-primary transition-colors">
+                <Mail className="w-4 h-4 mr-2 text-primary/80" />
+                contact@tutorzila.com
+              </a>
+              <a href="tel:+1234567890" className="flex items-center hover:text-primary transition-colors">
+                <Phone className="w-4 h-4 mr-2 text-primary/80" />
+                (123) 456-7890
+              </a>
+               <p className="flex items-center">
+                <MapPin className="w-4 h-4 mr-2 text-primary/80" />
+                123 Learning Lane, Knowledge City, EDU 54321
+              </p>
+            </div>
           </div>
-          <p className="text-xs">
+          <p className="text-xs text-center md:text-right">
             &copy; {new Date().getFullYear()} Tutorzila. All rights reserved.
           </p>
         </div>
@@ -106,3 +109,4 @@ export function AppFooter() {
     </footer>
   );
 }
+
