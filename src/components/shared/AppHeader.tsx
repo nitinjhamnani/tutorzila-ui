@@ -16,7 +16,7 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
+  SheetTitle as SheetTitleComponent, 
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
@@ -26,7 +26,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, Briefcase, HomeIcon } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { usePathname } from "next/navigation";
@@ -56,10 +56,6 @@ export function AppHeader() {
     };
   }, []);
 
-  const navLinks: { href: string; label: string; icon: React.ElementType; roles: UserRole[] }[] = [
-    // For authenticated users, specific links can be added here based on role if needed in the future
-  ];
-
   type UserRole = "parent" | "tutor" | "admin";
 
 
@@ -69,9 +65,15 @@ export function AppHeader() {
   );
   
   const actionButtonClass = cn(
-    "transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold py-3 px-6 rounded-lg", 
+    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
     isScrolled ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-primary hover:bg-primary/90 text-primary-foreground"
   );
+  
+  const ghostButtonClass = cn(
+    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
+    isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10"
+  );
+
 
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
@@ -80,32 +82,17 @@ export function AppHeader() {
   return (
     <header className={headerClasses}>
       <div className="container mx-auto flex h-28 items-center justify-between px-4 md:px-6">
-        <Link
-          href="/"
-          className={cn(
-            "transition-opacity hover:opacity-80", 
-            isScrolled ? "" : "text-card-foreground" 
-          )}
-        >
-          <Logo className="h-24 w-auto"/>
-        </Link>
+        <Logo className="h-24 w-auto"/>
         
         <nav className="hidden items-center space-x-1 md:flex">
           {/* Desktop Navigation for authenticated users (if any) */}
-          {isAuthenticated && user && navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary/80 flex items-center gap-2 py-2 px-3 rounded-md",
-                isScrolled ? (pathname === link.href ? "text-primary bg-primary/10" : "text-foreground hover:bg-muted") : (pathname === link.href ? "text-primary bg-white/20" : "text-card-foreground hover:bg-white/10"),
-                "transform hover:scale-105 active:scale-95"
-              )}
-            >
-              <link.icon className="h-5 w-5" />
-              <span>{link.label}</span>
-            </Link>
-          ))}
+           {isAuthenticated && user && (
+             <Button asChild variant="ghost" className={ghostButtonClass}>
+                <Link href="/dashboard">
+                    <HomeIcon className="mr-2 h-4 w-4" /> Dashboard
+                </Link>
+            </Button>
+           )}
         </nav>
 
         <div className="flex items-center gap-4">
@@ -154,18 +141,18 @@ export function AppHeader() {
               </DropdownMenu>
             ) : (
               <>
-                <Button asChild variant="ghost" className={cn("transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold", isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10")}>
+                <Button asChild variant="ghost" className={ghostButtonClass}>
                   <Link href="/dashboard/search-tuitions">Find Tutors</Link>
                 </Button>
                 <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
                   <DialogTrigger asChild>
                     <Button className={actionButtonClass}>Sign In</Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px] p-0">
-                     <DialogHeader className="sr-only">
-                      <DialogTitle>Sign In to Tutorzila</DialogTitle>
-                    </DialogHeader>
-                    <SignInForm /> 
+                  <DialogContent className="sm:max-w-[500px] p-0 bg-card">
+                     <DialogHeader className="sr-only"> {/* Visually hide for screen readers */}
+                       <DialogTitle>Sign In to Tutorzila</DialogTitle>
+                     </DialogHeader>
+                    <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
                   </DialogContent>
                 </Dialog>
               </>
@@ -183,13 +170,9 @@ export function AppHeader() {
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
                 <SheetHeader className="p-4 border-b">
                   <SheetTitleComponent>
-                    <Link
-                      href="/"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="transition-opacity hover:opacity-80"
-                    >
-                       <Logo className="h-10 w-auto" />
-                    </Link>
+                     <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                        <Logo className="h-10 w-auto" />
+                     </Link>
                   </SheetTitleComponent>
                 </SheetHeader>
                 <div className="flex flex-col space-y-2 p-4 overflow-y-auto flex-grow">
@@ -209,18 +192,7 @@ export function AppHeader() {
                       <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                         <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
                       </Link>
-                      {navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={mobileLinkClass}
-                        >
-                          <link.icon className="h-5 w-5 text-primary" />
-                          <span>{link.label}</span>
-                        </Link>
-                      ))}
-                      {user.role === "parent" && (
+                       {user.role === "parent" && (
                         <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <Edit className="h-5 w-5 text-primary" /> Post Requirement
                         </Link>
@@ -244,9 +216,11 @@ export function AppHeader() {
                     </>
                   ) : (
                     <>
-                      <Link href="/dashboard/search-tuitions" onClick={() => { setMobileMenuOpen(false);}} className={mobileLinkClass}>
-                        <Search className="h-5 w-5 text-primary" /> Find Tutors
-                      </Link>
+                      <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => setMobileMenuOpen(false)}>
+                        <Link href="/dashboard/search-tuitions">
+                          <Search className="h-5 w-5 text-primary" /> Find Tutors
+                         </Link>
+                       </Button>
                       
                       <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
                         setSignInModalOpen(isOpen);
@@ -257,11 +231,11 @@ export function AppHeader() {
                             <LogIn className="h-5 w-5 text-primary" /> Sign In
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px] p-0">
+                        <DialogContent className="sm:max-w-[500px] p-0 bg-card">
                            <DialogHeader>
                              <DialogTitle className="sr-only">Sign In to Tutorzila</DialogTitle>
                            </DialogHeader>
-                          <SignInForm />
+                          <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
                         </DialogContent>
                       </Dialog>
 
@@ -281,3 +255,4 @@ export function AppHeader() {
     </header>
   );
 }
+

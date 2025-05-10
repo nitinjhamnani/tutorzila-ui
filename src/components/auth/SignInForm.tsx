@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, Users, Briefcase } from "lucide-react"; 
+import { Mail, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,60 +26,61 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
-import type { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  role: z.enum(["parent", "tutor"], { required_error: "You need to select your role." }),
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
-export function SignInForm() {
+export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   const { login } = useAuthMock();
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState<UserRole>("parent");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
-      role: "parent",
     },
   });
 
-   useEffect(() => {
-    form.setValue("role", selectedRole);
-  }, [selectedRole, form]);
-
 
   async function onSubmit(values: SignInFormValues) {
-    await login(values.email, values.role);
-    toast({
-      title: "Signed In!",
-      description: `Welcome back! You are logged in as a ${values.role}.`,
-    });
-    // Modal will be closed by parent component or Dialog's default behavior
+    setIsSubmitting(true);
+    try {
+      // Pass undefined for role, as it's removed from the form
+      // The backend or mock should handle role determination
+      await login(values.email, undefined); 
+      toast({
+        title: "Signed In!",
+        description: `Welcome back!`,
+      });
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign In Failed",
+        description: (error as Error).message || "An unexpected error occurred.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
-  const handleRoleChange = (role: UserRole) => {
-    setSelectedRole(role);
-    form.setValue("role", role, { shouldValidate: true });
-  };
-
-
   return (
-    <Card className="w-full shadow-none border-0 rounded-lg bg-card animate-in fade-in zoom-in-95 duration-500 ease-out sm:max-w-lg">
-      <CardHeader className="flex flex-col items-center pt-8 pb-6">
+    <Card className="w-full shadow-none border-0 rounded-lg bg-card animate-in fade-in zoom-in-95 duration-500 ease-out sm:max-w-md">
+      <CardHeader className="flex flex-col items-center pt-8 pb-6 bg-card"> {/* Ensure header has card background */}
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
         </Link>
@@ -89,53 +90,6 @@ export function SignInForm() {
       <CardContent className="px-8 pb-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="text-base font-semibold text-foreground">Sign in as:</FormLabel>
-                  <RadioGroup
-                    onValueChange={(value) => handleRoleChange(value as UserRole)}
-                    value={selectedRole}
-                    className="grid grid-cols-2 gap-4"
-                  >
-                    <FormItem>
-                      <FormControl>
-                        <RadioGroupItem value="parent" id="role-parent" className="sr-only" />
-                      </FormControl>
-                      <Label
-                        htmlFor="role-parent"
-                        className={cn(
-                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
-                          selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-lg scale-105 bg-primary/5"
-                        )}
-                      >
-                        <Users className={cn("mr-2 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
-                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Parent</span>
-                      </Label>
-                    </FormItem>
-                    <FormItem>
-                      <FormControl>
-                        <RadioGroupItem value="tutor" id="role-tutor" className="sr-only" />
-                      </FormControl>
-                      <Label
-                        htmlFor="role-tutor"
-                        className={cn(
-                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
-                          selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-lg scale-105 bg-primary/5"
-                        )}
-                      >
-                        <Briefcase className={cn("mr-2 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/70')} />
-                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/70')}>Tutor</span>
-                      </Label>
-                    </FormItem>
-                  </RadioGroup>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="email"
@@ -168,8 +122,8 @@ export function SignInForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Logging In...' : 'Login'}
+            <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
+              {isSubmitting ? 'Logging In...' : 'Login'}
             </Button>
           </form>
         </Form>
@@ -185,7 +139,7 @@ export function SignInForm() {
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            <Link href="/sign-up">
+            <Link href="/sign-up" onClick={onSuccess}> {/* Close modal on navigation */}
              Sign Up
             </Link>
           </Button>
