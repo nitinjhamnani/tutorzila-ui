@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -133,7 +132,7 @@ export default function HomePage() {
                   <Search className="mr-2 h-5 w-5" /> Search Tutors
                 </Link>
               </Button>
-              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+              <Button asChild size="lg" className="bg-card text-primary border border-primary shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 hover:bg-card">
                 <Link href="/dashboard/post-requirement"> 
                   <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
@@ -452,7 +451,3 @@ export default function HomePage() {
 }
 
     
-
-
-
-
