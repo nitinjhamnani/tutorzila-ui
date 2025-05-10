@@ -1,15 +1,15 @@
 
 import type { Metadata } from "next";
-import { Roboto } from 'next/font/google'; // Changed from Poppins to Roboto
+import { Roboto } from 'next/font/google';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AppHeader } from "@/components/shared/AppHeader";
-import { Providers } from "./providers"; // Jotai Provider
+import { Providers } from "./providers";
 
-const roboto = Roboto({ // Changed from poppins to roboto
+const roboto = Roboto({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'], // Adjusted weights for Roboto
-  variable: '--font-roboto', // Changed variable name
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-roboto',
 });
 
 export const metadata: Metadata = {
@@ -23,11 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${roboto.variable}`} suppressHydrationWarning> {/* Changed variable */}
+    <html lang="en" className={`${roboto.variable}`} suppressHydrationWarning>
       <body
         className="antialiased min-h-screen flex flex-col font-sans"
       >
-        <Providers> {/* Jotai Provider */}
+        <Providers>
           <AppHeader />
           <main className="flex-grow animate-in fade-in duration-500 ease-out">{children}</main>
           <Toaster />
@@ -36,4 +36,3 @@ export default function RootLayout({
     </html>
   );
 }
-
