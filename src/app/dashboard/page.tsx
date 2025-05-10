@@ -326,9 +326,27 @@ function ActionCard({
           </CardDescription>
         )}
       </CardHeader>
-      <CardContent className={cn("flex-grow p-4 md:p-5", cardDescriptionText ? "pt-2" : "pt-0")}> 
-        <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
-        {buttonInContent && <div className="mt-4">{renderButton()}</div>}
+      <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
+        {title === "My Classes" && buttonInContent ? (
+          <>
+            <div className="flex justify-between items-center text-sm">
+              <span className="font-medium text-foreground/80">Active Classes</span>
+              <span className="font-semibold text-primary">{description}</span>
+            </div>
+            <div className="mt-auto pt-4"> 
+              {renderButton()}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
+            {buttonInContent && (
+              <div className="mt-4"> 
+                {renderButton()}
+              </div>
+            )}
+          </>
+        )}
       </CardContent>
       {!buttonInContent && (
          <div className="p-4 md:p-5 border-t bg-muted/20">
@@ -338,7 +356,3 @@ function ActionCard({
     </Card>
   );
 }
-
-    
-
-
