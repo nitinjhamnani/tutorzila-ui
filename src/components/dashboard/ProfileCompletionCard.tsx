@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { TutorProfile, User } from "@/types";
@@ -51,14 +52,9 @@ export function ProfileCompletionCard({ tutor }: ProfileCompletionCardProps) {
         <Progress value={completionPercentage} className="w-full h-3 mb-4" 
             indicatorClassName={isComplete ? "bg-green-500" : "bg-primary"}
         />
-        {!isComplete && (
-            <Button asChild className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95" disabled>
-             <Link href="#"> 
-                <Edit className="mr-2 h-4 w-4" /> Update Profile
-             </Link>
-            </Button>
-        )}
+        {/* Update Profile button removed as per request */}
       </CardContent>
     </Card>
   );
 }
+
