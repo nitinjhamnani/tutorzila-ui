@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -120,7 +119,7 @@ export default function DashboardPage() {
                   onClick={handleAvatarClick}
                 >
                   <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-2xl">
+                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl">
                     {user.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -142,7 +141,7 @@ export default function DashboardPage() {
             )}
             <div className="flex-grow">
               <div className="flex items-center gap-2 mb-1">
-                <CardTitle className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">Welcome back, {user.name}!</CardTitle>
+                <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
                 {user.status && (
                   <Badge variant={user.status === "Active" ? "default" : "destructive"} className="text-xs py-0.5 px-2">
                     {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
@@ -157,12 +156,12 @@ export default function DashboardPage() {
               )}
               {user.role === 'tutor' && (
                 <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                   <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto hover:bg-secondary/90">
+                   <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary hover:underline hover:bg-secondary/90">
                     <Link href="#">
                       <MailCheck className="mr-1.5 h-3.5 w-3.5" /> Verify Email
                     </Link>
                   </Button>
-                  <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto hover:bg-secondary/90">
+                  <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary hover:underline hover:bg-secondary/90">
                     <Link href="#">
                       <PhoneCall className="mr-1.5 h-3.5 w-3.5" /> Verify Phone
                     </Link>
@@ -276,5 +275,3 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
 }
 
     
-
-
