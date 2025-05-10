@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 
 export default function TermsAndConditionsPage() {
   return (
-    <div className="container mx-auto max-w-4xl py-12 px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto max-w-4xl py-12 px-6 sm:px-8 md:px-10 lg:px-12">
       <Card className="shadow-lg">
         <CardHeader className="bg-muted/30 p-6 rounded-t-lg">
           <div className="flex items-center gap-3">
@@ -91,3 +91,4 @@ export default function TermsAndConditionsPage() {
     </div>
   );
 }
+

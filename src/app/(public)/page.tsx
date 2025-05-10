@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, HomeIcon, UserPlus } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -111,7 +111,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary text-sm">
       {/* Hero Section */}
       <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-8 items-center">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 grid lg:grid-cols-2 gap-8 items-center">
           <div className="text-center lg:text-left">
             <h2
               className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
@@ -155,7 +155,7 @@ export default function HomePage() {
 
       {/* Popular Subjects Section */}
       <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container px-4 md:px-6">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12">
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
             Explore Popular Subjects
           </h2>
@@ -197,7 +197,7 @@ export default function HomePage() {
 
        {/* Get An Expert Tutor Section */}
       <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 grid lg:grid-cols-2 gap-12 items-center">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out order-1 lg:order-none">
             <Image
               src={hireTutorImage} 
@@ -247,7 +247,7 @@ export default function HomePage() {
 
       {/* Become A Tutor Section */}
       <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
               Become A Tutor with Tutorzila
@@ -298,7 +298,7 @@ export default function HomePage() {
 
       {/* Counter Section */}
       <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-4 md:px-6">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12">
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
             Our Growing Community
           </h2>
@@ -322,7 +322,7 @@ export default function HomePage() {
 
       {/* Testimonials Section */}
       <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container px-4 md:px-6">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12">
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
             What Our Users Say
           </h2>
@@ -376,7 +376,7 @@ export default function HomePage() {
 
        {/* Subscription Section */}
       <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-4 md:px-6 text-center">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 text-center">
           <div 
             className="max-w-xl mx-auto p-6 md:p-8 bg-card rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-700 ease-out"
           >
@@ -404,7 +404,7 @@ export default function HomePage() {
 
       {/* Unlock Potential Section (Placeholder for Image Section) */}
       <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
+        <div className="container grid items-center gap-6 px-6 sm:px-8 md:px-10 lg:px-12 lg:grid-cols-2 lg:gap-10">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <Image
               src="https://picsum.photos/seed/unlock-potential/600/400"
@@ -429,7 +429,7 @@ export default function HomePage() {
 
       {/* Call to Action */}
       <section className="w-full py-8 md:py-12 border-t bg-secondary">
-        <div className="container px-4 md:px-6 text-center animate-in fade-in duration-700 ease-out">
+        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 text-center animate-in fade-in duration-700 ease-out">
           <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
           <p className="mt-4 text-foreground/80 md:text-lg max-w-2xl mx-auto">
@@ -454,4 +454,5 @@ export default function HomePage() {
 }
 
     
+
 
