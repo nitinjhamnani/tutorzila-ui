@@ -1,22 +1,46 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit } from "lucide-react"; // Added Camera, Edit
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2 } from "lucide-react"; // Added Edit2
 import Image from "next/image";
 import Link from "next/link";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import type { TutorProfile } from "@/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Added Avatar
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRef, type ChangeEvent } from "react"; // Added useRef, ChangeEvent
+import { useToast } from "@/hooks/use-toast"; // Added useToast
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   if (!user) {
     return <div className="text-center p-8">Loading user data or please sign in.</div>;
   }
+
+  const handleAvatarClick = () => {
+    if (user?.role === 'tutor') {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Simulate file upload
+      console.log("Selected file:", file.name);
+      // In a real app, you would upload the file and update the user's avatar URL
+      toast({
+        title: "Profile Picture Updated (Mock)",
+        description: `${file.name} selected. In a real app, this would be uploaded.`,
+      });
+      // To visually update (mock):
+      // setUser({...user, avatar: URL.createObjectURL(file) }); // This would require setUser in useAuthMock
+    }
+  };
 
   const actionCards = [];
 
@@ -88,23 +112,37 @@ export default function DashboardPage() {
         <CardHeader className="p-6 md:p-8">
           <div className="flex items-center gap-4">
             {user.role === 'tutor' && (
-              <Avatar className="h-16 w-16 border-2 border-primary/30">
-                <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                <AvatarFallback className="bg-primary/20 text-primary font-semibold text-2xl">
-                  {user.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative group">
+                <Avatar
+                  className="h-16 w-16 border-2 border-primary/30 cursor-pointer group-hover:opacity-80 transition-opacity"
+                  onClick={handleAvatarClick}
+                >
+                  <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
+                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-2xl">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={handleAvatarClick}
+                  className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer"
+                  aria-label="Update profile picture"
+                >
+                  <Edit2 className="w-6 h-6 text-white" />
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+              </div>
             )}
             <div>
               <CardTitle className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">Welcome back, {user.name}!</CardTitle>
-              {user.role === 'parent' && (
+              {(user.role === 'parent' || user.role === 'admin') && (
                 <CardDescription className="text-md md:text-lg text-foreground/80 mt-1">
-                    You are logged in as a parent. Here's your dashboard overview.
-                </CardDescription>
-              )}
-              {user.role === 'admin' && (
-                <CardDescription className="text-md md:text-lg text-foreground/80 mt-1">
-                    You are logged in as an admin. Here's your dashboard overview.
+                    You are logged in as a {user.role}. Here's your dashboard overview.
                 </CardDescription>
               )}
             </div>
@@ -118,42 +156,12 @@ export default function DashboardPage() {
       </Card>
       
       {user.role === 'tutor' && (
-        <>
-          <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" 
-            style={{ animationDelay: `0.1s` }}
-          >
-            <ProfileCompletionCard tutor={user as TutorProfile} />
-          </div>
-          <Card 
-            className="shadow-lg hover:shadow-xl transition-all duration-300 group bg-card border border-border/30 hover:border-primary/50 rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.2s`}}
-          >
-            <CardHeader className="p-0 relative">
-              <Image
-                  src={`https://picsum.photos/seed/${user.id}profilepic/400/200`}
-                  alt="Profile Picture update illustration"
-                  width={400}
-                  height={200}
-                  className="rounded-t-xl object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-105"
-                  data-ai-hint="profile camera"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-t-xl"></div>
-                <div className="absolute bottom-0 left-0 p-4 md:p-5">
-                  <CardTitle className="text-xl font-semibold text-white flex items-center">
-                    <Camera className="w-5 h-5 mr-2" />
-                    Profile Picture
-                  </CardTitle>
-                </div>
-            </CardHeader>
-            <CardContent className="p-4 md:p-5">
-              <CardDescription className="mb-3 text-[15px]">Keep your profile picture updated.</CardDescription>
-              <Button disabled className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95">
-                <Edit className="mr-2 h-4 w-4" /> Update Profile Picture (Coming Soon)
-              </Button>
-            </CardContent>
-          </Card>
-        </>
+        <div 
+          className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" 
+          style={{ animationDelay: `0.1s` }}
+        >
+          <ProfileCompletionCard tutor={user as TutorProfile} />
+        </div>
       )}
 
 
@@ -242,3 +250,4 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     </Card>
   );
 }
+
