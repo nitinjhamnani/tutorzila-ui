@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,9 +28,9 @@ import {
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
-import { cn } from "@/lib/utils";
 import { useState } from 'react';
-// import { Label } from "@/components/ui/label"; // Not directly used in this version of the form
+import { Label } from "@/components/ui/label"; // Ensure Label is imported
+
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -58,7 +57,8 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
     try {
-      await login(values.email, undefined);
+      // For mock, role is determined in useAuthMock based on email
+      await login(values.email); 
       toast({
         title: "Signed In!",
         description: `Welcome back!`,
@@ -79,14 +79,14 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <Card className="w-full max-w-md shadow-lg rounded-xl bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
-      <CardHeader className="flex flex-col items-center pt-8 pb-6 bg-card">
+      <CardHeader className="flex flex-col items-center pt-8 pb-6">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
         </Link>
         <CardTitle className="text-center text-3xl font-bold tracking-tight">Welcome Back!</CardTitle>
         <CardDescription className="text-center text-muted-foreground mt-2">Login to access your Tutorzila account.</CardDescription>
       </CardHeader>
-      <CardContent className="px-8 pb-8">
+      <CardContent className="px-8 pb-8"> {/* Reverted to px-8 for CardContent */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -127,7 +127,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
+      <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8"> {/* Removed explicit px for CardFooter, will use default */}
         <Button variant="link" size="sm" asChild className="text-muted-foreground hover:text-primary transition-colors">
          <Link
             href="#" // In a real app, this would go to a forgot password page/modal
@@ -138,7 +138,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            <Link href="/sign-up" onClick={onSuccess}> {/* Close modal on navigation */}
+            <Link href="/sign-up" onClick={onSuccess}>
              Sign Up
             </Link>
           </Button>

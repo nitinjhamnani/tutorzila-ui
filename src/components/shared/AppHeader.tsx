@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -16,15 +15,15 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent, 
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogHeader, // Added DialogHeader
+  DialogTitle, // Added DialogTitle
+  DialogTrigger, // Added DialogTrigger
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, Briefcase, HomeIcon } from "lucide-react";
 import { Logo } from "./Logo";
@@ -82,10 +81,11 @@ export function AppHeader() {
   return (
     <header className={headerClasses}>
       <div className="container mx-auto flex h-28 items-center justify-between px-4 md:px-6">
-        <Logo className="h-24 w-auto"/>
+        <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+          <Logo className="h-24 w-auto"/>
+        </Link>
         
         <nav className="hidden items-center space-x-1 md:flex">
-          {/* Desktop Navigation for authenticated users (if any) */}
            {isAuthenticated && user && (
              <Button asChild variant="ghost" className={ghostButtonClass}>
                 <Link href="/dashboard">
@@ -96,7 +96,6 @@ export function AppHeader() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {/* Desktop: Auth Buttons / User Dropdown */}
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && user ? (
               <DropdownMenu>
@@ -148,8 +147,8 @@ export function AppHeader() {
                   <DialogTrigger asChild>
                     <Button className={actionButtonClass}>Sign In</Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px] p-0 bg-card">
-                     <DialogHeader className="sr-only"> {/* Visually hide for screen readers */}
+                  <DialogContent className="sm:max-w-md p-0 bg-card"> {/* Adjusted max-width and p-0 */}
+                     <DialogHeader className="sr-only">
                        <DialogTitle>Sign In to Tutorzila</DialogTitle>
                      </DialogHeader>
                     <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
@@ -159,7 +158,6 @@ export function AppHeader() {
             )}
           </div>
 
-          {/* Mobile Menu Trigger & Content */}
           <div className="md:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -169,7 +167,7 @@ export function AppHeader() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
                 <SheetHeader className="p-4 border-b">
-                  <SheetTitleComponent>
+                  <SheetTitleComponent> {/* Use renamed component */}
                      <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                         <Logo className="h-10 w-auto" />
                      </Link>
@@ -231,9 +229,9 @@ export function AppHeader() {
                             <LogIn className="h-5 w-5 text-primary" /> Sign In
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px] p-0 bg-card">
-                           <DialogHeader>
-                             <DialogTitle className="sr-only">Sign In to Tutorzila</DialogTitle>
+                        <DialogContent className="sm:max-w-md p-0 bg-card">
+                           <DialogHeader className="sr-only"> {/* Added DialogHeader and DialogTitle for accessibility */}
+                             <DialogTitle>Sign In to Tutorzila</DialogTitle>
                            </DialogHeader>
                           <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
                         </DialogContent>
@@ -255,4 +253,3 @@ export function AppHeader() {
     </header>
   );
 }
-
