@@ -27,7 +27,7 @@ const footerLinks = [
     title: "Connect",
     links: [
       { label: "Contact Us", href: "mailto:support@tutorzila.com", icon: Mail },
-      { label: "Sign In", href: "/?signin=true", icon: LogIn }, // Updated for modal trigger if needed, or direct to /sign-in
+      { label: "Sign In", href: "/?signin=true", icon: LogIn }, 
       { label: "Sign Up", href: "/sign-up", icon: UserPlus },
     ],
   },
@@ -49,11 +49,15 @@ export function AppFooter() {
             <Link href="/">
               <Logo className="h-[var(--logo-height)] w-auto" />
             </Link>
-            {/* Removed paragraph:
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Tutorzila: Connecting students with passionate tutors to unlock their full potential.
-            </p>
-            */}
+            <div className="flex space-x-3 mt-4">
+              {socialLinks.map((social) => (
+                <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
+                  <Link href={social.href} aria-label={social.label}>
+                    <social.icon className="w-5 h-5" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
           </div>
 
           {footerLinks.map((section) => (
@@ -79,15 +83,7 @@ export function AppFooter() {
           <p className="text-sm text-muted-foreground mb-4 md:mb-0">
             &copy; {new Date().getFullYear()} Tutorzila. All rights reserved.
           </p>
-          <div className="flex space-x-3">
-            {socialLinks.map((social) => (
-              <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
-                <Link href={social.href} aria-label={social.label}>
-                  <social.icon className="w-5 h-5" />
-                </Link>
-              </Button>
-            ))}
-          </div>
+          {/* Social links moved above */}
         </div>
       </div>
        <style jsx global>{`
@@ -98,5 +94,3 @@ export function AppFooter() {
     </footer>
   );
 }
-
-
