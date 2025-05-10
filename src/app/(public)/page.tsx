@@ -235,14 +235,6 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
               Meet Our Tutors
             </h2>
-            <p className="text-foreground/80 md:text-lg max-w-2xl mx-auto">
-              Discover some of our top-rated and experienced tutors ready to help you achieve your learning goals.
-            </p>
-             <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <Link href="/search-tuitions">
-                  <Search className="mr-2 h-5 w-5" /> View All Tutors
-                </Link>
-              </Button>
           </div>
           <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto relative animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
             <Carousel opts={{ align: "start", loop: true }} className="w-full">
@@ -339,6 +331,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
