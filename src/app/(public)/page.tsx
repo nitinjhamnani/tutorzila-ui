@@ -25,14 +25,14 @@ const howItWorksItems = [
 ];
 
 const popularSubjects = [
-  { name: "Mathematics", icon: Calculator, hoverColor: "hover:bg-blue-600", borderColor: "border-blue-700" },
-  { name: "Science", icon: Atom, hoverColor: "hover:bg-green-600", borderColor: "border-green-700" },
-  { name: "English", icon: Book, hoverColor: "hover:bg-red-600", borderColor: "border-red-700" },
-  { name: "Coding", icon: Code, hoverColor: "hover:bg-purple-600", borderColor: "border-purple-700" },
-  { name: "History", icon: Globe, hoverColor: "hover:bg-yellow-600", borderColor: "border-yellow-700" },
-  { name: "Art", icon: Palette, hoverColor: "hover:bg-pink-600", borderColor: "border-pink-700" },
-  { name: "Music", icon: Music, hoverColor: "hover:bg-indigo-600", borderColor: "border-indigo-700" },
-  { name: "Physics", icon: Lightbulb, hoverColor: "hover:bg-teal-600", borderColor: "border-teal-700" },
+  { name: "Mathematics", icon: Calculator, hoverColor: "hover:bg-blue-600" },
+  { name: "Science", icon: Atom, hoverColor: "hover:bg-green-600" },
+  { name: "English", icon: Book, hoverColor: "hover:bg-red-600" },
+  { name: "Coding", icon: Code, hoverColor: "hover:bg-purple-600" },
+  { name: "History", icon: Globe, hoverColor: "hover:bg-yellow-600" },
+  { name: "Art", icon: Palette, hoverColor: "hover:bg-pink-600" },
+  { name: "Music", icon: Music, hoverColor: "hover:bg-indigo-600" },
+  { name: "Physics", icon: Lightbulb, hoverColor: "hover:bg-teal-600" },
 ];
 
 export default function HomePage() {
@@ -93,8 +93,8 @@ export default function HomePage() {
               <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} key={subject.name}>
                 <Card
                   className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
-                              border-b-4 active:border-b-2
-                              ${subject.borderColor} bg-secondary text-primary hover:bg-primary/10
+                              border-b-4 active:border-b-2 border-border
+                              bg-secondary text-primary hover:bg-primary/10 
                               animate-in fade-in slide-in-from-bottom-5 duration-500`}
                   style={{ animationDelay: `${index * 0.08}s` }}
                 >

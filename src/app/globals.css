@@ -25,7 +25,7 @@ body {
     --accent-foreground: 0 0% 100%; /* White */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 85%;
+    --border: 0 33% 85%; /* Darker shade of secondary for borders hsl(0, 33%, 85%) */
     --input: 0 0% 100%; /* White input fields with border */
     --ring: 0 65% 62%; /* Accent color for rings */
     --chart-1: 12 76% 61%;
@@ -70,7 +70,7 @@ body {
     --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
+    --border: 0 0% 15%; /* Darker shade of secondary for dark theme borders hsl(0,0%,15%) */
     --input: 0 0% 18%;
     --ring: 0 65% 62%;
     --chart-1: 220 70% 50%;
@@ -97,4 +97,93 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Ensure smooth animations for Next.js page transitions */
+/* For fade-in animation */
+.animate-in.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* For slide-in from bottom animation */
+.animate-in.slide-in-from-bottom-5 {
+  animation: slideInFromBottom5 0.5s ease-out;
+}
+.animate-in.slide-in-from-bottom-10 {
+  animation: slideInFromBottom10 0.5s ease-out;
+}
+
+/* For slide-in from left animation */
+.animate-in.slide-in-from-left-10 {
+  animation: slideInFromLeft10 0.7s ease-out;
+}
+
+/* For slide-in from right animation */
+.animate-in.slide-in-from-right-10 {
+  animation: slideInFromRight10 0.7s ease-out;
+}
+
+/* For zoom-in animation */
+.animate-in.zoom-in-90 {
+  animation: zoomIn90 0.7s ease-out;
+}
+.animate-in.zoom-in-95 {
+  animation: zoomIn95 0.5s ease-out;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromBottom5 {
+  from { transform: translateY(5px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideInFromBottom10 {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInFromLeft10 {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromRight10 {
+  from { transform: translateX(10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes zoomIn90 {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes zoomIn95 {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
+.animate-pulse-once {
+  animation: pulse-once 0.5s ease-in-out;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.5);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.7);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
 }
