@@ -1,7 +1,8 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator } from "lucide-react";
+import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -31,6 +32,7 @@ const popularSubjects = [
   { name: "History", icon: Globe, color: "bg-yellow-500", hoverColor: "hover:bg-yellow-600", borderColor: "border-yellow-700" },
   { name: "Art", icon: Palette, color: "bg-pink-500", hoverColor: "hover:bg-pink-600", borderColor: "border-pink-700" },
   { name: "Music", icon: Music, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", borderColor: "border-indigo-700" },
+  { name: "Physics", icon: Lightbulb, color: "bg-teal-500", hoverColor: "hover:bg-teal-600", borderColor: "border-teal-700" },
 ];
 
 export default function HomePage() {
@@ -38,8 +40,8 @@ export default function HomePage() {
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
       {/* Hero Section */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
-        <div className="container px-4 md:px-6 text-center">
-          <div className="max-w-3xl mx-auto">
+        <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-8 items-center">
+          <div className="text-center lg:text-left">
             <h2
               className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
             >
@@ -52,20 +54,30 @@ export default function HomePage() {
               Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
             </p>
             <div
-              className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
+              className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
               style={{ animationDelay: "0.4s" }}
             >
               <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                <Link href="/search-tuitions">
+                  <Search className="mr-2 h-5 w-5" /> Search Tutors
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                 <Link href="/dashboard/post-requirement">
                   <Edit className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <Link href="/search-tuitions">
-                  <Users className="mr-2 h-5 w-5" /> Search Tutors
-                </Link>
-              </Button>
             </div>
+          </div>
+           <div className="hidden lg:flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out" style={{ animationDelay: "0.3s" }}>
+            <Image
+              src="https://picsum.photos/seed/hero-illustration/500/500"
+              alt="Learning Illustration"
+              width={500}
+              height={500}
+              className="rounded-full object-cover shadow-2xl"
+              data-ai-hint="education online learning"
+            />
           </div>
         </div>
       </section>
@@ -76,19 +88,19 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">
             Explore Popular Subjects
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-3 md:gap-4">
             {popularSubjects.map((subject, index) => (
               <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} key={subject.name}>
                 <Card
-                  className={`group rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
+                  className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
                               border-b-4 active:border-b-2
                               ${subject.borderColor} ${subject.color} text-white
                               animate-in fade-in slide-in-from-bottom-5 duration-500`}
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  style={{ animationDelay: `${index * 0.08}s` }}
                 >
-                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6 aspect-square">
-                    <subject.icon className="w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 transition-transform duration-300 group-hover:scale-110" />
-                    <p className="text-sm sm:text-base font-semibold text-center">{subject.name}</p>
+                  <CardContent className="flex flex-col items-center justify-center p-3 sm:p-4 aspect-square">
+                    <subject.icon className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 transition-transform duration-300 group-hover:scale-110" />
+                    <p className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{subject.name}</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -172,4 +184,5 @@ export default function HomePage() {
     </div>
   );
 }
+
 
