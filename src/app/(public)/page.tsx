@@ -120,7 +120,7 @@ export default function HomePage() {
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                   <DialogTrigger asChild>
-                     <Button size="lg" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-card/90">
+                     <Button size="lg" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-card/90 hover:text-primary">
                       <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
@@ -130,7 +130,7 @@ export default function HomePage() {
                 </Dialog>
               </div>
             </div>
-            <div className="flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out order-first lg:order-last">
+            <div className="hidden lg:flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out order-first lg:order-last">
               <Image
                 src={bannerImage}
                 alt="Learning Illustration"
@@ -372,3 +372,4 @@ export default function HomePage() {
 
 
     
+
