@@ -1,13 +1,10 @@
-
 "use client";
 
 import type { TutorProfile } from "@/types";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Briefcase, DollarSign, Star, MapPinIcon } from "lucide-react";
-import Image from "next/image";
+import { BookOpen, Star } from "lucide-react"; // Removed Briefcase, DollarSign, MapPinIcon
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
@@ -22,7 +19,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           <AvatarFallback className="text-2xl bg-primary/20 text-primary">{tutor.name.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
         <CardTitle className="text-xl md:text-2xl mt-3">{tutor.name}</CardTitle>
-        <CardDescription className="text-sm text-muted-foreground">Experienced Tutor</CardDescription>
+        {/* Removed CardDescription for "Experienced Tutor" as it's similar to experience which was removed */}
       </CardHeader>
       <CardContent className="space-y-3 text-sm flex-grow p-4 md:p-6">
         <div className="flex items-center">
@@ -38,33 +35,17 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
         </div>
 
         <div className="flex items-center pt-1">
-          <Star className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-5deg]" />
-          <strong>Experience:</strong>&nbsp;{tutor.experience}
-        </div>
-
-        {tutor.hourlyRate && (
-          <div className="flex items-center">
-            <DollarSign className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-5deg]" />
-            <strong>Rate:</strong>&nbsp;{tutor.hourlyRate}/hr
+          <Star className="w-4 h-4 mr-2 text-yellow-400 fill-yellow-400 transition-transform duration-300 group-hover:rotate-[-5deg]" />
+          <strong>Rating:</strong>&nbsp; 
+          <div className="flex">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+            ))}
           </div>
-        )}
-         {tutor.availability && (
-            <div className="flex items-center">
-                <MapPinIcon className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-5deg]" />
-                <strong>Availability:</strong>&nbsp;{tutor.availability}
-            </div>
-        )}
-        {tutor.bio && (
-          <p className="text-xs text-muted-foreground pt-2 border-t mt-3">
-            {tutor.bio.length > 100 ? tutor.bio.substring(0, 97) + "..." : tutor.bio}
-          </p>
-        )}
+           <span className="ml-1 text-xs text-muted-foreground">(Mock)</span>
+        </div>
       </CardContent>
-      <CardFooter className="p-4 md:p-6">
-        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95" variant="default" disabled>
-          View Full Profile
-        </Button>
-      </CardFooter>
+      {/* Footer with "View Full Profile" button removed */}
     </Card>
   );
 }
