@@ -1,9 +1,8 @@
-
 "use client";
 
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus } from "lucide-react";
+import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const footerLinks = [
@@ -49,7 +48,7 @@ export function AppFooter() {
             <Link href="/">
               <Logo className="h-[var(--logo-height)] w-auto" />
             </Link>
-            <div className="flex space-x-3"> {/* Removed mt-4 */}
+            <div className="flex space-x-3">
               {socialLinks.map((social) => (
                 <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
                   <Link href={social.href} aria-label={social.label}>
@@ -79,11 +78,24 @@ export function AppFooter() {
           ))}
         </div>
 
-        <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground mb-4 md:mb-0">
+        <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0">
+            <a href="mailto:contact@tutorzila.com" className="flex items-center hover:text-primary transition-colors">
+              <Mail className="w-4 h-4 mr-2 text-primary/80" />
+              contact@tutorzila.com
+            </a>
+            <a href="tel:+1234567890" className="flex items-center hover:text-primary transition-colors">
+              <Phone className="w-4 h-4 mr-2 text-primary/80" />
+              (123) 456-7890
+            </a>
+             <p className="flex items-center">
+              <MapPin className="w-4 h-4 mr-2 text-primary/80" />
+              123 Learning Lane, Knowledge City, EDU 54321
+            </p>
+          </div>
+          <p className="text-xs">
             &copy; {new Date().getFullYear()} Tutorzila. All rights reserved.
           </p>
-          {/* Social links moved above */}
         </div>
       </div>
        <style jsx global>{`
@@ -94,4 +106,3 @@ export function AppFooter() {
     </footer>
   );
 }
-
