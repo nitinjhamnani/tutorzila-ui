@@ -65,15 +65,23 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
             {/* <p className="text-xs text-muted-foreground text-right">{completedSteps} of {totalSteps} steps completed</p> */}
           </div>
         )}
-        <Button asChild variant="outline" className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-3">
+        <Button 
+          asChild 
+          variant="outline" 
+          className="w-full transform transition-transform hover:scale-105 active:scale-95 bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        >
             <Link href="#"> {/* Placeholder Link - Update with actual routes later */}
-                <UserCog className="mr-2 h-5 w-5" />
+                <UserCog className="mr-2 h-4 w-4" /> {/* Adjusted icon size to h-4 w-4 for text-sm */}
                 Edit Personal Details
             </Link>
         </Button>
-        <Button asChild variant="outline" className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-3">
+        <Button 
+          asChild 
+          variant="outline" 
+          className="w-full transform transition-transform hover:scale-105 active:scale-95 bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        >
             <Link href="#"> {/* Placeholder Link - Update with actual routes later */}
-                <ClipboardEdit className="mr-2 h-5 w-5" />
+                <ClipboardEdit className="mr-2 h-4 w-4" /> {/* Adjusted icon size to h-4 w-4 for text-sm */}
                 Edit Tutoring Details
             </Link>
         </Button>
@@ -81,4 +89,3 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
     </Card>
   );
 }
-
