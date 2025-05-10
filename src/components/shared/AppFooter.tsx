@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator"; // Added
 
 const footerLinks = [
   {
@@ -45,7 +46,7 @@ export function AppFooter() {
     <footer className="bg-card border-t border-border/50 text-card-foreground animate-in fade-in duration-500 ease-out">
       <div className="container mx-auto px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          <div className="space-y-4 md:col-span-2 lg:col-span-1">
+          <div className="space-y-3 md:col-span-2 lg:col-span-1">
             <Link href="/">
               <Logo className="h-[var(--logo-height)] w-auto" />
             </Link>
@@ -79,24 +80,27 @@ export function AppFooter() {
           ))}
         </div>
 
-        <div className="border-t border-border/50 pt-8 text-sm text-muted-foreground">
+        <Separator className="my-8" /> 
+        
+        <div className="text-sm text-muted-foreground">
           <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0">
-              <a href="mailto:contact@tutorzila.com" className="flex items-center hover:text-primary transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0 text-center md:text-left">
+              <a href="mailto:contact@tutorzila.com" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start">
                 <Mail className="w-4 h-4 mr-2 text-primary/80" />
                 contact@tutorzila.com
               </a>
-              <a href="tel:+1234567890" className="flex items-center hover:text-primary transition-colors">
+              <a href="tel:+1234567890" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start">
                 <Phone className="w-4 h-4 mr-2 text-primary/80" />
                 (123) 456-7890
               </a>
-               <p className="flex items-center">
+               <p className="flex items-center justify-center sm:justify-start">
                 <MapPin className="w-4 h-4 mr-2 text-primary/80" />
                 123 Learning Lane, Knowledge City, EDU 54321
               </p>
             </div>
           </div>
-          <p className="text-xs text-center md:text-right">
+          <Separator className="my-4" /> {/* Added separator */}
+          <p className="text-xs text-center"> {/* Changed to text-center */}
             &copy; {new Date().getFullYear()} Tutorzila. All rights reserved.
           </p>
         </div>
