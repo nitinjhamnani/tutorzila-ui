@@ -1,10 +1,11 @@
+
 "use client";
 
 import type { TutorProfile } from "@/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Star } from "lucide-react"; // Removed Briefcase, DollarSign, MapPinIcon
+import { BookOpen, Star } from "lucide-react";
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
@@ -19,33 +20,30 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           <AvatarFallback className="text-2xl bg-primary/20 text-primary">{tutor.name.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
         <CardTitle className="text-xl md:text-2xl mt-3">{tutor.name}</CardTitle>
-        {/* Removed CardDescription for "Experienced Tutor" as it's similar to experience which was removed */}
+        <div className="flex items-center mt-1">
+          <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400 transition-transform duration-300 group-hover:rotate-[-5deg]" />
+          <div className="flex">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+            ))}
+          </div>
+           <span className="ml-1.5 text-xs text-muted-foreground">(Mock)</span>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3 text-sm flex-grow p-4 md:p-6">
         <div className="flex items-center">
           <BookOpen className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-5deg]" />
-          <strong>Subjects:</strong>
+           {/* Subjects label removed */}
         </div>
-        <div className="flex flex-wrap gap-1.5 ml-6">
+        <div className="flex flex-wrap gap-1.5 ml-0"> {/* Adjusted ml-6 to ml-0 or removed if icon provides enough space */}
           {tutor.subjects.map(subject => (
             <Badge key={subject} variant="secondary" className="transition-all group-hover:bg-primary/20 group-hover:text-primary text-xs px-2 py-0.5">
               {subject}
             </Badge>
           ))}
         </div>
-
-        <div className="flex items-center pt-1">
-          <Star className="w-4 h-4 mr-2 text-yellow-400 fill-yellow-400 transition-transform duration-300 group-hover:rotate-[-5deg]" />
-          <strong>Rating:</strong>&nbsp; 
-          <div className="flex">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-            ))}
-          </div>
-           <span className="ml-1 text-xs text-muted-foreground">(Mock)</span>
-        </div>
       </CardContent>
-      {/* Footer with "View Full Profile" button removed */}
     </Card>
   );
 }
+
