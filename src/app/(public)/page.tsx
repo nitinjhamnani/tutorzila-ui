@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb } from "lucide-react";
+import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -25,14 +25,14 @@ const howItWorksItems = [
 ];
 
 const popularSubjects = [
-  { name: "Mathematics", icon: Calculator, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", borderColor: "border-blue-700" },
-  { name: "Science", icon: Atom, color: "bg-green-500", hoverColor: "hover:bg-green-600", borderColor: "border-green-700" },
-  { name: "English", icon: Book, color: "bg-red-500", hoverColor: "hover:bg-red-600", borderColor: "border-red-700" },
-  { name: "Coding", icon: Code, color: "bg-purple-500", hoverColor: "hover:bg-purple-600", borderColor: "border-purple-700" },
-  { name: "History", icon: Globe, color: "bg-yellow-500", hoverColor: "hover:bg-yellow-600", borderColor: "border-yellow-700" },
-  { name: "Art", icon: Palette, color: "bg-pink-500", hoverColor: "hover:bg-pink-600", borderColor: "border-pink-700" },
-  { name: "Music", icon: Music, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", borderColor: "border-indigo-700" },
-  { name: "Physics", icon: Lightbulb, color: "bg-teal-500", hoverColor: "hover:bg-teal-600", borderColor: "border-teal-700" },
+  { name: "Mathematics", icon: Calculator, hoverColor: "hover:bg-blue-600", borderColor: "border-blue-700" },
+  { name: "Science", icon: Atom, hoverColor: "hover:bg-green-600", borderColor: "border-green-700" },
+  { name: "English", icon: Book, hoverColor: "hover:bg-red-600", borderColor: "border-red-700" },
+  { name: "Coding", icon: Code, hoverColor: "hover:bg-purple-600", borderColor: "border-purple-700" },
+  { name: "History", icon: Globe, hoverColor: "hover:bg-yellow-600", borderColor: "border-yellow-700" },
+  { name: "Art", icon: Palette, hoverColor: "hover:bg-pink-600", borderColor: "border-pink-700" },
+  { name: "Music", icon: Music, hoverColor: "hover:bg-indigo-600", borderColor: "border-indigo-700" },
+  { name: "Physics", icon: Lightbulb, hoverColor: "hover:bg-teal-600", borderColor: "border-teal-700" },
 ];
 
 export default function HomePage() {
@@ -64,7 +64,7 @@ export default function HomePage() {
               </Button>
               <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                 <Link href="/dashboard/post-requirement">
-                  <Edit className="mr-2 h-5 w-5" /> Post Your Requirement
+                  <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
               </Button>
             </div>
@@ -94,7 +94,7 @@ export default function HomePage() {
                 <Card
                   className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
                               border-b-4 active:border-b-2
-                              ${subject.borderColor} ${subject.color} text-white
+                              ${subject.borderColor} bg-secondary text-primary hover:bg-primary/10
                               animate-in fade-in slide-in-from-bottom-5 duration-500`}
                   style={{ animationDelay: `${index * 0.08}s` }}
                 >
@@ -184,5 +184,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
