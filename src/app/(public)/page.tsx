@@ -192,13 +192,6 @@ export default function HomePage() {
                 <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
             </div>
           </Carousel>
-           <div className="text-center mt-10 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
-            <Button asChild variant="ghost" className="text-primary hover:text-primary/80 group">
-              <Link href="/search-tuitions">
-                View All Subjects <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
 
