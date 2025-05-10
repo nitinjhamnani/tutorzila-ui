@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
@@ -116,7 +115,7 @@ export default function DashboardPage() {
       {/* Welcome Card & My Leads Card Row (for Tutors) */}
       <div className="grid gap-6 md:grid-cols-3">
          <Card className={cn("border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
-          <CardHeader className="p-4 md:p-5"> {/* Reduced padding */}
+          <CardHeader className={cn("p-4 md:p-5 relative", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}> {/* Added relative for icon positioning */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
                 <div className="relative group shrink-0">
@@ -176,15 +175,25 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
+            {user.role === 'tutor' && (
+              <div className="absolute top-4 right-4 flex space-x-2">
+                <Button variant="default" size="icon" className="h-8 w-8 p-1.5 rounded-full shadow-md hover:bg-primary/90" title="View Public Profile">
+                  <Eye className="h-4 w-4 text-primary-foreground" />
+                </Button>
+                <Button variant="default" size="icon" className="h-8 w-8 p-1.5 rounded-full shadow-md hover:bg-primary/90" title="Share Profile">
+                  <Share2 className="h-4 w-4 text-primary-foreground" />
+                </Button>
+              </div>
+            )}
           </CardHeader>
           {(user.role === 'parent' || user.role === 'admin') && (
-              <CardContent className="p-4 md:p-5 pt-0"> {/* Reduced padding */}
+              <CardContent className="p-4 md:p-5 pt-0"> 
                   <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
               </CardContent>
           )}
           {user.role === 'tutor' && (
-            <CardContent className="p-4 md:p-5 pt-2 space-y-3 border-t"> {/* Reduced padding and spacing */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 items-start"> {/* Adjusted gap */}
+            <CardContent className="p-4 md:p-5 pt-2 space-y-3 border-t"> 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 items-start"> 
                 <div className="space-y-1">
                   <div className="flex items-center text-xs text-muted-foreground">
                     <Coins className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
@@ -200,7 +209,7 @@ export default function DashboardPage() {
                   <p className="text-sm font-medium">Dec 31, 2024</p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2"> {/* Reduced pt */}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2"> 
                  <Badge variant="outline" className="border-green-500 text-green-600 bg-green-500/10 py-1 px-2.5 text-xs font-medium">
                     <Award className="w-3.5 h-3.5 mr-1.5" /> Premium Plan
                  </Badge>
@@ -237,7 +246,7 @@ export default function DashboardPage() {
 
       {/* Profile Management Row for Tutors */}
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-3"> {/* Changed md:grid-cols-2 to md:grid-cols-3 */}
+        <div className="grid gap-6 md:grid-cols-3"> 
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
@@ -317,7 +326,7 @@ export default function DashboardPage() {
 interface ActionCardProps {
   title: string;
   description: string;
-  href?: string; // Made href optional for cards without a primary button link in footer
+  href?: string; 
   Icon: React.ElementType;
   imageHint?: string;
   showImage?: boolean;
@@ -355,7 +364,6 @@ function ActionCard({
 }: ActionCardProps) {
 
   const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => {
-    // Ensure BtnIcon is capitalized for JSX if it's a component
     const ButtonIconComponent = BtnIcon; 
     return (
       <Button 
@@ -436,8 +444,3 @@ function ActionCard({
     </Card>
   );
 }
-
-
-
-
-
