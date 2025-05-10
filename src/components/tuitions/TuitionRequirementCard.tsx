@@ -1,9 +1,8 @@
-
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, CalendarDays, MapPin, UserCircle, Tag } from "lucide-react";
+import { BookOpen, CalendarDays, MapPin, UserCircle, Tag, Briefcase } from "lucide-react"; // Added Briefcase
 import { formatDistanceToNow } from 'date-fns';
 
 interface TuitionRequirementCardProps {
@@ -14,52 +13,73 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
 
+  const statusVariant = requirement.status === 'open' 
+    ? 'default' 
+    : requirement.status === 'matched' 
+    ? 'secondary' // You might want a specific color for matched
+    : 'outline'; // And another for closed
+
+  const statusColorClass = requirement.status === 'open' 
+    ? 'bg-green-500 hover:bg-green-600 text-white border-green-600' 
+    : requirement.status === 'matched'
+    ? 'bg-blue-500 hover:bg-blue-600 text-white border-blue-600'
+    : 'bg-gray-400 hover:bg-gray-500 text-white border-gray-500';
+
+
   return (
-    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col transform hover:scale-102 hover:-translate-y-1">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-xl mb-1">{requirement.subject}</CardTitle>
+    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col transform hover:scale-[1.02] hover:-translate-y-1 bg-card rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 h-full">
+      <CardHeader className="p-4 md:p-5 pb-3">
+        <div className="flex justify-between items-start mb-2">
+          <CardTitle className="text-lg font-semibold text-primary group-hover:text-primary/90 transition-colors line-clamp-2">{requirement.subject}</CardTitle>
           <Badge 
-            variant={requirement.status === 'open' ? 'default' : 'secondary'} 
-            className={`transition-all duration-300 group-hover:scale-105 ${requirement.status === 'open' ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
+            variant={statusVariant} 
+            className={`transition-all duration-300 group-hover:scale-105 text-xs py-1 px-2.5 ${statusColorClass}`}
           >
             {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
           </Badge>
         </div>
-        <CardDescription className="text-sm text-muted-foreground">Posted {timeAgo}</CardDescription>
+        <CardDescription className="text-xs text-muted-foreground">Posted {timeAgo} by {requirement.parentName || 'Anonymous'}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm flex-grow">
-        <div className="flex items-center">
-          <Tag className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
-          <strong>Grade:</strong>&nbsp;{requirement.gradeLevel}
-        </div>
-        <div className="flex items-center">
-          <CalendarDays className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
-          <strong>Schedule:</strong>&nbsp;{requirement.scheduleDetails.length > 100 ? requirement.scheduleDetails.substring(0,97) + "..." : requirement.scheduleDetails}
-        </div>
+      <CardContent className="space-y-2.5 text-sm flex-grow p-4 md:p-5 pt-0">
+        <InfoItem icon={Tag} label="Grade" value={requirement.gradeLevel} />
+        <InfoItem icon={CalendarDays} label="Schedule" value={requirement.scheduleDetails} truncateValue={100} />
         {requirement.location && (
-          <div className="flex items-center">
-            <MapPin className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
-            <strong>Location:</strong>&nbsp;{requirement.location}
-          </div>
-        )}
-        {requirement.parentName && (
-             <div className="flex items-center">
-                <UserCircle className="w-4 h-4 mr-2 text-primary transition-transform duration-300 group-hover:rotate-[-10deg]" />
-                <strong>Posted by:</strong>&nbsp;{requirement.parentName}
-            </div>
+          <InfoItem icon={MapPin} label="Location" value={requirement.location} />
         )}
         {requirement.additionalNotes && (
-          <p className="text-xs text-muted-foreground pt-2 border-t mt-2">
-            <strong>Notes:</strong> {requirement.additionalNotes.length > 150 ? requirement.additionalNotes.substring(0,147) + "..." : requirement.additionalNotes}
+          <p className="text-xs text-muted-foreground pt-2.5 border-t border-border/30 mt-2.5 line-clamp-3">
+            <strong className="text-foreground/90">Notes:</strong> {requirement.additionalNotes}
           </p>
         )}
       </CardContent>
-      <CardFooter>
-        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95" variant="outline">
-          View Details & Apply
+      <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
+        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5" variant="outline">
+          <Briefcase className="w-4 h-4 mr-2" /> View Details & Apply
         </Button>
       </CardFooter>
     </Card>
+  );
+}
+
+interface InfoItemProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  truncateValue?: number;
+}
+
+function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
+  const displayValue = truncateValue && value.length > truncateValue 
+    ? `${value.substring(0, truncateValue - 3)}...` 
+    : value;
+
+  return (
+    <div className="flex items-start">
+      <Icon className="w-4 h-4 mr-2.5 text-primary/80 shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110" />
+      <div>
+        <strong className="text-foreground/90 font-medium">{label}:</strong>&nbsp;
+        <span className="text-foreground/80">{displayValue}</span>
+      </div>
+    </div>
   );
 }

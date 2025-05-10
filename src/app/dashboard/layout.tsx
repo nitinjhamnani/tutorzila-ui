@@ -1,4 +1,3 @@
-
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -13,15 +12,10 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  // SidebarMenuSub, // Not used currently
-  // SidebarMenuSubItem, // Not used currently
-  // SidebarMenuSubButton, // Not used currently
   SidebarInset,
-  // SidebarGroup, // Not used currently
-  // SidebarGroupLabel // Not used currently
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, Search, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks } from "lucide-react"; // Menu icon removed as trigger is part of sidebar
+import { Home, Search, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,18 +33,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/"); // Redirect to home page, sign-in is via modal
+      router.push("/"); 
     } else {
       setIsCheckingAuth(false);
     }
   }, [isAuthenticated, router]);
 
   if (isCheckingAuth || !user) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
   }
 
   const commonNavItems = [
-    { href: "/dashboard", label: "Dashboard", icon: Home },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }, // Changed icon to LayoutDashboard
   ];
 
   const parentNavItems = [
@@ -59,7 +53,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const tutorNavItems = [
-    { href: "/search-tuitions", label: "Search Tuitions", icon: Search }, // Updated href
+    { href: "/search-tuitions", label: "Search Tuitions", icon: Search }, 
     { href: "/dashboard/my-applications", label: "My Applications", icon: Briefcase, disabled: true },
   ];
 
@@ -72,7 +66,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   let roleNavItems = [];
   if (user.role === "parent") roleNavItems = parentNavItems;
   else if (user.role === "tutor") roleNavItems = tutorNavItems;
-  else if (user.role === "admin") roleNavItems = [...parentNavItems, ...tutorNavItems, ...adminNavItems];
+  else if (user.role === "admin") roleNavItems = [...parentNavItems, ...tutorNavItems, ...adminNavItems]; // Admin gets all
 
   const navItems = [...commonNavItems, ...roleNavItems];
 
@@ -80,14 +74,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <>
       <AppHeader /> 
       <SidebarProvider defaultOpen={!isMobile}>
-        <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r pt-[var(--header-height)]"> 
-          <SidebarHeader className="p-4">
+        <Sidebar 
+          collapsible={isMobile ? "offcanvas" : "icon"} 
+          className="border-r pt-[var(--header-height)] bg-card shadow-md" // Added shadow for depth
+        > 
+          <SidebarHeader className="p-4 border-b border-border/50"> {/* Added border */}
             <div className="flex items-center justify-between">
               <Link href="/" className="group-data-[collapsible=icon]:hidden">
-                <Logo className="h-auto w-24" />
+                <Logo className="h-auto w-28" /> {/* Slightly adjusted logo size */}
               </Link>
               <div className={cn("group-data-[collapsible=icon]:mx-auto", isMobile && "ml-auto")}>
-                  <SidebarTrigger />
+                  <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"/>
               </div>
             </div>
           </SidebarHeader>
@@ -98,61 +95,69 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.href}
-                    tooltip={{ children: item.label, className: "ml-1" }}
+                    tooltip={{ children: item.label, className: "ml-1.5 text-xs" }} // Adjusted tooltip style
                     disabled={item.disabled}
-                    className={cn("transition-transform duration-200 hover:translate-x-1", item.disabled && "opacity-50 cursor-not-allowed")}
+                    className={cn(
+                      "transition-all duration-200 hover:bg-primary/10 hover:text-primary group", 
+                      item.disabled && "opacity-50 cursor-not-allowed",
+                      pathname === item.href && "bg-primary/10 text-primary font-semibold" // Active state styling
+                    )}
                   >
-                    <Link href={item.disabled ? "#" : item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
+                    <Link href={item.disabled ? "#" : item.href} className="flex items-center gap-3">
+                      <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110", pathname === item.href && "text-primary")} />
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              {user.role === "admin" && pathname.startsWith('/dashboard/admin') && !navItems.find(item => item.href === "/dashboard/admin") && (
+              {/* Special case for admin panel to show if inside admin/* routes */}
+              {user.role === "admin" && pathname.startsWith('/dashboard/admin') && !navItems.some(item => item.href === "/dashboard/admin") && (
                   <SidebarMenuItem>
                       <SidebarMenuButton
-                      asChild
-                      isActive={pathname === "/dashboard/admin"}
-                      tooltip={{ children: "Admin Panel", className: "ml-1"}}
-                      className="transition-transform duration-200 hover:translate-x-1"
+                        asChild
+                        isActive={pathname === "/dashboard/admin"}
+                        tooltip={{ children: "Admin Panel", className: "ml-1.5 text-xs"}}
+                        className={cn(
+                          "transition-all duration-200 hover:bg-primary/10 hover:text-primary group",
+                          pathname === "/dashboard/admin" && "bg-primary/10 text-primary font-semibold"
+                        )}
                       >
-                          <Link href="/dashboard/admin">
-                              <ShieldCheck />
-                              <span>Admin Panel</span>
+                          <Link href="/dashboard/admin" className="flex items-center gap-3">
+                              <ShieldCheck className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110", pathname === "/dashboard/admin" && "text-primary")} />
+                              <span className="group-data-[collapsible=icon]:hidden">Admin Panel</span>
                           </Link>
                       </SidebarMenuButton>
                   </SidebarMenuItem>
               )}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="p-2">
-            <div className="group-data-[collapsible=icon]:hidden flex flex-col gap-2 p-2 border-t">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-9 w-9">
+          <SidebarFooter className="p-2 border-t border-border/50"> {/* Added border */}
+            <div className="group-data-[collapsible=icon]:hidden flex flex-col gap-2 p-2">
+                <div className="flex items-center gap-3 p-2 rounded-md bg-muted/30"> {/* Subtle background for user info */}
+                  <Avatar className="h-10 w-10 border-2 border-primary/50">
                       <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                      <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback className="bg-primary/20 text-primary font-semibold">{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                      <p className="text-sm font-medium">{user.name}</p>
-                      <p className="text-xs text-muted-foreground">{user.role}</p>
+                      <p className="text-sm font-semibold text-foreground">{user.name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="justify-start gap-2" disabled>
+                <Button variant="ghost" size="sm" className="justify-start gap-2.5 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" disabled>
                   <Settings className="h-4 w-4" /> Settings
                 </Button>
-                <Button variant="ghost" size="sm" onClick={logout} className="justify-start gap-2">
+                <Button variant="ghost" size="sm" onClick={logout} className="justify-start gap-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
                   <LogOut className="h-4 w-4" /> Log Out
                 </Button>
             </div>
-            <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-2 py-2 border-t">
-              <Button variant="ghost" size="icon" onClick={logout} title="Log Out">
+            <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-2 py-2">
+              <Button variant="ghost" size="icon" onClick={logout} title="Log Out" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
                   <LogOut className="h-5 w-5" />
                 </Button>
             </div>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="p-4 md:p-6 bg-background pt-[calc(var(--header-height)_+_1rem)]"> 
+        <SidebarInset className="p-4 md:p-6 bg-background pt-[calc(var(--header-height)_+_1.5rem)]"> {/* Added bit more top padding */}
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           {children}
           </div>
@@ -163,16 +168,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           --header-height: 7rem; 
           --logo-height: 6rem;
         }
-        .pt-\\[var\\(--header-height\\)\\] {
-          padding-top: var(--header-height);
-        }
-        .pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
-          padding-top: calc(var(--header-height) + 1rem);
-        }
-         .h-\\[var\\(--logo-height\\)\\] {
-          height: var(--logo-height);
-        }
+        /* These classes are dynamically generated by Tailwind JIT, no need to redefine here */
       `}</style>
     </>
   );
 }
+

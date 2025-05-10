@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -7,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TutorProfileCard } from "./TutorProfileCard";
-import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap } from "lucide-react"; // Added GraduationCap
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter } from "lucide-react"; 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 // Mock data for Tutor Profiles
 const MOCK_TUTOR_PROFILES: TutorProfile[] = [
@@ -28,26 +27,25 @@ export function TutorProfileSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [experienceFilter, setExperienceFilter] = useState("All");
-  const [gradeFilter, setGradeFilter] = useState("All"); // New filter state
+  const [gradeFilter, setGradeFilter] = useState("All"); 
   const [tutorProfiles, setTutorProfiles] = useState<TutorProfile[]>([]);
 
   useEffect(() => {
-    // In a real app, this would be an API call.
     setTutorProfiles(MOCK_TUTOR_PROFILES);
   }, []);
 
   const filteredTutorProfiles = useMemo(() => {
     return tutorProfiles.filter((tutor) => {
+      const searchTermLower = searchTerm.toLowerCase();
       const matchesSearchTerm = searchTerm === "" ||
-        tutor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tutor.subjects.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (tutor.bio && tutor.bio.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (tutor.grade && tutor.grade.toLowerCase().includes(searchTerm.toLowerCase()));
+        tutor.name.toLowerCase().includes(searchTermLower) ||
+        tutor.subjects.some(s => s.toLowerCase().includes(searchTermLower)) ||
+        (tutor.bio && tutor.bio.toLowerCase().includes(searchTermLower)) ||
+        (tutor.grade && tutor.grade.toLowerCase().includes(searchTermLower));
       
       const matchesSubject = subjectFilter === "All" || tutor.subjects.includes(subjectFilter);
       const matchesExperience = experienceFilter === "All" || tutor.experience === experienceFilter;
       const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter;
-
 
       return matchesSearchTerm && matchesSubject && matchesExperience && matchesGrade;
     });
@@ -62,54 +60,33 @@ export function TutorProfileSearch() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-lg animate-in fade-in duration-300 ease-out bg-card">
-        <CardHeader>
-          <CardTitle className="text-2xl md:text-3xl flex items-center">
-            <Users className="w-7 h-7 md:w-8 md:h-8 mr-3 text-primary"/>
-            Find Your Ideal Tutor
+      <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden">
+        <CardHeader className="p-6 md:p-8">
+          <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight flex items-center">
+            <Users className="w-8 h-8 md:w-10 md:h-10 mr-3"/>Find Your Ideal Tutor
           </CardTitle>
+           <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
+            Browse profiles, filter by expertise, and connect with qualified educators.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 p-6 md:p-8 pt-0">
           <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search by name, subject, grade, or keywords..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2.5 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/50 shadow-sm hover:shadow-md"
+              className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <label htmlFor="subject-filter" className="text-sm font-medium text-muted-foreground flex items-center"><BookOpen className="w-4 h-4 mr-1.5"/>Subject</label>
-              <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger id="subject-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50 shadow-sm hover:shadow-md"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {allSubjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-             <div className="space-y-1">
-              <label htmlFor="grade-filter" className="text-sm font-medium text-muted-foreground flex items-center"><GraduationCap className="w-4 h-4 mr-1.5"/>Grade Level</label>
-              <Select value={gradeFilter} onValueChange={setGradeFilter}>
-                <SelectTrigger id="grade-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50 shadow-sm hover:shadow-md"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {gradeLevels.map(level => <SelectItem key={level} value={level}>{level}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <label htmlFor="experience-filter" className="text-sm font-medium text-muted-foreground flex items-center"><Star className="w-4 h-4 mr-1.5"/>Experience</label>
-              <Select value={experienceFilter} onValueChange={setExperienceFilter}>
-                <SelectTrigger id="experience-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50 shadow-sm hover:shadow-md"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {experienceLevels.map(level => <SelectItem key={level} value={level}>{level}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={resetFilters} variant="outline" className="self-end h-10 transform transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md">
-              <XIcon className="w-4 h-4 mr-2" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjects} />
+            <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevels} />
+            <FilterItem icon={Star} label="Experience" value={experienceFilter} onValueChange={setExperienceFilter} options={experienceLevels} />
+            
+            <Button onClick={resetFilters} variant="outline" className="h-11 text-base border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
+              <XIcon className="w-5 h-5" />
               Reset Filters
             </Button>
           </div>
@@ -122,18 +99,24 @@ export function TutorProfileSearch() {
             <div 
               key={tutor.id}
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-              style={{ animationDelay: `${index * 0.05}s` }}
+              style={{ animationDelay: `${index * 0.05 + 0.3}s` }} // Stagger animation
             >
               <TutorProfileCard tutor={tutor} />
             </div>
           ))}
         </div>
       ) : (
-        <Card className="text-center py-12 shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out bg-card">
-          <CardContent>
-            <SearchIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-xl font-semibold text-muted-foreground">No tutors found matching your criteria.</p>
-            <p className="text-sm text-muted-foreground mt-1">Try adjusting your search filters.</p>
+        <Card className="text-center py-16 shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30">
+          <CardContent className="flex flex-col items-center">
+            <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" /> {/* Changed icon */}
+            <p className="text-2xl font-semibold text-foreground/80 mb-2">No Tutors Found</p>
+            <p className="text-md text-muted-foreground max-w-md mx-auto">
+             Try adjusting your search filters or check back later as new tutors join.
+            </p>
+             <Button onClick={resetFilters} variant="outline" className="mt-8 text-base py-2.5 px-6">
+              <XIcon className="w-4 h-4 mr-2" />
+              Clear Filters
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -141,4 +124,31 @@ export function TutorProfileSearch() {
   );
 }
 
+interface FilterItemProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: string[];
+}
 
+function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-sm font-medium text-muted-foreground flex items-center">
+        <Icon className="w-4 h-4 mr-2 text-primary/80"/>{label}
+      </label>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger 
+          id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-11 text-base"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(opt => <SelectItem key={opt} value={opt} className="text-base">{opt}</SelectItem>)}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}

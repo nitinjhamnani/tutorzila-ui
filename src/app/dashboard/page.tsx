@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -32,7 +31,7 @@ export default function DashboardPage() {
         title="My Requirements"
         description="View and manage your active tuition postings."
         href="/dashboard/my-requirements"
-        icon={Lightbulb}
+        icon={ListChecks} // Changed icon
         imageHint="task checklist"
       />
     );
@@ -42,18 +41,18 @@ export default function DashboardPage() {
         key="search-tuitions"
         title="Search Tuitions"
         description="Find tuition opportunities that match your expertise and schedule."
-        href="/dashboard/search-tuitions"
+        href="/search-tuitions" // Updated href to be consistent with sidebar
         icon={Search}
         imageHint="magnifying glass map"
       />,
       <ActionCard
-        key="my-profile"
-        title="My Profile"
-        description="Update your tutor profile to attract more students."
-        href="/dashboard/profile"
-        icon={UserCheck}
+        key="my-applications" // Changed key and title to match sidebar
+        title="My Applications"
+        description="Track your applications for tuition jobs." // Updated description
+        href="/dashboard/my-applications" // Updated href
+        icon={Briefcase} // Changed icon
         imageHint="profile curriculum"
-        disabled
+        disabled // Assuming this is still a future feature
       />
     );
   } else if (user.role === "admin") {
@@ -81,47 +80,53 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-lg bg-gradient-to-r from-primary/10 to-transparent animate-in fade-in duration-500 ease-out">
-        <CardHeader>
-          <CardTitle className="text-3xl">Welcome back, {user.name}!</CardTitle>
-          <CardDescription className="text-lg">
+      <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden">
+        <CardHeader className="p-6 md:p-8">
+          <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight">Welcome back, {user.name}!</CardTitle>
+          <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
             You are logged in as a {user.role}. Here&apos;s your dashboard overview.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <p>Manage your tuition activities and settings from here.</p>
+        <CardContent className="p-6 md:p-8 pt-0">
+          <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
         </CardContent>
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {actionCards.map((card, index) => (
           <div 
-            key={index} // Assuming titles are unique for key, or use a proper unique id
+            key={index} 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `${index * 0.1}s` }}
+            style={{ animationDelay: `${index * 0.1 + 0.2}s` }} // Stagger animation
           >
             {card}
           </div>
         ))}
 
         <Card 
-          className="shadow-md hover:shadow-lg transition-all duration-300 col-span-full lg:col-span-1 group transform hover:scale-105 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-          style={{ animationDelay: `${actionCards.length * 0.1}s` }}
+          className="shadow-lg hover:shadow-xl transition-all duration-300 col-span-full lg:col-span-1 group bg-card border border-border/30 hover:border-primary/50 rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+          style={{ animationDelay: `${actionCards.length * 0.1 + 0.2}s` }}
         >
-          <CardHeader>
+          <CardHeader className="p-0 relative">
              <Image
                 src={`https://picsum.photos/seed/${user.id}activity/400/200`}
-                alt="Activity Feed"
+                alt="Activity Feed Illustration"
                 width={400}
                 height={200}
-                className="rounded-t-lg object-cover w-full aspect-[2/1] transition-transform duration-300 group-hover:scale-105"
+                className="rounded-t-xl object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint="activity chart"
               />
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Updates on your postings and applications.</CardDescription>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-t-xl"></div>
+              <div className="absolute bottom-0 left-0 p-4 md:p-5">
+                <CardTitle className="text-xl font-semibold text-white flex items-center">
+                  <Activity className="w-5 h-5 mr-2" />
+                  Recent Activity
+                </CardTitle>
+              </div>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">No recent activity to display yet.</p>
+          <CardContent className="p-4 md:p-5">
+            <CardDescription className="mb-3 text-sm">Updates on your postings and applications.</CardDescription>
+            <p className="text-muted-foreground text-sm">No recent activity to display yet.</p>
             {/* Placeholder for activity feed items */}
           </CardContent>
         </Card>
@@ -141,31 +146,35 @@ interface ActionCardProps {
 
 function ActionCard({ title, description, href, icon: Icon, imageHint, disabled }: ActionCardProps) {
   return (
-    <Card className="group shadow-md hover:shadow-lg transition-all duration-300 flex flex-col transform hover:scale-105 hover:-translate-y-1">
-       <div className="overflow-hidden rounded-t-lg">
+    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
+       <div className="overflow-hidden rounded-t-xl relative">
         <Image
           src={`https://picsum.photos/seed/${title.replace(/\s+/g, '')}/400/200`}
           alt={title}
           width={400}
           height={200}
-          className="object-cover w-full aspect-[2/1] transition-transform duration-300 group-hover:scale-110"
+          className="object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-110"
           data-ai-hint={imageHint}
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/40 transition-all duration-300"></div>
       </div>
-      <CardHeader>
+      <CardHeader className="p-4 md:p-5">
         <div className="flex items-center gap-3">
-          <Icon className="w-8 h-8 text-primary transition-transform duration-300 group-hover:rotate-[-10deg] group-hover:scale-110" />
-          <CardTitle>{title}</CardTitle>
+          <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
+             <Icon className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
+          </div>
+          <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{title}</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <p className="text-muted-foreground">{description}</p>
+      <CardContent className="flex-grow p-4 md:p-5 pt-0">
+        <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
       </CardContent>
-      <CardContent>
-        <Button asChild className="w-full transform transition-transform hover:scale-105 active:scale-95" disabled={disabled}>
-          <Link href={disabled ? "#" : href}>{title}</Link>
+      <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
+        <Button asChild className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5" disabled={disabled}>
+          <Link href={disabled ? "#" : href}>{disabled ? "Coming Soon" : title}</Link>
         </Button>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }
+

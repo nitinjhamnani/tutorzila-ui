@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -7,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "./TuitionRequirementCard";
-import { SearchIcon, XIcon, BookOpen, Users, MapPin } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SearchIcon, XIcon, BookOpen, Users, MapPin, Filter } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 // Mock data - replace with API call in a real app
 const MOCK_REQUIREMENTS: TuitionRequirement[] = [
@@ -32,15 +31,19 @@ export function TuitionSearch() {
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
 
   useEffect(() => {
+    // Simulate API call
     setRequirements(MOCK_REQUIREMENTS.filter(r => r.status === 'open'));
   }, []);
 
   const filteredRequirements = useMemo(() => {
     return requirements.filter((req) => {
+      const searchTermLower = searchTerm.toLowerCase();
       const matchesSearchTerm = searchTerm === "" || 
-        req.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.gradeLevel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (req.additionalNotes && req.additionalNotes.toLowerCase().includes(searchTerm.toLowerCase()));
+        req.subject.toLowerCase().includes(searchTermLower) ||
+        req.gradeLevel.toLowerCase().includes(searchTermLower) ||
+        (req.parentName && req.parentName.toLowerCase().includes(searchTermLower)) ||
+        (req.location && req.location.toLowerCase().includes(searchTermLower)) ||
+        (req.additionalNotes && req.additionalNotes.toLowerCase().includes(searchTermLower));
       
       const matchesSubject = subjectFilter === "All" || req.subject === subjectFilter;
       const matchesGradeLevel = gradeLevelFilter === "All" || req.gradeLevel === gradeLevelFilter;
@@ -59,51 +62,33 @@ export function TuitionSearch() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-lg animate-in fade-in duration-300 ease-out">
-        <CardHeader>
-          <CardTitle className="text-2xl">Find Tuition Opportunities</CardTitle>
+      <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden">
+        <CardHeader className="p-6 md:p-8">
+           <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight flex items-center">
+            <SearchIcon className="w-8 h-8 md:w-10 md:h-10 mr-3"/>Find Tuition Opportunities
+          </CardTitle>
+          <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
+            Search and filter to find the perfect tuition job for you.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 p-6 md:p-8 pt-0">
           <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search by subject, grade, or keywords..."
+              placeholder="Search by subject, grade, location, or keywords..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/50"
+              className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <label htmlFor="subject-filter" className="text-sm font-medium text-muted-foreground flex items-center"><BookOpen className="w-4 h-4 mr-1.5"/>Subject</label>
-              <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger id="subject-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <label htmlFor="grade-filter" className="text-sm font-medium text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1.5"/>Grade Level</label>
-              <Select value={gradeLevelFilter} onValueChange={setGradeLevelFilter}>
-                <SelectTrigger id="grade-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {gradeLevels.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <label htmlFor="location-filter" className="text-sm font-medium text-muted-foreground flex items-center"><MapPin className="w-4 h-4 mr-1.5"/>Location</label>
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger id="location-filter" className="transition-all duration-300 focus:ring-2 focus:ring-primary/50"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={resetFilters} variant="outline" className="self-end h-10 transform transition-transform hover:scale-105 active:scale-95">
-              <XIcon className="w-4 h-4 mr-2" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={subjects} />
+            <FilterItem icon={Users} label="Grade Level" value={gradeLevelFilter} onValueChange={setGradeLevelFilter} options={gradeLevels} />
+            <FilterItem icon={MapPin} label="Location" value={locationFilter} onValueChange={setLocationFilter} options={locations} />
+            
+            <Button onClick={resetFilters} variant="outline" className="h-11 text-base border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
+              <XIcon className="w-5 h-5" />
               Reset Filters
             </Button>
           </div>
@@ -116,21 +101,57 @@ export function TuitionSearch() {
             <div 
               key={req.id}
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-              style={{ animationDelay: `${index * 0.05}s` }}
+              style={{ animationDelay: `${index * 0.05 + 0.3}s` }} // Stagger animation
             >
               <TuitionRequirementCard requirement={req} />
             </div>
           ))}
         </div>
       ) : (
-        <Card className="text-center py-12 shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out">
-          <CardContent>
-            <SearchIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-xl font-semibold text-muted-foreground">No matching tuition requirements found.</p>
-            <p className="text-sm text-muted-foreground mt-1">Try adjusting your search filters or check back later.</p>
+         <Card className="text-center py-16 shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30">
+          <CardContent className="flex flex-col items-center">
+            <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" /> {/* Changed icon */}
+            <p className="text-2xl font-semibold text-foreground/80 mb-2">No Matching Tuitions Found</p>
+            <p className="text-md text-muted-foreground max-w-md mx-auto">
+             Try adjusting your search filters or check back later for new opportunities.
+            </p>
+             <Button onClick={resetFilters} variant="outline" className="mt-8 text-base py-2.5 px-6">
+              <XIcon className="w-4 h-4 mr-2" />
+              Clear Filters
+            </Button>
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+
+interface FilterItemProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: string[];
+}
+
+function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-sm font-medium text-muted-foreground flex items-center">
+        <Icon className="w-4 h-4 mr-2 text-primary/80"/>{label}
+      </label>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger 
+          id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-11 text-base"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(opt => <SelectItem key={opt} value={opt} className="text-base">{opt}</SelectItem>)}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
