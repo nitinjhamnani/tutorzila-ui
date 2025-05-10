@@ -11,6 +11,8 @@ import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
 import hireTutorImage from '@/assets/images/banner-8.png';
 import becomeTutorImage from '@/assets/images/banner-11.png';
+import type { TutorProfile } from "@/types";
+import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 
 
 const howItWorksSteps = [
@@ -69,6 +71,16 @@ const popularSubjects = [
   { name: "Geography", icon: Globe, hoverColor: "hover:bg-orange-600" },
   { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
 ];
+
+// Mock data for Tutor Profiles - copied from TutorProfileSearch for use in this server component
+const MOCK_TUTOR_PROFILES: TutorProfile[] = [
+  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], experience: "10+ years", hourlyRate: "$70", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", availability: "Weekends, Mon/Wed Evenings" },
+  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], experience: "5-7 years", hourlyRate: "$55", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", availability: "Weekdays After 5 PM" },
+  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], experience: "3-5 years", hourlyRate: "$60", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", availability: "Flexible, Online Only" },
+  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], experience: "7+ years", hourlyRate: "$65", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", availability: "Tue/Thu Evenings" },
+  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], experience: "3-5 years", hourlyRate: "$50", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", availability: "Weekends" },
+];
+
 
 export default function HomePage() {
   const sectionPadding = "py-8 md:py-12";
@@ -133,9 +145,9 @@ export default function HomePage() {
             }}
             className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
-            <CarouselContent className="-ml-4 md:-ml-4 py-4"> {/* Adjusted negative margin */}
+            <CarouselContent className="-ml-4 md:-ml-4 py-4">
               {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-4 md:pl-4 basis-auto sm:basis-auto md:basis-auto lg:basis-auto"> {/* Increased padding */}
+                <CarouselItem key={subject.name} className="pl-4 md:pl-4 basis-auto sm:basis-auto md:basis-auto lg:basis-auto">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
                       className={`group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ease-out transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer
@@ -216,8 +228,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Become A Tutor Section */}
+      {/* Meet Our Tutors Section */}
       <section className={`w-full ${sectionPadding} bg-background/50`}>
+        <div className={`${containerPadding} grid lg:grid-cols-2 gap-12 items-center`}>
+          <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out text-center lg:text-left">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
+              Meet Our Tutors
+            </h2>
+            <p className="text-foreground/80 md:text-lg">
+              Discover some of our top-rated and experienced tutors ready to help you achieve your learning goals.
+            </p>
+            <div className="flex justify-center lg:justify-start">
+              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                <Link href="/search-tuitions">
+                  <Search className="mr-2 h-5 w-5" /> View All Tutors
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl mx-auto relative animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
+            <Carousel opts={{ align: "start", loop: true }} className="w-full">
+              <CarouselContent className="-ml-4 py-2">
+                {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
+                  <CarouselItem key={tutor.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/1"> {/* Adjusted basis */}
+                    <div className="p-1">
+                      <TutorProfileCard tutor={tutor} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute left-[-1rem] sm:left-[-1.5rem] md:left-[-2rem] top-1/2 -translate-y-1/2 z-10 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+              <CarouselNext className="absolute right-[-1rem] sm:right-[-1.5rem] md:right-[-2rem] top-1/2 -translate-y-1/2 z-10 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
+            </Carousel>
+          </div>
+        </div>
+      </section>
+
+      {/* Become A Tutor Section */}
+      <section className={`w-full ${sectionPadding} bg-secondary`}>
         <div className={`${containerPadding} grid lg:grid-cols-2 gap-12 items-center`}>
           <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
@@ -291,6 +339,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
