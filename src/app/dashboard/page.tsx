@@ -1,9 +1,7 @@
-
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList } from "lucide-react";
 import Image from "next/image";
@@ -121,8 +119,8 @@ export default function DashboardPage() {
               {user.role === 'tutor' && (
                 <div className="relative group shrink-0">
                   <Avatar
-                    className="h-16 w-16 border-2 border-primary/30 cursor-pointer group-hover:opacity-80 transition-opacity"
-                    onClick={handleAvatarClick}
+                    className="h-16 w-16 border-2 border-primary/30 group-hover:opacity-80 transition-opacity"
+                    onClick={handleAvatarClick} // No cursor-pointer here, button below handles it
                   >
                     <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl">
@@ -202,12 +200,18 @@ export default function DashboardPage() {
               title="My Classes"
               cardDescriptionText="View and manage your scheduled classes." 
               description="5" // Show only the count for number of classes
-              href="#"
+              href="#" // For "View Classes" button
               icon={ListChecks} 
               showImage={false}
-              disabled={false} 
-              actionButtonText="Manage Class"
+              disabled={false} // For "View Classes" button
+              actionButtonText="View Classes"
               actionButtonIcon={ClipboardList}
+              
+              actionButtonText2="Create Class" // New prop for second button
+              actionButtonIcon2={PlusCircle} // New prop for second button icon
+              href2="#" // New prop for second button href
+              disabled2={false} // New prop for second button disabled state
+
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
               buttonInContent={true} 
@@ -262,6 +266,10 @@ interface ActionCardProps {
   actionButtonClassName?: string;
   buttonInContent?: boolean;
   cardDescriptionText?: string; 
+  actionButtonText2?: string; // New prop for second button text
+  actionButtonIcon2?: React.ElementType; // New prop for second button icon
+  href2?: string; // New prop for second button href
+  disabled2?: boolean; // New prop for second button disabled state
 }
 
 function ActionCard({ 
@@ -278,10 +286,14 @@ function ActionCard({
   actionButtonClassName,
   buttonInContent = false,
   cardDescriptionText, 
+  actionButtonText2,
+  actionButtonIcon2: ActionButtonIcon2,
+  href2,
+  disabled2,
 }: ActionCardProps) {
   const buttonTextContent = actionButtonText || (disabled ? "Coming Soon" : title);
 
-  const renderButton = () => (
+  const renderSingleButton = () => (
     <Button 
       asChild 
       variant={actionButtonVariant || (disabled ? "default" : "default")}
@@ -329,12 +341,46 @@ function ActionCard({
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
         {title === "My Classes" && buttonInContent ? (
           <>
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-sm mb-2">
               <span className="font-medium text-foreground/80">Active Classes</span>
               <span className="font-semibold text-primary">{description}</span>
             </div>
-            <div className="mt-auto pt-4"> 
-              {renderButton()}
+            <div className="mt-auto pt-4 space-y-3"> 
+              {/* Button 1: View Classes */}
+              <Button 
+                asChild 
+                variant={actionButtonVariant || "outline"}
+                className={cn(
+                  "w-full transform transition-transform hover:scale-105 active:scale-95", 
+                  actionButtonClassName,
+                  "py-2.5" 
+                )} 
+                disabled={disabled}
+              >
+                <Link href={disabled || !href ? "#" : href}>
+                  {ActionButtonIcon && <ActionButtonIcon className="mr-2 h-4 w-4" />}
+                  {actionButtonText || "View Classes"}
+                </Link>
+              </Button>
+              
+              {/* Button 2: Create Class */}
+              {actionButtonText2 && ActionButtonIcon2 && (
+                 <Button 
+                    asChild 
+                    variant={actionButtonVariant || "outline"} 
+                    className={cn(
+                      "w-full transform transition-transform hover:scale-105 active:scale-95", 
+                      actionButtonClassName, 
+                      "py-2.5"
+                    )} 
+                    disabled={disabled2} 
+                  >
+                    <Link href={disabled2 || !href2 ? "#" : href2}>
+                      <ActionButtonIcon2 className="mr-2 h-4 w-4" />
+                      {actionButtonText2}
+                    </Link>
+                  </Button>
+              )}
             </div>
           </>
         ) : (
@@ -342,16 +388,16 @@ function ActionCard({
             <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
             {buttonInContent && (
               <div className="mt-4"> 
-                {renderButton()}
+                {renderSingleButton()}
               </div>
             )}
           </>
         )}
       </CardContent>
       {!buttonInContent && (
-         <div className="p-4 md:p-5 border-t bg-muted/20">
-          {renderButton()}
-        </div>
+         <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
+          {renderSingleButton()}
+        </CardFooter>
       )}
     </Card>
   );
