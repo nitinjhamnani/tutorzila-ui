@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail } from "lucide-react";
+import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const footerLinks = [
@@ -27,6 +27,8 @@ const footerLinks = [
     title: "Connect",
     links: [
       { label: "Contact Us", href: "mailto:support@tutorzila.com", icon: Mail },
+      { label: "Sign In", href: "/?signin=true", icon: LogIn }, // Updated for modal trigger if needed, or direct to /sign-in
+      { label: "Sign Up", href: "/sign-up", icon: UserPlus },
     ],
   },
 ];
@@ -41,11 +43,11 @@ const socialLinks = [
 export function AppFooter() {
   return (
     <footer className="bg-card border-t border-border/50 text-card-foreground animate-in fade-in duration-500 ease-out">
-      <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
+      <div className="container mx-auto px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4 md:col-span-2 lg:col-span-1">
             <Link href="/">
-              <Logo className="h-24 w-auto" /> {/* Increased height to 6rem (h-24) */}
+              <Logo className="h-[var(--logo-height)] w-auto" />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Tutorzila: Connecting students with passionate tutors to unlock their full potential.
@@ -86,6 +88,11 @@ export function AppFooter() {
           </div>
         </div>
       </div>
+       <style jsx global>{`
+        :root {
+          --footer-height: ${footerLinks.length > 2 ? '20rem' : '15rem'}; /* Adjust based on content */
+        }
+      `}</style>
     </footer>
   );
 }
