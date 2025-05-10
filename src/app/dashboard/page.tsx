@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -87,11 +86,15 @@ export default function DashboardPage() {
         <CardHeader className="p-6 md:p-8">
           <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight">Welcome back, {user.name}!</CardTitle>
           <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
-            You are logged in as a {user.role}. Here&apos;s your dashboard overview.
+            {user.role === 'tutor'
+              ? "Manage your tuition activities and profile from here."
+              : `You are logged in as a ${user.role}. Here's your dashboard overview.`}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8 pt-0">
-          <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
+          {user.role !== 'tutor' && (
+            <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
+          )}
         </CardContent>
       </Card>
 
@@ -186,3 +189,4 @@ function ActionCard({ title, description, href, icon: Icon, imageHint, disabled 
     </Card>
   );
 }
+
