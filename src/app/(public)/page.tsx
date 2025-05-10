@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Search, UserPlus } from "lucide-react";
@@ -29,11 +30,11 @@ export default function HomePage() {
       <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
         <div className="container px-4 md:px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h1 
+            <h2 
               className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
             >
               Find Your Perfect Learning Match with Tutorzila
-            </h1>
+            </h2>
             <p 
               className="mt-4 text-lg text-foreground/80 md:text-xl animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
               style={{ animationDelay: "0.2s" }}
