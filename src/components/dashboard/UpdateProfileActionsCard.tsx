@@ -8,6 +8,7 @@ import { UserCog, ClipboardEdit, Edit, CheckCircle, Activity } from "lucide-reac
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface UpdateProfileActionsCardProps {
   user: TutorProfile;
@@ -41,15 +42,15 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
   }, [user]);
 
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card border border-border/30 rounded-xl overflow-hidden h-full flex flex-col">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-semibold text-primary flex items-center">
-              <Edit className="w-6 h-6 mr-2.5"/>
-              Update Profile
-            </CardTitle>
+    <Card className="group shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card border border-border/30 rounded-xl overflow-hidden h-full flex flex-col">
+      <CardHeader className={cn("p-4 md:p-5", "pt-6")}> {/* Adjusted padding for consistency */}
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
+            <Edit className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
+          </div>
+          <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">My Profile</CardTitle>
         </div>
-        <CardDescription className="text-sm mt-1">
+        <CardDescription className="text-sm mt-1 text-muted-foreground">
           Complete your profile to attract more students.
         </CardDescription>
       </CardHeader>
