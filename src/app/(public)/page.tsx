@@ -1,30 +1,36 @@
 
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, CircleCheckBig } from "lucide-react";
+import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, CircleCheckBig, BookUser, Send, UserRoundCheck, UsersRound, MessageSquareQuote, FilePenLine, NotebookPen, SearchCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
+// import hireTutorImage from '@/assets/images/hire-tutor.png'; // Removed missing import
 
-const howItWorksItems = [
+const howItWorksSteps = [
   {
-    icon: UserPlus,
-    title: "1. Sign Up",
-    description: "Create your account as a parent looking for a tutor or as a tutor offering your expertise."
+    icon: SquarePen,
+    title: "Post Your Need",
+    description: "Clearly outline the subject, grade, and specific help required.",
   },
   {
-    icon: Search,
-    title: "2. Post or Search",
-    description: "Parents post specific tuition requirements. Tutors search for opportunities matching their skills."
+    icon: SearchCheck,
+    title: "Browse Profiles",
+    description: "Review detailed tutor profiles, experience, and qualifications.",
   },
   {
-    icon: CircleCheckBig, 
-    title: "3. Connect",
-    description: "Connect with suitable matches and start the learning journey."
-  }
+    icon: MessageSquareQuote,
+    title: "Connect & Discuss",
+    description: "Message tutors to discuss requirements and schedule a trial.",
+  },
+  {
+    icon: UserRoundCheck,
+    title: "Start Learning",
+    description: "Finalize with your chosen tutor and begin personalized sessions.",
+  },
 ];
+
 
 const popularSubjects = [
   { name: "Mathematics", icon: Calculator, hoverColor: "hover:bg-blue-600" },
@@ -69,8 +75,8 @@ export default function HomePage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <Link href="/dashboard/post-requirement">
-                  <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
+                <Link href="/dashboard/post-requirement"> {/* This will likely be a route in the dashboard */}
+                  <NotebookPen className="mr-2 h-5 w-5" /> Post Your Requirement
                 </Link>
               </Button>
             </div>
@@ -99,11 +105,11 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto"
+            className="w-full max-w-xs sm:max-w-md md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto"
           >
             <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-[calc(100%/3-0.5rem)] sm:basis-[calc(100%/4-0.5rem)] md:basis-[calc(100%/5-0.5rem)] lg:basis-[calc(100%/6-0.5rem)] xl:basis-[calc(100%/8-0.5rem)]">
+                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-auto">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
                       className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
@@ -112,8 +118,8 @@ export default function HomePage() {
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
-                      <CardContent className="flex flex-col items-center justify-center p-2 sm:p-2.5 aspect-square w-[70px] h-[70px] sm:w-[80px] sm:h-[80px]">
-                        <subject.icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 transition-transform duration-300 group-hover:scale-110" />
+                      <CardContent className="flex flex-col items-center justify-center gap-1 p-2 sm:p-2.5 aspect-square w-[70px] h-[70px] sm:w-[80px] sm:h-[80px]">
+                        <subject.icon className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:scale-110" />
                         <p className="text-[9px] sm:text-[10px] font-semibold text-center leading-tight">{subject.name}</p>
                       </CardContent>
                     </Card>
@@ -121,8 +127,8 @@ export default function HomePage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute -left-3 sm:-left-6 md:-left-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
-            <CarouselNext className="absolute -right-3 sm:-right-6 md:-right-10 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
+            <CarouselPrevious className="absolute -left-4 sm:-left-6 md:-left-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
+            <CarouselNext className="absolute -right-4 sm:-right-6 md:-right-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
           </Carousel>
            <div className="text-center mt-10 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
             <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
@@ -134,31 +140,57 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="w-full py-8 md:py-12 lg:py-16">
-        <div className="container px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">How Tutorzila Works</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {howItWorksItems.map((item, index) => (
-              <Card
-                key={item.title}
-                className="group shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card"
-                style={{ animationDelay: `${index * 0.15 + 0.2}s` }}
-              >
-                <CardHeader className="items-center">
-                  <item.icon className="w-12 h-12 text-primary mb-4 transition-transform duration-300 group-hover:scale-110" />
-                  <CardTitle>{item.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-center">
-                    {item.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            ))}
+       {/* Get An Expert Tutor Section */}
+      <section className="w-full py-8 md:py-12 lg:py-16 bg-secondary">
+        <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
+          <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out order-1 lg:order-none">
+            <Image
+              src="https://picsum.photos/seed/hire-tutor/550/550" // Placeholder image
+              alt="Hiring a tutor"
+              width={550}
+              height={550}
+              className="mx-auto rounded-lg object-contain"
+              data-ai-hint="teacher student"
+            />
+          </div>
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
+              Get An Expert Tutor in Simple Steps
+            </h2>
+            <p className="text-lg text-foreground/80 md:text-xl">
+              Finding the right tutor is easy and straightforward with Tutorzila. Follow these steps to connect with qualified educators ready to help you succeed.
+            </p>
+            <div className="space-y-5 mt-6">
+              {howItWorksSteps.map((step, index) => (
+                <div 
+                  key={step.title} 
+                  className="flex items-start gap-4 group animate-in fade-in slide-in-from-bottom-5 duration-500"
+                  style={{ animationDelay: `${index * 0.15}s` }}
+                >
+                  <div className="flex-shrink-0 bg-primary/10 text-primary p-3 rounded-full group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                    <step.icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground/90">{step.title}</h3>
+                    <p className="text-foreground/70 text-sm">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button 
+              asChild 
+              size="lg" 
+              className="mt-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-5 duration-500"
+              style={{ animationDelay: `${howItWorksSteps.length * 0.15 + 0.1}s` }}
+            >
+              <Link href="/dashboard/post-requirement">
+                <Send className="mr-2 h-5 w-5" /> Request A Tutor
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
+
 
       {/* Placeholder for Image Section */}
       <section className="w-full py-8 md:py-12 lg:py-16 bg-background/50">
@@ -202,3 +234,4 @@ export default function HomePage() {
     </div>
   );
 }
+
