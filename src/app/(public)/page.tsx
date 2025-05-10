@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Search, UserPlus } from "lucide-react";
+import { CheckCircle, Search, UserPlus, Edit, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -30,26 +30,30 @@ export default function HomePage() {
       <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
         <div className="container px-4 md:px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 
+            <h2
               className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
             >
               Find Your Perfect Learning Match with Tutorzila
             </h2>
-            <p 
+            <p
               className="mt-4 text-lg text-foreground/80 md:text-xl animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
               style={{ animationDelay: "0.2s" }}
             >
               Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
             </p>
-            <div 
+            <div
               className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
               style={{ animationDelay: "0.4s" }}
             >
               <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <Link href="/sign-up">Get Started</Link>
+                <Link href="/dashboard/post-requirement">
+                  <Edit className="mr-2 h-5 w-5" /> Post Your Requirement
+                </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <Link href="/search-tuitions">Browse Tuitions</Link>
+                <Link href="/search-tuitions">
+                  <Users className="mr-2 h-5 w-5" /> Search Tutors
+                </Link>
               </Button>
             </div>
           </div>
@@ -62,8 +66,8 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 sm:text-4xl animate-in fade-in duration-500 ease-out">How Tutorzila Works</h2>
           <div className="grid gap-8 md:grid-cols-3">
             {howItWorksItems.map((item, index) => (
-              <Card 
-                key={item.title} 
+              <Card
+                key={item.title}
                 className="group shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card"
                 style={{ animationDelay: `${index * 0.15 + 0.2}s` }}
               >
@@ -101,7 +105,7 @@ export default function HomePage() {
               Tutorzila is dedicated to fostering a supportive learning environment where students can thrive and tutors can make a difference.
             </p>
             <Button asChild className="w-fit shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
-              <Link href="/about">Learn More About Us</Link>
+              <Link href="/privacy-policy">Learn More About Us</Link> 
             </Button>
           </div>
         </div>
@@ -124,3 +128,4 @@ export default function HomePage() {
     </div>
   );
 }
+
