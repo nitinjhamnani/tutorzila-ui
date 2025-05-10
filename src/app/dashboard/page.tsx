@@ -185,24 +185,24 @@ export default function DashboardPage() {
           {user.role === 'tutor' && (
             <CardContent className="p-4 md:p-5 pt-2 space-y-3 border-t"> {/* Reduced padding and spacing */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 items-start"> {/* Adjusted gap */}
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Coins className="w-4 h-4 mr-2 text-primary/80" />
+                <div className="space-y-1">
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <Coins className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
                     <span>Lead Balance</span>
                   </div>
-                  <p className="text-2xl font-semibold text-primary">50</p>
+                  <p className="text-xl font-semibold text-primary">50</p>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CalendarClock className="w-4 h-4 mr-2 text-primary/80" />
+                <div className="space-y-1">
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <CalendarClock className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
                     <span>Plan Expiry</span>
                   </div>
-                  <p className="text-lg font-medium">Dec 31, 2024</p>
+                  <p className="text-base font-medium">Dec 31, 2024</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2"> {/* Reduced pt */}
-                 <Badge variant="outline" className="border-green-500 text-green-600 bg-green-500/10 py-1.5 px-3 text-sm font-medium">
-                    <Award className="w-4 h-4 mr-1.5" /> Premium Plan
+                 <Badge variant="outline" className="border-green-500 text-green-600 bg-green-500/10 py-1 px-2.5 text-xs font-medium">
+                    <Award className="w-3.5 h-3.5 mr-1.5" /> Premium Plan
                  </Badge>
                 <Button size="sm" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95">
                   <ShoppingBag className="w-4 h-4 mr-2" /> Buy More Leads
@@ -377,7 +377,7 @@ function ActionCard({
   
 
   return (
-    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50">
+    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 shadow-none">
       {showImage && imageHint && (
         <div className="overflow-hidden rounded-t-xl relative">
           <Image
@@ -436,6 +436,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
