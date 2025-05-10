@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -189,7 +190,7 @@ export default function DashboardPage() {
             <ActionCard
               title="My Leads"
               cardDescriptionText="View and manage potential student inquiries."
-              description="5 New" 
+              description="5 Recommended" 
               Icon={Briefcase} 
               showImage={false}
               buttonInContent={true}
@@ -374,7 +375,7 @@ function ActionCard({
             {(title === "My Classes" || title === "My Payments" || title === "My Leads") && (
                  <div className="flex justify-between items-center text-sm mb-2">
                  <span className="font-medium text-foreground/80">
-                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : "New Leads"}
+                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : "Recommended Leads"}
                  </span>
                  <span className="font-semibold text-primary">{description}</span>
                </div>
@@ -400,5 +401,6 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
