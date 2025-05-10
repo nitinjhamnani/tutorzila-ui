@@ -10,7 +10,7 @@ export interface User {
 }
 
 export interface TuitionRequirement {
-  id: string;
+  id:string;
   parentId: string;
   parentName?: string; // Optional, denormalized
   subject: string;
@@ -20,4 +20,13 @@ export interface TuitionRequirement {
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
   postedAt: string; // ISO date string
+}
+
+export interface TutorProfile extends User {
+  subjects: string[];
+  experience: string; // e.g., "5+ years", "1-3 years"
+  hourlyRate?: string; // e.g., "$25 - $40"
+  bio?: string;
+  availability?: string; // e.g., "Weekends, Evenings"
+  qualifications?: string;
 }
