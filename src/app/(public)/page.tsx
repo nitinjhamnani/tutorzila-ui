@@ -38,7 +38,7 @@ const howItWorksSteps = [
 
 const becomeTutorBenefits = [
   {
-    icon: BriefcaseBusiness, // Changed icon
+    icon: BriefcaseBusiness, 
     title: "Reach Students",
     description: "Connect with thousands of potential students actively looking for tutors like you.",
   },
@@ -71,11 +71,14 @@ const popularSubjects = [
 ];
 
 export default function HomePage() {
+  const sectionPadding = "py-8 md:py-12";
+  const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
+
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary text-sm">
       {/* Hero Section */}
-      <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 grid lg:grid-cols-2 gap-8 items-center">
+      <section className={`w-full ${sectionPadding} bg-secondary`}>
+        <div className={`${containerPadding} grid lg:grid-cols-2 gap-8 items-center`}>
           <div className="text-center lg:text-left">
             <h2
               className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
@@ -118,8 +121,8 @@ export default function HomePage() {
       </section>
 
       {/* Popular Subjects Section */}
-      <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12">
+      <section className={`w-full ${sectionPadding} bg-background/50`}>
+        <div className={`${containerPadding}`}>
           <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out text-primary">
             Explore Popular Subjects
           </h2>
@@ -160,8 +163,8 @@ export default function HomePage() {
       </section>
 
        {/* Get An Expert Tutor Section */}
-      <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 grid lg:grid-cols-2 gap-12 items-center">
+      <section className={`w-full ${sectionPadding} bg-secondary`}>
+        <div className={`${containerPadding} grid lg:grid-cols-2 gap-12 items-center`}>
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out order-1 lg:order-none">
             <Image
               src={hireTutorImage} 
@@ -214,8 +217,8 @@ export default function HomePage() {
       </section>
 
       {/* Become A Tutor Section */}
-      <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 grid lg:grid-cols-2 gap-12 items-center">
+      <section className={`w-full ${sectionPadding} bg-background/50`}>
+        <div className={`${containerPadding} grid lg:grid-cols-2 gap-12 items-center`}>
           <div className="space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
               Become A Tutor with Tutorzila
@@ -269,8 +272,8 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action */}
-      <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 text-center animate-in fade-in duration-700 ease-out">
+      <section className={`w-full ${sectionPadding} bg-background/50`}>
+        <div className={`${containerPadding} text-center animate-in fade-in duration-700 ease-out`}>
           <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
           <p className="mt-4 text-foreground/80 md:text-lg max-w-2xl mx-auto">
@@ -288,5 +291,6 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 

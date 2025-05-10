@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ShieldAlert } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
+  const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   return (
-    <div className="container mx-auto max-w-4xl py-12 px-6 sm:px-8 md:px-10 lg:px-12">
+    <div className={`${containerPadding} max-w-4xl py-12`}>
       <Card className="shadow-lg">
         <CardHeader className="bg-muted/30 p-6 rounded-t-lg">
            <div className="flex items-center gap-3">
@@ -95,4 +96,5 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
+
 
