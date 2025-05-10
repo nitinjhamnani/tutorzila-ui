@@ -260,7 +260,7 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action */}
-      <section className="w-full py-8 md:py-12 border-t bg-background/50">
+      <section className="w-full py-8 md:py-12 bg-background/50">
         <div className="container px-6 sm:px-8 md:px-10 lg:px-12 text-center animate-in fade-in duration-700 ease-out">
           <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
@@ -271,11 +271,6 @@ export default function HomePage() {
             <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
               <Link href="/sign-up">
                  <UserPlus className="mr-2 h-5 w-5" /> Sign Up Now
-              </Link>
-            </Button>
-             <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-              <Link href="/search-tuitions">
-                 <Search className="mr-2 h-5 w-5" /> Explore Tutors
               </Link>
             </Button>
           </div>
