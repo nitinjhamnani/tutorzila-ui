@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden">
         <CardHeader className="p-6 md:p-8">
-          <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight">Welcome back, {user.name}!</CardTitle>
+          <CardTitle className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Welcome back, {user.name}!</CardTitle>
           <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
             {user.role === 'admin' || user.role === 'parent'
               ? `You are logged in as a ${user.role}. Here's your dashboard overview.`
@@ -92,11 +93,11 @@ export default function DashboardPage() {
             }
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-6 md:p-8 pt-0">
-          {user.role !== 'tutor' && (
-            <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
-          )}
-        </CardContent>
+        {user.role !== 'tutor' && ( // Conditionally render CardContent only if user is not a tutor
+            <CardContent className="p-6 md:p-8 pt-0">
+                <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
+            </CardContent>
+        )}
       </Card>
 
       {user.role === 'tutor' && (
