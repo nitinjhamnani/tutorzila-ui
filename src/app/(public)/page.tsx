@@ -1,11 +1,13 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, CircleCheckBig, BookUser, Send, UserRoundCheck, UsersRound, MessageSquareQuote, FilePenLine, NotebookPen, SearchCheck } from "lucide-react";
+import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
+import hireTutorImage from '@/assets/images/banner-8.png';
 
 const howItWorksSteps = [
   {
@@ -104,7 +106,7 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto"
+            className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto"
           >
             <CarouselContent className="-ml-2 md:-ml-4 py-4">
               {popularSubjects.map((subject, index) => (
@@ -144,12 +146,11 @@ export default function HomePage() {
         <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out order-1 lg:order-none">
             <Image
-              src="https://picsum.photos/seed/hire-tutor/550/550" 
-              alt="Hiring a tutor"
+              src={hireTutorImage} 
+              alt="Hiring a tutor illustration"
               width={550}
               height={550}
               className="mx-auto rounded-lg object-contain"
-              data-ai-hint="teacher student"
             />
           </div>
           <div className="space-y-6 animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
