@@ -11,24 +11,25 @@ interface LogoProps {
 export function Logo({ className }: LogoProps) {
   return (
     <Link href="/" className={`flex items-center space-x-2 text-2xl font-bold text-primary ${className}`}>
-      {/* 
+      {/*
         If you are seeing an error like "unable to decode image data" or "Invalid PNG signature",
         it means the file at 'src/assets/images/logo.png' is likely corrupted or not a valid PNG.
         Please replace 'src/assets/images/logo.png' with a valid PNG image file.
       */}
       <Image
-        src={logoAsset} 
+        src={logoAsset}
         alt="Tutorzila Logo"
-        width={150} // Adjust width as needed for your logo
-        height={35} // Adjust height as needed for your logo
-        className="h-8 w-auto sm:h-9" // Adjust classes as needed
-        priority 
+        width={150} // Increased width
+        height={35} // Adjusted height for a typical logo aspect ratio
+        className="h-9 w-auto sm:h-10" // Adjusted height classes
+        priority
       />
       {/* Fallback to icon and text logo if the image is problematic: */}
-      {/* 
+      {/*
       <BookHeart className="h-8 w-8 sm:h-9 sm:w-9 text-primary" />
-      <span className="hidden sm:inline">Tutorzila</span> 
+      <span className="hidden sm:inline">Tutorzila</span>
       */}
     </Link>
   );
 }
+
