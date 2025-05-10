@@ -6,7 +6,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { CheckCircle, Search, UserPlus, Edit, Users, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, CircleCheckBig } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import bannerImage from '@/assets/images/banner-9.png'; // Import the local image
+import bannerImage from '@/assets/images/banner-9.png'; 
 
 const howItWorksItems = [
   {
@@ -49,7 +49,7 @@ export default function HomePage() {
         <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-8 items-center">
           <div className="text-center lg:text-left">
             <h2
-              className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
+              className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
             >
               Find Your Perfect Learning Match with Tutorzila
             </h2>
@@ -103,7 +103,7 @@ export default function HomePage() {
           >
             <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
-                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-[30%] sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
+                <CarouselItem key={subject.name} className="pl-1 md:pl-2 basis-[calc(100%/3-0.5rem)] sm:basis-[calc(100%/4-0.5rem)] md:basis-[calc(100%/5-0.5rem)] lg:basis-[calc(100%/6-0.5rem)] xl:basis-[calc(100%/8-0.5rem)]">
                   <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`} >
                     <Card
                       className={`group rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 cursor-pointer
@@ -112,7 +112,7 @@ export default function HomePage() {
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
-                      <CardContent className="flex flex-col items-center justify-center p-2 sm:p-2.5 aspect-square">
+                      <CardContent className="flex flex-col items-center justify-center p-2 sm:p-2.5 aspect-square w-[70px] h-[70px] sm:w-[80px] sm:h-[80px]">
                         <subject.icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 transition-transform duration-300 group-hover:scale-110" />
                         <p className="text-[9px] sm:text-[10px] font-semibold text-center leading-tight">{subject.name}</p>
                       </CardContent>
