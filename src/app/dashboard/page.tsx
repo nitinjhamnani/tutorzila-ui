@@ -111,9 +111,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Card */}
-      <div className="grid gap-6 md:grid-cols-1">
-         <Card className="border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card">
+      {/* Welcome Card & My Leads Card Row (for Tutors) */}
+      <div className="grid gap-6 md:grid-cols-3">
+         <Card className={cn("border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
           <CardHeader className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -181,6 +181,27 @@ export default function DashboardPage() {
               </CardContent>
           )}
         </Card>
+        {user.role === 'tutor' && (
+           <div 
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out md:col-span-1"
+            style={{ animationDelay: `0.1s` }}
+          >
+            <ActionCard
+              title="My Leads"
+              cardDescriptionText="View and manage potential student inquiries."
+              description="5 New" 
+              Icon={Briefcase} 
+              showImage={false}
+              buttonInContent={true}
+              actionButtonText="View All Leads"
+              ActionButtonIcon={ClipboardList}
+              href="#" 
+              disabled={false} 
+              actionButtonVariant="outline"
+              actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+            />
+          </div>
+        )}
       </div>
 
       {/* Profile Management Row for Tutors */}
@@ -188,13 +209,13 @@ export default function DashboardPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.1s` }}
+            style={{ animationDelay: `0.2s` }} // Adjusted delay
           >
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.2s` }}
+            style={{ animationDelay: `0.3s` }} // Adjusted delay
           >
             <ActionCard
               title="My Classes"
@@ -219,7 +240,7 @@ export default function DashboardPage() {
           </div>
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.3s` }}
+            style={{ animationDelay: `0.4s` }} // Adjusted delay
           >
             <ActionCard
               title="My Payments"
@@ -265,19 +286,19 @@ export default function DashboardPage() {
 interface ActionCardProps {
   title: string;
   description: string;
-  href: string;
-  Icon: React.ElementType; // Renamed from icon
+  href?: string; // Made href optional for cards without a primary button link in footer
+  Icon: React.ElementType;
   imageHint?: string;
   showImage?: boolean;
   disabled?: boolean;
   actionButtonText?: string;
-  ActionButtonIcon?: React.ElementType; // Renamed from actionButtonIcon
+  ActionButtonIcon?: React.ElementType;
   actionButtonVariant?: ButtonProps['variant'];
   actionButtonClassName?: string;
   buttonInContent?: boolean;
   cardDescriptionText?: string; 
   actionButtonText2?: string; 
-  ActionButtonIcon2?: React.ElementType; // Renamed from actionButtonIcon2
+  ActionButtonIcon2?: React.ElementType;
   href2?: string; 
   disabled2?: boolean; 
 }
@@ -286,24 +307,23 @@ function ActionCard({
   title, 
   description, 
   href, 
-  Icon, // Renamed from icon
+  Icon, 
   imageHint, 
   showImage = true, 
   disabled,
   actionButtonText,
-  ActionButtonIcon, // Renamed from actionButtonIcon
+  ActionButtonIcon, 
   actionButtonVariant,
   actionButtonClassName,
   buttonInContent = false,
   cardDescriptionText, 
   actionButtonText2,
-  ActionButtonIcon2, // Renamed from actionButtonIcon2
+  ActionButtonIcon2,
   href2,
   disabled2,
 }: ActionCardProps) {
-  const buttonTextContent = actionButtonText || (disabled ? "Coming Soon" : title);
 
-  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => ( // Renamed btnIcon to BtnIcon
+  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => (
     <Button 
       asChild 
       variant={actionButtonVariant || (btnDisabled ? "default" : "default")}
@@ -314,7 +334,7 @@ function ActionCard({
       disabled={btnDisabled}
     >
       <Link href={btnDisabled || !btnHref ? "#" : btnHref}>
-        {BtnIcon && <BtnIcon className="mr-2 h-4 w-4" />} {/* Used BtnIcon */}
+        {BtnIcon && <BtnIcon className="mr-2 h-4 w-4" />}
         {text || (btnDisabled ? "Coming Soon" : title)}
       </Link>
     </Button>
@@ -351,13 +371,15 @@ function ActionCard({
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
         {buttonInContent ? (
           <>
-            {(title === "My Classes" || title === "My Payments") && (
+            {(title === "My Classes" || title === "My Payments" || title === "My Leads") && (
                  <div className="flex justify-between items-center text-sm mb-2">
-                 <span className="font-medium text-foreground/80">{title === "My Classes" ? "Active Classes" : "Pending Payments"}</span>
+                 <span className="font-medium text-foreground/80">
+                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : "New Leads"}
+                 </span>
                  <span className="font-semibold text-primary">{description}</span>
                </div>
             )}
-             {!((title === "My Classes" || title === "My Payments")) && (
+             {!((title === "My Classes" || title === "My Payments" || title === "My Leads")) && (
                  <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
              )}
 
@@ -370,12 +392,13 @@ function ActionCard({
            <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
         )}
       </CardContent>
-      {!buttonInContent && (
+      {!buttonInContent && href && ( // Conditionally render footer only if href is present
          <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
-          {renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
+          {renderSingleButton(actionButtonText || title, href, disabled, ActionButtonIcon)}
         </CardFooter>
       )}
     </Card>
   );
 }
+
 
