@@ -402,33 +402,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Unlock Potential Section (Placeholder for Image Section) */}
-      <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container grid items-center gap-6 px-6 sm:px-8 md:px-10 lg:px-12 lg:grid-cols-2 lg:gap-10">
-          <div className="animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
-            <Image
-              src="https://picsum.photos/seed/unlock-potential/600/400"
-              alt="Happy student learning"
-              width={600}
-              height={400}
-              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full shadow-lg hover:shadow-xl transition-shadow duration-300"
-              data-ai-hint="education learning"
-            />
-          </div>
-          <div className="flex flex-col justify-center space-y-4 animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
-            <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl text-primary">Unlock Your Potential</h3>
-            <p className="max-w-[600px] text-foreground/80 md:text-lg">
-              Tutorzila is dedicated to fostering a supportive learning environment where students can thrive and tutors can make a difference.
-            </p>
-            <Button asChild className="w-fit shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
-              <Link href="/privacy-policy">Learn More About Us</Link> 
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* Call to Action */}
-      <section className="w-full py-8 md:py-12 border-t bg-secondary">
+      <section className="w-full py-8 md:py-12 border-t bg-background/50">
         <div className="container px-6 sm:px-8 md:px-10 lg:px-12 text-center animate-in fade-in duration-700 ease-out">
           <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
@@ -454,5 +429,6 @@ export default function HomePage() {
 }
 
     
+
 
 
