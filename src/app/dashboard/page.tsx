@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -54,7 +53,7 @@ export default function DashboardPage() {
         title="Post New Requirement"
         description="Need a tutor? Post your requirements and let tutors find you."
         href="/dashboard/post-requirement"
-        icon={PlusCircle}
+        Icon={PlusCircle}
         imageHint="writing list"
       />,
       <ActionCard
@@ -62,7 +61,7 @@ export default function DashboardPage() {
         title="My Requirements"
         description="View and manage your active tuition postings."
         href="/dashboard/my-requirements"
-        icon={ListChecks} 
+        Icon={ListChecks} 
         imageHint="task checklist"
       />,
        <ActionCard
@@ -70,7 +69,7 @@ export default function DashboardPage() {
         title="Recent Activity"
         description="Updates on your postings and applications."
         href="#"
-        icon={Activity}
+        Icon={Activity}
         imageHint="activity chart"
         showImage={true} // Explicitly show image for this card
         disabled
@@ -83,7 +82,7 @@ export default function DashboardPage() {
         title="Manage Users"
         description="Oversee parent and tutor accounts."
         href="/dashboard/admin/manage-users"
-        icon={Users}
+        Icon={Users}
         imageHint="people community"
         disabled
       />,
@@ -92,7 +91,7 @@ export default function DashboardPage() {
         title="Manage Tuitions"
         description="Review and manage all tuition postings."
         href="/dashboard/admin/manage-tuitions"
-        icon={BookOpen}
+        Icon={BookOpen}
         imageHint="library books"
         disabled
       />,
@@ -101,7 +100,7 @@ export default function DashboardPage() {
         title="Recent Activity"
         description="Updates on platform activity and reports."
         href="#"
-        icon={Activity}
+        Icon={Activity}
         imageHint="admin dashboard activity"
         showImage={true}
         disabled
@@ -121,7 +120,7 @@ export default function DashboardPage() {
                 <div className="relative group shrink-0">
                   <Avatar
                     className="h-16 w-16 border-2 border-primary/30 group-hover:opacity-80 transition-opacity"
-                    onClick={handleAvatarClick} // No cursor-pointer here, button below handles it
+                    onClick={handleAvatarClick} 
                   >
                     <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl">
@@ -200,18 +199,18 @@ export default function DashboardPage() {
             <ActionCard
               title="My Classes"
               cardDescriptionText="View and manage your scheduled classes." 
-              description="5" // Show only the count for number of classes
-              href="#" // For "View Classes" button
-              icon={ListChecks} 
+              description="5" 
+              href="#" 
+              Icon={ListChecks} 
               showImage={false}
-              disabled={false} // For "View Classes" button
+              disabled={false} 
               actionButtonText="View Classes"
-              actionButtonIcon={ClipboardList}
+              ActionButtonIcon={ClipboardList}
               
-              actionButtonText2="Create Class" // New prop for second button
-              actionButtonIcon2={PlusCircle} // New prop for second button icon
-              href2="#" // New prop for second button href
-              disabled2={false} // New prop for second button disabled state
+              actionButtonText2="Create Class" 
+              ActionButtonIcon2={PlusCircle} 
+              href2="#" 
+              disabled2={false} 
 
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
@@ -224,11 +223,11 @@ export default function DashboardPage() {
           >
             <ActionCard
               title="My Payments"
-              description="₹12,500" // Mock pending payment amount
+              description="₹12,500" 
               href="#"
-              icon={DollarSign}
+              Icon={DollarSign}
               showImage={false}
-              disabled // This will make the button "Coming Soon"
+              disabled 
               buttonInContent={true} 
               cardDescriptionText="View your earnings and manage payout details."
             />
@@ -259,18 +258,18 @@ interface ActionCardProps {
   title: string;
   description: string;
   href: string;
-  icon: React.ElementType;
+  Icon: React.ElementType; // Renamed from icon
   imageHint?: string;
   showImage?: boolean;
   disabled?: boolean;
   actionButtonText?: string;
-  actionButtonIcon?: React.ElementType;
+  ActionButtonIcon?: React.ElementType; // Renamed from actionButtonIcon
   actionButtonVariant?: ButtonProps['variant'];
   actionButtonClassName?: string;
   buttonInContent?: boolean;
   cardDescriptionText?: string; 
   actionButtonText2?: string; 
-  actionButtonIcon2?: React.ElementType; 
+  ActionButtonIcon2?: React.ElementType; // Renamed from actionButtonIcon2
   href2?: string; 
   disabled2?: boolean; 
 }
@@ -279,24 +278,24 @@ function ActionCard({
   title, 
   description, 
   href, 
-  icon: Icon, 
+  Icon, // Renamed from icon
   imageHint, 
   showImage = true, 
   disabled,
   actionButtonText,
-  actionButtonIcon: ActionButtonIcon,
+  ActionButtonIcon, // Renamed from actionButtonIcon
   actionButtonVariant,
   actionButtonClassName,
   buttonInContent = false,
   cardDescriptionText, 
   actionButtonText2,
-  actionButtonIcon2: ActionButtonIcon2,
+  ActionButtonIcon2, // Renamed from actionButtonIcon2
   href2,
   disabled2,
 }: ActionCardProps) {
   const buttonTextContent = actionButtonText || (disabled ? "Coming Soon" : title);
 
-  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, btnIcon?: React.ElementType) => (
+  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => ( // Renamed btnIcon to BtnIcon
     <Button 
       asChild 
       variant={actionButtonVariant || (btnDisabled ? "default" : "default")}
@@ -307,7 +306,7 @@ function ActionCard({
       disabled={btnDisabled}
     >
       <Link href={btnDisabled || !btnHref ? "#" : btnHref}>
-        {btnIcon && <btnIcon className="mr-2 h-4 w-4" />}
+        {BtnIcon && <BtnIcon className="mr-2 h-4 w-4" />} {/* Used BtnIcon */}
         {text || (btnDisabled ? "Coming Soon" : title)}
       </Link>
     </Button>
