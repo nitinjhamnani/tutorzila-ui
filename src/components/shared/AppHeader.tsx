@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -12,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { usePathname } from "next/navigation";
@@ -41,8 +42,7 @@ export function AppHeader() {
   }, []);
 
   const navLinks = [
-    { href: "/dashboard/search-tuitions", label: "Find Tuitions", icon: Search, roles: ["tutor", "parent", "admin"] },
-    { href: "/dashboard/post-requirement", label: "Post Requirement", icon: Edit, roles: ["parent", "admin"] },
+    // For authenticated users, specific links can be added here based on role if needed in the future
   ];
 
   const headerClasses = cn(
@@ -57,19 +57,30 @@ export function AppHeader() {
   );
   
   const actionButtonClass = cn(
-    "transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold", 
+    "transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold py-3 px-6 rounded-lg", 
     isScrolled ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-primary hover:bg-primary/90 text-primary-foreground"
   );
 
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
+  const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
+
 
   return (
     <header className={headerClasses}>
       <div className="container mx-auto flex h-28 items-center justify-between px-4 md:px-6">
-        <Logo className={cn("transition-opacity hover:opacity-80", isScrolled ? "" : "text-card-foreground")} />
+        <Link
+          href="/"
+          className={cn(
+            "flex items-center space-x-2 text-2xl font-bold", // Base link styling from original Logo
+            "transition-opacity hover:opacity-80", // Original className from AppHeader for Logo
+            isScrolled ? "" : "text-card-foreground" // Original className from AppHeader for Logo
+          )}
+        >
+          <Logo /> {/* Logo component now just renders the Image */}
+        </Link>
         
-        {/* Desktop Navigation (for authenticated users) */}
         <nav className="hidden items-center space-x-1 md:flex">
+          {/* Desktop Navigation for authenticated users (if any) */}
           {isAuthenticated && user && navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
             <Link
               key={link.href}
@@ -128,7 +139,7 @@ export function AppHeader() {
               </DropdownMenu>
             ) : (
               <>
-                <Button asChild className={actionButtonClass}>
+                <Button asChild variant="ghost" className={cn("transform transition-transform hover:scale-105 active:scale-95 text-lg font-semibold", isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10")}>
                   <Link href="/dashboard/search-tuitions">Find Tutors</Link>
                 </Button>
                 <Button asChild className={actionButtonClass}>
@@ -149,8 +160,15 @@ export function AppHeader() {
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
                 <SheetHeader className="p-4 border-b">
                   <SheetTitle>
-                    <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                       <Logo className={cn(isScrolled ? "" : "text-card-foreground")} />
+                    <Link
+                      href="/"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center space-x-2 text-2xl font-bold", // Base link styling
+                        isScrolled ? "" : "text-card-foreground" // Ensure text color contrasts with transparent/scrolled header
+                      )}
+                    >
+                       <Logo />
                     </Link>
                   </SheetTitle>
                 </SheetHeader>
@@ -171,6 +189,7 @@ export function AppHeader() {
                       <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                         <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
                       </Link>
+                      {/* Authenticated nav links for mobile (if any added to navLinks based on role) */}
                       {navLinks.filter(link => user && link.roles.includes(user.role)).map((link) => (
                         <Link
                           key={link.href}
@@ -182,6 +201,19 @@ export function AppHeader() {
                           <span>{link.label}</span>
                         </Link>
                       ))}
+                      {/* Specific role based links if not covered by navLinks */}
+                      {user.role === "parent" && (
+                        <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                            <Edit className="h-5 w-5 text-primary" /> Post Requirement
+                        </Link>
+                      )}
+                       {user.role === "tutor" && (
+                        <Link href="/dashboard/search-tuitions" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                            <Search className="h-5 w-5 text-primary" /> Search Tuitions
+                        </Link>
+                      )}
+
+
                       <Separator className="my-3" />
                       <Link href="#" onClick={(e) => {e.preventDefault(); setMobileMenuOpen(false);}} className={cn(mobileLinkClass, "text-muted-foreground cursor-not-allowed opacity-70")}>
                         <Settings className="h-5 w-5" /> Settings
@@ -190,7 +222,7 @@ export function AppHeader() {
                         <LifeBuoy className="h-5 w-5" /> Support
                       </Link>
                       <Separator className="my-3" />
-                      <Button variant="ghost" onClick={() => { logout(); setMobileMenuOpen(false); }} className={cn(mobileLinkClass, "w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive")}>
+                      <Button variant="ghost" onClick={() => { logout(); setMobileMenuOpen(false); }} className={cn(mobileButtonClass, "text-destructive hover:bg-destructive/10 hover:text-destructive")}>
                         <LogOut className="h-5 w-5" /> Log out
                       </Button>
                     </>
@@ -201,6 +233,9 @@ export function AppHeader() {
                       </Link>
                       <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                         <LogIn className="h-5 w-5 text-primary" /> Sign In
+                      </Link>
+                       <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                        <UserPlus className="h-5 w-5 text-primary" /> Sign Up
                       </Link>
                     </>
                   )}

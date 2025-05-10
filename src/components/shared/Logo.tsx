@@ -1,5 +1,4 @@
 
-import Link from "next/link";
 import Image from 'next/image';
 import logoAsset from '@/assets/images/logo.png'; 
 import { cn } from "@/lib/utils";
@@ -10,21 +9,18 @@ interface LogoProps {
 
 export function Logo({ className }: LogoProps) {
   return (
-    <Link href="/" className={cn(`flex items-center space-x-2 text-2xl font-bold`, className)}>
-      {/*
-        The logo.png is referenced here. Ensure it is a valid PNG file.
-        If you are seeing an error like "unable to decode image data" or "Invalid PNG signature",
-        it means the file at 'src/assets/images/logo.png' is likely corrupted or not a valid PNG.
-        Please replace 'src/assets/images/logo.png' with a valid PNG image file.
-      */}
-      <Image
-        src={logoAsset}
-        alt="Tutorzila Logo"
-        width={405} 
-        height={96} 
-        className="h-24 w-auto" // h-24 is 6rem
-        priority
-      />
-    </Link>
+    // The Image component is now the root of Logo.
+    // The Link component will be applied by the parent where navigation is needed.
+    <Image
+      src={logoAsset}
+      alt="Tutorzila Logo"
+      width={405} // Intrinsic width of the logo image
+      height={96} // Intrinsic height of the logo image
+      className={cn(
+        "h-24 w-auto", // Default: 6rem height, auto width to maintain aspect ratio
+        className // Allows overriding or extending styles from parent
+      )}
+      priority
+    />
   );
 }
