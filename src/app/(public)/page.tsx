@@ -83,7 +83,7 @@ const MOCK_TUTOR_PROFILES: TutorProfile[] = [
 
 
 export default function HomePage() {
-  const sectionPadding = "py-8 md:py-12";
+  const sectionPadding = "pt-8 md:pt-12 pb-16 md:pb-24"; // Increased bottom padding
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
 
   return (
@@ -335,6 +335,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
