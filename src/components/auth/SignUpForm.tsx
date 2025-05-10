@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, User, Users, Briefcase, Palette, Building, School } from "lucide-react";
+import { Mail, Lock, User, Users, Briefcase, Palette, Building, School, CheckSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,11 +16,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
@@ -34,6 +36,9 @@ const signUpSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   confirmPassword: z.string(),
   role: z.enum(["parent", "tutor"], { required_error: "You need to select your role." }),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions to continue.",
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -54,6 +59,7 @@ export function SignUpForm() {
       password: "",
       confirmPassword: "",
       role: "parent",
+      acceptTerms: false,
     },
   });
 
@@ -72,13 +78,6 @@ export function SignUpForm() {
   const handleRoleChange = (role: UserRole) => {
     setSelectedRole(role);
     form.setValue("role", role, { shouldValidate: true });
-  };
-
-  const RoleIcon = ({ role, selected }: { role: UserRole, selected: boolean }) => {
-    const commonClass = cn("mb-2 transition-all duration-300 ease-in-out", selected ? "text-primary scale-110" : "text-muted-foreground group-hover:text-primary/70");
-    if (role === "parent") return <Users size={28} className={commonClass} />;
-    if (role === "tutor") return <School size={28} className={commonClass} />; // Changed from Briefcase
-    return <Palette size={28} className={commonClass} />; // Fallback
   };
 
   return (
@@ -206,6 +205,42 @@ export function SignUpForm() {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="acceptTerms"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-input/50">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="acceptTerms"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel
+                      htmlFor="acceptTerms"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Accept terms and conditions
+                    </FormLabel>
+                    <FormDescription className="text-xs text-muted-foreground">
+                      By signing up, you agree to our{' '}
+                      <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank">
+                        Terms of Service
+                      </Link>{' '}
+                      and{' '}
+                      <Link href="/privacy-policy" className="text-primary hover:underline" target="_blank">
+                        Privacy Policy
+                      </Link>
+                      .
+                    </FormDescription>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
             
             <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
