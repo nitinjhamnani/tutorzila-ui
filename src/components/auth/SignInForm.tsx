@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
 import { cn } from "@/lib/utils";
 import { useState } from 'react';
+// import { Label } from "@/components/ui/label"; // Not directly used in this version of the form
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -57,9 +58,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
     try {
-      // Pass undefined for role, as it's removed from the form
-      // The backend or mock should handle role determination
-      await login(values.email, undefined); 
+      await login(values.email, undefined);
       toast({
         title: "Signed In!",
         description: `Welcome back!`,
@@ -79,8 +78,8 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   }
 
   return (
-    <Card className="w-full shadow-none border-0 rounded-lg bg-card animate-in fade-in zoom-in-95 duration-500 ease-out sm:max-w-md">
-      <CardHeader className="flex flex-col items-center pt-8 pb-6 bg-card"> {/* Ensure header has card background */}
+    <Card className="w-full max-w-md shadow-lg rounded-xl bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
+      <CardHeader className="flex flex-col items-center pt-8 pb-6 bg-card">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
         </Link>
@@ -95,7 +94,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Email Address</FormLabel>
+                  <FormLabel className="text-foreground text-center block">Email Address</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -111,7 +110,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Password</FormLabel>
+                  <FormLabel className="text-foreground text-center block">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
