@@ -1,7 +1,6 @@
-
 "use client";
 
-import type { User, UserRole } from "@/types";
+import type { User, UserRole, TutorProfile } from "@/types";
 import { useRouter } from "next/navigation";
 import { useAtom } from "jotai";
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
@@ -35,37 +34,54 @@ export function useAuthMock() {
 
 
   const login = (email: string, role?: UserRole) => {
-    // If role is not provided, default to 'parent' for the mock.
-    // In a real app, the backend would determine the role.
     const determinedRole: UserRole = role || (email.includes("tutor") ? "tutor" : email.includes("admin") ? "admin" : "parent");
 
-    const mockUser: User = {
+    let mockUserData: User | TutorProfile = {
       id: Date.now().toString(),
       name: email.split("@")[0] || "User",
       email,
       role: determinedRole,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
     };
-    setUser(mockUser); 
+
+    if (determinedRole === 'tutor') {
+      mockUserData = {
+        ...mockUserData,
+        subjects: ['Mathematics', 'Physics'], // Sample data
+        experience: '3-5 years', // Sample data
+        // Other fields like bio, grade, hourlyRate, teachingMode will be undefined for the mock
+        // and thus count towards incompleteness for the progress bar.
+      } as TutorProfile;
+    }
+    
+    setUser(mockUserData); 
     router.push("/dashboard");
-    return Promise.resolve(mockUser);
+    return Promise.resolve(mockUserData);
   };
 
   const signup = (name: string, email: string, role: UserRole) => {
-    const mockUser: User = {
+     let mockUserData: User | TutorProfile = {
       id: Date.now().toString(),
       name,
       email,
       role,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
     };
-    setUser(mockUser);
+
+    if (role === 'tutor') {
+       mockUserData = {
+        ...mockUserData,
+        subjects: [], // Initially empty for a new tutor
+        experience: '', // Initially empty
+      } as TutorProfile;
+    }
+    setUser(mockUserData);
     router.push("/dashboard");
   };
 
   const logout = () => {
     setUser(null);
-    router.push("/"); // Redirect to home page
+    router.push("/"); 
   };
 
   return {

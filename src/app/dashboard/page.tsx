@@ -1,11 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
+import type { TutorProfile } from "@/types";
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
@@ -31,7 +33,7 @@ export default function DashboardPage() {
         title="My Requirements"
         description="View and manage your active tuition postings."
         href="/dashboard/my-requirements"
-        icon={ListChecks} // Changed icon
+        icon={ListChecks} 
         imageHint="task checklist"
       />
     );
@@ -41,18 +43,18 @@ export default function DashboardPage() {
         key="search-tuitions"
         title="Search Tuitions"
         description="Find tuition opportunities that match your expertise and schedule."
-        href="/search-tuitions" // Updated href to be consistent with sidebar
+        href="/search-tuitions" 
         icon={Search}
         imageHint="magnifying glass map"
       />,
       <ActionCard
-        key="my-applications" // Changed key and title to match sidebar
+        key="my-applications" 
         title="My Applications"
-        description="Track your applications for tuition jobs." // Updated description
-        href="/dashboard/my-applications" // Updated href
-        icon={Briefcase} // Changed icon
+        description="Track your applications for tuition jobs." 
+        href="/dashboard/my-applications" 
+        icon={Briefcase} 
         imageHint="profile curriculum"
-        disabled // Assuming this is still a future feature
+        disabled 
       />
     );
   } else if (user.role === "admin") {
@@ -92,12 +94,18 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {user.role === 'tutor' && (
+        <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.1s` }}>
+          <ProfileCompletionCard tutor={user as TutorProfile} />
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {actionCards.map((card, index) => (
           <div 
             key={index} 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `${index * 0.1 + 0.2}s` }} // Stagger animation
+            style={{ animationDelay: `${index * 0.1 + (user.role === 'tutor' ? 0.3 : 0.2)}s` }} 
           >
             {card}
           </div>
@@ -105,7 +113,7 @@ export default function DashboardPage() {
 
         <Card 
           className="shadow-lg hover:shadow-xl transition-all duration-300 col-span-full lg:col-span-1 group bg-card border border-border/30 hover:border-primary/50 rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-          style={{ animationDelay: `${actionCards.length * 0.1 + 0.2}s` }}
+          style={{ animationDelay: `${actionCards.length * 0.1 + (user.role === 'tutor' ? 0.3 : 0.2)}s` }}
         >
           <CardHeader className="p-0 relative">
              <Image
