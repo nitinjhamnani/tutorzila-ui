@@ -4,7 +4,7 @@
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Award, Star } from "lucide-react"; // Added Star
+import { BookOpen, GraduationCap, Award, Star } from "lucide-react"; 
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
