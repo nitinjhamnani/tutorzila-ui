@@ -69,43 +69,6 @@ const popularSubjects = [
   { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
 ];
 
-const counterData = [
-  { icon: UsersRound, count: "1,200+", label: "Expert Tutors", color: "text-primary" },
-  { icon: Users, count: "5,000+", label: "Happy Parents", color: "text-green-500" },
-  { icon: FileText, count: "10,000+", label: "Tuition Needs Met", color: "text-blue-500" },
-];
-
-const testimonials = [
-  {
-    name: "Sarah L.",
-    role: "Parent",
-    quote: "Finding a qualified math tutor for my son was so easy with Tutorzila. His grades have improved significantly!",
-    avatarSeed: "sarahlparent",
-    stars: 5,
-  },
-  {
-    name: "John B.",
-    role: "Tutor",
-    quote: "Tutorzila has connected me with wonderful students. The platform is user-friendly and helps me manage my schedule effortlessly.",
-    avatarSeed: "johnbtutor",
-    stars: 5,
-  },
-  {
-    name: "Maria K.",
-    role: "Parent",
-    quote: "The range of tutors available is fantastic. We found a perfect match for my daughter's chemistry lessons.",
-    avatarSeed: "mariakparent",
-    stars: 4,
-  },
-   {
-    name: "David P.",
-    role: "Tutor",
-    quote: "I appreciate the flexibility Tutorzila offers. I can set my own rates and availability, which is perfect for my lifestyle.",
-    avatarSeed: "davidptutor",
-    stars: 5,
-  },
-];
-
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary text-sm">
@@ -296,112 +259,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Counter Section */}
-      <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12">
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
-            Our Growing Community
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {counterData.map((item, index) => (
-              <Card 
-                key={item.label} 
-                className="text-center p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 animate-in fade-in zoom-in-95 duration-500 ease-out bg-card rounded-xl"
-                style={{ animationDelay: `${index * 0.15}s` }}
-              >
-                <CardContent className="flex flex-col items-center justify-center p-0">
-                  <item.icon className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
-                  <p className={`text-3xl sm:text-4xl font-bold ${item.color}`}>{item.count}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{item.label}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="w-full py-8 md:py-12 bg-background/50">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12">
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-10 sm:text-4xl animate-in fade-in duration-500 ease-out">
-            What Our Users Say
-          </h2>
-          <Carousel
-            opts={{ align: "start", loop: true }}
-            className="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto"
-          >
-            <CarouselContent className="-ml-4 py-4">
-              {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/2">
-                  <Card 
-                    className="h-full flex flex-col p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-102 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card rounded-xl"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <CardHeader className="flex flex-row items-center gap-4 pb-3">
-                      <Avatar className="w-14 h-14 border-2 border-primary/50">
-                        <AvatarImage src={`https://picsum.photos/seed/${testimonial.avatarSeed}/100`} alt={testimonial.name} data-ai-hint="person portrait"/>
-                        <AvatarFallback className="bg-primary/20 text-primary">{testimonial.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <CardTitle className="text-lg">{testimonial.name}</CardTitle>
-                        <CardDescription>{testimonial.role}</CardDescription>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <blockquote className="text-foreground/80 italic border-l-4 border-primary pl-4 py-2">
-                        "{testimonial.quote}"
-                      </blockquote>
-                    </CardContent>
-                    <CardFooter className="pt-3">
-                      <div className="flex">
-                        {Array(testimonial.stars).fill(0).map((_, i) => (
-                          <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                        ))}
-                        {Array(5 - testimonial.stars).fill(0).map((_, i) => (
-                           <Star key={i+testimonial.stars} className="w-5 h-5 text-muted-foreground/50" />
-                        ))}
-                      </div>
-                    </CardFooter>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-             <div className="flex justify-center items-center gap-4 mt-6">
-                <CarouselPrevious className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
-                <CarouselNext className="static translate-y-0 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-10 w-10 sm:h-12 sm:w-12 [&_svg]:h-6 [&_svg]:w-6" />
-            </div>
-          </Carousel>
-        </div>
-      </section>
-
-       {/* Subscription Section */}
-      <section className="w-full py-8 md:py-12 bg-secondary">
-        <div className="container px-6 sm:px-8 md:px-10 lg:px-12 text-center">
-          <div 
-            className="max-w-xl mx-auto p-6 md:p-8 bg-card rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-700 ease-out"
-          >
-            <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-primary mb-3">
-              Stay Updated!
-            </h2>
-            <p className="text-foreground/80 mb-6">
-              Subscribe to our newsletter for the latest updates, tips, and offers from Tutorzila.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email address"
-                className="flex-grow py-3 px-4 shadow-sm focus:ring-primary/50"
-                aria-label="Email for newsletter"
-              />
-              <Button type="submit" size="lg" className="shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95">
-                Subscribe
-              </Button>
-            </form>
-          </div>
-        </div>
-      </section>
-
       {/* Call to Action */}
       <section className="w-full py-8 md:py-12 border-t bg-background/50">
         <div className="container px-6 sm:px-8 md:px-10 lg:px-12 text-center animate-in fade-in duration-700 ease-out">
@@ -427,8 +284,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
-
-
-
