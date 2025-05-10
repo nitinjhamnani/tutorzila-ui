@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus } from "lucide-react";
+import { Search, NotebookPen, ArrowRight, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, HomeIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -108,7 +108,7 @@ const testimonials = [
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
+    <div className="flex flex-col items-center overflow-x-hidden bg-secondary text-sm">
       {/* Hero Section */}
       <section className="w-full py-8 md:py-12 bg-secondary">
         <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-8 items-center">
@@ -119,7 +119,7 @@ export default function HomePage() {
               Find Your Perfect Learning Match with Tutorzila
             </h2>
             <p
-              className="mt-4 text-lg text-foreground/80 md:text-xl animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
+              className="mt-4 text-foreground/80 md:text-lg animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out"
               style={{ animationDelay: "0.2s" }}
             >
               Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
@@ -164,7 +164,7 @@ export default function HomePage() {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xl xl:max-w-2xl mx-auto"
+            className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto"
           >
             <CarouselContent className="-ml-1 md:-ml-2 py-4">
               {popularSubjects.map((subject, index) => (
@@ -177,9 +177,9 @@ export default function HomePage() {
                                   animate-in fade-in slide-in-from-bottom-5 duration-500`}
                       style={{ animationDelay: `${index * 0.08}s` }}
                     >
-                      <CardContent className="flex flex-col items-center justify-center gap-1 p-3 sm:gap-2 sm:p-4 aspect-square w-[5.5rem] h-[5.5rem] sm:w-[6.5rem] sm:h-[6.5rem]">
-                        <subject.icon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 group-hover:scale-110" />
-                        <p className="text-xs sm:text-sm font-semibold text-center leading-tight">{subject.name}</p>
+                      <CardContent className="flex flex-col items-center justify-center gap-1 p-3 sm:gap-2 sm:p-4 aspect-square w-[5rem] h-[5rem] sm:w-[5.5rem] sm:h-[5.5rem]">
+                        <subject.icon className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:scale-110" />
+                        <p className="text-xs sm:text-xs font-semibold text-center leading-tight">{subject.name}</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -190,7 +190,7 @@ export default function HomePage() {
             <CarouselNext className="absolute -right-3 sm:-right-4 md:-right-8 top-1/2 -translate-y-1/2 bg-card hover:bg-accent text-primary hover:text-accent-foreground border-primary/30 shadow-md h-8 w-8 sm:h-9 sm:w-9" />
           </Carousel>
            <div className="text-center mt-10 animate-in fade-in duration-500 ease-out" style={{ animationDelay: `${popularSubjects.length * 0.1 + 0.2}s` }}>
-            <Button asChild variant="ghost" className="text-primary hover:text-primary/80 text-lg group">
+            <Button asChild variant="ghost" className="text-primary hover:text-primary/80 group">
               <Link href="/search-tuitions">
                 View All Subjects <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
@@ -215,7 +215,7 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
               Get An Expert Tutor
             </h2>
-            <p className="text-lg text-foreground/80 md:text-xl">
+            <p className="text-foreground/80 md:text-lg">
               Finding the right tutor is easy and straightforward with Tutorzila. Follow these steps to connect with qualified educators ready to help you succeed.
             </p>
             <div className="space-y-5 mt-6">
@@ -229,8 +229,8 @@ export default function HomePage() {
                     <step.icon className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground/90">{step.title}</h3>
-                    <p className="text-foreground/70 text-sm">{step.description}</p>
+                    <h3 className="text-lg font-semibold text-foreground/90">{step.title}</h3>
+                    <p className="text-foreground/70">{step.description}</p>
                   </div>
                 </div>
               ))}
@@ -256,7 +256,7 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">
               Become A Tutor with Tutorzila
             </h2>
-            <p className="text-lg text-foreground/80 md:text-xl">
+            <p className="text-foreground/80 md:text-lg">
               Share your knowledge, inspire students, and earn on your own schedule. Join our community of passionate educators today.
             </p>
             <div className="space-y-5 mt-6">
@@ -270,8 +270,8 @@ export default function HomePage() {
                     <benefit.icon className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground/90">{benefit.title}</h3>
-                    <p className="text-foreground/70 text-sm">{benefit.description}</p>
+                    <h3 className="text-lg font-semibold text-foreground/90">{benefit.title}</h3>
+                    <p className="text-foreground/70">{benefit.description}</p>
                   </div>
                 </div>
               ))}
@@ -315,7 +315,7 @@ export default function HomePage() {
               >
                 <item.icon className={`w-12 h-12 mx-auto mb-4 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
                 <p className={`text-4xl font-bold ${item.color}`}>{item.count}</p>
-                <p className="text-lg text-muted-foreground mt-1">{item.label}</p>
+                <p className="text-muted-foreground mt-1">{item.label}</p>
               </Card>
             ))}
           </div>
@@ -391,7 +391,7 @@ export default function HomePage() {
               <Input
                 type="email"
                 placeholder="Enter your email address"
-                className="flex-grow text-base py-3 px-4 shadow-sm focus:ring-primary/50"
+                className="flex-grow py-3 px-4 shadow-sm focus:ring-primary/50"
                 aria-label="Email for newsletter"
               />
               <Button type="submit" size="lg" className="shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95">
@@ -432,7 +432,7 @@ export default function HomePage() {
         <div className="container px-4 md:px-6 text-center animate-in fade-in duration-700 ease-out">
           <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Ready to Start Your Journey?</h2>
-          <p className="mt-4 text-lg text-foreground/80 md:text-xl max-w-2xl mx-auto">
+          <p className="mt-4 text-foreground/80 md:text-lg max-w-2xl mx-auto">
             Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
