@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,7 +30,7 @@ const personalDetailsSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Invalid email address."), 
   phone: z.string().min(10, "Phone number must be at least 10 digits.").optional().or(z.literal("")),
-  gender: z.enum(["male", "female", "other", "not_specified"]).optional(), // Updated to use "not_specified"
+  gender: z.enum(["male", "female", "other", "not_specified"]).optional(),
   dateOfBirth: z.date().optional(),
 });
 
@@ -157,10 +156,10 @@ export function EditPersonalDetailsForm() {
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col"> {/* Added flex flex-col for consistency */}
                     <FormLabel>Gender</FormLabel>
                     <div className="relative">
-                      <VenetianMask className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <VenetianMask className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
                       <Select onValueChange={field.onChange} value={field.value || "not_specified"}>
                         <FormControl>
                           <SelectTrigger className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
