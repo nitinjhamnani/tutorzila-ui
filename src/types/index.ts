@@ -21,6 +21,8 @@ export interface TuitionRequirement {
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
   postedAt: string; // ISO date string
+  board?: string; // e.g., "CBSE", "ICSE"
+  teachingMode?: string[]; // e.g., ["Online"], ["Offline"], ["Online", "Offline"]
 }
 
 export interface TutorProfile extends User {
@@ -42,6 +44,7 @@ export interface Testimonial {
   rating: number; // e.g. 1-5
   date: string; // ISO date string for when the testimonial was given
 }
+
 
 
 

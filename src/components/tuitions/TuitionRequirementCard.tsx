@@ -1,8 +1,9 @@
+
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, CalendarDays, MapPin, UserCircle, Tag, Briefcase } from "lucide-react"; // Added Briefcase
+import { BookOpen, CalendarDays, MapPin, Tag, Briefcase, Building, RadioTower } from "lucide-react"; // Added Building, RadioTower
 import { formatDistanceToNow } from 'date-fns';
 
 interface TuitionRequirementCardProps {
@@ -16,8 +17,8 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const statusVariant = requirement.status === 'open' 
     ? 'default' 
     : requirement.status === 'matched' 
-    ? 'secondary' // You might want a specific color for matched
-    : 'outline'; // And another for closed
+    ? 'secondary'
+    : 'outline';
 
   const statusColorClass = requirement.status === 'open' 
     ? 'bg-green-500 hover:bg-green-600 text-white border-green-600' 
@@ -42,9 +43,15 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
       </CardHeader>
       <CardContent className="space-y-2.5 text-sm flex-grow p-4 md:p-5 pt-0">
         <InfoItem icon={Tag} label="Grade" value={requirement.gradeLevel} />
+        {requirement.board && (
+          <InfoItem icon={Building} label="Board" value={requirement.board} />
+        )}
         <InfoItem icon={CalendarDays} label="Schedule" value={requirement.scheduleDetails} truncateValue={100} />
         {requirement.location && (
           <InfoItem icon={MapPin} label="Location" value={requirement.location} />
+        )}
+        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+          <InfoItem icon={RadioTower} label="Mode" value={requirement.teachingMode.join(', ')} />
         )}
         {requirement.additionalNotes && (
           <p className="text-xs text-muted-foreground pt-2.5 border-t border-border/30 mt-2.5 line-clamp-3">
@@ -83,3 +90,4 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
     </div>
   );
 }
+
