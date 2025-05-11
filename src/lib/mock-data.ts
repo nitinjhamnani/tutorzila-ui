@@ -134,3 +134,4 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   { id: "testimonial4", name: "Ahmed R. (Tutor)", avatarSeed: "ahmedtutor", role: "Tutor", text: "A great way to find students and manage my tutoring business. The support team is also very responsive.", rating: 5, date: new Date(Date.now() - 86400000 * 2).toISOString() },
   { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5, date: new Date(Date.now() - 86400000 * 8).toISOString() },
 ];
+

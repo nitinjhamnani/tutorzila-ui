@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { User, UserRole, TutorProfile } from "@/types";
@@ -57,8 +58,17 @@ export function useAuthMock() {
       );
 
       if (existingMockTutor) {
-        // Use existing mock tutor data, ensuring all fields are correctly typed
-        finalUserData = { ...existingMockTutor };
+        // Ensure all array fields are indeed arrays
+        finalUserData = { 
+          ...existingMockTutor,
+          subjects: Array.isArray(existingMockTutor.subjects) ? existingMockTutor.subjects : [],
+          qualifications: Array.isArray(existingMockTutor.qualifications) ? existingMockTutor.qualifications : [],
+          teachingMode: Array.isArray(existingMockTutor.teachingMode) ? existingMockTutor.teachingMode : [],
+          gradeLevelsTaught: Array.isArray(existingMockTutor.gradeLevelsTaught) ? existingMockTutor.gradeLevelsTaught : [],
+          boardsTaught: Array.isArray(existingMockTutor.boardsTaught) ? existingMockTutor.boardsTaught : [],
+          preferredDays: Array.isArray(existingMockTutor.preferredDays) ? existingMockTutor.preferredDays : [],
+          preferredTimeSlots: Array.isArray(existingMockTutor.preferredTimeSlots) ? existingMockTutor.preferredTimeSlots : [],
+        };
       } else {
         // Create a new tutor profile with default/derived values if no match found
         finalUserData = {
@@ -69,9 +79,13 @@ export function useAuthMock() {
           grade: 'High School', // Added default grade
           hourlyRate: "1000",
           bio: "A passionate and dedicated tutor.",
-          qualifications: "Relevant degree and certifications.",
-          teachingMode: "Online",
+          qualifications: ["Relevant degree and certifications."], 
+          teachingMode: ["Online"],
           phone: baseUserData.phone || "9876543210", // Ensure phone is included
+          gradeLevelsTaught: ["Grade 9-10", "Grade 11-12"],
+          boardsTaught: ["CBSE"],
+          preferredDays: ["Weekdays"],
+          preferredTimeSlots: ["1700-1900"],
           // isEmailVerified and isPhoneVerified are already in baseUserData
         } as TutorProfile;
       }
@@ -114,8 +128,12 @@ export function useAuthMock() {
         grade: '',
         hourlyRate: '',
         bio: '',
-        qualifications: '',
-        teachingMode: 'Online',
+        qualifications: [], // Ensure this is an array
+        teachingMode: ['Online'], // Ensure this is an array
+        gradeLevelsTaught: [],
+        boardsTaught: [],
+        preferredDays: [],
+        preferredTimeSlots: [],
       } as TutorProfile;
     }
     setUser(mockUserData);
