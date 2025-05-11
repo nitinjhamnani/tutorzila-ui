@@ -2,7 +2,7 @@
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2 } from "lucide-react";
 import Image from "next/image";
@@ -192,10 +192,13 @@ export default function DashboardPage() {
                 {user.role === 'tutor' && (
                   <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className={cn("text-xs font-normal px-3 py-1.5 h-auto rounded-full hover:bg-secondary/90",
-                          isEmailVerified ? "text-green-600 border-green-500 bg-green-500/10 cursor-default" : "text-primary underline"
+                        variant="secondary" // Base variant, overridden by conditional className
+                        size="sm" // Base size, overridden by conditional className
+                        className={cn(
+                          "h-auto rounded-full", // Common base styles
+                          isEmailVerified
+                            ? "bg-green-600 text-primary-foreground border-transparent py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-700 no-underline" // Verified state
+                            : "text-xs font-normal px-3 py-1.5 text-primary underline hover:bg-secondary/80" // Unverified state
                         )}
                         onClick={() => !isEmailVerified && handleOpenOtpModal("email")}
                         disabled={isEmailVerified}
@@ -204,10 +207,13 @@ export default function DashboardPage() {
                         {isEmailVerified ? "Email Verified" : "Verify Email"}
                       </Button>
                       <Button
-                        variant="secondary"
-                        size="sm"
-                        className={cn("text-xs font-normal px-3 py-1.5 h-auto rounded-full hover:bg-secondary/90",
-                          isPhoneVerified ? "text-green-600 border-green-500 bg-green-500/10 cursor-default" : "text-primary underline"
+                        variant="secondary" // Base variant
+                        size="sm" // Base size
+                         className={cn(
+                          "h-auto rounded-full", // Common base styles
+                          isPhoneVerified
+                            ? "bg-green-600 text-primary-foreground border-transparent py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-700 no-underline" // Verified state
+                            : "text-xs font-normal px-3 py-1.5 text-primary underline hover:bg-secondary/80" // Unverified state
                         )}
                         onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
                         disabled={isPhoneVerified}
@@ -486,9 +492,9 @@ function ActionCard({
         )}
       </CardContent>
       {!buttonInContent && href && ( 
-         <CardContent className="p-4 md:p-5 border-t bg-muted/20"> 
+         <CardFooter className="p-4 md:p-5 border-t bg-muted/20"> 
           {renderSingleButton(actionButtonText || title, href, disabled, ActionButtonIcon)}
-        </CardContent>
+        </CardFooter>
       )}
     </Card>
   );
