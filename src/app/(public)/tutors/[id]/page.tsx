@@ -8,7 +8,7 @@ import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; // Import mock data
 import { TutorPublicProfile } from "@/components/tutors/TutorPublicProfile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { UserX } from "lucide-react"; // Changed from UserSlash to UserX
+import { UserX } from "lucide-react"; 
 
 export default function TutorProfilePage() {
   const params = useParams();
@@ -35,18 +35,20 @@ export default function TutorProfilePage() {
     }
   }, [id]);
 
-  const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
+  const containerPadding = "container mx-auto px-4 sm:px-6 md:px-8"; // Adjusted padding
 
   if (loading) {
     return (
-      <div className={`${containerPadding} py-12`}>
-        <div className="grid md:grid-cols-3 gap-8">
-          <Skeleton className="h-[300px] md:col-span-1 rounded-lg" />
-          <div className="md:col-span-2 space-y-6">
-            <Skeleton className="h-12 w-3/4 rounded-lg" />
-            <Skeleton className="h-8 w-1/2 rounded-lg" />
-            <Skeleton className="h-24 w-full rounded-lg" />
-            <Skeleton className="h-10 w-1/3 rounded-lg" />
+      <div className={`${containerPadding} py-8 md:py-12`}> {/* Added more padding */}
+        <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="lg:col-span-1 space-y-6">
+            <Skeleton className="h-[350px] w-full rounded-xl" />
+            <Skeleton className="h-[150px] w-full rounded-xl" />
+          </div>
+          <div className="lg:col-span-2 space-y-6">
+            <Skeleton className="h-[200px] w-full rounded-xl" />
+            <Skeleton className="h-[250px] w-full rounded-xl" />
+            <Skeleton className="h-[180px] w-full rounded-xl" />
           </div>
         </div>
       </div>
@@ -56,8 +58,8 @@ export default function TutorProfilePage() {
   if (error) {
     return (
       <div className={`${containerPadding} py-12 flex justify-center items-center min-h-[calc(100vh-var(--header-height)-var(--footer-height,0px))]`}>
-        <Alert variant="destructive" className="max-w-md text-center">
-          <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> {/* Changed from UserSlash to UserX */}
+        <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl">
+          <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
           <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -74,9 +76,8 @@ export default function TutorProfilePage() {
   }
 
   return (
-    <div className={`${containerPadding} py-8 md:py-12 animate-in fade-in duration-500 ease-out`}>
+    <div className={`${containerPadding} py-6 md:py-10 animate-in fade-in duration-500 ease-out`}> {/* Reduced top/bottom padding slightly */}
       <TutorPublicProfile tutor={tutor} />
     </div>
   );
 }
-
