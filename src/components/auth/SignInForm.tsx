@@ -39,7 +39,7 @@ import { useState, useEffect } from 'react';
 const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  role: z.enum(["parent", "tutor"], { required_error: "Please select your role." }),
+  // Role is no longer part of the sign-in form schema as UI for it was removed
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
@@ -48,7 +48,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   const { login } = useAuthMock();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>("parent");
+  // selectedRole state and related useEffect are removed as there's no UI to select role
 
 
   const form = useForm<SignInFormValues>({
@@ -56,22 +56,19 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
     defaultValues: {
       email: "",
       password: "",
-      role: "parent",
+      // Role default value removed
     },
   });
-
-  useEffect(() => {
-    form.setValue("role", selectedRole);
-  }, [selectedRole, form]);
 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
     try {
-      await login(values.email, values.role); 
+      // Pass undefined for role, so useAuthMock can infer from email
+      const userData = await login(values.email, undefined); 
       toast({
         title: "Signed In!",
-        description: `Welcome back! You are signed in as a ${values.role}.`,
+        description: `Welcome back! You are signed in as a ${userData.role}.`,
       });
       if (onSuccess) {
         onSuccess();
@@ -87,11 +84,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
     }
   }
 
-  const handleRoleChange = (role: UserRole) => {
-    setSelectedRole(role);
-    form.setValue("role", role, { shouldValidate: true });
-  };
-
+  // handleRoleChange function removed as role selection UI is removed
 
   return (
     <Card className="w-full max-w-lg shadow-lg rounded-lg bg-card border animate-in fade-in zoom-in-95 duration-500 ease-out">
@@ -105,7 +98,6 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
       <CardContent className="px-8 pb-8 bg-card">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-             {/* Removed Role Selection */}
             <FormField
               control={form.control}
               name="email"
@@ -165,5 +157,3 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
     </Card>
   );
 }
-
-    
