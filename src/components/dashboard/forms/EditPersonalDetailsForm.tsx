@@ -31,7 +31,7 @@ const personalDetailsSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Invalid email address."), 
   phone: z.string().min(10, "Phone number must be at least 10 digits.").optional().or(z.literal("")),
-  gender: z.enum(["male", "female", "other", ""]).optional(),
+  gender: z.enum(["male", "female", "other", "not_specified"]).optional(), // Updated to use "not_specified"
   dateOfBirth: z.date().optional(),
 });
 
@@ -42,13 +42,20 @@ export function EditPersonalDetailsForm() {
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
 
+  const mapGenderToForm = (genderValue?: string | null) => {
+    if (genderValue === "" || genderValue === undefined || genderValue === null) {
+      return "not_specified";
+    }
+    return genderValue as "male" | "female" | "other" | "not_specified";
+  };
+
   const form = useForm<PersonalDetailsFormValues>({
     resolver: zodResolver(personalDetailsSchema),
     defaultValues: {
       name: tutorUser?.name || "",
       email: tutorUser?.email || "",
       phone: tutorUser?.phone || "",
-      gender: tutorUser?.gender || "", 
+      gender: mapGenderToForm(tutorUser?.gender),
       dateOfBirth: tutorUser?.dateOfBirth ? new Date(tutorUser.dateOfBirth) : undefined,
     },
   });
@@ -59,7 +66,7 @@ export function EditPersonalDetailsForm() {
         name: tutorUser.name || "",
         email: tutorUser.email || "",
         phone: tutorUser.phone || "",
-        gender: tutorUser.gender || "",
+        gender: mapGenderToForm(tutorUser.gender),
         dateOfBirth: tutorUser.dateOfBirth ? new Date(tutorUser.dateOfBirth) : undefined,
       });
     }
@@ -67,7 +74,11 @@ export function EditPersonalDetailsForm() {
 
 
   function onSubmit(data: PersonalDetailsFormValues) {
-    console.log("Personal Details Submitted:", data);
+    const dataToSubmit = {
+      ...data,
+      gender: data.gender === "not_specified" ? "" : data.gender,
+    };
+    console.log("Personal Details Submitted:", dataToSubmit);
     // Mock API call
     toast({
       title: "Personal Details Updated!",
@@ -150,7 +161,7 @@ export function EditPersonalDetailsForm() {
                     <FormLabel>Gender</FormLabel>
                     <div className="relative">
                       <VenetianMask className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || "not_specified"}>
                         <FormControl>
                           <SelectTrigger className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
                             <SelectValue placeholder="Select gender" />
@@ -160,7 +171,7 @@ export function EditPersonalDetailsForm() {
                           <SelectItem value="male">Male</SelectItem>
                           <SelectItem value="female">Female</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
-                          <SelectItem value="">Prefer not to say</SelectItem>
+                          <SelectItem value="not_specified">Prefer not to say</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -219,3 +230,4 @@ export function EditPersonalDetailsForm() {
     </Card>
   );
 }
+
