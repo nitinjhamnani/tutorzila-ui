@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -42,41 +43,32 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const formattedPostedDate = format(postedDate, "MMMM d, yyyy 'at' h:mm a");
-  const parentInitials = getInitials(requirement.parentName);
 
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
       <CardHeader className="bg-muted/30 p-4 md:p-5 border-b">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div>
-            <CardTitle className="text-base md:text-lg font-semibold text-primary tracking-tight flex items-center">
-              <Briefcase className="w-5 h-5 mr-2 text-primary/80" />
-              Tuition Requirement Details
-            </CardTitle>
-            <CardDescription className="text-xs text-foreground/70 mt-0.5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div className="flex-grow">
+            {requirement.parentName && (
+                 <CardTitle className="text-xl md:text-2xl font-semibold text-primary tracking-tight mb-1">
+                    {requirement.parentName}
+                 </CardTitle>
+            )}
+            <div className="flex items-center text-sm md:text-base font-medium text-foreground/90">
+              <Briefcase className="w-4 h-4 mr-2 text-primary/80" />
+              Tuition Requirement
+            </div>
+            <CardDescription className="text-xs text-foreground/70 mt-0.5 pl-6">
               Posted {timeAgo} (on {formattedPostedDate})
             </CardDescription>
           </div>
-          <Badge variant={requirement.status === "open" ? "default" : "secondary"} className="text-xs py-0.5 px-2 self-start sm:self-center">
+          <Badge variant={requirement.status === "open" ? "default" : "secondary"} className="text-xs py-0.5 px-2 self-start sm:self-auto mt-1 sm:mt-0">
             Status: {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
           </Badge>
         </div>
       </CardHeader>
 
       <CardContent className="p-4 md:p-5 space-y-4">
-        {/* Parent Information */}
-        <section className="space-y-2">
-          <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
-            <User className="w-4 h-4 mr-2 text-primary/80" />
-            Parent Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
-            <DetailItem label="Posted by" value={requirement.parentName || "N/A"} />
-          </div>
-        </section>
-
-        <Separator />
-
         {/* Tutoring Requirements */}
         <section className="space-y-2">
           <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
