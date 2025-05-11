@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -112,7 +113,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Card & My Leads Card Row (for Tutors) */}
+      {/* Welcome Card & My Enquiries Card Row (for Tutors) */}
       <div className="grid gap-6 md:grid-cols-3">
          <Card className={cn("border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
           <CardHeader className={cn("pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative")}>
@@ -227,13 +228,13 @@ export default function DashboardPage() {
             style={{ animationDelay: `0.1s` }}
           >
             <ActionCard
-              title="My Leads"
-              cardDescriptionText="View and manage potential student inquiries."
+              title="My Enquiries"
+              cardDescriptionText="View and manage potential student enquiries."
               description="5 Recommended" 
               Icon={Briefcase} 
               showImage={false}
               buttonInContent={true}
-              actionButtonText="View All Leads"
+              actionButtonText="View All Enquiries"
               ActionButtonIcon={ClipboardList}
               href="#" 
               disabled={false} 
@@ -415,15 +416,15 @@ function ActionCard({
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
         {buttonInContent ? (
           <>
-            {(title === "My Classes" || title === "My Payments" || title === "My Leads") && (
+            {(title === "My Classes" || title === "My Payments" || title === "My Enquiries") && (
                  <div className="flex justify-between items-center text-sm mb-2">
                  <span className="font-medium text-foreground/80">
-                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : "Recommended Leads"}
+                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : "Recommended Enquiries"}
                  </span>
                  <span className="font-semibold text-primary">{description}</span>
                </div>
             )}
-             {!((title === "My Classes" || title === "My Payments" || title === "My Leads")) && (
+             {!((title === "My Classes" || title === "My Payments" || title === "My Enquiries")) && (
                  <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
              )}
 
