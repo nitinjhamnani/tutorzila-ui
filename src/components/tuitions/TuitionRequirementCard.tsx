@@ -13,8 +13,8 @@ interface TuitionRequirementCardProps {
 }
 
 const getInitials = (name?: string): string => {
-  if (!name) return "??";
-  const parts = name.split(' ');
+  if (!name || name.trim() === "") return "??";
+  const parts = name.trim().split(/\s+/); // Split by one or more spaces
   if (parts.length === 1) {
     return parts[0].substring(0, 2).toUpperCase();
   }
@@ -25,15 +25,16 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
 
-  const subjectInitials = getInitials(requirement.subject); 
+  const parentInitials = getInitials(requirement.parentName); 
 
   return (
     <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden">
       <CardHeader className="p-4 pb-3">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md">
+            {/* If parentName exists and is not empty, show initials. Otherwise, show subject initials or default '??' */}
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md">
-              {subjectInitials}
+              {parentInitials !== "??" ? parentInitials : getInitials(requirement.subject)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
