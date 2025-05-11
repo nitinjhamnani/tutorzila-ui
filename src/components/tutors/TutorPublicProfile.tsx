@@ -32,7 +32,8 @@ import {
   Laptop,
   UserCheck,
   Sparkles,
-  Quote
+  Quote,
+  UserX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -78,19 +79,15 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
         {/* Left Column */}
         <aside className="lg:col-span-1 space-y-6">
           <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
-            <CardHeader className="p-0 relative">
-              <div className="h-24 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10" />
-              <div className="absolute top-12 left-1/2 transform -translate-x-1/2">
-                <Avatar className="w-28 h-28 border-4 border-card shadow-md ring-2 ring-primary/40">
-                  <AvatarImage src={tutor.avatar || `https://picsum.photos/seed/${tutor.id}/200`} alt={tutor.name} />
-                  <AvatarFallback className="text-3xl bg-primary/20 text-primary font-semibold">
-                    {tutor.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-16 text-center">
-              <h1 className="text-xl font-bold text-foreground tracking-tight">{tutor.name}</h1>
+            {/* Removed CardHeader with gradient background */}
+            <CardContent className="pt-6 text-center"> {/* Added pt-6 for spacing after removing header image */}
+              <Avatar className="w-28 h-28 border-4 border-card shadow-md ring-2 ring-primary/40 mx-auto">
+                <AvatarImage src={tutor.avatar || `https://picsum.photos/seed/${tutor.id}/200`} alt={tutor.name} />
+                <AvatarFallback className="text-3xl bg-primary/20 text-primary font-semibold">
+                  {tutor.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <h1 className="text-xl font-bold text-foreground tracking-tight mt-4">{tutor.name}</h1>
               <p className="text-xs text-muted-foreground mt-1">{tutor.role === "tutor" ? "Professional Tutor" : tutor.role}</p>
               
               <div className="flex items-center justify-center mt-2.5">
@@ -118,11 +115,11 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
           
           <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-primary flex items-center">
-                <UserCheck className="w-5 h-5 mr-2.5"/> Verification Status
+              <CardTitle className="text-md font-semibold text-primary flex items-center">
+                <UserCheck className="w-4 h-4 mr-2"/> Verification Status
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2.5 text-xs">
+            <CardContent className="space-y-3 text-xs"> {/* Increased space-y to 3 */}
                 <div className="flex items-center">
                     <Mail className="w-3.5 h-3.5 mr-2 text-muted-foreground"/>
                     <span className="text-foreground/80">Email:</span>
@@ -149,20 +146,20 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
           {tutor.bio && (
             <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-primary flex items-center">
-                  <Sparkles className="w-5 h-5 mr-2.5"/> About Me
+                <CardTitle className="text-md font-semibold text-primary flex items-center">
+                  <Sparkles className="w-4 h-4 mr-2"/> About Me
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio}</p>
+                <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio}</p>
               </CardContent>
             </Card>
           )}
 
           <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-primary flex items-center">
-                <Briefcase className="w-5 h-5 mr-2.5"/> Expertise & Details
+              <CardTitle className="text-md font-semibold text-primary flex items-center">
+                <Briefcase className="w-4 h-4 mr-2"/> Expertise & Details
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -171,7 +168,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                   {tutor.subjects.map((subject) => {
                     const IconComponent = subjectIcons[subject] || subjectIcons.Default;
                     return (
-                      <Badge key={subject} variant="outline" className="py-0.5 px-2 text-xs border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
+                      <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[11px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
                         <IconComponent className="w-3 h-3 mr-1"/>
                         {subject}
                       </Badge>
@@ -191,8 +188,8 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
           
           <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-primary flex items-center">
-                  <Quote className="w-5 h-5 mr-2.5"/> Student Reviews
+                <CardTitle className="text-md font-semibold text-primary flex items-center">
+                  <Quote className="w-4 h-4 mr-2"/> Student Reviews
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -206,7 +203,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                                 ))}
                             </div>
                         </div>
-                        <p className="text-[11px] text-muted-foreground mb-1.5">{new Date(review.date).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-muted-foreground mb-1.5">{new Date(review.date).toLocaleDateString()}</p>
                         <p className="text-xs text-foreground/80 leading-normal">{review.comment}</p>
                     </div>
                 )) : (
@@ -231,12 +228,12 @@ interface InfoSectionProps {
 function InfoSection({ icon: Icon, title, content, children }: InfoSectionProps) {
     return (
         <div className="space-y-1">
-            <div className="flex items-center text-sm font-medium text-foreground/90">
-                <Icon className="w-4 h-4 mr-2 text-primary/80"/>
+            <div className="flex items-center text-xs font-medium text-foreground/90"> {/* Reduced font size */}
+                <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80"/> {/* Reduced icon size and margin */}
                 {title}
             </div>
-            {content && <p className="text-xs text-foreground/70 pl-[24px]">{content}</p>}
-            {children && <div className="pl-[24px]">{children}</div>}
+            {content && <p className="text-[11px] text-foreground/70 pl-[22px]">{content}</p>} {/* Reduced font size and padding */}
+            {children && <div className="pl-[22px]">{children}</div>} {/* Reduced padding */}
         </div>
     )
 }
