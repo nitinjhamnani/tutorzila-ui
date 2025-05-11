@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -7,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock } from "lucide-react"; 
+import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock, ListChecks, CheckSquare, Star, Inbox } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock data - replace with API call in a real app
 const MOCK_REQUIREMENTS: TuitionRequirement[] = [
@@ -37,6 +37,7 @@ export default function AllEnquiriesPage() {
   const [boardFilter, setBoardFilter] = useState("All");
   const [teachingModeFilter, setTeachingModeFilter] = useState("All");
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
+  const [activeTab, setActiveTab] = useState("recommended");
 
   useEffect(() => {
     setRequirements(MOCK_REQUIREMENTS.filter(r => r.status === 'open'));
@@ -75,9 +76,51 @@ export default function AllEnquiriesPage() {
   
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
 
+  // Mock counts - replace with actual logic later
+  const tabCounts = {
+    recommended: filteredRequirements.length, // Example: using current filtered length
+    applied: 0, 
+    received: 0,
+    shortlisted: 0,
+  };
+
+  const renderEnquiryList = (enquiries: TuitionRequirement[]) => {
+    if (enquiries.length > 0) {
+      return (
+        <div className="grid grid-cols-1 gap-4 md:gap-5">
+          {enquiries.map((req, index) => (
+            <div 
+              key={req.id}
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
+            >
+              <TuitionRequirementCard requirement={req} />
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return (
+      <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
+        <CardContent className="flex flex-col items-center">
+          <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+          <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Here Yet</p>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            There are no enquiries in this category. Try other filters or check back later.
+          </p>
+           <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-5">
+            <XIcon className="w-3.5 h-3.5 mr-1.5" />
+            Clear All Filters
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  };
+
+
   return (
     <div className={`${containerPadding} pb-8`}>
-      <div className="flex flex-col lg:flex-row gap-8"> {/* Removed pt-8 */}
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel (Left) */}
         <aside className="lg:w-1/4 xl:w-1/5 space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out">
           <Card className="bg-card border rounded-lg shadow-sm">
@@ -94,7 +137,7 @@ export default function AllEnquiriesPage() {
               <FilterItem icon={MapPin} label="Location" value={locationFilter} onValueChange={setLocationFilter} options={locations} />
               <FilterItem icon={RadioTower} label="Teaching Mode" value={teachingModeFilter} onValueChange={setTeachingModeFilter} options={teachingModes} />
               <Button onClick={resetFilters} variant="outline" className="w-full h-11 text-sm border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
-                <XIcon className="w-4 h-4" /> {/* Adjusted icon size */}
+                <XIcon className="w-4 h-4" />
                 Reset All Filters
               </Button>
             </CardContent>
@@ -103,44 +146,38 @@ export default function AllEnquiriesPage() {
 
         {/* Enquiry List (Right) */}
         <main className="flex-1 space-y-6">
-          <div className="relative animate-in fade-in duration-500 ease-out">
-            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search by subject, grade, location, or keywords..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-4 py-3 text-sm bg-card border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg" // Adjusted text size
-            />
-          </div>
+           <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
+              <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                <Star className="w-3.5 h-3.5"/> Recommended ({tabCounts.recommended})
+              </TabsTrigger>
+              <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                <CheckSquare className="w-3.5 h-3.5"/> Applied ({tabCounts.applied})
+              </TabsTrigger>
+              <TabsTrigger value="received" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                 <Inbox className="w-3.5 h-3.5"/> Received ({tabCounts.received})
+              </TabsTrigger>
+              <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                <ListChecks className="w-3.5 h-3.5"/> Shortlisted ({tabCounts.shortlisted})
+              </TabsTrigger>
+            </TabsList>
 
-          {filteredRequirements.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Adjusted gap */}
-              {filteredRequirements.map((req, index) => (
-                <div 
-                  key={req.id}
-                  className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-                  style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
-                >
-                  <TuitionRequirementCard requirement={req} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out"> {/* Adjusted padding */}
-              <CardContent className="flex flex-col items-center">
-                <Filter className="w-16 h-16 text-primary/30 mx-auto mb-5" /> {/* Adjusted icon size and margin */}
-                <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Matching Enquiries Found</p> {/* Adjusted text size and margin */}
-                <p className="text-sm text-muted-foreground max-w-sm mx-auto"> {/* Adjusted text size and max-width */}
-                 Try adjusting your search filters or check back later for new opportunities.
-                </p>
-                 <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-5"> {/* Adjusted text size and padding */}
-                  <XIcon className="w-3.5 h-3.5 mr-1.5" /> {/* Adjusted icon size */}
-                  Clear Filters
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+            <TabsContent value="recommended" className="mt-6">
+              {renderEnquiryList(filteredRequirements)}
+            </TabsContent>
+            <TabsContent value="applied" className="mt-6">
+              {/* Replace with actual applied enquiries list */}
+              {renderEnquiryList([])} 
+            </TabsContent>
+            <TabsContent value="received" className="mt-6">
+              {/* Replace with actual received enquiries list */}
+              {renderEnquiryList([])}
+            </TabsContent>
+            <TabsContent value="shortlisted" className="mt-6">
+              {/* Replace with actual shortlisted enquiries list */}
+              {renderEnquiryList([])}
+            </TabsContent>
+          </Tabs>
         </main>
       </div>
     </div>
@@ -159,24 +196,22 @@ interface FilterItemProps {
 function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center"> {/* Adjusted text size */}
-        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label} {/* Adjusted icon size */}
+      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center">
+        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label}
       </label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger 
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
-          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs" // Adjusted height and text size
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs"
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <ScrollArea className="h-[180px]"> {/* Adjusted ScrollArea height */}
-            {options.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)} {/* Adjusted text size */}
+          <ScrollArea className="h-[180px]">
+            {options.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
           </ScrollArea>
         </SelectContent>
       </Select>
     </div>
   );
 }
-
-
