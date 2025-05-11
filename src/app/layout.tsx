@@ -1,14 +1,15 @@
+
 import type { Metadata, Viewport } from "next";
-import { Montserrat } from 'next/font/google'; // Changed from Roboto
+import { Montserrat } from 'next/font/google';
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "./providers";
 import logoAsset from '@/assets/images/logo.png';
 
-const montserrat = Montserrat({ // Changed from roboto
+const montserrat = Montserrat({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'], // Adjusted weights for Montserrat
-  variable: '--font-montserrat', // Changed variable name
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-montserrat',
 });
 
 export const metadata: Metadata = {
@@ -40,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning> {/* Use montserrat variable */}
+    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning>
       <body
         className="antialiased min-h-screen flex flex-col font-sans tracking-wide" // font-sans will now use Montserrat via Tailwind config
       >
