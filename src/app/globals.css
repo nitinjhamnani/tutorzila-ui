@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat */
   letter-spacing: 0.025em; 
 }
 
@@ -96,19 +96,20 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat */
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat for headings */
   }
   h2 {
-    @apply text-2xl; /* Equivalent to font-size: 2rem if base is 16px */
+     /* font-size: 2rem; Tailwind's text-2xl or text-3xl should be used in components */
   }
   p {
-    @apply font-normal text-foreground text-base leading-relaxed;
-    /* Tailwind equivalent for:
-       font-weight: 400; -> font-normal (default for p)
-       color: #333; -> text-foreground (hsl(0, 0%, 15%) which is #262626, close to #333)
-       font-size: 16px; -> text-base (1rem by default)
-       line-height: 26px; -> leading-relaxed (1.625rem or 26px if base font is 16px)
-       font-family: "Montserrat", sans-serif; is inherited from body
-    */
+    font-weight: 400 !important;
+    color: hsl(var(--foreground)) !important; /* Equivalent to #333 or darker based on theme */
+    font-size: 16px !important; 
+    line-height: 26px !important;
+    font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat for paragraphs */
   }
 }
 
@@ -207,20 +208,23 @@ body {
   automatically when utilities like `pt-[var(--header-height)]` are used in 
   components. Manually defining them can lead to PostCSS parsing errors.
   The CSS variables like --header-height are correctly defined in :root.
+*/
 
-  .pt-\\[var\\(--header-height\\)\\] {
-    padding-top: var(--header-height);
-  }
-  .pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
-    padding-top: calc(var(--header-height) + 1rem);
-  }
-  .h-\\[var\\(--logo-height\\)\\] {
-    height: var(--logo-height);
-  }
-  .min-h-\\[calc\\(100vh-4rem\\)\\] {
-      min-height: calc(100vh - 4rem);
-  }
-  .min-h-\\[calc\\(100vh-4rem_-_var\\(--footer-height,0px\\)\\)\\] {
-      min-height: calc(100vh - 4rem - var(--footer-height,0px));
-  }
+/* Removed potentially problematic manual Tailwind-like classes */
+/*
+.pt-\\[var\\(--header-height\\)\\] {
+  padding-top: var(--header-height);
+}
+.pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
+  padding-top: calc(var(--header-height) + 1rem);
+}
+.h-\\[var\\(--logo-height\\)\\] {
+  height: var(--logo-height);
+}
+.min-h-\\[calc\\(100vh-4rem\\)\\] {
+    min-height: calc(100vh - 4rem);
+}
+.min-h-\\[calc\\(100vh-4rem_-_var\\(--footer-height,0px\\)\\)\\] {
+    min-height: calc(100vh - 4rem - var(--footer-height,0px));
+}
 */
