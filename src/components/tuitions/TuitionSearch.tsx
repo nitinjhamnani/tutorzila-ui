@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -11,11 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 // Mock data - replace with API call in a real app
 const MOCK_REQUIREMENTS: TuitionRequirement[] = [
-  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry." },
-  { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: "Physics", gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString() },
-  { id: "3", parentId: "p3", parentName: "Carol Williams", subject: "English", gradeLevel: "Grade 6-8", scheduleDetails: "Tues, Thurs 4-6 PM", location: "Online", status: "matched", postedAt: new Date(Date.now() - 86400000 * 10).toISOString(), additionalNotes: "Focus on grammar and essay writing." },
-  { id: "4", parentId: "p4", parentName: "David Brown", subject: "Computer Science", gradeLevel: "College Level", scheduleDetails: "Flexible, project-based", location: "Online", status: "open", postedAt: new Date().toISOString() },
-  { id: "5", parentId: "p5", parentName: "Eve Davis", subject: "Mathematics", gradeLevel: "Grade 1-5", scheduleDetails: "Sat 10 AM - 12 PM", location: "Tutor's Home", status: "closed", postedAt: new Date(Date.now() - 86400000 * 30).toISOString() },
+  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"] },
+  { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: "Physics", gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"] },
+  { id: "3", parentId: "p3", parentName: "Carol Williams", subject: "English", gradeLevel: "Grade 6-8", scheduleDetails: "Tues, Thurs 4-6 PM", location: "Online", status: "matched", postedAt: new Date(Date.now() - 86400000 * 10).toISOString(), additionalNotes: "Focus on grammar and essay writing.", board: "State Board", teachingMode: ["Online"] },
+  { id: "4", parentId: "p4", parentName: "David Brown", subject: "Computer Science", gradeLevel: "College Level", scheduleDetails: "Flexible, project-based", location: "Online", status: "open", postedAt: new Date().toISOString(), board: "IB", teachingMode: ["Online", "Offline (In-person)"] },
+  { id: "5", parentId: "p5", parentName: "Eve Davis", subject: "Mathematics", gradeLevel: "Grade 1-5", scheduleDetails: "Sat 10 AM - 12 PM", location: "Tutor's Home", status: "closed", postedAt: new Date(Date.now() - 86400000 * 30).toISOString(), board: "IGCSE", teachingMode: ["Offline (In-person)"] },
 ];
 
 const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music"];
@@ -61,34 +62,34 @@ export function TuitionSearch() {
   };
 
   return (
-    <div className="space-y-8">
-      <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden">
-        <CardHeader className="p-6 md:p-8">
-           <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight flex items-center">
-            <SearchIcon className="w-8 h-8 md:w-10 md:h-10 mr-3"/>Find Tuition Opportunities
+    <div className="space-y-6"> {/* Reduced space-y */}
+      <Card className="shadow-lg bg-card border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden"> {/* Updated card styling */}
+        <CardHeader className="p-5 md:p-6"> {/* Reduced padding */}
+           <CardTitle className="text-2xl md:text-3xl font-semibold text-primary tracking-tight flex items-center"> {/* Reduced text size */}
+            <SearchIcon className="w-6 h-6 md:w-7 md:h-7 mr-2.5"/>Find Tuition Opportunities {/* Reduced icon size and margin */}
           </CardTitle>
-          <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
+          <CardDescription className="text-sm md:text-base text-foreground/70 mt-1"> {/* Reduced text size */}
             Search and filter to find the perfect tuition job for you.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6 p-6 md:p-8 pt-0">
+        <CardContent className="space-y-5 p-5 md:p-6 pt-0"> {/* Reduced space-y, reduced padding */}
           <div className="relative">
-            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /> {/* Adjusted icon size */}
             <Input
               type="search"
               placeholder="Search by subject, grade, location, or keywords..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
+              className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-xs hover:shadow-sm focus:shadow-md rounded-lg" // Adjusted padding, text size, shadow
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-end"> {/* Reduced gap */}
             <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={subjects} />
             <FilterItem icon={Users} label="Grade Level" value={gradeLevelFilter} onValueChange={setGradeLevelFilter} options={gradeLevels} />
             <FilterItem icon={MapPin} label="Location" value={locationFilter} onValueChange={setLocationFilter} options={locations} />
             
-            <Button onClick={resetFilters} variant="outline" className="h-11 text-base border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
-              <XIcon className="w-5 h-5" />
+            <Button onClick={resetFilters} variant="outline" className="h-10 text-sm border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-xs hover:shadow-sm rounded-lg flex items-center gap-1.5"> {/* Adjusted height, text size, shadow, gap */}
+              <XIcon className="w-4 h-4" />
               Reset Filters
             </Button>
           </div>
@@ -96,7 +97,7 @@ export function TuitionSearch() {
       </Card>
 
       {filteredRequirements.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"> {/* Adjusted gap */}
           {filteredRequirements.map((req, index) => (
             <div 
               key={req.id}
@@ -108,15 +109,15 @@ export function TuitionSearch() {
           ))}
         </div>
       ) : (
-         <Card className="text-center py-16 shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30">
+         <Card className="text-center py-12 shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30"> {/* Adjusted padding, shadow */}
           <CardContent className="flex flex-col items-center">
-            <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" /> {/* Changed icon */}
-            <p className="text-2xl font-semibold text-foreground/80 mb-2">No Matching Tuitions Found</p>
-            <p className="text-md text-muted-foreground max-w-md mx-auto">
+            <Filter className="w-16 h-16 text-primary/30 mx-auto mb-5" /> {/* Reduced icon size and margin */}
+            <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Matching Tuitions Found</p> {/* Reduced text size and margin */}
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
              Try adjusting your search filters or check back later for new opportunities.
             </p>
-             <Button onClick={resetFilters} variant="outline" className="mt-8 text-base py-2.5 px-6">
-              <XIcon className="w-4 h-4 mr-2" />
+             <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-4"> {/* Reduced text size and padding */}
+              <XIcon className="w-3.5 h-3.5 mr-1.5" /> {/* Adjusted icon size */}
               Clear Filters
             </Button>
           </CardContent>
@@ -137,19 +138,19 @@ interface FilterItemProps {
 
 function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
   return (
-    <div className="space-y-1.5">
-      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-sm font-medium text-muted-foreground flex items-center">
-        <Icon className="w-4 h-4 mr-2 text-primary/80"/>{label}
+    <div className="space-y-1"> {/* Reduced space-y */}
+      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center"> {/* Adjusted text size */}
+        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label} {/* Adjusted icon size */}
       </label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger 
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
-          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-11 text-base"
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-xs hover:shadow-sm focus:shadow-md rounded-lg h-10 text-sm" // Adjusted height, text size, shadow
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {options.map(opt => <SelectItem key={opt} value={opt} className="text-base">{opt}</SelectItem>)}
+          {options.map(opt => <SelectItem key={opt} value={opt} className="text-sm">{opt}</SelectItem>)} {/* Adjusted text size */}
         </SelectContent>
       </Select>
     </div>

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower } from "lucide-react"; 
+import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -77,12 +77,10 @@ export default function AllEnquiriesPage() {
 
   return (
     <div className={`${containerPadding} py-8`}>
-      {/* Removed the top "All Tuition Enquiries" card */}
-
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel (Left) */}
         <aside className="lg:w-1/4 xl:w-1/5 space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out">
-          <Card className="bg-card border rounded-lg shadow-md">
+          <Card className="bg-card border rounded-lg shadow-sm">
             <CardHeader className="pb-4 border-b border-border/30">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <Filter className="w-5 h-5 mr-2.5"/>
@@ -95,8 +93,8 @@ export default function AllEnquiriesPage() {
               <FilterItem icon={Building} label="Board" value={boardFilter} onValueChange={setBoardFilter} options={boards} />
               <FilterItem icon={MapPin} label="Location" value={locationFilter} onValueChange={setLocationFilter} options={locations} />
               <FilterItem icon={RadioTower} label="Teaching Mode" value={teachingModeFilter} onValueChange={setTeachingModeFilter} options={teachingModes} />
-              <Button onClick={resetFilters} variant="outline" className="w-full h-11 text-base border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
-                <XIcon className="w-5 h-5" />
+              <Button onClick={resetFilters} variant="outline" className="w-full h-11 text-sm border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
+                <XIcon className="w-4 h-4" /> {/* Adjusted icon size */}
                 Reset All Filters
               </Button>
             </CardContent>
@@ -112,12 +110,12 @@ export default function AllEnquiriesPage() {
               placeholder="Search by subject, grade, location, or keywords..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-4 py-3 text-base bg-card border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
+              className="pl-12 pr-4 py-3 text-sm bg-card border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg" // Adjusted text size
             />
           </div>
 
           {filteredRequirements.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Adjusted gap */}
               {filteredRequirements.map((req, index) => (
                 <div 
                   key={req.id}
@@ -129,15 +127,15 @@ export default function AllEnquiriesPage() {
               ))}
             </div>
           ) : (
-            <Card className="text-center py-16 bg-card border rounded-lg shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out">
+            <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out"> {/* Adjusted padding */}
               <CardContent className="flex flex-col items-center">
-                <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" />
-                <p className="text-2xl font-semibold text-foreground/80 mb-2">No Matching Enquiries Found</p>
-                <p className="text-md text-muted-foreground max-w-md mx-auto text-[15px]">
+                <Filter className="w-16 h-16 text-primary/30 mx-auto mb-5" /> {/* Adjusted icon size and margin */}
+                <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Matching Enquiries Found</p> {/* Adjusted text size and margin */}
+                <p className="text-sm text-muted-foreground max-w-sm mx-auto"> {/* Adjusted text size and max-width */}
                  Try adjusting your search filters or check back later for new opportunities.
                 </p>
-                 <Button onClick={resetFilters} variant="outline" className="mt-8 text-base py-2.5 px-6">
-                  <XIcon className="w-4 h-4 mr-2" />
+                 <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-5"> {/* Adjusted text size and padding */}
+                  <XIcon className="w-3.5 h-3.5 mr-1.5" /> {/* Adjusted icon size */}
                   Clear Filters
                 </Button>
               </CardContent>
@@ -161,25 +159,22 @@ interface FilterItemProps {
 function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-sm font-medium text-muted-foreground flex items-center">
-        <Icon className="w-4 h-4 mr-2 text-primary/80"/>{label}
+      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center"> {/* Adjusted text size */}
+        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label} {/* Adjusted icon size */}
       </label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger 
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
-          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-10 text-[15px]" // Adjusted height and text size
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs" // Adjusted height and text size
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <ScrollArea className="h-[200px]"> {/* Added ScrollArea for long lists */}
-            {options.map(opt => <SelectItem key={opt} value={opt} className="text-[15px]">{opt}</SelectItem>)}
+          <ScrollArea className="h-[180px]"> {/* Adjusted ScrollArea height */}
+            {options.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)} {/* Adjusted text size */}
           </ScrollArea>
         </SelectContent>
       </Select>
     </div>
   );
 }
-
-
-    
