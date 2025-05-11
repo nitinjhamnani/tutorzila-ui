@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -27,6 +28,7 @@ import {
   Lock,
   Unlock,
   CheckCircle, 
+  Bookmark, // Added Bookmark
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,6 +65,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const { toast } = useToast();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false); // Mock application status
+  const [isShortlisted, setIsShortlisted] = useState(false); // Added for shortlist
 
   // Mock parent contact details
   const mockParentEmail = `${requirement.parentName?.toLowerCase().replace(/\s+/g, '.')}@example.com`;
@@ -101,9 +104,19 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
     });
   };
 
+  const handleShortlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault(); 
+    e.stopPropagation(); 
+    setIsShortlisted(!isShortlisted);
+    toast({
+      title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
+      description: `Enquiry for ${requirement.subject} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
+    });
+  };
+
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
-      <CardHeader className="bg-muted/30 p-4 md:p-5 border-b">
+      <CardHeader className="bg-muted/30 p-4 md:p-5 border-b relative"> {/* Added relative positioning */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="flex-grow">
             {requirement.parentName && (
@@ -115,9 +128,19 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
               Posted {timeAgo} (on {formattedPostedDate})
             </CardDescription>
           </div>
-          <Badge variant={requirement.status === "open" ? "default" : "secondary"} className="text-xs py-0.5 px-2 self-start sm:self-auto mt-1 sm:mt-0">
-            Status: {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-          </Badge>
+          {/* Removed status badge */}
+           <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "absolute top-3 right-3 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full", // Adjusted positioning and size
+              isShortlisted && "text-primary"
+            )}
+            onClick={handleShortlistToggle}
+            title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+          >
+            <Bookmark className={cn("h-4.5 w-4.5 transition-colors", isShortlisted && "fill-primary")} /> {/* Adjusted icon size */}
+          </Button>
         </div>
       </CardHeader>
 
