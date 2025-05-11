@@ -3,7 +3,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Clock, Eye, RadioTower } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Clock, Eye, Presentation } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -30,8 +30,8 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const parentInitials = getInitials(requirement.parentName); 
 
   return (
-    <Card className="group bg-card border border-border/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5">
-      <CardHeader className="p-4 pb-3 bg-muted/20 border-b border-border/30">
+    <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5">
+      <CardHeader className="p-4 pb-3 bg-muted/20 border-b">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20 mt-0.5">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
@@ -58,7 +58,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
         <div className="flex flex-col sm:flex-row gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           {requirement.teachingMode && requirement.teachingMode.length > 0 && (
             <div className="flex items-center">
-              <RadioTower className="w-3 h-3 mr-1 text-primary/70 shrink-0" />
+              <Presentation className="w-3 h-3 mr-1 text-primary/70 shrink-0" />
               <span>{requirement.teachingMode.join(', ')}</span>
             </div>
           )}

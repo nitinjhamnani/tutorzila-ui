@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "./TuitionRequirementCard";
-import { SearchIcon, XIcon, BookOpen, Users, MapPin, Filter } from "lucide-react";
+import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as LucideFilter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 // Mock data - replace with API call in a real app
@@ -63,7 +63,7 @@ export function TuitionSearch() {
 
   return (
     <div className="space-y-6"> {/* Reduced space-y */}
-      <Card className="shadow-lg bg-card border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden"> {/* Updated card styling */}
+      <Card className="shadow-lg bg-card border rounded-xl overflow-hidden animate-in fade-in duration-700 ease-out"> {/* Updated card styling */}
         <CardHeader className="p-5 md:p-6"> {/* Reduced padding */}
            <CardTitle className="text-2xl md:text-3xl font-semibold text-primary tracking-tight flex items-center"> {/* Reduced text size */}
             <SearchIcon className="w-6 h-6 md:w-7 md:h-7 mr-2.5"/>Find Tuition Opportunities {/* Reduced icon size and margin */}
@@ -109,9 +109,9 @@ export function TuitionSearch() {
           ))}
         </div>
       ) : (
-         <Card className="text-center py-12 shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30"> {/* Adjusted padding, shadow */}
+         <Card className="text-center py-12 shadow-md rounded-xl bg-card border border-border/30 animate-in fade-in zoom-in-95 duration-500 ease-out"> {/* Adjusted padding, shadow */}
           <CardContent className="flex flex-col items-center">
-            <Filter className="w-16 h-16 text-primary/30 mx-auto mb-5" /> {/* Reduced icon size and margin */}
+            <LucideFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" /> {/* Reduced icon size and margin */}
             <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Matching Tuitions Found</p> {/* Reduced text size and margin */}
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
              Try adjusting your search filters or check back later for new opportunities.
@@ -156,3 +156,4 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
+

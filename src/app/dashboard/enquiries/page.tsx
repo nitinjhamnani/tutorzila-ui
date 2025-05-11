@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock, ListChecks, CheckSquare, Star, Inbox, ChevronDown } from "lucide-react"; 
+import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as LucideFilter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock, ListChecks, CheckSquare, Star, Inbox, ChevronDown } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // Added ScrollBar
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -155,7 +156,7 @@ export default function AllEnquiriesPage() {
               <AccordionTrigger className="w-full hover:no-underline px-4 py-3 data-[state=open]:border-b data-[state=open]:border-border/30">
                 <div className="flex flex-row justify-between items-center w-full">
                   <h3 className="text-lg font-semibold text-primary flex items-center">
-                    <Filter className="w-5 h-5 mr-2.5"/>
+                    <LucideFilter className="w-5 h-5 mr-2.5"/>
                     Filter Enquiries
                   </h3>
                   {/* ChevronDown icon is part of AccordionTrigger by default */}
@@ -175,7 +176,7 @@ export default function AllEnquiriesPage() {
           <Card className="bg-card border rounded-lg shadow-sm">
             <CardHeader className="pb-4 border-b border-border/30">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
-                <Filter className="w-5 h-5 mr-2.5"/>
+                <LucideFilter className="w-5 h-5 mr-2.5"/>
                 Filter Enquiries
               </CardTitle>
             </CardHeader>
