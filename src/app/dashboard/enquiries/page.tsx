@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
 import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock, ListChecks, CheckSquare, Star, Inbox, ChevronDown } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // Added ScrollBar
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
@@ -188,8 +188,8 @@ export default function AllEnquiriesPage() {
         {/* Enquiry List (Right) */}
         <main className="flex-1 space-y-6">
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
-            <ScrollArea className="pb-2.5"> {/* Added ScrollArea for TabsList */}
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm min-w-[450px] sm:min-w-full"> {/* Added min-width */}
+             <ScrollArea className="w-full whitespace-nowrap">
+              <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
                 <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
                   <Star className="w-3.5 h-3.5"/> Recommended ({tabCounts.recommended})
                 </TabsTrigger>
@@ -203,6 +203,7 @@ export default function AllEnquiriesPage() {
                   <ListChecks className="w-3.5 h-3.5"/> Shortlisted ({tabCounts.shortlisted})
                 </TabsTrigger>
               </TabsList>
+              <ScrollBar orientation="horizontal" className="h-2 mt-1" />
             </ScrollArea>
 
             <TabsContent value="recommended" className="mt-6">

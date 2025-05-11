@@ -17,7 +17,9 @@ const ScrollArea = React.forwardRef<
     <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
       {children}
     </ScrollAreaPrimitive.Viewport>
-    <ScrollBar />
+    {/* ScrollBar component will be added explicitly by the consumer if needed */}
+    {/* Forcing a default scrollbar might not always be desired, so let consumer add it */}
+    {/* <ScrollBar /> */} 
     <ScrollAreaPrimitive.Corner />
   </ScrollAreaPrimitive.Root>
 ))
@@ -35,7 +37,7 @@ const ScrollBar = React.forwardRef<
       orientation === "vertical" &&
         "h-full w-2.5 border-l border-l-transparent p-[1px]",
       orientation === "horizontal" &&
-        "h-2.5 flex-col border-t border-t-transparent p-[1px]",
+        "h-2.5 flex-col border-t border-t-transparent p-[1px]", // Use flex-col for horizontal scrollbar if it contains a thumb that needs height
       className
     )}
     {...props}
