@@ -21,10 +21,12 @@ import {
   Briefcase,
   MessageSquare,
   Send,
+  ArrowLeft,
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface EnquiryDetailsProps {
   requirement: TuitionRequirement;
@@ -54,7 +56,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                     {requirement.parentName}
                  </CardTitle>
             )}
-            {/* Removed "Tuition Requirement" heading here */}
             <CardDescription className="text-xs text-foreground/70 mt-0.5">
               Posted {timeAgo} (on {formattedPostedDate})
             </CardDescription>
@@ -116,13 +117,21 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
         )}
       </CardContent>
 
-      <CardFooter className="bg-muted/30 p-4 border-t flex flex-col sm:flex-row justify-end items-center gap-2">
-        <Button variant="outline" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
-           <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Contact Parent (Mock)
+      <CardFooter className="bg-muted/30 p-4 border-t flex flex-col sm:flex-row justify-between items-center gap-2">
+        <Button variant="link" asChild className="text-xs p-0 h-auto text-primary hover:text-primary/80">
+          <Link href="/dashboard/enquiries">
+            <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+            Go back to listing
+          </Link>
         </Button>
-        <Button className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
-          <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
-        </Button>
+        <div className="flex gap-2">
+            <Button variant="outline" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
+            <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Contact Parent (Mock)
+            </Button>
+            <Button className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
+            <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
+            </Button>
+        </div>
       </CardFooter>
     </Card>
   );
