@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import type { TutorProfile } from "@/types";
 import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck } from "lucide-react";
 import React from "react";
+import { cn } from "@/lib/utils";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
@@ -163,7 +164,7 @@ export function EditTutoringDetailsForm() {
                   <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects You Teach</FormLabel>
                   <MultiSelectCommand
                     options={subjectsList}
-                    selectedValues={field.value}
+                    selectedValues={field.value || []}
                     onValueChange={field.onChange}
                     placeholder="Select subjects..."
                     className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
@@ -181,7 +182,7 @@ export function EditTutoringDetailsForm() {
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Levels You Teach</FormLabel>
                   <MultiSelectCommand
                     options={gradeLevelsList}
-                    selectedValues={field.value}
+                    selectedValues={field.value || []}
                     onValueChange={field.onChange}
                     placeholder="Select grade levels..."
                     className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
@@ -199,7 +200,7 @@ export function EditTutoringDetailsForm() {
                   <FormLabel className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-primary/80"/>Boards You're Familiar With</FormLabel>
                   <MultiSelectCommand
                     options={boardsList}
-                    selectedValues={field.value}
+                    selectedValues={field.value || []}
                     onValueChange={field.onChange}
                     placeholder="Select boards..."
                     className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
@@ -216,7 +217,7 @@ export function EditTutoringDetailsForm() {
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
                   <MultiSelectCommand
                     options={qualificationsList}
-                    selectedValues={field.value}
+                    selectedValues={field.value || []}
                     onValueChange={field.onChange}
                     placeholder="Select qualifications..."
                     className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
@@ -261,7 +262,7 @@ export function EditTutoringDetailsForm() {
              <FormField
               control={form.control}
               name="teachingMode"
-              render={() => ( // No field needed here, individual checkboxes will update the array
+              render={() => (
                 <FormItem>
                   <FormLabel className="flex items-center text-base font-medium"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
                    <FormDescription className="text-xs">Select all applicable teaching modes.</FormDescription>
@@ -273,24 +274,28 @@ export function EditTutoringDetailsForm() {
                       name="teachingMode"
                       render={({ field }) => {
                         return (
-                          <FormItem
-                            key={item.id}
-                            className="flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  const currentValues = field.value || [];
-                                  return checked
-                                    ? field.onChange([...currentValues, item.id])
-                                    : field.onChange(currentValues.filter(value => value !== item.id));
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal text-sm cursor-pointer">
-                              {item.label}
-                            </FormLabel>
+                           <FormItem key={item.id}>
+                            <Label
+                              htmlFor={`teaching-mode-${item.id}`}
+                              className={cn(
+                                "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
+                                field.value?.includes(item.id) && "bg-primary/10 border-primary ring-1 ring-primary"
+                              )}
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  id={`teaching-mode-${item.id}`}
+                                  checked={field.value?.includes(item.id)}
+                                  onCheckedChange={(checked) => {
+                                    const currentValues = field.value || [];
+                                    return checked
+                                      ? field.onChange([...currentValues, item.id])
+                                      : field.onChange(currentValues.filter(value => value !== item.id));
+                                  }}
+                                />
+                              </FormControl>
+                              <span className="font-normal text-sm">{item.label}</span>
+                            </Label>
                           </FormItem>
                         );
                       }}
@@ -325,7 +330,7 @@ export function EditTutoringDetailsForm() {
                     <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Days</FormLabel>
                     <MultiSelectCommand
                       options={daysOptionsList}
-                      selectedValues={field.value}
+                      selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select preferred days..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
@@ -342,7 +347,7 @@ export function EditTutoringDetailsForm() {
                     <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots</FormLabel>
                     <MultiSelectCommand
                       options={timeSlotsOptionsList}
-                      selectedValues={field.value}
+                      selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select preferred time slots..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
@@ -376,3 +381,4 @@ export function EditTutoringDetailsForm() {
     </Card>
   );
 }
+

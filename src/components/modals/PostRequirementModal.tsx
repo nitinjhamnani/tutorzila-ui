@@ -30,32 +30,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox"; // Added Checkbox
+import { Checkbox } from "@/components/ui/checkbox"; 
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock } from "lucide-react"; // Added CalendarDays, Clock
-import { MultiSelectCommand } from "@/components/ui/multi-select-command";
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock } from "lucide-react"; 
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
-const subjectsList = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
+const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 
 const teachingModeOptions = [
-  { id: "online", label: "Online" },
-  { id: "offline", label: "Offline (In-person)" },
+  { id: "Online", label: "Online" },
+  { id: "Offline (In-person)", label: "Offline (In-person)" },
 ];
 
-const daysOptions = [
-  { id: "mon", label: "Monday" },
-  { id: "tue", label: "Tuesday" },
-  { id: "wed", label: "Wednesday" },
-  { id: "thu", label: "Thursday" },
-  { id: "fri", label: "Friday" },
-  { id: "sat", label: "Saturday" },
-  { id: "sun", label: "Sunday" },
+const daysOptions: MultiSelectOption[] = [
+  { value: "Monday", label: "Monday" },
+  { value: "Tuesday", label: "Tuesday" },
+  { value: "Wednesday", label: "Wednesday" },
+  { value: "Thursday", label: "Thursday" },
+  { value: "Friday", label: "Friday" },
+  { value: "Saturday", label: "Saturday" },
+  { value: "Sunday", label: "Sunday" },
+  { value: "Weekdays", label: "Weekdays" },
+  { value: "Weekends", label: "Weekends" },
+  { value: "Flexible", label: "Flexible"},
 ];
 
-const timeSlotsOptions = [
+const timeSlotsOptions: MultiSelectOption[] = [
   // Morning
   { value: "0800-1000", label: "8:00 AM - 10:00 AM" },
   { value: "1000-1200", label: "10:00 AM - 12:00 PM" },
@@ -66,6 +71,7 @@ const timeSlotsOptions = [
   // Evening
   { value: "1800-2000", label: "6:00 PM - 8:00 PM" },
   { value: "2000-2200", label: "8:00 PM - 10:00 PM" },
+  { value: "Flexible", label: "Flexible"},
 ];
 
 
@@ -277,21 +283,30 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                     <FormLabel className="text-base">Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
-                        <FormItem key={option.id} className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(option.id)}
-                              onCheckedChange={(checked) => {
-                                const currentValues = field.value || [];
-                                if (checked) {
-                                  form.setValue("teachingMode", [...currentValues, option.id], { shouldValidate: true });
-                                } else {
-                                  form.setValue("teachingMode", currentValues.filter(v => v !== option.id), { shouldValidate: true });
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="font-normal">{option.label}</FormLabel>
+                        <FormItem key={option.id}>
+                           <Label
+                              htmlFor={`teaching-mode-modal-${option.id}`}
+                              className={cn(
+                                "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
+                                field.value?.includes(option.id) && "bg-primary/10 border-primary ring-1 ring-primary"
+                              )}
+                            >
+                            <FormControl>
+                              <Checkbox
+                                id={`teaching-mode-modal-${option.id}`}
+                                checked={field.value?.includes(option.id)}
+                                onCheckedChange={(checked) => {
+                                  const currentValues = field.value || [];
+                                  if (checked) {
+                                    form.setValue("teachingMode", [...currentValues, option.id], { shouldValidate: true });
+                                  } else {
+                                    form.setValue("teachingMode", currentValues.filter(v => v !== option.id), { shouldValidate: true });
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <span className="font-normal text-sm">{option.label}</span>
+                          </Label>
                         </FormItem>
                       ))}
                     </div>
@@ -306,26 +321,14 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base flex items-center"><CalendarDays className="mr-2 h-4 w-4"/>Preferred Days</FormLabel>
-                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-3 pt-2">
-                      {daysOptions.map((option) => (
-                        <FormItem key={option.id} className="flex items-center space-x-2 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(option.id)}
-                              onCheckedChange={(checked) => {
-                                const currentValues = field.value || [];
-                                if (checked) {
-                                  form.setValue("preferredDays", [...currentValues, option.id], { shouldValidate: true });
-                                } else {
-                                  form.setValue("preferredDays", currentValues.filter(v => v !== option.id), { shouldValidate: true });
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="font-normal text-sm">{option.label}</FormLabel>
-                        </FormItem>
-                      ))}
-                    </div>
+                     <MultiSelectCommand
+                        options={daysOptions}
+                        selectedValues={field.value || []}
+                        onValueChange={(values) => field.onChange(values)}
+                        placeholder="Select preferred days..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
+                      />
+                    <FormDescription>You can select multiple days.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -339,7 +342,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                     <FormLabel className="text-base flex items-center"><Clock className="mr-2 h-4 w-4"/>Preferred Time Slots</FormLabel>
                     <MultiSelectCommand
                       options={timeSlotsOptions}
-                      selectedValues={field.value}
+                      selectedValues={field.value || []}
                       onValueChange={(values) => field.onChange(values)}
                       placeholder="Select preferred time slots..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
@@ -379,3 +382,4 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
     </div>
   );
 }
+
