@@ -76,8 +76,8 @@ export default function AllEnquiriesPage() {
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
 
   return (
-    <div className={`${containerPadding} py-8`}>
-      <div className="flex flex-col lg:flex-row gap-8">
+    <div className={`${containerPadding} pb-8`}> {/* Removed py-8 and added pb-8 */}
+      <div className="flex flex-col lg:flex-row gap-8 pt-8"> {/* Added pt-8 here */}
         {/* Filter Panel (Left) */}
         <aside className="lg:w-1/4 xl:w-1/5 space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out">
           <Card className="bg-card border rounded-lg shadow-sm">
@@ -178,3 +178,4 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
+
