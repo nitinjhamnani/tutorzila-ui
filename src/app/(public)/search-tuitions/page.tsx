@@ -1,6 +1,8 @@
 
 import { TutorProfileSearch } from "@/components/tutors/TutorProfileSearch";
 import type { Metadata } from "next";
+// MOCK_TUTOR_PROFILES import is removed as it's now fetched within TutorProfileSearch or passed as prop if needed
+// For this setup, TutorProfileSearch uses its own mock data source or fetches it.
 
 export const metadata: Metadata = {
   title: "Search Tutors - Tutorzila",
@@ -14,5 +16,3 @@ export default function SearchTutorsPage() {
     </div>
   );
 }
-
-

@@ -18,6 +18,7 @@ import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import { useState } from "react"; 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
+import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 
 
 const howItWorksSteps = [
@@ -75,22 +76,6 @@ const popularSubjects = [
   { name: "Biology", icon: Atom, hoverColor: "hover:bg-lime-600" },
   { name: "Geography", icon: Globe, hoverColor: "hover:bg-orange-600" },
   { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
-];
-
-const MOCK_TUTOR_PROFILES: TutorProfile[] = [
-  { id: "t1", name: "Dr. Emily Carter", email: "emily.carter@example.com", role: "tutor", avatar: "https://picsum.photos/seed/emilycarter/128", subjects: ["Physics", "Mathematics", "Chemistry"], grade: "Doctorate Level", experience: "10+ years", hourlyRate: "5000", bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels.", teachingMode: "Online", status: "Active" },
-  { id: "t2", name: "John Adebayo", email: "john.adebayo@example.com", role: "tutor", avatar: "https://picsum.photos/seed/johnadebayo/128", subjects: ["English Literature", "History", "Creative Writing"], grade: "Master's Level", experience: "5-7 years", hourlyRate: "4000", bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities.", teachingMode: "In-person", status: "Active" },
-  { id: "t3", name: "Sophia Chen", email: "sophia.chen@example.com", role: "tutor", avatar: "https://picsum.photos/seed/sophiachen/128", subjects: ["Computer Science", "Mathematics", "Web Development"], grade: "University Level", experience: "3-5 years", hourlyRate: "4500", bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies.", teachingMode: "Hybrid", status: "Active" },
-  { id: "t4", name: "David Miller", email: "david.miller@example.com", role: "tutor", avatar: "https://picsum.photos/seed/davidmiller/128", subjects: ["Biology", "Chemistry"], grade: "High School & College", experience: "7+ years", hourlyRate: "4800", bio: "Former research scientist with extensive experience in tutoring high school and college biology.", teachingMode: "Online", status: "Active" },
-  { id: "t5", name: "Linda Garcia", email: "linda.garcia@example.com", role: "tutor", avatar: "https://picsum.photos/seed/lindagarcia/128", subjects: ["Spanish", "French"], grade: "All Levels", experience: "3-5 years", hourlyRate: "3500", bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange.", teachingMode: "In-person", status: "Inactive" },
-];
-
-const MOCK_TESTIMONIALS: Testimonial[] = [
-  { id: "testimonial1", name: "Sarah L. (Parent)", avatarSeed: "sarahparent", role: "Parent", text: "Tutorzila helped us find the perfect math tutor for our son. His grades have improved significantly!", rating: 5, date: new Date(Date.now() - 86400000 * 5).toISOString() },
-  { id: "testimonial2", name: "David K. (Tutor)", avatarSeed: "davidtutor", role: "Tutor", text: "I love the flexibility of teaching on Tutorzila. I can set my own hours and connect with students who genuinely want to learn.", rating: 5, date: new Date(Date.now() - 86400000 * 12).toISOString() },
-  { id: "testimonial3", name: "Maria P. (Parent)", avatarSeed: "mariaparent", role: "Parent", text: "The platform is user-friendly, and the quality of tutors is excellent. Highly recommend!", rating: 4, date: new Date(Date.now() - 86400000 * 20).toISOString() },
-  { id: "testimonial4", name: "Ahmed R. (Tutor)", avatarSeed: "ahmedtutor", role: "Tutor", text: "A great way to find students and manage my tutoring business. The support team is also very responsive.", rating: 5, date: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5, date: new Date(Date.now() - 86400000 * 8).toISOString() },
 ];
 
 
