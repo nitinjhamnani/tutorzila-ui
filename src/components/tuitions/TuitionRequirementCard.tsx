@@ -1,14 +1,19 @@
 
 
+"use client"; // Added for useState and client-side interaction
+
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Clock, Eye, Presentation } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users,Clock, Eye, Presentation, Star as StarIcon, Bookmark } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link"; 
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+
 
 interface TuitionRequirementCardProps {
   requirement: TuitionRequirement;
@@ -26,12 +31,25 @@ const getInitials = (name?: string): string => {
 export function TuitionRequirementCard({ requirement }: TuitionRequirementCardProps) {
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
+  const { toast } = useToast();
 
   const parentInitials = getInitials(requirement.parentName); 
+  const [isShortlisted, setIsShortlisted] = useState(false);
+
+  const handleShortlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation if card is wrapped in a link
+    e.stopPropagation(); // Stop event bubbling
+    setIsShortlisted(!isShortlisted);
+    toast({
+      title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
+      description: `Enquiry for ${requirement.subject} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
+    });
+  };
+
 
   return (
     <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5">
-      <CardHeader className="p-4 pb-3 bg-muted/20 border-b">
+      <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20 mt-0.5">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
@@ -47,6 +65,18 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
             </CardDescription>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+            isShortlisted && "text-primary"
+          )}
+          onClick={handleShortlistToggle}
+          title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+        >
+          <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
+        </Button>
       </CardHeader>
       <CardContent className="space-y-1.5 text-xs flex-grow p-4 pt-3"> 
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
