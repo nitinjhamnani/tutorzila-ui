@@ -7,6 +7,7 @@ import { GraduationCap, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Cl
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import Link from "next/link"; // Added Link
 
 interface TuitionRequirementCardProps {
   requirement: TuitionRequirement;
@@ -28,11 +29,10 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const parentInitials = getInitials(requirement.parentName); 
 
   return (
-    <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden">
+    <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full">
       <CardHeader className="p-4 pb-3">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md">
-            {/* If parentName exists and is not empty, show initials. Otherwise, show subject initials or default '??' */}
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md">
               {parentInitials !== "??" ? parentInitials : getInitials(requirement.subject)}
             </AvatarFallback>
@@ -55,6 +55,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
       </CardContent>
       <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-end"> {/* justify-end to move button to right, reduced padding */}
         <Button 
+          asChild // Added asChild to use Link inside Button
           size="sm" 
           variant="outline"
           className={cn(
@@ -62,8 +63,10 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
             "bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground"
           )}
         >
-          <Eye className="w-3.5 h-3.5 mr-1.5" />
-          View & Apply
+          <Link href={`/dashboard/enquiries/${requirement.id}`}> {/* Updated to Link */}
+            <Eye className="w-3.5 h-3.5 mr-1.5" />
+            View & Apply
+          </Link>
         </Button>
       </CardFooter>
     </Card>
