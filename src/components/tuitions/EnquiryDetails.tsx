@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -25,6 +26,8 @@ import {
   Copy,
   Mail,
   Phone,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,6 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter, // Added DialogFooter
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -59,12 +63,21 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const formattedPostedDate = format(postedDate, "MMMM d, yyyy 'at' h:mm a");
   const { toast } = useToast();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isApplied, setIsApplied] = useState(false); // Mock application status
 
   // Mock parent contact details
   const mockParentEmail = `${requirement.parentName?.toLowerCase().replace(/\s+/g, '.')}@example.com`;
-  const mockParentPhone = `+91-98765XXXXX`; // Replace X with random digits if needed, or keep static
+  const mockParentPhone = `+91-98765XXXXX`; 
 
   const handleCopy = async (textToCopy: string, fieldName: string) => {
+    if (!isApplied) {
+      toast({
+        variant: "destructive",
+        title: "Details Locked",
+        description: `Please apply for the tuition to view and copy ${fieldName.toLowerCase()}.`,
+      });
+      return;
+    }
     try {
       await navigator.clipboard.writeText(textToCopy);
       toast({
@@ -81,6 +94,13 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
     }
   };
 
+  const handleApplyMock = () => {
+    setIsApplied(true);
+    toast({
+      title: "Applied Successfully (Mock)",
+      description: "You have successfully applied for this tuition. Parent contact details are now unlocked.",
+    });
+  };
 
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
@@ -164,43 +184,82 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
-                  <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Contact Parent (Mock)
+                  {isApplied ? <Unlock className="w-3.5 h-3.5 mr-1.5"/> : <Lock className="w-3.5 h-3.5 mr-1.5"/>}
+                   Contact Parent
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md bg-card">
                 <DialogHeader>
                   <DialogTitle className="flex items-center text-lg font-semibold text-primary">
-                    <User className="mr-2 h-5 w-5"/> Parent Contact Information
+                    {isApplied ? <Unlock className="mr-2 h-5 w-5"/> : <Lock className="mr-2 h-5 w-5"/>}
+                     Parent Contact Information
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="flex items-center justify-between p-3 border rounded-md bg-background">
                     <div className="flex items-center">
                       <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
-                      <span className="text-sm text-foreground">{mockParentEmail}</span>
+                      <span className={cn("text-sm", isApplied ? "text-foreground" : "text-muted-foreground italic")}>
+                        {isApplied ? mockParentEmail : "Locked - Apply to view email"}
+                      </span>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleCopy(mockParentEmail, "Email")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleCopy(mockParentEmail, "Email")} 
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      disabled={!isApplied}
+                    >
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded-md bg-background">
                      <div className="flex items-center">
                        <Phone className="w-4 h-4 mr-3 text-muted-foreground" />
-                       <span className="text-sm text-foreground">{mockParentPhone}</span>
+                       <span className={cn("text-sm", isApplied ? "text-foreground" : "text-muted-foreground italic")}>
+                         {isApplied ? mockParentPhone : "Locked - Apply to view phone"}
+                        </span>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleCopy(mockParentPhone, "Phone Number")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleCopy(mockParentPhone, "Phone Number")} 
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      disabled={!isApplied}
+                    >
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground text-center pt-2">
-                    Note: This is mock contact information for demonstration purposes.
-                  </p>
+                  {!isApplied && (
+                    <p className="text-xs text-muted-foreground text-center pt-2">
+                      Apply for this tuition to unlock contact details.
+                    </p>
+                  )}
                 </div>
+                 {!isApplied && (
+                  <DialogFooter>
+                    <Button onClick={() => { handleApplyMock(); setIsContactModalOpen(false); }} className="w-full">
+                      <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
+                    </Button>
+                  </DialogFooter>
+                )}
               </DialogContent>
             </Dialog>
-            <Button className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
-            <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
-            </Button>
+            {!isApplied ? (
+              <Button 
+                onClick={handleApplyMock} 
+                className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5"
+              >
+                <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
+              </Button>
+            ) : (
+              <Button 
+                disabled 
+                className="w-full sm:w-auto text-xs py-1.5 px-2.5 bg-green-600 hover:bg-green-700 text-white"
+              >
+                <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Applied
+              </Button>
+            )}
         </div>
       </CardFooter>
     </Card>
@@ -226,5 +285,6 @@ function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
     </div>
   );
 }
+
 
 
