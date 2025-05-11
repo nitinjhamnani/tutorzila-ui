@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -189,7 +188,7 @@ export default function DashboardPage() {
           </CardHeader>
           {(user.role === 'parent' || user.role === 'admin') && (
               <CardContent className="p-4 md:p-5 pt-0"> 
-                  <p className="text-foreground/70">Manage your tuition activities and settings from here.</p>
+                  <p className="text-foreground/70 text-[15px]">Manage your tuition activities and settings from here.</p>
               </CardContent>
           )}
           {user.role === 'tutor' && (
@@ -236,7 +235,7 @@ export default function DashboardPage() {
               buttonInContent={true}
               actionButtonText="View All Enquiries"
               ActionButtonIcon={ClipboardList}
-              href="#" 
+              href="/dashboard/enquiries" 
               disabled={false} 
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
@@ -425,7 +424,7 @@ function ActionCard({
                </div>
             )}
              {!((title === "My Classes" || title === "My Payments" || title === "My Enquiries")) && (
-                 <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
+                 <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
              )}
 
             <div className="mt-auto pt-4 space-y-3"> 
@@ -434,7 +433,7 @@ function ActionCard({
             </div>
           </>
         ) : (
-           <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
+           <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
         )}
       </CardContent>
       {!buttonInContent && href && ( 
@@ -445,3 +444,4 @@ function ActionCard({
     </Card>
   );
 }
+
