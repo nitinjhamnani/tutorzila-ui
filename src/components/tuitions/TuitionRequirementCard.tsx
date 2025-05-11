@@ -3,7 +3,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Clock } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Clock, Eye } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -25,19 +25,19 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
 
-  const initials = getInitials(requirement.subject); // Use subject for initials
+  const initials = getInitials(requirement.subject); 
 
   return (
-    <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
+    <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden">
       <CardHeader className="p-4 pb-3">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-10 w-10 shrink-0">
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+          <Avatar className="h-10 w-10 shrink-0 rounded-md">
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
-            <CardTitle className="text-lg font-semibold text-primary group-hover:text-primary/80 transition-colors line-clamp-2">
+            <CardTitle className="text-md font-semibold text-primary group-hover:text-primary/80 transition-colors line-clamp-2">
               {requirement.subject}
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground mt-0.5">
@@ -46,15 +46,20 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm flex-grow p-4 pt-3">
+      <CardContent className="space-y-1.5 text-sm flex-grow p-4 pt-2"> {/* Reduced space-y and pt */}
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
         )}
       </CardContent>
-      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300">
-        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95 text-[15px] py-2.5" variant="outline">
-          <Briefcase className="w-4 h-4 mr-2" /> View Details & Apply
+      <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-end"> {/* justify-end to move button to right, reduced padding */}
+        <Button 
+          size="sm" // Smaller button size
+          variant="default" // Changed variant for different styling
+          className="transform transition-transform hover:scale-105 active:scale-95 text-xs py-2 px-3 shadow-sm hover:shadow-md" // Adjusted text size, padding, and shadow
+        >
+          <Eye className="w-3.5 h-3.5 mr-1.5" />  {/* Changed icon to Eye, adjusted size */}
+          View Details
         </Button>
       </CardFooter>
     </Card>
@@ -83,4 +88,3 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
     </div>
   );
 }
-
