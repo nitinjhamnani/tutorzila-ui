@@ -77,16 +77,7 @@ export default function AllEnquiriesPage() {
 
   return (
     <div className={`${containerPadding} py-8`}>
-      <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden mb-8">
-        <CardHeader className="p-6 md:p-8">
-           <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight flex items-center">
-            <ListFilter className="w-8 h-8 md:w-10 md:h-10 mr-3"/>All Tuition Enquiries
-          </CardTitle>
-          <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
-            Browse and apply for available tuition requirements posted by parents.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      {/* Removed the top "All Tuition Enquiries" card */}
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel (Left) */}
