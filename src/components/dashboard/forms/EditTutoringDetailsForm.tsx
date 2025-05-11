@@ -17,36 +17,72 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { TutorProfile } from "@/types";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck } from "lucide-react";
 import React from "react";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
 const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
-const teachingModes: Array<TutorProfile["teachingMode"]> = ["Online", "In-person", "Hybrid"];
+const boardsList: MultiSelectOption[] = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"].map(b => ({ value: b, label: b }));
+const qualificationsList: MultiSelectOption[] = ["Bachelor's Degree", "Master's Degree", "PhD", "Teaching Certification", "Subject Matter Expert", "Other"].map(q => ({ value: q, label: q }));
+
+const teachingModeItems = [
+  { id: "Online", label: "Online" },
+  { id: "In-person", label: "In-person" },
+];
+
+const daysOptionsList: MultiSelectOption[] = [
+  { value: "Monday", label: "Monday" },
+  { value: "Tuesday", label: "Tuesday" },
+  { value: "Wednesday", label: "Wednesday" },
+  { value: "Thursday", label: "Thursday" },
+  { value: "Friday", label: "Friday" },
+  { value: "Saturday", label: "Saturday" },
+  { value: "Sunday", label: "Sunday" },
+  { value: "Weekdays", label: "Weekdays" },
+  { value: "Weekends", label: "Weekends" },
+  { value: "Flexible", label: "Flexible" },
+];
+
+const timeSlotsOptionsList: MultiSelectOption[] = [
+  { value: "0700-0900", label: "7:00 AM - 9:00 AM" },
+  { value: "0900-1100", label: "9:00 AM - 11:00 AM" },
+  { value: "1100-1300", label: "11:00 AM - 1:00 PM" },
+  { value: "1300-1500", label: "1:00 PM - 3:00 PM" },
+  { value: "1500-1700", label: "3:00 PM - 5:00 PM" },
+  { value: "1700-1900", label: "5:00 PM - 7:00 PM" },
+  { value: "1900-2100", label: "7:00 PM - 9:00 PM" },
+  { value: "Flexible", label: "Flexible" },
+];
 
 
 const tutoringDetailsSchema = z.object({
   subjects: z.array(z.string()).min(1, "Please select at least one subject."),
   gradeLevelsTaught: z.array(z.string()).min(1, "Please select at least one grade level you teach."),
+  boardsTaught: z.array(z.string()).min(1, "Please select at least one board."),
+  preferredDays: z.array(z.string()).min(1, "Please select at least one preferred day."),
+  preferredTimeSlots: z.array(z.string()).min(1, "Please select at least one preferred time slot."),
+  teachingMode: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one teaching mode.",
+  }),
+  qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
   experience: z.string().min(1, "Experience level is required."),
   hourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 500 or 500.50").optional().or(z.literal("")),
   bio: z.string().max(500, "Bio should not exceed 500 characters.").optional().or(z.literal("")),
-  qualifications: z.string().max(300, "Qualifications should not exceed 300 chars.").optional().or(z.literal("")),
-  teachingMode: z.enum(["Online", "In-person", "Hybrid"]),
   location: z.string().optional().or(z.literal("")),
 }).refine(data => {
-  if ((data.teachingMode === "In-person" || data.teachingMode === "Hybrid") && (!data.location || data.location.trim() === "")) {
+  if (data.teachingMode.includes("In-person") && (!data.location || data.location.trim() === "")) {
     return false;
   }
   return true;
 }, {
-  message: "Location is required for In-person or Hybrid teaching modes.",
+  message: "Location is required for In-person teaching mode.",
   path: ["location"],
 });
 
@@ -62,11 +98,14 @@ export function EditTutoringDetailsForm() {
     defaultValues: {
       subjects: tutorUser?.subjects || [],
       gradeLevelsTaught: tutorUser?.gradeLevelsTaught || [],
+      boardsTaught: tutorUser?.boardsTaught || [],
+      preferredDays: tutorUser?.preferredDays || [],
+      preferredTimeSlots: tutorUser?.preferredTimeSlots || [],
+      teachingMode: tutorUser?.teachingMode || [],
+      qualifications: tutorUser?.qualifications || [],
       experience: tutorUser?.experience || "",
       hourlyRate: tutorUser?.hourlyRate || "",
       bio: tutorUser?.bio || "",
-      qualifications: tutorUser?.qualifications || "",
-      teachingMode: tutorUser?.teachingMode || "Online",
       location: tutorUser?.location || "",
     },
   });
@@ -76,11 +115,14 @@ export function EditTutoringDetailsForm() {
       form.reset({
         subjects: tutorUser.subjects || [],
         gradeLevelsTaught: tutorUser.gradeLevelsTaught || [],
+        boardsTaught: tutorUser.boardsTaught || [],
+        preferredDays: tutorUser.preferredDays || [],
+        preferredTimeSlots: tutorUser.preferredTimeSlots || [],
+        teachingMode: tutorUser.teachingMode || [],
+        qualifications: tutorUser.qualifications || [],
         experience: tutorUser.experience || "",
         hourlyRate: tutorUser.hourlyRate || "",
         bio: tutorUser.bio || "",
-        qualifications: tutorUser.qualifications || "",
-        teachingMode: tutorUser.teachingMode || "Online",
         location: tutorUser.location || "",
       });
     }
@@ -147,6 +189,40 @@ export function EditTutoringDetailsForm() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="boardsTaught"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-primary/80"/>Boards You're Familiar With</FormLabel>
+                  <MultiSelectCommand
+                    options={boardsList}
+                    selectedValues={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select boards..."
+                    className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="qualifications"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
+                  <MultiSelectCommand
+                    options={qualificationsList}
+                    selectedValues={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select qualifications..."
+                    className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -154,7 +230,7 @@ export function EditTutoringDetailsForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
                       </FormControl>
@@ -180,6 +256,100 @@ export function EditTutoringDetailsForm() {
                 )}
               />
             </div>
+             <FormField
+              control={form.control}
+              name="teachingMode"
+              render={() => ( // No field needed here, individual checkboxes will update the array
+                <FormItem>
+                  <FormLabel className="flex items-center text-base font-medium"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
+                   <FormDescription className="text-xs">Select all applicable teaching modes.</FormDescription>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {teachingModeItems.map((item) => (
+                    <FormField
+                      key={item.id}
+                      control={form.control}
+                      name="teachingMode"
+                      render={({ field }) => {
+                        return (
+                          <FormItem
+                            key={item.id}
+                            className="flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(item.id)}
+                                onCheckedChange={(checked) => {
+                                  const currentValues = field.value || [];
+                                  return checked
+                                    ? field.onChange([...currentValues, item.id])
+                                    : field.onChange(currentValues.filter(value => value !== item.id));
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal text-sm cursor-pointer">
+                              {item.label}
+                            </FormLabel>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.watch("teachingMode")?.includes("In-person") && (
+               <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Tutoring Location (for In-person)</FormLabel>
+                    <FormControl>
+                    <Input placeholder="e.g., Cityville Center, or 'Student's Home'" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <FormField
+                control={form.control}
+                name="preferredDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Days</FormLabel>
+                    <MultiSelectCommand
+                      options={daysOptionsList}
+                      selectedValues={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select preferred days..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="preferredTimeSlots"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots</FormLabel>
+                    <MultiSelectCommand
+                      options={timeSlotsOptionsList}
+                      selectedValues={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select preferred time slots..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="bio"
@@ -193,54 +363,7 @@ export function EditTutoringDetailsForm() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="qualifications"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Max 300 characters..." {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                control={form.control}
-                name="teachingMode"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Mode</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                        <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select mode" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                        {teachingModes.map(mode => <SelectItem key={mode} value={mode!}>{mode!}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                {(form.watch("teachingMode") === "In-person" || form.watch("teachingMode") === "Hybrid") && (
-                <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Tutoring Location</FormLabel>
-                        <FormControl>
-                        <Input placeholder="e.g., Cityville Center" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                )}
-            </div>
+            
 
             <Button type="submit" className="w-full mt-8 py-2.5 text-base" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? "Saving..." : "Save Tutoring Details"}

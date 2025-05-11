@@ -22,8 +22,8 @@ export interface TuitionRequirement {
   subject: string;
   gradeLevel: string;
   scheduleDetails: string; // Kept for full context if needed elsewhere, or for initial data
-  preferredDays?: string; // New field for days
-  preferredTime?: string; // New field for time
+  preferredDays?: string; // New field for days - for display on card, form will use array
+  preferredTime?: string; // New field for time - for display on card, form will use array
   location?: string; // e.g., "Online", "Student's Home", "Tutor's Home"
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
@@ -34,13 +34,17 @@ export interface TuitionRequirement {
 
 export interface TutorProfile extends User {
   subjects: string[];
-  grade?: string; // Grade level the tutor specializes in
+  grade?: string; // Grade level the tutor specializes in - represents a general grade category
   experience: string; // e.g., "5+ years", "1-3 years"
   hourlyRate?: string; 
   bio?: string;
-  qualifications?: string;
-  teachingMode?: "Online" | "In-person" | "Hybrid"; 
-  gradeLevelsTaught?: string[]; // Added for specific grade levels tutor teaches
+  qualifications?: string[]; // Changed to string array for multi-select
+  teachingMode?: string[]; // Changed to string array e.g. ["Online", "In-person"]
+  gradeLevelsTaught?: string[]; // Specific grade levels tutor teaches (multi-select)
+  boardsTaught?: string[]; // New field for boards tutor is familiar with (multi-select)
+  preferredDays?: string[]; // New field for preferred teaching days (multi-select)
+  preferredTimeSlots?: string[]; // New field for preferred teaching time slots (multi-select)
+  location?: string; // For in-person tutoring
 }
 
 export interface Testimonial {
@@ -52,10 +56,3 @@ export interface Testimonial {
   rating: number; // e.g. 1-5
   date: string; // ISO date string for when the testimonial was given
 }
-
-
-
-
-
-
-
