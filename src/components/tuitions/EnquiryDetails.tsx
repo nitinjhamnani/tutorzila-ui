@@ -22,11 +22,23 @@ import {
   MessageSquare,
   Send,
   ArrowLeft,
+  Copy,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface EnquiryDetailsProps {
   requirement: TuitionRequirement;
@@ -45,6 +57,30 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const formattedPostedDate = format(postedDate, "MMMM d, yyyy 'at' h:mm a");
+  const { toast } = useToast();
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  // Mock parent contact details
+  const mockParentEmail = `${requirement.parentName?.toLowerCase().replace(/\s+/g, '.')}@example.com`;
+  const mockParentPhone = `+91-98765XXXXX`; // Replace X with random digits if needed, or keep static
+
+  const handleCopy = async (textToCopy: string, fieldName: string) => {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      toast({
+        title: `${fieldName} Copied!`,
+        description: `${textToCopy} has been copied to your clipboard.`,
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Copy Failed",
+        description: `Could not copy ${fieldName.toLowerCase()}. Please try again.`,
+      });
+      console.error(`Failed to copy ${fieldName}: `, err);
+    }
+  };
+
 
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
@@ -125,9 +161,43 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           </Link>
         </Button>
         <div className="flex gap-2">
-            <Button variant="outline" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
-            <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Contact Parent (Mock)
-            </Button>
+            <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
+                  <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Contact Parent (Mock)
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-card">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center text-lg font-semibold text-primary">
+                    <User className="mr-2 h-5 w-5"/> Parent Contact Information
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="flex items-center justify-between p-3 border rounded-md bg-background">
+                    <div className="flex items-center">
+                      <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
+                      <span className="text-sm text-foreground">{mockParentEmail}</span>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => handleCopy(mockParentEmail, "Email")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-md bg-background">
+                     <div className="flex items-center">
+                       <Phone className="w-4 h-4 mr-3 text-muted-foreground" />
+                       <span className="text-sm text-foreground">{mockParentPhone}</span>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => handleCopy(mockParentPhone, "Phone Number")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center pt-2">
+                    Note: This is mock contact information for demonstration purposes.
+                  </p>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
             <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
             </Button>
@@ -156,4 +226,5 @@ function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
     </div>
   );
 }
+
 
