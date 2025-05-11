@@ -21,13 +21,13 @@ import { cn } from "@/lib/utils";
 
 // Mock data - replace with API call in a real app
 const MOCK_REQUIREMENTS: TuitionRequirement[] = [
-  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"] },
-  { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: "Physics", gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"] },
-  { id: "3", parentId: "p3", parentName: "Carol Williams", subject: "English", gradeLevel: "Grade 6-8", scheduleDetails: "Tues, Thurs 4-6 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), additionalNotes: "Focus on grammar and essay writing.", board: "State Board", teachingMode: ["Online"] },
-  { id: "4", parentId: "p4", parentName: "David Brown", subject: "Computer Science", gradeLevel: "College Level", scheduleDetails: "Flexible, project-based", location: "Online", status: "open", postedAt: new Date().toISOString(), board: "IB", teachingMode: ["Online", "Offline (In-person)"] },
-  { id: "5", parentId: "p5", parentName: "Eve Davis", subject: "Mathematics", gradeLevel: "Grade 1-5", scheduleDetails: "Sat 10 AM - 12 PM", location: "Tutor's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 3).toISOString(), board: "IGCSE", teachingMode: ["Offline (In-person)"] },
-  { id: "6", parentId: "p6", parentName: "Frank Green", subject: "Chemistry", gradeLevel: "Grade 9-10", scheduleDetails: "Mon 7-9 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), board: "CBSE", teachingMode: ["Online"] },
-  { id: "7", parentId: "p7", parentName: "Grace Hall", subject: "Biology", gradeLevel: "Grade 11-12", scheduleDetails: "Flexible Evening Hours", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 6).toISOString(), additionalNotes: "Looking for an experienced biology tutor for IB curriculum.", board: "IB", teachingMode: ["Offline (In-person)"] },
+  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", preferredDays: "Mon, Wed, Fri", preferredTime: "5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"] },
+  { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: "Physics", gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", preferredDays: "Weekends", preferredTime: "4 hours total", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"] },
+  { id: "3", parentId: "p3", parentName: "Carol Williams", subject: "English", gradeLevel: "Grade 6-8", scheduleDetails: "Tues, Thurs 4-6 PM", preferredDays: "Tues, Thurs", preferredTime: "4-6 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), additionalNotes: "Focus on grammar and essay writing.", board: "State Board", teachingMode: ["Online"] },
+  { id: "4", parentId: "p4", parentName: "David Brown", subject: "Computer Science", gradeLevel: "College Level", scheduleDetails: "Flexible, project-based", preferredDays: "Flexible", preferredTime: "Project-based", location: "Online", status: "open", postedAt: new Date().toISOString(), board: "IB", teachingMode: ["Online", "Offline (In-person)"] },
+  { id: "5", parentId: "p5", parentName: "Eve Davis", subject: "Mathematics", gradeLevel: "Grade 1-5", scheduleDetails: "Sat 10 AM - 12 PM", preferredDays: "Saturday", preferredTime: "10 AM - 12 PM", location: "Tutor's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 3).toISOString(), board: "IGCSE", teachingMode: ["Offline (In-person)"] },
+  { id: "6", parentId: "p6", parentName: "Frank Green", subject: "Chemistry", gradeLevel: "Grade 9-10", scheduleDetails: "Mon 7-9 PM", preferredDays: "Monday", preferredTime: "7-9 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), board: "CBSE", teachingMode: ["Online"] },
+  { id: "7", parentId: "p7", parentName: "Grace Hall", subject: "Biology", gradeLevel: "Grade 11-12", scheduleDetails: "Flexible Evening Hours", preferredDays: "Flexible Evenings", preferredTime: "Evening Hours", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 6).toISOString(), additionalNotes: "Looking for an experienced biology tutor for IB curriculum.", board: "IB", teachingMode: ["Offline (In-person)"] },
 ];
 
 const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"];
@@ -146,7 +146,7 @@ export default function AllEnquiriesPage() {
 
 
   return (
-    <div className={`${containerPadding} pb-8`}>
+    <div className={`${containerPadding} pb-8 pt-0`}>
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         {/* Mobile Accordion Filter */}
@@ -257,3 +257,4 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
+

@@ -19,7 +19,9 @@ export interface TuitionRequirement {
   parentName?: string; // Optional, denormalized
   subject: string;
   gradeLevel: string;
-  scheduleDetails: string;
+  scheduleDetails: string; // Kept for full context if needed elsewhere, or for initial data
+  preferredDays?: string; // New field for days
+  preferredTime?: string; // New field for time
   location?: string; // e.g., "Online", "Student's Home", "Tutor's Home"
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
@@ -47,6 +49,7 @@ export interface Testimonial {
   rating: number; // e.g. 1-5
   date: string; // ISO date string for when the testimonial was given
 }
+
 
 
 

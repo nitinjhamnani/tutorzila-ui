@@ -27,7 +27,7 @@ import {
   Phone,
   Lock,
   Unlock,
-  CheckCircle, // Added CheckCircle import
+  CheckCircle, 
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -145,7 +145,8 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             Schedule & Location
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2.5 pl-6 text-xs">
-            <DetailItem label="Preferred Schedule" value={requirement.scheduleDetails} icon={Clock} />
+            {requirement.preferredDays && <DetailItem label="Preferred Days" value={requirement.preferredDays} icon={CalendarDays} />}
+            {requirement.preferredTime && <DetailItem label="Preferred Time" value={requirement.preferredTime} icon={Clock} />}
             {requirement.location && <DetailItem label="Location Preference" value={requirement.location} icon={MapPin} />}
             {requirement.teachingMode && requirement.teachingMode.length > 0 && (
               <DetailItem label="Teaching Mode(s)" icon={RadioTower}>
@@ -285,3 +286,4 @@ function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
     </div>
   );
 }
+
