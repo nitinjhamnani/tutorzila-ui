@@ -54,11 +54,8 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                     {requirement.parentName}
                  </CardTitle>
             )}
-            <div className="flex items-center text-sm md:text-base font-medium text-foreground/90">
-              <Briefcase className="w-4 h-4 mr-2 text-primary/80" />
-              Tuition Requirement
-            </div>
-            <CardDescription className="text-xs text-foreground/70 mt-0.5 pl-6">
+            {/* Removed "Tuition Requirement" heading here */}
+            <CardDescription className="text-xs text-foreground/70 mt-0.5">
               Posted {timeAgo} (on {formattedPostedDate})
             </CardDescription>
           </div>
@@ -150,3 +147,4 @@ function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
     </div>
   );
 }
+
