@@ -33,7 +33,7 @@ body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* Slightly increased radius for a more modern feel */
 
     /* Sidebar specific theme vars, can be adjusted if needed */
     --sidebar-background: 0 0% 100%; /* White sidebar */
@@ -96,20 +96,27 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat */
+    font-family: var(--font-montserrat), sans-serif !important; 
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat for headings */
+    font-family: var(--font-montserrat), sans-serif !important; 
+    @apply tracking-tight; /* Add tight tracking for headings */
   }
-  h2 {
-     /* font-size: 2rem; Tailwind's text-2xl or text-3xl should be used in components */
-  }
+  
   p {
     font-weight: 400 !important;
-    color: hsl(var(--foreground)) !important; /* Equivalent to #333 or darker based on theme */
-    font-size: 16px !important; 
-    line-height: 26px !important;
-    font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat for paragraphs */
+    color: hsl(var(--foreground) / 0.85) !important; /* Slightly lighter for better contrast on light bg */
+    font-size: 15px !important; 
+    line-height: 1.65 !important; /* Adjusted line-height for better readability */
+    font-family: var(--font-montserrat), sans-serif !important; 
+  }
+
+  /* Default Card styling adjustments */
+  .card { /* Targeting a common class, or you can target [data-radix-card] if more specific */
+    @apply shadow-lg border-border/40 transition-all duration-300 ease-out;
+  }
+  .card:hover {
+    @apply shadow-xl transform scale-[1.015]; /* Subtle scale and shadow increase on hover */
   }
 }
 
@@ -184,17 +191,23 @@ body {
   animation: pulse-once 0.5s ease-in-out;
 }
 
+@keyframes pulse-once {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(var(--muted) / 0.5);
+  background: hsl(var(--muted) / 0.3); /* Lighter track */
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary) / 0.7);
+  background: hsl(var(--primary) / 0.6); /* Slightly less opaque thumb */
   border-radius: 10px;
   transition: background 0.3s ease;
 }
@@ -202,29 +215,5 @@ body {
   background: hsl(var(--primary));
 }
 
-/* 
-  The following classes were removed because they attempt to manually define 
-  Tailwind JIT-style arbitrary value classes. Tailwind generates these 
-  automatically when utilities like `pt-[var(--header-height)]` are used in 
-  components. Manually defining them can lead to PostCSS parsing errors.
-  The CSS variables like --header-height are correctly defined in :root.
-*/
-
 /* Removed potentially problematic manual Tailwind-like classes */
-/*
-.pt-\\[var\\(--header-height\\)\\] {
-  padding-top: var(--header-height);
-}
-.pt-\\[calc\\(var\\(--header-height\\)_\\+_1rem\\)\\] {
-  padding-top: calc(var(--header-height) + 1rem);
-}
-.h-\\[var\\(--logo-height\\)\\] {
-  height: var(--logo-height);
-}
-.min-h-\\[calc\\(100vh-4rem\\)\\] {
-    min-height: calc(100vh - 4rem);
-}
-.min-h-\\[calc\\(100vh-4rem_-_var\\(--footer-height,0px\\)\\)\\] {
-    min-height: calc(100vh - 4rem - var(--footer-height,0px));
-}
-*/
+/* Ensure these are handled by Tailwind JIT directly in components. */

@@ -45,10 +45,10 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden">
+      <Card className="bg-card border border-border/50 rounded-xl shadow-lg animate-in fade-in duration-700 ease-out overflow-hidden">
         <CardHeader className="p-6 md:p-8">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg text-primary">
+            <div className="p-3.5 bg-primary/10 rounded-lg text-primary shadow-sm">
               <ShieldCheck className="w-10 h-10" />
             </div>
             <div>
@@ -74,16 +74,16 @@ export default function AdminDashboardPage() {
       </div>
 
        <Card 
-        className="mt-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card border rounded-lg shadow-md overflow-hidden"
+        className="mt-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card border border-border/50 rounded-xl shadow-lg overflow-hidden"
         style={{ animationDelay: `${adminActions.length * 0.1 + 0.3}s` }}
       >
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-4">
           <CardTitle className="text-xl font-semibold text-primary flex items-center">
             <TrendingUp className="w-6 h-6 mr-2.5"/>
             Quick Stats
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 p-6 pt-0">
           {quickStats.map(stat => (
             <StatCard key={stat.title} {...stat} />
           ))}
@@ -104,31 +104,31 @@ interface AdminActionCardProps {
 
 function AdminActionCard({ title, description, href, icon: Icon, disabled, imageHint }: AdminActionCardProps) {
   return (
-    <Card className="group bg-card border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden transform hover:-translate-y-1 hover:scale-[1.02]">
-       <div className="overflow-hidden rounded-t-lg relative">
+    <Card className="group bg-card border border-border/50 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full overflow-hidden transform hover:-translate-y-1.5 hover:scale-[1.025]">
+       <div className="overflow-hidden rounded-t-xl relative">
         <Image
           src={`https://picsum.photos/seed/${title.replace(/\s+/g, '')}/400/200`}
           alt={title}
           width={400}
           height={200}
-          className="object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-110"
+          className="object-cover w-full aspect-[16/9] transition-transform duration-300 group-hover:scale-105"
           data-ai-hint={imageHint}
         />
-         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/40 transition-all duration-300"></div>
+         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 group-hover:from-black/50 transition-all duration-300"></div>
       </div>
-      <CardHeader className="p-4 md:p-5">
-        <div className="flex items-center gap-3">
-           <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
+      <CardHeader className="p-5 md:p-6">
+        <div className="flex items-center gap-3.5">
+           <div className="p-2.5 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300 shadow-sm">
             <Icon className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
           </div>
           <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{title}</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow p-4 md:p-5 pt-0">
-        <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
+      <CardContent className="flex-grow p-5 md:p-6 pt-0">
+        <p className="text-[15px] text-muted-foreground line-clamp-3">{description}</p>
       </CardContent>
-      <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
-        <Button asChild className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5" disabled={disabled}>
+      <CardFooter className="p-5 md:p-6 border-t bg-muted/30">
+        <Button asChild className="w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-3" disabled={disabled}>
           <Link href={disabled ? "#" : href }>{disabled ? "Coming Soon" : `Go to ${title}`}</Link>
         </Button>
       </CardFooter>
@@ -146,15 +146,12 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, imageHint }: StatCardProps) {
   return (
-    <Card className="bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 p-4 text-center group">
-       <div className="p-2 bg-primary/10 rounded-full text-primary inline-block mb-2 group-hover:bg-primary/20 transition-all">
-        <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+    <Card className="bg-card border border-border/50 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-5 text-center group transform hover:scale-105">
+       <div className="p-3 bg-primary/10 rounded-full text-primary inline-block mb-3 group-hover:bg-primary/20 transition-all shadow-sm">
+        <Icon className="w-6 h-6 transition-transform group-hover:scale-110" />
       </div>
       <p className="text-3xl font-bold text-primary group-hover:text-primary/90 transition-colors">{value}</p>
-      <p className="text-sm text-muted-foreground group-hover:text-foreground/90 transition-colors">{title}</p>
+      <p className="text-sm text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{title}</p>
     </Card>
   );
 }
-
-
-    

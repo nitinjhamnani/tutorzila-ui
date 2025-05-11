@@ -80,7 +80,7 @@ const popularSubjects = [
 
 
 export default function HomePage() {
-  const sectionPadding = "pt-8 md:pt-12 pb-12 md:pb-16"; 
+  const sectionPadding = "pt-10 md:pt-16 pb-12 md:pb-20"; // Adjusted padding for more space
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
 
@@ -88,28 +88,28 @@ export default function HomePage() {
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
       
         {/* Hero Section */}
-        <section className={`w-full py-12 md:py-20 lg:py-28 bg-secondary ${sectionPadding}`}>
-          <div className={`grid items-center gap-6 lg:grid-cols-2 lg:gap-12 ${containerPadding}`}>
-            <div className="flex flex-col justify-center space-y-4 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
+        <section className={`w-full py-16 md:py-24 lg:py-32 bg-secondary ${sectionPadding}`}>
+          <div className={`grid items-center gap-8 lg:grid-cols-2 lg:gap-16 ${containerPadding}`}>
+            <div className="flex flex-col justify-center space-y-5 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
               <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-primary">
                 Find Your Perfect Learning Match with Tutorzila
               </h2>
-              <p className="max-w-[600px] text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+              <p className="max-w-[600px] text-foreground/80 md:text-lg">
                 Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
               </p>
-              <div className="flex flex-col gap-3 min-[400px]:flex-row">
-                <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
+              <div className="flex flex-col gap-3.5 min-[400px]:flex-row pt-2">
+                <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                    <Link href="/search-tuitions">
-                    <Search className="mr-2 h-5 w-5" /> Search Tutors
+                    <Search className="mr-2.5 h-5 w-5" /> Search Tutors
                   </Link>
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                   <DialogTrigger asChild>
-                     <Button size="lg" variant="outline" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-card/90 hover:text-primary">
-                      <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
+                     <Button size="lg" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-primary/5 hover:text-primary border-primary/40 hover:border-primary">
+                      <SquarePen className="mr-2.5 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[625px] p-0 bg-card">
+                  <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
                     <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
                   </DialogContent>
                 </Dialog>
@@ -119,9 +119,9 @@ export default function HomePage() {
               <Image
                 src={bannerImage}
                 alt="Learning Illustration"
-                width={500}
-                height={500}
-                className="rounded-lg object-contain"
+                width={550} 
+                height={550}
+                className="rounded-xl object-contain" 
                 priority
                 data-ai-hint="education online learning"
               />
@@ -130,11 +130,11 @@ export default function HomePage() {
         </section>
 
         {/* Popular Subjects Section */}
-        <section className={`w-full ${sectionPadding}`}>
+        <section className={`w-full ${sectionPadding} bg-background`}>
           <div className={`${containerPadding}`}>
-            <div className="text-center mb-10 md:mb-12 animate-in fade-in duration-500 ease-out">
-              <div className="inline-block p-3 bg-primary/10 rounded-full mb-3">
-                 <BookOpen className="w-7 h-7 text-primary"/>
+            <div className="text-center mb-12 md:mb-16 animate-in fade-in duration-500 ease-out">
+              <div className="inline-block p-3.5 bg-primary/10 rounded-full mb-4 shadow-sm">
+                 <BookOpen className="w-8 h-8 text-primary"/>
               </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Explore Popular Subjects</h2>
             </div>
@@ -145,56 +145,56 @@ export default function HomePage() {
               }}
               className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
             >
-              <CarouselContent className="-ml-2 md:-ml-4">
+              <CarouselContent className="-ml-3 md:-ml-4">
                 {popularSubjects.map((subject, index) => (
                   <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 pl-3 md:pl-4">
-                    <div className="p-1">
-                      <Card className="group bg-card hover:shadow-md transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-sm border hover:border-primary/40 w-[120px] h-[120px] md:w-[130px] md:h-[130px] mx-auto">
-                        <CardContent className="p-0 flex flex-col items-center justify-center gap-1.5 md:gap-1">
-                          <subject.icon className="w-7 h-7 md:w-8 md:h-8 text-primary transition-transform duration-300 group-hover:scale-110" />
-                          <p className="text-xs md:text-[13px] font-medium text-foreground group-hover:text-primary transition-colors truncate w-full px-1">{subject.name}</p>
+                    <div className="p-1.5">
+                      <Card className="group bg-card hover:shadow-xl transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-md border hover:border-primary/50 w-[130px] h-[130px] md:w-[140px] md:h-[140px] mx-auto transform hover:scale-105">
+                        <CardContent className="p-0 flex flex-col items-center justify-center gap-2 md:gap-1.5">
+                          <subject.icon className="w-8 h-8 md:w-9 md:h-9 text-primary transition-transform duration-300 group-hover:scale-110" />
+                          <p className="text-sm md:text-[13.5px] font-medium text-foreground group-hover:text-primary transition-colors truncate w-full px-1.5">{subject.name}</p>
                         </CardContent>
                       </Card>
                     </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-center items-center mt-6 space-x-3">
-                <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
-                <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+              <div className="flex justify-center items-center mt-8 space-x-4">
+                <CarouselPrevious className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
+                <CarouselNext className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
               </div>
             </Carousel>
           </div>
         </section>
 
          {/* Get An Expert Tutor Section */}
-        <section className={`w-full bg-background/50 ${sectionPadding}`}>
-          <div className={`grid items-center gap-8 lg:grid-cols-2 lg:gap-16 ${containerPadding}`}>
+        <section className={`w-full bg-secondary ${sectionPadding}`}>
+          <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${containerPadding}`}>
             <div className="flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out">
               <Image
                 src={hireTutorImage} 
                 alt="Hiring a tutor illustration"
-                width={550}
-                height={550}
-                className="rounded-lg object-contain"
+                width={600}
+                height={600}
+                className="rounded-xl object-contain"
                 data-ai-hint="teacher student"
               />
             </div>
             <div className="flex flex-col justify-center space-y-6 animate-in fade-in slide-in-from-right-10 duration-700 ease-out">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Get An Expert Tutor</h2>
-                <p className="max-w-[600px] text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+                <p className="max-w-[600px] text-foreground/80 md:text-lg">
                   Finding the right tutor is easy and straightforward with Tutorzila. Follow these steps to connect with qualified educators ready to help you succeed.
                 </p>
-                <div className="space-y-5 mt-3">
+                <div className="space-y-5 mt-4">
                   {howItWorksSteps.map((step, index) => (
-                    <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border hover:border-primary/40">
+                    <Card key={index} className="group bg-card p-5 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.02]">
                       <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
-                          <step.icon className="w-5 h-5 text-primary" />
+                        <div className="flex-shrink-0 bg-primary/10 p-3.5 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm">
+                          <step.icon className="w-6 h-6 text-primary" />
                         </div>
                         <div>
                           <h3 className="text-md font-semibold text-foreground group-hover:text-primary transition-colors">{step.title}</h3>
-                          <p className="text-sm text-foreground/70 mt-0.5">{step.description}</p>
+                          <p className="text-sm text-foreground/70 mt-1">{step.description}</p>
                         </div>
                       </div>
                     </Card>
@@ -203,11 +203,11 @@ export default function HomePage() {
                 <div className="flex justify-center lg:justify-start mt-6">
                   <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                     <DialogTrigger asChild>
-                       <Button size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
-                        <PlusCircle className="mr-2 h-5 w-5" /> Request A Tutor
+                       <Button size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                        <PlusCircle className="mr-2.5 h-5 w-5" /> Request A Tutor
                       </Button>
                     </DialogTrigger>
-                     <DialogContent className="sm:max-w-[625px] p-0 bg-card">
+                     <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
                        <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
                      </DialogContent>
                   </Dialog>
@@ -217,11 +217,11 @@ export default function HomePage() {
         </section>
 
         {/* Meet Our Tutors Section */}
-        <section className={`w-full ${sectionPadding}`}>
+        <section className={`w-full ${sectionPadding} bg-background`}>
           <div className={`${containerPadding}`}>
-            <div className="text-center mb-10 md:mb-12 animate-in fade-in duration-500 ease-out">
-                <div className="inline-block p-3 bg-primary/10 rounded-full mb-3">
-                    <UsersRoundIcon className="w-7 h-7 text-primary"/>
+            <div className="text-center mb-12 md:mb-16 animate-in fade-in duration-500 ease-out">
+                <div className="inline-block p-3.5 bg-primary/10 rounded-full mb-4 shadow-sm">
+                    <UsersRoundIcon className="w-8 h-8 text-primary"/>
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Meet Our Tutors</h2>
             </div>
@@ -232,50 +232,50 @@ export default function HomePage() {
               }}
               className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
             >
-              <CarouselContent className="-ml-3 md:-ml-4">
+              <CarouselContent className="-ml-3.5 md:-ml-4.5">
                 {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
-                  <CarouselItem key={tutor.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 pl-3 md:pl-4">
-                    <div className="p-1 h-full">
+                  <CarouselItem key={tutor.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 pl-3.5 md:pl-4.5">
+                    <div className="p-1.5 h-full">
                       <TutorProfileCard tutor={tutor} />
                     </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-center items-center mt-8 space-x-3">
-                <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
-                <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+              <div className="flex justify-center items-center mt-10 space-x-4">
+                <CarouselPrevious className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
+                <CarouselNext className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
               </div>
             </Carousel>
           </div>
         </section>
 
         {/* Become A Tutor Section */}
-        <section className={`w-full bg-background/50 ${sectionPadding}`}>
-          <div className={`grid items-center gap-8 lg:grid-cols-2 lg:gap-16 ${containerPadding}`}>
+        <section className={`w-full bg-secondary ${sectionPadding}`}>
+          <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${containerPadding}`}>
             <div className="flex flex-col justify-center space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Become A Tutor with Tutorzila</h2>
-                <p className="max-w-[600px] text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+                <p className="max-w-[600px] text-foreground/80 md:text-lg">
                   Share your knowledge, inspire students, and earn on your own schedule. Join our community of passionate educators today.
                 </p>
-                <div className="space-y-5 mt-3">
+                <div className="space-y-5 mt-4">
                   {becomeTutorBenefits.map((benefit, index) => (
-                     <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border hover:border-primary/40">
+                     <Card key={index} className="group bg-card p-5 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.02]">
                       <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
-                          <benefit.icon className="w-5 h-5 text-primary" />
+                        <div className="flex-shrink-0 bg-primary/10 p-3.5 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm">
+                          <benefit.icon className="w-6 h-6 text-primary" />
                         </div>
                         <div>
                           <h3 className="text-md font-semibold text-foreground group-hover:text-primary transition-colors">{benefit.title}</h3>
-                          <p className="text-sm text-foreground/70 mt-0.5">{benefit.description}</p>
+                          <p className="text-sm text-foreground/70 mt-1">{benefit.description}</p>
                         </div>
                       </div>
                     </Card>
                   ))}
                 </div>
                  <div className="flex justify-center lg:justify-start mt-6">
-                    <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
+                    <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                       <Link href="/sign-up"> 
-                        <BookUser className="mr-2 h-5 w-5" /> Start Teaching Today
+                        <BookUser className="mr-2.5 h-5 w-5" /> Start Teaching Today
                       </Link>
                     </Button>
                   </div>
@@ -284,9 +284,9 @@ export default function HomePage() {
               <Image
                 src={becomeTutorImage}
                 alt="Teacher explaining concepts"
-                width={550}
-                height={550}
-                className="rounded-lg object-contain"
+                width={600}
+                height={600}
+                className="rounded-xl object-contain"
                 data-ai-hint="teaching online teacher"
               />
             </div>
@@ -294,21 +294,21 @@ export default function HomePage() {
         </section>
 
         {/* Call to Action */}
-        <section className={`w-full text-center ${sectionPadding}`}>
+        <section className={`w-full text-center ${sectionPadding} bg-background`}>
           <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
-            <div className="inline-block p-3 bg-primary/10 rounded-full mb-4">
-                <Star className="w-8 h-8 text-primary"/>
+            <div className="inline-block p-4 bg-primary/10 rounded-full mb-5 shadow-sm">
+                <Star className="w-9 h-9 text-primary"/>
             </div>
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary">
               Ready to Start Your Journey?
             </h2>
-            <p className="mt-4 max-w-xl mx-auto text-foreground/80 md:text-lg lg:text-base xl:text-lg">
+            <p className="mt-5 max-w-xl mx-auto text-foreground/80 md:text-lg">
               Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
             </p>
-            <div className="mt-8">
-              <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once">
+            <div className="mt-10">
+              <Button asChild size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base">
                 <Link href="/sign-up">
-                   Sign Up Now <Send className="ml-2 h-4 w-4" />
+                   Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
                 </Link>
               </Button>
             </div>
@@ -316,11 +316,11 @@ export default function HomePage() {
         </section>
 
         {/* Testimonials Section */}
-        <section className={`w-full bg-background/50 ${sectionPadding}`}>
+        <section className={`w-full bg-secondary ${sectionPadding}`}>
           <div className={`${containerPadding}`}>
-            <div className="text-center mb-10 md:mb-12 animate-in fade-in duration-500 ease-out">
-                 <div className="inline-block p-3 bg-primary/10 rounded-full mb-3">
-                    <Quote className="w-7 h-7 text-primary"/>
+            <div className="text-center mb-12 md:mb-16 animate-in fade-in duration-500 ease-out">
+                 <div className="inline-block p-3.5 bg-primary/10 rounded-full mb-4 shadow-sm">
+                    <Quote className="w-8 h-8 text-primary"/>
                 </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">What Our Users Say</h2>
             </div>
@@ -331,18 +331,18 @@ export default function HomePage() {
               }}
               className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
             >
-              <CarouselContent className="-ml-3 md:-ml-4">
+              <CarouselContent className="-ml-3.5 md:-ml-4.5">
                 {MOCK_TESTIMONIALS.map((testimonial, index) => (
-                  <CarouselItem key={testimonial.id} className="basis-full sm:basis-1/2 lg:basis-1/3 pl-3 md:pl-4">
-                     <div className="p-1 h-full">
+                  <CarouselItem key={testimonial.id} className="basis-full sm:basis-1/2 lg:basis-1/3 pl-3.5 md:pl-4.5">
+                     <div className="p-1.5 h-full">
                         <TestimonialCard testimonial={testimonial} />
                      </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-               <div className="flex justify-center items-center mt-8 space-x-3">
-                <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
-                <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/50 hover:border-primary" />
+               <div className="flex justify-center items-center mt-10 space-x-4">
+                <CarouselPrevious className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
+                <CarouselNext className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
               </div>
             </Carousel>
           </div>

@@ -42,8 +42,8 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
   }, [user]);
 
   return (
-    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-md hover:shadow-lg">
-      <CardHeader className={cn("p-4 md:p-5", "pt-6")}> {/* Adjusted padding for consistency */}
+    <Card className={cn("group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-none border-border/30 hover:shadow-lg")}>
+      <CardHeader className={cn("p-4 md:p-5", "pt-6")}> 
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
             <Edit className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
@@ -62,8 +62,6 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
               <span className="font-semibold text-primary">{completionPercentage}%</span>
             </div>
             <Progress value={completionPercentage} className="h-2.5" indicatorClassName={completionPercentage === 100 ? "bg-green-500" : "bg-primary"} />
-            {/* Removed the step count display below */}
-            {/* <p className="text-xs text-muted-foreground text-right">{completedSteps} of {totalSteps} steps completed</p> */}
           </div>
         )}
         <Button 
@@ -71,8 +69,8 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
           variant="outline" 
           className="w-full transform transition-transform hover:scale-105 active:scale-95 bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         >
-            <Link href="#"> {/* Placeholder Link - Update with actual routes later */}
-                <UserCog className="mr-2 h-4 w-4" /> {/* Adjusted icon size to h-4 w-4 for text-sm */}
+            <Link href="#"> 
+                <UserCog className="mr-2 h-4 w-4" /> 
                 Edit Personal Details
             </Link>
         </Button>
@@ -81,8 +79,8 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
           variant="outline" 
           className="w-full transform transition-transform hover:scale-105 active:scale-95 bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         >
-            <Link href="#"> {/* Placeholder Link - Update with actual routes later */}
-                <ClipboardEdit className="mr-2 h-4 w-4" /> {/* Adjusted icon size to h-4 w-4 for text-sm */}
+            <Link href="#"> 
+                <ClipboardEdit className="mr-2 h-4 w-4" /> 
                 Edit Tutoring Details
             </Link>
         </Button>
@@ -90,5 +88,3 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
     </Card>
   );
 }
-
-    

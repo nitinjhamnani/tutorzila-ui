@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -63,7 +64,6 @@ export default function DashboardPage() {
   const handleOpenOtpModal = (type: "email" | "phone") => {
     if (!user) return;
     setOtpVerificationType(type);
-    // For phone, you'd typically fetch/use a stored phone number. Using a placeholder for mock.
     setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number"); 
     setIsOtpModalOpen(true);
   };
@@ -71,10 +71,8 @@ export default function DashboardPage() {
   const handleOtpSuccess = () => {
     if (otpVerificationType === "email") {
       setIsEmailVerified(true);
-      // Toast is handled by the modal itself now
     } else if (otpVerificationType === "phone") {
       setIsPhoneVerified(true);
-      // Toast is handled by the modal itself now
     }
     setIsOtpModalOpen(false); 
     setOtpVerificationType(null);
@@ -93,6 +91,7 @@ export default function DashboardPage() {
         href="/dashboard/post-requirement"
         Icon={PlusCircle}
         imageHint="writing list"
+        className="hover:shadow-xl"
       />,
       <ActionCard
         key="my-requirements"
@@ -101,6 +100,7 @@ export default function DashboardPage() {
         href="/dashboard/my-requirements"
         Icon={ListChecks} 
         imageHint="task checklist"
+        className="hover:shadow-xl"
       />,
        <ActionCard
         key="recent-activity-parent"
@@ -111,6 +111,7 @@ export default function DashboardPage() {
         imageHint="activity chart"
         showImage={true} 
         disabled
+        className="hover:shadow-xl"
       />
     );
   } else if (user.role === "admin") {
@@ -123,6 +124,7 @@ export default function DashboardPage() {
         Icon={Users}
         imageHint="people community"
         disabled
+        className="hover:shadow-xl"
       />,
       <ActionCard
         key="manage-tuitions"
@@ -132,6 +134,7 @@ export default function DashboardPage() {
         Icon={BookOpen}
         imageHint="library books"
         disabled
+        className="hover:shadow-xl"
       />,
        <ActionCard
         key="recent-activity-admin"
@@ -142,6 +145,7 @@ export default function DashboardPage() {
         imageHint="admin dashboard activity"
         showImage={true}
         disabled
+        className="hover:shadow-xl"
       />
     );
   }
@@ -150,13 +154,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className={cn("grid gap-6", user.role === 'tutor' ? "md:grid-cols-1" : "md:grid-cols-3")}>
-         <Card className="border bg-card rounded-lg shadow-sm animate-in fade-in duration-700 ease-out overflow-hidden md:col-span-1">
+         <Card className={cn("bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden md:col-span-1", user.role === 'tutor' ? "shadow-none border-0" : "shadow-lg border")}>
           <CardHeader className={cn("pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative")}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
                 <div className="relative group shrink-0">
                   <Avatar
-                    className="h-16 w-16 border-2 border-primary/30 group-hover:opacity-80 transition-opacity"
+                    className="h-16 w-16 border-2 border-primary/30 group-hover:opacity-80 transition-opacity cursor-pointer"
                     onClick={handleAvatarClick} 
                   >
                     <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
@@ -184,27 +188,22 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
                   {user.status && (
-                    <Badge variant={user.status === "Active" ? "default" : "destructive"} className="text-xs py-0.5 px-2">
+                    <Badge variant={user.status === "Active" ? "default" : "destructive"} className="text-xs py-0.5 px-2 bg-green-500 text-white hover:bg-green-600">
                       {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
                       {user.status}
                     </Badge>
                   )}
                 </div>
-                {(user.role === 'parent' || user.role === 'admin') && (
-                  <CardDescription className="text-md md:text-lg text-foreground/80 mt-1">
-                      You are logged in as a {user.role}. Here's your dashboard overview.
-                  </CardDescription>
-                )}
                 {user.role === 'tutor' && (
                   <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                      <Button
-                        variant="secondary" // Base variant, overridden by conditional className
-                        size="sm" // Base size, overridden by conditional className
-                        className={cn(
-                          "h-auto rounded-full", // Common base styles
+                        variant="secondary" 
+                        size="sm" 
+                         className={cn(
+                          "h-auto rounded-full text-primary hover:bg-secondary/80", 
                           isEmailVerified
-                            ? "bg-green-600 text-primary-foreground border-transparent py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-700 no-underline" // Verified state
-                            : "text-xs font-normal px-3 py-1.5 text-primary underline hover:bg-secondary/80" // Unverified state
+                            ? "bg-green-100 text-green-700 border-green-500 py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-200 no-underline border" 
+                            : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80" 
                         )}
                         onClick={() => !isEmailVerified && handleOpenOtpModal("email")}
                         disabled={isEmailVerified}
@@ -213,13 +212,13 @@ export default function DashboardPage() {
                         {isEmailVerified ? "Email Verified" : "Verify Email"}
                       </Button>
                       <Button
-                        variant="secondary" // Base variant
-                        size="sm" // Base size
+                        variant="secondary" 
+                        size="sm" 
                          className={cn(
-                          "h-auto rounded-full", // Common base styles
+                          "h-auto rounded-full text-primary hover:bg-secondary/80", 
                           isPhoneVerified
-                            ? "bg-green-600 text-primary-foreground border-transparent py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-700 no-underline" // Verified state
-                            : "text-xs font-normal px-3 py-1.5 text-primary underline hover:bg-secondary/80" // Unverified state
+                            ? "bg-green-100 text-green-700 border-green-500 py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-200 no-underline border" 
+                            : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80"
                         )}
                         onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
                         disabled={isPhoneVerified}
@@ -244,27 +243,22 @@ export default function DashboardPage() {
               </div>
             )}
           </CardHeader>
-          {(user.role === 'parent' || user.role === 'admin') && (
-              <CardContent className="p-4 md:p-5 pt-0"> 
-                  <p className="text-foreground/70 text-[15px]">Manage your tuition activities and settings from here.</p>
-              </CardContent>
-          )}
           {user.role === 'tutor' && (
-            <CardContent className="p-4 md:p-5 pt-2 space-y-3 border-t"> 
+            <CardContent className="p-4 md:p-5 pt-3 space-y-3 border-t"> 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 items-start"> 
                 <div className="space-y-1">
                   <div className="flex items-center text-xs text-muted-foreground">
                     <Coins className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
-                    <span>Lead Balance</span>
+                    <span className="text-xs">Lead Balance</span>
                   </div>
-                  <p className="text-sm font-semibold text-primary">{50}</p>
+                  <p className="text-[0.875rem] font-semibold text-primary">{50}</p>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center text-xs text-muted-foreground">
                     <CalendarClock className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
-                    <span>Plan Expiry</span>
+                    <span className="text-xs">Plan Expiry</span>
                   </div>
-                  <p className="text-sm font-medium">Dec 31, 2024</p>
+                  <p className="text-[0.875rem] font-medium">Dec 31, 2024</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2"> 
@@ -296,21 +290,20 @@ export default function DashboardPage() {
               title="My Classes"
               cardDescriptionText="View and manage your scheduled classes." 
               description="5" 
-              href="#" 
               Icon={ListChecks} 
               showImage={false}
               disabled={false} 
               actionButtonText="View Classes"
               ActionButtonIcon={ClipboardList}
-              
+              href="#" 
               actionButtonText2="Create Class" 
               ActionButtonIcon2={PlusCircle} 
               href2="#" 
               disabled2={false} 
-
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
               buttonInContent={true} 
+              className="shadow-none border border-border/30 hover:shadow-lg"
             />
           </div>
           <div 
@@ -334,6 +327,7 @@ export default function DashboardPage() {
               disabled2={false}
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+              className="shadow-none border border-border/30 hover:shadow-lg"
             />
           </div>
            <div 
@@ -353,6 +347,7 @@ export default function DashboardPage() {
               disabled={false} 
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+              className="shadow-none border border-border/30 hover:shadow-lg"
             />
           </div>
         </div>
@@ -404,6 +399,7 @@ interface ActionCardProps {
   ActionButtonIcon2?: React.ElementType;
   href2?: string; 
   disabled2?: boolean; 
+  className?: string;
 }
 
 function ActionCard({ 
@@ -424,6 +420,7 @@ function ActionCard({
   ActionButtonIcon2,
   href2,
   disabled2,
+  className,
 }: ActionCardProps) {
 
   const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => {
@@ -448,7 +445,7 @@ function ActionCard({
   
 
   return (
-    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-sm hover:shadow-lg overflow-hidden">
+    <Card className={cn("group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-sm hover:shadow-lg overflow-hidden", className)}>
       {showImage && imageHint && (
         <div className="overflow-hidden rounded-t-lg relative">
           <Image
