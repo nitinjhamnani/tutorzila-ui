@@ -153,9 +153,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className={cn("grid gap-6", user.role === 'tutor' ? "md:grid-cols-1" : "md:grid-cols-3")}>
-         <Card className={cn("bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden md:col-span-1", user.role === 'tutor' ? "shadow-none border-0" : "shadow-lg border")}>
-          <CardHeader className={cn("pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative")}>
+      <div className="grid gap-6 md:grid-cols-1">
+         <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden shadow-none border-0">
+          <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
                 <div className="relative group shrink-0">

@@ -11,6 +11,8 @@ export interface User {
   phone?: string; // Added phone
   isEmailVerified?: boolean; // Added email verification status
   isPhoneVerified?: boolean; // Added phone verification status
+  gender?: "male" | "female" | "other" | ""; // Added gender
+  dateOfBirth?: string; // ISO date string, Added dateOfBirth
 }
 
 export interface TuitionRequirement {
@@ -38,6 +40,7 @@ export interface TutorProfile extends User {
   bio?: string;
   qualifications?: string;
   teachingMode?: "Online" | "In-person" | "Hybrid"; 
+  gradeLevelsTaught?: string[]; // Added for specific grade levels tutor teaches
 }
 
 export interface Testimonial {
@@ -49,6 +52,7 @@ export interface Testimonial {
   rating: number; // e.g. 1-5
   date: string; // ISO date string for when the testimonial was given
 }
+
 
 
 

@@ -69,7 +69,7 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
           variant="outline" 
           className="w-full transform transition-transform hover:scale-105 active:scale-95 bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         >
-            <Link href="#"> 
+            <Link href="/dashboard/tutor/edit-personal-details"> 
                 <UserCog className="mr-2 h-4 w-4" /> 
                 Edit Personal Details
             </Link>
@@ -79,7 +79,7 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
           variant="outline" 
           className="w-full transform transition-transform hover:scale-105 active:scale-95 bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         >
-            <Link href="#"> 
+            <Link href="/dashboard/tutor/edit-tutoring-details"> 
                 <ClipboardEdit className="mr-2 h-4 w-4" /> 
                 Edit Tutoring Details
             </Link>
