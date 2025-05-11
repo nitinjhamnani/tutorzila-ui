@@ -48,6 +48,8 @@ export function useAuthMock() {
       phone: undefined,
       isEmailVerified: false,
       isPhoneVerified: false,
+      gender: "",
+      dateOfBirth: undefined,
     };
 
     let finalUserData: User | TutorProfile = baseUserData;
@@ -58,12 +60,16 @@ export function useAuthMock() {
       );
 
       if (existingMockTutor) {
-        // Ensure all array fields are indeed arrays
+        // Ensure all array fields are indeed arrays, and handle string-to-array conversion for qualifications
         finalUserData = { 
           ...existingMockTutor,
           subjects: Array.isArray(existingMockTutor.subjects) ? existingMockTutor.subjects : [],
-          qualifications: Array.isArray(existingMockTutor.qualifications) ? existingMockTutor.qualifications : [],
-          teachingMode: Array.isArray(existingMockTutor.teachingMode) ? existingMockTutor.teachingMode : [],
+          qualifications: Array.isArray(existingMockTutor.qualifications) 
+            ? existingMockTutor.qualifications 
+            : (typeof existingMockTutor.qualifications === 'string' ? existingMockTutor.qualifications.split(',').map(q => q.trim()).filter(q => q) : []),
+          teachingMode: Array.isArray(existingMockTutor.teachingMode) 
+            ? existingMockTutor.teachingMode 
+            : (typeof existingMockTutor.teachingMode === 'string' ? [existingMockTutor.teachingMode] : []),
           gradeLevelsTaught: Array.isArray(existingMockTutor.gradeLevelsTaught) ? existingMockTutor.gradeLevelsTaught : [],
           boardsTaught: Array.isArray(existingMockTutor.boardsTaught) ? existingMockTutor.boardsTaught : [],
           preferredDays: Array.isArray(existingMockTutor.preferredDays) ? existingMockTutor.preferredDays : [],
@@ -80,13 +86,12 @@ export function useAuthMock() {
           hourlyRate: "1000",
           bio: "A passionate and dedicated tutor.",
           qualifications: ["Relevant degree and certifications."], 
-          teachingMode: ["Online"],
+          teachingMode: ["online"],
           phone: baseUserData.phone || "9876543210", // Ensure phone is included
           gradeLevelsTaught: ["Grade 9-10", "Grade 11-12"],
           boardsTaught: ["CBSE"],
           preferredDays: ["Weekdays"],
           preferredTimeSlots: ["1700-1900"],
-          // isEmailVerified and isPhoneVerified are already in baseUserData
         } as TutorProfile;
       }
     } else if (determinedRole === 'admin' && email.toLowerCase().includes('admin')) {
@@ -118,6 +123,8 @@ export function useAuthMock() {
       phone: role === "tutor" ? "9876543210" : undefined, 
       isEmailVerified: false,
       isPhoneVerified: false,
+      gender: "",
+      dateOfBirth: undefined,
     };
 
     if (role === 'tutor') {
@@ -128,8 +135,8 @@ export function useAuthMock() {
         grade: '',
         hourlyRate: '',
         bio: '',
-        qualifications: [], // Ensure this is an array
-        teachingMode: ['Online'], // Ensure this is an array
+        qualifications: [], 
+        teachingMode: ['online'], 
         gradeLevelsTaught: [],
         boardsTaught: [],
         preferredDays: [],
