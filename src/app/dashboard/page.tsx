@@ -2,7 +2,7 @@
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2 } from "lucide-react";
 import Image from "next/image";
@@ -113,9 +113,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Card & My Enquiries Card Row (for Tutors) */}
-      <div className="grid gap-6 md:grid-cols-3">
-         <Card className={cn("border bg-card rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
+      {/* Welcome Card - Full Width for Tutors */}
+      <div className={cn("grid gap-6", user.role === 'tutor' ? "md:grid-cols-1" : "md:grid-cols-3")}>
+         <Card className="border bg-card rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden md:col-span-1"> {/* Full width for tutor */}
           <CardHeader className={cn("pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative")}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -221,33 +221,11 @@ export default function DashboardPage() {
             </CardContent>
           )}
         </Card>
-
-        {user.role === 'tutor' && (
-           <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out md:col-span-1"
-            style={{ animationDelay: `0.1s` }}
-          >
-            <ActionCard
-              title="My Enquiries"
-              cardDescriptionText="View and manage potential student enquiries."
-              description="5 Recommended" 
-              Icon={Briefcase} 
-              showImage={false}
-              buttonInContent={true}
-              actionButtonText="View All Enquiries"
-              ActionButtonIcon={ClipboardList}
-              href="/dashboard/enquiries" 
-              disabled={false} 
-              actionButtonVariant="outline"
-              actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-            />
-          </div>
-        )}
       </div>
 
-      {/* Profile Management Row for Tutors */}
+      {/* Profile Management and Other Actions Row for Tutors (2-column grid) */}
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-3"> 
+        <div className="grid gap-6 md:grid-cols-2"> 
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
@@ -298,6 +276,25 @@ export default function DashboardPage() {
               ActionButtonIcon2={DollarSign}
               href2="#"
               disabled2={false}
+              actionButtonVariant="outline"
+              actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+            />
+          </div>
+           <div 
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            style={{ animationDelay: `0.5s` }}
+          >
+            <ActionCard
+              title="My Enquiries"
+              cardDescriptionText="View and manage potential student enquiries."
+              description="5 Recommended" 
+              Icon={Briefcase} 
+              showImage={false}
+              buttonInContent={true}
+              actionButtonText="View All Enquiries"
+              ActionButtonIcon={ClipboardList}
+              href="/dashboard/enquiries" 
+              disabled={false} 
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
             />
@@ -438,13 +435,11 @@ function ActionCard({
         )}
       </CardContent>
       {!buttonInContent && href && ( 
-         <CardFooter className="p-4 md:p-5 border-t bg-muted/20">
+         <CardContent className="p-4 md:p-5 border-t bg-muted/20"> {/* Changed CardFooter to CardContent for consistency */}
           {renderSingleButton(actionButtonText || title, href, disabled, ActionButtonIcon)}
-        </CardFooter>
+        </CardContent>
       )}
     </Card>
   );
 }
-
-
     
