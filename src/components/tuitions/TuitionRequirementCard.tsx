@@ -1,4 +1,5 @@
 
+
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,37 +25,36 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
 
-  const initials = getInitials(requirement.parentName);
+  const initials = getInitials(requirement.subject); // Use subject for initials
 
   return (
     <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
-      <CardHeader className="p-4 pb-3"> {/* Adjusted padding */}
-        <div className="flex items-start space-x-3"> {/* Use items-start for better vertical alignment if title wraps */}
-          <Avatar className="h-10 w-10 shrink-0"> {/* Added shrink-0 */}
+      <CardHeader className="p-4 pb-3">
+        <div className="flex items-start space-x-3">
+          <Avatar className="h-10 w-10 shrink-0">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0"> {/* Added flex-grow and min-w-0 for proper truncation */}
-            <CardTitle className="text-lg font-semibold text-primary group-hover:text-primary/80 transition-colors line-clamp-2"> {/* Subject as title, increased font size, primary color */}
+          <div className="flex-grow min-w-0">
+            <CardTitle className="text-lg font-semibold text-primary group-hover:text-primary/80 transition-colors line-clamp-2">
               {requirement.subject}
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground mt-0.5">
-              Posted by {requirement.parentName || 'Anonymous'} &bull; {timeAgo}
+              Posted {timeAgo}
             </CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm flex-grow p-4 pt-3"> {/* Adjusted padding */}
-        {/* Subject is now in CardTitle, so removed from here */}
+      <CardContent className="space-y-2 text-sm flex-grow p-4 pt-3">
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
         )}
       </CardContent>
-      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300"> {/* Adjusted background */}
-        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95 text-[15px] py-2.5" variant="outline"> {/* Adjusted padding and text size */}
-          <Briefcase className="w-4 h-4 mr-2" /> View Details & Apply {/* Adjusted icon size */}
+      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300">
+        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95 text-[15px] py-2.5" variant="outline">
+          <Briefcase className="w-4 h-4 mr-2" /> View Details & Apply
         </Button>
       </CardFooter>
     </Card>
@@ -83,3 +83,4 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
     </div>
   );
 }
+
