@@ -28,7 +28,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
 
 
   return (
-    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col transform hover:scale-[1.02] hover:-translate-y-1 bg-card rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 h-full">
+    <Card className="group bg-card border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full">
       <CardHeader className="p-4 md:p-5 pb-3">
         <div className="flex justify-between items-start mb-2">
           <CardTitle className="text-lg font-semibold text-primary group-hover:text-primary/90 transition-colors line-clamp-2">{requirement.subject}</CardTitle>
@@ -91,3 +91,5 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
   );
 }
 
+
+    

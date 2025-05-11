@@ -12,7 +12,7 @@ interface TestimonialCardProps {
 export function TestimonialCard({ testimonial }: TestimonialCardProps) {
   const testimonialDate = new Date(testimonial.date);
   return (
-    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 min-h-[18rem]">
+    <Card className="group bg-card border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full min-h-[18rem]">
       <CardHeader className="pt-6 pb-3 px-6">
         <div className="flex items-center gap-4">
           <Avatar className="w-12 h-12 border-2 border-primary/40 group-hover:border-primary transition-all duration-300">
@@ -38,3 +38,5 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
   );
 }
 
+
+    

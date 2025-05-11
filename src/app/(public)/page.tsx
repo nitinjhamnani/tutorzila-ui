@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -112,14 +113,14 @@ export default function HomePage() {
                 Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
               </p>
               <div className="flex flex-col gap-3 min-[400px]:flex-row">
-                <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
                    <Link href="/search-tuitions">
                     <Search className="mr-2 h-5 w-5" /> Search Tutors
                   </Link>
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                   <DialogTrigger asChild>
-                     <Button size="lg" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-card/90 hover:text-primary">
+                     <Button size="lg" variant="outline" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-card/90 hover:text-primary">
                       <SquarePen className="mr-2 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
@@ -163,7 +164,7 @@ export default function HomePage() {
                 {popularSubjects.map((subject, index) => (
                   <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 pl-3 md:pl-4">
                     <div className="p-1">
-                      <Card className="group bg-card hover:shadow-lg transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-sm border-border/30 hover:border-primary/50 w-[120px] h-[120px] md:w-[130px] md:h-[130px] mx-auto">
+                      <Card className="group bg-card hover:shadow-md transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-sm border hover:border-primary/40 w-[120px] h-[120px] md:w-[130px] md:h-[130px] mx-auto">
                         <CardContent className="p-0 flex flex-col items-center justify-center gap-1.5 md:gap-1">
                           <subject.icon className="w-7 h-7 md:w-8 md:h-8 text-primary transition-transform duration-300 group-hover:scale-110" />
                           <p className="text-xs md:text-[13px] font-medium text-foreground group-hover:text-primary transition-colors truncate w-full px-1">{subject.name}</p>
@@ -201,7 +202,7 @@ export default function HomePage() {
                 </p>
                 <div className="space-y-5 mt-3">
                   {howItWorksSteps.map((step, index) => (
-                    <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border border-border/30 hover:border-primary/40">
+                    <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border hover:border-primary/40">
                       <div className="flex items-start space-x-4">
                         <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
                           <step.icon className="w-5 h-5 text-primary" />
@@ -217,7 +218,7 @@ export default function HomePage() {
                 <div className="flex justify-center lg:justify-start mt-6">
                   <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                     <DialogTrigger asChild>
-                       <Button size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                       <Button size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
                         <PlusCircle className="mr-2 h-5 w-5" /> Request A Tutor
                       </Button>
                     </DialogTrigger>
@@ -273,7 +274,7 @@ export default function HomePage() {
                 </p>
                 <div className="space-y-5 mt-3">
                   {becomeTutorBenefits.map((benefit, index) => (
-                     <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border border-border/30 hover:border-primary/40">
+                     <Card key={index} className="group bg-card p-4 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border hover:border-primary/40">
                       <div className="flex items-start space-x-4">
                         <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
                           <benefit.icon className="w-5 h-5 text-primary" />
@@ -287,7 +288,7 @@ export default function HomePage() {
                   ))}
                 </div>
                  <div className="flex justify-center lg:justify-start mt-6">
-                    <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                    <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
                       <Link href="/sign-up"> 
                         <BookUser className="mr-2 h-5 w-5" /> Start Teaching Today
                       </Link>
@@ -320,7 +321,7 @@ export default function HomePage() {
               Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
             </p>
             <div className="mt-8">
-              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once">
+              <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once">
                 <Link href="/sign-up">
                    Sign Up Now <Send className="ml-2 h-4 w-4" />
                 </Link>
@@ -366,3 +367,5 @@ export default function HomePage() {
     
   );
 }
+
+    

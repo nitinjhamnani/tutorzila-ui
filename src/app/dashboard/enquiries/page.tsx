@@ -82,7 +82,7 @@ export default function AllEnquiriesPage() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel (Left) */}
         <aside className="lg:w-1/4 xl:w-1/5 space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out">
-          <Card className="shadow-lg rounded-xl bg-card border border-border/30">
+          <Card className="bg-card border rounded-lg shadow-md">
             <CardHeader className="pb-4 border-b border-border/30">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <Filter className="w-5 h-5 mr-2.5"/>
@@ -129,7 +129,7 @@ export default function AllEnquiriesPage() {
               ))}
             </div>
           ) : (
-            <Card className="text-center py-16 shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30">
+            <Card className="text-center py-16 bg-card border rounded-lg shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out">
               <CardContent className="flex flex-col items-center">
                 <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" />
                 <p className="text-2xl font-semibold text-foreground/80 mb-2">No Matching Enquiries Found</p>
@@ -181,3 +181,5 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
   );
 }
 
+
+    

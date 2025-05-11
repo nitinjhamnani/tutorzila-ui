@@ -81,7 +81,7 @@ export function SignUpForm() {
   };
 
   return (
-    <Card className="w-full max-w-3xl shadow-lg rounded-xl bg-card animate-in fade-in zoom-in-95 duration-500 ease-out">
+    <Card className="w-full max-w-3xl shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="flex flex-col items-center pt-8 pb-6">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
@@ -111,7 +111,7 @@ export function SignUpForm() {
                         htmlFor="role-parent-signup"
                         className={cn(
                           "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
-                          selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-lg scale-[1.03] bg-primary/5"
+                          selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary/5"
                         )}
                       >
                         <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80')} />
@@ -126,7 +126,7 @@ export function SignUpForm() {
                         htmlFor="role-tutor-signup"
                         className={cn(
                           "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
-                          selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-lg scale-[1.03] bg-primary/5"
+                          selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary/5"
                         )}
                       >
                         <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80')} />
@@ -252,7 +252,7 @@ export function SignUpForm() {
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
           <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            <Link href="/"> {/* Redirect to home to use Sign In modal */}
+            <Link href="/?signin=true" onClick={() => { /* Ensure modal logic is handled if coming from modal context */}}>
              Sign In
             </Link>
           </Button>
@@ -261,3 +261,5 @@ export function SignUpForm() {
     </Card>
   );
 }
+
+    

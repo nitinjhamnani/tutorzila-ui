@@ -50,7 +50,7 @@ export default function FAQPage() {
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   return (
     <div className={`${containerPadding} max-w-4xl py-12`}>
-      <Card className="shadow-lg">
+      <Card className="bg-card border rounded-lg shadow-md">
         <CardHeader className="bg-muted/30 p-6 rounded-t-lg">
           <div className="flex items-center gap-3">
             <HelpCircle className="w-8 h-8 text-primary" />
@@ -78,3 +78,5 @@ export default function FAQPage() {
     </div>
   );
 }
+
+    

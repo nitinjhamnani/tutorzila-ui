@@ -59,7 +59,7 @@ export function TuitionRequirementForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <Card className="w-full max-w-2xl mx-auto bg-card border rounded-lg shadow-md">
       <CardHeader>
         <CardTitle>Post a New Tuition Requirement</CardTitle>
         <CardDescription>Fill in the details below to find the perfect tutor for your needs.</CardDescription>
@@ -181,3 +181,5 @@ export function TuitionRequirementForm() {
     </Card>
   );
 }
+
+    

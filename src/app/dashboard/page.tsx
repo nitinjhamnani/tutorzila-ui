@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -114,7 +115,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Welcome Card & My Enquiries Card Row (for Tutors) */}
       <div className="grid gap-6 md:grid-cols-3">
-         <Card className={cn("border animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden shadow-none bg-card", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
+         <Card className={cn("border bg-card rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden", user.role === 'tutor' ? "md:col-span-2" : "md:col-span-3")}>
           <CardHeader className={cn("pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative")}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -199,7 +200,7 @@ export default function DashboardPage() {
                     <Coins className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
                     <span>Lead Balance</span>
                   </div>
-                  <p className="text-sm font-semibold text-primary">50</p>
+                  <p className="text-sm font-semibold text-primary">{50}</p>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center text-xs text-muted-foreground">
@@ -385,9 +386,9 @@ function ActionCard({
   
 
   return (
-    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 shadow-none">
+    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-md hover:shadow-lg overflow-hidden">
       {showImage && imageHint && (
-        <div className="overflow-hidden rounded-t-xl relative">
+        <div className="overflow-hidden rounded-t-lg relative">
           <Image
             src={`https://picsum.photos/seed/${title.replace(/\s+/g, '')}/400/200`}
             alt={title}
@@ -445,3 +446,5 @@ function ActionCard({
   );
 }
 
+
+    

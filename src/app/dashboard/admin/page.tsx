@@ -1,7 +1,8 @@
+
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, BarChart2, ShieldCheck, TrendingUp, DollarSign, FileText } from "lucide-react";
+import { Users, BookOpen, BarChart2, ShieldCheck, TrendingUp, DollarSign, FileText, UserCheck } from "lucide-react"; // Added UserCheck
 import Link from "next/link";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useRouter } from "next/navigation";
@@ -36,15 +37,15 @@ export default function AdminDashboardPage() {
 
   const quickStats = [
     { title: "Total Users", value: "120", icon: Users, imageHint: "community people" },
-    { title: "Active Tutors", value: "75", icon: UserCheck, imageHint: "teacher checkmark" }, // Changed icon
-    { title: "Active Parents", value: "45", icon: UserCheck, imageHint: "parent checkmark" }, // Changed icon
+    { title: "Active Tutors", value: "75", icon: UserCheck, imageHint: "teacher checkmark" }, 
+    { title: "Active Parents", value: "45", icon: UserCheck, imageHint: "parent checkmark" }, 
     { title: "Open Tuitions", value: "200", icon: FileText, imageHint: "open documents" },
   ];
 
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden">
+      <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden">
         <CardHeader className="p-6 md:p-8">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary/10 rounded-lg text-primary">
@@ -73,7 +74,7 @@ export default function AdminDashboardPage() {
       </div>
 
        <Card 
-        className="mt-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out shadow-lg rounded-xl overflow-hidden bg-card border border-border/30"
+        className="mt-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out bg-card border rounded-lg shadow-md overflow-hidden"
         style={{ animationDelay: `${adminActions.length * 0.1 + 0.3}s` }}
       >
         <CardHeader className="pb-3">
@@ -103,8 +104,8 @@ interface AdminActionCardProps {
 
 function AdminActionCard({ title, description, href, icon: Icon, disabled, imageHint }: AdminActionCardProps) {
   return (
-    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50 transform hover:-translate-y-1 hover:scale-[1.02]">
-       <div className="overflow-hidden rounded-t-xl relative">
+    <Card className="group bg-card border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden transform hover:-translate-y-1 hover:scale-[1.02]">
+       <div className="overflow-hidden rounded-t-lg relative">
         <Image
           src={`https://picsum.photos/seed/${title.replace(/\s+/g, '')}/400/200`}
           alt={title}
@@ -145,7 +146,7 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, imageHint }: StatCardProps) {
   return (
-    <Card className="bg-card/50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-border/20 text-center group">
+    <Card className="bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 p-4 text-center group">
        <div className="p-2 bg-primary/10 rounded-full text-primary inline-block mb-2 group-hover:bg-primary/20 transition-all">
         <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
       </div>
@@ -155,3 +156,5 @@ function StatCard({ title, value, icon: Icon, imageHint }: StatCardProps) {
   );
 }
 
+
+    

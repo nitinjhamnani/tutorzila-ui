@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,7 +31,7 @@ export default function MyRequirementsPage() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-xl bg-gradient-to-br from-primary/15 via-card to-card border-none animate-in fade-in duration-700 ease-out rounded-xl overflow-hidden">
+      <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden">
         <CardHeader className="p-6 md:p-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
@@ -72,7 +73,7 @@ export default function MyRequirementsPage() {
           ))}
         </div>
       ) : (
-        <Card className="text-center py-16 shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl bg-card border border-border/30">
+        <Card className="text-center py-16 bg-card border rounded-lg shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out">
           <CardContent className="flex flex-col items-center">
             <Search className="w-20 h-20 text-primary/40 mx-auto mb-6" /> {/* Changed icon */}
             <p className="text-2xl font-semibold text-foreground/80 mb-2">No Requirements Posted Yet</p>
@@ -91,3 +92,5 @@ export default function MyRequirementsPage() {
   );
 }
 
+
+    

@@ -18,7 +18,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
   const TeachingModeIcon = tutor.teachingMode === "Online" ? Laptop : tutor.teachingMode === "In-person" ? Users : Laptop; // Default to Laptop for Hybrid or undefined
 
   return (
-    <Card className="group shadow-md hover:shadow-lg transition-all duration-300 flex flex-col transform hover:scale-102 hover:-translate-y-0.5 bg-card h-full min-h-[22rem] w-full max-w-sm mx-auto rounded-xl overflow-hidden border border-border/30 hover:border-primary/50">
+    <Card className="group bg-card border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full min-h-[22rem] w-full max-w-sm mx-auto overflow-hidden">
       <CardHeader className="items-center text-center p-5 pb-3">
         <Avatar className="w-24 h-24 border-2 border-primary/30 group-hover:border-primary transition-all duration-300 group-hover:shadow-lg">
           <AvatarImage src={tutor.avatar || `https://picsum.photos/seed/${tutor.id}/128`} alt={tutor.name} />
@@ -85,3 +85,5 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
     </Card>
   );
 }
+
+    

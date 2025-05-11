@@ -42,7 +42,7 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
   }, [user]);
 
   return (
-    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-xl overflow-hidden border border-border/30 hover:border-primary/50">
+    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-md hover:shadow-lg">
       <CardHeader className={cn("p-4 md:p-5", "pt-6")}> {/* Adjusted padding for consistency */}
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
@@ -90,3 +90,5 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
     </Card>
   );
 }
+
+    
