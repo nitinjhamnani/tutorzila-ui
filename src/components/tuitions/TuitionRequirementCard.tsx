@@ -2,7 +2,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Clock } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Tag, Briefcase, Building, Users,Clock } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -28,33 +28,33 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
 
   return (
     <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
-      <CardHeader className="p-4 pb-2">
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10">
+      <CardHeader className="p-4 pb-3"> {/* Adjusted padding */}
+        <div className="flex items-start space-x-3"> {/* Use items-start for better vertical alignment if title wraps */}
+          <Avatar className="h-10 w-10 shrink-0"> {/* Added shrink-0 */}
             <AvatarFallback className="bg-primary/10 text-primary font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <CardTitle className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
-              {requirement.parentName || 'Anonymous'}
+          <div className="flex-grow min-w-0"> {/* Added flex-grow and min-w-0 for proper truncation */}
+            <CardTitle className="text-lg font-semibold text-primary group-hover:text-primary/80 transition-colors line-clamp-2"> {/* Subject as title, increased font size, primary color */}
+              {requirement.subject}
             </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">
-              Posted {timeAgo}
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
+              Posted by {requirement.parentName || 'Anonymous'} &bull; {timeAgo}
             </CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm flex-grow p-4 pt-2">
-        <h3 className="text-md font-semibold text-primary mb-1.5 line-clamp-2">{requirement.subject}</h3>
-        <InfoItem icon={Tag} label="Grade" value={requirement.gradeLevel} />
+      <CardContent className="space-y-2 text-sm flex-grow p-4 pt-3"> {/* Adjusted padding */}
+        {/* Subject is now in CardTitle, so removed from here */}
+        <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
         )}
       </CardContent>
-      <CardFooter className="p-4 border-t bg-muted/10">
-        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95 text-[15px] py-2" variant="outline">
-          <Briefcase className="w-3.5 h-3.5 mr-2" /> View Details & Apply
+      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300"> {/* Adjusted background */}
+        <Button className="w-full transform transition-transform hover:scale-105 active:scale-95 text-[15px] py-2.5" variant="outline"> {/* Adjusted padding and text size */}
+          <Briefcase className="w-4 h-4 mr-2" /> View Details & Apply {/* Adjusted icon size */}
         </Button>
       </CardFooter>
     </Card>
