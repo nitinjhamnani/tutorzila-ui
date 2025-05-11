@@ -1,4 +1,3 @@
-
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -79,7 +78,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
       <>
         <AppHeader />
-        <div className="flex-grow bg-background pt-[var(--header-height)]">
+        <div className="flex-grow bg-background"> {/* Removed pt-[var(--header-height)] */}
           <div className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
             {children}
           </div>
@@ -196,3 +195,4 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
+
