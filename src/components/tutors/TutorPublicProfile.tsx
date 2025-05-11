@@ -34,8 +34,11 @@ import {
   Sparkles,
   Quote,
   UserX,
+  CalendarClock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format }
+from 'date-fns';
 
 interface TutorPublicProfileProps {
   tutor: TutorProfile;
@@ -62,9 +65,10 @@ const subjectIcons: { [key: string]: React.ElementType } = {
 };
 
 const mockReviews = [
-  { id: "r1", reviewer: "Alice P.", rating: 5, comment: "Amazing tutor! My son's grades improved significantly.", date: "2024-04-15" },
-  { id: "r2", reviewer: "Bob L.", rating: 4, comment: "Very knowledgeable and patient. Highly recommend.", date: "2024-03-20" },
+  { id: "r1", reviewer: "Alice P.", rating: 5, comment: "Amazing tutor! My son's grades improved significantly.", date: new Date().toISOString() },
+  { id: "r2", reviewer: "Bob L.", rating: 4, comment: "Very knowledgeable and patient. Highly recommend.", date: new Date(Date.now() - 86400000 * 15).toISOString() }, // 15 days ago
 ];
+
 
 export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
   const teachingModeText = tutor.teachingMode === "Hybrid" ? "Online & In-person" : tutor.teachingMode;
@@ -79,15 +83,14 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
         {/* Left Column */}
         <aside className="lg:col-span-1 space-y-6">
           <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
-            {/* Removed CardHeader with gradient background */}
-            <CardContent className="pt-6 text-center"> {/* Added pt-6 for spacing after removing header image */}
+            <CardContent className="pt-6 text-center">
               <Avatar className="w-28 h-28 border-4 border-card shadow-md ring-2 ring-primary/40 mx-auto">
                 <AvatarImage src={tutor.avatar || `https://picsum.photos/seed/${tutor.id}/200`} alt={tutor.name} />
                 <AvatarFallback className="text-3xl bg-primary/20 text-primary font-semibold">
                   {tutor.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <h1 className="text-xl font-bold text-foreground tracking-tight mt-4">{tutor.name}</h1>
+              <h1 className="text-xl font-semibold text-foreground tracking-tight mt-4">{tutor.name}</h1>
               <p className="text-xs text-muted-foreground mt-1">{tutor.role === "tutor" ? "Professional Tutor" : tutor.role}</p>
               
               <div className="flex items-center justify-center mt-2.5">
@@ -107,8 +110,17 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
               )}
             </CardContent>
             <div className="p-4 border-t">
-              <Button size="md" className="w-full shadow-md hover:shadow-lg transform transition-transform hover:scale-105 active:scale-95 text-sm">
-                <MessageSquare className="mr-2 h-4 w-4" /> Contact {tutor.name.split(" ")[0]}
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full transform transition-transform hover:scale-105 active:scale-95",
+                  "py-3", // Increased height
+                  "bg-card border-primary text-primary", 
+                  "hover:bg-primary/10", 
+                  "font-semibold text-sm" 
+                )}
+              >
+                <MessageSquare className="mr-2 h-4 w-4" /> Book a Session
               </Button>
             </div>
           </Card>
@@ -119,7 +131,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 <UserCheck className="w-4 h-4 mr-2"/> Verification Status
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-xs"> {/* Increased space-y to 3 */}
+            <CardContent className="space-y-3 text-xs">
                 <div className="flex items-center">
                     <Mail className="w-3.5 h-3.5 mr-2 text-muted-foreground"/>
                     <span className="text-foreground/80">Email:</span>
@@ -143,26 +155,24 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
 
         {/* Right Column */}
         <main className="lg:col-span-2 space-y-6">
-          {tutor.bio && (
-            <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
-              <CardHeader>
+           <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
+            <CardHeader className="pb-3">
                 <CardTitle className="text-md font-semibold text-primary flex items-center">
                   <Sparkles className="w-4 h-4 mr-2"/> About Me
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio}</p>
+                <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
               </CardContent>
             </Card>
-          )}
 
           <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-md font-semibold text-primary flex items-center">
                 <Briefcase className="w-4 h-4 mr-2"/> Expertise & Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
               <InfoSection icon={BookOpen} title="Subjects Taught">
                 <div className="flex flex-wrap gap-1.5 mt-0.5">
                   {tutor.subjects.map((subject) => {
@@ -186,24 +196,24 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
             </CardContent>
           </Card>
           
-          <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
-             <CardHeader>
+           <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
+             <CardHeader className="pb-3">
                 <CardTitle className="text-md font-semibold text-primary flex items-center">
                   <Quote className="w-4 h-4 mr-2"/> Student Reviews
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {mockReviews.length > 0 ? mockReviews.map(review => (
-                    <div key={review.id} className="p-3 border rounded-lg bg-background/50">
+                    <div key={review.id} className="p-3 border rounded-md bg-background/50 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-1">
                             <p className="text-xs font-semibold text-foreground">{review.reviewer}</p>
                             <div className="flex items-center">
                                 {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`}/>
+                                    <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}/>
                                 ))}
                             </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground mb-1.5">{new Date(review.date).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-muted-foreground mb-1.5 flex items-center"><CalendarClock size={10} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
                         <p className="text-xs text-foreground/80 leading-normal">{review.comment}</p>
                     </div>
                 )) : (
@@ -228,12 +238,12 @@ interface InfoSectionProps {
 function InfoSection({ icon: Icon, title, content, children }: InfoSectionProps) {
     return (
         <div className="space-y-1">
-            <div className="flex items-center text-xs font-medium text-foreground/90"> {/* Reduced font size */}
-                <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80"/> {/* Reduced icon size and margin */}
+            <div className="flex items-center text-xs font-medium text-foreground/90">
+                <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80"/>
                 {title}
             </div>
-            {content && <p className="text-[11px] text-foreground/70 pl-[22px]">{content}</p>} {/* Reduced font size and padding */}
-            {children && <div className="pl-[22px]">{children}</div>} {/* Reduced padding */}
+            {content && <p className="text-[11px] text-foreground/70 pl-[22px]">{content}</p>}
+            {children && <div className="pl-[22px]">{children}</div>}
         </div>
     )
 }
