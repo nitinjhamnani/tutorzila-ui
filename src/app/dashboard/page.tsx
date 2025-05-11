@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRef, type ChangeEvent, useState } from "react"; 
+import { useRef, type ChangeEvent, useState, useEffect } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -28,9 +27,16 @@ export default function DashboardPage() {
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
   const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
 
-  // Mock verification status
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  // Mock verification status using local state, could be fetched or part of user object
+  const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
+
+  useEffect(() => {
+    if (user) {
+      setIsEmailVerified(user.isEmailVerified || false);
+      setIsPhoneVerified(user.isPhoneVerified || false);
+    }
+  }, [user]);
 
 
   if (!user) {
@@ -227,8 +233,10 @@ export default function DashboardPage() {
             </div>
             {user.role === 'tutor' && (
               <div className="absolute top-4 right-4 flex space-x-2">
-                <Button variant="default" size="icon" className="h-8 w-8 p-1.5 rounded-full shadow-md hover:bg-primary/90" title="View Public Profile">
-                  <Eye className="h-4 w-4 text-primary-foreground" />
+                <Button asChild variant="default" size="icon" className="h-8 w-8 p-1.5 rounded-full shadow-md hover:bg-primary/90" title="View Public Profile">
+                  <Link href={`/tutors/${user.id}`}>
+                    <Eye className="h-4 w-4 text-primary-foreground" />
+                  </Link>
                 </Button>
                 <Button variant="default" size="icon" className="h-8 w-8 p-1.5 rounded-full shadow-md hover:bg-primary/90" title="Share Profile">
                   <Share2 className="h-4 w-4 text-primary-foreground" />

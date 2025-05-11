@@ -8,7 +8,7 @@ import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; // Import mock data
 import { TutorPublicProfile } from "@/components/tutors/TutorPublicProfile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { UserSlash } from "lucide-react";
+import { UserX } from "lucide-react"; // Changed from UserSlash to UserX
 
 export default function TutorProfilePage() {
   const params = useParams();
@@ -57,7 +57,7 @@ export default function TutorProfilePage() {
     return (
       <div className={`${containerPadding} py-12 flex justify-center items-center min-h-[calc(100vh-var(--header-height)-var(--footer-height,0px))]`}>
         <Alert variant="destructive" className="max-w-md text-center">
-          <UserSlash className="h-10 w-10 mx-auto mb-3 text-destructive" />
+          <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> {/* Changed from UserSlash to UserX */}
           <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -79,3 +79,4 @@ export default function TutorProfilePage() {
     </div>
   );
 }
+
