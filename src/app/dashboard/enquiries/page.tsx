@@ -6,10 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock, ListChecks, CheckSquare, Star, Inbox } from "lucide-react"; 
+import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as Filter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock, ListChecks, CheckSquare, Star, Inbox, ChevronDown } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 
 // Mock data - replace with API call in a real app
 const MOCK_REQUIREMENTS: TuitionRequirement[] = [
@@ -78,7 +85,7 @@ export default function AllEnquiriesPage() {
 
   // Mock counts - replace with actual logic later
   const tabCounts = {
-    recommended: filteredRequirements.length, // Example: using current filtered length
+    recommended: filteredRequirements.length, 
     applied: 0, 
     received: 0,
     shortlisted: 0,
@@ -117,12 +124,54 @@ export default function AllEnquiriesPage() {
     );
   };
 
+  const filterPanelContent = (
+    <>
+      <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={subjects} />
+      <FilterItem icon={GraduationCap} label="Grade Level" value={gradeLevelFilter} onValueChange={setGradeLevelFilter} options={gradeLevels} />
+      <FilterItem icon={Building} label="Board" value={boardFilter} onValueChange={setBoardFilter} options={boards} />
+      <FilterItem icon={MapPin} label="Location" value={locationFilter} onValueChange={setLocationFilter} options={locations} />
+      <FilterItem icon={RadioTower} label="Teaching Mode" value={teachingModeFilter} onValueChange={setTeachingModeFilter} options={teachingModes} />
+      <Button 
+        onClick={resetFilters} 
+        variant="outline" 
+        size="sm"
+        className="w-full bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground transform transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-2 text-sm py-2 px-3"
+      >
+        <XIcon className="w-4 h-4" />
+        Reset All Filters
+      </Button>
+    </>
+  );
+
 
   return (
     <div className={`${containerPadding} pb-8`}>
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filter Panel (Left) */}
-        <aside className="lg:w-1/4 xl:w-1/5 space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out">
+        {/* Filter Panel */}
+        {/* Mobile Accordion Filter */}
+        <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
+          <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-sm overflow-hidden">
+            <AccordionItem value="filters" className="border-b-0">
+              <AccordionTrigger className="w-full hover:no-underline px-4 py-3 data-[state=open]:border-b data-[state=open]:border-border/30">
+                <div className="flex flex-row justify-between items-center w-full">
+                  <h3 className="text-lg font-semibold text-primary flex items-center">
+                    <Filter className="w-5 h-5 mr-2.5"/>
+                    Filter Enquiries
+                  </h3>
+                  {/* ChevronDown icon is part of AccordionTrigger by default */}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-0">
+                <div className="p-4 space-y-5">
+                  {filterPanelContent}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        {/* Desktop Static Filter Panel */}
+        <aside className="lg:w-[300px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block">
           <Card className="bg-card border rounded-lg shadow-sm">
             <CardHeader className="pb-4 border-b border-border/30">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
@@ -131,15 +180,7 @@ export default function AllEnquiriesPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-5">
-              <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={subjects} />
-              <FilterItem icon={GraduationCap} label="Grade Level" value={gradeLevelFilter} onValueChange={setGradeLevelFilter} options={gradeLevels} />
-              <FilterItem icon={Building} label="Board" value={boardFilter} onValueChange={setBoardFilter} options={boards} />
-              <FilterItem icon={MapPin} label="Location" value={locationFilter} onValueChange={setLocationFilter} options={locations} />
-              <FilterItem icon={RadioTower} label="Teaching Mode" value={teachingModeFilter} onValueChange={setTeachingModeFilter} options={teachingModes} />
-              <Button onClick={resetFilters} variant="outline" className="w-full h-11 text-sm border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
-                <XIcon className="w-4 h-4" />
-                Reset All Filters
-              </Button>
+              {filterPanelContent}
             </CardContent>
           </Card>
         </aside>
@@ -147,34 +188,33 @@ export default function AllEnquiriesPage() {
         {/* Enquiry List (Right) */}
         <main className="flex-1 space-y-6">
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
-              <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                <Star className="w-3.5 h-3.5"/> Recommended ({tabCounts.recommended})
-              </TabsTrigger>
-              <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                <CheckSquare className="w-3.5 h-3.5"/> Applied ({tabCounts.applied})
-              </TabsTrigger>
-              <TabsTrigger value="received" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                 <Inbox className="w-3.5 h-3.5"/> Received ({tabCounts.received})
-              </TabsTrigger>
-              <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                <ListChecks className="w-3.5 h-3.5"/> Shortlisted ({tabCounts.shortlisted})
-              </TabsTrigger>
-            </TabsList>
+            <ScrollArea className="pb-2.5"> {/* Added ScrollArea for TabsList */}
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm min-w-[450px] sm:min-w-full"> {/* Added min-width */}
+                <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                  <Star className="w-3.5 h-3.5"/> Recommended ({tabCounts.recommended})
+                </TabsTrigger>
+                <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                  <CheckSquare className="w-3.5 h-3.5"/> Applied ({tabCounts.applied})
+                </TabsTrigger>
+                <TabsTrigger value="received" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                   <Inbox className="w-3.5 h-3.5"/> Received ({tabCounts.received})
+                </TabsTrigger>
+                <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                  <ListChecks className="w-3.5 h-3.5"/> Shortlisted ({tabCounts.shortlisted})
+                </TabsTrigger>
+              </TabsList>
+            </ScrollArea>
 
             <TabsContent value="recommended" className="mt-6">
               {renderEnquiryList(filteredRequirements)}
             </TabsContent>
             <TabsContent value="applied" className="mt-6">
-              {/* Replace with actual applied enquiries list */}
               {renderEnquiryList([])} 
             </TabsContent>
             <TabsContent value="received" className="mt-6">
-              {/* Replace with actual received enquiries list */}
               {renderEnquiryList([])}
             </TabsContent>
             <TabsContent value="shortlisted" className="mt-6">
-              {/* Replace with actual shortlisted enquiries list */}
               {renderEnquiryList([])}
             </TabsContent>
           </Tabs>
