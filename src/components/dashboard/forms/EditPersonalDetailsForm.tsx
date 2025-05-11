@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -156,7 +157,7 @@ export function EditPersonalDetailsForm() {
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col"> {/* Added flex flex-col for consistency */}
+                  <FormItem className="flex flex-col">
                     <FormLabel>Gender</FormLabel>
                     <div className="relative">
                       <VenetianMask className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
@@ -212,6 +213,9 @@ export function EditPersonalDetailsForm() {
                             date > new Date() || date < new Date("1900-01-01")
                           }
                           initialFocus
+                          captionLayout="dropdown-buttons"
+                          fromYear={new Date().getFullYear() - 100}
+                          toYear={new Date().getFullYear()}
                         />
                       </PopoverContent>
                     </Popover>
@@ -229,4 +233,3 @@ export function EditPersonalDetailsForm() {
     </Card>
   );
 }
-
