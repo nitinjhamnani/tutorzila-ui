@@ -43,16 +43,17 @@ export function useAuthMock() {
       email,
       role: determinedRole,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
-      status: "Active", // Added status
+      status: "Active",
+      phone: determinedRole === "tutor" ? "9876543210" : undefined, // Mock phone for tutors
+      isEmailVerified: false, // Default to false
+      isPhoneVerified: false, // Default to false
     };
 
     if (determinedRole === 'tutor') {
       mockUserData = {
         ...mockUserData,
-        subjects: ['Mathematics', 'Physics'], // Sample data
-        experience: '3-5 years', // Sample data
-        // Other fields like bio, grade, hourlyRate, teachingMode will be undefined for the mock
-        // and thus count towards incompleteness for the progress bar.
+        subjects: ['Mathematics', 'Physics'], 
+        experience: '3-5 years', 
       } as TutorProfile;
     }
     
@@ -68,14 +69,17 @@ export function useAuthMock() {
       email,
       role,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
-      status: "Active", // Added status
+      status: "Active",
+      phone: role === "tutor" ? "9876543210" : undefined, // Mock phone for tutors
+      isEmailVerified: false,
+      isPhoneVerified: false,
     };
 
     if (role === 'tutor') {
        mockUserData = {
         ...mockUserData,
-        subjects: [], // Initially empty for a new tutor
-        experience: '', // Initially empty
+        subjects: [], 
+        experience: '', 
       } as TutorProfile;
     }
     setUser(mockUserData);
@@ -93,6 +97,10 @@ export function useAuthMock() {
     login,
     signup,
     logout,
+    // Placeholder for actual verification update functions if needed later
+    // verifyEmail: () => setUser(prev => prev ? ({...prev, isEmailVerified: true}) : null),
+    // verifyPhone: () => setUser(prev => prev ? ({...prev, isPhoneVerified: true}) : null),
   };
 }
+
 

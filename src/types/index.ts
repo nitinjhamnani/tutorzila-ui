@@ -7,7 +7,10 @@ export interface User {
   email: string;
   role: UserRole;
   avatar?: string; // URL to avatar image
-  status?: "Active" | "Inactive"; // Added status
+  status?: "Active" | "Inactive"; 
+  phone?: string; // Added phone
+  isEmailVerified?: boolean; // Added email verification status
+  isPhoneVerified?: boolean; // Added phone verification status
 }
 
 export interface TuitionRequirement {
@@ -32,7 +35,7 @@ export interface TutorProfile extends User {
   hourlyRate?: string; 
   bio?: string;
   qualifications?: string;
-  teachingMode?: "Online" | "In-person" | "Hybrid"; // Added teachingMode
+  teachingMode?: "Online" | "In-person" | "Hybrid"; 
 }
 
 export interface Testimonial {
@@ -44,6 +47,7 @@ export interface Testimonial {
   rating: number; // e.g. 1-5
   date: string; // ISO date string for when the testimonial was given
 }
+
 
 
 

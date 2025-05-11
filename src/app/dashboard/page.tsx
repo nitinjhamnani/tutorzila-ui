@@ -9,17 +9,29 @@ import Image from "next/image";
 import Link from "next/link";
 import type { TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRef, type ChangeEvent } from "react"; 
+import { useRef, type ChangeEvent, useState } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+
 
 export default function DashboardPage() {
   const { user } = useAuthMock();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // OTP Modal State
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
+  const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
+
+  // Mock verification status
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+
 
   if (!user) {
     return <div className="text-center p-8">Loading user data or please sign in.</div>;
@@ -34,17 +46,35 @@ export default function DashboardPage() {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Simulate file upload
       console.log("Selected file:", file.name);
-      // In a real app, you would upload the file and update the user's avatar URL
       toast({
         title: "Profile Picture Updated (Mock)",
         description: `${file.name} selected. In a real app, this would be uploaded.`,
       });
-      // To visually update (mock):
-      // setUser({...user, avatar: URL.createObjectURL(file) }); // This would require setUser in useAuthMock
     }
   };
+  
+  const handleOpenOtpModal = (type: "email" | "phone") => {
+    if (!user) return;
+    setOtpVerificationType(type);
+    // For phone, you'd typically fetch/use a stored phone number. Using a placeholder for mock.
+    setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number"); 
+    setIsOtpModalOpen(true);
+  };
+
+  const handleOtpSuccess = () => {
+    if (otpVerificationType === "email") {
+      setIsEmailVerified(true);
+      // Toast is handled by the modal itself now
+    } else if (otpVerificationType === "phone") {
+      setIsPhoneVerified(true);
+      // Toast is handled by the modal itself now
+    }
+    setIsOtpModalOpen(false); 
+    setOtpVerificationType(null);
+    setOtpVerificationIdentifier(null);
+  };
+
 
   const actionCards = [];
 
@@ -73,7 +103,7 @@ export default function DashboardPage() {
         href="#"
         Icon={Activity}
         imageHint="activity chart"
-        showImage={true} // Explicitly show image for this card
+        showImage={true} 
         disabled
       />
     );
@@ -113,9 +143,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Card - Full Width for Tutors */}
       <div className={cn("grid gap-6", user.role === 'tutor' ? "md:grid-cols-1" : "md:grid-cols-3")}>
-         <Card className="border bg-card rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden md:col-span-1"> {/* Full width for tutor */}
+         <Card className="border bg-card rounded-lg shadow-sm animate-in fade-in duration-700 ease-out overflow-hidden md:col-span-1">
           <CardHeader className={cn("pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative")}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {user.role === 'tutor' && (
@@ -162,16 +191,30 @@ export default function DashboardPage() {
                 )}
                 {user.role === 'tutor' && (
                   <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                    <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
-                      <Link href="#">
-                        <MailCheck className="mr-1.5 h-3.5 w-3.5" /> Verify Email
-                      </Link>
-                    </Button>
-                    <Button variant="secondary" size="sm" asChild className="text-xs font-normal px-3 py-1.5 h-auto rounded-full text-primary underline hover:bg-secondary/90">
-                      <Link href="#">
-                        <PhoneCall className="mr-1.5 h-3.5 w-3.5" /> Verify Phone
-                      </Link>
-                    </Button>
+                     <Button
+                        variant="secondary"
+                        size="sm"
+                        className={cn("text-xs font-normal px-3 py-1.5 h-auto rounded-full hover:bg-secondary/90",
+                          isEmailVerified ? "text-green-600 border-green-500 bg-green-500/10 cursor-default" : "text-primary underline"
+                        )}
+                        onClick={() => !isEmailVerified && handleOpenOtpModal("email")}
+                        disabled={isEmailVerified}
+                      >
+                        {isEmailVerified ? <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> : <MailCheck className="mr-1.5 h-3.5 w-3.5" />}
+                        {isEmailVerified ? "Email Verified" : "Verify Email"}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className={cn("text-xs font-normal px-3 py-1.5 h-auto rounded-full hover:bg-secondary/90",
+                          isPhoneVerified ? "text-green-600 border-green-500 bg-green-500/10 cursor-default" : "text-primary underline"
+                        )}
+                        onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
+                        disabled={isPhoneVerified}
+                      >
+                        {isPhoneVerified ? <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> : <PhoneCall className="mr-1.5 h-3.5 w-3.5" />}
+                        {isPhoneVerified ? "Phone Verified" : "Verify Phone"}
+                      </Button>
                   </div>
                 )}
               </div>
@@ -223,7 +266,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Profile Management and Other Actions Row for Tutors (2-column grid) */}
       {user.role === 'tutor' && (
         <div className="grid gap-6 md:grid-cols-2"> 
           <div 
@@ -303,7 +345,6 @@ export default function DashboardPage() {
       )}
 
 
-      {/* General Action Cards (only for parent and admin) */}
       {(user.role === 'parent' || user.role === 'admin') && actionCards.length > 0 && (
          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {actionCards.map((card, index) => (
@@ -316,6 +357,16 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {otpVerificationType && otpVerificationIdentifier && (
+        <OtpVerificationModal
+          isOpen={isOtpModalOpen}
+          onOpenChange={setIsOtpModalOpen}
+          verificationType={otpVerificationType}
+          identifier={otpVerificationIdentifier}
+          onSuccess={handleOtpSuccess}
+        />
       )}
     </div>
   );
@@ -383,7 +434,7 @@ function ActionCard({
   
 
   return (
-    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-md hover:shadow-lg overflow-hidden">
+    <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-sm hover:shadow-lg overflow-hidden">
       {showImage && imageHint && (
         <div className="overflow-hidden rounded-t-lg relative">
           <Image
@@ -435,7 +486,7 @@ function ActionCard({
         )}
       </CardContent>
       {!buttonInContent && href && ( 
-         <CardContent className="p-4 md:p-5 border-t bg-muted/20"> {/* Changed CardFooter to CardContent for consistency */}
+         <CardContent className="p-4 md:p-5 border-t bg-muted/20"> 
           {renderSingleButton(actionButtonText || title, href, disabled, ActionButtonIcon)}
         </CardContent>
       )}
