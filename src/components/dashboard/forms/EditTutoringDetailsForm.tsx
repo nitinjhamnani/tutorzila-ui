@@ -88,6 +88,8 @@ const tutoringDetailsSchema = z.object({
 
 type TutoringDetailsFormValues = z.infer<typeof tutoringDetailsSchema>;
 
+const ensureArray = (value: any): string[] => Array.isArray(value) ? value : [];
+
 export function EditTutoringDetailsForm() {
   const { user, isAuthenticated } = useAuthMock();
   const tutorUser = user as TutorProfile | null;
@@ -96,13 +98,13 @@ export function EditTutoringDetailsForm() {
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
     defaultValues: {
-      subjects: tutorUser?.subjects || [],
-      gradeLevelsTaught: tutorUser?.gradeLevelsTaught || [],
-      boardsTaught: tutorUser?.boardsTaught || [],
-      preferredDays: tutorUser?.preferredDays || [],
-      preferredTimeSlots: tutorUser?.preferredTimeSlots || [],
-      teachingMode: tutorUser?.teachingMode || [],
-      qualifications: tutorUser?.qualifications || [],
+      subjects: ensureArray(tutorUser?.subjects),
+      gradeLevelsTaught: ensureArray(tutorUser?.gradeLevelsTaught),
+      boardsTaught: ensureArray(tutorUser?.boardsTaught),
+      preferredDays: ensureArray(tutorUser?.preferredDays),
+      preferredTimeSlots: ensureArray(tutorUser?.preferredTimeSlots),
+      teachingMode: ensureArray(tutorUser?.teachingMode),
+      qualifications: ensureArray(tutorUser?.qualifications),
       experience: tutorUser?.experience || "",
       hourlyRate: tutorUser?.hourlyRate || "",
       bio: tutorUser?.bio || "",
@@ -113,13 +115,13 @@ export function EditTutoringDetailsForm() {
   React.useEffect(() => {
     if (tutorUser) {
       form.reset({
-        subjects: tutorUser.subjects || [],
-        gradeLevelsTaught: tutorUser.gradeLevelsTaught || [],
-        boardsTaught: tutorUser.boardsTaught || [],
-        preferredDays: tutorUser.preferredDays || [],
-        preferredTimeSlots: tutorUser.preferredTimeSlots || [],
-        teachingMode: tutorUser.teachingMode || [],
-        qualifications: tutorUser.qualifications || [],
+        subjects: ensureArray(tutorUser.subjects),
+        gradeLevelsTaught: ensureArray(tutorUser.gradeLevelsTaught),
+        boardsTaught: ensureArray(tutorUser.boardsTaught),
+        preferredDays: ensureArray(tutorUser.preferredDays),
+        preferredTimeSlots: ensureArray(tutorUser.preferredTimeSlots),
+        teachingMode: ensureArray(tutorUser.teachingMode),
+        qualifications: ensureArray(tutorUser.qualifications),
         experience: tutorUser.experience || "",
         hourlyRate: tutorUser.hourlyRate || "",
         bio: tutorUser.bio || "",

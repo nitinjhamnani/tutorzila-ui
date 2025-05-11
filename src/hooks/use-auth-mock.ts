@@ -16,6 +16,13 @@ const userAtom = atomWithStorage<User | null>("mock_user", initialUser, {
   ...localStorageJSONStorage,
 });
 
+const ensureArrayField = (value: any): string[] => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') return value.split(',').map(item => item.trim()).filter(item => item);
+  return [];
+};
+
+
 export function useAuthMock() {
   const [user, setUser] = useAtom(userAtom);
   const router = useRouter();
@@ -60,34 +67,29 @@ export function useAuthMock() {
       );
 
       if (existingMockTutor) {
-        // Ensure all array fields are indeed arrays, and handle string-to-array conversion for qualifications
         finalUserData = { 
           ...existingMockTutor,
-          subjects: Array.isArray(existingMockTutor.subjects) ? existingMockTutor.subjects : [],
-          qualifications: Array.isArray(existingMockTutor.qualifications) 
-            ? existingMockTutor.qualifications 
-            : (typeof existingMockTutor.qualifications === 'string' ? existingMockTutor.qualifications.split(',').map(q => q.trim()).filter(q => q) : []),
-          teachingMode: Array.isArray(existingMockTutor.teachingMode) 
-            ? existingMockTutor.teachingMode 
-            : (typeof existingMockTutor.teachingMode === 'string' ? [existingMockTutor.teachingMode] : []),
-          gradeLevelsTaught: Array.isArray(existingMockTutor.gradeLevelsTaught) ? existingMockTutor.gradeLevelsTaught : [],
-          boardsTaught: Array.isArray(existingMockTutor.boardsTaught) ? existingMockTutor.boardsTaught : [],
-          preferredDays: Array.isArray(existingMockTutor.preferredDays) ? existingMockTutor.preferredDays : [],
-          preferredTimeSlots: Array.isArray(existingMockTutor.preferredTimeSlots) ? existingMockTutor.preferredTimeSlots : [],
+          subjects: ensureArrayField(existingMockTutor.subjects),
+          qualifications: ensureArrayField(existingMockTutor.qualifications),
+          teachingMode: ensureArrayField(existingMockTutor.teachingMode),
+          gradeLevelsTaught: ensureArrayField(existingMockTutor.gradeLevelsTaught),
+          boardsTaught: ensureArrayField(existingMockTutor.boardsTaught),
+          preferredDays: ensureArrayField(existingMockTutor.preferredDays),
+          preferredTimeSlots: ensureArrayField(existingMockTutor.preferredTimeSlots),
         };
       } else {
         // Create a new tutor profile with default/derived values if no match found
         finalUserData = {
-          ...baseUserData, // Spread base user data
-          role: 'tutor', // Explicitly set role to tutor
+          ...baseUserData, 
+          role: 'tutor', 
           subjects: ['Mathematics', 'Physics'], 
           experience: '1-3 years',
-          grade: 'High School', // Added default grade
+          grade: 'High School', 
           hourlyRate: "1000",
           bio: "A passionate and dedicated tutor.",
-          qualifications: ["Relevant degree and certifications."], 
-          teachingMode: ["online"],
-          phone: baseUserData.phone || "9876543210", // Ensure phone is included
+          qualifications: ["Relevant degree"], 
+          teachingMode: ["Online"],
+          phone: baseUserData.phone || "9876543210",
           gradeLevelsTaught: ["Grade 9-10", "Grade 11-12"],
           boardsTaught: ["CBSE"],
           preferredDays: ["Weekdays"],
@@ -98,7 +100,7 @@ export function useAuthMock() {
        finalUserData = {
         ...baseUserData,
         role: 'admin',
-        name: 'Admin User', // Specific name for admin
+        name: 'Admin User', 
       };
     } else { // Parent
       finalUserData = {
@@ -136,7 +138,7 @@ export function useAuthMock() {
         hourlyRate: '',
         bio: '',
         qualifications: [], 
-        teachingMode: ['online'], 
+        teachingMode: ['Online'], 
         gradeLevelsTaught: [],
         boardsTaught: [],
         preferredDays: [],
@@ -149,6 +151,7 @@ export function useAuthMock() {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("mock_user"); // Ensure local storage is also cleared
     router.push("/"); 
   };
 
