@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -168,7 +167,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                 <Info className="w-4 h-4 mr-2 text-primary/80" />
                 Additional Notes
               </h3>
-              <p className="text-xs text-muted-foreground pl-6 whitespace-pre-wrap">{requirement.additionalNotes}</p>
+              <p className="text-[11px] text-muted-foreground pl-6 whitespace-pre-wrap">{requirement.additionalNotes}</p>
             </section>
           </>
         )}
@@ -281,7 +280,7 @@ function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
         {Icon && <Icon className="w-3 h-3 mr-1.5 text-primary/70" />}
         {label}
       </span>
-      {value && <p className="text-xs text-foreground/90">{value}</p>}
+      {value && <p className="text-[11px] text-foreground/90">{value}</p>}
       {children}
     </div>
   );
