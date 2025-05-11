@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -28,6 +27,7 @@ import {
   Phone,
   Lock,
   Unlock,
+  CheckCircle, // Added CheckCircle import
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,7 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter, // Added DialogFooter
+  DialogFooter, 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -285,6 +285,3 @@ function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
     </div>
   );
 }
-
-
-
