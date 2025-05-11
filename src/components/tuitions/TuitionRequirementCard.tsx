@@ -25,7 +25,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
 
-  const initials = getInitials(requirement.subject); 
+  const subjectInitials = getInitials(requirement.subject); 
 
   return (
     <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden">
@@ -33,7 +33,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md">
-              {initials}
+              {subjectInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
@@ -54,12 +54,15 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
       </CardContent>
       <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-end"> {/* justify-end to move button to right, reduced padding */}
         <Button 
-          size="sm" // Smaller button size
-          variant="default" // Changed variant for different styling
-          className="transform transition-transform hover:scale-105 active:scale-95 text-xs py-2 px-3 shadow-sm hover:shadow-md" // Adjusted text size, padding, and shadow
+          size="sm" 
+          variant="outline"
+          className={cn(
+            "transform transition-transform hover:scale-105 active:scale-95 text-xs py-2 px-3 shadow-sm hover:shadow-md",
+            "bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground"
+          )}
         >
-          <Eye className="w-3.5 h-3.5 mr-1.5" />  {/* Changed icon to Eye, adjusted size */}
-          View Details
+          <Eye className="w-3.5 h-3.5 mr-1.5" />
+          View & Apply
         </Button>
       </CardFooter>
     </Card>
@@ -88,3 +91,4 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
     </div>
   );
 }
+
