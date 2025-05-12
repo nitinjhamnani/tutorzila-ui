@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -7,11 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TutorProfileCard } from "./TutorProfileCard";
-import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter as LucideFilter, ListFilter, Users2, Briefcase, CheckSquare, ListChecks, ChevronDown } from "lucide-react"; 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter as LucideFilter, ListFilter } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
   AccordionContent,
@@ -29,9 +27,8 @@ export function TutorProfileSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [experienceFilter, setExperienceFilter] = useState("All");
-  const [gradeFilter, setGradeFilter] = useState("All"); 
+  const [gradeFilter, setGradeFilter] = useState("All");
   const [tutorProfiles, setTutorProfiles] = useState<TutorProfile[]>([]);
-  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     setTutorProfiles(MOCK_TUTOR_PROFILES);
@@ -61,19 +58,12 @@ export function TutorProfileSearch() {
     setGradeFilter("All");
   };
 
-  const tabCounts = {
-    all: filteredTutorProfiles.length,
-    requests: 0,
-    accepted: 0,
-    shortlisted: 0,
-  };
-
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Changed to single column grid for vertical list */}
+        <div className="grid grid-cols-1 gap-4 md:gap-5">
           {profiles.map((tutor, index) => (
-            <div 
+            <div
               key={tutor.id}
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
@@ -90,7 +80,7 @@ export function TutorProfileSearch() {
           <ListFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" />
           <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Tutors Found</p>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            There are no tutors matching your current filters in this category. Try adjusting your search or check back later.
+            There are no tutors matching your current filters. Try adjusting your search or check back later.
           </p>
            <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-5">
             <XIcon className="w-3.5 h-3.5 mr-1.5" />
@@ -116,9 +106,9 @@ export function TutorProfileSearch() {
       <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjectsList} />
       <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevelsList} />
       <FilterItem icon={Star} label="Experience" value={experienceFilter} onValueChange={setExperienceFilter} options={experienceLevelsList} />
-      <Button 
-        onClick={resetFilters} 
-        variant="outline" 
+      <Button
+        onClick={resetFilters}
+        variant="outline"
         size="sm"
         className="w-full bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground transform transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-2 text-sm py-2 px-3 mt-4"
       >
@@ -130,7 +120,7 @@ export function TutorProfileSearch() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
@@ -169,38 +159,7 @@ export function TutorProfileSearch() {
 
         {/* Main Content (Right) */}
         <main className="flex-1 space-y-6">
-           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-             <ScrollArea className="w-full whitespace-nowrap">
-              <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
-                <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                  <Users className="w-3.5 h-3.5"/> All Tutors ({tabCounts.all})
-                </TabsTrigger>
-                <TabsTrigger value="requests" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5"/> My Requests ({tabCounts.requests})
-                </TabsTrigger>
-                <TabsTrigger value="accepted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                   <CheckSquare className="w-3.5 h-3.5"/> Accepted ({tabCounts.accepted})
-                </TabsTrigger>
-                <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
-                  <ListChecks className="w-3.5 h-3.5"/> Shortlisted ({tabCounts.shortlisted})
-                </TabsTrigger>
-              </TabsList>
-              <ScrollBar orientation="horizontal" className="h-2 mt-1" />
-            </ScrollArea>
-
-            <TabsContent value="all" className="mt-6">
-              {renderTutorList(filteredTutorProfiles)}
-            </TabsContent>
-            <TabsContent value="requests" className="mt-6">
-              {renderTutorList([])} 
-            </TabsContent>
-            <TabsContent value="accepted" className="mt-6">
-              {renderTutorList([])}
-            </TabsContent>
-            <TabsContent value="shortlisted" className="mt-6">
-              {renderTutorList([])}
-            </TabsContent>
-          </Tabs>
+           {renderTutorList(filteredTutorProfiles)}
         </main>
       </div>
     </div>
@@ -223,8 +182,8 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
         <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label}
       </label>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger 
-          id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
+        <SelectTrigger
+          id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`}
           className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs"
         >
           <SelectValue />
@@ -238,4 +197,3 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
-
