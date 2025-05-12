@@ -1,6 +1,6 @@
 
 
-"use client"; // Added for useState and client-side interaction
+"use client"; 
 
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link"; 
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added useEffect
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -35,10 +35,17 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
 
   const parentInitials = getInitials(requirement.parentName); 
   const [isShortlisted, setIsShortlisted] = useState(false);
+  const [mockViewsCount, setMockViewsCount] = useState<number | null>(null); // For client-side rendering
+
+  useEffect(() => {
+    // Generate mockViewsCount only on the client-side to avoid hydration mismatch
+    setMockViewsCount(Math.floor(Math.random() * 150) + 20); // Example: 20-169 views
+  }, []);
+
 
   const handleShortlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation if card is wrapped in a link
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault(); 
+    e.stopPropagation(); 
     setIsShortlisted(!isShortlisted);
     toast({
       title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
@@ -83,23 +90,24 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
         )}
-         {requirement.applicantsCount !== undefined && (
-          <InfoItem icon={UserCheck} label="Applicants" value={String(requirement.applicantsCount)} />
+        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+            <InfoItem icon={Presentation} label="Mode" value={requirement.teachingMode.join(', ')} />
+        )}
+        {requirement.location && (
+            <InfoItem icon={MapPin} label="Location" value={requirement.location} />
         )}
       </CardContent>
       <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-between items-center">
-        <div className="flex flex-col sm:flex-row gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-          {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-            <div className="flex items-center">
-              <Presentation className="w-3 h-3 mr-1 text-primary/70 shrink-0" />
-              <span>{requirement.teachingMode.join(', ')}</span>
-            </div>
+        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
+          {mockViewsCount !== null && (
+            <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
+              <Eye className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {mockViewsCount} Views
+            </Badge>
           )}
-          {requirement.location && (
-             <div className="flex items-center">
-              <MapPin className="w-3 h-3 mr-1 text-primary/70 shrink-0" />
-              <span>{requirement.location}</span>
-            </div>
+          {requirement.applicantsCount !== undefined && requirement.applicantsCount > 0 && (
+            <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
+              <UserCheck className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Applied
+            </Badge>
           )}
         </div>
         <Button 
@@ -112,8 +120,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
           )}
         >
           <Link href={`/dashboard/enquiries/${requirement.id}`}> 
-            <Eye className="w-3 h-3 mr-1.5" /> 
-            View & Apply
+            Apply Now
           </Link>
         </Button>
       </CardFooter>

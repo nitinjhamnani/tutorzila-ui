@@ -29,7 +29,7 @@ import {
   Unlock,
   CheckCircle, 
   Bookmark,
-  Users as UsersIcon, // Renamed Users to UsersIcon to avoid conflict with User icon
+  Users as UsersIcon, 
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -65,10 +65,9 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const formattedPostedDate = format(postedDate, "MMMM d, yyyy 'at' h:mm a");
   const { toast } = useToast();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [isApplied, setIsApplied] = useState(false); // Mock application status
-  const [isShortlisted, setIsShortlisted] = useState(false); // Added for shortlist
+  const [isApplied, setIsApplied] = useState(false); 
+  const [isShortlisted, setIsShortlisted] = useState(false); 
 
-  // Mock parent contact details
   const mockParentEmail = `${requirement.parentName?.toLowerCase().replace(/\s+/g, '.')}@example.com`;
   const mockParentPhone = `+91-98765XXXXX`; 
 
@@ -117,7 +116,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
 
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
-      <CardHeader className="bg-muted/30 p-4 md:p-5 border-b relative"> {/* Added relative positioning */}
+      <CardHeader className="bg-muted/30 p-4 md:p-5 border-b relative"> 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="flex-grow">
             {requirement.parentName && (
@@ -129,24 +128,23 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
               Posted {timeAgo} (on {formattedPostedDate})
             </CardDescription>
           </div>
-          {/* Removed status badge */}
            <Button
             variant="ghost"
             size="icon"
             className={cn(
-              "absolute top-3 right-3 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full", // Adjusted positioning and size
+              "absolute top-3 right-3 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full", 
               isShortlisted && "text-primary"
             )}
             onClick={handleShortlistToggle}
             title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
           >
-            <Bookmark className={cn("h-4.5 w-4.5 transition-colors", isShortlisted && "fill-primary")} /> {/* Adjusted icon size */}
+            <Bookmark className={cn("h-4.5 w-4.5 transition-colors", isShortlisted && "fill-primary")} /> 
           </Button>
         </div>
       </CardHeader>
 
       <CardContent className="p-4 md:p-5 space-y-4">
-        {/* Tutoring Requirements */}
+        
         <section className="space-y-2">
           <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
             <BookOpen className="w-4 h-4 mr-2 text-primary/80" />
@@ -164,7 +162,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
 
         <Separator />
 
-        {/* Schedule & Location */}
+        
         <section className="space-y-2">
           <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
             <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
