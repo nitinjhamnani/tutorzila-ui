@@ -64,11 +64,11 @@ export function TutorProfileSearch() {
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5"> {/* Responsive grid */}
+        <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Changed to grid-cols-1 for vertical listing */}
           {profiles.map((tutor, index) => (
             <div
               key={tutor.id}
-              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full" // Added h-full here
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
               <TutorProfileCard tutor={tutor} />
