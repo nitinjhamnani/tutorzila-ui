@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -70,7 +71,7 @@ export function TutorProfileSearch() {
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Changed to single column grid for vertical list */}
           {profiles.map((tutor, index) => (
             <div 
               key={tutor.id}
@@ -130,17 +131,6 @@ export function TutorProfileSearch() {
 
   return (
     <div className="space-y-6">
-       <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden">
-        <CardHeader className="p-5 md:p-6">
-          <CardTitle className="text-2xl md:text-3xl font-semibold text-primary tracking-tight flex items-center">
-            <Users2 className="w-7 h-7 md:w-8 md:h-8 mr-2.5"/>Find Your Ideal Tutor
-          </CardTitle>
-           <CardDescription className="text-sm md:text-base text-foreground/70 mt-1">
-            Browse profiles, filter by expertise, and connect with qualified educators.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
