@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -44,7 +43,9 @@ export default function MyRequirementsPage() {
             </div>
             <Button asChild className="transform transition-transform hover:scale-105 active:scale-95 shadow-sm text-sm py-2 px-4"> {/* Reduced text size and padding, reduced shadow */}
               <Link href="/dashboard/post-requirement">
-                <PlusCircle className="mr-1.5 h-4 w-4" /> Post New Requirement {/* Reduced icon size and margin */}
+                <span className="flex items-center">
+                  <PlusCircle className="mr-1.5 h-4 w-4" /> Post New Requirement {/* Reduced icon size and margin */}
+                </span>
               </Link>
             </Button>
           </div>
@@ -82,7 +83,9 @@ export default function MyRequirementsPage() {
             </p>
              <Button asChild className="mt-6 transform transition-transform hover:scale-105 active:scale-95 text-sm py-2 px-4"> {/* Reduced text size and padding */}
               <Link href="/dashboard/post-requirement">
-                <PlusCircle className="mr-1.5 h-4 w-4" /> Post Your First Requirement {/* Reduced icon size */}
+                <span className="flex items-center">
+                  <PlusCircle className="mr-1.5 h-4 w-4" /> Post Your First Requirement {/* Reduced icon size */}
+                </span>
               </Link>
             </Button>
           </CardContent>
