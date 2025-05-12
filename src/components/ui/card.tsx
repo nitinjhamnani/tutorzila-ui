@@ -10,7 +10,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm", // Base shadow, can be overridden
+      "rounded-lg border bg-card text-card-foreground shadow-md", // Changed from shadow-sm to shadow-md for a bit more depth
       className
     )}
     {...props}
@@ -31,13 +31,13 @@ const CardHeader = React.forwardRef<
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
-  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLHeadingElement to HTMLDivElement
+  HTMLDivElement, 
+  React.HTMLAttributes<HTMLDivElement> 
 >(({ className, ...props }, ref) => (
-  <div // Changed from h5 to div for flexibility
+  <div 
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight", // Kept original styling classes
+      "text-2xl font-semibold leading-none tracking-tight", 
       className
     )}
     {...props}
@@ -46,12 +46,12 @@ const CardTitle = React.forwardRef<
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<
-  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLParagraphElement to HTMLDivElement
+  HTMLDivElement, 
+  React.HTMLAttributes<HTMLDivElement> 
 >(({ className, ...props }, ref) => (
-  <div // Changed from p to div for flexibility
+  <div 
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)} // text-foreground/80 changed to text-muted-foreground
+    className={cn("text-sm text-muted-foreground", className)} 
     {...props}
   />
 ))

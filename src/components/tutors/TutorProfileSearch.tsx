@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TutorProfileCard } from "./TutorProfileCard";
-import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter as LucideFilter, ListFilter, RadioTower, MapPin } from "lucide-react"; // Added RadioTower, MapPin
+import { SearchIcon, XIcon, BookOpen, Users, GraduationCap, Filter as LucideFilter, ListFilter, RadioTower, MapPin, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,27 +19,27 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider"; // Added Slider import
 
 const allSubjectsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i).map(s => ({value: s, label: s}));
-const experienceLevelsList: {value: string, label: string}[] = ["All", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"].map(e => ({value: e, label: e}));
 const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])))].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
 
 const modeOptionsList: { value: string; label: string }[] = [
   { value: "All", label: "All Modes" },
   { value: "Online", label: "Online" },
-  { value: "StudentHome", label: "Student's Home" },
-  { value: "TutorHome", label: "Tutor's Home" },
-  { value: "Hybrid", label: "Hybrid (Online & In-person)" },
+  { value: "StudentHome", label: "At Student's Home" },
+  { value: "TutorHome", label: "At Tutor's Home" },
+  { value: "Both", label: "Both (Online & In-person)" },
 ];
 
 
 export function TutorProfileSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("All");
-  const [experienceFilter, setExperienceFilter] = useState("All");
   const [gradeFilter, setGradeFilter] = useState("All");
   const [modeFilter, setModeFilter] = useState("All");
   const [locationSearchTerm, setLocationSearchTerm] = useState("");
+  const [feeRange, setFeeRange] = useState<[number, number]>([200, 2000]);
   const [tutorProfiles, setTutorProfiles] = useState<TutorProfile[]>([]);
 
   useEffect(() => {
@@ -59,36 +59,42 @@ export function TutorProfileSearch() {
         (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.some(gl => gl.toLowerCase().includes(searchTermLower)));
       
       const matchesSubject = subjectFilter === "All" || tutor.subjects.includes(subjectFilter);
-      const matchesExperience = experienceFilter === "All" || tutor.experience === experienceFilter;
       const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(gradeFilter));
 
       let matchesMode = true;
       if (modeFilter !== "All") {
-        const teachingModes = tutor.teachingMode || [];
+        const tutorTeachingModes = Array.isArray(tutor.teachingMode) ? tutor.teachingMode : [];
+        const offersOnline = tutorTeachingModes.includes("Online");
+        const offersInPerson = tutorTeachingModes.includes("Offline (In-person)") || tutorTeachingModes.includes("In-person");
+
         if (modeFilter === "Online") {
-          matchesMode = teachingModes.includes("Online");
+          matchesMode = offersOnline;
         } else if (modeFilter === "StudentHome") {
-          matchesMode = teachingModes.includes("Offline (In-person)") && tutor.location?.toLowerCase().includes("student's home");
+          matchesMode = offersInPerson && tutor.location?.toLowerCase().includes("student's home");
         } else if (modeFilter === "TutorHome") {
-          matchesMode = teachingModes.includes("Offline (In-person)") && tutor.location?.toLowerCase().includes("tutor's home");
-        } else if (modeFilter === "Hybrid") {
-          matchesMode = teachingModes.includes("Online") && teachingModes.includes("Offline (In-person)");
+          matchesMode = offersInPerson && tutor.location?.toLowerCase().includes("tutor's home");
+        } else if (modeFilter === "Both") {
+          matchesMode = offersOnline && offersInPerson;
         }
       }
 
       const matchesLocationSearch = locationSearchTerm === "" || (tutor.location && tutor.location.toLowerCase().includes(locationSearchTermLower));
+      
+      const tutorRate = parseFloat(tutor.hourlyRate || "");
+      const matchesFee = isNaN(tutorRate) ? false : (tutorRate >= feeRange[0] && tutorRate <= feeRange[1]);
 
-      return matchesSearchTerm && matchesSubject && matchesExperience && matchesGrade && matchesMode && matchesLocationSearch;
+
+      return matchesSearchTerm && matchesSubject && matchesGrade && matchesMode && matchesLocationSearch && matchesFee;
     });
-  }, [searchTerm, subjectFilter, experienceFilter, gradeFilter, modeFilter, locationSearchTerm, tutorProfiles]);
+  }, [searchTerm, subjectFilter, gradeFilter, modeFilter, locationSearchTerm, feeRange, tutorProfiles]);
 
   const resetFilters = () => {
     setSearchTerm("");
     setSubjectFilter("All");
-    setExperienceFilter("All");
     setGradeFilter("All");
     setModeFilter("All");
     setLocationSearchTerm("");
+    setFeeRange([200, 2000]);
   };
 
   const renderTutorList = (profiles: TutorProfile[]) => {
@@ -130,7 +136,7 @@ export function TutorProfileSearch() {
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search by name, subject, keyword..."
+          placeholder="Search by name, subject..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-xs hover:shadow-sm focus:shadow-md rounded-lg"
@@ -150,9 +156,26 @@ export function TutorProfileSearch() {
           className="h-9 text-xs bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
         />
       </div>
+       <div className="space-y-2.5 pt-1">
+        <Label htmlFor="fee-range-filter" className="text-xs font-medium text-muted-foreground flex items-center">
+          <DollarSign className="w-3.5 h-3.5 mr-1.5 text-primary/70" />
+          Fee Range (per hour)
+        </Label>
+        <div className="text-xs text-foreground/80 font-medium text-center pb-1">
+          ₹{feeRange[0]} – ₹{feeRange[1]}
+        </div>
+        <Slider
+          id="fee-range-filter"
+          min={200}
+          max={2000}
+          step={50}
+          value={feeRange}
+          onValueChange={(value: number[]) => setFeeRange(value as [number, number])}
+          className="w-full"
+        />
+      </div>
       <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjectsList} />
       <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevelsList} />
-      <FilterItem icon={Star} label="Experience" value={experienceFilter} onValueChange={setExperienceFilter} options={experienceLevelsList} />
       <Button
         onClick={resetFilters}
         variant="outline"
@@ -171,7 +194,7 @@ export function TutorProfileSearch() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
-          <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-sm overflow-hidden">
+          <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-md overflow-hidden"> {/* Applied shadow-md */}
             <AccordionItem value="filters" className="border-b-0">
               <AccordionTrigger className="w-full hover:no-underline px-4 py-3 data-[state=open]:border-b data-[state=open]:border-border/30">
                 <div className="flex flex-row justify-between items-center w-full">
@@ -191,7 +214,7 @@ export function TutorProfileSearch() {
         </div>
 
         <aside className="lg:w-[300px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block">
-          <Card className="bg-card border rounded-lg shadow-sm">
+          <Card className="bg-card border rounded-lg shadow-md"> {/* Applied shadow-md */}
             <CardHeader className="pb-4 border-b border-border/30">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <LucideFilter className="w-5 h-5 mr-2.5"/>
@@ -244,4 +267,3 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
-
