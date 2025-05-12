@@ -4,7 +4,7 @@
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin } from "lucide-react";
+import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,7 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
   return (
     <div className={cn("flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors", className)}>
       <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 group-hover:text-primary/90 transition-colors shrink-0" />
-      <span className="truncate text-[12.5px] font-medium">{displayText}</span> {/* Increased font-weight to medium */}
+      <span className="truncate text-[12.5px] font-medium">{displayText}</span>
     </div>
   );
 };
@@ -45,8 +45,6 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
       ? tutor.teachingMode.map(mode => mode.replace(" (In-person)", "")).join(' & ')
       : "Not Specified";
       
-  const isOfflineTutor = Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("In-person");
-
 
   return (
     <Link href={`/tutors/${tutor.id}`} passHref legacyBehavior>
@@ -79,7 +77,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
               </div>
             </div>
             <div className="flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors shrink-0 ml-2 mt-1">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-1" />
+              <Star className="w-3.5 h-3.5 fill-primary text-primary mr-1" />
               <span>{typeof rating === 'number' ? rating.toFixed(1) : 'N/A'} ({mockReviewCount})</span>
             </div>
           </CardHeader>
@@ -87,14 +85,14 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           <CardContent className="p-0 space-y-2.5 flex-grow">
             <InfoItem icon={BookOpen} text={tutor.subjects} />
             {tutor.grade && <InfoItem icon={GraduationCap} text={tutor.grade} />}
-            {tutor.experience && <InfoItem icon={Laptop} text={tutor.experience} />}
+            {tutor.experience && <InfoItem icon={Briefcase} text={tutor.experience} />} 
           </CardContent>
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">
-            {isOfflineTutor && tutor.location && (
+            {tutor.location && (
               <InfoItem icon={MapPin} text={tutor.location} className="text-[11.5px]" />
             )}
-            {!isOfflineTutor && <div />} {/* Placeholder to keep space if not offline tutor */}
+            {!tutor.location && <div />} {/* Placeholder to keep space if no location */}
             
             {tutor.hourlyRate && (
               <Badge variant="outline" className="text-[11.5px] py-1 px-2.5 border-primary/40 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
