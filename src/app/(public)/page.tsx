@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, BookUser } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap } from "lucide-react"; // Added GraduationCap
+// BookUser was removed as it's not defined at runtime
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -228,7 +229,7 @@ export default function HomePage() {
             <Carousel
               opts={{
                 align: "start",
-                loop: MOCK_TUTOR_PROFILES.length > 3, // Loop if more tutors than can be shown (e.g. >3 for md screens)
+                loop: MOCK_TUTOR_PROFILES.length > 3, 
               }}
               className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
             >
@@ -275,7 +276,7 @@ export default function HomePage() {
                  <div className="flex justify-center lg:justify-start mt-6">
                     <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                       <Link href="/sign-up"> 
-                        <BookUser className="mr-2.5 h-5 w-5" /> Start Teaching Today
+                        <GraduationCap className="mr-2.5 h-5 w-5" /> Start Teaching Today
                       </Link>
                     </Button>
                   </div>
@@ -354,6 +355,8 @@ export default function HomePage() {
 }
 
     
+
+
 
 
 

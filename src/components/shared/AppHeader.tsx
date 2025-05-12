@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -15,16 +16,16 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent,
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  DialogTitle, // This is DialogTitle from ui/dialog
+  // DialogTrigger is removed from here as it was causing an error, will use Dialog.Trigger directly if needed or ensure correct import
+} from "@/components/ui/dialog"; // DialogTrigger was removed from this specific import
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -69,7 +70,8 @@ export function AppHeader() {
   const findTutorButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
     "border-primary text-primary hover:bg-primary/10",
-    isScrolled ? "border-primary text-primary hover:bg-primary/10" : "border-card-foreground text-card-foreground hover:bg-white/10"
+    // isScrolled ? "border-primary text-primary hover:bg-primary/10" : "border-card-foreground text-card-foreground hover:bg-white/10"
+     isScrolled || pathname !== "/" ? "border-primary text-primary hover:bg-primary/10" : "border-card text-card hover:bg-card/80" // Updated for transparent header
   );
 
   const navButtonClasses = cn(
@@ -94,19 +96,55 @@ export function AppHeader() {
         <nav className="hidden items-center space-x-1 md:flex">
            {isAuthenticated && user && user.role === 'tutor' && (
              <>
-               <Button asChild variant="ghost" className={navButtonClasses}>
+               <Button
+                 asChild
+                 variant="ghost"
+                 className={cn(
+                   "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
+                   pathname === "/dashboard"
+                     ? "bg-primary text-primary-foreground shadow-sm"
+                     : isScrolled
+                       ? "text-foreground hover:bg-muted/60"
+                       : "text-card-foreground hover:bg-white/15",
+                    pathname !== "/dashboard" && (isScrolled ? "border border-transparent hover:border-primary/20" : "border border-transparent hover:border-white/20")
+                 )}
+               >
                  <Link href="/dashboard">
-                   <UserCircle className="mr-2 h-4 w-4" /> My Profile
+                   <UserCircle className="h-4 w-4" /> My Profile
                  </Link>
                </Button>
-               <Button asChild variant="ghost" className={navButtonClasses}>
+               <Button
+                 asChild
+                 variant="ghost"
+                 className={cn(
+                   "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
+                   pathname === "/dashboard/enquiries"
+                     ? "bg-primary text-primary-foreground shadow-sm"
+                     : isScrolled
+                       ? "text-foreground hover:bg-muted/60"
+                       : "text-card-foreground hover:bg-white/15",
+                   pathname !== "/dashboard/enquiries" && (isScrolled ? "border border-transparent hover:border-primary/20" : "border border-transparent hover:border-white/20")
+                 )}
+               >
                  <Link href="/dashboard/enquiries">
-                   <ClipboardList className="mr-2 h-4 w-4" /> My Enquiries
+                   <ClipboardList className="h-4 w-4" /> My Enquiries
                  </Link>
                </Button>
-               <Button asChild variant="ghost" className={navButtonClasses}>
-                 <Link href="/dashboard/my-classes"> {/* Assuming this path */}
-                   <UsersRound className="mr-2 h-4 w-4" /> My Classes
+               <Button
+                 asChild
+                 variant="ghost"
+                 className={cn(
+                   "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
+                   pathname === "/dashboard/my-classes" // Assuming this is the correct path
+                     ? "bg-primary text-primary-foreground shadow-sm"
+                     : isScrolled
+                       ? "text-foreground hover:bg-muted/60"
+                       : "text-card-foreground hover:bg-white/15",
+                   pathname !== "/dashboard/my-classes" && (isScrolled ? "border border-transparent hover:border-primary/20" : "border border-transparent hover:border-white/20")
+                 )}
+               >
+                 <Link href="/dashboard/my-classes"> 
+                   <UsersRound className="h-4 w-4" /> My Classes
                  </Link>
                </Button>
              </>
@@ -128,11 +166,11 @@ export function AppHeader() {
                   <Link href="/search-tuitions">Find Tutors</Link>
                 </Button>
                 <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
-                  <DialogTrigger asChild>
+                  <Dialog.Trigger asChild>
                     <Button className={actionButtonClass}>Sign In</Button>
-                  </DialogTrigger>
+                  </Dialog.Trigger>
                   <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                     <DialogHeader className="sr-only">
+                     <DialogHeader className="sr-only"> {/* Added for accessibility */}
                        <DialogTitle>Sign In to Tutorzila</DialogTitle>
                      </DialogHeader>
                     <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
@@ -266,11 +304,11 @@ export function AppHeader() {
                         setSignInModalOpen(isOpen);
                         if(isOpen) setMobileMenuOpen(false); 
                       }}>
-                        <DialogTrigger asChild>
+                        <Dialog.Trigger asChild>
                            <Button variant="ghost" className={mobileButtonClass}>
                             <LogIn className="h-5 w-5 text-primary" /> Sign In
                           </Button>
-                        </DialogTrigger>
+                        </Dialog.Trigger>
                         <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
                            <DialogHeader className="sr-only"> 
                              <DialogTitle>Sign In to Tutorzila</DialogTitle>
