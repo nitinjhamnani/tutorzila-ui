@@ -4,16 +4,24 @@ import type { User, UserRole, TutorProfile } from "@/types";
 import { useRouter } from "next/navigation";
 import { useAtom } from "jotai";
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; // Added useState
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
 
 const initialUser: User | null = null;
 
-const localStorageJSONStorage = createJSONStorage<User | null>(() => localStorage);
-
-const userAtom = atomWithStorage<User | null>("mock_user", initialUser, {
-  ...localStorageJSONStorage,
+const localStorageJSONStorage = createJSONStorage<User | null>(() => {
+  if (typeof window !== 'undefined') {
+    return localStorage;
+  }
+  // Provide a dummy storage for SSR, though atomWithStorage aims for client-side
+  return {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+  };
 });
+
+const userAtom = atomWithStorage<User | null>("mock_user", initialUser, localStorageJSONStorage);
 
 const ensureArrayField = (value: any): string[] => {
   if (Array.isArray(value)) return value;
@@ -25,20 +33,25 @@ const ensureArrayField = (value: any): string[] => {
 export function useAuthMock() {
   const [user, setUser] = useAtom(userAtom);
   const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // New state
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("mock_user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        localStorage.removeItem("mock_user");
-        setUser(null);
+    setIsCheckingAuth(true);
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem("mock_user");
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (error) {
+          console.error("Failed to parse stored user:", error);
+          localStorage.removeItem("mock_user");
+          setUser(null);
+        }
       }
     }
+    setIsCheckingAuth(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, []); // setUser is stable
 
 
   const login = (email: string, role?: UserRole) => {
@@ -67,20 +80,18 @@ export function useAuthMock() {
 
       if (existingMockTutor) {
         finalUserData = { 
-          ...existingMockTutor, // Spread the found tutor profile first
-          // Then ensure specific fields from baseUserData or defaults are applied if not present or need override
-          id: existingMockTutor.id || baseUserData.id, // Prefer existing ID
+          ...existingMockTutor, 
+          id: existingMockTutor.id || baseUserData.id, 
           name: existingMockTutor.name || baseUserData.name,
-          email: existingMockTutor.email, // Keep existing email
-          role: 'tutor', // Ensure role is tutor
+          email: existingMockTutor.email, 
+          role: 'tutor', 
           avatar: existingMockTutor.avatar || baseUserData.avatar,
           status: existingMockTutor.status || baseUserData.status,
-          phone: existingMockTutor.phone || baseUserData.phone || "9876543210", // Ensure phone has a value
+          phone: existingMockTutor.phone || baseUserData.phone || "9876543210", 
           isEmailVerified: existingMockTutor.isEmailVerified !== undefined ? existingMockTutor.isEmailVerified : baseUserData.isEmailVerified,
           isPhoneVerified: existingMockTutor.isPhoneVerified !== undefined ? existingMockTutor.isPhoneVerified : baseUserData.isPhoneVerified,
           gender: existingMockTutor.gender || baseUserData.gender,
           dateOfBirth: existingMockTutor.dateOfBirth || baseUserData.dateOfBirth,
-          // Tutor specific fields - ensure they are arrays
           subjects: ensureArrayField(existingMockTutor.subjects),
           qualifications: ensureArrayField(existingMockTutor.qualifications),
           teachingMode: ensureArrayField(existingMockTutor.teachingMode),
@@ -90,7 +101,6 @@ export function useAuthMock() {
           preferredTimeSlots: ensureArrayField(existingMockTutor.preferredTimeSlots),
         };
       } else {
-        // Create a new tutor profile with default/derived values if no match found
         finalUserData = {
           ...baseUserData, 
           role: 'tutor', 
@@ -116,7 +126,7 @@ export function useAuthMock() {
         role: 'admin',
         name: 'Admin User', 
       };
-    } else { // Parent
+    } else { 
       finalUserData = {
         ...baseUserData,
         role: 'parent',
@@ -124,10 +134,15 @@ export function useAuthMock() {
     }
     
     setUser(finalUserData);
+    // Updated redirect logic
     if (finalUserData.role === 'tutor') {
-      router.push("/dashboard/enquiries");
+      router.push("/dashboard/tutor");
+    } else if (finalUserData.role === 'parent') {
+      router.push("/dashboard/parent");
+    } else if (finalUserData.role === 'admin') {
+      router.push("/dashboard/admin");
     } else {
-      router.push("/dashboard");
+      router.push("/dashboard"); // Fallback, should ideally not be hit
     }
     return Promise.resolve(finalUserData);
   };
@@ -166,22 +181,28 @@ export function useAuthMock() {
       } as TutorProfile;
     }
     setUser(mockUserData);
+    // Updated redirect logic
     if (role === 'tutor') {
-      router.push("/dashboard/enquiries");
+      router.push("/dashboard/tutor");
+    } else if (role === 'parent') {
+      router.push("/dashboard/parent");
     } else {
-      router.push("/dashboard");
+       router.push("/dashboard"); // Fallback
     }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("mock_user"); // Ensure local storage is also cleared
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("mock_user");
+    }
     router.push("/"); 
   };
 
   return {
     user,
     isAuthenticated: !!user,
+    isCheckingAuth, // Expose isCheckingAuth
     login,
     signup,
     logout,
