@@ -3,12 +3,13 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button"; // Import buttonVariants
 import { PlusCircle, Edit3, Trash2, ListChecks, Search } from "lucide-react";
 import Link from "next/link";
 import type { TuitionRequirement } from "@/types";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { cn } from "@/lib/utils"; // Import cn
 
 // Mock data - replace with API call specific to the logged-in parent
 const MOCK_PARENT_REQUIREMENTS: TuitionRequirement[] = [
@@ -42,13 +43,17 @@ export default function MyRequirementsPage() {
                 Manage your tuition needs and connect with tutors.
               </CardDescription>
             </div>
-            <Button asChild className="transform transition-transform hover:scale-105 active:scale-95 shadow-sm text-sm py-2 px-4"> {/* Reduced text size and padding, reduced shadow */}
-              <Link href="/dashboard/post-requirement">
-                <span className="flex items-center">
-                  <PlusCircle className="mr-1.5 h-4 w-4" /> Post New Requirement {/* Reduced icon size and margin */}
-                </span>
-              </Link>
-            </Button>
+            <Link 
+              href="/dashboard/post-requirement"
+              className={cn(
+                buttonVariants({ variant: "default", size: "sm" }), // Use default button styling
+                "transform transition-transform hover:scale-105 active:scale-95 shadow-sm text-sm py-2 px-4" // Custom classes for this specific button
+              )}
+            >
+              <span className="flex items-center">
+                <PlusCircle className="mr-1.5 h-4 w-4" /> Post New Requirement {/* Reduced icon size and margin */}
+              </span>
+            </Link>
           </div>
         </CardHeader>
       </Card>
@@ -82,13 +87,17 @@ export default function MyRequirementsPage() {
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
               It looks like you haven&apos;t posted any tuition requirements. Click the button above to share your needs and find the perfect tutor.
             </p>
-             <Button asChild className="mt-6 transform transition-transform hover:scale-105 active:scale-95 text-sm py-2 px-4"> {/* Reduced text size and padding */}
-              <Link href="/dashboard/post-requirement">
-                <span className="flex items-center">
-                  <PlusCircle className="mr-1.5 h-4 w-4" /> Post Your First Requirement {/* Reduced icon size */}
-                </span>
-              </Link>
-            </Button>
+             <Link 
+                href="/dashboard/post-requirement"
+                className={cn(
+                  buttonVariants({ variant: "default", size: "sm"}),
+                  "mt-6 transform transition-transform hover:scale-105 active:scale-95 text-sm py-2 px-4"
+                )}
+              >
+              <span className="flex items-center">
+                <PlusCircle className="mr-1.5 h-4 w-4" /> Post Your First Requirement {/* Reduced icon size */}
+              </span>
+            </Link>
           </CardContent>
         </Card>
       )}
