@@ -45,6 +45,7 @@ export interface TutorProfile extends User {
   preferredDays?: string[]; // New field for preferred teaching days (multi-select)
   preferredTimeSlots?: string[]; // New field for preferred teaching time slots (multi-select)
   location?: string; // For in-person tutoring
+  rating?: number; // Optional rating for the tutor
 }
 
 export interface Testimonial {
@@ -56,3 +57,4 @@ export interface Testimonial {
   rating: number; // e.g. 1-5
   date: string; // ISO date string for when the testimonial was given
 }
+

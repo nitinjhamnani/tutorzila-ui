@@ -62,7 +62,7 @@ export function TutorProfileSearch() {
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Ensures vertical stacking, adjusted gap */}
+        <div className="grid grid-cols-1 gap-3 md:gap-4"> {/* Ensured consistent vertical spacing */}
           {profiles.map((tutor, index) => (
             <div
               key={tutor.id}
@@ -121,7 +121,8 @@ export function TutorProfileSearch() {
 
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6"> {/* Applied container for consistent padding */}
+    // Applied container with horizontal padding for consistent spacing.
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 space-y-6"> 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
