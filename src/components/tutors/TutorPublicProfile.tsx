@@ -71,10 +71,17 @@ const mockReviews = [
 
 
 export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
-  const teachingModeText = tutor.teachingMode === "Hybrid" ? "Online & In-person" : tutor.teachingMode;
-  const rating = 4.5; // Mock rating
+  const teachingModeText = Array.isArray(tutor.teachingMode) ? tutor.teachingMode.join(' & ') : tutor.teachingMode;
+  const rating = tutor.rating || 4.5; // Mock rating or use actual if available
 
-  const TeachingModeIcon = tutor.teachingMode === "Online" ? Laptop : tutor.teachingMode === "In-person" ? Users : Laptop;
+  const TeachingModeIcon = 
+    Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
+      ? Laptop // Hybrid (using Laptop for now, could be specific hybrid icon)
+      : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
+      ? Laptop
+      : Array.isArray(tutor.teachingMode) && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
+      ? Users
+      : Laptop; // Default
 
 
   return (
@@ -90,21 +97,21 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                   {tutor.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <h1 className="text-xl font-semibold text-foreground tracking-tight mt-4">{tutor.name}</h1>
+              <h1 className="text-lg font-semibold text-foreground tracking-tight mt-4">{tutor.name}</h1>
               <p className="text-xs text-muted-foreground mt-1">{tutor.role === "tutor" ? "Professional Tutor" : tutor.role}</p>
               
               <div className="flex items-center justify-center mt-2.5">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star
                     key={index}
-                    className={`w-3.5 h-3.5 ${index < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`}
+                    className={`w-3 h-3 ${index < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`}
                   />
                 ))}
-                <span className="ml-1.5 text-[11px] text-muted-foreground">({rating} stars)</span>
+                <span className="ml-1.5 text-[10px] text-muted-foreground">({rating.toFixed(1)} stars)</span>
               </div>
 
               {tutor.hourlyRate && (
-                <Badge variant="secondary" className="mt-3 text-sm py-1 px-3 border-primary/30 bg-primary/10 text-primary font-semibold">
+                <Badge variant="secondary" className="mt-3 text-[13px] py-1 px-3 border-primary/30 bg-primary/10 text-primary font-semibold">
                    ₹{tutor.hourlyRate} / hr
                 </Badge>
               )}
@@ -114,42 +121,18 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 variant="outline"
                 className={cn(
                   "w-full transform transition-transform hover:scale-105 active:scale-95",
-                  "py-3", // Increased height
+                  "py-2.5", 
                   "bg-card border-primary text-primary", 
                   "hover:bg-primary/10", 
-                  "font-semibold text-sm" 
+                  "font-semibold text-[13px]" 
                 )}
               >
-                <MessageSquare className="mr-2 h-4 w-4" /> Book a Session
+                <MessageSquare className="mr-2 h-3.5 w-3.5" /> Book a Session
               </Button>
             </div>
           </Card>
           
-          <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
-            <CardHeader>
-              <CardTitle className="text-md font-semibold text-primary flex items-center">
-                <UserCheck className="w-4 h-4 mr-2"/> Verification Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-xs">
-                <div className="flex items-center">
-                    <Mail className="w-3.5 h-3.5 mr-2 text-muted-foreground"/>
-                    <span className="text-foreground/80">Email:</span>
-                    {tutor.isEmailVerified ? 
-                        <Badge variant="default" className="ml-auto bg-green-500 hover:bg-green-600 text-white text-[10px] px-1.5 py-0.5"><CheckCircle className="w-3 h-3 mr-1"/>Verified</Badge> :
-                        <Badge variant="destructive" className="ml-auto text-[10px] px-1.5 py-0.5">Not Verified</Badge>
-                    }
-                </div>
-                 <div className="flex items-center">
-                    <Phone className="w-3.5 h-3.5 mr-2 text-muted-foreground"/>
-                    <span className="text-foreground/80">Phone:</span>
-                     {tutor.isPhoneVerified ? 
-                        <Badge variant="default" className="ml-auto bg-green-500 hover:bg-green-600 text-white text-[10px] px-1.5 py-0.5"><CheckCircle className="w-3 h-3 mr-1"/>Verified</Badge> :
-                        <Badge variant="destructive" className="ml-auto text-[10px] px-1.5 py-0.5">Not Verified</Badge>
-                    }
-                </div>
-            </CardContent>
-          </Card>
+          {/* Verification Status Card Removed */}
 
         </aside>
 
@@ -157,19 +140,19 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
         <main className="lg:col-span-2 space-y-6">
            <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
             <CardHeader className="pb-3">
-                <CardTitle className="text-md font-semibold text-primary flex items-center">
-                  <Sparkles className="w-4 h-4 mr-2"/> About Me
+                <CardTitle className="text-base font-semibold text-primary flex items-center">
+                  <Sparkles className="w-3.5 h-3.5 mr-2"/> About Me
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
+                <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
               </CardContent>
             </Card>
 
           <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
             <CardHeader className="pb-3">
-              <CardTitle className="text-md font-semibold text-primary flex items-center">
-                <Briefcase className="w-4 h-4 mr-2"/> Expertise & Details
+              <CardTitle className="text-base font-semibold text-primary flex items-center">
+                <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
@@ -178,8 +161,8 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                   {tutor.subjects.map((subject) => {
                     const IconComponent = subjectIcons[subject] || subjectIcons.Default;
                     return (
-                      <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[11px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
-                        <IconComponent className="w-3 h-3 mr-1"/>
+                      <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[10px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
+                        <IconComponent className="w-2.5 h-2.5 mr-1"/>
                         {subject}
                       </Badge>
                     );
@@ -188,7 +171,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
               </InfoSection>
               {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} />}
               {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} />}
-              {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={tutor.qualifications}/>}
+              {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications}/>}
               {tutor.teachingMode && (
                 <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} />
               )}
@@ -198,26 +181,26 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
           
            <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
              <CardHeader className="pb-3">
-                <CardTitle className="text-md font-semibold text-primary flex items-center">
-                  <Quote className="w-4 h-4 mr-2"/> Student Reviews
+                <CardTitle className="text-base font-semibold text-primary flex items-center">
+                  <Quote className="w-3.5 h-3.5 mr-2"/> Student Reviews
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2.5">
                 {mockReviews.length > 0 ? mockReviews.map(review => (
-                    <div key={review.id} className="p-3 border rounded-md bg-background/50 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-center justify-between mb-1">
-                            <p className="text-xs font-semibold text-foreground">{review.reviewer}</p>
+                    <div key={review.id} className="p-2.5 border rounded-md bg-background/30 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-0.5">
+                            <p className="text-[11px] font-semibold text-foreground">{review.reviewer}</p>
                             <div className="flex items-center">
                                 {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}/>
+                                    <Star key={i} className={`w-2.5 h-2.5 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}/>
                                 ))}
                             </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground mb-1.5 flex items-center"><CalendarClock size={10} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
-                        <p className="text-xs text-foreground/80 leading-normal">{review.comment}</p>
+                        <p className="text-[9px] text-muted-foreground mb-1 flex items-center"><CalendarClock size={9} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
+                        <p className="text-[11px] text-foreground/80 leading-normal">{review.comment}</p>
                     </div>
                 )) : (
-                    <p className="text-xs text-muted-foreground text-center py-4">No reviews yet for {tutor.name}.</p>
+                    <p className="text-xs text-muted-foreground text-center py-3">No reviews yet for {tutor.name}.</p>
                 )}
               </CardContent>
           </Card>
@@ -237,13 +220,13 @@ interface InfoSectionProps {
 
 function InfoSection({ icon: Icon, title, content, children }: InfoSectionProps) {
     return (
-        <div className="space-y-1">
+        <div className="space-y-0.5">
             <div className="flex items-center text-xs font-medium text-foreground/90">
-                <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80"/>
+                <Icon className="w-3 h-3 mr-1.5 text-primary/80"/>
                 {title}
             </div>
-            {content && <p className="text-[11px] text-foreground/70 pl-[22px]">{content}</p>}
-            {children && <div className="pl-[22px]">{children}</div>}
+            {content && <p className="text-[11px] text-foreground/70 pl-[18px]">{content}</p>}
+            {children && <div className="pl-[18px]">{children}</div>}
         </div>
     )
 }
