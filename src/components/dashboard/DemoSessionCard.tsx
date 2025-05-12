@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { DemoSession } from "@/types";
@@ -9,7 +10,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"; // Added Dialog and DialogContent
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 
 interface DemoSessionCardProps {
@@ -20,8 +21,6 @@ interface DemoSessionCardProps {
 
 export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: DemoSessionCardProps) {
   const demoDate = new Date(demo.date);
-  // isManageModalOpen state is now managed by the Dialog component itself
-  // const [isManageModalOpen, setIsManageModalOpen] = useState(false); 
 
   const statusBadgeClasses = () => {
     switch (demo.status) {
@@ -50,7 +49,7 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
   };
 
   return (
-    <Dialog> {/* Moved Dialog to wrap the entire card content that needs modal interaction */}
+    <Dialog>
       <Card className="bg-card border border-border/40 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-1">
         <CardHeader className="p-4 pb-3 bg-muted/20 border-b border-border/30">
           <div className="flex justify-between items-start gap-2">
@@ -69,7 +68,6 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
                   variant="outline" 
                   size="xs" 
                   className="text-[0.65rem] py-0.5 px-1.5 border-primary/50 text-primary hover:bg-primary/10"
-                  // onClick={() => setIsManageModalOpen(true)} // DialogTrigger handles opening
                 >
                   <Edit3 className="mr-1 h-3 w-3" /> Manage
                 </Button>
@@ -86,7 +84,7 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
           </div>
         </CardHeader>
         <CardContent className="p-4 space-y-1.5 text-xs flex-grow">
-          <InfoItem icon={BookOpen} label="Subject" value={demo.subject} />
+          {/* Subject InfoItem removed */}
           <InfoItem icon={GraduationCap} label="Grade" value={demo.gradeLevel} />
           <InfoItem icon={ShieldCheck} label="Board" value={demo.board} />
           <InfoItem icon={Calendar} label="Date" value={format(demoDate, "MMM d, yyyy")} />
@@ -106,21 +104,15 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
           )}
         </CardFooter>
       </Card>
-      {/* ManageDemoModal is now part of the Dialog tree */}
-      {/* The isOpen and onOpenChange for ManageDemoModal will be handled by the DialogContent */}
       <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
           <ManageDemoModal
             // isOpen and onOpenChange are implicitly handled by DialogContent
-            // isOpen={isManageModalOpen} 
-            // onOpenChange={setIsManageModalOpen}
             demoSession={demo}
             onUpdateSession={(updatedDemo) => {
                 onUpdateSession(updatedDemo);
-                // Dialog will close itself via onOpenChange in ManageDemoModal
             }}
             onCancelSession={(sessionId) => {
                 onCancelSession(sessionId);
-                // Dialog will close itself
             }}
           />
       </DialogContent>
@@ -143,3 +135,4 @@ function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
     </div>
   );
 }
+
