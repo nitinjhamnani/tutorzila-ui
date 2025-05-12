@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound, CalendarDays, Edit3, Trash2, School, UserCircle as UserCircleIcon, ShieldCheck, BarChart3, FileText, VenetianMask, RadioTower, MapPin, GraduationCap, SearchCheck, MessageSquare, Star, Send, QuoteIcon } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound, CalendarDays, Edit3, Trash2, School, UserCircle as UserCircleIcon, ShieldCheck, BarChart3, FileText, VenetianMask, RadioTower, MapPin, GraduationCap, SearchCheck, Star, Send, QuoteIcon, MessageSquareQuote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { TutorProfile, DemoSession } from "@/types";
@@ -592,4 +591,3 @@ function ActionCard({
   );
 }
     
-
