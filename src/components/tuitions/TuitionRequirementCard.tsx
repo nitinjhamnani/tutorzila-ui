@@ -5,7 +5,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users,Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users,Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -35,7 +35,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
 
   const parentInitials = getInitials(requirement.parentName); 
   const [isShortlisted, setIsShortlisted] = useState(false);
-  const [mockViewsCount, setMockViewsCount] = useState<number | null>(null); // For client-side rendering
+  const [mockViewsCount, setMockViewsCount] = useState<number | null>(null); 
 
   useEffect(() => {
     // Generate mockViewsCount only on the client-side to avoid hydration mismatch
@@ -90,8 +90,8 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
         )}
-        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-            <InfoItem icon={Presentation} label="Mode" value={requirement.teachingMode.join(', ')} />
+         {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+            <InfoItem icon={RadioTower} label="Mode" value={requirement.teachingMode.join(', ')} />
         )}
         {requirement.location && (
             <InfoItem icon={MapPin} label="Location" value={requirement.location} />
@@ -104,7 +104,7 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
               <Eye className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {mockViewsCount} Views
             </Badge>
           )}
-          {requirement.applicantsCount !== undefined && requirement.applicantsCount > 0 && (
+          {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <UserCheck className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Applied
             </Badge>
@@ -112,14 +112,10 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
         </div>
         <Button 
           asChild 
-          size="sm" 
-          variant="outline"
-          className={cn(
-            "transform transition-transform hover:scale-105 active:scale-95 text-[11px] py-1.5 px-3 shadow-sm hover:shadow-md rounded-md", 
-            "bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground"
-          )}
+          className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5"
         >
           <Link href={`/dashboard/enquiries/${requirement.id}`}> 
+            <Send className="w-3.5 h-3.5 mr-1.5" />
             Apply Now
           </Link>
         </Button>
