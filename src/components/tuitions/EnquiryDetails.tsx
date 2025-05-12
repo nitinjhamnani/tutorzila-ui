@@ -212,7 +212,10 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
         <div className="flex gap-2">
             <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5">
+                <Button
+                  variant="default"
+                  className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5"
+                >
                   {isApplied ? <Unlock className="w-3.5 h-3.5 mr-1.5"/> : <Lock className="w-3.5 h-3.5 mr-1.5"/>}
                    Contact Parent
                 </Button>
@@ -267,28 +270,14 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                 </div>
                  {!isApplied && (
                   <DialogFooter>
-                    <Button onClick={() => { handleApplyMock(); setIsContactModalOpen(false); }} className="w-full">
+                    <Button onClick={() => { handleApplyMock(); setIsContactModalOpen(true); }} className="w-full">
                       <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
                     </Button>
                   </DialogFooter>
                 )}
               </DialogContent>
             </Dialog>
-            {!isApplied ? (
-              <Button 
-                onClick={handleApplyMock} 
-                className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5"
-              >
-                <Send className="w-3.5 h-3.5 mr-1.5" /> Apply Now (Mock)
-              </Button>
-            ) : (
-              <Button 
-                disabled 
-                className="w-full sm:w-auto text-xs py-1.5 px-2.5 bg-green-600 hover:bg-green-700 text-white"
-              >
-                <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Applied
-              </Button>
-            )}
+            {/* Removed the standalone "Apply Now (Mock)" / "Applied" button */}
         </div>
       </CardFooter>
     </Card>
