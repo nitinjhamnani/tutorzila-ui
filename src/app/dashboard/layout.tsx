@@ -15,7 +15,7 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, Search, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard } from "lucide-react";
+import { Home, Search, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote } from "lucide-react"; // Added School, DollarSign, CalendarDays, MessageSquareQuote
 import { Logo } from "@/components/shared/Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -51,6 +51,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const parentNavItems = [
     { href: "/dashboard/post-requirement", label: "Post Requirement", icon: PlusCircle },
     { href: "/dashboard/my-requirements", label: "My Requirements", icon: ListChecks },
+    { href: "/dashboard/manage-students", label: "Student Profiles", icon: School, disabled: true }, // New
+    { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: true }, // New
+    { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: true }, // New
+    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: true }, // New
   ];
 
   const tutorNavItems = [
@@ -195,4 +199,5 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
+
 

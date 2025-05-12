@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound, CalendarDays } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound, CalendarDays, Edit3, Trash2, School, UserCircle as UserCircleIcon, ShieldCheck, BarChart3, FileText, VenetianMask, RadioTower, MapPin, GraduationCap, SearchCheck, MessageSquareQuote, Star, Send, QuoteIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { TutorProfile, DemoSession } from "@/types";
@@ -96,76 +95,148 @@ export default function DashboardPage() {
   };
 
 
-  const actionCards = [];
-
-  if (user.role === "parent") {
-    actionCards.push(
+  const parentActionCards = [
       <ActionCard
-        key="my-enquiries"
-        title="My Enquiries"
-        cardDescriptionText="Track your posted enquiries and connect with interested tutors."
-        Icon={ClipboardList} 
+        key="my-requirements"
+        title="My Requirements"
+        cardDescriptionText="Manage your posted tuition needs and connect with suitable tutors."
+        Icon={ListChecks} 
         showImage={false}
         buttonInContent={true}
-        actionButtonText="View My Enquiries"
-        ActionButtonIcon={ListChecks} 
+        actionButtonText="View My Requirements"
+        ActionButtonIcon={Eye} 
         href="/dashboard/my-requirements" 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
-        actionButtonText2="Create Enquiry"
+        actionButtonText2="Post New Requirement"
         ActionButtonIcon2={PlusCircle}
         href2="/dashboard/post-requirement" 
+        imageHint="list checkmark"
       />,
       <ActionCard
-        key="my-tuitions"
-        title="My Tuitions"
-        cardDescriptionText="Explore tutor profiles and manage your learning sessions."
-        Icon={UsersRound} 
+        key="manage-students"
+        title="Student Profiles"
+        cardDescriptionText="Add and manage profiles for your children to personalize tuition needs."
+        Icon={School} // Using School icon for students
         showImage={false}
         buttonInContent={true}
-        actionButtonText="View All Tutors"
-        ActionButtonIcon={Search} 
-        href="/dashboard/search-tutors" // Updated to parent's tutor search
+        actionButtonText="Manage Students"
+        ActionButtonIcon={Edit3} 
+        href="/dashboard/manage-students"
+        disabled={true} // Placeholder
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
-        actionButtonText2="Demo Requests"
-        ActionButtonIcon2={CalendarClock} 
-        href2="#" 
-        disabled2={true} 
+        imageHint="student profile"
+      />,
+      <ActionCard
+        key="my-payments"
+        title="My Payments"
+        cardDescriptionText="Track all tuition payments, view history, and manage pending transactions."
+        Icon={DollarSign} 
+        showImage={false}
+        buttonInContent={true}
+        actionButtonText="View Payments"
+        ActionButtonIcon={FileText} 
+        href="/dashboard/payments"
+        disabled={true} // Placeholder
+        actionButtonVariant="outline"
+        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg"
+        imageHint="payment history"
+      />,
+      <ActionCard
+        key="browse-tutors"
+        title="Browse Tutors"
+        cardDescriptionText="Explore profiles of qualified tutors and find the perfect match for your child."
+        Icon={SearchCheck} 
+        showImage={false}
+        buttonInContent={true}
+        actionButtonText="Search Tutors"
+        ActionButtonIcon={Search} 
+        href="/search-tuitions"
+        actionButtonVariant="default" // Primary action
+        actionButtonClassName="text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg bg-primary/5"
+        imageHint="tutor search"
+      />,
+       <ActionCard
+        key="my-classes"
+        title="My Scheduled Classes"
+        cardDescriptionText="View upcoming classes, manage schedules, and track attendance for each student."
+        Icon={CalendarDays} 
+        showImage={false}
+        buttonInContent={true}
+        actionButtonText="View My Classes"
+        ActionButtonIcon={CalendarClock} 
+        href="/dashboard/my-classes"
+        disabled={true} // Placeholder
+        actionButtonVariant="outline"
+        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg"
+        imageHint="class schedule"
+      />,
+      <ActionCard
+        key="demo-sessions"
+        title="Demo Sessions"
+        cardDescriptionText="Manage demo class requests, view upcoming demos, and book full classes."
+        Icon={MessageSquareQuote} 
+        showImage={false}
+        buttonInContent={true}
+        actionButtonText="View Demo Sessions"
+        ActionButtonIcon={RadioTower} 
+        href="/dashboard/demo-sessions"
+        disabled={true} // Placeholder
+        actionButtonVariant="outline"
+        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg"
+        imageHint="demo class"
       />
-    );
-  } else if (user.role === "admin") {
-    actionCards.push(
+    ];
+
+
+  const adminActionCards = [
       <ActionCard
         key="manage-users"
         title="Manage Users"
         description="Oversee parent and tutor accounts." 
-        href="/dashboard/admin/manage-users"
+        href="/dashboard/admin" // Link to main admin panel which has this option
         Icon={Users}
         imageHint="people community"
-        disabled
-        className="hover:shadow-xl" 
+        className="hover:shadow-xl"
+        actionButtonText="Go to Admin Panel" 
+        ActionButtonIcon={ShieldCheck}
       />,
       <ActionCard
         key="manage-tuitions"
         title="Manage Tuitions"
         description="Review and manage all tuition postings." 
-        href="/dashboard/admin/manage-tuitions"
+        href="/dashboard/admin" // Link to main admin panel
         Icon={BookOpen}
         imageHint="library books"
-        disabled
-        className="hover:shadow-xl" 
+        className="hover:shadow-xl"
+        actionButtonText="Go to Admin Panel"
+        ActionButtonIcon={ShieldCheck}
+      />,
+       <ActionCard
+        key="site-analytics"
+        title="Site Analytics"
+        description="View platform statistics and user activity." 
+        href="/dashboard/admin" // Link to main admin panel
+        Icon={BarChart3}
+        imageHint="dashboard chart"
+        className="hover:shadow-xl"
+        actionButtonText="Go to Admin Panel"
+        ActionButtonIcon={ShieldCheck}
       />
-    );
-  }
+    ];
 
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-1">
-         <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden shadow-none border-0">
+      <div className="grid grid-cols-1">
+         <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden border-0">
           <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="relative group shrink-0">
@@ -296,7 +367,7 @@ export default function DashboardPage() {
       </div>
 
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> 
+         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2"> {/* Changed to 1 col for md, 2 for lg */}
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
@@ -321,15 +392,16 @@ export default function DashboardPage() {
               actionButtonVariant="outline"
               actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
               className="shadow-none border border-border/30 hover:shadow-lg"
+              imageHint="enquiry list"
             />
           </div>
         </div>
       )}
 
 
-      {(user.role === 'parent' || user.role === 'admin') && actionCards.length > 0 && (
+      {user.role === 'parent' && parentActionCards.length > 0 && (
          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> 
-          {actionCards.map((card, index) => (
+          {parentActionCards.map((card, index) => (
             <div 
               key={index} 
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
@@ -340,6 +412,21 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+       {user.role === 'admin' && adminActionCards.length > 0 && (
+         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> 
+          {adminActionCards.map((card, index) => (
+            <div 
+              key={index} 
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              style={{ animationDelay: `${index * 0.1 + 0.2}s` }} 
+            >
+              {card}
+            </div>
+          ))}
+        </div>
+      )}
+
 
       {user.role === 'tutor' && (
         <div className="mt-8 animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
@@ -495,6 +582,9 @@ function ActionCard({
         )}
       </CardHeader>
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
+        {description && !buttonInContent && ( 
+            <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
+        )}
         {buttonInContent ? (
           <>
             {(title === "My Classes" || title === "My Payments") && ( 
@@ -507,7 +597,7 @@ function ActionCard({
                 </span>
                </div>
             )}
-             {!(title === "My Classes" || title === "My Payments" || title === "My Enquiries") && description && ( 
+             {description && ( 
                  <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
              )}
 
@@ -516,9 +606,7 @@ function ActionCard({
               {actionButtonText2 && ActionButtonIcon2 && renderSingleButton(actionButtonText2, href2, disabled2, ActionButtonIcon2)}
             </div>
           </>
-        ) : (
-           <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
-        )}
+        ) : null}
       </CardContent>
       {!buttonInContent && href && ( 
          <CardFooter className="p-4 md:p-5 border-t bg-muted/20"> 
@@ -529,3 +617,4 @@ function ActionCard({
   );
 }
     
+
