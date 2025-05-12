@@ -3,7 +3,7 @@
 
 import type { TutorProfile } from "@/types";
 import Image from "next/image";
-import React from "react"; // Added React import
+import React from "react"; 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -108,7 +108,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star
                     key={index}
-                    className={`w-3 h-3 ${index < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`}
+                    className={`w-3 h-3 ${index < Math.floor(rating) ? "fill-primary text-primary" : "text-muted-foreground/40"}`} // Changed to primary color
                   />
                 ))}
                 <span className="ml-1.5 text-[10px] text-muted-foreground">({rating.toFixed(1)} stars)</span>
@@ -207,7 +207,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                                 </div>
                                 <div className="flex items-center space-x-0.5 mt-0.5">
                                     {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}/>
+                                        <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`}/>
                                     ))}
                                 </div>
                             </div>
@@ -248,6 +248,7 @@ function InfoSection({ icon: Icon, title, content, children, className }: InfoSe
         </div>
     )
 }
+
 
 
 
