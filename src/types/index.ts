@@ -19,11 +19,11 @@ export interface TuitionRequirement {
   id:string;
   parentId: string;
   parentName?: string; // Optional, denormalized
-  subject: string;
+  subject: string; // Changed from string[] to string
   gradeLevel: string;
   scheduleDetails: string; // Kept for full context if needed elsewhere, or for initial data
-  preferredDays?: string[]; // Changed to string array
-  preferredTime?: string[]; // Changed to string array
+  preferredDays?: string[]; 
+  preferredTime?: string[]; 
   location?: string; // e.g., "Online", "Student's Home", "Tutor's Home"
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
@@ -38,14 +38,14 @@ export interface TutorProfile extends User {
   experience: string; // e.g., "5+ years", "1-3 years"
   hourlyRate?: string; 
   bio?: string;
-  qualifications?: string[]; // Changed to string array for multi-select
-  teachingMode?: string[]; // Changed to string array e.g. ["Online", "In-person"]
-  gradeLevelsTaught?: string[]; // Specific grade levels tutor teaches (multi-select)
-  boardsTaught?: string[]; // New field for boards tutor is familiar with (multi-select)
-  preferredDays?: string[]; // New field for preferred teaching days (multi-select)
-  preferredTimeSlots?: string[]; // New field for preferred teaching time slots (multi-select)
-  location?: string; // For in-person tutoring
-  rating?: number; // Optional rating for the tutor
+  qualifications?: string[]; 
+  teachingMode?: string[]; 
+  gradeLevelsTaught?: string[]; 
+  boardsTaught?: string[]; 
+  preferredDays?: string[]; 
+  preferredTimeSlots?: string[]; 
+  location?: string; 
+  rating?: number; 
 }
 
 export interface Testimonial {
@@ -54,16 +54,19 @@ export interface Testimonial {
   role: "Parent" | "Tutor";
   text: string;
   avatarSeed: string; 
-  rating: number; // e.g. 1-5
-  date: string; // ISO date string for when the testimonial was given
+  rating: number; 
+  date: string; 
 }
 
 export interface DemoSession {
   id: string;
   studentName: string;
-  subject: string;
-  date: string; // ISO date string
-  time: string; // e.g., "10:00 AM - 11:00 AM"
+  subject: string; 
+  gradeLevel: string; 
+  board: string; 
+  date: string; 
+  time: string; 
   status: "Scheduled" | "Completed" | "Cancelled";
-  joinLink?: string; // Optional link to join a virtual session
+  joinLink?: string; 
 }
+

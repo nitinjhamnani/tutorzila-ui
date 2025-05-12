@@ -24,7 +24,8 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     boardsTaught: ["IB", "Cambridge", "A-Level"], 
     preferredDays: ["Monday", "Wednesday", "Friday"],
     preferredTimeSlots: ["1600-1800", "1800-2000"],
-    location: "Online"
+    location: "Online",
+    rating: 4.8,
   },
   { 
     id: "t2", 
@@ -49,7 +50,8 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gradeLevelsTaught: ["Grade 9-10", "Grade 11-12", "College Level"],
     boardsTaught: ["CBSE", "ICSE"], 
     preferredDays: ["Tuesday", "Thursday", "Saturday"],
-    preferredTimeSlots: ["1000-1200", "1400-1600"]
+    preferredTimeSlots: ["1000-1200", "1400-1600"],
+    rating: 4.5,
   },
   { 
     id: "t3", 
@@ -74,7 +76,8 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gradeLevelsTaught: ["Grade 11-12", "College Level"],
     boardsTaught: ["State Board", "IB"], 
     preferredDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    preferredTimeSlots: ["1800-2000", "2000-2200"]
+    preferredTimeSlots: ["1800-2000", "2000-2200"],
+    rating: 4.9,
   },
   { 
     id: "t4", 
@@ -99,7 +102,8 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     boardsTaught: ["CBSE", "IGCSE", "Cambridge"], 
     preferredDays: ["Weekends"],
     preferredTimeSlots: ["0800-1000", "1000-1200", "1200-1400"],
-    location: "Online"
+    location: "Online",
+    rating: 4.7,
   },
   { 
     id: "t5", 
@@ -124,7 +128,8 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gradeLevelsTaught: ["Kindergarten", "Grade 1-5", "Grade 6-8", "Adult Learner"],
     boardsTaught: ["NIOS", "State Board"], 
     preferredDays: ["Flexible"],
-    preferredTimeSlots: ["Flexible"]
+    preferredTimeSlots: ["Flexible"],
+    rating: 4.6,
   },
 ];
 
@@ -141,7 +146,9 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     id: "demo1",
     studentName: "Ravi Sharma",
     subject: "Physics",
-    date: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
+    gradeLevel: "Grade 11-12",
+    board: "CBSE",
+    date: new Date(Date.now() + 86400000 * 2).toISOString(), 
     time: "4:00 PM - 4:30 PM",
     status: "Scheduled",
     joinLink: "#",
@@ -150,7 +157,9 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     id: "demo2",
     studentName: "Priya Singh",
     subject: "Mathematics",
-    date: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 days from now
+    gradeLevel: "Grade 9-10",
+    board: "ICSE",
+    date: new Date(Date.now() + 86400000 * 3).toISOString(), 
     time: "11:00 AM - 11:30 AM",
     status: "Scheduled",
   },
@@ -158,7 +167,9 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     id: "demo3",
     studentName: "Amit Patel",
     subject: "Chemistry",
-    date: new Date(Date.now() + 86400000 * 5).toISOString(), // 5 days from now
+    gradeLevel: "Grade 11-12",
+    board: "State Board",
+    date: new Date(Date.now() + 86400000 * 5).toISOString(), 
     time: "2:00 PM - 2:30 PM",
     status: "Scheduled",
     joinLink: "#",
@@ -167,7 +178,9 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     id: "demo4",
     studentName: "Sneha Reddy",
     subject: "Biology",
-    date: new Date(Date.now() - 86400000 * 1).toISOString(), // Yesterday
+    gradeLevel: "Grade 9-10",
+    board: "IB",
+    date: new Date(Date.now() - 86400000 * 1).toISOString(), 
     time: "3:00 PM - 3:30 PM",
     status: "Completed",
   },
@@ -175,7 +188,9 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     id: "demo5",
     studentName: "Vikram Chouhan",
     subject: "English",
-    date: new Date(Date.now() + 86400000 * 1).toISOString(), // Tomorrow
+    gradeLevel: "Grade 6-8",
+    board: "IGCSE",
+    date: new Date(Date.now() + 86400000 * 1).toISOString(), 
     time: "5:00 PM - 5:30 PM",
     status: "Cancelled",
   },

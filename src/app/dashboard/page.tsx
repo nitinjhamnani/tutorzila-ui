@@ -25,14 +25,14 @@ export default function DashboardPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // OTP Modal State
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
   const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
 
-  // Mock verification status using local state, could be fetched or part of user object
   const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
+
+  const [demoSessions, setDemoSessions] = useState<DemoSession[]>(MOCK_DEMO_SESSIONS);
 
   useEffect(() => {
     if (user) {
@@ -41,13 +41,26 @@ export default function DashboardPage() {
     }
   }, [user]);
 
+  const handleUpdateDemoSession = (updatedDemo: DemoSession) => {
+    setDemoSessions(prevSessions => 
+      prevSessions.map(session => session.id === updatedDemo.id ? updatedDemo : session)
+    );
+  };
+
+  const handleCancelDemoSession = (sessionId: string) => {
+    setDemoSessions(prevSessions =>
+      prevSessions.map(session => 
+        session.id === sessionId ? { ...session, status: "Cancelled" } : session
+      )
+    );
+  };
+
 
   if (!user) {
     return <div className="text-center p-8">Loading user data or please sign in.</div>;
   }
 
   const handleAvatarClick = () => {
-    // Allow avatar click for upload only for tutors and parents
     if (user?.role === 'tutor' || user?.role === 'parent') {
       fileInputRef.current?.click();
     }
@@ -61,10 +74,6 @@ export default function DashboardPage() {
         title: "Profile Picture Updated (Mock)",
         description: `${file.name} selected. In a real app, this would be uploaded.`,
       });
-      // Here you would typically call an API to upload the image
-      // and update the user's avatar URL in your backend/state.
-      // For mock, we could update local state if user object was mutable here,
-      // or re-fetch/update through useAuthMock if it supported avatar updates.
     }
   };
   
@@ -117,7 +126,7 @@ export default function DashboardPage() {
         buttonInContent={true}
         actionButtonText="View All Tutors"
         ActionButtonIcon={Search} 
-        href="/search-tuitions" 
+        href="/dashboard/search-tutors" // Updated to parent's tutor search
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
@@ -287,7 +296,7 @@ export default function DashboardPage() {
       </div>
 
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> {/* Changed to 2 columns for tutor */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> 
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
@@ -345,15 +354,19 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-4 md:p-5">
-              {MOCK_DEMO_SESSIONS.length > 0 ? (
+              {demoSessions.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {MOCK_DEMO_SESSIONS.slice(0,3).map((demo, index) => ( // Show up to 3 demos
+                  {demoSessions.slice(0,3).map((demo, index) => ( 
                      <div 
                         key={demo.id}
                         className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
                         style={{ animationDelay: `${index * 0.1 + 0.4}s` }} 
                       >
-                        <DemoSessionCard demo={demo} />
+                        <DemoSessionCard 
+                          demo={demo} 
+                          onUpdateSession={handleUpdateDemoSession}
+                          onCancelSession={handleCancelDemoSession}
+                        />
                      </div>
                   ))}
                 </div>
@@ -365,7 +378,7 @@ export default function DashboardPage() {
                 </div>
               )}
             </CardContent>
-            {MOCK_DEMO_SESSIONS.length > 3 && (
+            {demoSessions.length > 3 && (
               <CardFooter className="p-4 border-t border-border/30 bg-muted/20">
                 <Button variant="outline" asChild className="w-full sm:w-auto mx-auto text-sm">
                   <Link href="#">View All Demos (Coming Soon)</Link>

@@ -5,17 +5,23 @@ import type { DemoSession } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Video, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Calendar, Clock, User, Video, CheckCircle, XCircle, AlertTriangle, BookOpen, GraduationCap, ShieldCheck, Edit3 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 
 interface DemoSessionCardProps {
   demo: DemoSession;
+  onUpdateSession: (updatedDemo: DemoSession) => void;
+  onCancelSession: (sessionId: string) => void;
 }
 
-export function DemoSessionCard({ demo }: DemoSessionCardProps) {
+export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: DemoSessionCardProps) {
   const demoDate = new Date(demo.date);
+  const [isManageModalOpen, setIsManageModalOpen] = useState(false);
 
   const statusBadgeClasses = () => {
     switch (demo.status) {
@@ -44,45 +50,72 @@ export function DemoSessionCard({ demo }: DemoSessionCardProps) {
   };
 
   return (
-    <Card className="bg-card border border-border/40 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-1">
-      <CardHeader className="p-4 pb-3 bg-muted/20 border-b border-border/30">
-        <div className="flex justify-between items-start gap-2">
-          <div className="flex-grow min-w-0">
-            <CardTitle className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors line-clamp-1">
-              Demo: {demo.subject}
-            </CardTitle>
-            <CardDescription className="text-[0.7rem] text-muted-foreground mt-0.5 flex items-center">
-              <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
-              With {demo.studentName}
-            </CardDescription>
+    <>
+      <Card className="bg-card border border-border/40 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-1">
+        <CardHeader className="p-4 pb-3 bg-muted/20 border-b border-border/30">
+          <div className="flex justify-between items-start gap-2">
+            <div className="flex-grow min-w-0">
+              <CardTitle className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors line-clamp-1">
+                Demo: {demo.subject}
+              </CardTitle>
+              <CardDescription className="text-[0.7rem] text-muted-foreground mt-0.5 flex items-center">
+                <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
+                With {demo.studentName}
+              </CardDescription>
+            </div>
+            {demo.status === "Scheduled" ? (
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="xs" 
+                  className="text-[0.65rem] py-0.5 px-1.5 border-primary/50 text-primary hover:bg-primary/10"
+                  onClick={() => setIsManageModalOpen(true)}
+                >
+                  <Edit3 className="mr-1 h-3 w-3" /> Manage
+                </Button>
+              </DialogTrigger>
+            ) : (
+              <Badge
+                variant="outline"
+                className={cn("text-[0.65rem] py-0.5 px-1.5 border font-medium whitespace-nowrap", statusBadgeClasses())}
+              >
+                <StatusIcon />
+                {demo.status}
+              </Badge>
+            )}
           </div>
-          <Badge
-            variant="outline"
-            className={cn("text-[0.65rem] py-0.5 px-1.5 border font-medium whitespace-nowrap", statusBadgeClasses())}
-          >
-            <StatusIcon />
-            {demo.status}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 space-y-1.5 text-xs flex-grow">
-        <InfoItem icon={Calendar} label="Date" value={format(demoDate, "MMM d, yyyy")} />
-        <InfoItem icon={Clock} label="Time" value={demo.time} />
-      </CardContent>
-      <CardFooter className="p-3 border-t border-border/30 bg-card/50 group-hover:bg-muted/20 transition-colors duration-300">
-        {demo.joinLink && demo.status === "Scheduled" ? (
-          <Button asChild size="sm" className="w-full transform transition-transform hover:scale-105 active:scale-95 text-[0.7rem] py-1.5 h-auto">
-            <Link href={demo.joinLink}>
-              <Video className="w-3 h-3 mr-1" /> Join Session
-            </Link>
-          </Button>
-        ) : (
-          <Button size="sm" variant="outline" className="w-full text-[0.7rem] py-1.5 h-auto cursor-default bg-muted/50 border-border/50 text-muted-foreground" disabled>
-            {demo.status === "Completed" ? "Session Completed" : demo.status === "Cancelled" ? "Session Cancelled" : "No Join Link"}
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+        </CardHeader>
+        <CardContent className="p-4 space-y-1.5 text-xs flex-grow">
+          <InfoItem icon={BookOpen} label="Subject" value={demo.subject} />
+          <InfoItem icon={GraduationCap} label="Grade" value={demo.gradeLevel} />
+          <InfoItem icon={ShieldCheck} label="Board" value={demo.board} />
+          <InfoItem icon={Calendar} label="Date" value={format(demoDate, "MMM d, yyyy")} />
+          <InfoItem icon={Clock} label="Time" value={demo.time} />
+        </CardContent>
+        <CardFooter className="p-3 border-t border-border/30 bg-card/50 group-hover:bg-muted/20 transition-colors duration-300">
+          {demo.joinLink && demo.status === "Scheduled" ? (
+            <Button asChild size="sm" className="w-full transform transition-transform hover:scale-105 active:scale-95 text-[0.7rem] py-1.5 h-auto">
+              <Link href={demo.joinLink} target="_blank" rel="noopener noreferrer">
+                <Video className="w-3 h-3 mr-1" /> Join Session
+              </Link>
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" className="w-full text-[0.7rem] py-1.5 h-auto cursor-default bg-muted/50 border-border/50 text-muted-foreground" disabled>
+              {demo.status === "Completed" ? "Session Completed" : demo.status === "Cancelled" ? "Session Cancelled" : "No Join Link"}
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+      {demo.status === "Scheduled" && (
+        <ManageDemoModal
+          isOpen={isManageModalOpen}
+          onOpenChange={setIsManageModalOpen}
+          demoSession={demo}
+          onUpdateSession={onUpdateSession}
+          onCancelSession={onCancelSession}
+        />
+      )}
+    </>
   );
 }
 
