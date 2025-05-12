@@ -1,3 +1,4 @@
+
 // src/app/dashboard/tutor/page.tsx
 "use client";
 
@@ -199,10 +200,10 @@ export default function TutorDashboardPage() {
                     variant="secondary" 
                     size="sm" 
                       className={cn(
-                      "h-auto rounded-full text-primary hover:bg-secondary/80", 
+                      "h-auto rounded-full text-primary", 
                       isEmailVerified
-                        ? "bg-green-100 text-green-700 border-green-500 py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-200 no-underline border" 
-                        : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80" 
+                        ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
+                        : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80 hover:bg-secondary/80" 
                     )}
                     onClick={() => !isEmailVerified && handleOpenOtpModal("email")}
                     disabled={isEmailVerified}
@@ -214,10 +215,10 @@ export default function TutorDashboardPage() {
                     variant="secondary" 
                     size="sm" 
                       className={cn(
-                      "h-auto rounded-full text-primary hover:bg-secondary/80", 
+                      "h-auto rounded-full text-primary", 
                       isPhoneVerified
-                        ? "bg-green-100 text-green-700 border-green-500 py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-200 no-underline border" 
-                        : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80"
+                        ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
+                        : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80 hover:bg-secondary/80"
                       )}
                     onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
                     disabled={isPhoneVerified}
@@ -339,4 +340,5 @@ export default function TutorDashboardPage() {
     </div>
   );
 }
+
 
