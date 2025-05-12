@@ -114,7 +114,7 @@ export default function DashboardPage() {
         buttonInContent={true}
         actionButtonText="View All Tutors"
         ActionButtonIcon={Search} 
-        href="/search-tuitions" 
+        href="/search-tuitions" // Corrected Link
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"

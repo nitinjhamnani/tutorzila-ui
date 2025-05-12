@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -7,13 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TutorProfileCard } from "./TutorProfileCard";
-import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter } from "lucide-react"; 
+import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter as LucideFilter, ListFilter, Users2, Briefcase, CheckSquare, ListChecks, ChevronDown } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; // Import mock data
+import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 
-const allSubjects = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i);
-const experienceLevels = ["All", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
-const gradeLevels = ["All", ...new Set(MOCK_TUTOR_PROFILES.map(t => t.grade).filter(Boolean) as string[])].filter((v,i,a) => a.indexOf(v) === i);
+const allSubjectsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i).map(s => ({value: s, label: s}));
+const experienceLevelsList: {value: string, label: string}[] = ["All", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"].map(e => ({value: e, label: e}));
+const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.map(t => t.grade).filter(Boolean) as string[])].filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
 
 
 export function TutorProfileSearch() {
@@ -22,6 +30,7 @@ export function TutorProfileSearch() {
   const [experienceFilter, setExperienceFilter] = useState("All");
   const [gradeFilter, setGradeFilter] = useState("All"); 
   const [tutorProfiles, setTutorProfiles] = useState<TutorProfile[]>([]);
+  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     setTutorProfiles(MOCK_TUTOR_PROFILES);
@@ -51,97 +60,192 @@ export function TutorProfileSearch() {
     setGradeFilter("All");
   };
 
-  return (
-    <div className="space-y-8">
-      <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden">
-        <CardHeader className="p-6 md:p-8">
-          <CardTitle className="text-3xl md:text-4xl font-bold text-primary tracking-tight flex items-center">
-            <Users className="w-8 h-8 md:w-10 md:h-10 mr-3"/>Find Your Ideal Tutor
-          </CardTitle>
-           <CardDescription className="text-lg md:text-xl text-foreground/80 mt-1">
-            Browse profiles, filter by expertise, and connect with qualified educators.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6 p-6 md:p-8 pt-0">
-          <div className="relative">
-            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search by name, subject, grade, or keywords..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjects} />
-            <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevels} />
-            <FilterItem icon={Star} label="Experience" value={experienceFilter} onValueChange={setExperienceFilter} options={experienceLevels} />
-            
-            <Button onClick={resetFilters} variant="outline" className="h-11 text-base border-border hover:border-destructive hover:bg-destructive/10 hover:text-destructive transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-2">
-              <XIcon className="w-5 h-5" />
-              Reset Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+  const tabCounts = {
+    all: filteredTutorProfiles.length,
+    requests: 0,
+    accepted: 0,
+    shortlisted: 0,
+  };
 
-      {filteredTutorProfiles.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {filteredTutorProfiles.map((tutor, index) => (
+  const renderTutorList = (profiles: TutorProfile[]) => {
+    if (profiles.length > 0) {
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+          {profiles.map((tutor, index) => (
             <div 
               key={tutor.id}
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-              style={{ animationDelay: `${index * 0.05 + 0.3}s` }} // Stagger animation
+              style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
               <TutorProfileCard tutor={tutor} />
             </div>
           ))}
         </div>
-      ) : (
-        <Card className="text-center py-16 bg-card border rounded-lg shadow-md animate-in fade-in zoom-in-95 duration-500 ease-out">
-          <CardContent className="flex flex-col items-center">
-            <Filter className="w-20 h-20 text-primary/40 mx-auto mb-6" />
-            <p className="text-2xl font-semibold text-foreground/80 mb-2">No Tutors Found</p>
-            <p className="text-md text-muted-foreground max-w-md mx-auto">
-             Try adjusting your search filters or check back later as new tutors join.
-            </p>
-             <Button onClick={resetFilters} variant="outline" className="mt-8 text-base py-2.5 px-6">
-              <XIcon className="w-4 h-4 mr-2" />
-              Clear Filters
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      );
+    }
+    return (
+      <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
+        <CardContent className="flex flex-col items-center">
+          <ListFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+          <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Tutors Found</p>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            There are no tutors matching your current filters in this category. Try adjusting your search or check back later.
+          </p>
+           <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-5">
+            <XIcon className="w-3.5 h-3.5 mr-1.5" />
+            Clear All Filters
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const filterPanelContent = (
+    <>
+      <div className="relative mb-4">
+        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Search by name, subject, etc..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-xs hover:shadow-sm focus:shadow-md rounded-lg"
+        />
+      </div>
+      <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjectsList} />
+      <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevelsList} />
+      <FilterItem icon={Star} label="Experience" value={experienceFilter} onValueChange={setExperienceFilter} options={experienceLevelsList} />
+      <Button 
+        onClick={resetFilters} 
+        variant="outline" 
+        size="sm"
+        className="w-full bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground transform transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-2 text-sm py-2 px-3 mt-4"
+      >
+        <XIcon className="w-4 h-4" />
+        Reset All Filters
+      </Button>
+    </>
+  );
+
+
+  return (
+    <div className="space-y-6">
+       <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-700 ease-out overflow-hidden">
+        <CardHeader className="p-5 md:p-6">
+          <CardTitle className="text-2xl md:text-3xl font-semibold text-primary tracking-tight flex items-center">
+            <Users2 className="w-7 h-7 md:w-8 md:h-8 mr-2.5"/>Find Your Ideal Tutor
+          </CardTitle>
+           <CardDescription className="text-sm md:text-base text-foreground/70 mt-1">
+            Browse profiles, filter by expertise, and connect with qualified educators.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Filter Panel */}
+        <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
+          <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-sm overflow-hidden">
+            <AccordionItem value="filters" className="border-b-0">
+              <AccordionTrigger className="w-full hover:no-underline px-4 py-3 data-[state=open]:border-b data-[state=open]:border-border/30">
+                <div className="flex flex-row justify-between items-center w-full">
+                  <h3 className="text-lg font-semibold text-primary flex items-center">
+                    <LucideFilter className="w-5 h-5 mr-2.5"/>
+                    Filter Tutors
+                  </h3>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-0">
+                <div className="p-4 space-y-5">
+                  {filterPanelContent}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        <aside className="lg:w-[300px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block">
+          <Card className="bg-card border rounded-lg shadow-sm">
+            <CardHeader className="pb-4 border-b border-border/30">
+              <CardTitle className="text-xl font-semibold text-primary flex items-center">
+                <LucideFilter className="w-5 h-5 mr-2.5"/>
+                Filter Tutors
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-5">
+              {filterPanelContent}
+            </CardContent>
+          </Card>
+        </aside>
+
+        {/* Main Content (Right) */}
+        <main className="flex-1 space-y-6">
+           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+             <ScrollArea className="w-full whitespace-nowrap">
+              <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
+                <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                  <Users className="w-3.5 h-3.5"/> All Tutors ({tabCounts.all})
+                </TabsTrigger>
+                <TabsTrigger value="requests" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5"/> My Requests ({tabCounts.requests})
+                </TabsTrigger>
+                <TabsTrigger value="accepted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                   <CheckSquare className="w-3.5 h-3.5"/> Accepted ({tabCounts.accepted})
+                </TabsTrigger>
+                <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
+                  <ListChecks className="w-3.5 h-3.5"/> Shortlisted ({tabCounts.shortlisted})
+                </TabsTrigger>
+              </TabsList>
+              <ScrollBar orientation="horizontal" className="h-2 mt-1" />
+            </ScrollArea>
+
+            <TabsContent value="all" className="mt-6">
+              {renderTutorList(filteredTutorProfiles)}
+            </TabsContent>
+            <TabsContent value="requests" className="mt-6">
+              {renderTutorList([])} 
+            </TabsContent>
+            <TabsContent value="accepted" className="mt-6">
+              {renderTutorList([])}
+            </TabsContent>
+            <TabsContent value="shortlisted" className="mt-6">
+              {renderTutorList([])}
+            </TabsContent>
+          </Tabs>
+        </main>
+      </div>
     </div>
   );
 }
+
 
 interface FilterItemProps {
   icon: React.ElementType;
   label: string;
   value: string;
   onValueChange: (value: string) => void;
-  options: string[];
+  options: {value: string, label: string}[];
 }
 
 function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-sm font-medium text-muted-foreground flex items-center">
-        <Icon className="w-4 h-4 mr-2 text-primary/80"/>{label}
+      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center">
+        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label}
       </label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger 
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
-          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-11 text-base"
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs"
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {options.map(opt => <SelectItem key={opt} value={opt} className="text-base">{opt}</SelectItem>)}
+          <ScrollArea className="h-[180px]">
+            {options.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
+          </ScrollArea>
         </SelectContent>
       </Select>
     </div>
   );
 }
+
