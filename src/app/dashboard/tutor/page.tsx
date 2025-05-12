@@ -140,7 +140,7 @@ export default function TutorDashboardPage() {
     }));
   };
   
-  const insightCards = [
+  const insightCardsData = [
     { title: "Lead Balance", value: mockInsights.leadBalance, icon: Coins, imageHint: "coin stack" },
     { title: "Active Leads", value: mockInsights.activeLeads, icon: Inbox, imageHint: "inbox mail" },
     { title: "Demos Completed", value: mockInsights.demosCompleted, icon: Presentation, imageHint: "presentation chart" },
@@ -218,7 +218,7 @@ export default function TutorDashboardPage() {
                       isPhoneVerified
                         ? "bg-green-100 text-green-700 border-green-500 py-0.5 px-2 text-xs font-semibold cursor-default hover:bg-green-200 no-underline border" 
                         : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80"
-                    )}
+                      )}
                     onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
                     disabled={isPhoneVerified}
                   >
@@ -241,42 +241,45 @@ export default function TutorDashboardPage() {
         </CardHeader>
       </Card>
 
-      <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
-        <CardHeader className="pb-3 border-b border-border/20">
-          <CardTitle className="text-xl font-semibold text-primary flex items-center">
-            <LayoutDashboard className="w-5 h-5 mr-2.5"/>
-            My Insights
-          </CardTitle>
-           <CardDescription className="text-sm text-muted-foreground mt-1">
-            Overview of your tutoring activity and performance.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {insightCards.map((insight, index) => (
-            <Card 
-              key={insight.title} 
-              className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-4 text-center transform hover:scale-105"
-              style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
-            >
-              <div className={cn("p-2.5 bg-primary/10 rounded-full text-primary inline-block mb-2.5 group-hover:bg-primary/20 transition-all shadow-sm")}>
-                <insight.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
-              </div>
-              <p className="text-2xl font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p>
-              <p className="text-xs text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p>
-            </Card>
-          ))}
-        </CardContent>
-      </Card>
-
-
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1"> 
-        <div 
-          className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-          style={{ animationDelay: `0.3s` }} 
-        >
-          <UpdateProfileActionsCard user={tutorUser} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
+            <CardHeader className="pb-3 border-b border-border/20">
+              <CardTitle className="text-xl font-semibold text-primary flex items-center">
+                <LayoutDashboard className="w-5 h-5 mr-2.5"/>
+                My Insights
+              </CardTitle>
+              <CardDescription className="text-sm text-muted-foreground mt-1">
+                Overview of your tutoring activity and performance.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {insightCardsData.map((insight, index) => (
+                <Card 
+                  key={insight.title} 
+                  className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-4 text-center transform hover:scale-105"
+                  style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
+                >
+                  <div className={cn("p-2.5 bg-primary/10 rounded-full text-primary inline-block mb-2.5 group-hover:bg-primary/20 transition-all shadow-sm")}>
+                    <insight.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+                  </div>
+                  <p className="text-2xl font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p>
+                  <p className="text-xs text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+        <div className="lg:col-span-1">
+          <div 
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full" // Added h-full
+            style={{ animationDelay: `0.3s` }} 
+          >
+            <UpdateProfileActionsCard user={tutorUser} />
+          </div>
         </div>
       </div>
+
 
       <div className="mt-8 animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
         <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden">
