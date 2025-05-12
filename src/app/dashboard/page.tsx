@@ -92,46 +92,56 @@ export default function DashboardPage() {
       <ActionCard
         key="post-requirement"
         title="Post New Requirement"
-        description="Need a tutor? Post your requirements and let tutors find you."
+        cardDescriptionText="Need a tutor? Post your requirements and let tutors find you."
+        description="" // Main text moved to cardDescriptionText
         href="/dashboard/post-requirement"
         Icon={PlusCircle}
         showImage={false}
-        className="hover:shadow-xl"
+        buttonInContent={true}
+        actionButtonText="Post New Requirement"
+        ActionButtonIcon={PlusCircle}
+        actionButtonVariant="outline"
+        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg"
       />,
       <ActionCard
         key="my-requirements"
         title="My Requirements"
-        description="View and manage your active tuition postings."
+        cardDescriptionText="View and manage your active tuition postings."
+        description="" // Main text moved to cardDescriptionText
         href="/dashboard/my-requirements"
         Icon={ListChecks} 
         showImage={false}
-        className="hover:shadow-xl"
+        buttonInContent={true}
+        actionButtonText="My Requirements"
+        ActionButtonIcon={ListChecks}
+        actionButtonVariant="outline"
+        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg"
       />
-      // "Recent Activity" card removed for parent
     );
   } else if (user.role === "admin") {
     actionCards.push(
       <ActionCard
         key="manage-users"
         title="Manage Users"
-        description="Oversee parent and tutor accounts."
+        description="Oversee parent and tutor accounts." // This will be in CardContent
         href="/dashboard/admin/manage-users"
         Icon={Users}
         imageHint="people community"
         disabled
-        className="hover:shadow-xl"
+        className="hover:shadow-xl" // Default admin card styling
       />,
       <ActionCard
         key="manage-tuitions"
         title="Manage Tuitions"
-        description="Review and manage all tuition postings."
+        description="Review and manage all tuition postings." // This will be in CardContent
         href="/dashboard/admin/manage-tuitions"
         Icon={BookOpen}
         imageHint="library books"
         disabled
-        className="hover:shadow-xl"
+        className="hover:shadow-xl" // Default admin card styling
       />
-       // "Recent Activity" card removed for admin
     );
   }
 
@@ -270,7 +280,7 @@ export default function DashboardPage() {
       </div>
 
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">  {/* Changed lg:grid-cols-3 to lg:grid-cols-2 */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
           <div 
             className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
@@ -278,8 +288,8 @@ export default function DashboardPage() {
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
           <div 
-            className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" // Changed lg:col-span-2 to lg:col-span-1
-            style={{ animationDelay: `0.5s` }}
+            className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            style={{ animationDelay: `0.3s` }} // Adjusted delay
           >
             <ActionCard
               title="My Enquiries"
@@ -301,8 +311,8 @@ export default function DashboardPage() {
       )}
 
 
-      {(user.role === 'parent' || user.role === 'admin') && actionCards.length > 0 && (
-         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {user.role === 'parent' && actionCards.length > 0 && (
+         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> {/* Changed to lg:grid-cols-2 for parents */}
           {actionCards.map((card, index) => (
             <div 
               key={index} 
@@ -314,6 +324,20 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+      {user.role === 'admin' && actionCards.length > 0 && (
+         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> {/* Kept lg:grid-cols-3 for admin if they have more cards */}
+          {actionCards.map((card, index) => (
+            <div 
+              key={index} 
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              style={{ animationDelay: `${index * 0.1 + 0.2}s` }} 
+            >
+              {card}
+            </div>
+          ))}
+        </div>
+      )}
+
 
       {otpVerificationType && otpVerificationIdentifier && (
         <OtpVerificationModal
@@ -330,7 +354,7 @@ export default function DashboardPage() {
 
 interface ActionCardProps {
   title: string;
-  description: string;
+  description: string; // Used in CardContent if buttonInContent is false, or for specific titles if true
   href?: string; 
   Icon: React.ElementType;
   imageHint?: string;
@@ -341,7 +365,7 @@ interface ActionCardProps {
   actionButtonVariant?: ButtonProps['variant'];
   actionButtonClassName?: string;
   buttonInContent?: boolean;
-  cardDescriptionText?: string; 
+  cardDescriptionText?: string; // Used in CardHeader as CardDescription
   actionButtonText2?: string; 
   ActionButtonIcon2?: React.ElementType;
   href2?: string; 
@@ -430,7 +454,7 @@ function ActionCard({
                  <span className="font-semibold text-primary">{description}</span>
                </div>
             )}
-             {!((title === "My Classes" || title === "My Payments" || title === "My Enquiries")) && (
+             {!((title === "My Classes" || title === "My Payments" || title === "My Enquiries")) && description && (
                  <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
              )}
 
