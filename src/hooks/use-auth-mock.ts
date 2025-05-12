@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { User, UserRole, TutorProfile } from "@/types";
@@ -6,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAtom } from "jotai";
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { useEffect } from "react";
-import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; // Import MOCK_TUTOR_PROFILES
+import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
 
 const initialUser: User | null = null;
 
@@ -43,7 +42,7 @@ export function useAuthMock() {
 
 
   const login = (email: string, role?: UserRole) => {
-    const determinedRole: UserRole = role || (email.toLowerCase().includes("tutor") ? "tutor" : email.toLowerCase().includes("admin") ? "admin" : "parent");
+    const determinedRole: UserRole = role || (email.toLowerCase().includes("admin") ? "admin" : email.toLowerCase().includes("tutor") ? "tutor" : "parent");
 
     let baseUserData: User = {
       id: Date.now().toString(),
@@ -68,7 +67,20 @@ export function useAuthMock() {
 
       if (existingMockTutor) {
         finalUserData = { 
-          ...existingMockTutor,
+          ...existingMockTutor, // Spread the found tutor profile first
+          // Then ensure specific fields from baseUserData or defaults are applied if not present or need override
+          id: existingMockTutor.id || baseUserData.id, // Prefer existing ID
+          name: existingMockTutor.name || baseUserData.name,
+          email: existingMockTutor.email, // Keep existing email
+          role: 'tutor', // Ensure role is tutor
+          avatar: existingMockTutor.avatar || baseUserData.avatar,
+          status: existingMockTutor.status || baseUserData.status,
+          phone: existingMockTutor.phone || baseUserData.phone || "9876543210", // Ensure phone has a value
+          isEmailVerified: existingMockTutor.isEmailVerified !== undefined ? existingMockTutor.isEmailVerified : baseUserData.isEmailVerified,
+          isPhoneVerified: existingMockTutor.isPhoneVerified !== undefined ? existingMockTutor.isPhoneVerified : baseUserData.isPhoneVerified,
+          gender: existingMockTutor.gender || baseUserData.gender,
+          dateOfBirth: existingMockTutor.dateOfBirth || baseUserData.dateOfBirth,
+          // Tutor specific fields - ensure they are arrays
           subjects: ensureArrayField(existingMockTutor.subjects),
           qualifications: ensureArrayField(existingMockTutor.qualifications),
           teachingMode: ensureArrayField(existingMockTutor.teachingMode),
@@ -94,6 +106,8 @@ export function useAuthMock() {
           boardsTaught: ["CBSE"],
           preferredDays: ["Weekdays"],
           preferredTimeSlots: ["1700-1900"],
+          location: "Online",
+          rating: 4.5,
         } as TutorProfile;
       }
     } else if (determinedRole === 'admin' && email.toLowerCase().includes('admin')) {
@@ -109,8 +123,12 @@ export function useAuthMock() {
       };
     }
     
-    setUser(finalUserData); 
-    router.push("/dashboard");
+    setUser(finalUserData);
+    if (finalUserData.role === 'tutor') {
+      router.push("/dashboard/enquiries");
+    } else {
+      router.push("/dashboard");
+    }
     return Promise.resolve(finalUserData);
   };
 
@@ -143,10 +161,16 @@ export function useAuthMock() {
         boardsTaught: [],
         preferredDays: [],
         preferredTimeSlots: [],
+        location: "Online",
+        rating: 0,
       } as TutorProfile;
     }
     setUser(mockUserData);
-    router.push("/dashboard");
+    if (role === 'tutor') {
+      router.push("/dashboard/enquiries");
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   const logout = () => {

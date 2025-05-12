@@ -15,15 +15,15 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent, // Aliased to avoid conflict
+  SheetTitle as SheetTitleComponent, 
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle, // This is the DialogTitle from ui/dialog
-  DialogTrigger as ShadDialogTrigger, // Aliased to avoid conflict with SheetTrigger
+  DialogTitle, 
+  DialogTrigger as ShadDialogTrigger, 
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
@@ -58,13 +58,14 @@ export function AppHeader() {
 
   const headerClasses = cn(
     "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
-    isScrolled ? "bg-card shadow-md border-b border-border" : "bg-transparent"
+    isScrolled || pathname !== "/" ? "bg-card shadow-md border-b border-border" : "bg-transparent"
   );
   
   const findTutorButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
     "border-primary text-primary hover:bg-primary/10",
-     isScrolled || pathname !== "/" ? "border-primary text-primary hover:bg-primary/10" : "border-card text-card hover:bg-card/80"
+     (isScrolled || pathname !== "/") && "border-primary text-primary hover:bg-primary/10",
+     !(isScrolled || pathname !== "/") && "border-card text-card hover:bg-card/20" 
   );
   
   const signInButtonClass = cn(
@@ -74,14 +75,14 @@ export function AppHeader() {
 
   const navButtonClasses = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-4 rounded-lg",
-    isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10"
+    (isScrolled || pathname !== "/") ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10"
   );
 
 
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
-  const logoHref = isAuthenticated && user?.role === 'tutor' ? "/dashboard" : "/";
+  const logoHref = isAuthenticated && user?.role === 'tutor' ? "/dashboard/enquiries" : "/";
 
 
   return (
@@ -97,40 +98,40 @@ export function AppHeader() {
                <Button
                  asChild
                  className={cn(
-                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
+                   "text-xs font-semibold py-1.5 px-3 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
                    pathname === "/dashboard"
                      ? "bg-primary text-primary-foreground shadow-sm border-primary" 
                      : "bg-card text-primary border border-primary hover:bg-primary/10" 
                  )}
                >
                  <Link href="/dashboard">
-                   <UserCircle className="h-4 w-4" /> My Profile
+                   <UserCircle className="h-3.5 w-3.5" /> My Profile
                  </Link>
                </Button>
                <Button
                  asChild
                  className={cn(
-                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
+                   "text-xs font-semibold py-1.5 px-3 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
                    pathname === "/dashboard/enquiries"
                      ? "bg-primary text-primary-foreground shadow-sm border-primary" 
                      : "bg-card text-primary border border-primary hover:bg-primary/10" 
                  )}
                >
                  <Link href="/dashboard/enquiries">
-                   <ClipboardList className="h-4 w-4" /> My Enquiries
+                   <ClipboardList className="h-3.5 w-3.5" /> My Enquiries
                  </Link>
                </Button>
                <Button
                  asChild
                  className={cn(
-                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1",
-                   pathname === "/dashboard/my-classes" // Assuming this will be the route
+                   "text-xs font-semibold py-1.5 px-3 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1",
+                   pathname === "/dashboard/my-classes" 
                      ? "bg-primary text-primary-foreground shadow-sm border-primary"
                      : "bg-card text-primary border border-primary hover:bg-primary/10"
                  )}
                >
-                 <Link href="#"> {/* Placeholder link for My Classes */}
-                   <UsersRound className="h-4 w-4" /> My Classes
+                 <Link href="#"> 
+                   <UsersRound className="h-3.5 w-3.5" /> My Classes
                  </Link>
                </Button>
              </>
@@ -158,7 +159,7 @@ export function AppHeader() {
                     <Button className={signInButtonClass}>Sign In</Button>
                   </ShadDialogTrigger>
                   <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                     <DialogHeader className="sr-only"> {/* Made DialogHeader sr-only as per prior changes */}
+                     <DialogHeader className="sr-only"> 
                        <DialogTitle>Sign In to Tutorzila</DialogTitle>
                      </DialogHeader>
                     <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
@@ -169,7 +170,7 @@ export function AppHeader() {
             {isAuthenticated && user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className={cn("relative h-12 w-12 rounded-full transform transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", !isScrolled && "hover:bg-white/10 active:bg-white/20 text-card-foreground")}>
+                  <Button variant="ghost" className={cn("relative h-12 w-12 rounded-full transform transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", !(isScrolled || pathname !== "/") && "hover:bg-white/10 active:bg-white/20 text-card-foreground")}>
                     <Avatar className="h-12 w-12 border-2 border-primary/50 group-hover:border-primary transition-all">
                       <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
                       <AvatarFallback className="bg-primary/20 text-primary">{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
@@ -213,7 +214,7 @@ export function AppHeader() {
           <div className="md:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isScrolled ? "text-foreground" : "text-card-foreground hover:bg-white/10 active:bg-white/20", "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2")}>
+                <Button variant="ghost" size="icon" className={cn((isScrolled || pathname !== "/") ? "text-foreground" : "text-card-foreground hover:bg-white/10 active:bg-white/20", "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2")}>
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
@@ -247,7 +248,7 @@ export function AppHeader() {
                           <Link href="/dashboard/enquiries" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <ClipboardList className="h-5 w-5 text-primary" /> My Enquiries
                           </Link>
-                          <Link href="#" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}> {/* Placeholder link for My Classes */}
+                          <Link href="#" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}> 
                             <UsersRound className="h-5 w-5 text-primary" /> My Classes
                           </Link>
                         </>
@@ -310,7 +311,7 @@ export function AppHeader() {
                           </Button>
                         </ShadDialogTrigger>
                         <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                           <DialogHeader className="sr-only"> {/* Made DialogHeader sr-only as per prior changes */}
+                           <DialogHeader className="sr-only"> 
                              <DialogTitle>Sign In to Tutorzila</DialogTitle>
                            </DialogHeader>
                           <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
