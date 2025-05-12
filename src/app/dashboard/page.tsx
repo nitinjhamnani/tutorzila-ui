@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -97,34 +98,54 @@ export default function DashboardPage() {
 
   const parentActionCards = [
       <ActionCard
-        key="my-requirements"
-        title="My Requirements"
+        key="my-enquiries" // Changed from my-requirements to my-enquiries
+        title="My Enquiries" // Renamed
         cardDescriptionText="Manage your posted tuition needs and connect with suitable tutors."
         Icon={ListChecks} 
         showImage={false}
         buttonInContent={true}
-        actionButtonText="View My Requirements"
+        actionButtonText="View My Enquiries" // Renamed
         ActionButtonIcon={Eye} 
         href="/dashboard/my-requirements" 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
-        actionButtonText2="Post New Requirement"
+        actionButtonText2="Create Enquiry" // Renamed
         ActionButtonIcon2={PlusCircle}
         href2="/dashboard/post-requirement" 
         imageHint="list checkmark"
       />,
       <ActionCard
+        key="my-tuition" // Changed from manage-students to my-tuition
+        title="My Tuition" // Renamed
+        cardDescriptionText="Explore profiles of qualified tutors and manage demo requests." // Updated description
+        Icon={School} 
+        showImage={false}
+        buttonInContent={true}
+        actionButtonText="View All Tutors" // Renamed
+        ActionButtonIcon={SearchCheck}  // Changed icon
+        href="/dashboard/tutors" // Updated href
+        // disabled={true} // Placeholder - removed disabled state for now
+        actionButtonVariant="outline"
+        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg"
+        actionButtonText2="Demo Requests" // New button
+        ActionButtonIcon2={MessageSquareQuote} // New icon
+        href2="/dashboard/demo-sessions" // New href
+        // disabled2={true} // Placeholder - removed disabled state for now
+        imageHint="student profile"
+      />,
+      <ActionCard
         key="manage-students"
         title="Student Profiles"
         cardDescriptionText="Add and manage profiles for your children to personalize tuition needs."
-        Icon={School} // Using School icon for students
+        Icon={UsersRound} 
         showImage={false}
         buttonInContent={true}
         actionButtonText="Manage Students"
         ActionButtonIcon={Edit3} 
         href="/dashboard/manage-students"
-        disabled={true} // Placeholder
+        disabled={true} 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
@@ -140,26 +161,11 @@ export default function DashboardPage() {
         actionButtonText="View Payments"
         ActionButtonIcon={FileText} 
         href="/dashboard/payments"
-        disabled={true} // Placeholder
+        disabled={true} 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
         imageHint="payment history"
-      />,
-      <ActionCard
-        key="browse-tutors"
-        title="Browse Tutors"
-        cardDescriptionText="Explore profiles of qualified tutors and find the perfect match for your child."
-        Icon={SearchCheck} 
-        showImage={false}
-        buttonInContent={true}
-        actionButtonText="Search Tutors"
-        ActionButtonIcon={Search} 
-        href="/search-tuitions"
-        actionButtonVariant="default" // Primary action
-        actionButtonClassName="text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg bg-primary/5"
-        imageHint="tutor search"
       />,
        <ActionCard
         key="my-classes"
@@ -171,7 +177,7 @@ export default function DashboardPage() {
         actionButtonText="View My Classes"
         ActionButtonIcon={CalendarClock} 
         href="/dashboard/my-classes"
-        disabled={true} // Placeholder
+        disabled={true} 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
@@ -187,7 +193,7 @@ export default function DashboardPage() {
         actionButtonText="View Demo Sessions"
         ActionButtonIcon={RadioTower} 
         href="/dashboard/demo-sessions"
-        disabled={true} // Placeholder
+        disabled={true}
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
@@ -201,7 +207,7 @@ export default function DashboardPage() {
         key="manage-users"
         title="Manage Users"
         description="Oversee parent and tutor accounts." 
-        href="/dashboard/admin" // Link to main admin panel which has this option
+        href="/dashboard/admin" 
         Icon={Users}
         imageHint="people community"
         className="hover:shadow-xl"
@@ -212,7 +218,7 @@ export default function DashboardPage() {
         key="manage-tuitions"
         title="Manage Tuitions"
         description="Review and manage all tuition postings." 
-        href="/dashboard/admin" // Link to main admin panel
+        href="/dashboard/admin" 
         Icon={BookOpen}
         imageHint="library books"
         className="hover:shadow-xl"
@@ -223,7 +229,7 @@ export default function DashboardPage() {
         key="site-analytics"
         title="Site Analytics"
         description="View platform statistics and user activity." 
-        href="/dashboard/admin" // Link to main admin panel
+        href="/dashboard/admin" 
         Icon={BarChart3}
         imageHint="dashboard chart"
         className="hover:shadow-xl"
@@ -236,7 +242,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1">
-         <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden border-0">
+         <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden border-0 shadow-none w-full">
           <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="relative group shrink-0">
@@ -335,39 +341,12 @@ export default function DashboardPage() {
               </div>
             )}
           </CardHeader>
-          {user.role === 'tutor' && (
-            <CardContent className="p-4 md:p-5 pt-3 space-y-3 border-t"> 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 items-start"> 
-                <div className="space-y-1">
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Coins className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
-                    <span className="text-xs">Lead Balance</span>
-                  </div>
-                  <p className="text-[0.875rem] font-semibold text-primary">{50}</p>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <CalendarClock className="w-3.5 h-3.5 mr-1.5 text-primary/80" />
-                    <span className="text-xs">Plan Expiry</span>
-                  </div>
-                  <p className="text-[0.875rem] font-medium">Dec 31, 2024</p>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2"> 
-                 <Badge variant="outline" className="border-green-500 text-green-600 bg-green-500/10 py-1 px-2.5 text-xs font-medium">
-                    <Award className="w-3.5 h-3.5 mr-1.5" /> Premium Plan
-                 </Badge>
-                <Button size="sm" className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95">
-                  <ShoppingBag className="w-4 h-4 mr-2" /> Buy More Leads
-                </Button>
-              </div>
-            </CardContent>
-          )}
+          {/* Removed Lead Balance, Plan Expiry, Badge, and Buy Leads Button for tutors */}
         </Card>
       </div>
 
       {user.role === 'tutor' && (
-         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2"> {/* Changed to 1 col for md, 2 for lg */}
+         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> 
           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
@@ -617,4 +596,5 @@ function ActionCard({
   );
 }
     
+
 
