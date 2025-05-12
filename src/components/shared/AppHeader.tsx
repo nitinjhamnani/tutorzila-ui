@@ -15,7 +15,7 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
+  SheetTitle as SheetTitleComponent,
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
@@ -23,7 +23,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger as ShadDialogTrigger, // Aliased to avoid conflict with SheetTrigger if any confusion
+  DialogTrigger as ShadDialogTrigger,
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
@@ -97,10 +97,10 @@ export function AppHeader() {
                <Button
                  asChild
                  className={cn(
-                   "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
+                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", // Added mx-1 for spacing and font-semibold
                    pathname === "/dashboard"
-                     ? "bg-primary text-primary-foreground shadow-sm border-primary" // Active state
-                     : "bg-card text-primary border border-primary hover:bg-primary/10" // Default state
+                     ? "bg-primary text-primary-foreground shadow-sm border-primary" 
+                     : "bg-card text-primary border border-primary hover:bg-primary/10" 
                  )}
                >
                  <Link href="/dashboard">
@@ -110,32 +110,20 @@ export function AppHeader() {
                <Button
                  asChild
                  className={cn(
-                   "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
+                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", // Added mx-1 for spacing and font-semibold
                    pathname === "/dashboard/enquiries"
-                     ? "bg-primary text-primary-foreground shadow-sm border-primary" // Active state
-                     : "bg-card text-primary border border-primary hover:bg-primary/10" // Default state
+                     ? "bg-primary text-primary-foreground shadow-sm border-primary" 
+                     : "bg-card text-primary border border-primary hover:bg-primary/10" 
                  )}
                >
                  <Link href="/dashboard/enquiries">
                    <ClipboardList className="h-4 w-4" /> My Enquiries
                  </Link>
                </Button>
-               <Button
-                 asChild
-                 className={cn(
-                   "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
-                   pathname === "/dashboard/my-classes" 
-                     ? "bg-primary text-primary-foreground shadow-sm border-primary" // Active state
-                     : "bg-card text-primary border border-primary hover:bg-primary/10" // Default state
-                 )}
-               >
-                 <Link href="/dashboard/my-classes"> 
-                   <UsersRound className="h-4 w-4" /> My Classes
-                 </Link>
-               </Button>
+               {/* My Classes button removed as per previous request to remove it from tutor dashboard */}
              </>
            )}
-           {isAuthenticated && user && user.role !== 'tutor' && ( // For parent or admin
+           {isAuthenticated && user && user.role !== 'tutor' && ( 
              <Button asChild variant="ghost" className={navButtonClasses}>
                 <Link href="/dashboard">
                     <HomeIcon className="mr-2 h-4 w-4" /> Dashboard
@@ -146,9 +134,11 @@ export function AppHeader() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3">
-             <Button asChild variant="outline" className={findTutorButtonClass}>
-               <Link href="/search-tuitions">Find Tutors</Link>
-             </Button>
+             {!(isAuthenticated && user?.role === 'tutor') && (
+                <Button asChild variant="outline" className={findTutorButtonClass}>
+                  <Link href="/search-tuitions">Find Tutors</Link>
+                </Button>
+              )}
             {!isAuthenticated && (
               <>
                 <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
@@ -245,9 +235,7 @@ export function AppHeader() {
                           <Link href="/dashboard/enquiries" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <ClipboardList className="h-5 w-5 text-primary" /> My Enquiries
                           </Link>
-                          <Link href="/dashboard/my-classes" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
-                            <UsersRound className="h-5 w-5 text-primary" /> My Classes
-                          </Link>
+                          {/* My Classes link removed from mobile menu as well */}
                         </>
                       )}
                       {user.role === 'parent' && (
@@ -258,12 +246,24 @@ export function AppHeader() {
                           <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <Edit className="h-5 w-5 text-primary" /> Post Requirement
                           </Link>
+                           <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => {setMobileMenuOpen(false)}}>
+                            <Link href="/search-tuitions">
+                              <Search className="h-5 w-5 text-primary" /> Find Tutors
+                            </Link>
+                          </Button>
                         </>
                       )}
                        {user.role === 'admin' && (
-                        <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
-                          <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
-                        </Link>
+                        <>
+                          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                            <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
+                          </Link>
+                           <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => {setMobileMenuOpen(false)}}>
+                            <Link href="/search-tuitions">
+                              <Search className="h-5 w-5 text-primary" /> Find Tutors
+                            </Link>
+                          </Button>
+                        </>
                       )}
                       
                       <Separator className="my-3" />
@@ -319,3 +319,4 @@ export function AppHeader() {
     </header>
   );
 }
+
