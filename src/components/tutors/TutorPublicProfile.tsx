@@ -3,6 +3,7 @@
 
 import type { TutorProfile } from "@/types";
 import Image from "next/image";
+import React from "react"; // Added React import
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,7 @@ import {
   Quote,
   UserX,
   CalendarClock,
-  Clock, // Added Clock import
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format }
@@ -150,7 +151,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                   {tutor.subjects.map((subject) => {
                     const IconComponent = subjectIcons[subject] || subjectIcons.Default;
                     return (
-                      <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[10px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
+                      <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[11px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
                         <IconComponent className="w-2.5 h-2.5 mr-1"/>
                         {subject}
                       </Badge>
@@ -158,15 +159,15 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                   })}
                 </div>
               </InfoSection>
-              {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} />}
-              {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} />}
-              {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications}/>}
+              {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} className="text-[13px]" />}
+              {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} className="text-[13px]" />}
+              {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} className="text-[13px]" />}
               {tutor.teachingMode && (
-                <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} />
+                <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} className="text-[13px]" />
               )}
-               {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} />}
-               {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} />}
-               {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={Clock} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} />}
+               {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-[13px]" />}
+               {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-[13px]" />}
+               {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={Clock} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-[13px]" />}
             </CardContent>
           </Card>
 
@@ -232,19 +233,21 @@ interface InfoSectionProps {
     title: string;
     content?: string;
     children?: React.ReactNode;
+    className?: string;
 }
 
-function InfoSection({ icon: Icon, title, content, children }: InfoSectionProps) {
+function InfoSection({ icon: Icon, title, content, children, className }: InfoSectionProps) {
     return (
         <div className="space-y-0.5">
             <div className="flex items-center text-xs font-medium text-foreground/90">
                 <Icon className="w-3 h-3 mr-1.5 text-primary/80"/>
                 {title}
             </div>
-            {content && <p className="text-[13px] text-foreground/70 pl-[18px]">{content}</p>}
-            {children && <div className="text-[13px] pl-[18px]">{children}</div>}
+            {content && <p className={cn("text-[13px] text-foreground/70 pl-[18px]", className)}>{content}</p>}
+            {children && <div className={cn("text-[13px] pl-[18px]", className)}>{children}</div>}
         </div>
     )
 }
+
 
 
