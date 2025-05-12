@@ -45,6 +45,7 @@ export default function DashboardPage() {
   }
 
   const handleAvatarClick = () => {
+    // Allow avatar click for upload only for tutors
     if (user?.role === 'tutor') {
       fileInputRef.current?.click();
     }
@@ -58,6 +59,10 @@ export default function DashboardPage() {
         title: "Profile Picture Updated (Mock)",
         description: `${file.name} selected. In a real app, this would be uploaded.`,
       });
+      // Here you would typically call an API to upload the image
+      // and update the user's avatar URL in your backend/state.
+      // For mock, we could update local state if user object was mutable here,
+      // or re-fetch/update through useAuthMock if it supported avatar updates.
     }
   };
   
@@ -90,8 +95,7 @@ export default function DashboardPage() {
         description="Need a tutor? Post your requirements and let tutors find you."
         href="/dashboard/post-requirement"
         Icon={PlusCircle}
-        imageHint="writing list"
-        showImage={false} // Changed to false
+        showImage={false}
         className="hover:shadow-xl"
       />,
       <ActionCard
@@ -100,8 +104,7 @@ export default function DashboardPage() {
         description="View and manage your active tuition postings."
         href="/dashboard/my-requirements"
         Icon={ListChecks} 
-        imageHint="task checklist"
-        showImage={false} // Changed to false
+        showImage={false}
         className="hover:shadow-xl"
       />,
        <ActionCard
@@ -110,8 +113,7 @@ export default function DashboardPage() {
         description="Updates on your postings and applications."
         href="#"
         Icon={Activity}
-        imageHint="activity chart"
-        showImage={false} // Changed to false
+        showImage={false}
         disabled
         className="hover:shadow-xl"
       />
@@ -159,10 +161,12 @@ export default function DashboardPage() {
          <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden shadow-none border-0">
           <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              {user.role === 'tutor' && (
-                <div className="relative group shrink-0">
+              <div className="relative group shrink-0">
                   <Avatar
-                    className="h-16 w-16 border-2 border-primary/30 group-hover:opacity-80 transition-opacity cursor-pointer"
+                    className={cn(
+                        "h-16 w-16 border-2 border-primary/30",
+                        user.role === 'tutor' && "group-hover:opacity-80 transition-opacity cursor-pointer"
+                    )}
                     onClick={handleAvatarClick} 
                   >
                     <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
@@ -170,13 +174,15 @@ export default function DashboardPage() {
                       {user.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                   <button
-                    onClick={handleAvatarClick}
-                    className="absolute -bottom-2 -right-2 flex items-center justify-center bg-primary text-primary-foreground p-1.5 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
-                    aria-label="Update profile picture"
-                  >
-                    <Camera className="w-3.5 h-3.5" />
-                  </button>
+                   {user.role === 'tutor' && (
+                     <button
+                        onClick={handleAvatarClick}
+                        className="absolute -bottom-2 -right-2 flex items-center justify-center bg-primary text-primary-foreground p-1.5 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
+                        aria-label="Update profile picture"
+                      >
+                        <Camera className="w-3.5 h-3.5" />
+                      </button>
+                   )}
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -185,7 +191,6 @@ export default function DashboardPage() {
                     className="hidden"
                   />
                 </div>
-              )}
               <div className="flex-grow">
                 <div className="flex items-center gap-2 mb-1">
                   <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
@@ -203,7 +208,7 @@ export default function DashboardPage() {
                     </Badge>
                   )}
                 </div>
-                {user.role === 'tutor' && (
+                { (user.role === 'tutor' || user.role === 'parent') && ( // Show verification for both tutors and parents
                   <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                      <Button
                         variant="secondary" 
@@ -284,15 +289,15 @@ export default function DashboardPage() {
       </div>
 
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-2"> 
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3"> 
           <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
           >
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
           <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            className="lg:col-span-2 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.5s` }}
           >
             <ActionCard
@@ -466,5 +471,6 @@ function ActionCard({
   );
 }
     
+
 
 
