@@ -80,7 +80,7 @@ const popularSubjects = [
 
 
 export default function HomePage() {
-  const sectionPadding = "pt-10 md:pt-16 pb-12 md:pb-20"; // Adjusted padding for more space
+  const sectionPadding = "pt-10 md:pt-16 pb-12 md:pb-20"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
 
@@ -92,7 +92,7 @@ export default function HomePage() {
           <div className={`grid items-center gap-8 lg:grid-cols-2 lg:gap-16 ${containerPadding}`}>
             <div className="flex flex-col justify-center space-y-5 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
               <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-primary">
-                Find Your Perfect Learning Match with Tutorzila
+                Find Your Perfect Tutor
               </h2>
               <p className="max-w-[600px] text-foreground/80 md:text-lg">
                 Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
@@ -354,3 +354,4 @@ export default function HomePage() {
 }
 
     
+
