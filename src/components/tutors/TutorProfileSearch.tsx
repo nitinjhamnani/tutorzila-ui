@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TutorProfileCard } from "./TutorProfileCard";
-import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter as LucideFilter, ListFilter } from "lucide-react";
+import { SearchIcon, XIcon, BookOpen, Star, Users, GraduationCap, Filter as LucideFilter, ListFilter, RadioTower, MapPin } from "lucide-react"; // Added RadioTower, MapPin
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,10 +18,19 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 
 const allSubjectsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i).map(s => ({value: s, label: s}));
 const experienceLevelsList: {value: string, label: string}[] = ["All", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"].map(e => ({value: e, label: e}));
 const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])))].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
+
+const modeOptionsList: { value: string; label: string }[] = [
+  { value: "All", label: "All Modes" },
+  { value: "Online", label: "Online" },
+  { value: "StudentHome", label: "Student's Home" },
+  { value: "TutorHome", label: "Tutor's Home" },
+  { value: "Hybrid", label: "Hybrid (Online & In-person)" },
+];
 
 
 export function TutorProfileSearch() {
@@ -29,6 +38,8 @@ export function TutorProfileSearch() {
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [experienceFilter, setExperienceFilter] = useState("All");
   const [gradeFilter, setGradeFilter] = useState("All");
+  const [modeFilter, setModeFilter] = useState("All");
+  const [locationSearchTerm, setLocationSearchTerm] = useState("");
   const [tutorProfiles, setTutorProfiles] = useState<TutorProfile[]>([]);
 
   useEffect(() => {
@@ -38,6 +49,8 @@ export function TutorProfileSearch() {
   const filteredTutorProfiles = useMemo(() => {
     return tutorProfiles.filter((tutor) => {
       const searchTermLower = searchTerm.toLowerCase();
+      const locationSearchTermLower = locationSearchTerm.toLowerCase();
+
       const matchesSearchTerm = searchTerm === "" ||
         tutor.name.toLowerCase().includes(searchTermLower) ||
         tutor.subjects.some(s => s.toLowerCase().includes(searchTermLower)) ||
@@ -49,22 +62,39 @@ export function TutorProfileSearch() {
       const matchesExperience = experienceFilter === "All" || tutor.experience === experienceFilter;
       const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(gradeFilter));
 
+      let matchesMode = true;
+      if (modeFilter !== "All") {
+        const teachingModes = tutor.teachingMode || [];
+        if (modeFilter === "Online") {
+          matchesMode = teachingModes.includes("Online");
+        } else if (modeFilter === "StudentHome") {
+          matchesMode = teachingModes.includes("Offline (In-person)") && tutor.location?.toLowerCase().includes("student's home");
+        } else if (modeFilter === "TutorHome") {
+          matchesMode = teachingModes.includes("Offline (In-person)") && tutor.location?.toLowerCase().includes("tutor's home");
+        } else if (modeFilter === "Hybrid") {
+          matchesMode = teachingModes.includes("Online") && teachingModes.includes("Offline (In-person)");
+        }
+      }
 
-      return matchesSearchTerm && matchesSubject && matchesExperience && matchesGrade;
+      const matchesLocationSearch = locationSearchTerm === "" || (tutor.location && tutor.location.toLowerCase().includes(locationSearchTermLower));
+
+      return matchesSearchTerm && matchesSubject && matchesExperience && matchesGrade && matchesMode && matchesLocationSearch;
     });
-  }, [searchTerm, subjectFilter, experienceFilter, gradeFilter, tutorProfiles]);
+  }, [searchTerm, subjectFilter, experienceFilter, gradeFilter, modeFilter, locationSearchTerm, tutorProfiles]);
 
   const resetFilters = () => {
     setSearchTerm("");
     setSubjectFilter("All");
     setExperienceFilter("All");
     setGradeFilter("All");
+    setModeFilter("All");
+    setLocationSearchTerm("");
   };
 
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Changed to grid-cols-1 for vertical listing */}
+        <div className="grid grid-cols-1 gap-4 md:gap-5">
           {profiles.map((tutor, index) => (
             <div
               key={tutor.id}
@@ -100,10 +130,24 @@ export function TutorProfileSearch() {
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search by name, subject, etc..."
+          placeholder="Search by name, subject, keyword..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-xs hover:shadow-sm focus:shadow-md rounded-lg"
+        />
+      </div>
+      <FilterItem icon={RadioTower} label="Mode" value={modeFilter} onValueChange={setModeFilter} options={modeOptionsList} />
+      <div className="space-y-1.5">
+        <Label htmlFor="location-search-filter" className="text-xs font-medium text-muted-foreground flex items-center">
+          <MapPin className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Preferred Location
+        </Label>
+        <Input
+          type="search"
+          id="location-search-filter"
+          placeholder="Enter city, area..."
+          value={locationSearchTerm}
+          onChange={(e) => setLocationSearchTerm(e.target.value)}
+          className="h-9 text-xs bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
         />
       </div>
       <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjectsList} />
@@ -181,9 +225,9 @@ interface FilterItemProps {
 function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center">
+      <Label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center">
         <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label}
-      </label>
+      </Label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`}

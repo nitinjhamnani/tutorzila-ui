@@ -4,7 +4,7 @@ import { FixedPostRequirementBanner } from "@/components/shared/FixedPostRequire
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Search Tutors - Tutorzila",
+  title: "Search Tutors - Find Your Perfect Tutor", // Updated title
 };
 
 export default function SearchTutorsPage() {
