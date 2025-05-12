@@ -98,14 +98,14 @@ export default function HomePage() {
                 Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.
               </p>
               <div className="flex flex-col gap-3.5 min-[400px]:flex-row pt-2">
-                <Button asChild size="default" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                <Button asChild size="sm" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
                    <Link href="/search-tuitions">
                     <Search className="mr-2.5 h-5 w-5" /> Search Tutors
                   </Link>
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                   <DialogTrigger asChild>
-                     <Button size="default" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:bg-primary/5 hover:text-primary border-primary/40 hover:border-primary">
+                     <Button size="sm" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:text-primary border-primary/40 hover:border-primary">
                       <SquarePen className="mr-2.5 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
@@ -354,5 +354,6 @@ export default function HomePage() {
 }
 
     
+
 
 
