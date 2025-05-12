@@ -4,7 +4,7 @@
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound, CalendarDays, Edit3, Trash2, School, UserCircle as UserCircleIcon, ShieldCheck, BarChart3, FileText, VenetianMask, RadioTower, MapPin, GraduationCap, SearchCheck, MessageSquareQuote, Star, Send, QuoteIcon } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound, CalendarDays, Edit3, Trash2, School, UserCircle as UserCircleIcon, ShieldCheck, BarChart3, FileText, VenetianMask, RadioTower, MapPin, GraduationCap, SearchCheck, MessageSquare, Star, Send, QuoteIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { TutorProfile, DemoSession } from "@/types";
@@ -98,41 +98,39 @@ export default function DashboardPage() {
 
   const parentActionCards = [
       <ActionCard
-        key="my-enquiries" // Changed from my-requirements to my-enquiries
-        title="My Enquiries" // Renamed
+        key="my-enquiries"
+        title="My Enquiries"
         cardDescriptionText="Manage your posted tuition needs and connect with suitable tutors."
         Icon={ListChecks} 
         showImage={false}
         buttonInContent={true}
-        actionButtonText="View My Enquiries" // Renamed
+        actionButtonText="View My Enquiries"
         ActionButtonIcon={Eye} 
         href="/dashboard/my-requirements" 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
-        actionButtonText2="Create Enquiry" // Renamed
+        actionButtonText2="Create Enquiry"
         ActionButtonIcon2={PlusCircle}
         href2="/dashboard/post-requirement" 
         imageHint="list checkmark"
       />,
       <ActionCard
-        key="my-tuition" // Changed from manage-students to my-tuition
-        title="My Tuition" // Renamed
-        cardDescriptionText="Explore profiles of qualified tutors and manage demo requests." // Updated description
+        key="my-tuition"
+        title="My Tuition"
+        cardDescriptionText="Explore profiles of qualified tutors and manage demo requests."
         Icon={School} 
         showImage={false}
         buttonInContent={true}
-        actionButtonText="View All Tutors" // Renamed
-        ActionButtonIcon={SearchCheck}  // Changed icon
-        href="/dashboard/tutors" // Updated href
-        // disabled={true} // Placeholder - removed disabled state for now
+        actionButtonText="View All Tutors"
+        ActionButtonIcon={SearchCheck}
+        href="/dashboard/tutors"
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
-        actionButtonText2="Demo Requests" // New button
-        ActionButtonIcon2={MessageSquareQuote} // New icon
-        href2="/dashboard/demo-sessions" // New href
-        // disabled2={true} // Placeholder - removed disabled state for now
+        actionButtonText2="Demo Requests"
+        ActionButtonIcon2={MessageSquareQuote}
+        href2="/dashboard/demo-sessions"
         imageHint="student profile"
       />,
       <ActionCard
@@ -282,12 +280,11 @@ export default function DashboardPage() {
                      <Badge 
                       variant={user.status === "Active" ? "default" : "destructive"} 
                       className={cn(
-                        "text-xs py-0.5 px-2",
-                        user.status === "Active" ? "bg-green-100 text-green-700 border-green-500" : "bg-red-100 text-red-700 border-red-500",
-                        "hover:bg-opacity-80 border"
+                        "text-xs py-0.5 px-2 border",
+                        user.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500 hover:bg-opacity-80",
                       )}
                     >
-                      {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                      {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3 text-primary-foreground" /> : <XCircle className="mr-1 h-3 w-3" />}
                       {user.status}
                     </Badge>
                   )}
@@ -341,7 +338,6 @@ export default function DashboardPage() {
               </div>
             )}
           </CardHeader>
-          {/* Removed Lead Balance, Plan Expiry, Badge, and Buy Leads Button for tutors */}
         </Card>
       </div>
 
@@ -596,5 +592,4 @@ function ActionCard({
   );
 }
     
-
 
