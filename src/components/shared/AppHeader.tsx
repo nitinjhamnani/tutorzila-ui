@@ -15,15 +15,15 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent,
+  SheetTitle as SheetTitleComponent, // Aliased to avoid conflict
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger as ShadDialogTrigger,
+  DialogTitle, // This is the DialogTitle from ui/dialog
+  DialogTrigger as ShadDialogTrigger, // Aliased to avoid conflict with SheetTrigger
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
@@ -97,7 +97,7 @@ export function AppHeader() {
                <Button
                  asChild
                  className={cn(
-                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", // Added mx-1 for spacing and font-semibold
+                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
                    pathname === "/dashboard"
                      ? "bg-primary text-primary-foreground shadow-sm border-primary" 
                      : "bg-card text-primary border border-primary hover:bg-primary/10" 
@@ -110,7 +110,7 @@ export function AppHeader() {
                <Button
                  asChild
                  className={cn(
-                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", // Added mx-1 for spacing and font-semibold
+                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
                    pathname === "/dashboard/enquiries"
                      ? "bg-primary text-primary-foreground shadow-sm border-primary" 
                      : "bg-card text-primary border border-primary hover:bg-primary/10" 
@@ -120,7 +120,19 @@ export function AppHeader() {
                    <ClipboardList className="h-4 w-4" /> My Enquiries
                  </Link>
                </Button>
-               {/* My Classes button removed as per previous request to remove it from tutor dashboard */}
+               <Button
+                 asChild
+                 className={cn(
+                   "text-xs font-semibold py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1",
+                   pathname === "/dashboard/my-classes" // Assuming this will be the route
+                     ? "bg-primary text-primary-foreground shadow-sm border-primary"
+                     : "bg-card text-primary border border-primary hover:bg-primary/10"
+                 )}
+               >
+                 <Link href="#"> {/* Placeholder link for My Classes */}
+                   <UsersRound className="h-4 w-4" /> My Classes
+                 </Link>
+               </Button>
              </>
            )}
            {isAuthenticated && user && user.role !== 'tutor' && ( 
@@ -146,7 +158,7 @@ export function AppHeader() {
                     <Button className={signInButtonClass}>Sign In</Button>
                   </ShadDialogTrigger>
                   <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                     <DialogHeader className="sr-only"> 
+                     <DialogHeader className="sr-only"> {/* Made DialogHeader sr-only as per prior changes */}
                        <DialogTitle>Sign In to Tutorzila</DialogTitle>
                      </DialogHeader>
                     <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
@@ -235,7 +247,9 @@ export function AppHeader() {
                           <Link href="/dashboard/enquiries" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <ClipboardList className="h-5 w-5 text-primary" /> My Enquiries
                           </Link>
-                          {/* My Classes link removed from mobile menu as well */}
+                          <Link href="#" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}> {/* Placeholder link for My Classes */}
+                            <UsersRound className="h-5 w-5 text-primary" /> My Classes
+                          </Link>
                         </>
                       )}
                       {user.role === 'parent' && (
@@ -296,7 +310,7 @@ export function AppHeader() {
                           </Button>
                         </ShadDialogTrigger>
                         <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                           <DialogHeader className="sr-only"> 
+                           <DialogHeader className="sr-only"> {/* Made DialogHeader sr-only as per prior changes */}
                              <DialogTitle>Sign In to Tutorzila</DialogTitle>
                            </DialogHeader>
                           <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
@@ -319,4 +333,3 @@ export function AppHeader() {
     </header>
   );
 }
-
