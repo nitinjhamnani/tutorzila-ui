@@ -188,7 +188,14 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
                   {user.status && (
-                    <Badge variant={user.status === "Active" ? "default" : "destructive"} className="text-xs py-0.5 px-2 bg-green-500 text-white hover:bg-green-600">
+                     <Badge 
+                      variant={user.status === "Active" ? "default" : "destructive"} 
+                      className={cn(
+                        "text-xs py-0.5 px-2",
+                        user.status === "Active" ? "bg-green-100 text-green-700 border-green-500" : "bg-red-100 text-red-700 border-red-500",
+                        "hover:bg-opacity-80 border"
+                      )}
+                    >
                       {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
                       {user.status}
                     </Badge>
@@ -283,54 +290,6 @@ export default function DashboardPage() {
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
           <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.3s` }} 
-          >
-            <ActionCard
-              title="My Classes"
-              cardDescriptionText="View and manage your scheduled classes." 
-              description="5" 
-              Icon={ListChecks} 
-              showImage={false}
-              disabled={false} 
-              actionButtonText="View Classes"
-              ActionButtonIcon={ClipboardList}
-              href="#" 
-              actionButtonText2="Create Class" 
-              ActionButtonIcon2={PlusCircle} 
-              href2="#" 
-              disabled2={false} 
-              actionButtonVariant="outline"
-              actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-              buttonInContent={true} 
-              className="shadow-none border border-border/30 hover:shadow-lg"
-            />
-          </div>
-          <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.4s` }} 
-          >
-            <ActionCard
-              title="My Payments"
-              description="₹12,500" 
-              cardDescriptionText="View your earnings and manage payout details."
-              Icon={DollarSign}
-              showImage={false}
-              buttonInContent={true} 
-              actionButtonText="View All Payments"
-              ActionButtonIcon={ClipboardList}
-              href="#"
-              disabled={false}
-              actionButtonText2="Collect Payment"
-              ActionButtonIcon2={DollarSign}
-              href2="#"
-              disabled2={false}
-              actionButtonVariant="outline"
-              actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-              className="shadow-none border border-border/30 hover:shadow-lg"
-            />
-          </div>
-           <div 
             className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.5s` }}
           >
@@ -505,3 +464,4 @@ function ActionCard({
   );
 }
     
+
