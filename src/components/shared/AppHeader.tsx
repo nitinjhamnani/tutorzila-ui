@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -23,9 +22,9 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle, // This is DialogTitle from ui/dialog
-  // DialogTrigger is removed from here as it was causing an error, will use Dialog.Trigger directly if needed or ensure correct import
-} from "@/components/ui/dialog"; // DialogTrigger was removed from this specific import
+  DialogTitle,
+  DialogTrigger as ShadDialogTrigger, // Aliased to avoid conflict with SheetTrigger if any confusion
+} from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -62,16 +61,15 @@ export function AppHeader() {
     isScrolled ? "bg-card shadow-md border-b border-border" : "bg-transparent"
   );
   
-  const actionButtonClass = cn(
-    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
-     "bg-primary hover:bg-primary/90 text-primary-foreground" 
-  );
-  
   const findTutorButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
     "border-primary text-primary hover:bg-primary/10",
-    // isScrolled ? "border-primary text-primary hover:bg-primary/10" : "border-card-foreground text-card-foreground hover:bg-white/10"
-     isScrolled || pathname !== "/" ? "border-primary text-primary hover:bg-primary/10" : "border-card text-card hover:bg-card/80" // Updated for transparent header
+     isScrolled || pathname !== "/" ? "border-primary text-primary hover:bg-primary/10" : "border-card text-card hover:bg-card/80"
+  );
+  
+  const signInButtonClass = cn(
+    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
+     "bg-primary hover:bg-primary/90 text-primary-foreground" 
   );
 
   const navButtonClasses = cn(
@@ -98,15 +96,11 @@ export function AppHeader() {
              <>
                <Button
                  asChild
-                 variant="ghost"
                  className={cn(
                    "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
                    pathname === "/dashboard"
-                     ? "bg-primary text-primary-foreground shadow-sm"
-                     : isScrolled
-                       ? "text-foreground hover:bg-muted/60"
-                       : "text-card-foreground hover:bg-white/15",
-                    pathname !== "/dashboard" && (isScrolled ? "border border-transparent hover:border-primary/20" : "border border-transparent hover:border-white/20")
+                     ? "bg-primary text-primary-foreground shadow-sm border-primary" // Active state
+                     : "bg-card text-primary border border-primary hover:bg-primary/10" // Default state
                  )}
                >
                  <Link href="/dashboard">
@@ -115,15 +109,11 @@ export function AppHeader() {
                </Button>
                <Button
                  asChild
-                 variant="ghost"
                  className={cn(
                    "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
                    pathname === "/dashboard/enquiries"
-                     ? "bg-primary text-primary-foreground shadow-sm"
-                     : isScrolled
-                       ? "text-foreground hover:bg-muted/60"
-                       : "text-card-foreground hover:bg-white/15",
-                   pathname !== "/dashboard/enquiries" && (isScrolled ? "border border-transparent hover:border-primary/20" : "border border-transparent hover:border-white/20")
+                     ? "bg-primary text-primary-foreground shadow-sm border-primary" // Active state
+                     : "bg-card text-primary border border-primary hover:bg-primary/10" // Default state
                  )}
                >
                  <Link href="/dashboard/enquiries">
@@ -132,15 +122,11 @@ export function AppHeader() {
                </Button>
                <Button
                  asChild
-                 variant="ghost"
                  className={cn(
                    "text-xs font-medium py-1.5 px-4 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5",
-                   pathname === "/dashboard/my-classes" // Assuming this is the correct path
-                     ? "bg-primary text-primary-foreground shadow-sm"
-                     : isScrolled
-                       ? "text-foreground hover:bg-muted/60"
-                       : "text-card-foreground hover:bg-white/15",
-                   pathname !== "/dashboard/my-classes" && (isScrolled ? "border border-transparent hover:border-primary/20" : "border border-transparent hover:border-white/20")
+                   pathname === "/dashboard/my-classes" 
+                     ? "bg-primary text-primary-foreground shadow-sm border-primary" // Active state
+                     : "bg-card text-primary border border-primary hover:bg-primary/10" // Default state
                  )}
                >
                  <Link href="/dashboard/my-classes"> 
@@ -160,17 +146,17 @@ export function AppHeader() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3">
+             <Button asChild variant="outline" className={findTutorButtonClass}>
+               <Link href="/search-tuitions">Find Tutors</Link>
+             </Button>
             {!isAuthenticated && (
               <>
-                <Button asChild variant="outline" className={findTutorButtonClass}>
-                  <Link href="/search-tuitions">Find Tutors</Link>
-                </Button>
                 <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
-                  <Dialog.Trigger asChild>
-                    <Button className={actionButtonClass}>Sign In</Button>
-                  </Dialog.Trigger>
+                  <ShadDialogTrigger asChild>
+                    <Button className={signInButtonClass}>Sign In</Button>
+                  </ShadDialogTrigger>
                   <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                     <DialogHeader className="sr-only"> {/* Added for accessibility */}
+                     <DialogHeader className="sr-only"> 
                        <DialogTitle>Sign In to Tutorzila</DialogTitle>
                      </DialogHeader>
                     <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
@@ -233,7 +219,7 @@ export function AppHeader() {
                 <SheetHeader className="p-4 border-b">
                   <SheetTitleComponent> 
                      <Link href={logoHref} onClick={() => setMobileMenuOpen(false)}>
-                        <Logo className="h-[calc(var(--logo-height)_/_1.5)] w-auto" /> {/* Adjusted logo height for mobile */}
+                        <Logo className="h-[calc(var(--logo-height)_/_1.5)] w-auto" /> 
                      </Link>
                   </SheetTitleComponent>
                 </SheetHeader>
@@ -304,11 +290,11 @@ export function AppHeader() {
                         setSignInModalOpen(isOpen);
                         if(isOpen) setMobileMenuOpen(false); 
                       }}>
-                        <Dialog.Trigger asChild>
+                        <ShadDialogTrigger asChild>
                            <Button variant="ghost" className={mobileButtonClass}>
                             <LogIn className="h-5 w-5 text-primary" /> Sign In
                           </Button>
-                        </Dialog.Trigger>
+                        </ShadDialogTrigger>
                         <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
                            <DialogHeader className="sr-only"> 
                              <DialogTitle>Sign In to Tutorzila</DialogTitle>
