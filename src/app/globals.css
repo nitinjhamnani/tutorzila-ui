@@ -103,7 +103,7 @@ body {
     font-family: var(--font-montserrat), sans-serif !important; 
   }
   h1, h2, h3, h4, h5, h6 {
-    color: #222;
+    color: #222 !important;
     font-family: "Montserrat", sans-serif !important;
     font-weight: 700;
     line-height: 1.2;
@@ -222,8 +222,6 @@ body {
   background: hsl(var(--primary));
 }
 
-/* Removed potentially problematic manual Tailwind-like classes */
-/* Ensure these are handled by Tailwind JIT directly in components. */
 /* Forcing Montserrat font family */
 html, body, * {
   font-family: 'Montserrat', sans-serif !important;
