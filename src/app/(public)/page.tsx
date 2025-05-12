@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookUser, BookOpen, CheckCircle, XCircle } from "lucide-react";
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, BookUser } from "lucide-react"; // Added BookUser
 import Image from "next/image";
 import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
@@ -80,7 +80,7 @@ const popularSubjects = [
 
 
 export default function HomePage() {
-  const sectionPadding = "pt-10 md:pt-16 pb-12 md:pb-20"; 
+  const sectionPadding = "py-10 md:py-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
 
@@ -88,7 +88,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
       
         {/* Hero Section */}
-        <section className={`w-full py-16 md:py-24 lg:py-32 bg-secondary ${sectionPadding}`}>
+        <section className={`w-full bg-secondary ${sectionPadding}`}>
           <div className={`grid items-center gap-8 lg:grid-cols-2 lg:gap-16 ${containerPadding}`}>
             <div className="flex flex-col justify-center space-y-5 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
               <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-primary">
@@ -105,7 +105,7 @@ export default function HomePage() {
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                   <DialogTrigger asChild>
-                     <Button size="sm" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:text-primary border-primary/40 hover:border-primary">
+                     <Button size="sm" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:text-primary border-primary/40 hover:border-primary hover:bg-card">
                       <SquarePen className="mr-2.5 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
@@ -189,7 +189,7 @@ export default function HomePage() {
                   {howItWorksSteps.map((step, index) => (
                     <Card key={index} className="group bg-card p-5 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.02]">
                       <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0 bg-primary/10 p-3.5 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm">
+                        <div className="flex-shrink-0 bg-white p-3.5 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm">
                           <step.icon className="w-6 h-6 text-primary" />
                         </div>
                         <div>
@@ -261,7 +261,7 @@ export default function HomePage() {
                   {becomeTutorBenefits.map((benefit, index) => (
                      <Card key={index} className="group bg-card p-5 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.02]">
                       <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0 bg-primary/10 p-3.5 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm">
+                        <div className="flex-shrink-0 bg-white p-3.5 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm">
                           <benefit.icon className="w-6 h-6 text-primary" />
                         </div>
                         <div>
@@ -354,6 +354,8 @@ export default function HomePage() {
 }
 
     
+
+
 
 
 
