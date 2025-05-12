@@ -4,7 +4,7 @@
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Briefcase, Eye, Share2, UsersRound, CalendarDays, UserCircle as UserCircleIcon, Edit, Camera, CheckCircle, XCircle, MailCheck, PhoneCall, Coins, ShoppingBag, DollarSign, Activity, Presentation, Users as UsersIcon, Star as StarIcon, ClipboardList, Inbox, LayoutDashboard, CalendarClock, Send } from "lucide-react"; // Added Send, Inbox, Presentation, CalendarClock
+import { Briefcase, Eye, Share2, UsersRound, CalendarDays, UserCircle as UserCircleIcon, Edit, Camera, CheckCircle, XCircle, MailCheck, PhoneCall, Coins, ShoppingBag, DollarSign, Activity, Presentation, Users as UsersIcon, Star as StarIcon, ClipboardList, Inbox, LayoutDashboard, CalendarClock, Send } from "lucide-react"; 
 import Link from "next/link";
 import type { TutorProfile, DemoSession } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -245,26 +245,26 @@ export default function TutorDashboardPage() {
         <div className="lg:col-span-2">
           <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
             <CardHeader className="pb-3 border-b border-border/20">
-              <CardTitle className="text-lg font-semibold text-primary flex items-center"> {/* Reduced font size */}
-                <LayoutDashboard className="w-4 h-4 mr-2"/> {/* Reduced icon size */}
+              <CardTitle className="text-lg font-semibold text-primary flex items-center"> 
+                <LayoutDashboard className="w-4 h-4 mr-2"/> 
                 My Insights
               </CardTitle>
-              <CardDescription className="text-xs text-muted-foreground mt-0.5"> {/* Reduced font size */}
+              <CardDescription className="text-xs text-muted-foreground mt-0.5"> 
                 Overview of your tutoring activity and performance.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> {/* Reduced padding and gap */}
+            <CardContent className="p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> 
               {insightCardsData.map((insight, index) => (
                 <Card 
                   key={insight.title} 
-                  className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-3 text-center transform hover:scale-105" // Reduced padding
+                  className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-2.5 text-center transform hover:scale-105" // Reduced padding
                   style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
                 >
-                  <div className={cn("p-2 bg-primary/10 rounded-full text-primary inline-block mb-2 group-hover:bg-primary/20 transition-all shadow-sm")}> {/* Reduced padding and margin */}
-                    <insight.icon className="w-4 h-4 transition-transform group-hover:scale-110" /> {/* Reduced icon size */}
+                  <div className={cn("p-1.5 bg-primary/10 rounded-full text-primary inline-block mb-1.5 group-hover:bg-primary/20 transition-all shadow-sm")}> {/* Reduced padding and margin */}
+                    <insight.icon className="w-3.5 h-3.5 transition-transform group-hover:scale-110" /> {/* Reduced icon size */}
                   </div>
-                  <p className="text-xl font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p> {/* Reduced font size */}
-                  <p className="text-[11px] text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p> {/* Reduced font size */}
+                  <p className="text-lg font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p> {/* Reduced font size */}
+                  <p className="text-[10px] text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p> {/* Reduced font size */}
                 </Card>
               ))}
             </CardContent>
@@ -339,3 +339,4 @@ export default function TutorDashboardPage() {
     </div>
   );
 }
+
