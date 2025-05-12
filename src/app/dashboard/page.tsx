@@ -97,13 +97,13 @@ export default function DashboardPage() {
         buttonInContent={true}
         actionButtonText="View My Enquiries"
         ActionButtonIcon={ListChecks} 
-        href="/dashboard/my-requirements" // Existing page for parent's requirements
+        href="/dashboard/my-requirements" 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
         actionButtonText2="Create Enquiry"
         ActionButtonIcon2={PlusCircle}
-        href2="/dashboard/post-requirement" // Existing page to post new requirement
+        href2="/dashboard/post-requirement" 
       />,
       <ActionCard
         key="my-tuitions"
@@ -114,14 +114,14 @@ export default function DashboardPage() {
         buttonInContent={true}
         actionButtonText="View All Tutors"
         ActionButtonIcon={Search} 
-        href="/search-tuitions" // Page to search for tutors
+        href="/search-tuitions" 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
         actionButtonText2="Demo Requests"
         ActionButtonIcon2={CalendarClock} 
-        href2="#" // Placeholder for now
-        disabled2={true} // Disable "Demo Requests" for now
+        href2="#" 
+        disabled2={true} 
       />
     );
   } else if (user.role === "admin") {
@@ -129,22 +129,22 @@ export default function DashboardPage() {
       <ActionCard
         key="manage-users"
         title="Manage Users"
-        description="Oversee parent and tutor accounts." // This will be in CardContent
+        description="Oversee parent and tutor accounts." 
         href="/dashboard/admin/manage-users"
         Icon={Users}
         imageHint="people community"
         disabled
-        className="hover:shadow-xl" // Default admin card styling
+        className="hover:shadow-xl" 
       />,
       <ActionCard
         key="manage-tuitions"
         title="Manage Tuitions"
-        description="Review and manage all tuition postings." // This will be in CardContent
+        description="Review and manage all tuition postings." 
         href="/dashboard/admin/manage-tuitions"
         Icon={BookOpen}
         imageHint="library books"
         disabled
-        className="hover:shadow-xl" // Default admin card styling
+        className="hover:shadow-xl" 
       />
     );
   }
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                     </Badge>
                   )}
                 </div>
-                { (user.role === 'tutor' || user.role === 'parent') && ( // Show verification for both tutors and parents
+                { (user.role === 'tutor' || user.role === 'parent') && ( 
                   <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                      <Button
                         variant="secondary" 
@@ -293,7 +293,7 @@ export default function DashboardPage() {
           </div>
           <div 
             className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-            style={{ animationDelay: `0.3s` }} // Adjusted delay
+            style={{ animationDelay: `0.3s` }} 
           >
             <ActionCard
               title="My Enquiries"
@@ -316,7 +316,7 @@ export default function DashboardPage() {
 
 
       {(user.role === 'parent' || user.role === 'admin') && actionCards.length > 0 && (
-         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> {/* Changed to lg:grid-cols-2 for parents and admin */}
+         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> 
           {actionCards.map((card, index) => (
             <div 
               key={index} 
@@ -345,7 +345,7 @@ export default function DashboardPage() {
 
 interface ActionCardProps {
   title: string;
-  description: string; // Used in CardContent if buttonInContent is false, or for specific titles if true
+  description?: string; 
   href?: string; 
   Icon: React.ElementType;
   imageHint?: string;
@@ -356,7 +356,7 @@ interface ActionCardProps {
   actionButtonVariant?: ButtonProps['variant'];
   actionButtonClassName?: string;
   buttonInContent?: boolean;
-  cardDescriptionText?: string; // Used in CardHeader as CardDescription
+  cardDescriptionText?: string; 
   actionButtonText2?: string; 
   ActionButtonIcon2?: React.ElementType;
   href2?: string; 
@@ -407,7 +407,7 @@ function ActionCard({
   
 
   return (
-    <Card className={cn("group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-sm hover:shadow-lg overflow-hidden", className)}>
+    <Card className={cn("group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-none border-border/30 hover:shadow-lg overflow-hidden", className)}>
       {showImage && imageHint && (
         <div className="overflow-hidden rounded-t-lg relative">
           <Image
@@ -437,17 +437,17 @@ function ActionCard({
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
         {buttonInContent ? (
           <>
-            {(title === "My Classes" || title === "My Payments" || title === "My Enquiries") && (
+            {(title === "My Classes" || title === "My Payments") && ( // Removed "My Enquiries" from this condition
                  <div className="flex justify-between items-center text-sm mb-2">
                  <span className="font-medium text-foreground/80">
-                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : title === "My Enquiries" ? "Recommended Enquiries" : description}
+                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : description}
                  </span>
                  <span className="font-semibold text-primary">
-                    {title === "My Classes" ? 5 : title === "My Payments" ? "₹2500" : title === "My Enquiries" ? "5 Recommended" : description}
+                    {title === "My Classes" ? 5 : title === "My Payments" ? "₹2500" : description}
                 </span>
                </div>
             )}
-             {!((title === "My Classes" || title === "My Payments" || title === "My Enquiries")) && description && (
+             {!(title === "My Classes" || title === "My Payments" || title === "My Enquiries") && description && ( // Kept "My Enquiries" here to ensure it does not show a general description if one was passed (which it isn't)
                  <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
              )}
 
@@ -469,3 +469,4 @@ function ActionCard({
   );
 }
     
+
