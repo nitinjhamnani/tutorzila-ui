@@ -91,6 +91,7 @@ export default function DashboardPage() {
         href="/dashboard/post-requirement"
         Icon={PlusCircle}
         imageHint="writing list"
+        showImage={false} // Changed to false
         className="hover:shadow-xl"
       />,
       <ActionCard
@@ -100,6 +101,7 @@ export default function DashboardPage() {
         href="/dashboard/my-requirements"
         Icon={ListChecks} 
         imageHint="task checklist"
+        showImage={false} // Changed to false
         className="hover:shadow-xl"
       />,
        <ActionCard
@@ -109,7 +111,7 @@ export default function DashboardPage() {
         href="#"
         Icon={Activity}
         imageHint="activity chart"
-        showImage={true} 
+        showImage={false} // Changed to false
         disabled
         className="hover:shadow-xl"
       />
@@ -464,4 +466,5 @@ function ActionCard({
   );
 }
     
+
 
