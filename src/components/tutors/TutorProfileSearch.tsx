@@ -61,7 +61,7 @@ export function TutorProfileSearch() {
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 gap-3 md:gap-4"> {/* Changed to single column grid and reduced gap */}
           {profiles.map((tutor, index) => (
             <div
               key={tutor.id}
