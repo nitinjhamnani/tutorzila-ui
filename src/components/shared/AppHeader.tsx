@@ -16,7 +16,7 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent,
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
@@ -75,11 +75,13 @@ export function AppHeader() {
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
+  const logoHref = isAuthenticated && user?.role === 'tutor' ? "/dashboard" : "/";
+
 
   return (
     <header className={headerClasses}>
       <div className="container mx-auto flex h-28 items-center justify-between px-4 md:px-6">
-        <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+        <Link href={logoHref} onClick={() => setMobileMenuOpen(false)}>
           <Logo className="h-[var(--logo-height)] w-auto"/>
         </Link>
         
@@ -166,7 +168,7 @@ export function AppHeader() {
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
                 <SheetHeader className="p-4 border-b">
                   <SheetTitleComponent> 
-                     <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                     <Link href={logoHref} onClick={() => setMobileMenuOpen(false)}>
                         <Logo className="h-10 w-auto" />
                      </Link>
                   </SheetTitleComponent>
@@ -251,3 +253,4 @@ export function AppHeader() {
     </header>
   );
 }
+
