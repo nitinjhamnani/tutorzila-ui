@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 
 const allSubjectsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i).map(s => ({value: s, label: s}));
 const experienceLevelsList: {value: string, label: string}[] = ["All", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"].map(e => ({value: e, label: e}));
-const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.map(t => t.grade).filter(Boolean) as string[])].filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
+const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])))].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
 
 
 export function TutorProfileSearch() {
@@ -42,11 +42,13 @@ export function TutorProfileSearch() {
         tutor.name.toLowerCase().includes(searchTermLower) ||
         tutor.subjects.some(s => s.toLowerCase().includes(searchTermLower)) ||
         (tutor.bio && tutor.bio.toLowerCase().includes(searchTermLower)) ||
-        (tutor.grade && tutor.grade.toLowerCase().includes(searchTermLower));
+        (tutor.grade && tutor.grade.toLowerCase().includes(searchTermLower)) ||
+        (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.some(gl => gl.toLowerCase().includes(searchTermLower)));
       
       const matchesSubject = subjectFilter === "All" || tutor.subjects.includes(subjectFilter);
       const matchesExperience = experienceFilter === "All" || tutor.experience === experienceFilter;
-      const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter;
+      const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(gradeFilter));
+
 
       return matchesSearchTerm && matchesSubject && matchesExperience && matchesGrade;
     });
@@ -62,11 +64,11 @@ export function TutorProfileSearch() {
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-3 md:gap-4"> {/* Ensured consistent vertical spacing */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5"> {/* Responsive grid */}
           {profiles.map((tutor, index) => (
             <div
               key={tutor.id}
-              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full" // Added h-full here
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
               <TutorProfileCard tutor={tutor} />
@@ -121,8 +123,7 @@ export function TutorProfileSearch() {
 
 
   return (
-    // Applied container with horizontal padding for consistent spacing.
-    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 space-y-6"> 
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 space-y-6 py-6 md:py-8"> 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
