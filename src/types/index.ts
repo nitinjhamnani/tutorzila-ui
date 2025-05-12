@@ -30,6 +30,7 @@ export interface TuitionRequirement {
   postedAt: string; // ISO date string
   board?: string; // e.g., "CBSE", "ICSE"
   teachingMode?: string[]; // e.g., ["Online"], ["Offline"], ["Online", "Offline"]
+  applicantsCount?: number; // Added to show number of applicants
 }
 
 export interface TutorProfile extends User {
@@ -69,4 +70,5 @@ export interface DemoSession {
   status: "Scheduled" | "Completed" | "Cancelled";
   joinLink?: string; 
 }
+
 

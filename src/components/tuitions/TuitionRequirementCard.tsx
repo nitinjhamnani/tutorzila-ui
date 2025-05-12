@@ -5,7 +5,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users,Clock, Eye, Presentation, Star as StarIcon, Bookmark } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users,Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -82,6 +82,9 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
+        )}
+         {requirement.applicantsCount !== undefined && (
+          <InfoItem icon={UserCheck} label="Applicants" value={String(requirement.applicantsCount)} />
         )}
       </CardContent>
       <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-between items-center">

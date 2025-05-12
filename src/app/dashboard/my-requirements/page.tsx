@@ -12,8 +12,8 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 
 // Mock data - replace with API call specific to the logged-in parent
 const MOCK_PARENT_REQUIREMENTS: TuitionRequirement[] = [
-  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"] },
-  { id: "6", parentId: "p1", parentName: "Alice Smith", subject: "History", gradeLevel: "Grade 9-10", scheduleDetails: "Tues 6-8 PM", location: "Student's Home", status: "matched", postedAt: new Date(Date.now() - 86400000 * 15).toISOString(), board: "State Board", teachingMode: ["Offline (In-person)"] },
+  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"], applicantsCount: 10 },
+  { id: "6", parentId: "p1", parentName: "Alice Smith", subject: "History", gradeLevel: "Grade 9-10", scheduleDetails: "Tues 6-8 PM", location: "Student's Home", status: "matched", postedAt: new Date(Date.now() - 86400000 * 15).toISOString(), board: "State Board", teachingMode: ["Offline (In-person)"], applicantsCount: 3 },
 ];
 
 export default function MyRequirementsPage() {

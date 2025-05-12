@@ -28,7 +28,8 @@ import {
   Lock,
   Unlock,
   CheckCircle, 
-  Bookmark, // Added Bookmark
+  Bookmark,
+  Users as UsersIcon, // Renamed Users to UsersIcon to avoid conflict with User icon
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -155,6 +156,9 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             <DetailItem label="Subject(s)" value={requirement.subject} />
             <DetailItem label="Grade Level" value={requirement.gradeLevel} />
             {requirement.board && <DetailItem label="Board" value={requirement.board} />}
+             {requirement.applicantsCount !== undefined && (
+              <DetailItem label="Applicants" value={String(requirement.applicantsCount)} icon={UsersIcon} />
+            )}
           </div>
         </section>
 
@@ -167,8 +171,12 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             Schedule & Location
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2.5 pl-6 text-xs">
-            {requirement.preferredDays && <DetailItem label="Preferred Days" value={requirement.preferredDays} icon={CalendarDays} />}
-            {requirement.preferredTime && <DetailItem label="Preferred Time" value={requirement.preferredTime} icon={Clock} />}
+            {requirement.preferredDays && requirement.preferredDays.length > 0 && (
+              <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
+            )}
+            {requirement.preferredTime && requirement.preferredTime.length > 0 && (
+              <DetailItem label="Preferred Time" value={requirement.preferredTime.join(', ')} icon={Clock} />
+            )}
             {requirement.location && <DetailItem label="Location Preference" value={requirement.location} icon={MapPin} />}
             {requirement.teachingMode && requirement.teachingMode.length > 0 && (
               <DetailItem label="Teaching Mode(s)" icon={RadioTower}>
