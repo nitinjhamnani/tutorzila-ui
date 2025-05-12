@@ -35,10 +35,13 @@ import {
   Quote,
   UserX,
   CalendarClock,
+  Clock, // Added Clock import
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format }
 from 'date-fns';
+import { FixedPostRequirementBanner } from "@/components/shared/FixedPostRequirementBanner";
+
 
 interface TutorPublicProfileProps {
   tutor: TutorProfile;
@@ -85,7 +88,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
 
 
   return (
-    <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out">
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out pb-28 md:pb-24"> {/* Added padding-bottom */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Left Column */}
         <aside className="lg:col-span-1 space-y-6">
@@ -121,13 +124,13 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 variant="outline"
                 className={cn(
                   "w-full transform transition-transform hover:scale-105 active:scale-95",
-                  "py-2.5", 
-                  "bg-card border-primary text-primary", 
-                  "hover:bg-primary/10", 
-                  "font-semibold text-[13px]" 
+                  "py-3", 
+                  "bg-primary border-primary text-primary-foreground", 
+                  "hover:bg-primary/90", 
+                  "font-semibold text-[15px]" 
                 )}
               >
-                <MessageSquare className="mr-2 h-3.5 w-3.5" /> Book a Session
+                <MessageSquare className="mr-2 h-4 w-4" /> Book a Session
               </Button>
             </div>
           </Card>
@@ -141,7 +144,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <InfoSection icon={BookOpen} title="Subjects Taught">
                 <div className="flex flex-wrap gap-1.5 mt-0.5">
                   {tutor.subjects.map((subject) => {
@@ -162,6 +165,8 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} />
               )}
                {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} />}
+               {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} />}
+               {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={Clock} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} />}
             </CardContent>
           </Card>
 
@@ -182,31 +187,33 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                   <Quote className="w-3.5 h-3.5 mr-2"/> Student Reviews
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2.5">
-                {mockReviews.length > 0 ? mockReviews.map(review => (
-                    <div key={review.id} className="p-3 border rounded-lg bg-background/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div className="flex items-start justify-between mb-1">
-                           <div className="flex items-center">
-                                <Avatar className="h-8 w-8 mr-2.5 border-primary/20 border">
-                                    <AvatarImage src={`https://avatar.vercel.sh/${review.reviewer.replace(/\s+/g, '')}.png`} alt={review.reviewer} />
-                                    <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                        {review.reviewer.split(' ').map(n => n[0]).join('').toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="text-xs font-semibold text-foreground">{review.reviewer}</p>
-                                    <p className="text-[10px] text-muted-foreground flex items-center"><CalendarClock size={10} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
+              <CardContent className="space-y-3">
+                {mockReviews.length > 0 ? mockReviews.map((review, index) => (
+                    <React.Fragment key={review.id}>
+                        <div className="p-0">
+                            <div className="flex items-start justify-between mb-1">
+                               <div className="flex items-center">
+                                    <Avatar className="h-8 w-8 mr-2.5 border-primary/20 border">
+                                        <AvatarImage src={`https://avatar.vercel.sh/${review.reviewer.replace(/\s+/g, '')}.png?s=32`} alt={review.reviewer} />
+                                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                                            {review.reviewer.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="text-xs font-semibold text-foreground">{review.reviewer}</p>
+                                        <p className="text-[10px] text-muted-foreground flex items-center"><CalendarClock size={10} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-0.5 mt-0.5">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}/>
+                                    ))}
                                 </div>
                             </div>
-                            <div className="flex items-center space-x-0.5 mt-0.5">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}/>
-                                ))}
-                            </div>
+                            <p className="text-[13px] text-foreground/80 leading-normal pl-10">{review.comment}</p>
                         </div>
-                        
-                        <p className="text-[13px] text-foreground/80 leading-normal pl-10">{review.comment}</p>
-                    </div>
+                        {index < mockReviews.length - 1 && <Separator className="my-3" />}
+                    </React.Fragment>
                 )) : (
                     <p className="text-xs text-muted-foreground text-center py-3">No reviews yet for {tutor.name}.</p>
                 )}
@@ -215,6 +222,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
 
         </main>
       </div>
+      <FixedPostRequirementBanner />
     </div>
   );
 }
@@ -234,8 +242,9 @@ function InfoSection({ icon: Icon, title, content, children }: InfoSectionProps)
                 {title}
             </div>
             {content && <p className="text-[13px] text-foreground/70 pl-[18px]">{content}</p>}
-            {children && <div className="pl-[18px]">{children}</div>}
+            {children && <div className="text-[13px] pl-[18px]">{children}</div>}
         </div>
     )
 }
+
 
