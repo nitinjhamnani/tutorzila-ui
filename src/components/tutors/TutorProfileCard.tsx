@@ -51,7 +51,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
       <a className="block group cursor-pointer h-full">
         <Card className={cn(
           "w-full h-full",
-          "flex flex-col p-4",
+          "flex flex-col p-5", // Increased padding from p-4 to p-5
           "rounded-xl shadow-md hover:shadow-lg border border-border/30",
           "transition-all duration-300 bg-card",
           "transform hover:-translate-y-1"
