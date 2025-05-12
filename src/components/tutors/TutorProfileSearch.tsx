@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider"; // Added Slider import
+import { Slider } from "@/components/ui/slider";
 
 const allSubjectsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i).map(s => ({value: s, label: s}));
 const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])))].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
@@ -34,7 +34,6 @@ const modeOptionsList: { value: string; label: string }[] = [
 
 
 export function TutorProfileSearch() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [gradeFilter, setGradeFilter] = useState("All");
   const [modeFilter, setModeFilter] = useState("All");
@@ -48,15 +47,7 @@ export function TutorProfileSearch() {
 
   const filteredTutorProfiles = useMemo(() => {
     return tutorProfiles.filter((tutor) => {
-      const searchTermLower = searchTerm.toLowerCase();
       const locationSearchTermLower = locationSearchTerm.toLowerCase();
-
-      const matchesSearchTerm = searchTerm === "" ||
-        tutor.name.toLowerCase().includes(searchTermLower) ||
-        tutor.subjects.some(s => s.toLowerCase().includes(searchTermLower)) ||
-        (tutor.bio && tutor.bio.toLowerCase().includes(searchTermLower)) ||
-        (tutor.grade && tutor.grade.toLowerCase().includes(searchTermLower)) ||
-        (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.some(gl => gl.toLowerCase().includes(searchTermLower)));
       
       const matchesSubject = subjectFilter === "All" || tutor.subjects.includes(subjectFilter);
       const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(gradeFilter));
@@ -84,12 +75,11 @@ export function TutorProfileSearch() {
       const matchesFee = isNaN(tutorRate) ? false : (tutorRate >= feeRange[0] && tutorRate <= feeRange[1]);
 
 
-      return matchesSearchTerm && matchesSubject && matchesGrade && matchesMode && matchesLocationSearch && matchesFee;
+      return matchesSubject && matchesGrade && matchesMode && matchesLocationSearch && matchesFee;
     });
-  }, [searchTerm, subjectFilter, gradeFilter, modeFilter, locationSearchTerm, feeRange, tutorProfiles]);
+  }, [subjectFilter, gradeFilter, modeFilter, locationSearchTerm, feeRange, tutorProfiles]);
 
   const resetFilters = () => {
-    setSearchTerm("");
     setSubjectFilter("All");
     setGradeFilter("All");
     setModeFilter("All");
@@ -132,16 +122,8 @@ export function TutorProfileSearch() {
 
   const filterPanelContent = (
     <>
-      <div className="relative mb-4">
-        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search by name, subject..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-xs hover:shadow-sm focus:shadow-md rounded-lg"
-        />
-      </div>
+      <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevelsList} />
+      <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjectsList} />
       <FilterItem icon={RadioTower} label="Mode" value={modeFilter} onValueChange={setModeFilter} options={modeOptionsList} />
       <div className="space-y-1.5">
         <Label htmlFor="location-search-filter" className="text-xs font-medium text-muted-foreground flex items-center">
@@ -174,8 +156,6 @@ export function TutorProfileSearch() {
           className="w-full"
         />
       </div>
-      <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjectsList} />
-      <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevelsList} />
       <Button
         onClick={resetFilters}
         variant="outline"
@@ -194,7 +174,7 @@ export function TutorProfileSearch() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
-          <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-md overflow-hidden"> {/* Applied shadow-md */}
+          <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-md overflow-hidden">
             <AccordionItem value="filters" className="border-b-0">
               <AccordionTrigger className="w-full hover:no-underline px-4 py-3 data-[state=open]:border-b data-[state=open]:border-border/30">
                 <div className="flex flex-row justify-between items-center w-full">
@@ -214,7 +194,7 @@ export function TutorProfileSearch() {
         </div>
 
         <aside className="lg:w-[300px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block">
-          <Card className="bg-card border rounded-lg shadow-md"> {/* Applied shadow-md */}
+          <Card className="bg-card border rounded-lg shadow-md">
             <CardHeader className="pb-4 border-b border-border/30">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <LucideFilter className="w-5 h-5 mr-2.5"/>
@@ -267,3 +247,4 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
+
