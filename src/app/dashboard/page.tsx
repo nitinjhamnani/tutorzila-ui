@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2 } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { TutorProfile } from "@/types";
@@ -90,34 +89,39 @@ export default function DashboardPage() {
   if (user.role === "parent") {
     actionCards.push(
       <ActionCard
-        key="post-requirement"
-        title="Post New Requirement"
-        cardDescriptionText="Need a tutor? Post your requirements and let tutors find you."
-        description="" // Main text moved to cardDescriptionText
-        href="/dashboard/post-requirement"
-        Icon={PlusCircle}
+        key="my-enquiries"
+        title="My Enquiries"
+        cardDescriptionText="Track your posted enquiries and connect with interested tutors."
+        Icon={ClipboardList} 
         showImage={false}
         buttonInContent={true}
-        actionButtonText="Post New Requirement"
-        ActionButtonIcon={PlusCircle}
+        actionButtonText="View My Enquiries"
+        ActionButtonIcon={ListChecks} 
+        href="/dashboard/my-requirements" // Existing page for parent's requirements
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
+        actionButtonText2="Create Enquiry"
+        ActionButtonIcon2={PlusCircle}
+        href2="/dashboard/post-requirement" // Existing page to post new requirement
       />,
       <ActionCard
-        key="my-requirements"
-        title="My Requirements"
-        cardDescriptionText="View and manage your active tuition postings."
-        description="" // Main text moved to cardDescriptionText
-        href="/dashboard/my-requirements"
-        Icon={ListChecks} 
+        key="my-tuitions"
+        title="My Tuitions"
+        cardDescriptionText="Explore tutor profiles and manage your learning sessions."
+        Icon={UsersRound} 
         showImage={false}
         buttonInContent={true}
-        actionButtonText="My Requirements"
-        ActionButtonIcon={ListChecks}
+        actionButtonText="View All Tutors"
+        ActionButtonIcon={Search} 
+        href="/search-tuitions" // Page to search for tutors
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
+        actionButtonText2="Demo Requests"
+        ActionButtonIcon2={CalendarClock} 
+        href2="#" // Placeholder for now
+        disabled2={true} // Disable "Demo Requests" for now
       />
     );
   } else if (user.role === "admin") {
@@ -311,21 +315,8 @@ export default function DashboardPage() {
       )}
 
 
-      {user.role === 'parent' && actionCards.length > 0 && (
-         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> {/* Changed to lg:grid-cols-2 for parents */}
-          {actionCards.map((card, index) => (
-            <div 
-              key={index} 
-              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-              style={{ animationDelay: `${index * 0.1 + 0.2}s` }} 
-            >
-              {card}
-            </div>
-          ))}
-        </div>
-      )}
-      {user.role === 'admin' && actionCards.length > 0 && (
-         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> {/* Kept lg:grid-cols-3 for admin if they have more cards */}
+      {(user.role === 'parent' || user.role === 'admin') && actionCards.length > 0 && (
+         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> {/* Changed to lg:grid-cols-2 for parents and admin */}
           {actionCards.map((card, index) => (
             <div 
               key={index} 
@@ -449,9 +440,11 @@ function ActionCard({
             {(title === "My Classes" || title === "My Payments" || title === "My Enquiries") && (
                  <div className="flex justify-between items-center text-sm mb-2">
                  <span className="font-medium text-foreground/80">
-                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : "Recommended Enquiries"}
+                   {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : title === "My Enquiries" ? "Recommended Enquiries" : description}
                  </span>
-                 <span className="font-semibold text-primary">{description}</span>
+                 <span className="font-semibold text-primary">
+                    {title === "My Classes" ? 5 : title === "My Payments" ? "₹2500" : title === "My Enquiries" ? "5 Recommended" : description}
+                </span>
                </div>
             )}
              {!((title === "My Classes" || title === "My Payments" || title === "My Enquiries")) && description && (
@@ -476,4 +469,3 @@ function ActionCard({
   );
 }
     
-
