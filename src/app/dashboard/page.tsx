@@ -45,8 +45,8 @@ export default function DashboardPage() {
   }
 
   const handleAvatarClick = () => {
-    // Allow avatar click for upload only for tutors
-    if (user?.role === 'tutor') {
+    // Allow avatar click for upload only for tutors and parents
+    if (user?.role === 'tutor' || user?.role === 'parent') {
       fileInputRef.current?.click();
     }
   };
@@ -106,17 +106,8 @@ export default function DashboardPage() {
         Icon={ListChecks} 
         showImage={false}
         className="hover:shadow-xl"
-      />,
-       <ActionCard
-        key="recent-activity-parent"
-        title="Recent Activity"
-        description="Updates on your postings and applications."
-        href="#"
-        Icon={Activity}
-        showImage={false}
-        disabled
-        className="hover:shadow-xl"
       />
+      // "Recent Activity" card removed for parent
     );
   } else if (user.role === "admin") {
     actionCards.push(
@@ -139,18 +130,8 @@ export default function DashboardPage() {
         imageHint="library books"
         disabled
         className="hover:shadow-xl"
-      />,
-       <ActionCard
-        key="recent-activity-admin"
-        title="Recent Activity"
-        description="Updates on platform activity and reports."
-        href="#"
-        Icon={Activity}
-        imageHint="admin dashboard activity"
-        showImage={true}
-        disabled
-        className="hover:shadow-xl"
       />
+       // "Recent Activity" card removed for admin
     );
   }
 
@@ -165,7 +146,7 @@ export default function DashboardPage() {
                   <Avatar
                     className={cn(
                         "h-16 w-16 border-2 border-primary/30",
-                        user.role === 'tutor' && "group-hover:opacity-80 transition-opacity cursor-pointer"
+                        (user.role === 'tutor' || user.role === 'parent') && "group-hover:opacity-80 transition-opacity cursor-pointer"
                     )}
                     onClick={handleAvatarClick} 
                   >
@@ -174,7 +155,7 @@ export default function DashboardPage() {
                       {user.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                   {user.role === 'tutor' && (
+                   {(user.role === 'tutor' || user.role === 'parent') && (
                      <button
                         onClick={handleAvatarClick}
                         className="absolute -bottom-2 -right-2 flex items-center justify-center bg-primary text-primary-foreground p-1.5 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
@@ -289,7 +270,7 @@ export default function DashboardPage() {
       </div>
 
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3"> 
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">  {/* Changed lg:grid-cols-3 to lg:grid-cols-2 */}
           <div 
             className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
@@ -297,7 +278,7 @@ export default function DashboardPage() {
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
           <div 
-            className="lg:col-span-2 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" // Changed lg:col-span-2 to lg:col-span-1
             style={{ animationDelay: `0.5s` }}
           >
             <ActionCard
@@ -471,6 +452,4 @@ function ActionCard({
   );
 }
     
-
-
 
