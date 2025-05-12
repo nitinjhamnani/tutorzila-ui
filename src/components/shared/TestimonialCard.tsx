@@ -1,16 +1,26 @@
 
+"use client";
+
 import type { Testimonial } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, QuoteIcon, CalendarDays } from "lucide-react"; 
+import { StarIcon, QuoteIcon, CalendarDays } from "lucide-react"; 
 import { format } from 'date-fns'; 
+import { useState, useEffect } from "react";
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
 }
 
 export function TestimonialCard({ testimonial }: TestimonialCardProps) {
-  const testimonialDate = new Date(testimonial.date);
+  const [formattedDate, setFormattedDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Ensure date formatting happens only on the client side after hydration
+    const testimonialDate = new Date(testimonial.date);
+    setFormattedDate(format(testimonialDate, "MMM d, yyyy"));
+  }, [testimonial.date]);
+
   return (
     <Card className="group bg-card border border-border/50 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full min-h-[18rem] p-1 transform hover:-translate-y-1">
       <CardHeader className="pt-6 pb-4 px-6">
@@ -23,7 +33,9 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           </Avatar>
           <div>
             <CardTitle className="text-md font-semibold text-foreground">{testimonial.name}</CardTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">{testimonial.role} &bull; {format(testimonialDate, "MMM d, yyyy")}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {testimonial.role} &bull; {formattedDate || "Loading date..."}
+            </p>
           </div>
         </div>
       </CardHeader>
@@ -33,7 +45,6 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           {testimonial.text}
         </p>
       </CardContent>
-      {/* Footer removed as per user request, date moved to header */}
     </Card>
   );
 }
