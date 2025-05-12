@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -61,7 +62,7 @@ export function TutorProfileSearch() {
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-3 md:gap-4"> {/* Changed to single column grid and reduced gap */}
+        <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Ensures vertical stacking, adjusted gap */}
           {profiles.map((tutor, index) => (
             <div
               key={tutor.id}
@@ -120,7 +121,7 @@ export function TutorProfileSearch() {
 
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6"> {/* Applied container for consistent padding */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
@@ -197,3 +198,4 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
+

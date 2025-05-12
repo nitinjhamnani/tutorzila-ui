@@ -7,12 +7,11 @@ export const metadata: Metadata = {
 };
 
 export default function SearchTutorsPage() {
-  // containerPadding is now handled within TutorProfileSearch or at a higher layout level
-  // No specific container padding needed here as TutorProfileSearch will manage its internal layout.
-  // The overall page padding is handled by the PublicLayout.
   return (
-    <div className="py-6 md:py-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+    // Added a container div with horizontal padding for consistent spacing.
+    <div className="py-6 md:py-8 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
       <TutorProfileSearch />
     </div>
   );
 }
+
