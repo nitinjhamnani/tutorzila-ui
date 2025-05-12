@@ -1,3 +1,4 @@
+
 import type { TutorProfile, Testimonial, DemoSession } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
@@ -144,6 +145,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
 export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   {
     id: "demo1",
+    tutorName: "Dr. Emily Carter",
     studentName: "Ravi Sharma",
     subject: "Physics",
     gradeLevel: "Grade 11-12",
@@ -155,6 +157,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo2",
+    tutorName: "Dr. Emily Carter",
     studentName: "Priya Singh",
     subject: "Mathematics",
     gradeLevel: "Grade 9-10",
@@ -165,6 +168,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo3",
+    tutorName: "John Adebayo",
     studentName: "Amit Patel",
     subject: "Chemistry",
     gradeLevel: "Grade 11-12",
@@ -176,6 +180,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
    {
     id: "demo4",
+    tutorName: "Sophia Chen",
     studentName: "Sneha Reddy",
     subject: "Biology",
     gradeLevel: "Grade 9-10",
@@ -186,6 +191,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo5",
+    tutorName: "Dr. Emily Carter",
     studentName: "Vikram Chouhan",
     subject: "English",
     gradeLevel: "Grade 6-8",

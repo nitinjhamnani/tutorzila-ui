@@ -110,6 +110,5 @@ declare module "lucide-react" {
     export const ChevronRight: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Circle: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ChevronUp: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const ClipboardList: React.FC<React.SVGProps<SVGSVGElement>>;
   }
-  
-

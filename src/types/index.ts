@@ -1,4 +1,3 @@
-
 export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
@@ -61,6 +60,7 @@ export interface Testimonial {
 
 export interface DemoSession {
   id: string;
+  tutorName?: string; // Added to associate demo with a tutor
   studentName: string;
   subject: string; 
   gradeLevel: string; 
@@ -70,5 +70,3 @@ export interface DemoSession {
   status: "Scheduled" | "Completed" | "Cancelled";
   joinLink?: string; 
 }
-
-

@@ -1,9 +1,10 @@
+// src/app/dashboard/tutor/page.tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Briefcase, Eye, Share2, UsersRound, CalendarDays, UserCircle as UserCircleIcon, Edit, Camera, CheckCircle, XCircle, MailCheck, PhoneCall } from "lucide-react";
+import { Briefcase, Eye, Share2, UsersRound, CalendarDays, UserCircle as UserCircleIcon, Edit, Camera, CheckCircle, XCircle, MailCheck, PhoneCall, Coins, ShoppingBag, DollarSign, Activity, Presentation, Users as UsersIcon, Star as StarIcon, ClipboardList, Inbox, LayoutDashboard, CalendarClock, Send } from "lucide-react"; // Added Send, Inbox, Presentation, CalendarClock
 import Link from "next/link";
 import type { TutorProfile, DemoSession } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,14 +14,16 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
-import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data"; 
+import { MOCK_DEMO_SESSIONS, MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
 import { DemoSessionCard } from "@/components/dashboard/DemoSessionCard";
+import { Progress } from "@/components/ui/progress";
+
 
 export default function TutorDashboardPage() {
   const { user } = useAuthMock();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const tutorUser = user as TutorProfile | null; // Cast user to TutorProfile for tutor-specific fields
+  const tutorUser = user as TutorProfile | null; 
 
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
@@ -29,18 +32,56 @@ export default function TutorDashboardPage() {
   const [isEmailVerified, setIsEmailVerified] = useState(tutorUser?.isEmailVerified || false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(tutorUser?.isPhoneVerified || false);
 
-  const [demoSessions, setDemoSessions] = useState<DemoSession[]>(MOCK_DEMO_SESSIONS);
+  const [demoSessions, setDemoSessions] = useState<DemoSession[]>([]);
+  const [mockInsights, setMockInsights] = useState({
+    leadBalance: 0,
+    activeLeads: 0,
+    demosCompleted: 0,
+    profileViews: 0,
+    applicationsSent: 0,
+    upcomingDemos: 0,
+  });
+  
+  const [completionPercentage, setCompletionPercentage] = useState(0);
 
   useEffect(() => {
     if (tutorUser) {
       setIsEmailVerified(tutorUser.isEmailVerified || false);
       setIsPhoneVerified(tutorUser.isPhoneVerified || false);
+      
+      const tutorSpecificDemos = MOCK_DEMO_SESSIONS.filter(
+        demo => MOCK_TUTOR_PROFILES.find(t => t.id === tutorUser.id && t.name === demo.tutorName)
+      );
+      setDemoSessions(tutorSpecificDemos);
+
+      setMockInsights({
+        leadBalance: Math.floor(Math.random() * 50) + 10,
+        activeLeads: Math.floor(Math.random() * 10) + 2,
+        demosCompleted: tutorSpecificDemos.filter(d => d.status === "Completed").length,
+        profileViews: Math.floor(Math.random() * 200) + 50,
+        applicationsSent: Math.floor(Math.random() * 30) + 5,
+        upcomingDemos: tutorSpecificDemos.filter(d => d.status === "Scheduled").length,
+      });
+
+      // Calculate profile completion
+      let completed = 0;
+      const totalSteps = 5; 
+      const fieldsToComplete = [
+        tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh'),
+        tutorUser.subjects && tutorUser.subjects.length > 0,
+        tutorUser.bio && tutorUser.bio.trim() !== '',
+        tutorUser.experience && tutorUser.experience.trim() !== '',
+        tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== '',
+      ];
+      fieldsToComplete.forEach(isComplete => {
+        if (isComplete) completed++;
+      });
+      setCompletionPercentage(Math.round((completed / totalSteps) * 100));
     }
   }, [tutorUser]);
 
 
   if (!tutorUser || tutorUser.role !== 'tutor') {
-    // This case should ideally be handled by layout or middleware redirecting non-tutors.
     return <div className="text-center p-8">Access Denied. This dashboard is for tutors only.</div>;
   }
 
@@ -56,7 +97,6 @@ export default function TutorDashboardPage() {
         title: "Profile Picture Updated (Mock)",
         description: `${file.name} selected. In a real app, this would be uploaded.`,
       });
-      // Here you would typically call an API to upload the image and update the user's avatar URL
     }
   };
 
@@ -82,15 +122,32 @@ export default function TutorDashboardPage() {
     setDemoSessions(prevSessions => 
       prevSessions.map(session => session.id === updatedDemo.id ? updatedDemo : session)
     );
+     setMockInsights(prev => ({
+      ...prev,
+      upcomingDemos: demoSessions.filter(d => d.id !== updatedDemo.id && d.status === "Scheduled").length + (updatedDemo.status === "Scheduled" ? 1 : 0),
+      demosCompleted: demoSessions.filter(d => d.id !== updatedDemo.id && d.status === "Completed").length + (updatedDemo.status === "Completed" ? 1 : 0),
+    }));
   };
 
   const handleCancelDemoSession = (sessionId: string) => {
-    setDemoSessions(prevSessions =>
-      prevSessions.map(session => 
-        session.id === sessionId ? { ...session, status: "Cancelled" } : session
-      )
+    const updatedSessions = demoSessions.map(session => 
+      session.id === sessionId ? { ...session, status: "Cancelled" as const } : session
     );
+    setDemoSessions(updatedSessions);
+    setMockInsights(prev => ({
+      ...prev,
+      upcomingDemos: updatedSessions.filter(d => d.status === "Scheduled").length,
+    }));
   };
+  
+  const insightCards = [
+    { title: "Lead Balance", value: mockInsights.leadBalance, icon: Coins, imageHint: "coin stack" },
+    { title: "Active Leads", value: mockInsights.activeLeads, icon: Inbox, imageHint: "inbox mail" },
+    { title: "Demos Completed", value: mockInsights.demosCompleted, icon: Presentation, imageHint: "presentation chart" },
+    { title: "Profile Views", value: mockInsights.profileViews, icon: Eye, imageHint: "eye chart" },
+    { title: "Applications Sent", value: mockInsights.applicationsSent, icon: Send, imageHint: "paper airplane" },
+    { title: "Upcoming Demos", value: mockInsights.upcomingDemos, icon: CalendarClock, imageHint: "calendar clock" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -127,7 +184,6 @@ export default function TutorDashboardPage() {
                 <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
                 {user.status && (
                    <Badge 
-                    variant={user.status === "Active" ? "default" : "destructive"} 
                     className={cn(
                       "text-xs py-0.5 px-2 border",
                       user.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500 hover:bg-opacity-80",
@@ -185,45 +241,40 @@ export default function TutorDashboardPage() {
         </CardHeader>
       </Card>
 
-      <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3"> 
+      <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
+        <CardHeader className="pb-3 border-b border-border/20">
+          <CardTitle className="text-xl font-semibold text-primary flex items-center">
+            <LayoutDashboard className="w-5 h-5 mr-2.5"/>
+            My Insights
+          </CardTitle>
+           <CardDescription className="text-sm text-muted-foreground mt-1">
+            Overview of your tutoring activity and performance.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {insightCards.map((insight, index) => (
+            <Card 
+              key={insight.title} 
+              className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-4 text-center transform hover:scale-105"
+              style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
+            >
+              <div className={cn("p-2.5 bg-primary/10 rounded-full text-primary inline-block mb-2.5 group-hover:bg-primary/20 transition-all shadow-sm")}>
+                <insight.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+              </div>
+              <p className="text-2xl font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p>
+              <p className="text-xs text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p>
+            </Card>
+          ))}
+        </CardContent>
+      </Card>
+
+
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1"> 
         <div 
-          className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out md:col-span-1" // Takes 1/3 width on medium screens and up
-          style={{ animationDelay: `0.2s` }} 
-        >
-          <UpdateProfileActionsCard user={tutorUser} />
-        </div>
-         <div 
-          className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out md:col-span-2" // Takes 2/3 width on medium screens and up
+          className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
           style={{ animationDelay: `0.3s` }} 
         >
-          <Card className="group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-none border-border/30 hover:shadow-lg">
-            <CardHeader className="p-4 md:p-5 pt-6 pb-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all">
-                  <Briefcase className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
-                </div>
-                <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">My Enquiries</CardTitle>
-              </div>
-              <CardDescription className="text-sm mt-1 text-muted-foreground">
-                View recommended tuition leads and manage your applications.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow p-4 md:p-5 flex flex-col pt-2">
-                <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">5 Recommended</p>
-              <div className="mt-auto pt-4 space-y-3">
-                <Button 
-                  asChild 
-                  variant="outline"
-                  className="w-full transform transition-transform hover:scale-105 active:scale-95 bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-                >
-                  <Link href="/dashboard/enquiries"> 
-                    <Eye className="mr-2 h-4 w-4" /> 
-                    View All Enquiries
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <UpdateProfileActionsCard user={tutorUser} />
         </div>
       </div>
 
@@ -266,7 +317,7 @@ export default function TutorDashboardPage() {
           {demoSessions.length > 3 && (
             <CardFooter className="p-4 border-t border-border/30 bg-muted/20">
               <Button variant="outline" asChild className="w-full sm:w-auto mx-auto text-sm">
-                <Link href="#">View All Demos (Coming Soon)</Link>
+                <Link href="/dashboard/demo-sessions">View All Demos</Link>
               </Button>
             </CardFooter>
           )}
