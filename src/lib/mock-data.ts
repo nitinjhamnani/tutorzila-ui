@@ -1,4 +1,3 @@
-
 import type { TutorProfile, Testimonial } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
@@ -11,7 +10,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Physics", "Mathematics", "Chemistry"], 
     grade: "Doctorate Level", 
     experience: "10+ years", 
-    hourlyRate: "1000", // Updated from "5000"
+    hourlyRate: "1000", 
     bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels. Specializes in advanced calculus and quantum mechanics. Believes in interactive learning and problem-solving approaches. Available for online sessions globally.", 
     teachingMode: ["Online"], 
     status: "Active", 
@@ -22,7 +21,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "female",
     dateOfBirth: "1985-07-15T00:00:00.000Z",
     gradeLevelsTaught: ["College Level", "Doctorate Level"],
-    boardsTaught: ["IB", "A-Level"],
+    boardsTaught: ["IB", "Cambridge", "A-Level"], // Updated
     preferredDays: ["Monday", "Wednesday", "Friday"],
     preferredTimeSlots: ["1600-1800", "1800-2000"],
     location: "Online"
@@ -36,7 +35,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["English Literature", "History", "Creative Writing"], 
     grade: "Master's Level", 
     experience: "5-7 years", 
-    hourlyRate: "950", // Updated from "4000"
+    hourlyRate: "950", 
     bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities. Experienced in preparing students for university entrance exams and essay writing. Enjoys incorporating classic and contemporary texts.", 
     teachingMode: ["In-person"], 
     location: "Central City Library",
@@ -48,7 +47,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "male",
     dateOfBirth: "1990-03-22T00:00:00.000Z",
     gradeLevelsTaught: ["Grade 9-10", "Grade 11-12", "College Level"],
-    boardsTaught: ["CBSE", "ICSE"],
+    boardsTaught: ["CBSE", "ICSE"], // Updated
     preferredDays: ["Tuesday", "Thursday", "Saturday"],
     preferredTimeSlots: ["1000-1200", "1400-1600"]
   },
@@ -61,7 +60,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Computer Science", "Mathematics", "Web Development"], 
     grade: "University Level", 
     experience: "3-5 years", 
-    hourlyRate: "900", // Updated from "4500"
+    hourlyRate: "900", 
     bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies (React, Node.js). Passionate about mentoring aspiring developers and making coding accessible. Practical, project-based teaching style.", 
     teachingMode: ["Online", "In-person"], 
     location: "Tech Park Co-working",
@@ -73,7 +72,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "female",
     dateOfBirth: "1995-11-10T00:00:00.000Z",
     gradeLevelsTaught: ["Grade 11-12", "College Level"],
-    boardsTaught: ["State Board", "IB"],
+    boardsTaught: ["State Board", "IB"], // Updated
     preferredDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
     preferredTimeSlots: ["1800-2000", "2000-2200"]
   },
@@ -86,7 +85,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Biology", "Chemistry"], 
     grade: "High School & College", 
     experience: "7+ years", 
-    hourlyRate: "1000", // Updated from "4800"
+    hourlyRate: "1000", 
     bio: "Former research scientist with extensive experience in tutoring high school and college biology and chemistry. Focuses on building strong foundational knowledge and lab skills. Can assist with AP and IB curricula.", 
     teachingMode: ["Online"], 
     status: "Inactive", 
@@ -97,7 +96,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "male",
     dateOfBirth: "1982-01-05T00:00:00.000Z",
     gradeLevelsTaught: ["Grade 9-10", "Grade 11-12", "College Level"],
-    boardsTaught: ["CBSE", "IGCSE", "AP"],
+    boardsTaught: ["CBSE", "IGCSE", "Cambridge"], // Updated (AP is more a curriculum than a board)
     preferredDays: ["Weekends"],
     preferredTimeSlots: ["0800-1000", "1000-1200", "1200-1400"],
     location: "Online"
@@ -111,7 +110,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Spanish", "French"], 
     grade: "All Levels", 
     experience: "3-5 years", 
-    hourlyRate: "800", // Updated from "3500"
+    hourlyRate: "800", 
     bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange. Offers conversational practice, grammar instruction, and exam preparation (DELE, DELF). Uses immersive techniques.", 
     teachingMode: ["In-person"], 
     location: "Student's Home",
@@ -123,7 +122,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "female",
     dateOfBirth: "1992-09-30T00:00:00.000Z",
     gradeLevelsTaught: ["Kindergarten", "Grade 1-5", "Grade 6-8", "Adult Learner"],
-    boardsTaught: ["All Boards"], 
+    boardsTaught: ["NIOS", "State Board"], // Updated
     preferredDays: ["Flexible"],
     preferredTimeSlots: ["Flexible"]
   },
@@ -136,3 +135,4 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   { id: "testimonial4", name: "Ahmed R. (Tutor)", avatarSeed: "ahmedtutor", role: "Tutor", text: "A great way to find students and manage my tutoring business. The support team is also very responsive.", rating: 5, date: new Date(Date.now() - 86400000 * 2).toISOString() },
   { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5, date: new Date(Date.now() - 86400000 * 8).toISOString() },
 ];
+

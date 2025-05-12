@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TutorProfileCard } from "./TutorProfileCard";
-import { SearchIcon, XIcon, BookOpen, Users, GraduationCap, Filter as LucideFilter, ListFilter, RadioTower, MapPin, DollarSign } from "lucide-react";
+import { SearchIcon, XIcon, BookOpen, Users, GraduationCap, Filter as LucideFilter, ListFilter, RadioTower, MapPin, DollarSign, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,8 +19,10 @@ import {
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 
-const allSubjectsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter((v, i, a) => a.indexOf(v) === i).map(s => ({value: s, label: s}));
+
+const allSubjectsList: MultiSelectOption[] = [...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter(Boolean).map(s => ({value: s, label: s}));
 const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])))].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
 
 const modeOptionsList: { value: string; label: string }[] = [
@@ -32,10 +33,22 @@ const modeOptionsList: { value: string; label: string }[] = [
   { value: "Both", label: "Both (Online & In-person)" },
 ];
 
+const boardsList: { value: string, label: string }[] = [
+  { value: "All", label: "All Boards" },
+  { value: "CBSE", label: "CBSE" },
+  { value: "ICSE", label: "ICSE" },
+  { value: "IB", label: "IB (International Baccalaureate)" },
+  { value: "IGCSE", label: "IGCSE (Cambridge)" },
+  { value: "State Board", label: "State Board (Specify State)" },
+  { value: "Cambridge", label: "Cambridge Assessment" },
+  { value: "NIOS", label: "NIOS (National Institute of Open Schooling)" },
+];
+
 
 export function TutorProfileSearch() {
-  const [subjectFilter, setSubjectFilter] = useState("All");
+  const [subjectFilter, setSubjectFilter] = useState<string[]>([]); // Changed for multi-select
   const [gradeFilter, setGradeFilter] = useState("All");
+  const [boardFilter, setBoardFilter] = useState("All"); // New state for board filter
   const [modeFilter, setModeFilter] = useState("All");
   const [locationSearchTerm, setLocationSearchTerm] = useState("");
   const [feeRange, setFeeRange] = useState<[number, number]>([200, 2000]);
@@ -49,8 +62,10 @@ export function TutorProfileSearch() {
     return tutorProfiles.filter((tutor) => {
       const locationSearchTermLower = locationSearchTerm.toLowerCase();
       
-      const matchesSubject = subjectFilter === "All" || tutor.subjects.includes(subjectFilter);
+      const matchesSubject = subjectFilter.length === 0 || tutor.subjects.some(sub => subjectFilter.includes(sub));
       const matchesGrade = gradeFilter === "All" || tutor.grade === gradeFilter || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(gradeFilter));
+      const matchesBoard = boardFilter === "All" || (tutor.boardsTaught && tutor.boardsTaught.includes(boardFilter));
+
 
       let matchesMode = true;
       if (modeFilter !== "All") {
@@ -75,13 +90,14 @@ export function TutorProfileSearch() {
       const matchesFee = isNaN(tutorRate) ? false : (tutorRate >= feeRange[0] && tutorRate <= feeRange[1]);
 
 
-      return matchesSubject && matchesGrade && matchesMode && matchesLocationSearch && matchesFee;
+      return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch && matchesFee;
     });
-  }, [subjectFilter, gradeFilter, modeFilter, locationSearchTerm, feeRange, tutorProfiles]);
+  }, [subjectFilter, gradeFilter, boardFilter, modeFilter, locationSearchTerm, feeRange, tutorProfiles]);
 
   const resetFilters = () => {
-    setSubjectFilter("All");
+    setSubjectFilter([]);
     setGradeFilter("All");
+    setBoardFilter("All");
     setModeFilter("All");
     setLocationSearchTerm("");
     setFeeRange([200, 2000]);
@@ -123,7 +139,19 @@ export function TutorProfileSearch() {
   const filterPanelContent = (
     <>
       <FilterItem icon={GraduationCap} label="Grade Level" value={gradeFilter} onValueChange={setGradeFilter} options={gradeLevelsList} />
-      <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={allSubjectsList} />
+      <div className="space-y-1.5">
+        <Label htmlFor="subject-multi-filter" className="text-xs font-medium text-muted-foreground flex items-center">
+          <BookOpen className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Subjects
+        </Label>
+        <MultiSelectCommand
+          options={allSubjectsList}
+          selectedValues={subjectFilter}
+          onValueChange={setSubjectFilter}
+          placeholder="Select subjects..."
+          className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-auto min-h-9 text-xs" 
+        />
+      </div>
+      <FilterItem icon={ShieldCheck} label="Board" value={boardFilter} onValueChange={setBoardFilter} options={boardsList} />
       <FilterItem icon={RadioTower} label="Mode" value={modeFilter} onValueChange={setModeFilter} options={modeOptionsList} />
       <div className="space-y-1.5">
         <Label htmlFor="location-search-filter" className="text-xs font-medium text-muted-foreground flex items-center">
