@@ -64,18 +64,20 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
             </div>
             {demo.status === "Scheduled" ? (
               <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="xs" 
-                  className="text-[0.65rem] py-0.5 px-1.5 border-primary/50 text-primary hover:bg-primary/10"
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[0.65rem] py-1 px-2 border font-medium whitespace-nowrap cursor-pointer rounded-full",
+                    "border-primary/50 text-primary bg-primary/10 hover:bg-primary/20 flex items-center gap-1"
+                  )}
                 >
-                  <Edit3 className="mr-1 h-3 w-3" /> Manage
-                </Button>
+                  <Edit3 className="h-3 w-3" /> Manage
+                </Badge>
               </DialogTrigger>
             ) : (
               <Badge
                 variant="outline"
-                className={cn("text-[0.65rem] py-0.5 px-1.5 border font-medium whitespace-nowrap", statusBadgeClasses())}
+                className={cn("text-[0.65rem] py-1 px-2 border font-medium whitespace-nowrap rounded-full", statusBadgeClasses())}
               >
                 <StatusIcon />
                 {demo.status}
@@ -84,7 +86,6 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
           </div>
         </CardHeader>
         <CardContent className="p-4 space-y-1.5 text-xs flex-grow">
-          {/* Subject InfoItem removed */}
           <InfoItem icon={GraduationCap} label="Grade" value={demo.gradeLevel} />
           <InfoItem icon={ShieldCheck} label="Board" value={demo.board} />
           <InfoItem icon={Calendar} label="Date" value={format(demoDate, "MMM d, yyyy")} />
@@ -106,7 +107,6 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
       </Card>
       <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
           <ManageDemoModal
-            // isOpen and onOpenChange are implicitly handled by DialogContent
             demoSession={demo}
             onUpdateSession={(updatedDemo) => {
                 onUpdateSession(updatedDemo);
