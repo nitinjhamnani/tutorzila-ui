@@ -1,4 +1,4 @@
-import type { TutorProfile, Testimonial } from "@/types";
+import type { TutorProfile, Testimonial, DemoSession } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   { 
@@ -136,4 +136,47 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5, date: new Date(Date.now() - 86400000 * 8).toISOString() },
 ];
 
-
+export const MOCK_DEMO_SESSIONS: DemoSession[] = [
+  {
+    id: "demo1",
+    studentName: "Ravi Sharma",
+    subject: "Physics",
+    date: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
+    time: "4:00 PM - 4:30 PM",
+    status: "Scheduled",
+    joinLink: "#",
+  },
+  {
+    id: "demo2",
+    studentName: "Priya Singh",
+    subject: "Mathematics",
+    date: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 days from now
+    time: "11:00 AM - 11:30 AM",
+    status: "Scheduled",
+  },
+  {
+    id: "demo3",
+    studentName: "Amit Patel",
+    subject: "Chemistry",
+    date: new Date(Date.now() + 86400000 * 5).toISOString(), // 5 days from now
+    time: "2:00 PM - 2:30 PM",
+    status: "Scheduled",
+    joinLink: "#",
+  },
+   {
+    id: "demo4",
+    studentName: "Sneha Reddy",
+    subject: "Biology",
+    date: new Date(Date.now() - 86400000 * 1).toISOString(), // Yesterday
+    time: "3:00 PM - 3:30 PM",
+    status: "Completed",
+  },
+  {
+    id: "demo5",
+    studentName: "Vikram Chouhan",
+    subject: "English",
+    date: new Date(Date.now() + 86400000 * 1).toISOString(), // Tomorrow
+    time: "5:00 PM - 5:30 PM",
+    status: "Cancelled",
+  },
+];

@@ -22,8 +22,8 @@ export interface TuitionRequirement {
   subject: string;
   gradeLevel: string;
   scheduleDetails: string; // Kept for full context if needed elsewhere, or for initial data
-  preferredDays?: string; // New field for days - for display on card, form will use array
-  preferredTime?: string; // New field for time - for display on card, form will use array
+  preferredDays?: string[]; // Changed to string array
+  preferredTime?: string[]; // Changed to string array
   location?: string; // e.g., "Online", "Student's Home", "Tutor's Home"
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
@@ -58,3 +58,12 @@ export interface Testimonial {
   date: string; // ISO date string for when the testimonial was given
 }
 
+export interface DemoSession {
+  id: string;
+  studentName: string;
+  subject: string;
+  date: string; // ISO date string
+  time: string; // e.g., "10:00 AM - 11:00 AM"
+  status: "Scheduled" | "Completed" | "Cancelled";
+  joinLink?: string; // Optional link to join a virtual session
+}

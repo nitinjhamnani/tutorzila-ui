@@ -1,12 +1,13 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound } from "lucide-react";
+import { Lightbulb, PlusCircle, Search, UserCheck, Users, BookOpen, Activity, Briefcase, ListChecks, Camera, Edit, Edit2, MailCheck, PhoneCall, CheckCircle, XCircle, UserCog, ClipboardEdit, DollarSign, ClipboardList, Coins, CalendarClock, Award, ShoppingBag, Eye, Share2, UsersRound, CalendarDays } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { TutorProfile } from "@/types";
+import type { TutorProfile, DemoSession } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent, useState, useEffect } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
@@ -15,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { UpdateProfileActionsCard } from "@/components/dashboard/UpdateProfileActionsCard";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data"; 
+import { DemoSessionCard } from "@/components/dashboard/DemoSessionCard";
 
 
 export default function DashboardPage() {
@@ -114,7 +117,7 @@ export default function DashboardPage() {
         buttonInContent={true}
         actionButtonText="View All Tutors"
         ActionButtonIcon={Search} 
-        href="/search-tuitions" // Corrected Link
+        href="/search-tuitions" 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
@@ -151,7 +154,7 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="grid gap-6 md:grid-cols-1">
          <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden shadow-none border-0">
           <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
@@ -284,15 +287,15 @@ export default function DashboardPage() {
       </div>
 
       {user.role === 'tutor' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> {/* Changed to 2 columns for tutor */}
           <div 
-            className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.2s` }} 
           >
             <UpdateProfileActionsCard user={user as TutorProfile} />
           </div>
           <div 
-            className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
             style={{ animationDelay: `0.3s` }} 
           >
             <ActionCard
@@ -326,6 +329,50 @@ export default function DashboardPage() {
               {card}
             </div>
           ))}
+        </div>
+      )}
+
+      {user.role === 'tutor' && (
+        <div className="mt-8 animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
+          <Card className="bg-card border border-border/30 rounded-xl shadow-lg overflow-hidden">
+            <CardHeader className="pb-4 border-b border-border/30">
+              <CardTitle className="text-xl font-semibold text-primary flex items-center">
+                <CalendarDays className="w-6 h-6 mr-2.5" />
+                Upcoming Tuition Demos
+              </CardTitle>
+              <CardDescription className="text-sm text-muted-foreground mt-1">
+                Manage your scheduled demo sessions with students.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 md:p-5">
+              {MOCK_DEMO_SESSIONS.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {MOCK_DEMO_SESSIONS.slice(0,3).map((demo, index) => ( // Show up to 3 demos
+                     <div 
+                        key={demo.id}
+                        className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+                        style={{ animationDelay: `${index * 0.1 + 0.4}s` }} 
+                      >
+                        <DemoSessionCard demo={demo} />
+                     </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <CalendarDays className="w-12 h-12 mx-auto mb-3 text-primary/30" />
+                  <p className="font-medium">No upcoming demos scheduled.</p>
+                  <p className="text-xs mt-1">Check back later or contact students to schedule new demos.</p>
+                </div>
+              )}
+            </CardContent>
+            {MOCK_DEMO_SESSIONS.length > 3 && (
+              <CardFooter className="p-4 border-t border-border/30 bg-muted/20">
+                <Button variant="outline" asChild className="w-full sm:w-auto mx-auto text-sm">
+                  <Link href="#">View All Demos (Coming Soon)</Link>
+                </Button>
+              </CardFooter>
+            )}
+          </Card>
         </div>
       )}
 
@@ -437,7 +484,7 @@ function ActionCard({
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
         {buttonInContent ? (
           <>
-            {(title === "My Classes" || title === "My Payments") && ( // Removed "My Enquiries" from this condition
+            {(title === "My Classes" || title === "My Payments") && ( 
                  <div className="flex justify-between items-center text-sm mb-2">
                  <span className="font-medium text-foreground/80">
                    {title === "My Classes" ? "Active Classes" : title === "My Payments" ? "Pending Payments" : description}
@@ -447,7 +494,7 @@ function ActionCard({
                 </span>
                </div>
             )}
-             {!(title === "My Classes" || title === "My Payments" || title === "My Enquiries") && description && ( // Kept "My Enquiries" here to ensure it does not show a general description if one was passed (which it isn't)
+             {!(title === "My Classes" || title === "My Payments" || title === "My Enquiries") && description && ( 
                  <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
              )}
 
@@ -469,4 +516,3 @@ function ActionCard({
   );
 }
     
-
