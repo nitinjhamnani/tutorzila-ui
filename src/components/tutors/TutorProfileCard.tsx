@@ -8,6 +8,7 @@ import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase, Shield
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react"; // Added useState and useEffect
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
@@ -25,11 +26,15 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
   );
 };
 
-// Mock review count - replace with actual data if available
-const mockReviewCount = Math.floor(Math.random() * 50) + 5; // Random number between 5 and 54
-
 export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
   const rating = tutor.rating || 0;
+  const [mockReviewCount, setMockReviewCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Generate mockReviewCount only on the client-side
+    setMockReviewCount(Math.floor(Math.random() * 50) + 5);
+  }, []);
+
 
   const TeachingModeIcon =
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && tutor.teachingMode.includes("In-person")
@@ -51,7 +56,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
       <a className="block group cursor-pointer h-full">
         <Card className={cn(
           "w-full h-full",
-          "flex flex-col p-5", // Increased padding from p-4 to p-5
+          "flex flex-col p-5", 
           "rounded-xl shadow-md hover:shadow-lg border border-border/30",
           "transition-all duration-300 bg-card",
           "transform hover:-translate-y-1"
@@ -78,7 +83,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
             </div>
             <div className="flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors shrink-0 ml-2 mt-1">
               <Star className="w-3.5 h-3.5 fill-primary text-primary mr-1" />
-              <span>{typeof rating === 'number' ? rating.toFixed(1) : 'N/A'} ({mockReviewCount})</span>
+              <span>{typeof rating === 'number' ? rating.toFixed(1) : 'N/A'} ({mockReviewCount !== null ? mockReviewCount : '...'})</span>
             </div>
           </CardHeader>
 
@@ -92,11 +97,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           </CardContent>
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">
-            {tutor.location && (
-              <InfoItem icon={MapPin} text={tutor.location} className="text-[11.5px]" />
-            )}
-            {!tutor.location && <div />} {/* Placeholder to keep space if no location */}
-            
+            {tutor.location && <InfoItem icon={MapPin} text={tutor.location} />}
             {tutor.hourlyRate && (
               <Badge variant="outline" className="text-[11.5px] py-1 px-2.5 border-primary/40 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 {`₹${tutor.hourlyRate}/hr`}
