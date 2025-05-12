@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -16,7 +15,7 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
+  SheetTitle as SheetTitleComponent,
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
@@ -26,7 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { usePathname } from "next/navigation";
@@ -34,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { SignInForm } from "@/components/auth/SignInForm";
+import logoAsset from '@/assets/images/logo.png';
 
 
 export function AppHeader() {
@@ -68,7 +68,13 @@ export function AppHeader() {
   
   const findTutorButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
-    "border-primary text-primary hover:bg-primary/10" 
+    "border-primary text-primary hover:bg-primary/10",
+    isScrolled ? "border-primary text-primary hover:bg-primary/10" : "border-card-foreground text-card-foreground hover:bg-white/10"
+  );
+
+  const navButtonClasses = cn(
+    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-4 rounded-lg",
+    isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10"
   );
 
 
@@ -80,14 +86,33 @@ export function AppHeader() {
 
   return (
     <header className={headerClasses}>
-      <div className="container mx-auto flex h-28 items-center justify-between px-4 md:px-6">
+      <div className="container mx-auto flex h-[var(--header-height)] items-center justify-between px-4 md:px-6">
         <Link href={logoHref} onClick={() => setMobileMenuOpen(false)}>
           <Logo className="h-[var(--logo-height)] w-auto"/>
         </Link>
         
         <nav className="hidden items-center space-x-1 md:flex">
-           {isAuthenticated && user && (
-             <Button asChild variant="ghost" className={cn("transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg", isScrolled ? "text-foreground hover:bg-muted/50" : "text-card-foreground hover:bg-white/10")}>
+           {isAuthenticated && user && user.role === 'tutor' && (
+             <>
+               <Button asChild variant="ghost" className={navButtonClasses}>
+                 <Link href="/dashboard">
+                   <UserCircle className="mr-2 h-4 w-4" /> My Profile
+                 </Link>
+               </Button>
+               <Button asChild variant="ghost" className={navButtonClasses}>
+                 <Link href="/dashboard/enquiries">
+                   <ClipboardList className="mr-2 h-4 w-4" /> My Enquiries
+                 </Link>
+               </Button>
+               <Button asChild variant="ghost" className={navButtonClasses}>
+                 <Link href="/dashboard/my-classes"> {/* Assuming this path */}
+                   <UsersRound className="mr-2 h-4 w-4" /> My Classes
+                 </Link>
+               </Button>
+             </>
+           )}
+           {isAuthenticated && user && user.role !== 'tutor' && ( // For parent or admin
+             <Button asChild variant="ghost" className={navButtonClasses}>
                 <Link href="/dashboard">
                     <HomeIcon className="mr-2 h-4 w-4" /> Dashboard
                 </Link>
@@ -97,7 +122,25 @@ export function AppHeader() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated && user ? (
+            {!isAuthenticated && (
+              <>
+                <Button asChild variant="outline" className={findTutorButtonClass}>
+                  <Link href="/search-tuitions">Find Tutors</Link>
+                </Button>
+                <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button className={actionButtonClass}>Sign In</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
+                     <DialogHeader className="sr-only">
+                       <DialogTitle>Sign In to Tutorzila</DialogTitle>
+                     </DialogHeader>
+                    <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
+                  </DialogContent>
+                </Dialog>
+              </>
+            )}
+            {isAuthenticated && user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className={cn("relative h-12 w-12 rounded-full transform transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", !isScrolled && "hover:bg-white/10 active:bg-white/20 text-card-foreground")}>
@@ -138,23 +181,6 @@ export function AppHeader() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <>
-                <Button asChild variant="outline" className={findTutorButtonClass}>
-                  <Link href="/search-tuitions">Find Tutors</Link>
-                </Button>
-                <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button className={actionButtonClass}>Sign In</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md p-0 bg-card">
-                     <DialogHeader className="sr-only">
-                       <DialogTitle>Sign In to Tutorzila</DialogTitle>
-                     </DialogHeader>
-                    <SignInForm onSuccess={() => setSignInModalOpen(false)} /> 
-                  </DialogContent>
-                </Dialog>
-              </>
             )}
           </div>
 
@@ -169,7 +195,7 @@ export function AppHeader() {
                 <SheetHeader className="p-4 border-b">
                   <SheetTitleComponent> 
                      <Link href={logoHref} onClick={() => setMobileMenuOpen(false)}>
-                        <Logo className="h-10 w-auto" />
+                        <Logo className="h-[calc(var(--logo-height)_/_1.5)] w-auto" /> {/* Adjusted logo height for mobile */}
                      </Link>
                   </SheetTitleComponent>
                 </SheetHeader>
@@ -187,19 +213,35 @@ export function AppHeader() {
                         </div>
                       </div>
 
-                      <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
-                        <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
-                      </Link>
-                       {user.role === "parent" && (
-                        <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                      {user.role === 'tutor' && (
+                        <>
+                          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                            <UserCircle className="h-5 w-5 text-primary" /> My Profile
+                          </Link>
+                          <Link href="/dashboard/enquiries" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                            <ClipboardList className="h-5 w-5 text-primary" /> My Enquiries
+                          </Link>
+                          <Link href="/dashboard/my-classes" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                            <UsersRound className="h-5 w-5 text-primary" /> My Classes
+                          </Link>
+                        </>
+                      )}
+                      {user.role === 'parent' && (
+                        <>
+                          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                            <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
+                          </Link>
+                          <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <Edit className="h-5 w-5 text-primary" /> Post Requirement
+                          </Link>
+                        </>
+                      )}
+                       {user.role === 'admin' && (
+                        <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                          <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
                         </Link>
                       )}
-                       {user.role === "tutor" && (
-                        <Link href="/search-tuitions" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
-                            <Search className="h-5 w-5 text-primary" /> Search Tuitions
-                        </Link>
-                      )}
+                      
                       <Separator className="my-3" />
                       <Link href="#" onClick={(e) => {e.preventDefault(); setMobileMenuOpen(false);}} className={cn(mobileLinkClass, "text-muted-foreground cursor-not-allowed opacity-70")}>
                         <Settings className="h-5 w-5" /> Settings
@@ -229,7 +271,7 @@ export function AppHeader() {
                             <LogIn className="h-5 w-5 text-primary" /> Sign In
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-md p-0 bg-card">
+                        <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
                            <DialogHeader className="sr-only"> 
                              <DialogTitle>Sign In to Tutorzila</DialogTitle>
                            </DialogHeader>
@@ -253,4 +295,3 @@ export function AppHeader() {
     </header>
   );
 }
-
