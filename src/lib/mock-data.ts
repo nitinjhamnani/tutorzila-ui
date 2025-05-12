@@ -21,7 +21,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "female",
     dateOfBirth: "1985-07-15T00:00:00.000Z",
     gradeLevelsTaught: ["College Level", "Doctorate Level"],
-    boardsTaught: ["IB", "Cambridge", "A-Level"], // Updated
+    boardsTaught: ["IB", "Cambridge", "A-Level"], 
     preferredDays: ["Monday", "Wednesday", "Friday"],
     preferredTimeSlots: ["1600-1800", "1800-2000"],
     location: "Online"
@@ -47,7 +47,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "male",
     dateOfBirth: "1990-03-22T00:00:00.000Z",
     gradeLevelsTaught: ["Grade 9-10", "Grade 11-12", "College Level"],
-    boardsTaught: ["CBSE", "ICSE"], // Updated
+    boardsTaught: ["CBSE", "ICSE"], 
     preferredDays: ["Tuesday", "Thursday", "Saturday"],
     preferredTimeSlots: ["1000-1200", "1400-1600"]
   },
@@ -72,7 +72,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "female",
     dateOfBirth: "1995-11-10T00:00:00.000Z",
     gradeLevelsTaught: ["Grade 11-12", "College Level"],
-    boardsTaught: ["State Board", "IB"], // Updated
+    boardsTaught: ["State Board", "IB"], 
     preferredDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
     preferredTimeSlots: ["1800-2000", "2000-2200"]
   },
@@ -96,7 +96,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "male",
     dateOfBirth: "1982-01-05T00:00:00.000Z",
     gradeLevelsTaught: ["Grade 9-10", "Grade 11-12", "College Level"],
-    boardsTaught: ["CBSE", "IGCSE", "Cambridge"], // Updated (AP is more a curriculum than a board)
+    boardsTaught: ["CBSE", "IGCSE", "Cambridge"], 
     preferredDays: ["Weekends"],
     preferredTimeSlots: ["0800-1000", "1000-1200", "1200-1400"],
     location: "Online"
@@ -122,7 +122,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     gender: "female",
     dateOfBirth: "1992-09-30T00:00:00.000Z",
     gradeLevelsTaught: ["Kindergarten", "Grade 1-5", "Grade 6-8", "Adult Learner"],
-    boardsTaught: ["NIOS", "State Board"], // Updated
+    boardsTaught: ["NIOS", "State Board"], 
     preferredDays: ["Flexible"],
     preferredTimeSlots: ["Flexible"]
   },
@@ -135,4 +135,5 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   { id: "testimonial4", name: "Ahmed R. (Tutor)", avatarSeed: "ahmedtutor", role: "Tutor", text: "A great way to find students and manage my tutoring business. The support team is also very responsive.", rating: 5, date: new Date(Date.now() - 86400000 * 2).toISOString() },
   { id: "testimonial5", name: "Jessica B. (Parent)", avatarSeed: "jessicaparent", role: "Parent", text: "Finding a qualified physics tutor was so easy with Tutorzila. My daughter is much more confident now.", rating: 5, date: new Date(Date.now() - 86400000 * 8).toISOString() },
 ];
+
 

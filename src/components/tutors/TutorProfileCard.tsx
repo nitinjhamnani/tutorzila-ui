@@ -4,7 +4,7 @@
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase } from "lucide-react";
+import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -36,13 +36,13 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
       ? Laptop // Hybrid
       : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
       ? Laptop
-      : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("In-person")
+      : Array.isArray(tutor.teachingMode) && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
       ? Users
       : Laptop; // Default
 
   const teachingModeText =
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0
-      ? tutor.teachingMode.map(mode => mode.replace(" (In-person)", "")).join(' & ')
+      ? tutor.teachingMode.map(mode => mode.replace(" (In-person)", "").replace("Offline", "In-person")).join(' & ')
       : "Not Specified";
       
 
@@ -85,6 +85,9 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           <CardContent className="p-0 space-y-2.5 flex-grow">
             <InfoItem icon={BookOpen} text={tutor.subjects} />
             {tutor.grade && <InfoItem icon={GraduationCap} text={tutor.grade} />}
+            {tutor.boardsTaught && tutor.boardsTaught.length > 0 && (
+              <InfoItem icon={ShieldCheck} text={tutor.boardsTaught.join(', ')} />
+            )}
             {tutor.experience && <InfoItem icon={Briefcase} text={tutor.experience} />} 
           </CardContent>
 
