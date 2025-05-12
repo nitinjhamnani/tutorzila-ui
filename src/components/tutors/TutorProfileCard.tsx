@@ -20,7 +20,7 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
   return (
     <div className={cn("flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors", className)}>
       <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 group-hover:text-primary/90 transition-colors shrink-0" />
-      <span className="truncate text-[12.5px]">{displayText}</span> {/* Slightly increased font size */}
+      <span className="truncate text-[12.5px]">{displayText}</span>
     </div>
   );
 };
@@ -31,23 +31,26 @@ const mockReviewCount = Math.floor(Math.random() * 50) + 5; // Random number bet
 export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
   const rating = tutor.rating || 0;
 
-  const TeachingModeIcon = Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && tutor.teachingMode.includes("In-person")
-    ? Laptop // Hybrid - could use a more specific icon if available
-    : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
-    ? Laptop
-    : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("In-person")
-    ? Users
-    : Laptop; // Default
+  const TeachingModeIcon =
+    Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && tutor.teachingMode.includes("In-person")
+      ? Laptop // Hybrid
+      : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
+      ? Laptop
+      : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("In-person")
+      ? Users
+      : Laptop; // Default
 
-  const teachingModeText = Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0
-    ? tutor.teachingMode.join(' & ')
-    : "Not specified";
+  const teachingModeText =
+    Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0
+      ? tutor.teachingMode.map(mode => mode.replace(" (In-person)", "")).join(' & ')
+      : "Not Specified";
+
 
   return (
     <Link href={`/tutors/${tutor.id}`} passHref legacyBehavior>
-      <a className="block group cursor-pointer h-full"> {/* Ensure the anchor tag takes full height */}
+      <a className="block group cursor-pointer h-full">
         <Card className={cn(
-          "w-full h-full", // Card takes full height of its parent Link/anchor
+          "w-full h-full",
           "flex flex-col p-4",
           "rounded-xl shadow-md hover:shadow-lg border border-border/30",
           "transition-all duration-300 bg-card",
@@ -66,7 +69,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
                   {tutor.name}
                 </CardTitle>
                  <p className="text-[11px] text-muted-foreground mt-0.5 group-hover:text-foreground/80 transition-colors truncate">
-                  {teachingModeText}
+                  {tutor.experience}
                 </p>
               </div>
             </div>
@@ -76,11 +79,16 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
             </div>
           </CardHeader>
 
-          <CardContent className="p-0 space-y-2.5 flex-grow"> {/* Increased spacing */}
+          <CardContent className="p-0 space-y-2.5 flex-grow">
             <InfoItem icon={BookOpen} text={tutor.subjects} />
             {tutor.grade && <InfoItem icon={GraduationCap} text={tutor.grade} />}
-            {tutor.experience && <InfoItem icon={Laptop} text={tutor.experience} />} {/* Changed to Laptop icon for Experience */}
             {tutor.location && <InfoItem icon={MapPin} text={tutor.location} />}
+            {Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0 && (
+              <Badge variant="outline" className="text-[11px] py-0.5 px-2 border-primary/30 bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors items-center">
+                <TeachingModeIcon className="w-3 h-3 mr-1 text-primary/80" />
+                {teachingModeText}
+              </Badge>
+            )}
           </CardContent>
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-end items-center">
