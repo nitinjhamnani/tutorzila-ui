@@ -1,4 +1,3 @@
-
 import type { TutorProfile, Testimonial, DemoSession } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
@@ -132,6 +131,32 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     preferredTimeSlots: ["Flexible"],
     rating: 4.6,
   },
+  {
+    id: "t6",
+    name: "Mock Tutor",
+    email: "tutor@example.com",
+    role: "tutor",
+    avatar: "https://picsum.photos/seed/mocktutor/128",
+    subjects: ["General Science", "Mathematics"],
+    grade: "Middle School",
+    experience: "2+ years",
+    hourlyRate: "750",
+    bio: "A friendly and patient tutor, skilled in making learning fun for middle school students. Focuses on building confidence and understanding core concepts.",
+    teachingMode: ["Online", "In-person"],
+    location: "Online or Student's Home (Local Area)",
+    status: "Active",
+    qualifications: ["BSc in Education"],
+    phone: "555-123-4567",
+    isEmailVerified: true,
+    isPhoneVerified: true,
+    gender: "other",
+    dateOfBirth: "1993-05-12T00:00:00.000Z",
+    gradeLevelsTaught: ["Grade 6-8"],
+    boardsTaught: ["CBSE", "State Board"],
+    preferredDays: ["Tuesday", "Thursday", "Saturday"],
+    preferredTimeSlots: ["1600-1800", "1000-1200"],
+    rating: 4.2,
+  }
 ];
 
 export const MOCK_TESTIMONIALS: Testimonial[] = [
@@ -199,5 +224,28 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     date: new Date(Date.now() + 86400000 * 1).toISOString(), 
     time: "5:00 PM - 5:30 PM",
     status: "Cancelled",
+  },
+  {
+    id: "demo6",
+    tutorName: "Mock Tutor",
+    studentName: "Aarav Gupta",
+    subject: "General Science",
+    gradeLevel: "Grade 7",
+    board: "CBSE",
+    date: new Date(Date.now() + 86400000 * 4).toISOString(), // 4 days from now
+    time: "3:00 PM - 3:30 PM",
+    status: "Scheduled",
+    joinLink: "#",
+  },
+  {
+    id: "demo7",
+    tutorName: "Mock Tutor",
+    studentName: "Ishika Jain",
+    subject: "Mathematics",
+    gradeLevel: "Grade 8",
+    board: "State Board",
+    date: new Date(Date.now() + 86400000 * 6).toISOString(), // 6 days from now
+    time: "10:00 AM - 10:30 AM",
+    status: "Scheduled",
   },
 ];
