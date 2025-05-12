@@ -4,7 +4,7 @@
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, DollarSign } from "lucide-react";
+import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -44,6 +44,8 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0
       ? tutor.teachingMode.map(mode => mode.replace(" (In-person)", "")).join(' & ')
       : "Not Specified";
+      
+  const isOfflineTutor = Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("In-person");
 
 
   return (
@@ -56,7 +58,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           "transition-all duration-300 bg-card",
           "transform hover:-translate-y-1"
         )}>
-          <CardHeader className="flex flex-row items-center justify-between gap-3 p-0 mb-3">
+          <CardHeader className="flex flex-row items-start justify-between gap-3 p-0 mb-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <Avatar className="w-14 h-14 border-2 border-primary/20 shadow-sm shrink-0">
                 <AvatarImage src={tutor.avatar || `https://picsum.photos/seed/${tutor.id}/128`} alt={tutor.name} />
@@ -68,12 +70,15 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
                 <CardTitle className="text-base font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                   {tutor.name}
                 </CardTitle>
-                 <p className="text-[11px] text-muted-foreground mt-0.5 group-hover:text-foreground/80 transition-colors truncate">
-                  {tutor.experience}
-                </p>
+                 {Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0 && (
+                  <Badge variant="outline" className="mt-1 text-[10px] py-0.5 px-1.5 border-primary/30 bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors items-center">
+                    <TeachingModeIcon className="w-2.5 h-2.5 mr-1 text-primary/80" />
+                    {teachingModeText}
+                  </Badge>
+                )}
               </div>
             </div>
-            <div className="flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors shrink-0 ml-2">
+            <div className="flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors shrink-0 ml-2 mt-1">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-1" />
               <span>{typeof rating === 'number' ? rating.toFixed(1) : 'N/A'} ({mockReviewCount})</span>
             </div>
@@ -82,16 +87,15 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           <CardContent className="p-0 space-y-2.5 flex-grow">
             <InfoItem icon={BookOpen} text={tutor.subjects} />
             {tutor.grade && <InfoItem icon={GraduationCap} text={tutor.grade} />}
-            {tutor.location && <InfoItem icon={MapPin} text={tutor.location} />}
-            {Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0 && (
-              <Badge variant="outline" className="text-[11px] py-0.5 px-2 border-primary/30 bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors items-center">
-                <TeachingModeIcon className="w-3 h-3 mr-1 text-primary/80" />
-                {teachingModeText}
-              </Badge>
-            )}
+            {tutor.experience && <InfoItem icon={Laptop} text={tutor.experience} />}
           </CardContent>
 
-          <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-end items-center">
+          <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">
+            {isOfflineTutor && tutor.location && (
+              <InfoItem icon={MapPin} text={tutor.location} className="text-[11.5px]" />
+            )}
+            {!isOfflineTutor && <div />} {/* Placeholder to keep space if not offline tutor */}
+            
             {tutor.hourlyRate && (
               <Badge variant="outline" className="text-[11.5px] py-1 px-2.5 border-primary/40 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 {`₹${tutor.hourlyRate}/hr`}
