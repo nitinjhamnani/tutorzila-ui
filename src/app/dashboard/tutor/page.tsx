@@ -245,26 +245,26 @@ export default function TutorDashboardPage() {
         <div className="lg:col-span-2">
           <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
             <CardHeader className="pb-3 border-b border-border/20">
-              <CardTitle className="text-xl font-semibold text-primary flex items-center">
-                <LayoutDashboard className="w-5 h-5 mr-2.5"/>
+              <CardTitle className="text-lg font-semibold text-primary flex items-center"> {/* Reduced font size */}
+                <LayoutDashboard className="w-4 h-4 mr-2"/> {/* Reduced icon size */}
                 My Insights
               </CardTitle>
-              <CardDescription className="text-sm text-muted-foreground mt-1">
+              <CardDescription className="text-xs text-muted-foreground mt-0.5"> {/* Reduced font size */}
                 Overview of your tutoring activity and performance.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <CardContent className="p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> {/* Reduced padding and gap */}
               {insightCardsData.map((insight, index) => (
                 <Card 
                   key={insight.title} 
-                  className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-4 text-center transform hover:scale-105"
+                  className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-3 text-center transform hover:scale-105" // Reduced padding
                   style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
                 >
-                  <div className={cn("p-2.5 bg-primary/10 rounded-full text-primary inline-block mb-2.5 group-hover:bg-primary/20 transition-all shadow-sm")}>
-                    <insight.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+                  <div className={cn("p-2 bg-primary/10 rounded-full text-primary inline-block mb-2 group-hover:bg-primary/20 transition-all shadow-sm")}> {/* Reduced padding and margin */}
+                    <insight.icon className="w-4 h-4 transition-transform group-hover:scale-110" /> {/* Reduced icon size */}
                   </div>
-                  <p className="text-2xl font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p>
-                  <p className="text-xs text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p>
+                  <p className="text-xl font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p> {/* Reduced font size */}
+                  <p className="text-[11px] text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p> {/* Reduced font size */}
                 </Card>
               ))}
             </CardContent>
@@ -272,7 +272,7 @@ export default function TutorDashboardPage() {
         </div>
         <div className="lg:col-span-1">
           <div 
-            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full" // Added h-full
+            className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full" 
             style={{ animationDelay: `0.3s` }} 
           >
             <UpdateProfileActionsCard user={tutorUser} />
