@@ -112,7 +112,6 @@ export default function ParentDashboardPage() {
         title="My Enquiries"
         descriptionText="View and manage all tutoring requests you've posted."
         IconComponent={ListChecks} 
-        quickInsightText="2 Active Enquiries"
         ctaText="View My Enquiries"
         ctaHref="/dashboard/my-requirements" 
         illustrationHint="enquiry list"
@@ -122,7 +121,6 @@ export default function ParentDashboardPage() {
         title="My Classes" 
         descriptionText="Track all your booked and ongoing classes."
         IconComponent={SearchCheck}
-        quickInsightText="Find your next tutor"
         ctaText="View All Classes" 
         ctaHref="/dashboard/my-classes" 
         illustrationHint="student profile"
@@ -132,7 +130,6 @@ export default function ParentDashboardPage() {
         title="My Demos" 
         descriptionText="Check scheduled, past, and upcoming demo sessions."
         IconComponent={MessageSquareQuote} 
-        quickInsightText="1 Upcoming Demo" 
         ctaText="View All Demos" 
         ctaHref="/dashboard/demo-sessions" 
         disabled={false} 
@@ -143,7 +140,6 @@ export default function ParentDashboardPage() {
         title="My Payments"
         descriptionText="View your payment history and status."
         IconComponent={DollarSign} 
-        quickInsightText="View Payment History"
         ctaText="Manage Payments"
         ctaHref="/dashboard/payments"
         disabled={false} 
@@ -294,7 +290,6 @@ interface ActionCardProps {
   IconComponent: React.ElementType;
   illustrationHint?: string;
   descriptionText: string;
-  quickInsightText: string;
   ctaText: string;
   ctaHref: string;
   disabled?: boolean;
@@ -309,7 +304,6 @@ function ActionCard({
   IconComponent,
   illustrationHint,
   descriptionText,
-  quickInsightText,
   ctaText,
   ctaHref,
   disabled,
@@ -333,7 +327,7 @@ function ActionCard({
       <CardContent className="p-4 md:p-5 pt-0 text-center flex-grow flex flex-col justify-between">
         <div>
             <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{descriptionText}</p>
-            <p className={cn("text-xl font-semibold mb-3 transition-colors duration-300", "text-primary")}>{quickInsightText}</p>
+            {/* Removed quickInsightText rendering */}
         </div>
       </CardContent>
       <CardFooter className={cn(
@@ -373,6 +367,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
