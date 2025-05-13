@@ -81,8 +81,6 @@ export default function AllEnquiriesPage() {
     setTeachingModeFilter("All");
   };
   
-  // const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12"; // Removed as padding is handled by SidebarInset
-
   // Mock counts - replace with actual logic later
   const tabCounts = {
     recommended: filteredRequirements.length, 
@@ -135,7 +133,7 @@ export default function AllEnquiriesPage() {
         onClick={resetFilters} 
         variant="outline" 
         size="sm"
-        className="w-full bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground transform transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-2 text-sm py-2 px-3"
+        className="w-full bg-card border-primary text-primary hover:bg-primary/10 hover:text-primary transform transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-2 text-sm py-2 px-3"
       >
         <XIcon className="w-4 h-4" />
         Reset All Filters
@@ -145,7 +143,7 @@ export default function AllEnquiriesPage() {
 
 
   return (
-    <div className="pb-8 pt-0"> {/* Removed containerPadding and rely on SidebarInset */}
+    <div className="w-full pb-8 pt-0"> {/* Added w-full */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         {/* Mobile Accordion Filter */}
@@ -158,7 +156,6 @@ export default function AllEnquiriesPage() {
                     <LucideFilter className="w-5 h-5 mr-2.5"/>
                     Filter Enquiries
                   </h3>
-                  {/* ChevronDown icon is part of AccordionTrigger by default */}
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-0">
@@ -171,7 +168,7 @@ export default function AllEnquiriesPage() {
         </div>
 
         {/* Desktop Static Filter Panel */}
-        <aside className="lg:w-[300px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block">
+        <aside className="lg:w-[300px] xl:w-[320px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block shrink-0">
           <Card className="bg-card border rounded-lg shadow-sm">
             <CardHeader className="pb-4 border-b border-border/30">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
@@ -186,9 +183,9 @@ export default function AllEnquiriesPage() {
         </aside>
 
         {/* Enquiry List (Right) */}
-        <main className="flex-1 space-y-6">
+        <main className="flex-1 space-y-6 min-w-0"> {/* Added min-w-0 */}
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
-             <ScrollArea className="w-full whitespace-nowrap">
+             <ScrollArea className="w-full whitespace-nowrap pb-2">
               <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
                 <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2 flex items-center justify-center gap-1.5">
                   <Star className="w-3.5 h-3.5"/> Recommended ({tabCounts.recommended})
@@ -256,5 +253,3 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
-
-
