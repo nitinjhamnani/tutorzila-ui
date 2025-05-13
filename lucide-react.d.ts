@@ -1,4 +1,4 @@
-{{// Since the types for lucide-react are not always up-to-date,
+// Since the types for lucide-react are not always up-to-date,
 // add a declaration for the icon here if you are using it.
 // See https://lucide.dev/guide/packages/lucide-react#typescript
 // for more information.
@@ -112,5 +112,6 @@ declare module "lucide-react" {
     export const ChevronUp: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ClipboardList: React.FC<React.SVGProps<SVGSVGElement>>;
     export const School: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Student Profiles
+    export const Construction: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Coming Soon
   }
 }

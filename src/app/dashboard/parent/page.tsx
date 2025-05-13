@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -15,10 +14,6 @@ import { cn } from "@/lib/utils";
 import { MailCheck, PhoneCall, CheckCircle, XCircle, Camera } from "lucide-react";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
-// Carousel imports removed as the carousel is being removed
-// import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-// import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
-// import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 
 
 interface SummaryStatCardProps {
@@ -26,8 +21,8 @@ interface SummaryStatCardProps {
   value: string | number;
   icon: React.ElementType;
   colorClass?: string;
-  bgColorClass?: string; // Added for icon background
-  imageHint: string; // Kept for data-ai-hint on images if used, but for icons it's for semantic meaning
+  bgColorClass?: string; 
+  imageHint: string; 
 }
 
 function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", bgColorClass = "bg-primary/10", imageHint }: SummaryStatCardProps) {
@@ -155,7 +150,7 @@ export default function ParentDashboardPage() {
         key="manage-students"
         title="Student Profiles"
         descriptionText="Add and manage profiles for your children to personalize tuition needs."
-        IconComponent={School} // Changed Icon
+        IconComponent={School} 
         quickInsightText="2 Student Profiles"
         ctaText="Manage Students"
         ctaHref="/dashboard/manage-students"
@@ -192,6 +187,20 @@ export default function ParentDashboardPage() {
         accentTextClass="text-indigo-700"
         accentBgClass="bg-indigo-100 group-hover:bg-indigo-200/80"
         illustrationHint="money transaction"
+      />,
+      <ActionCard
+        key="my-calendar"
+        title="My Calendar"
+        descriptionText="View demo schedules, classes, and payment due dates in one place."
+        IconComponent={CalendarDays} 
+        quickInsightText="Consolidated View"
+        ctaText="View Calendar"
+        ctaHref="/dashboard/my-calendar" 
+        disabled={true} 
+        cardBgClass="bg-cyan-50/50 hover:bg-cyan-100/60"
+        accentTextClass="text-cyan-700"
+        accentBgClass="bg-cyan-100 group-hover:bg-cyan-200/80"
+        illustrationHint="calendar schedule events"
       />
     ];
 
@@ -288,9 +297,6 @@ export default function ParentDashboardPage() {
         ))}
       </div>
 
-      {/* Top Rated Tutors Carousel Removed */}
-
-
       {/* Action Cards Section */}
       {parentActionCards.length > 0 && (
           <div className="grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-3"> 
@@ -381,7 +387,7 @@ function ActionCard({
             variant="default" 
             className={cn(
                 "w-full transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-sm md:text-base py-2.5 shadow-md hover:shadow-lg",
-                "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" // Default primary button style
+                "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
             )} 
             disabled={disabled}
         >
@@ -391,4 +397,3 @@ function ActionCard({
     </Card>
   );
 }
-
