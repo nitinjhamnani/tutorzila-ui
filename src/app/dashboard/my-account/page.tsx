@@ -10,6 +10,7 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge"; // Import Badge component
 
 export default function MyAccountPage() {
   const { user, isAuthenticated } = useAuthMock();
