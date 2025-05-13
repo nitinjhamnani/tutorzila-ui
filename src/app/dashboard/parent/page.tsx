@@ -15,9 +15,10 @@ import { cn } from "@/lib/utils";
 import { MailCheck, PhoneCall, CheckCircle, XCircle, Camera } from "lucide-react";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
-import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
+// Carousel imports removed as the carousel is being removed
+// import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+// import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
+// import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 
 
 interface SummaryStatCardProps {
@@ -287,38 +288,7 @@ export default function ParentDashboardPage() {
         ))}
       </div>
 
-      {/* Top Rated Tutors Carousel */}
-      <section className="animate-in fade-in duration-500 ease-out" style={{animationDelay: "0.3s"}}>
-        <div className="flex items-center justify-between mb-4 md:mb-5">
-            <h2 className="text-xl md:text-2xl font-semibold text-primary flex items-center">
-                <Star className="w-5 h-5 md:w-6 md:h-6 mr-2 text-yellow-500 fill-yellow-400"/> Top Rated Tutors
-            </h2>
-            <Button variant="link" asChild className="text-sm text-primary hover:text-primary/80">
-                <Link href="/search-tuitions">View All</Link>
-            </Button>
-        </div>
-        <Carousel
-            opts={{
-                align: "start",
-                loop: MOCK_TUTOR_PROFILES.length > 3, 
-            }}
-            className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
-        >
-            <CarouselContent className="-ml-3.5 md:-ml-4.5">
-            {MOCK_TUTOR_PROFILES.slice(0, 8).map((tutor, index) => ( // Show up to 8 tutors
-                <CarouselItem key={tutor.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/3 xl:basis-1/4 pl-3.5 md:pl-4.5">
-                <div className="p-1.5 h-full">
-                    <TutorProfileCard tutor={tutor} />
-                </div>
-                </CarouselItem>
-            ))}
-            </CarouselContent>
-            <div className="flex justify-center items-center mt-6 md:mt-8 space-x-3">
-            <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
-            <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
-            </div>
-        </Carousel>
-      </section>
+      {/* Top Rated Tutors Carousel Removed */}
 
 
       {/* Action Cards Section */}
@@ -421,3 +391,4 @@ function ActionCard({
     </Card>
   );
 }
+
