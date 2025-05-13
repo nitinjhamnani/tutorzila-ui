@@ -5,17 +5,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal";
-import { SquarePen } from "lucide-react"; // Removed X icon import
+import { SquarePen, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function FixedPostRequirementBanner() {
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
-  // isVisible state and related logic can be removed if banner is always visible
-  // const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
 
-  // if (!isVisible) {
-  //   return null;
-  // }
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 p-3 md:p-4 bg-card/95 backdrop-blur-sm border-t border-border/50 shadow-lg animate-in slide-in-from-bottom-10 duration-500 ease-out">
@@ -42,8 +41,6 @@ export function FixedPostRequirementBanner() {
             <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
           </DialogContent>
         </Dialog>
-        {/* Removed the close button */}
-        {/* 
         <Button
           variant="ghost"
           size="icon"
@@ -52,10 +49,8 @@ export function FixedPostRequirementBanner() {
           aria-label="Dismiss banner"
         >
           <X className="h-4 w-4 md:h-5 md:w-5" />
-        </Button> 
-        */}
+        </Button>
       </div>
     </div>
   );
 }
-

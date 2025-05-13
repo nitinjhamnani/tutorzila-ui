@@ -9,6 +9,7 @@ import { TutorPublicProfile } from "@/components/tutors/TutorPublicProfile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UserX } from "lucide-react"; 
+import { FixedPostRequirementBanner } from "@/components/shared/FixedPostRequirementBanner";
 
 export default function TutorProfilePage() {
   const params = useParams();
@@ -76,8 +77,9 @@ export default function TutorProfilePage() {
   }
 
   return (
-    <div className={`${containerPadding} py-6 md:py-10 animate-in fade-in duration-500 ease-out`}> {/* Reduced top/bottom padding slightly */}
+    <div className={`${containerPadding} py-6 md:py-10 animate-in fade-in duration-500 ease-out pb-28 md:pb-24`}> {/* Reduced top/bottom padding slightly, added bottom padding for banner */}
       <TutorPublicProfile tutor={tutor} />
+      <FixedPostRequirementBanner />
     </div>
   );
 }
