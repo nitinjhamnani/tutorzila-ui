@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -28,16 +27,14 @@ interface SummaryStatCardProps {
 
 function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", bgColorClass = "bg-primary/10", imageHint }: SummaryStatCardProps) {
   return (
-    <Card className="bg-card border border-border/30 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out">
-      <CardContent className="p-2.5 md:p-3 flex items-center gap-1.5 md:gap-2"> {/* Reduced padding and gap further */}
-        <div className={cn("p-1.5 rounded-md shadow-inner", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}> {/* Reduced padding */}
-          <Icon className={cn("w-3.5 h-3.5 md:w-4 md:h-4", colorClass)} /> {/* Reduced icon size further */}
+    <Card className="bg-card border border-border/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out aspect-square flex flex-col justify-center items-center text-center p-3">
+        <div className={cn("p-2 mb-1.5 rounded-lg", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}>
+          <Icon className={cn("w-4 h-4", colorClass)} />
         </div>
-        <div className="flex-1 min-w-0"> {/* Added flex-1 and min-w-0 for better truncation */}
-          <p className="text-[0.6rem] md:text-[0.65rem] text-muted-foreground whitespace-nowrap truncate">{title}</p> {/* Reduced font size and ensured truncation */}
-          <p className="text-sm md:text-base font-bold text-foreground whitespace-nowrap truncate">{value}</p> {/* Reduced font size and ensured truncation */}
+        <div className="min-w-0">
+          <p className="text-[10px] text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
+          <p className="text-[13px] font-bold text-foreground whitespace-nowrap truncate leading-tight mt-0.5">{value}</p>
         </div>
-      </CardContent>
     </Card>
   );
 }
@@ -103,7 +100,6 @@ export default function ParentDashboardPage() {
     { title: "Total Enquiries", value: 5, icon: ListChecks, colorClass: "text-blue-600", bgColorClass:"bg-blue-100/70", imageHint: "document list" },
     { title: "Active Classes", value: 2, icon: CalendarDays, colorClass: "text-green-600", bgColorClass:"bg-green-100/70", imageHint: "active calendar" },
     { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-purple-600", bgColorClass:"bg-purple-100/70", imageHint: "chat bubble" },
-    // { title: "Favorite Tutors", value: 3, icon: Star, colorClass: "text-yellow-500", bgColorClass:"bg-yellow-100/70", imageHint: "star rating" }, // Removed Favorite Tutors
     { title: "Payments Made", value: "₹12.5k", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" }, 
   ];
 
@@ -268,7 +264,7 @@ export default function ParentDashboardPage() {
       </Card>
 
       {/* Summary Cards Section - Adjusted grid for better fitting and responsiveness */}
-       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5 md:gap-3"> {/* Adjusted to lg:grid-cols-4 */}
+       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-2.5">
         {summaryStats.map((stat, index) => (
           <SummaryStatCard 
             key={stat.title} 
@@ -451,6 +447,5 @@ function FavoriteTutorsCard() {
       </Card>
     );
 }
-
 
 
