@@ -127,7 +127,7 @@ export default function ParentDashboardPage() {
         IconComponent={SearchCheck}
         quickInsightText="Find your next tutor"
         ctaText="View All Tutors"
-        ctaHref="/search-tuitions" // Or /dashboard/parent/find-tutors if specific parent view
+        ctaHref="/search-tuitions" 
         actionButtonText2="Demo Requests"
         ActionButtonIcon2={MessageSquareQuote}
         href2="/dashboard/demo-sessions"
@@ -144,7 +144,6 @@ export default function ParentDashboardPage() {
         disabled={false} 
         illustrationHint="calendar schedule"
       />,
-      // Student Profiles card removed
         <ActionCard
         key="payments"
         title="My Payments"
@@ -251,7 +250,7 @@ export default function ParentDashboardPage() {
       </div>
 
       {parentActionCards.length > 0 && (
-          <div className="grid gap-4 md:gap-5 md:grid-cols-2 lg:grid-cols-2"> {/* Adjusted lg:grid-cols-2 for 4 cards */}
+          <div className="grid gap-4 md:gap-5 md:grid-cols-2 lg:grid-cols-2"> 
           {parentActionCards.map((card, index) => (
             <div 
               key={index} 
@@ -343,13 +342,16 @@ function ActionCard({
             <p className={cn("text-xl font-semibold mb-3 transition-colors duration-300", "text-primary")}>{quickInsightText}</p>
         </div>
       </CardContent>
-      <CardFooter className={cn("p-3 md:p-4 border-t transition-colors duration-300 flex flex-col sm:flex-row gap-2", "bg-card group-hover:bg-muted/30")}>
+      <CardFooter className={cn(
+        "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col gap-2 sm:flex-row", 
+        "bg-card group-hover:bg-muted/30"
+        )}>
         <Button 
             asChild 
             variant="default" 
             size="sm"
             className={cn(
-                "w-full transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-4 shadow-sm hover:shadow-md",
+                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-4 shadow-sm hover:shadow-md",
                 "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
             )} 
             disabled={disabled}
@@ -362,7 +364,7 @@ function ActionCard({
             variant="outline"
             size="sm"
             className={cn(
-                "w-full transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-4 shadow-sm hover:shadow-md",
+                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-4 shadow-sm hover:shadow-md",
                 "bg-card border-primary text-primary hover:bg-primary/5"
             )} 
             disabled={disabled2}
@@ -377,4 +379,3 @@ function ActionCard({
     </Card>
   );
 }
-
