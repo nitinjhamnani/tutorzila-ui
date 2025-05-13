@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal";
-import { PlusCircle, SquarePen } from "lucide-react";
+import { PlusCircle } from "lucide-react"; // Removed SquarePen as PlusCircle is more common for "add"
 import { cn } from "@/lib/utils";
 
 interface FloatingPostRequirementButtonProps {
@@ -20,7 +20,7 @@ export function FloatingPostRequirementButton({ className }: FloatingPostRequire
       <DialogTrigger asChild>
         <Button
           className={cn(
-            "fixed bottom-6 right-6 z-50 h-14 w-14 md:h-16 md:w-auto md:px-6 rounded-full shadow-lg text-lg font-semibold",
+            "fixed bottom-5 right-5 z-50 h-12 w-12 md:h-12 md:w-auto md:px-4 rounded-full shadow-lg text-sm font-medium", // Adjusted size, padding, font
             "bg-primary text-primary-foreground hover:bg-primary/90",
             "transform transition-all hover:scale-105 active:scale-95",
             "flex items-center justify-center",
@@ -28,7 +28,7 @@ export function FloatingPostRequirementButton({ className }: FloatingPostRequire
           )}
           aria-label="Post a new tuition requirement"
         >
-          <PlusCircle className="h-6 w-6 md:mr-2" />
+          <PlusCircle className="h-5 w-5 md:mr-1.5" /> {/* Adjusted icon size and margin */}
           <span className="hidden md:inline">Post Requirement</span>
         </Button>
       </DialogTrigger>
@@ -38,3 +38,4 @@ export function FloatingPostRequirementButton({ className }: FloatingPostRequire
     </Dialog>
   );
 }
+
