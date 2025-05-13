@@ -1,3 +1,4 @@
+
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -78,7 +79,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const navItems = [...commonNavItems, ...roleNavItems];
 
-  if (user.role === 'tutor' && isMobile) { 
+  if (user.role === 'parent' && isMobile) { // Changed from tutor to parent for mobile no-sidebar layout
     return (
       <>
         <AppHeader />
@@ -200,3 +201,4 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
+
