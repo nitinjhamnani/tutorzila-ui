@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
+  SheetTitle, // Ensure SheetTitle is imported for mobile sidebar header
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit } from "lucide-react"; 
@@ -45,7 +46,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
   }
 
-  const dashboardHomeHref = user.role === "admin" ? "/dashboard/admin" : `/dashboard/${user.role}`;
+  const dashboardHomeHref = user.role === "admin" ? "/dashboard/admin" : user.role === 'tutor' ? '/dashboard/tutor' : `/dashboard/${user.role}`;
+
 
   const commonNavItems = [
     { href: dashboardHomeHref, label: "Dashboard", icon: LayoutDashboard }, 
@@ -78,7 +80,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true },
   ];
   
-  // Adjust adminNavItems to avoid duplicate "Admin Panel" if commonNavItems already points there
   const finalAdminNavItems = user.role === "admin" && dashboardHomeHref === "/dashboard/admin" 
     ? adminNavItems 
     : [{ href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck }, ...adminNavItems];
@@ -100,9 +101,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           collapsible={isMobile ? "offcanvas" : "icon"} 
           className="border-r pt-[var(--header-height)] bg-card shadow-md" 
         > 
-          <SidebarHeader className="p-4 border-b border-border/50"> 
-            <div className={cn("flex items-center", isMobile ? "justify-end" : "justify-center group-data-[collapsible=icon]:justify-center")}>
-              {/* Logo removed from here */}
+          <SidebarHeader className="p-4 border-b border-border/50">
+            {/* The div below controls the alignment of the SidebarTrigger */}
+            <div className={cn(
+                "flex items-center w-full", // w-full ensures the div takes full width of header for justify-end to work
+                isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center"
+                // Desktop: default to justify-end (trigger on right)
+                // Desktop Icon-Collapsed: override to justify-center (trigger centered in narrow header)
+              )}
+            >
+              {/* Logo is removed from here as requested */}
               <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"/>
             </div>
           </SidebarHeader>
@@ -167,14 +175,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </SidebarProvider>
       <style jsx global>{`
         :root {
-          --header-height: 6rem; /* Adjusted to 6rem as requested */
-          --logo-height: 4.5rem; /* Adjusted to 4.5rem for logo within new header height */
-        }
-        /* Ensure sidebar trigger is visible and centered when logo is removed and sidebar is icon-only */
-        [data-sidebar="sidebar"][data-collapsible="icon"] [data-sidebar="header"] > div {
-          justify-content: center !important;
+          --header-height: 6rem; 
+          --logo-height: 4.5rem; 
         }
       `}</style>
     </>
   );
 }
+
