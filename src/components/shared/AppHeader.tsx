@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -21,14 +22,14 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle, 
-  DialogTrigger as ShadDialogTrigger, 
+  DialogHeader, 
+  DialogTitle,
+  DialogTrigger as ShadDialogTrigger,
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
@@ -39,13 +40,17 @@ import logoAsset from '@/assets/images/logo.png';
 export function AppHeader() {
   const { user, isAuthenticated, logout } = useAuthMock();
   const pathname = usePathname();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [signInModalOpen, setSignInModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      // Check if banner is effectively present by checking the CSS variable it sets
+      const bannerHeightString = getComputedStyle(document.documentElement).getPropertyValue('--verification-banner-height').trim();
+      const bannerHeight = parseFloat(bannerHeightString) || 0;
+      setIsScrolled(window.scrollY > (bannerHeight > 0 ? 10 : 20) ); // Adjust scroll threshold if banner is present
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -57,7 +62,8 @@ export function AppHeader() {
   }, []);
 
   const headerClasses = cn(
-    "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
+    "sticky z-50 w-full transition-all duration-300 ease-in-out",
+    "top-[var(--verification-banner-height,0px)]", // Sticky below the banner
     isScrolled || pathname !== "/" ? "bg-card shadow-md border-b border-border" : "bg-transparent"
   );
   
@@ -82,7 +88,7 @@ export function AppHeader() {
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
-  const logoHref = isAuthenticated && user?.role === 'tutor' ? "/dashboard/enquiries" : "/";
+  const logoHref = isAuthenticated && user?.role === 'tutor' ? "/dashboard/tutor" : "/";
 
 
   return (
@@ -99,12 +105,12 @@ export function AppHeader() {
                  asChild
                  className={cn(
                    "text-xs font-semibold py-1.5 px-3 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
-                   pathname === "/dashboard"
+                   pathname === "/dashboard/my-account" // Changed from /dashboard to /dashboard/my-account
                      ? "bg-primary text-primary-foreground shadow-sm border-primary" 
                      : "bg-card text-primary border border-primary hover:bg-primary/10" 
                  )}
                >
-                 <Link href="/dashboard">
+                 <Link href="/dashboard/my-account"> {/* Changed from /dashboard to /dashboard/my-account */}
                    <UserCircle className="h-3.5 w-3.5" /> My Profile
                  </Link>
                </Button>
@@ -130,7 +136,7 @@ export function AppHeader() {
                      : "bg-card text-primary border border-primary hover:bg-primary/10"
                  )}
                >
-                 <Link href="#"> 
+                 <Link href="/dashboard/my-classes"> 
                    <UsersRound className="h-3.5 w-3.5" /> My Classes
                  </Link>
                </Button>
@@ -193,6 +199,12 @@ export function AppHeader() {
                       Dashboard
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="text-base py-2.5 cursor-pointer" disabled={user.role === 'admin'}>
+                    <Link href="/dashboard/my-account">
+                      <UserCircle className="mr-2.5 h-5 w-5" />
+                      My Account
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem disabled className="text-base py-2.5 cursor-not-allowed">
                     <Settings className="mr-2.5 h-5 w-5" />
                     Settings
@@ -218,7 +230,7 @@ export function AppHeader() {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
+              <SheetContent side="right" className="w-[300px] p-0 flex flex-col pt-[var(--verification-banner-height,0px)]"> {/* Adjust pt for banner */}
                 <SheetHeader className="p-4 border-b">
                   <SheetTitleComponent> 
                      <Link href={logoHref} onClick={() => setMobileMenuOpen(false)}>
@@ -242,46 +254,41 @@ export function AppHeader() {
 
                       {user.role === 'tutor' && (
                         <>
-                          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                          <Link href="/dashboard/my-account" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <UserCircle className="h-5 w-5 text-primary" /> My Profile
                           </Link>
                           <Link href="/dashboard/enquiries" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <ClipboardList className="h-5 w-5 text-primary" /> My Enquiries
                           </Link>
-                          <Link href="#" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}> 
+                          <Link href="/dashboard/my-classes" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}> 
                             <UsersRound className="h-5 w-5 text-primary" /> My Classes
                           </Link>
                         </>
                       )}
-                      {user.role === 'parent' && (
+                      {user.role !== 'tutor' && ( // For parent and admin
                         <>
                           <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
                           </Link>
-                          <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
-                            <Edit className="h-5 w-5 text-primary" /> Post Requirement
-                          </Link>
-                           <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => {setMobileMenuOpen(false)}}>
+                          <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => {setMobileMenuOpen(false)}}>
                             <Link href="/search-tuitions">
                               <Search className="h-5 w-5 text-primary" /> Find Tutors
                             </Link>
                           </Button>
-                        </>
-                      )}
-                       {user.role === 'admin' && (
-                        <>
-                          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
-                            <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
-                          </Link>
-                           <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => {setMobileMenuOpen(false)}}>
-                            <Link href="/search-tuitions">
-                              <Search className="h-5 w-5 text-primary" /> Find Tutors
+                          {user.role === 'parent' && (
+                            <Link href="/dashboard/post-requirement" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
+                                <Edit className="h-5 w-5 text-primary" /> Post Requirement
                             </Link>
-                          </Button>
+                          )}
                         </>
                       )}
                       
                       <Separator className="my-3" />
+                       <Link href="/dashboard/my-account" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}
+                         aria-disabled={user.role === 'admin'} // Disable for admin, as My Account might not be relevant
+                       >
+                        <UserCircle className="h-5 w-5" /> My Account
+                      </Link>
                       <Link href="#" onClick={(e) => {e.preventDefault(); setMobileMenuOpen(false);}} className={cn(mobileLinkClass, "text-muted-foreground cursor-not-allowed opacity-70")}>
                         <Settings className="h-5 w-5" /> Settings
                       </Link>
@@ -289,7 +296,7 @@ export function AppHeader() {
                         <LifeBuoy className="h-5 w-5" /> Support
                       </Link>
                       <Separator className="my-3" />
-                      <Button variant="ghost" onClick={() => { logout(); setMobileMenuOpen(false); }} className={cn(mobileButtonClass, "text-destructive hover:bg-destructive/10 hover:text-destructive")}>
+                      <Button variant="ghost" onClick={() => { logout(); setMobileMenuOpen(false); router.push('/');}} className={cn(mobileButtonClass, "text-destructive hover:bg-destructive/10 hover:text-destructive")}>
                         <LogOut className="h-5 w-5" /> Log out
                       </Button>
                     </>
