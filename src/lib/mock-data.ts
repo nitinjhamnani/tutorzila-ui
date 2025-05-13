@@ -1,4 +1,4 @@
-import type { TutorProfile, Testimonial, DemoSession } from "@/types";
+import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   { 
@@ -38,7 +38,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     experience: "5-7 years", 
     hourlyRate: "950", 
     bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities. Experienced in preparing students for university entrance exams and essay writing. Enjoys incorporating classic and contemporary texts.", 
-    teachingMode: ["In-person"], 
+    teachingMode: ["Offline (In-person)"], 
     location: "Central City Library",
     status: "Active", 
     qualifications: ["MA in English Literature", "BA in History"], 
@@ -64,7 +64,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     experience: "3-5 years", 
     hourlyRate: "900", 
     bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies (React, Node.js). Passionate about mentoring aspiring developers and making coding accessible. Practical, project-based teaching style.", 
-    teachingMode: ["Online", "In-person"], 
+    teachingMode: ["Online", "Offline (In-person)"], 
     location: "Tech Park Co-working",
     status: "Active", 
     qualifications: ["BSc in Computer Science", "Certified Web Developer"], 
@@ -116,7 +116,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     experience: "3-5 years", 
     hourlyRate: "800", 
     bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange. Offers conversational practice, grammar instruction, and exam preparation (DELE, DELF). Uses immersive techniques.", 
-    teachingMode: ["In-person"], 
+    teachingMode: ["Offline (In-person)"], 
     location: "Student's Home",
     status: "Active", 
     qualifications: ["BA in Modern Languages", "TEFL Certified"], 
@@ -142,7 +142,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     experience: "2+ years",
     hourlyRate: "750",
     bio: "A friendly and patient tutor, skilled in making learning fun for middle school students. Focuses on building confidence and understanding core concepts.",
-    teachingMode: ["Online", "In-person"],
+    teachingMode: ["Online", "Offline (In-person)"],
     location: "Online or Student's Home (Local Area)",
     status: "Active",
     qualifications: ["BSc in Education"],
@@ -247,5 +247,96 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     date: new Date(Date.now() + 86400000 * 6).toISOString(), // 6 days from now
     time: "10:00 AM - 10:30 AM",
     status: "Scheduled",
+  },
+];
+
+// Mock data for parent requirements used in MyRequirementsPage
+export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
+  // Current Enquiries for Alice Smith (parentId: "p1")
+  { 
+    id: "current1", 
+    parentId: "p1", 
+    parentName: "Alice Smith", 
+    subject: "Mathematics", 
+    gradeLevel: "Grade 6", 
+    scheduleDetails: "Mon, Wed 5-6 PM", 
+    preferredDays: ["Mon", "Wed"], 
+    preferredTime: ["5-6 PM"], 
+    location: "Online", 
+    status: "open", 
+    postedAt: new Date("2025-05-01T10:00:00Z").toISOString(), 
+    additionalNotes: "Looking for help with basic algebra and problem-solving skills.", 
+    board: "CBSE", 
+    teachingMode: ["Online"], 
+    applicantsCount: 3 
+  },
+  { 
+    id: "current2", 
+    parentId: "p1", 
+    parentName: "Alice Smith", 
+    subject: "Science", 
+    gradeLevel: "Grade 8", 
+    scheduleDetails: "Tues, Thurs 6-7:30 PM", 
+    preferredDays: ["Tues", "Thurs"], 
+    preferredTime: ["6-7:30 PM"], 
+    location: "Student's Home", 
+    status: "matched", 
+    postedAt: new Date("2025-05-05T14:30:00Z").toISOString(), 
+    additionalNotes: "Needs assistance with Physics and Chemistry chapters. Tutor selected, classes ongoing.", 
+    board: "ICSE", 
+    teachingMode: ["Offline (In-person)"], 
+    applicantsCount: 7
+  },
+  // Past Enquiries for Alice Smith (parentId: "p1")
+  { 
+    id: "past1", 
+    parentId: "p1", 
+    parentName: "Alice Smith", 
+    subject: "English", 
+    gradeLevel: "Grade 5", 
+    scheduleDetails: "Sat 10-11 AM", 
+    preferredDays: ["Saturday"], 
+    preferredTime: ["10-11 AM"], 
+    location: "Tutor's Home", 
+    status: "closed", 
+    postedAt: new Date("2025-04-12T09:00:00Z").toISOString(), 
+    additionalNotes: "Found a tutor (Mr. Ramesh) but decided not to start classes at this time.", 
+    board: "State Board", 
+    teachingMode: ["Offline (In-person)"], 
+    applicantsCount: 5 
+  },
+  { 
+    id: "past2", 
+    parentId: "p1", 
+    parentName: "Alice Smith", 
+    subject: "Hindi", 
+    gradeLevel: "Grade 4", 
+    scheduleDetails: "Flexible online sessions", 
+    preferredDays: ["Flexible"], 
+    preferredTime: ["Flexible"], 
+    location: "Online", 
+    status: "closed", 
+    postedAt: new Date("2025-03-25T11:00:00Z").toISOString(), 
+    additionalNotes: "No suitable tutor was found for this requirement.", 
+    board: "CBSE", 
+    teachingMode: ["Online"], 
+    applicantsCount: 2
+  },
+  // Other mock requirements for different parents or scenarios if needed for broader testing
+  { 
+    id: "other1", 
+    parentId: "p2", 
+    parentName: "Bob Johnson", 
+    subject: "Physics", 
+    gradeLevel: "Grade 11-12", 
+    scheduleDetails: "Weekends, 4 hours total", 
+    preferredDays: ["Weekends"], 
+    preferredTime: ["4 hours total"], 
+    location: "Student's Home", 
+    status: "open", 
+    postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
+    board: "ICSE", 
+    teachingMode: ["Offline (In-person)"], 
+    applicantsCount: 3 
   },
 ];

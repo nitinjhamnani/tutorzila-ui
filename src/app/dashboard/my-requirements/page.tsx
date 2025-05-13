@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -130,7 +129,14 @@ export default function MyRequirementsPage() {
     const requirementToDelete = allRequirements.find(req => req.id === id);
     if (requirementToDelete) {
         setSelectedRequirement(requirementToDelete);
-        toast({ title: "Delete Confirmation (Mock)", description: `Are you sure you want to delete ${requirementToDelete.subject}? Feature coming soon.` });
+        // For a real delete, you would open a confirmation dialog first
+        // For mock, we'll just show a toast
+        toast({ 
+          title: "Delete Action (Mock)", 
+          description: `Deleting requirement ID: ${id}. This is a mock, no data will be deleted.`,
+          variant: "destructive"
+        });
+        // Example: setAllRequirements(prev => prev.filter(req => req.id !== id));
     }
   };
 
@@ -149,7 +155,7 @@ export default function MyRequirementsPage() {
       setIsTutorNameModalOpen(true);
     } else {
       if (selectedRequirement) {
-        updateRequirementStatus(selectedRequirement.id, "closed");
+        updateRequirementStatus(selectedRequirement.id, "closed", "No tutor specified.");
         toast({ title: "Requirement Closed", description: `${selectedRequirement.subject} requirement has been marked as closed.` });
       }
       resetCloseFlow();
@@ -163,25 +169,31 @@ export default function MyRequirementsPage() {
 
   const handleStartClassesConfirm = (start: boolean) => {
     setIsStartClassesConfirmOpen(false);
-    if (start) {
-      if (selectedRequirement) {
-         updateRequirementStatus(selectedRequirement.id, "closed"); 
-        toast({ 
-            title: "Classes Initiated (Mock)", 
-            description: `Classes for ${selectedRequirement.subject} with ${tutorName || 'selected tutor'} will start soon. The requirement is now closed.` 
-        });
-      }
-    } else {
-       if (selectedRequirement) {
-        updateRequirementStatus(selectedRequirement.id, "closed");
-        toast({ title: "Requirement Closed", description: `${selectedRequirement.subject} requirement has been marked as closed. You chose not to start classes now.` });
-      }
+    if (selectedRequirement) {
+      const notes = start 
+        ? `Classes initiated with ${tutorName || 'selected tutor'}.` 
+        : `Tutor ${tutorName || 'selected tutor'} found, but classes not started at this time.`;
+      updateRequirementStatus(selectedRequirement.id, "closed", notes);
+      toast({ 
+          title: start ? "Classes Initiated (Mock)" : "Requirement Closed", 
+          description: start 
+            ? `Classes for ${selectedRequirement.subject} with ${tutorName || 'selected tutor'} will start soon. The requirement is now closed.` 
+            : `${selectedRequirement.subject} requirement has been marked as closed. You chose not to start classes now.`
+      });
     }
     resetCloseFlow();
   };
 
-  const updateRequirementStatus = (id: string, status: "open" | "matched" | "closed") => {
-    setAllRequirements(prev => prev.map(req => req.id === id ? { ...req, status } : req));
+  const updateRequirementStatus = (id: string, status: "open" | "matched" | "closed", additionalNotes?: string) => {
+    setAllRequirements(prev => prev.map(req => 
+      req.id === id 
+        ? { 
+            ...req, 
+            status, 
+            additionalNotes: additionalNotes ? `${req.additionalNotes ? req.additionalNotes + " " : ""}Update: ${additionalNotes}` : req.additionalNotes 
+          } 
+        : req
+    ));
   };
 
   const resetCloseFlow = () => {
@@ -310,5 +322,3 @@ export default function MyRequirementsPage() {
     </div>
   );
 }
-
-
