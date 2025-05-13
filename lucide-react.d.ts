@@ -1,4 +1,3 @@
-
 // Since the types for lucide-react are not always up-to-date,
 // add a declaration for the icon here if you are using it.
 // See https://lucide.dev/guide/packages/lucide-react#typescript
@@ -45,9 +44,8 @@ declare module "lucide-react" {
     export const BookOpen: React.FC<React.SVGProps<SVGSVGElement>>;
     export const XCircle: React.FC<React.SVGProps<SVGSVGElement>>;
     export const HomeIcon: React.FC<React.SVGProps<SVGSVGElement>>;
-    // export const BookUser: React.FC<React.SVGProps<SVGSVGElement>>; // Removed BookUser as it's not available at runtime
     export const UserCircle: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const UserCircle2: React.FC<React.SVGProps<SVGSVGElement>>; // Alias if UserCircle is problematic
+    export const UserCircle2: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const LayoutDashboard: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ShieldCheck: React.FC<React.SVGProps<SVGSVGElement>>;
     export const LogOut: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -101,7 +99,7 @@ declare module "lucide-react" {
     export const Unlock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Lock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Presentation: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>; // Renamed from Star due to conflict
+    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Bookmark: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Brain: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Sparkles: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -112,9 +110,10 @@ declare module "lucide-react" {
     export const Circle: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ChevronUp: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ClipboardList: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const School: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Student Profiles
-    export const Construction: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Coming Soon
-    export const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Calendar
+    export const School: React.FC<React.SVGProps<SVGSVGElement>>; 
+    export const Construction: React.FC<React.SVGProps<SVGSVGElement>>; 
+    export const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>>; 
+    export const Archive: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const AlertTriangle: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
-

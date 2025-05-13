@@ -1,4 +1,3 @@
-
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -45,7 +44,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
   }
 
-  const dashboardHomeHref = user.role === "admin" ? "/dashboard/admin" : user.role === 'tutor' ? '/dashboard/tutor' : `/dashboard/${user.role}`;
+  const dashboardHomeHref = user.role === "admin" ? "/dashboard/admin" : user.role === 'tutor' ? '/dashboard/tutor' : `/dashboard/parent`;
 
 
   const commonNavItems = [
@@ -97,12 +96,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {/* AppHeader is rendered inside the main content flow of RootLayout, so it will be below VerificationBanner */}
       <AppHeader /> 
       <SidebarProvider defaultOpen={!isMobile}>
         <Sidebar 
           collapsible={isMobile ? "offcanvas" : "icon"} 
-          className="border-r pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height))] bg-card shadow-md flex flex-col" // Adjusted pt
+          className="border-r pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height))] bg-card shadow-md flex flex-col"
         > 
           <SidebarHeader className={cn(
             "p-4 border-b border-border/50",
@@ -174,7 +172,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height)_+_1rem)]"> {/* Adjusted pt */}
+        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height)_+_1rem)]"> 
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           {children}
           </div>
@@ -182,8 +180,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </SidebarProvider>
       <style jsx global>{`
         :root {
-          /* --verification-banner-height is set by VerificationBanner component */
-          /* Default header height if banner is not present */
           --header-height: 6rem; 
           --logo-height: 4.5rem; 
         }

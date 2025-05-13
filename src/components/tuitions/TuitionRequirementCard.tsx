@@ -1,22 +1,23 @@
-
-
 "use client"; 
 
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users,Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link"; 
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react"; // Added useEffect
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-
 
 interface TuitionRequirementCardProps {
   requirement: TuitionRequirement;
+  showActions?: boolean;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onClose?: (id: string) => void;
 }
 
 const getInitials = (name?: string): string => {
@@ -28,7 +29,7 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
-export function TuitionRequirementCard({ requirement }: TuitionRequirementCardProps) {
+export function TuitionRequirementCard({ requirement, showActions, onEdit, onDelete, onClose }: TuitionRequirementCardProps) {
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const { toast } = useToast();
@@ -38,10 +39,8 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
   const [mockViewsCount, setMockViewsCount] = useState<number | null>(null); 
 
   useEffect(() => {
-    // Generate mockViewsCount only on the client-side to avoid hydration mismatch
-    setMockViewsCount(Math.floor(Math.random() * 150) + 20); // Example: 20-169 views
+    setMockViewsCount(Math.floor(Math.random() * 150) + 20);
   }, []);
-
 
   const handleShortlistToggle = (e: React.MouseEvent) => {
     e.preventDefault(); 
@@ -53,9 +52,13 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
     });
   };
 
+  const isPastEnquiry = requirement.status === 'closed';
 
   return (
-    <Card className="group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5">
+    <Card className={cn(
+      "group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
+      isPastEnquiry && "opacity-70 bg-muted/50"
+    )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20 mt-0.5">
@@ -72,18 +75,33 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
             </CardDescription>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
-            isShortlisted && "text-primary"
-          )}
-          onClick={handleShortlistToggle}
-          title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
-        >
-          <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
-        </Button>
+        {!showActions && ( // Only show shortlist toggle on public/tutor listing
+            <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+                "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+                isShortlisted && "text-primary"
+            )}
+            onClick={handleShortlistToggle}
+            title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+            >
+            <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
+            </Button>
+        )}
+        {showActions && (
+             <Badge 
+                variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'} 
+                className={cn(
+                    "absolute top-2 right-2 text-[10px] py-0.5 px-2 border font-medium",
+                    requirement.status === 'open' && "bg-blue-100 text-blue-700 border-blue-500/50",
+                    requirement.status === 'matched' && "bg-green-100 text-green-700 border-green-500/50",
+                    requirement.status === 'closed' && "bg-gray-100 text-gray-600 border-gray-400/50",
+                )}
+            >
+                {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+            </Badge>
+        )}
       </CardHeader>
       <CardContent className="space-y-1.5 text-xs flex-grow p-4 pt-3"> 
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
@@ -110,15 +128,30 @@ export function TuitionRequirementCard({ requirement }: TuitionRequirementCardPr
             </Badge>
           )}
         </div>
-        <Button 
-          asChild 
-          className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5"
-        >
-          <Link href={`/dashboard/enquiries/${requirement.id}`}> 
-            <Send className="w-3.5 h-3.5 mr-1.5" />
-            Apply Now
-          </Link>
-        </Button>
+        {!showActions && (
+            <Button 
+            asChild 
+            className="transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5 bg-primary border-primary text-primary-foreground hover:bg-primary/90"
+            >
+            <Link href={`/dashboard/enquiries/${requirement.id}`}> 
+                <Send className="w-3.5 h-3.5 mr-1.5" />
+                Apply Now
+            </Link>
+            </Button>
+        )}
+        {showActions && !isPastEnquiry && (
+          <div className="flex space-x-1.5">
+            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled>
+              <Edit3 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)} disabled>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+             <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Requirement" onClick={() => onClose?.(requirement.id)}>
+              <XCircle className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
       </CardFooter>
     </Card>
   );
@@ -146,4 +179,3 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
     </div>
   );
 }
-
