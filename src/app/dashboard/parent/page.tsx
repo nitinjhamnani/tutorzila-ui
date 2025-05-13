@@ -28,13 +28,13 @@ interface SummaryStatCardProps {
 function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", bgColorClass = "bg-primary/10", imageHint }: SummaryStatCardProps) {
   return (
     <Card className="bg-card border border-border/30 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out">
-      <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-3"> {/* Reduced padding and gap */}
-        <div className={cn("p-2 rounded-lg shadow-inner", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}> {/* Reduced padding */}
-          <Icon className={cn("w-4 h-4 md:w-5 md:h-5", colorClass)} /> {/* Reduced icon size */}
+      <CardContent className="p-2.5 md:p-3 flex items-center gap-1.5 md:gap-2"> {/* Reduced padding and gap further */}
+        <div className={cn("p-1.5 rounded-md shadow-inner", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}> {/* Reduced padding */}
+          <Icon className={cn("w-3.5 h-3.5 md:w-4 md:h-4", colorClass)} /> {/* Reduced icon size further */}
         </div>
-        <div>
-          <p className="text-[0.65rem] text-muted-foreground whitespace-nowrap truncate">{title}</p> {/* Reduced font size and added truncate */}
-          <p className="text-md md:text-lg font-bold text-foreground whitespace-nowrap truncate">{value}</p> {/* Reduced font size and added truncate */}
+        <div className="flex-1 min-w-0"> {/* Added flex-1 and min-w-0 for better truncation */}
+          <p className="text-[0.6rem] md:text-[0.65rem] text-muted-foreground whitespace-nowrap truncate">{title}</p> {/* Reduced font size and ensured truncation */}
+          <p className="text-sm md:text-base font-bold text-foreground whitespace-nowrap truncate">{value}</p> {/* Reduced font size and ensured truncation */}
         </div>
       </CardContent>
     </Card>
@@ -103,7 +103,7 @@ export default function ParentDashboardPage() {
     { title: "Active Classes", value: 2, icon: CalendarDays, colorClass: "text-green-600", bgColorClass:"bg-green-100/70", imageHint: "active calendar" },
     { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-purple-600", bgColorClass:"bg-purple-100/70", imageHint: "chat bubble" },
     { title: "Favorite Tutors", value: 3, icon: Star, colorClass: "text-yellow-500", bgColorClass:"bg-yellow-100/70", imageHint: "star rating" },
-    { title: "Payments Made", value: "₹12,500", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" },
+    { title: "Payments Made", value: "₹12.5k", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" }, // Shortened value
   ];
 
   const parentActionCards = [
@@ -113,26 +113,31 @@ export default function ParentDashboardPage() {
         descriptionText="Manage your posted tuition needs and connect with suitable tutors."
         IconComponent={ListChecks} 
         quickInsightText="2 Active Enquiries"
-        ctaText="Manage Enquiries"
+        ctaText="View My Enquiries"
         ctaHref="/dashboard/my-requirements" 
+        actionButtonText2="Create Enquiry"
+        ActionButtonIcon2={PlusCircle}
+        href2="/dashboard/post-requirement"
         cardBgClass="bg-blue-50 hover:bg-blue-100/80"
         accentTextClass="text-blue-700"
         accentBgClass="bg-blue-100 group-hover:bg-blue-200/80"
         illustrationHint="enquiry list"
       />,
       <ActionCard
-        key="demo-sessions"
-        title="Demo Sessions"
-        descriptionText="Manage demo class requests, view upcoming demos, and book full classes."
-        IconComponent={MessageSquareQuote} 
-        quickInsightText="1 Upcoming Demo"
-        ctaText="View Demos"
-        ctaHref="/dashboard/demo-sessions"
-        disabled={false} 
-        cardBgClass="bg-purple-50 hover:bg-purple-100/80"
-        accentTextClass="text-purple-700"
-        accentBgClass="bg-purple-100 group-hover:bg-purple-200/80"
-        illustrationHint="online class"
+        key="my-tuitions"
+        title="My Tuitions"
+        descriptionText="Browse all tutors or manage your demo class requests."
+        IconComponent={SearchCheck}
+        quickInsightText="Find your next tutor"
+        ctaText="View All Tutors"
+        ctaHref="/search-tuitions"
+        actionButtonText2="Demo Requests"
+        ActionButtonIcon2={MessageSquareQuote}
+        href2="/dashboard/demo-sessions"
+        cardBgClass="bg-green-50 hover:bg-green-100/80"
+        accentTextClass="text-green-700"
+        accentBgClass="bg-green-100 group-hover:bg-green-200/80"
+        illustrationHint="student profile"
       />,
        <ActionCard
         key="my-classes"
@@ -147,6 +152,34 @@ export default function ParentDashboardPage() {
         accentTextClass="text-pink-700"
         accentBgClass="bg-pink-100 group-hover:bg-pink-200/80"
         illustrationHint="calendar schedule"
+      />,
+      <ActionCard
+        key="student-profiles"
+        title="Student Profiles"
+        descriptionText="Add and manage profiles for your children, tailor tuition needs."
+        IconComponent={School} 
+        quickInsightText="Manage Student Details"
+        ctaText="View Profiles"
+        ctaHref="/dashboard/manage-students"
+        disabled={false} 
+        cardBgClass="bg-yellow-50 hover:bg-yellow-100/80"
+        accentTextClass="text-yellow-700"
+        accentBgClass="bg-yellow-100 group-hover:bg-yellow-200/80"
+        illustrationHint="students learning"
+      />,
+        <ActionCard
+        key="payments"
+        title="My Payments"
+        descriptionText="Track your tuition payment history and manage transactions."
+        IconComponent={DollarSign} 
+        quickInsightText="View Payment History"
+        ctaText="Manage Payments"
+        ctaHref="/dashboard/payments"
+        disabled={false} 
+        cardBgClass="bg-indigo-50 hover:bg-indigo-100/80"
+        accentTextClass="text-indigo-700"
+        accentBgClass="bg-indigo-100 group-hover:bg-indigo-200/80"
+        illustrationHint="financial transactions"
       />,
     ];
 
@@ -233,8 +266,8 @@ export default function ParentDashboardPage() {
         </CardHeader>
       </Card>
 
-      {/* Summary Cards Section - Updated grid for responsiveness */}
-       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4"> {/* Adjusted grid columns and gap */}
+      {/* Summary Cards Section - Adjusted grid for better fitting and responsiveness */}
+       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 md:gap-3"> {/* Reduced gap */}
         {summaryStats.map((stat, index) => (
           <SummaryStatCard 
             key={stat.title} 
@@ -303,6 +336,10 @@ interface ActionCardProps {
   accentTextClass: string;
   accentBgClass: string;
   disabled?: boolean;
+  actionButtonText2?: string;
+  ActionButtonIcon2?: React.ElementType;
+  href2?: string;
+  disabled2?: boolean;
 }
 
 function ActionCard({ 
@@ -317,6 +354,10 @@ function ActionCard({
   accentTextClass,
   accentBgClass,
   disabled,
+  actionButtonText2,
+  ActionButtonIcon2,
+  href2,
+  disabled2,
 }: ActionCardProps) {
   
   return (
@@ -325,7 +366,7 @@ function ActionCard({
         cardBgClass
     )}>
       <CardHeader className="p-5 md:p-6 text-center items-center"> 
-        {illustrationHint ? (
+        {illustrationHint && false ? ( // Disabled illustration for now to simplify layout
             <Image 
                 src={`https://picsum.photos/seed/${illustrationHint.replace(/\s+/g, '')}/300/180`}
                 alt={`${title} illustration`}
@@ -347,7 +388,7 @@ function ActionCard({
             <p className={cn("text-2xl font-bold mb-5 transition-colors duration-300", accentTextClass)}>{quickInsightText}</p>
         </div>
       </CardContent>
-      <CardFooter className={cn("p-4 md:p-5 border-t transition-colors duration-300", cardBgClass, "group-hover:bg-opacity-80")}>
+      <CardFooter className={cn("p-4 md:p-5 border-t transition-colors duration-300 flex flex-col sm:flex-row gap-2", cardBgClass, "group-hover:bg-opacity-80")}>
         <Button 
             asChild 
             variant="default" 
@@ -359,6 +400,22 @@ function ActionCard({
         >
           <Link href={disabled ? "#" : ctaHref}>{disabled ? "Coming Soon" : ctaText}</Link>
         </Button>
+        {actionButtonText2 && href2 && ActionButtonIcon2 && (
+           <Button 
+            asChild 
+            variant="outline" 
+            className={cn(
+                "w-full transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-sm md:text-base py-2.5 shadow-md hover:shadow-lg",
+                "bg-card border-primary text-primary hover:bg-primary/5"
+            )} 
+            disabled={disabled2}
+          >
+            <Link href={disabled2 ? "#" : href2}>
+              <ActionButtonIcon2 className="mr-2 h-4 w-4"/>
+              {disabled2 ? "Coming Soon" : actionButtonText2}
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
