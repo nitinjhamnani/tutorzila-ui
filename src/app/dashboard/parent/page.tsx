@@ -1,8 +1,8 @@
 // src/app/dashboard/parent/page.tsx
 "use client";
 
-import { Button, type ButtonProps } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon as LucideCalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -16,29 +16,29 @@ import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, getDate, isSameMonth, isSameDay, addMonths, subMonths, isToday } from "date-fns";
+import { Calendar } from "@/components/ui/calendar"; // Import the Calendar component
+import { Dialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription } from "@/components/ui/dialog"; // Aliased imports
+import { format, isSameDay, isSameMonth } from "date-fns";
 
 
 interface SummaryStatCardProps {
   title: string;
   value: string | number;
   icon: React.ElementType;
-  colorClass?: string;
-  bgColorClass?: string; 
   imageHint: string; 
 }
 
-function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", bgColorClass = "bg-primary/10", imageHint }: SummaryStatCardProps) {
+function SummaryStatCard({ title, value, icon: Icon, imageHint }: SummaryStatCardProps) {
   return (
     <Card className="bg-card border border-border/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out aspect-square flex flex-col justify-center items-center text-center p-2">
-        <div className={cn("p-3 mb-2 rounded-full shadow-sm", bgColorClass, "bg-primary/10")}> {/* Ensured bg-primary/10 for icon background */}
-          <Icon className={cn("w-6 h-6", colorClass)} /> {/* Increased icon size */}
+        <div className={cn("p-3 mb-2 rounded-full shadow-sm", "bg-primary/10")}>
+          <Icon className={cn("w-7 h-7", "text-primary")} /> {/* Increased icon size */}
         </div>
         <div className="min-w-0">
-          <div className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-7 h-7 flex items-center justify-center mx-auto mb-1 leading-tight"> {/* Encapsulated number */}
+          <div className="text-sm font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-1 leading-tight"> {/* Encapsulated number, increased size */}
              {value}
           </div>
-          <p className="text-[10px] text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
+          <p className="text-xs text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p> {/* Increased font size */}
         </div>
     </Card>
   );
@@ -83,6 +83,10 @@ export default function ParentDashboardPage() {
   const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
   
   const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
+  const [selectedDayEvents, setSelectedDayEvents] = useState<MockEvent[]>([]);
+  const [isEventDetailsModalOpen, setIsEventDetailsModalOpen] = useState(false);
+  const [clickedDay, setClickedDay] = useState<Date | null>(null);
+
 
   useEffect(() => {
     if (user) {
@@ -129,10 +133,10 @@ export default function ParentDashboardPage() {
   };
 
   const summaryStats = [
-    { title: "Total Enquiries", value: 5, icon: ListChecks, colorClass: "text-blue-600", bgColorClass:"bg-blue-100/70", imageHint: "document list" },
-    { title: "Active Classes", value: 2, icon: CalendarDays, colorClass: "text-green-600", bgColorClass:"bg-green-100/70", imageHint: "active calendar" },
-    { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-purple-600", bgColorClass:"bg-purple-100/70", imageHint: "chat bubble" },
-    { title: "Payments Made", value: "₹12k", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" }, 
+    { title: "Total Enquiries", value: 5, icon: ListChecks, imageHint: "document list" },
+    { title: "Active Classes", value: 2, icon: CalendarDays, imageHint: "active calendar" },
+    { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, imageHint: "chat bubble" },
+    { title: "Payments Made", value: "₹12k", icon: DollarSign, imageHint: "money stack" }, 
   ];
 
   const parentActionCards = [
@@ -141,27 +145,30 @@ export default function ParentDashboardPage() {
         title="My Enquiries"
         descriptionText="View and manage all tutoring requests you've posted."
         IconComponent={ListChecks} 
-        ctaText="View My Enquiries"
-        ctaHref="/dashboard/my-requirements" 
+        actionButtonText1="View My Enquiries"
+        ActionButtonIcon1={Eye}
+        href1="/dashboard/my-requirements"
         illustrationHint="enquiry list"
       />,
       <ActionCard
         key="my-classes" 
         title="My Classes" 
         descriptionText="Track all your booked and ongoing classes."
-        IconComponent={SearchCheck} // Changed from School
-        ctaText="View All Classes" 
-        ctaHref="/dashboard/my-classes" 
-        illustrationHint="student classes" // Changed hint
+        IconComponent={SearchCheck}
+        actionButtonText1="View All Classes"
+        ActionButtonIcon1={Eye}
+        href1="/dashboard/my-classes" 
+        illustrationHint="student classes"
       />,
        <ActionCard
         key="my-demos" 
         title="My Demos" 
         descriptionText="Check scheduled, past, and upcoming demo sessions."
         IconComponent={MessageSquareQuote} 
-        ctaText="View All Demos" 
-        ctaHref="/dashboard/demo-sessions" 
-        disabled={false} 
+        actionButtonText1="View All Demos"
+        ActionButtonIcon1={Eye}
+        href1="/dashboard/demo-sessions" 
+        disabled1={false} 
         illustrationHint="calendar schedule"
       />,
         <ActionCard
@@ -169,24 +176,36 @@ export default function ParentDashboardPage() {
         title="My Payments"
         descriptionText="View your payment history and status."
         IconComponent={DollarSign} 
-        ctaText="Manage Payments"
-        ctaHref="/dashboard/payments"
-        disabled={false} 
+        actionButtonText1="Manage Payments"
+        ActionButtonIcon1={Eye}
+        href1="/dashboard/payments"
+        disabled1={false} 
         illustrationHint="financial transactions"
       />,
     ];
 
-  const daysInMonth = eachDayOfInterval({
-    start: startOfMonth(currentMonthDate),
-    end: endOfMonth(currentMonthDate),
-  });
-
-  const firstDayOfMonth = getDay(startOfMonth(currentMonthDate)); // 0 for Sunday, 1 for Monday...
-
   const upcomingEvents = mockEvents
     .filter(event => event.date >= new Date(new Date().setHours(0,0,0,0)))
     .sort((a, b) => a.date.getTime() - b.date.getTime())
-    .slice(0, 4); // Show max 4 upcoming events
+    .slice(0, 4); 
+
+  const handleDayClick = (day: Date) => {
+    const eventsOnDay = mockEvents.filter(event => isSameDay(event.date, day));
+    if (eventsOnDay.length > 0) {
+      setSelectedDayEvents(eventsOnDay);
+      setClickedDay(day);
+      setIsEventDetailsModalOpen(true);
+    } else {
+      toast({
+        title: "No Events",
+        description: `No events scheduled for ${format(day, "PPP")}.`,
+      });
+      setSelectedDayEvents([]);
+      setClickedDay(null);
+      setIsEventDetailsModalOpen(false);
+    }
+  };
+
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -296,85 +315,53 @@ export default function ParentDashboardPage() {
       
       <Card className="bg-card border border-border/30 rounded-xl shadow-sm animate-in fade-in duration-500 ease-out" style={{ animationDelay: `0.8s` }}>
         <CardHeader className="pb-4 border-b border-border/30">
-            <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-semibold text-primary flex items-center">
-                    <LucideCalendarIcon className="w-6 h-6 mr-2.5" /> {format(currentMonthDate, "MMMM yyyy")}
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setCurrentMonthDate(subMonths(currentMonthDate, 1))}>
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setCurrentMonthDate(addMonths(currentMonthDate, 1))}>
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
+            <CardTitle className="text-xl font-semibold text-primary flex items-center">
+                <LucideCalendarIcon className="w-6 h-6 mr-2.5" /> My Calendar
+            </CardTitle>
           <CardDescription className="text-sm text-muted-foreground mt-1">
             Consolidated view of demo schedules, classes, and payment due dates.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 md:p-5">
-          {/* Calendar Grid */}
-          <div>
-            <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-2">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => <div key={day}>{day}</div>)}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-                <div key={`empty-start-${i}`} className="h-16 border rounded-md bg-muted/30"></div>
-              ))}
-              {daysInMonth.map((day, index) => {
-                const dayEvents = mockEvents.filter(event => isSameDay(event.date, day));
-                return (
-                  <TooltipProvider key={index}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div
-                          className={cn(
-                            "h-16 border rounded-md p-1.5 text-left text-xs flex flex-col justify-between relative cursor-default",
-                            isToday(day) ? "bg-primary/10 border-primary/50 ring-1 ring-primary" : "bg-background hover:bg-muted/50",
-                            !isSameMonth(day, currentMonthDate) && "text-muted-foreground opacity-50"
-                          )}
-                        >
-                          <span>{getDate(day)}</span>
-                          {dayEvents.length > 0 && (
-                            <div className="flex flex-wrap gap-0.5 mt-1 justify-end">
-                              {dayEvents.slice(0,2).map(event => ( // Show max 2 dots
-                                <div key={event.title} className={cn("w-1.5 h-1.5 rounded-full", getEventTypeColor(event.type))}></div>
-                              ))}
-                               {dayEvents.length > 2 && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 text-[8px] flex items-center justify-center text-white">+{dayEvents.length-2}</div>
-                              )}
-                            </div>
-                          )}
+          <div className="max-w-md mx-auto"> {/* Constrain calendar width */}
+            <Calendar
+              mode="single"
+              selected={currentMonthDate} // This can be the current day or a selected day state
+              month={currentMonthDate}
+              onMonthChange={setCurrentMonthDate}
+              onDayClick={handleDayClick}
+              captionLayout="dropdown-buttons"
+              fromYear={new Date().getFullYear() - 5} // Example range
+              toYear={new Date().getFullYear() + 5}   // Example range
+              className="rounded-md border bg-background shadow-inner p-2" // Compact styling for the Calendar component itself
+              classNames={{ // Further fine-tuning for compactness
+                day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
+                nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
+                caption_label: "text-sm",
+                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
+                cell: "h-8 w-8 text-center text-xs p-0 relative",
+              }}
+              components={{
+                DayContent: ({ date, displayMonth }) => {
+                  const isCurrentDisplayMonth = isSameMonth(date, displayMonth);
+                  const dayEvents = mockEvents.filter(event => isSameDay(event.date, date));
+                  return (
+                    <div className={cn("relative w-full h-full flex items-center justify-center", !isCurrentDisplayMonth && "text-muted-foreground/30")}>
+                      {format(date, "d")}
+                      {dayEvents.length > 0 && isCurrentDisplayMonth && (
+                        <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-0.5">
+                          {dayEvents.slice(0, 3).map((event, i) => (
+                            <div key={i} className={cn("w-1 h-1 rounded-full", getEventTypeColor(event.type))}></div>
+                          ))}
                         </div>
-                      </TooltipTrigger>
-                      {dayEvents.length > 0 && (
-                        <TooltipContent side="top" align="start" className="max-w-xs text-xs">
-                          <p className="font-semibold mb-1">{format(day, "MMMM d, yyyy")}</p>
-                          <ul className="space-y-1">
-                            {dayEvents.map(event => (
-                              <li key={event.title} className="flex items-center">
-                                <div className={cn("w-2 h-2 rounded-full mr-1.5 shrink-0", getEventTypeColor(event.type))}></div>
-                                <span className="font-medium">{event.title}:</span>&nbsp;
-                                <span className="text-muted-foreground truncate">{event.details || "No details"}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </TooltipContent>
                       )}
-                    </Tooltip>
-                  </TooltipProvider>
-                );
-              })}
-               {/* Fill remaining cells for layout consistency if needed */}
-               {Array.from({ length: (7 - (firstDayOfMonth + daysInMonth.length) % 7) % 7  }).map((_, i) => (
-                <div key={`empty-end-${i}`} className="h-16 border rounded-md bg-muted/30"></div>
-              ))}
-            </div>
+                    </div>
+                  );
+                }
+              }}
+            />
           </div>
           
-          {/* Upcoming Events List - MOVED BELOW CALENDAR */}
           <div className="border-t border-border/30 mt-6 pt-4">
             <h4 className="text-md font-semibold text-foreground mb-3">Upcoming Events</h4>
             {upcomingEvents.length > 0 ? (
@@ -404,6 +391,32 @@ export default function ParentDashboardPage() {
         </CardContent>
       </Card>
 
+      <EventDialog open={isEventDetailsModalOpen} onOpenChange={setIsEventDetailsModalOpen}>
+        <EventDialogContent className="sm:max-w-sm bg-card">
+          <EventDialogHeader>
+            <EventDialogTitle className="text-base text-primary">
+              Events for {clickedDay ? format(clickedDay, "MMMM d, yyyy") : "Selected Day"}
+            </EventDialogTitle>
+          </EventDialogHeader>
+          <div className="py-3 space-y-2.5 max-h-[300px] overflow-y-auto">
+            {selectedDayEvents.length > 0 ? selectedDayEvents.map(event => (
+              <div key={event.title} className="flex items-start gap-2 p-2 border rounded-md bg-background text-xs">
+                <div className={cn("p-1 rounded-full mt-0.5", getEventTypeColor(event.type))}>
+                    {event.type === 'class' && <CalendarDays className="w-2.5 h-2.5 text-white" />}
+                    {event.type === 'demo' && <MessageSquareQuote className="w-2.5 h-2.5 text-white" />}
+                    {event.type === 'payment' && <DollarSign className="w-2.5 h-2.5 text-white" />}
+                </div>
+                <div>
+                    <p className="font-medium text-foreground/90">{event.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{format(new Date(event.date), "p")}</p>
+                    {event.details && <p className="text-[10px] text-muted-foreground/80 italic mt-0.5">{event.details}</p>}
+                </div>
+              </div>
+            )) : <p className="text-xs text-muted-foreground text-center">No events for this day.</p>}
+          </div>
+        </EventDialogContent>
+      </EventDialog>
+
 
       {otpVerificationType && otpVerificationIdentifier && (
         <OtpVerificationModal
@@ -423,9 +436,6 @@ interface ActionCardProps {
   IconComponent: React.ElementType;
   illustrationHint?: string;
   descriptionText: string;
-  ctaText?: string;
-  ctaHref?: string;
-  disabled?: boolean;
   actionButtonText1?: string;
   ActionButtonIcon1?: React.ElementType;
   href1?: string;
@@ -441,20 +451,18 @@ function ActionCard({
   IconComponent,
   illustrationHint,
   descriptionText,
-  ctaText, // For single button
-  ctaHref, // For single button
-  disabled, // For single button
-  actionButtonText1, // For two buttons
-  ActionButtonIcon1, // For two buttons
-  href1, // For two buttons
-  disabled1, // For two buttons
-  actionButtonText2, // For two buttons
-  ActionButtonIcon2, // For two buttons
-  href2, // For two buttons
-  disabled2, // For two buttons
+  actionButtonText1, 
+  ActionButtonIcon1, 
+  href1,
+  disabled1, 
+  actionButtonText2, 
+  ActionButtonIcon2, 
+  href2, 
+  disabled2, 
 }: ActionCardProps) {
   
   const hasTwoButtons = actionButtonText1 && href1 && ActionButtonIcon1 && actionButtonText2 && href2 && ActionButtonIcon2;
+  const hasOneButton = actionButtonText1 && href1 && ActionButtonIcon1 && !hasTwoButtons;
 
   return (
     <Card className={cn(
@@ -466,31 +474,29 @@ function ActionCard({
               <IconComponent className={cn("w-7 h-7 md:w-8 md:h-8", "text-primary")} />
           </div>
         <CardTitle className={cn("text-md md:text-lg font-semibold transition-colors duration-300", "text-primary")}>{title}</CardTitle>
+         <CardDescription className="text-xs text-muted-foreground mt-1 text-center line-clamp-2 h-[2.5em]">{descriptionText}</CardDescription> {/* Fixed height for description */}
       </CardHeader>
-      <CardContent className="p-4 md:p-5 pt-0 text-center flex-grow flex flex-col justify-between">
-        <div>
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{descriptionText}</p>
-        </div>
+      <CardContent className="p-4 md:p-5 pt-0 text-center flex-grow flex flex-col justify-end"> {/* justify-end to push buttons to bottom */}
+        {/* Content removed to make card compact, description moved to header */}
       </CardContent>
-      <CardFooter className={cn(
-        "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col sm:flex-row gap-2 items-stretch w-full", 
-        hasTwoButtons ? "sm:flex-row" : "sm:flex-col", // Adjust layout for one or two buttons
+      <div className={cn( // Changed from CardFooter to div for custom layout
+        "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col gap-2 items-stretch w-full mt-auto", 
         "bg-card group-hover:bg-muted/30"
         )}>
         {hasTwoButtons ? (
-          <>
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button 
                 asChild 
                 variant="outline"
                 size="sm"
                 className={cn(
-                    "w-full sm:flex-1 sm:min-w-0 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", 
+                    "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs py-2 px-2 shadow-sm hover:shadow-md", 
                     "bg-card border-primary text-primary hover:bg-primary/5"
                 )} 
                 disabled={disabled1}
             >
                 <Link href={disabled1 ? "#" : href1!} className="flex items-center justify-center">
-                <ActionButtonIcon1 className="mr-1.5 h-3.5 w-3.5"/>
+                {ActionButtonIcon1 && <ActionButtonIcon1 className="mr-1.5 h-3.5 w-3.5"/>}
                 {disabled1 ? "Coming Soon" : actionButtonText1}
                 </Link>
             </Button>
@@ -499,36 +505,35 @@ function ActionCard({
                 variant="default" 
                 size="sm"
                 className={cn(
-                    "w-full sm:flex-1 sm:min-w-0 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", 
+                    "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs py-2 px-2 shadow-sm hover:shadow-md", 
                     "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
                 )} 
                 disabled={disabled2}
             >
                 <Link href={disabled2 ? "#" : href2!} className="flex items-center justify-center">
-                  <ActionButtonIcon2 className="mr-1.5 h-3.5 w-3.5"/>
+                  {ActionButtonIcon2 && <ActionButtonIcon2 className="mr-1.5 h-3.5 w-3.5"/>}
                   {disabled2 ? "Coming Soon" : actionButtonText2}
                 </Link>
             </Button>
-          </>
-        ) : (
-           ctaText && ctaHref && (
-            <Button 
+          </div>
+        ) : hasOneButton ? (
+           <Button 
                 asChild 
                 variant="default" 
                 size="sm"
                 className={cn(
-                    "w-full sm:w-auto transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", 
+                    "w-full transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs py-2 px-2 shadow-sm hover:shadow-md", 
                     "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
                 )} 
-                disabled={disabled}
+                disabled={disabled1}
             >
-            <Link href={disabled ? "#" : ctaHref}>{disabled ? "Coming Soon" : ctaText}</Link>
+            <Link href={disabled1 ? "#" : href1!} className="flex items-center justify-center">
+                {ActionButtonIcon1 && <ActionButtonIcon1 className="mr-1.5 h-3.5 w-3.5"/>}
+                {disabled1 ? "Coming Soon" : actionButtonText1}
+            </Link>
             </Button>
-           )
-        )}
-      </CardFooter>
+        ) : null}
+      </div>
     </Card>
   );
 }
-
-
