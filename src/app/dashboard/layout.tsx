@@ -1,3 +1,4 @@
+
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -44,7 +45,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
   }
 
-  const dashboardHomeHref = `/dashboard/${user.role}`;
+  const dashboardHomeHref = user.role === "admin" ? "/dashboard/admin" : `/dashboard/${user.role}`;
 
   const commonNavItems = [
     { href: dashboardHomeHref, label: "Dashboard", icon: LayoutDashboard }, 
@@ -100,13 +101,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           className="border-r pt-[var(--header-height)] bg-card shadow-md" 
         > 
           <SidebarHeader className="p-4 border-b border-border/50"> 
-            <div className="flex items-center justify-between">
-              <Link href="/" className="group-data-[collapsible=icon]:hidden">
-                <Logo className="h-auto w-28" /> 
-              </Link>
-              <div className={cn("group-data-[collapsible=icon]:mx-auto", isMobile && "ml-auto")}>
-                  <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"/>
-              </div>
+            <div className={cn("flex items-center", isMobile ? "justify-end" : "justify-center group-data-[collapsible=icon]:justify-center")}>
+              {/* Logo removed from here */}
+              <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"/>
             </div>
           </SidebarHeader>
           <SidebarContent>
@@ -162,7 +159,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--header-height)_+_1.5rem)]"> 
+        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--header-height)_+_1rem)]"> {/* Reduced top padding further */}
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           {children}
           </div>
@@ -170,8 +167,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </SidebarProvider>
       <style jsx global>{`
         :root {
-          --header-height: 7rem; 
-          --logo-height: 6rem;
+          --header-height: 6rem; /* Adjusted to 6rem as requested */
+          --logo-height: 4.5rem; /* Adjusted to 4.5rem for logo within new header height */
+        }
+        /* Ensure sidebar trigger is visible and centered when logo is removed and sidebar is icon-only */
+        [data-sidebar="sidebar"][data-collapsible="icon"] [data-sidebar="header"] > div {
+          justify-content: center !important;
         }
       `}</style>
     </>

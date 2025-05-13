@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -10,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive, SheetTitle } from "@/components/ui/sheet"; // Added SheetHeaderPrimitive and SheetTitle
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -198,7 +199,7 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden" // Ensure close button from SheetContent is hidden or handled by SidebarTrigger
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -352,15 +353,38 @@ SidebarInput.displayName = "SidebarInput"
 
 const SidebarHeader = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> // Changed to HTMLAttributes for general div
+>(({ className, children, ...props }, ref) => {
+  const { isMobile } = useSidebar();
+
+  // If mobile, use SheetHeaderPrimitive for proper title and description accessibility
+  if (isMobile) {
+    return (
+      <SheetHeaderPrimitive 
+        ref={ref as React.Ref<HTMLDivElement>} // Cast ref if needed
+        data-sidebar="header"
+        className={cn(
+          "flex flex-col gap-2 p-4 border-b border-border/50", // Adjusted mobile padding
+          className
+        )}
+        {...props}
+      >
+        {/* For mobile, we expect children to potentially include a SheetTitle for accessibility */}
+        {children} 
+      </SheetHeaderPrimitive>
+    );
+  }
+
+  // Desktop rendering
   return (
     <div
       ref={ref}
       data-sidebar="header"
       className={cn("flex flex-col gap-2 p-2", className)}
       {...props}
-    />
+    >
+      {children}
+    </div>
   )
 })
 SidebarHeader.displayName = "SidebarHeader"
@@ -760,4 +784,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  SheetTitle, // Export SheetTitle
 }
