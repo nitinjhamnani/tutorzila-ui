@@ -1,7 +1,7 @@
 // src/app/dashboard/parent/page.tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button"; // Added buttonVariants
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon as LucideCalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
@@ -154,7 +154,7 @@ export default function ParentDashboardPage() {
         key="my-classes" 
         title="My Classes" 
         descriptionText="Track all your booked and ongoing classes."
-        IconComponent={SearchCheck}
+        IconComponent={SearchCheck} // Using SearchCheck for variety, consider a more specific icon for "My Classes"
         actionButtonText1="View All Classes"
         ActionButtonIcon1={Eye}
         href1="/dashboard/my-classes" 
@@ -537,3 +537,4 @@ function ActionCard({
     </Card>
   );
 }
+
