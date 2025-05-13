@@ -303,7 +303,7 @@ export default function ParentDashboardPage() {
         </div>
       )}
       
-      <Card className="bg-card border border-border/30 rounded-xl shadow-sm animate-in fade-in duration-500 ease-out" style={{ animationDelay: `0.8s` }}>
+      <Card className="bg-card border border-border/30 rounded-xl shadow-sm animate-in fade-in duration-500 ease-out mx-auto max-w-2xl" style={{ animationDelay: `0.8s` }}>
         <CardHeader className="pb-4 border-b border-border/30">
             <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <LucideCalendarIcon className="w-6 h-6 mr-2.5" /> My Calendar
@@ -312,7 +312,7 @@ export default function ParentDashboardPage() {
             Consolidated view of demo schedules, classes, and payment due dates.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 md:p-5">
+        <CardContent className="p-3 md:p-4"> {/* Reduced padding */}
           <div className="max-w-md mx-auto">
             <Calendar
               mode="single"
@@ -320,25 +320,25 @@ export default function ParentDashboardPage() {
               month={currentMonthDate}
               onMonthChange={setCurrentMonthDate}
               onDayClick={handleDayClick}
-              captionLayout="dropdown-buttons" // Ensures single month/year selector with arrows
+              captionLayout="dropdown-buttons" 
               fromYear={new Date().getFullYear() - 5}
               toYear={new Date().getFullYear() + 5}
-              weekStartsOn={1} // Start week on Monday
-              className="rounded-md border bg-background shadow-inner p-2"
+              weekStartsOn={1} 
+              className="rounded-md border bg-background shadow-inner p-1.5" // Reduced padding for calendar itself
               classNames={{
                 day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
-                day_today: "bg-primary/10 text-primary font-bold relative", // Clearer today highlight
+                day_today: "bg-primary/10 text-primary font-bold relative", 
                 nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
-                caption_label: "text-sm font-medium hidden", // This should hide the static label if dropdowns are used
+                caption_label: "text-sm font-medium hidden", 
                 head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
-                cell: "h-8 w-8 text-center text-xs p-0 relative", // Ensures consistent cell size
+                cell: "h-8 w-8 text-center text-xs p-0 relative", 
               }}
               components={{
                 DayContent: ({ date, displayMonth }) => {
                   const isCurrentDisplayMonth = isSameMonth(date, displayMonth);
                   const dayEvents = mockEvents.filter(event => isSameDay(event.date, date));
                   return (
-                    <> {/* Use fragment to not interfere with button styling */}
+                    <> 
                       {format(date, "d")}
                       {dayEvents.length > 0 && isCurrentDisplayMonth && (
                         <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex space-x-0.5">
@@ -354,12 +354,12 @@ export default function ParentDashboardPage() {
             />
           </div>
           
-          <div className="border-t border-border/30 mt-6 pt-4">
-            <h4 className="text-md font-semibold text-foreground mb-3">Upcoming Events</h4>
+          <div className="border-t border-border/30 mt-4 pt-3"> {/* Reduced margins/paddings */}
+            <h4 className="text-md font-semibold text-foreground mb-2.5">Upcoming Events</h4> {/* Reduced margins */}
             {upcomingEvents.length > 0 ? (
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+              <div className="space-y-2.5 max-h-60 overflow-y-auto pr-2"> {/* Reduced spacing */}
                 {upcomingEvents.map(event => (
-                  <div key={event.title} className="flex items-start gap-3 p-2.5 border border-border/30 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs">
+                  <div key={event.title} className="flex items-start gap-2.5 p-2 border border-border/30 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs"> {/* Reduced padding/gap */}
                     <div className={cn("p-1.5 rounded-md mt-0.5", getEventTypeColor(event.type))}>
                        {event.type === 'class' && <CalendarDays className="w-3 h-3 text-white" />}
                        {event.type === 'demo' && <MessageSquareQuote className="w-3 h-3 text-white" />}
@@ -374,8 +374,8 @@ export default function ParentDashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center text-muted-foreground py-4">
-                <LucideCalendarIcon className="w-10 h-10 text-primary/30 mx-auto mb-2" />
+              <div className="text-center text-muted-foreground py-3"> {/* Reduced padding */}
+                <LucideCalendarIcon className="w-8 h-8 text-primary/30 mx-auto mb-1.5" /> {/* Reduced icon size/margin */}
                 <p className="text-xs">No upcoming events.</p>
               </div>
             )}
@@ -531,4 +531,5 @@ function ActionCard({
     </Card>
   );
 }
+
 
