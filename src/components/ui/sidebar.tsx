@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive, SheetTitle } from "@/components/ui/sheet"; // Added SheetHeaderPrimitive and SheetTitle
+import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -198,7 +198,7 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden" // Ensure close button from SheetContent is hidden or handled by SidebarTrigger
+            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden" 
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -352,29 +352,26 @@ SidebarInput.displayName = "SidebarInput"
 
 const SidebarHeader = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> // Changed to HTMLAttributes for general div
+  React.HTMLAttributes<HTMLDivElement> 
 >(({ className, children, ...props }, ref) => {
   const { isMobile } = useSidebar();
 
-  // If mobile, use SheetHeaderPrimitive for proper title and description accessibility
   if (isMobile) {
     return (
       <SheetHeaderPrimitive 
-        ref={ref as React.Ref<HTMLDivElement>} // Cast ref if needed
+        ref={ref as React.Ref<HTMLDivElement>} 
         data-sidebar="header"
         className={cn(
-          "flex flex-col gap-2 p-4 border-b border-border/50", // Adjusted mobile padding
+          "flex flex-col gap-2 p-2 border-b border-border/50", 
           className
         )}
         {...props}
       >
-        {/* For mobile, we expect children to potentially include a SheetTitle for accessibility */}
         {children} 
       </SheetHeaderPrimitive>
     );
   }
 
-  // Desktop rendering
   return (
     <div
       ref={ref}
@@ -515,7 +512,7 @@ const SidebarMenu = React.forwardRef<
   <ul
     ref={ref}
     data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+    className={cn("flex w-full min-w-0 flex-col gap-2 py-2", className)} // Increased gap from gap-1 to gap-2 and added py-2
     {...props}
   />
 ))
@@ -528,14 +525,14 @@ const SidebarMenuItem = React.forwardRef<
   <li
     ref={ref}
     data-sidebar="menu-item"
-    className={cn("group/menu-item relative", className)}
+    className={cn("group/menu-item relative px-1", className)} // Added px-1 for horizontal spacing of items
     {...props}
   />
 ))
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md p-2.5 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -544,8 +541,8 @@ const sidebarMenuButtonVariants = cva(
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
       size: {
-        default: "h-8 text-sm",
-        sm: "h-7 text-xs",
+        default: "h-9 text-sm", // Increased height from h-8 to h-9
+        sm: "h-8 text-xs", // Increased height from h-7 to h-8
         lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
       },
     },
@@ -783,6 +780,6 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
-  SheetTitle, // Export SheetTitle
+  SheetTitle, 
 }
 
