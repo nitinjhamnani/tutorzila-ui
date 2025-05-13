@@ -354,7 +354,7 @@ export default function ParentDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-3 md:p-4 flex-grow flex items-center justify-center">
-            <div className="max-w-md w-full"> {/* Ensure calendar doesn't stretch too much */}
+            <div className="max-w-sm w-full"> {/* Adjusted from max-w-md to max-w-sm */}
               <Calendar
                 mode="single"
                 selected={clickedDay || undefined}
@@ -365,14 +365,14 @@ export default function ParentDashboardPage() {
                 fromYear={new Date().getFullYear() - 5}
                 toYear={new Date().getFullYear() + 5}
                 weekStartsOn={1}
-                className="rounded-md border bg-background shadow-inner p-2 w-full"
+                className="rounded-md border bg-background shadow-inner p-1.5 w-full" // Adjusted padding from p-2 to p-1.5
                 classNames={{
                   day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
                   day_today: "bg-primary/10 text-primary font-bold relative",
                   nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
                   caption_label: "text-sm font-medium hidden",
-                  head_cell: "text-muted-foreground rounded-md w-full sm:w-8 font-normal text-[0.8rem]", // Adjusted width for responsiveness
-                  cell: "h-8 w-full sm:w-8 text-center text-xs p-0 relative", // Adjusted width
+                  head_cell: "text-muted-foreground rounded-md w-full sm:w-8 font-normal text-[0.8rem]", 
+                  cell: "h-8 w-full sm:w-8 text-center text-xs p-0 relative", 
                 }}
                 components={{
                   DayContent: ({ date, displayMonth }) => {
@@ -547,6 +547,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
