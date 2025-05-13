@@ -233,8 +233,8 @@ export default function ParentDashboardPage() {
         </CardHeader>
       </Card>
 
-      {/* Summary Cards Section - Adjusted grid for responsiveness */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
+      {/* Summary Cards Section - Updated grid for responsiveness */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
         {summaryStats.map((stat, index) => (
           <SummaryStatCard 
             key={stat.title} 
@@ -393,3 +393,4 @@ function FavoriteTutorsCard() {
       </Card>
     );
 }
+
