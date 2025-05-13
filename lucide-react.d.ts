@@ -114,5 +114,7 @@ declare module "lucide-react" {
     export const ClipboardList: React.FC<React.SVGProps<SVGSVGElement>>;
     export const School: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Student Profiles
     export const Construction: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Coming Soon
+    export const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>>; // Added for Calendar
   }
 }
+
