@@ -28,13 +28,13 @@ interface SummaryStatCardProps {
 function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", bgColorClass = "bg-primary/10", imageHint }: SummaryStatCardProps) {
   return (
     <Card className="bg-card border border-border/30 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out">
-      <CardContent className="p-4 md:p-5 flex items-center gap-3 md:gap-4">
-        <div className={cn("p-3 rounded-lg shadow-inner", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}>
-          <Icon className={cn("w-5 h-5 md:w-6 md:h-6", colorClass)} />
+      <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-3"> {/* Reduced padding and gap */}
+        <div className={cn("p-2 rounded-lg shadow-inner", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}> {/* Reduced padding */}
+          <Icon className={cn("w-4 h-4 md:w-5 md:h-5", colorClass)} /> {/* Reduced icon size */}
         </div>
         <div>
-          <p className="text-xs text-muted-foreground">{title}</p>
-          <p className="text-lg md:text-xl font-bold text-foreground">{value}</p>
+          <p className="text-[0.65rem] text-muted-foreground whitespace-nowrap truncate">{title}</p> {/* Reduced font size and added truncate */}
+          <p className="text-md md:text-lg font-bold text-foreground whitespace-nowrap truncate">{value}</p> {/* Reduced font size and added truncate */}
         </div>
       </CardContent>
     </Card>
@@ -234,7 +234,7 @@ export default function ParentDashboardPage() {
       </Card>
 
       {/* Summary Cards Section - Updated grid for responsiveness */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
+       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4"> {/* Adjusted grid columns and gap */}
         {summaryStats.map((stat, index) => (
           <SummaryStatCard 
             key={stat.title} 
@@ -393,4 +393,5 @@ function FavoriteTutorsCard() {
       </Card>
     );
 }
+
 
