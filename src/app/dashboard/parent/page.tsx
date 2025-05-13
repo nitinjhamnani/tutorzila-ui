@@ -115,29 +115,29 @@ export default function ParentDashboardPage() {
         quickInsightText="2 Active Enquiries"
         ctaText="View My Enquiries"
         ctaHref="/dashboard/my-requirements" 
-        actionButtonText2="Create Enquiry"
-        ActionButtonIcon2={PlusCircle}
-        href2="/dashboard/post-requirement"
         illustrationHint="enquiry list"
       />,
       <ActionCard
-        key="my-classes" // Changed from my-tuitions
-        title="My Classes" // Changed from My Tuitions
-        descriptionText="Browse tutor profiles or manage booked classes." // Updated description
+        key="my-classes" 
+        title="My Classes" 
+        descriptionText="Browse tutor profiles or manage booked classes." 
         IconComponent={SearchCheck}
         quickInsightText="Find your next tutor"
-        ctaText="View All Classes" // Changed from View All Tutors
-        ctaHref="/dashboard/my-classes" // Changed href
+        ctaText="View All Classes" 
+        ctaHref="/dashboard/my-classes" 
+        actionButtonText2="Demo Requests"
+        ActionButtonIcon2={MessageSquareQuote}
+        href2="/dashboard/demo-sessions"
         illustrationHint="student profile"
       />,
        <ActionCard
-        key="my-demos" // Changed from my-classes
-        title="My Demos" // Changed from My Scheduled Classes
+        key="my-demos" 
+        title="My Demos" 
         descriptionText="View upcoming demos, manage schedules, and track progress."
-        IconComponent={MessageSquareQuote} // Changed icon to MessageSquareQuote for demos
-        quickInsightText="1 Upcoming Demo" // Updated quick insight
-        ctaText="View All Demos" // Changed from View My Classes
-        ctaHref="/dashboard/demo-sessions" // Changed href
+        IconComponent={MessageSquareQuote} 
+        quickInsightText="1 Upcoming Demo" 
+        ctaText="View All Demos" 
+        ctaHref="/dashboard/demo-sessions" 
         disabled={false} 
         illustrationHint="calendar schedule"
       />,
@@ -376,6 +376,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
