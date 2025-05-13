@@ -18,8 +18,7 @@ import Image from "next/image";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog as EventDialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription } from "@/components/ui/dialog";
-// Removed Calendar import from "@/components/ui/calendar"
-import { format, isSameDay } from "date-fns"; // Removed addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, getDay
+import { format, isSameDay } from "date-fns"; 
 import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
 
 
@@ -76,18 +75,11 @@ export default function ParentDashboardPage() {
   const { user } = useAuthMock();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-
-  // Otp Modal state and handlers removed as verification buttons are moved to sidebar
   
-  // Removed isEmailVerified and isPhoneVerified states as they are no longer managed here
-  
-  // Removed currentMonth and setCurrentMonth state as Calendar is removed
   const [selectedDayEvents, setSelectedDayEvents] = useState<MockEvent[]>([]);
   const [isEventDetailsModalOpen, setIsEventDetailsModalOpen] = useState(false);
   const [clickedDay, setClickedDay] = useState<Date | null>(null);
 
-
-  // useEffect for user verification status removed
 
   if (!user || user.role !== 'parent') {
     return <div className="text-center p-8">Access Denied. This dashboard is for parents only.</div>;
@@ -108,8 +100,6 @@ export default function ParentDashboardPage() {
     }
   };
   
-  // handleOpenOtpModal and handleOtpSuccess removed
-
   const summaryStats = [
     { title: "Total Enquiries", value: 5, icon: ListChecks, imageHint: "document list" },
     { title: "Active Classes", value: 2, icon: CalendarDays, imageHint: "active calendar" },
@@ -167,10 +157,8 @@ export default function ParentDashboardPage() {
     .sort((a, b) => a.date.getTime() - b.date.getTime())
     .slice(0, 4); 
 
-  // Removed handleDayClick function as Calendar component is removed
-
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-6 md:space-y-8 pb-20 md:pb-24"> {/* Added bottom padding for FAB */}
       <Card className="bg-card rounded-xl animate-in fade-in duration-700 ease-out overflow-hidden border border-border/30 shadow-sm w-full">
         <CardHeader className="pt-4 px-4 pb-3 md:pt-5 md:px-6 md:pb-4 relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -215,7 +203,6 @@ export default function ParentDashboardPage() {
                   </Badge>
                 )}
               </div>
-                {/* Verification buttons removed from here */}
             </div>
           </div>
         </CardHeader>
@@ -246,7 +233,7 @@ export default function ParentDashboardPage() {
       
        {/* Upcoming Events & Calendar Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
-        <div className="lg:col-span-3 animate-in fade-in duration-500 ease-out" style={{ animationDelay: '0.8s' }}> {/* Changed lg:col-span-2 to lg:col-span-3 */}
+        <div className="lg:col-span-3 animate-in fade-in duration-500 ease-out" style={{ animationDelay: '0.8s' }}> 
           <Card className="bg-card border border-border/30 rounded-xl shadow-sm flex flex-col h-full">
             <CardHeader className="pb-3 border-b border-border/30">
               <CardTitle className="text-lg font-semibold text-primary flex items-center">
@@ -288,7 +275,6 @@ export default function ParentDashboardPage() {
             </div>
           </Card>
         </div>
-        {/* My Calendar Card Removed */}
       </div>
 
 
@@ -321,8 +307,6 @@ export default function ParentDashboardPage() {
         </EventDialogContent>
       </EventDialog>
 
-
-      {/* OtpVerificationModal and its trigger logic removed */}
       <FloatingPostRequirementButton />
     </div>
   );

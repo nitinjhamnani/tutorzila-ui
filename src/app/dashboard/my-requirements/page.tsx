@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -14,7 +15,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Added Tabs imports
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
+
 
 // Mock data - replace with API call specific to the logged-in parent
 const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
@@ -150,36 +153,7 @@ export default function MyRequirementsPage() {
   if (!user) return <div className="flex h-screen items-center justify-center text-sm font-medium text-muted-foreground animate-in fade-in duration-300">Loading...</div>;
 
   return (
-    <div className="space-y-6 container mx-auto px-4 sm:px-6 lg:px-8 py-6"> {/* Reduced space-y and py */}
-      <Card className="bg-card border rounded-xl shadow-sm animate-in fade-in duration-500 ease-out overflow-hidden">
-        <CardHeader className="p-5 md:p-6">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <div className="flex items-center gap-3">
-               <div className="p-2 bg-primary/10 rounded-full text-primary shadow-sm">
-                 <ListChecks className="w-6 h-6" />
-               </div>
-              <div>
-                <CardTitle className="text-xl md:text-2xl font-semibold text-primary tracking-tight">
-                  My Posted Requirements
-                </CardTitle>
-                <CardDescription className="text-sm text-foreground/70 mt-1">
-                  Manage your tuition needs and connect with tutors.
-                </CardDescription>
-              </div>
-            </div>
-            <Link
-              href="/dashboard/post-requirement"
-              className={cn(
-                buttonVariants({ variant: "default", size: "sm" }),
-                "transform transition-transform hover:scale-105 active:scale-95 shadow-sm text-sm py-2 px-3.5"
-              )}
-            >
-              <PlusCircle className="mr-1.5 h-4 w-4" /> Post New Requirement
-            </Link>
-          </div>
-        </CardHeader>
-      </Card>
-
+    <div className="space-y-6 container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-24"> {/* Reduced space-y and py, added bottom padding for FAB */}
       <Tabs defaultValue="current" className="w-full">
         <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
           <TabsTrigger value="current" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">Current</TabsTrigger>
@@ -260,7 +234,8 @@ export default function MyRequirementsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
+      <FloatingPostRequirementButton />
     </div>
   );
 }
+
