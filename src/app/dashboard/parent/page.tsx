@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -102,8 +103,8 @@ export default function ParentDashboardPage() {
     { title: "Total Enquiries", value: 5, icon: ListChecks, colorClass: "text-blue-600", bgColorClass:"bg-blue-100/70", imageHint: "document list" },
     { title: "Active Classes", value: 2, icon: CalendarDays, colorClass: "text-green-600", bgColorClass:"bg-green-100/70", imageHint: "active calendar" },
     { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-purple-600", bgColorClass:"bg-purple-100/70", imageHint: "chat bubble" },
-    { title: "Favorite Tutors", value: 3, icon: Star, colorClass: "text-yellow-500", bgColorClass:"bg-yellow-100/70", imageHint: "star rating" },
-    { title: "Payments Made", value: "₹12.5k", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" }, // Shortened value
+    // { title: "Favorite Tutors", value: 3, icon: Star, colorClass: "text-yellow-500", bgColorClass:"bg-yellow-100/70", imageHint: "star rating" }, // Removed Favorite Tutors
+    { title: "Payments Made", value: "₹12.5k", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" }, 
   ];
 
   const parentActionCards = [
@@ -267,7 +268,7 @@ export default function ParentDashboardPage() {
       </Card>
 
       {/* Summary Cards Section - Adjusted grid for better fitting and responsiveness */}
-       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 md:gap-3"> {/* Reduced gap */}
+       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5 md:gap-3"> {/* Adjusted to lg:grid-cols-4 */}
         {summaryStats.map((stat, index) => (
           <SummaryStatCard 
             key={stat.title} 
@@ -450,5 +451,6 @@ function FavoriteTutorsCard() {
       </Card>
     );
 }
+
 
 
