@@ -4,7 +4,7 @@
 import { Button, buttonVariants } from "@/components/ui/button"; 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon as LucideCalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon as LucideCalendarIcon, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { User, TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -184,7 +184,7 @@ export default function ParentDashboardPage() {
       />,
     ];
 
-  const upcomingEvents = mockEvents
+  const upcomingCalendarEvents = mockEvents
     .filter(event => event.date >= new Date(new Date().setHours(0,0,0,0)))
     .sort((a, b) => a.date.getTime() - b.date.getTime())
     .slice(0, 4); 
@@ -303,85 +303,101 @@ export default function ParentDashboardPage() {
         </div>
       )}
       
-      <Card className="bg-card border border-border/30 rounded-xl shadow-sm animate-in fade-in duration-500 ease-out mx-auto max-w-2xl" style={{ animationDelay: `0.8s` }}>
-        <CardHeader className="pb-4 border-b border-border/30">
-            <CardTitle className="text-xl font-semibold text-primary flex items-center">
-                <LucideCalendarIcon className="w-6 h-6 mr-2.5" /> My Calendar
+       {/* Calendar Section - Two Part Layout */}
+      <div className="grid lg:grid-cols-3 gap-6 md:gap-8 items-stretch animate-in fade-in duration-500 ease-out" style={{ animationDelay: '0.8s' }}>
+        {/* Left: Upcoming Events */}
+        <Card className="lg:col-span-1 bg-card border border-border/30 rounded-xl shadow-sm flex flex-col">
+          <CardHeader className="pb-3 border-b border-border/30">
+            <CardTitle className="text-lg font-semibold text-primary flex items-center">
+              <LucideCalendarIcon className="w-5 h-5 mr-2" /> Upcoming Events
             </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground mt-1">
-            Consolidated view of demo schedules, classes, and payment due dates.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-3 md:p-4"> {/* Reduced padding */}
-          <div className="max-w-md mx-auto">
-            <Calendar
-              mode="single"
-              selected={clickedDay || undefined} 
-              month={currentMonthDate}
-              onMonthChange={setCurrentMonthDate}
-              onDayClick={handleDayClick}
-              captionLayout="dropdown-buttons" 
-              fromYear={new Date().getFullYear() - 5}
-              toYear={new Date().getFullYear() + 5}
-              weekStartsOn={1} 
-              className="rounded-md border bg-background shadow-inner p-1.5" // Reduced padding for calendar itself
-              classNames={{
-                day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
-                day_today: "bg-primary/10 text-primary font-bold relative", 
-                nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
-                caption_label: "text-sm font-medium hidden", 
-                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
-                cell: "h-8 w-8 text-center text-xs p-0 relative", 
-              }}
-              components={{
-                DayContent: ({ date, displayMonth }) => {
-                  const isCurrentDisplayMonth = isSameMonth(date, displayMonth);
-                  const dayEvents = mockEvents.filter(event => isSameDay(event.date, date));
-                  return (
-                    <> 
-                      {format(date, "d")}
-                      {dayEvents.length > 0 && isCurrentDisplayMonth && (
-                        <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex space-x-0.5">
-                          {dayEvents.slice(0, 3).map((event, i) => (
-                            <div key={i} className={cn("w-1.5 h-1.5 rounded-full", getEventTypeColor(event.type))}></div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  );
-                }
-              }}
-            />
-          </div>
-          
-          <div className="border-t border-border/30 mt-4 pt-3"> {/* Reduced margins/paddings */}
-            <h4 className="text-md font-semibold text-foreground mb-2.5">Upcoming Events</h4> {/* Reduced margins */}
-            {upcomingEvents.length > 0 ? (
-              <div className="space-y-2.5 max-h-60 overflow-y-auto pr-2"> {/* Reduced spacing */}
-                {upcomingEvents.map(event => (
-                  <div key={event.title} className="flex items-start gap-2.5 p-2 border border-border/30 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs"> {/* Reduced padding/gap */}
-                    <div className={cn("p-1.5 rounded-md mt-0.5", getEventTypeColor(event.type))}>
-                       {event.type === 'class' && <CalendarDays className="w-3 h-3 text-white" />}
-                       {event.type === 'demo' && <MessageSquareQuote className="w-3 h-3 text-white" />}
-                       {event.type === 'payment' && <DollarSign className="w-3 h-3 text-white" />}
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
+              Your next scheduled activities.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-3 md:p-4 flex-grow">
+            {upcomingCalendarEvents.length > 0 ? (
+              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                {upcomingCalendarEvents.map(event => (
+                  <div key={`${event.title}-${event.date}`} className="flex items-center gap-2.5 p-2.5 border border-border/20 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs">
+                    <div className={cn("w-2 h-2 rounded-full shrink-0", getEventTypeColor(event.type))}></div>
+                    <div className="flex-grow min-w-0">
+                      <p className="font-medium text-foreground/90 truncate">{event.title}</p>
+                      <p className="text-[10px] text-muted-foreground">{format(event.date, "MMM d, p")}</p>
                     </div>
-                    <div className="flex-grow">
-                      <p className="font-medium text-foreground/90">{event.title}</p>
-                      <p className="text-muted-foreground">{format(event.date, "MMM d, yyyy 'at' p")}</p>
-                       {event.details && <p className="text-[10px] text-muted-foreground/80 italic mt-0.5">{event.details}</p>}
-                    </div>
+                    <ArrowRight className="w-3 h-3 text-muted-foreground shrink-0"/>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center text-muted-foreground py-3"> {/* Reduced padding */}
-                <LucideCalendarIcon className="w-8 h-8 text-primary/30 mx-auto mb-1.5" /> {/* Reduced icon size/margin */}
+              <div className="text-center text-muted-foreground py-6 flex flex-col items-center justify-center h-full">
+                <LucideCalendarIcon className="w-10 h-10 text-primary/30 mx-auto mb-2" />
                 <p className="text-xs">No upcoming events.</p>
               </div>
             )}
+          </CardContent>
+          <div className="p-3 border-t border-border/30 mt-auto">
+             <Button variant="link" size="sm" className="w-full text-primary text-xs p-0 h-auto">
+                See all events
+             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </Card>
+
+        {/* Right: Calendar Widget */}
+        <Card className="lg:col-span-2 bg-card border border-border/30 rounded-xl shadow-sm flex flex-col">
+          <CardHeader className="pb-3 border-b border-border/30">
+            <CardTitle className="text-lg font-semibold text-primary flex items-center">
+              <LucideCalendarIcon className="w-5 h-5 mr-2" /> My Calendar
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
+              Click on a date to view or add events.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-3 md:p-4 flex-grow flex items-center justify-center">
+            <div className="max-w-md w-full"> {/* Ensure calendar doesn't stretch too much */}
+              <Calendar
+                mode="single"
+                selected={clickedDay || undefined}
+                month={currentMonthDate}
+                onMonthChange={setCurrentMonthDate}
+                onDayClick={handleDayClick}
+                captionLayout="dropdown-buttons"
+                fromYear={new Date().getFullYear() - 5}
+                toYear={new Date().getFullYear() + 5}
+                weekStartsOn={1}
+                className="rounded-md border bg-background shadow-inner p-2 w-full"
+                classNames={{
+                  day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
+                  day_today: "bg-primary/10 text-primary font-bold relative",
+                  nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
+                  caption_label: "text-sm font-medium hidden",
+                  head_cell: "text-muted-foreground rounded-md w-full sm:w-8 font-normal text-[0.8rem]", // Adjusted width for responsiveness
+                  cell: "h-8 w-full sm:w-8 text-center text-xs p-0 relative", // Adjusted width
+                }}
+                components={{
+                  DayContent: ({ date, displayMonth }) => {
+                    const isCurrentDisplayMonth = isSameMonth(date, displayMonth);
+                    const dayEvents = mockEvents.filter(event => isSameDay(event.date, date));
+                    return (
+                      <>
+                        {format(date, "d")}
+                        {dayEvents.length > 0 && isCurrentDisplayMonth && (
+                          <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex space-x-0.5">
+                            {dayEvents.slice(0, 3).map((event, i) => (
+                              <div key={i} className={cn("w-1.5 h-1.5 rounded-full", getEventTypeColor(event.type))}></div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    );
+                  }
+                }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
 
       <Dialog open={isEventDetailsModalOpen} onOpenChange={setIsEventDetailsModalOpen}>
         <EventDialogContent className="sm:max-w-sm bg-card">
@@ -531,5 +547,6 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
