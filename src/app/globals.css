@@ -5,6 +5,11 @@
 body {
   font-family: var(--font-montserrat), sans-serif !important; /* Enforced Montserrat */
   letter-spacing: 0.025em; 
+  overflow-x: hidden; /* Prevent horizontal scroll on body */
+}
+
+html {
+  overflow-x: hidden; /* Prevent horizontal scroll on html */
 }
 
 @layer base {
@@ -94,13 +99,16 @@ body {
   * {
     @apply border-border;
     font-family: 'Montserrat', sans-serif !important;
+    box-sizing: border-box; /* Ensure padding and border are included in width/height */
   }
   html, body {
     font-family: 'Montserrat', sans-serif !important;
+    overflow-x: hidden; /* Prevent horizontal scroll on html and body */
   }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-montserrat), sans-serif !important; 
+    letter-spacing: 0.025em;
   }
   h1, h2, h3, h4, h5, h6 {
     color: #222 !important;
@@ -116,6 +124,11 @@ body {
     font-size: 16px !important; 
     line-height: 26px !important; 
     font-family: "Montserrat", sans-serif !important; 
+  }
+
+  span, div, li, a, button, input, textarea, select {
+    font-family: "Montserrat", sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
   }
 
   /* Default Card styling adjustments */
@@ -145,11 +158,19 @@ body {
 .animate-in.slide-in-from-left-10 {
   animation: slideInFromLeft10 0.7s ease-out;
 }
+.animate-in.slide-in-from-left-5 {
+ animation: slideInFromLeft5 0.5s ease-out;
+}
+
 
 /* For slide-in from right animation */
 .animate-in.slide-in-from-right-10 {
   animation: slideInFromRight10 0.7s ease-out;
 }
+.animate-in.slide-in-from-top-5 {
+ animation: slideInFromTop5 0.5s ease-out;
+}
+
 
 /* For zoom-in animation */
 .animate-in.zoom-in-90 {
@@ -178,11 +199,21 @@ body {
   from { transform: translateX(-10px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+@keyframes slideInFromLeft5 {
+ from { transform: translateX(-5px); opacity: 0; }
+ to { transform: translateX(0); opacity: 1; }
+}
+
 
 @keyframes slideInFromRight10 {
   from { transform: translateX(10px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+@keyframes slideInFromTop5 {
+  from { transform: translateY(-5px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 
 @keyframes zoomIn90 {
   from { transform: scale(0.9); opacity: 0; }
@@ -223,6 +254,10 @@ body {
 }
 
 /* Forcing Montserrat font family */
-html, body, * {
+html, body, *, ::before, ::after { /* Added ::before and ::after for pseudo-elements */
   font-family: 'Montserrat', sans-serif !important;
+  box-sizing: border-box; /* Ensure padding and border are included in element's total width and height */
+}
+html, body {
+  overflow-x: hidden; /* Prevent horizontal scrollbars */
 }
