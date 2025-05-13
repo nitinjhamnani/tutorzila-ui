@@ -1,4 +1,3 @@
-
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -16,7 +15,7 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, Search, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote } from "lucide-react"; 
+import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit } from "lucide-react"; 
 import { Logo } from "@/components/shared/Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppHeader } from "@/components/shared/AppHeader"; 
-import { AppFooter } from "@/components/shared/AppFooter"; 
+// AppFooter removed for a cleaner dashboard layout
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -45,59 +44,51 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
   }
 
+  const dashboardHomeHref = `/dashboard/${user.role}`;
+
   const commonNavItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }, 
+    { href: dashboardHomeHref, label: "Dashboard", icon: LayoutDashboard }, 
   ];
 
   const parentNavItems = [
     { href: "/dashboard/post-requirement", label: "Post Requirement", icon: PlusCircle },
     { href: "/dashboard/my-requirements", label: "My Requirements", icon: ListChecks },
-    { href: "/dashboard/manage-students", label: "Student Profiles", icon: School, disabled: true }, 
-    { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: true }, 
-    { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: true }, 
-    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: true }, 
-    { href: "/dashboard/my-calendar", label: "My Calendar", icon: CalendarDays, disabled: true }, // New Calendar Link
+    { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck },
+    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
+    { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
+    { href: "/dashboard/my-calendar", label: "My Calendar", icon: CalendarDays, disabled: false },
+    { href: "/dashboard/manage-students", label: "Student Profiles", icon: School, disabled: false }, 
+    { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false }, 
+    { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true },
   ];
 
   const tutorNavItems = [
     { href: "/dashboard/enquiries", label: "My Enquiries", icon: Briefcase },
-    { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: true }, 
-    { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: true }, 
-    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: true }, 
+    { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
+    { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false }, 
+    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
+    { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true },
   ];
 
   const adminNavItems = [
-    { href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck },
     { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: Users, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
+    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: DollarSign, disabled: true }, // Changed icon for variety
+    { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true },
   ];
+  
+  // Adjust adminNavItems to avoid duplicate "Admin Panel" if commonNavItems already points there
+  const finalAdminNavItems = user.role === "admin" && dashboardHomeHref === "/dashboard/admin" 
+    ? adminNavItems 
+    : [{ href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck }, ...adminNavItems];
+
 
   let roleNavItems = [];
   if (user.role === "parent") roleNavItems = parentNavItems;
   else if (user.role === 'tutor') roleNavItems = tutorNavItems;
-  else if (user.role === "admin") roleNavItems = [...parentNavItems, ...tutorNavItems, ...adminNavItems]; 
+  else if (user.role === "admin") roleNavItems = finalAdminNavItems; 
 
   const navItems = [...commonNavItems, ...roleNavItems];
-
-  if (user.role === 'parent' && isMobile) { // Changed from tutor to parent for mobile no-sidebar layout
-    return (
-      <>
-        <AppHeader />
-        <div className="flex-grow bg-background"> 
-          <div className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
-            {children}
-          </div>
-        </div>
-        <AppFooter /> 
-        <style jsx global>{`
-          :root {
-            --header-height: 7rem; 
-            --logo-height: 6rem;
-          }
-        `}</style>
-      </>
-    );
-  }
 
 
   return (
@@ -140,24 +131,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              {user.role === "admin" && pathname.startsWith('/dashboard/admin') && !navItems.some(item => item.href === "/dashboard/admin") && (
-                  <SidebarMenuItem>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname === "/dashboard/admin"}
-                        tooltip={{ children: "Admin Panel", className: "ml-1.5 text-xs"}}
-                        className={cn(
-                          "transition-all duration-200 hover:bg-primary/10 hover:text-primary group",
-                          pathname === "/dashboard/admin" && "bg-primary/10 text-primary font-semibold"
-                        )}
-                      >
-                          <Link href="/dashboard/admin" className="flex items-center gap-3">
-                              <ShieldCheck className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110", pathname === "/dashboard/admin" && "text-primary")} />
-                              <span className="group-data-[collapsible=icon]:hidden">Admin Panel</span>
-                          </Link>
-                      </SidebarMenuButton>
-                  </SidebarMenuItem>
-              )}
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="p-2 border-t border-border/50"> 
@@ -180,6 +153,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 </Button>
             </div>
             <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-2 py-2">
+               <Button variant="ghost" size="icon" disabled title="Settings" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-not-allowed">
+                  <Settings className="h-5 w-5" />
+                </Button>
               <Button variant="ghost" size="icon" onClick={logout} title="Log Out" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
                   <LogOut className="h-5 w-5" />
                 </Button>
@@ -201,4 +177,3 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
-

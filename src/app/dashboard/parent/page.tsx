@@ -1,10 +1,9 @@
-
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star } from "lucide-react"; // Added UsersRound, Star
+import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction } from "lucide-react";
 import Link from "next/link";
 import type { User, TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,9 +11,9 @@ import { useRef, type ChangeEvent, useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast"; 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { MailCheck, PhoneCall, CheckCircle, XCircle, Camera } from "lucide-react";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
+import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 
 
 interface SummaryStatCardProps {
@@ -30,7 +29,7 @@ function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary"
   return (
     <Card className="bg-card border border-border/30 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out">
       <CardContent className="p-4 md:p-5 flex items-center gap-3 md:gap-4">
-        <div className={cn("p-3 rounded-lg", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}>
+        <div className={cn("p-3 rounded-lg shadow-inner", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}>
           <Icon className={cn("w-5 h-5 md:w-6 md:h-6", colorClass)} />
         </div>
         <div>
@@ -100,10 +99,11 @@ export default function ParentDashboardPage() {
   };
 
   const summaryStats = [
-    { title: "Requirements Posted", value: 5, icon: ListChecks, colorClass: "text-blue-600", bgColorClass:"bg-blue-100/70", imageHint: "document list" },
+    { title: "Total Enquiries", value: 5, icon: ListChecks, colorClass: "text-blue-600", bgColorClass:"bg-blue-100/70", imageHint: "document list" },
     { title: "Active Classes", value: 2, icon: CalendarDays, colorClass: "text-green-600", bgColorClass:"bg-green-100/70", imageHint: "active calendar" },
     { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-purple-600", bgColorClass:"bg-purple-100/70", imageHint: "chat bubble" },
-    { title: "Payments Made", value: "₹12,500", icon: DollarSign, colorClass: "text-yellow-600", bgColorClass:"bg-yellow-100/70", imageHint: "money stack" },
+    { title: "Favorite Tutors", value: 3, icon: Star, colorClass: "text-yellow-500", bgColorClass:"bg-yellow-100/70", imageHint: "star rating" },
+    { title: "Payments Made", value: "₹12,500", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" },
   ];
 
   const parentActionCards = [
@@ -115,23 +115,10 @@ export default function ParentDashboardPage() {
         quickInsightText="2 Active Enquiries"
         ctaText="Manage Enquiries"
         ctaHref="/dashboard/my-requirements" 
-        cardBgClass="bg-blue-50/50 hover:bg-blue-100/60"
+        cardBgClass="bg-blue-50 hover:bg-blue-100/80"
         accentTextClass="text-blue-700"
         accentBgClass="bg-blue-100 group-hover:bg-blue-200/80"
         illustrationHint="enquiry list"
-      />,
-      <ActionCard
-        key="find-tutors"
-        title="Find Tutors"
-        descriptionText="Explore profiles of qualified tutors and find the perfect match for your child."
-        IconComponent={SearchCheck}
-        quickInsightText="50+ Verified Tutors"
-        ctaText="Browse Tutors"
-        ctaHref="/search-tuitions" 
-        cardBgClass="bg-green-50/50 hover:bg-green-100/60"
-        accentTextClass="text-green-700"
-        accentBgClass="bg-green-100 group-hover:bg-green-200/80"
-        illustrationHint="magnifying glass people"
       />,
       <ActionCard
         key="demo-sessions"
@@ -141,25 +128,11 @@ export default function ParentDashboardPage() {
         quickInsightText="1 Upcoming Demo"
         ctaText="View Demos"
         ctaHref="/dashboard/demo-sessions"
-        disabled={true} 
-        cardBgClass="bg-purple-50/50 hover:bg-purple-100/60"
+        disabled={false} 
+        cardBgClass="bg-purple-50 hover:bg-purple-100/80"
         accentTextClass="text-purple-700"
         accentBgClass="bg-purple-100 group-hover:bg-purple-200/80"
         illustrationHint="online class"
-      />,
-      <ActionCard
-        key="manage-students"
-        title="Student Profiles"
-        descriptionText="Add and manage profiles for your children to personalize tuition needs."
-        IconComponent={School} 
-        quickInsightText="2 Student Profiles"
-        ctaText="Manage Students"
-        ctaHref="/dashboard/manage-students"
-        disabled={true} 
-        cardBgClass="bg-yellow-50/50 hover:bg-yellow-100/60"
-        accentTextClass="text-yellow-700"
-        accentBgClass="bg-yellow-100 group-hover:bg-yellow-200/80"
-        illustrationHint="student graduation"
       />,
        <ActionCard
         key="my-classes"
@@ -169,40 +142,12 @@ export default function ParentDashboardPage() {
         quickInsightText="2 Active Classes"
         ctaText="View My Classes"
         ctaHref="/dashboard/my-classes"
-        disabled={true} 
-        cardBgClass="bg-pink-50/50 hover:bg-pink-100/60"
+        disabled={false} 
+        cardBgClass="bg-pink-50 hover:bg-pink-100/80"
         accentTextClass="text-pink-700"
         accentBgClass="bg-pink-100 group-hover:bg-pink-200/80"
         illustrationHint="calendar schedule"
       />,
-      <ActionCard
-        key="my-payments"
-        title="My Payments"
-        descriptionText="Track all tuition payments, view history, and manage transactions."
-        IconComponent={DollarSign} 
-        quickInsightText="₹2500 Due"
-        ctaText="View Payments"
-        ctaHref="/dashboard/payments"
-        disabled={true} 
-        cardBgClass="bg-indigo-50/50 hover:bg-indigo-100/60"
-        accentTextClass="text-indigo-700"
-        accentBgClass="bg-indigo-100 group-hover:bg-indigo-200/80"
-        illustrationHint="money transaction"
-      />,
-      <ActionCard
-        key="my-calendar"
-        title="My Calendar"
-        descriptionText="View demo schedules, classes, and payment due dates in one place."
-        IconComponent={CalendarDays} 
-        quickInsightText="Consolidated View"
-        ctaText="View Calendar"
-        ctaHref="/dashboard/my-calendar" 
-        disabled={true} 
-        cardBgClass="bg-cyan-50/50 hover:bg-cyan-100/60"
-        accentTextClass="text-cyan-700"
-        accentBgClass="bg-cyan-100 group-hover:bg-cyan-200/80"
-        illustrationHint="calendar schedule events"
-      />
     ];
 
   return (
@@ -289,7 +234,7 @@ export default function ParentDashboardPage() {
       </Card>
 
       {/* Summary Cards Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
         {summaryStats.map((stat, index) => (
           <SummaryStatCard 
             key={stat.title} 
@@ -312,6 +257,26 @@ export default function ParentDashboardPage() {
           ))}
         </div>
       )}
+      
+      {/* Calendar Widget Placeholder */}
+      <Card className="bg-card border border-border/30 rounded-xl shadow-sm animate-in fade-in duration-500 ease-out" style={{ animationDelay: `0.8s` }}>
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-primary flex items-center">
+            <CalendarDays className="w-6 h-6 mr-2.5" /> My Calendar
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground mt-1">
+            View scheduled demos, classes, and payment due dates.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-5 text-center">
+          <Construction className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+          <p className="text-xl font-semibold text-foreground/70 mb-1.5">Interactive Calendar Coming Soon!</p>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            This section will display all your tutoring-related events in one place.
+          </p>
+        </CardContent>
+      </Card>
+
 
       {otpVerificationType && otpVerificationIdentifier && (
         <OtpVerificationModal
@@ -399,3 +364,32 @@ function ActionCard({
   );
 }
 
+// Placeholder component for favorite tutors, can be expanded later
+function FavoriteTutorsCard() {
+    return (
+      <Card className="bg-card border border-border/30 rounded-xl shadow-sm animate-in fade-in duration-500 ease-out" style={{ animationDelay: `0.9s` }}>
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-primary flex items-center">
+            <Star className="w-6 h-6 mr-2.5 text-yellow-500 fill-yellow-400" /> Favorite Tutors
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground mt-1">
+            Quick access to your preferred tutors.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {MOCK_TUTOR_PROFILES.slice(0, 4).map(tutor => (
+            <Link href={`/tutors/${tutor.id}`} key={tutor.id} className="group text-center">
+              <Avatar className="w-16 h-16 mx-auto border-2 border-border group-hover:border-primary transition-colors">
+                <AvatarImage src={tutor.avatar} alt={tutor.name} />
+                <AvatarFallback>{tutor.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <p className="text-xs font-medium text-foreground mt-1.5 truncate group-hover:text-primary transition-colors">{tutor.name}</p>
+            </Link>
+          ))}
+           {MOCK_TUTOR_PROFILES.length === 0 && (
+            <p className="col-span-full text-center text-xs text-muted-foreground py-4">You haven't favorited any tutors yet.</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+}
