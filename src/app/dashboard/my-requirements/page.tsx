@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Added Tabs imports
 
 // Mock data - replace with API call specific to the logged-in parent
 const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
@@ -39,7 +40,6 @@ export default function MyRequirementsPage() {
   useEffect(() => {
     if (user) {
       // In a real app, fetch requirements for the logged-in user
-      // For mock, filter by parentId or parentName if parentId is not available in all mock data
       setAllRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id || req.parentName === user.name));
     }
   }, [user]);
@@ -49,18 +49,14 @@ export default function MyRequirementsPage() {
 
   const handleEdit = (id: string) => {
     toast({ title: "Edit Action (Mock)", description: `Editing requirement ID: ${id}. Feature coming soon.` });
-    // Implement actual edit logic or navigation
   };
 
   const handleDelete = (id: string) => {
-    // Show confirmation dialog before deleting
     const requirementToDelete = allRequirements.find(req => req.id === id);
     if (requirementToDelete) {
         setSelectedRequirement(requirementToDelete);
-        // Trigger a confirmation dialog here, e.g., by setting a state
         toast({ title: "Delete Confirmation (Mock)", description: `Are you sure you want to delete ${requirementToDelete.subject}? Feature coming soon.` });
     }
-    // Implement actual delete logic after confirmation
   };
 
   const handleCloseRequirement = (id: string) => {
@@ -77,7 +73,6 @@ export default function MyRequirementsPage() {
     if (found) {
       setIsTutorNameModalOpen(true);
     } else {
-      // Mark requirement as closed
       if (selectedRequirement) {
         updateRequirementStatus(selectedRequirement.id, "closed");
         toast({ title: "Requirement Closed", description: `${selectedRequirement.subject} requirement has been marked as closed.` });
@@ -95,7 +90,7 @@ export default function MyRequirementsPage() {
     setIsStartClassesConfirmOpen(false);
     if (start) {
       if (selectedRequirement) {
-         updateRequirementStatus(selectedRequirement.id, "closed"); // Or "matched" then "closed" after class starts
+         updateRequirementStatus(selectedRequirement.id, "closed"); 
         toast({ 
             title: "Classes Initiated (Mock)", 
             description: `Classes for ${selectedRequirement.subject} with ${tutorName || 'selected tutor'} will start soon. The requirement is now closed.` 
@@ -120,10 +115,42 @@ export default function MyRequirementsPage() {
     setTutorName("");
   };
 
+  const renderEnquiryList = (requirementsToRender: TuitionRequirement[], type: 'current' | 'past' | 'all') => {
+    if (requirementsToRender.length > 0) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+          {requirementsToRender.map((req) => (
+            <TuitionRequirementCard
+              key={req.id}
+              requirement={req}
+              onEdit={() => handleEdit(req.id)}
+              onDelete={() => handleDelete(req.id)}
+              onClose={() => handleCloseRequirement(req.id)}
+              showActions={type === 'current' || (type === 'all' && (req.status === 'open' || req.status === 'matched'))}
+            />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <Card className="text-center py-10 bg-card border rounded-lg shadow-sm">
+        <CardContent className="flex flex-col items-center">
+          <Search className="w-12 h-12 text-primary/30 mx-auto mb-4" />
+          <p className="text-md font-semibold text-foreground/70 mb-1">No Requirements Found</p>
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+            You don&apos;t have any {type === 'current' ? 'active' : type === 'past' ? 'past' : ''} tuition requirements.
+            {type !== 'past' && " Post one to find tutors!"}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  };
+
+
   if (!user) return <div className="flex h-screen items-center justify-center text-sm font-medium text-muted-foreground animate-in fade-in duration-300">Loading...</div>;
 
   return (
-    <div className="space-y-8 container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="space-y-6 container mx-auto px-4 sm:px-6 lg:px-8 py-6"> {/* Reduced space-y and py */}
       <Card className="bg-card border rounded-xl shadow-sm animate-in fade-in duration-500 ease-out overflow-hidden">
         <CardHeader className="p-5 md:p-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
@@ -153,60 +180,24 @@ export default function MyRequirementsPage() {
         </CardHeader>
       </Card>
 
-      {/* Current Enquiries Section */}
-      <section className="space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{animationDelay: '0.2s'}}>
-        <h2 className="text-lg font-semibold text-foreground flex items-center">
-            <ListChecks className="w-5 h-5 mr-2 text-primary"/> Current Enquiries
-        </h2>
-        {currentRequirements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {currentRequirements.map((req, index) => (
-              <TuitionRequirementCard
-                key={req.id}
-                requirement={req}
-                onEdit={() => handleEdit(req.id)}
-                onDelete={() => handleDelete(req.id)}
-                onClose={() => handleCloseRequirement(req.id)}
-                showActions
-              />
-            ))}
-          </div>
-        ) : (
-          <Card className="text-center py-10 bg-card border rounded-lg shadow-sm">
-            <CardContent className="flex flex-col items-center">
-              <Search className="w-12 h-12 text-primary/30 mx-auto mb-4" />
-              <p className="text-md font-semibold text-foreground/70 mb-1">No Current Requirements</p>
-              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                You don&apos;t have any active tuition requirements. Post one to find tutors!
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </section>
+      <Tabs defaultValue="current" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
+          <TabsTrigger value="current" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">Current</TabsTrigger>
+          <TabsTrigger value="past" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">Past</TabsTrigger>
+          <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">All</TabsTrigger>
+        </TabsList>
 
-      {/* Past Enquiries Section */}
-      <section className="space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{animationDelay: '0.4s'}}>
-        <h2 className="text-lg font-semibold text-foreground flex items-center">
-            <Archive className="w-5 h-5 mr-2 text-muted-foreground"/> Past Enquiries
-        </h2>
-        {pastRequirements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {pastRequirements.map((req, index) => (
-              <TuitionRequirementCard key={req.id} requirement={req} />
-            ))}
-          </div>
-        ) : (
-          <Card className="text-center py-10 bg-card border rounded-lg shadow-sm">
-            <CardContent className="flex flex-col items-center">
-              <Archive className="w-12 h-12 text-primary/30 mx-auto mb-4" />
-              <p className="text-md font-semibold text-foreground/70 mb-1">No Past Requirements</p>
-              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Your closed or completed tuition requirements will appear here.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </section>
+        <TabsContent value="current" className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+          {renderEnquiryList(currentRequirements, 'current')}
+        </TabsContent>
+        <TabsContent value="past" className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+          {renderEnquiryList(pastRequirements, 'past')}
+        </TabsContent>
+        <TabsContent value="all" className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+          {renderEnquiryList(allRequirements, 'all')}
+        </TabsContent>
+      </Tabs>
+
 
       {/* Dialog for "Did you find a tutor?" */}
       <AlertDialog open={isCloseConfirmOpen} onOpenChange={setIsCloseConfirmOpen}>
