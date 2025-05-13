@@ -1,7 +1,7 @@
 // src/app/dashboard/parent/page.tsx
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button"; // Added buttonVariants
+import { Button, buttonVariants } from "@/components/ui/button"; 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon as LucideCalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
@@ -16,8 +16,8 @@ import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar } from "@/components/ui/calendar"; // Import the Calendar component
-import { Dialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription } from "@/components/ui/dialog"; // Aliased imports
+import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription } from "@/components/ui/dialog";
 import { format, isSameDay, isSameMonth } from "date-fns";
 
 
@@ -32,13 +32,13 @@ function SummaryStatCard({ title, value, icon: Icon, imageHint }: SummaryStatCar
   return (
     <Card className="bg-card border border-border/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out aspect-square flex flex-col justify-center items-center text-center p-2">
         <div className={cn("p-3 mb-2 rounded-full shadow-sm", "bg-primary/10")}>
-          <Icon className={cn("w-7 h-7", "text-primary")} /> {/* Increased icon size */}
+          <Icon className={cn("w-7 h-7", "text-primary")} />
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-1 leading-tight"> {/* Encapsulated number, increased size */}
+          <div className="text-sm font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-1 leading-tight">
              {value}
           </div>
-          <p className="text-xs text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p> {/* Increased font size */}
+          <p className="text-xs text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
         </div>
     </Card>
   );
@@ -154,7 +154,7 @@ export default function ParentDashboardPage() {
         key="my-classes" 
         title="My Classes" 
         descriptionText="Track all your booked and ongoing classes."
-        IconComponent={SearchCheck} // Using SearchCheck for variety, consider a more specific icon for "My Classes"
+        IconComponent={CalendarDays} 
         actionButtonText1="View All Classes"
         ActionButtonIcon1={Eye}
         href1="/dashboard/my-classes" 
@@ -191,19 +191,9 @@ export default function ParentDashboardPage() {
 
   const handleDayClick = (day: Date) => {
     const eventsOnDay = mockEvents.filter(event => isSameDay(event.date, day));
-    if (eventsOnDay.length > 0) {
-      setSelectedDayEvents(eventsOnDay);
-      setClickedDay(day);
-      setIsEventDetailsModalOpen(true);
-    } else {
-      toast({
-        title: "No Events",
-        description: `No events scheduled for ${format(day, "PPP")}.`,
-      });
-      setSelectedDayEvents([]);
-      setClickedDay(null);
-      setIsEventDetailsModalOpen(false);
-    }
+    setSelectedDayEvents(eventsOnDay);
+    setClickedDay(day);
+    setIsEventDetailsModalOpen(true); // Open modal regardless of events
   };
 
 
@@ -323,18 +313,19 @@ export default function ParentDashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 md:p-5">
-          <div className="max-w-md mx-auto"> {/* Constrain calendar width */}
+          <div className="max-w-md mx-auto">
             <Calendar
               mode="single"
-              selected={currentMonthDate} // This can be the current day or a selected day state
+              selected={clickedDay || undefined} 
               month={currentMonthDate}
               onMonthChange={setCurrentMonthDate}
               onDayClick={handleDayClick}
               captionLayout="dropdown-buttons"
-              fromYear={new Date().getFullYear() - 5} // Example range
-              toYear={new Date().getFullYear() + 5}   // Example range
-              className="rounded-md border bg-background shadow-inner p-2" // Compact styling for the Calendar component itself
-              classNames={{ // Further fine-tuning for compactness
+              fromYear={new Date().getFullYear() - 5}
+              toYear={new Date().getFullYear() + 5}
+              weekStartsOn={1} // Start week on Monday
+              className="rounded-md border bg-background shadow-inner p-2"
+              classNames={{
                 day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
                 nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
                 caption_label: "text-sm",
@@ -412,7 +403,7 @@ export default function ParentDashboardPage() {
                     {event.details && <p className="text-[10px] text-muted-foreground/80 italic mt-0.5">{event.details}</p>}
                 </div>
               </div>
-            )) : <p className="text-xs text-muted-foreground text-center">No events for this day.</p>}
+            )) : <p className="text-xs text-muted-foreground text-center py-4">No events scheduled for this day.</p>}
           </div>
         </EventDialogContent>
       </Dialog>
@@ -474,12 +465,11 @@ function ActionCard({
               <IconComponent className={cn("w-7 h-7 md:w-8 md:h-8", "text-primary")} />
           </div>
         <CardTitle className={cn("text-md md:text-lg font-semibold transition-colors duration-300", "text-primary")}>{title}</CardTitle>
-         <CardDescription className="text-xs text-muted-foreground mt-1 text-center line-clamp-2 h-[2.5em]">{descriptionText}</CardDescription> {/* Fixed height for description */}
+         <CardDescription className="text-xs text-muted-foreground mt-1 text-center line-clamp-2 h-[2.5em]">{descriptionText}</CardDescription>
       </CardHeader>
-      <CardContent className="p-4 md:p-5 pt-0 text-center flex-grow flex flex-col justify-end"> {/* justify-end to push buttons to bottom */}
-        {/* Content removed to make card compact, description moved to header */}
+      <CardContent className="p-4 md:p-5 pt-0 text-center flex-grow flex flex-col justify-end">
       </CardContent>
-      <div className={cn( // Changed from CardFooter to div for custom layout
+      <div className={cn(
         "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col gap-2 items-stretch w-full mt-auto", 
         "bg-card group-hover:bg-muted/30"
         )}>

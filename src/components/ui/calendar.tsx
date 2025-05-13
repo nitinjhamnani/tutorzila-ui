@@ -20,9 +20,10 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  captionLayout = "buttons",
+  captionLayout = "dropdown-buttons", // Default to dropdown-buttons for month/year navigation
   fromYear,
   toYear,
+  weekStartsOn = 0, // Default to Sunday, can be overridden (e.g., 1 for Monday)
   ...props
 }: CalendarProps) {
   const currentYear = new Date().getFullYear()
@@ -36,12 +37,13 @@ function Calendar({
       captionLayout={captionLayout}
       fromYear={defaultFromYear}
       toYear={defaultToYear}
+      weekStartsOn={weekStartsOn}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: captionLayout === "dropdown-buttons" || captionLayout === "dropdown" ? "text-sm font-medium hidden" : "text-sm font-medium",
-        caption_dropdowns: "flex gap-1.5",
+        caption_dropdowns: "flex gap-1.5 justify-center", // Added justify-center
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
@@ -69,26 +71,19 @@ function Calendar({
         day_range_middle:
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
-        vhidden: "hidden", // For react-day-picker's dropdown caption label
-        dropdown: "rdp-dropdown bg-card text-card-foreground border-border rounded-md text-sm px-1 py-0.5",
+        vhidden: "hidden", 
+        dropdown: "rdp-dropdown bg-card text-card-foreground border-border rounded-md text-xs px-1 py-0.5 focus:ring-primary focus:border-primary",
         dropdown_month: "rdp-dropdown_month",
         dropdown_year: "rdp-dropdown_year",
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
-        ),
+        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
+        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
         Dropdown: (dropdownProps: DropdownProps) => {
           const { name, value, onChange, children } = dropdownProps;
           const options = React.Children.toArray(children) as React.ReactElement<React.HTMLProps<HTMLOptionElement>>[];
-          const currentYearValue = new Date().getFullYear();
-          const fromYearValue = fromYear || currentYearValue - 100;
-          const toYearValue = toYear || currentYearValue;
-
+          
           let selectItems = options.map((option) => (
             <SelectItem key={option.props.value} value={String(option.props.value)}>
               {option.props.children}
@@ -96,7 +91,7 @@ function Calendar({
           ));
 
           if (name === 'years') {
-             const years = Array.from({ length: toYearValue - fromYearValue + 1 }, (_, i) => fromYearValue + i);
+             const years = Array.from({ length: (toYear || defaultToYear) - (fromYear || defaultFromYear) + 1 }, (_, i) => (fromYear || defaultFromYear) + i);
              selectItems = years.map(year => (
                 <SelectItem key={year} value={String(year)}>{year}</SelectItem>
              ));
@@ -108,7 +103,6 @@ function Calendar({
               value={String(value)}
               onValueChange={(newValue) => {
                 if (onChange) {
-                  // Create a synthetic event object
                   const event = {
                     target: { value: newValue },
                   } as React.ChangeEvent<HTMLSelectElement>;
@@ -116,7 +110,7 @@ function Calendar({
                 }
               }}
             >
-              <SelectTrigger className={cn(buttonVariants({variant: "outline"}), "h-7 w-auto px-2 text-xs font-medium rdp-dropdown")}>
+              <SelectTrigger className={cn(buttonVariants({variant: "outline"}), "h-7 w-auto px-2 text-xs font-medium rdp-dropdown border-border/50 focus:ring-primary/30")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="max-h-60">
