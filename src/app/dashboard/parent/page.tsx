@@ -353,8 +353,8 @@ export default function ParentDashboardPage() {
               Click on a date to view or add events.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-3 md:p-4 flex items-center justify-center"> {/* Removed flex-grow */}
-            <div className="w-full max-w-[280px] sm:max-w-[320px] mx-auto"> {/* Adjusted calendar container width */}
+          <CardContent className="p-3 md:p-4 flex items-center justify-center"> 
+            <div className="w-full max-w-[280px] sm:max-w-[320px] mx-auto"> 
               <Calendar
                 mode="single"
                 selected={clickedDay || undefined}
@@ -364,15 +364,23 @@ export default function ParentDashboardPage() {
                 captionLayout="dropdown-buttons"
                 fromYear={new Date().getFullYear() - 5}
                 toYear={new Date().getFullYear() + 5}
-                weekStartsOn={1} // Monday
+                weekStartsOn={1} 
                 className="rounded-md border bg-background shadow-inner p-1.5 w-full" 
                 classNames={{
-                  day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
-                  nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
-                  caption_label: "text-sm font-medium hidden", 
-                  head_cell: "text-muted-foreground rounded-md w-full sm:w-8 font-normal text-[0.8rem]", 
-                  cell: "h-8 w-full sm:w-8 text-center text-xs p-0 relative", 
-                }}
+                  day: cn(
+                    buttonVariants({ variant: "ghost" }),
+                    "h-7 w-7 p-0 text-[0.65rem] font-normal aria-selected:opacity-100" // Smaller day buttons
+                  ),
+                  nav_button: cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-6 w-6 p-0 text-xs" // Smaller nav buttons
+                  ),
+                  caption_label: "text-sm font-medium hidden",
+                  head_cell: // Smaller head cells
+                    "text-muted-foreground rounded-md w-7 text-center font-normal text-[0.65rem] px-0",
+                  cell: // Smaller cells, ensure flex to center content
+                    "h-7 w-7 text-center text-[0.65rem] p-0 relative flex items-center justify-center",
+                  }}
                 components={{
                   DayContent: ({ date, displayMonth }) => {
                     const isCurrentDisplayMonth = isSameMonth(date, displayMonth);
@@ -383,7 +391,7 @@ export default function ParentDashboardPage() {
                         {dayEvents.length > 0 && isCurrentDisplayMonth && (
                           <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex space-x-0.5">
                             {dayEvents.slice(0, 3).map((event, i) => (
-                              <div key={i} className={cn("w-1.5 h-1.5 rounded-full", getEventTypeColor(event.type))}></div>
+                              <div key={i} className={cn("w-1 h-1 rounded-full", getEventTypeColor(event.type))}></div> // Smaller dots
                             ))}
                           </div>
                         )}
@@ -546,10 +554,4 @@ function ActionCard({
     </Card>
   );
 }
-
-
-
-
-
-
 
