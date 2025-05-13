@@ -128,13 +128,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     tooltip={{ children: item.label, className: "ml-1.5 text-xs" }} 
                     disabled={item.disabled}
                     className={cn(
-                      "transition-all duration-200 hover:bg-primary/10 hover:text-primary group", 
-                      item.disabled && "opacity-50 cursor-not-allowed",
-                      pathname === item.href && "bg-primary/10 text-primary font-semibold" 
+                      "transition-all duration-200 group", 
+                      item.disabled && "opacity-50 cursor-not-allowed"
                     )}
                   >
                     <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-3">
-                      <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110", pathname === item.href && "text-primary")} />
+                      <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110")} />
                       <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -153,9 +152,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     disabled={item.disabled}
                     onClick={item.onClick}
                     className={cn(
-                      "transition-all duration-200 hover:bg-primary/10 hover:text-primary group",
+                      "transition-all duration-200 group",
                       item.disabled && "opacity-50 cursor-not-allowed",
-                      pathname === item.href && !item.onClick && "bg-primary/10 text-primary font-semibold",
                       item.label === "Log Out" && "text-destructive hover:text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
                     )}
                   >
@@ -166,7 +164,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       </div>
                     ) : (
                       <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-3">
-                        <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110", pathname === item.href && "text-primary")} />
+                        <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110")} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
                     )}
