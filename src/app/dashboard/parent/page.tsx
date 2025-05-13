@@ -193,7 +193,7 @@ export default function ParentDashboardPage() {
     const eventsOnDay = mockEvents.filter(event => isSameDay(event.date, day));
     setSelectedDayEvents(eventsOnDay);
     setClickedDay(day);
-    setIsEventDetailsModalOpen(true); // Open modal regardless of events
+    setIsEventDetailsModalOpen(true);
   };
 
 
@@ -320,33 +320,34 @@ export default function ParentDashboardPage() {
               month={currentMonthDate}
               onMonthChange={setCurrentMonthDate}
               onDayClick={handleDayClick}
-              captionLayout="dropdown-buttons"
+              captionLayout="dropdown-buttons" // Ensures single month/year selector with arrows
               fromYear={new Date().getFullYear() - 5}
               toYear={new Date().getFullYear() + 5}
               weekStartsOn={1} // Start week on Monday
               className="rounded-md border bg-background shadow-inner p-2"
               classNames={{
                 day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
+                day_today: "bg-primary/10 text-primary font-bold relative", // Clearer today highlight
                 nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
-                caption_label: "text-sm",
+                caption_label: "text-sm font-medium hidden", // This should hide the static label if dropdowns are used
                 head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
-                cell: "h-8 w-8 text-center text-xs p-0 relative",
+                cell: "h-8 w-8 text-center text-xs p-0 relative", // Ensures consistent cell size
               }}
               components={{
                 DayContent: ({ date, displayMonth }) => {
                   const isCurrentDisplayMonth = isSameMonth(date, displayMonth);
                   const dayEvents = mockEvents.filter(event => isSameDay(event.date, date));
                   return (
-                    <div className={cn("relative w-full h-full flex items-center justify-center", !isCurrentDisplayMonth && "text-muted-foreground/30")}>
+                    <> {/* Use fragment to not interfere with button styling */}
                       {format(date, "d")}
                       {dayEvents.length > 0 && isCurrentDisplayMonth && (
-                        <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-0.5">
+                        <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex space-x-0.5">
                           {dayEvents.slice(0, 3).map((event, i) => (
-                            <div key={i} className={cn("w-1 h-1 rounded-full", getEventTypeColor(event.type))}></div>
+                            <div key={i} className={cn("w-1.5 h-1.5 rounded-full", getEventTypeColor(event.type))}></div>
                           ))}
                         </div>
                       )}
-                    </div>
+                    </>
                   );
                 }
               }}
@@ -388,6 +389,9 @@ export default function ParentDashboardPage() {
             <EventDialogTitle className="text-base text-primary">
               Events for {clickedDay ? format(clickedDay, "MMMM d, yyyy") : "Selected Day"}
             </EventDialogTitle>
+             <EventDialogDescription>
+                {selectedDayEvents.length > 0 ? "Details for your scheduled events." : "No events for this day. You can add one if needed."}
+             </EventDialogDescription>
           </EventDialogHeader>
           <div className="py-3 space-y-2.5 max-h-[300px] overflow-y-auto">
             {selectedDayEvents.length > 0 ? selectedDayEvents.map(event => (
@@ -403,7 +407,7 @@ export default function ParentDashboardPage() {
                     {event.details && <p className="text-[10px] text-muted-foreground/80 italic mt-0.5">{event.details}</p>}
                 </div>
               </div>
-            )) : <p className="text-xs text-muted-foreground text-center py-4">No events scheduled for this day.</p>}
+            )) : <p className="text-xs text-muted-foreground text-center py-4">No events scheduled for this day. Add Event? (Functionality not implemented)</p>}
           </div>
         </EventDialogContent>
       </Dialog>
