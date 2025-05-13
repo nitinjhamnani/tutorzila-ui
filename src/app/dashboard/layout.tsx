@@ -17,7 +17,7 @@ import {
   SheetTitle, 
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit } from "lucide-react"; 
+import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit, MessageSquare } from "lucide-react"; 
 import { Logo } from "@/components/shared/Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -50,11 +50,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const commonNavItems = [
     { href: dashboardHomeHref, label: "Dashboard", icon: LayoutDashboard }, 
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true }, // Added Messages
   ];
 
   const parentNavItems = [
     { href: "/dashboard/post-requirement", label: "Post Requirement", icon: PlusCircle },
-    { href: "/dashboard/my-requirements", label: "My Enquiries", icon: ListChecks }, // Renamed here
+    { href: "/dashboard/my-requirements", label: "My Enquiries", icon: ListChecks }, 
     { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck },
     { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
