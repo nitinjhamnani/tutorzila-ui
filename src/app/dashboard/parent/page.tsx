@@ -77,12 +77,9 @@ export default function ParentDashboardPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
-  const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
-
-  const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
-  const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
+  // Otp Modal state and handlers removed as verification buttons are moved to sidebar
+  
+  // Removed isEmailVerified and isPhoneVerified states as they are no longer managed here
   
   // Removed currentMonth and setCurrentMonth state as Calendar is removed
   const [selectedDayEvents, setSelectedDayEvents] = useState<MockEvent[]>([]);
@@ -90,12 +87,7 @@ export default function ParentDashboardPage() {
   const [clickedDay, setClickedDay] = useState<Date | null>(null);
 
 
-  useEffect(() => {
-    if (user) {
-      setIsEmailVerified(user.isEmailVerified || false);
-      setIsPhoneVerified(user.isPhoneVerified || false);
-    }
-  }, [user]);
+  // useEffect for user verification status removed
 
   if (!user || user.role !== 'parent') {
     return <div className="text-center p-8">Access Denied. This dashboard is for parents only.</div>;
@@ -116,23 +108,7 @@ export default function ParentDashboardPage() {
     }
   };
   
-  const handleOpenOtpModal = (type: "email" | "phone") => {
-    if (!user) return;
-    setOtpVerificationType(type);
-    setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number"); 
-    setIsOtpModalOpen(true);
-  };
-
-  const handleOtpSuccess = () => {
-    if (otpVerificationType === "email") {
-      setIsEmailVerified(true);
-    } else if (otpVerificationType === "phone") {
-      setIsPhoneVerified(true);
-    }
-    setIsOtpModalOpen(false); 
-    setOtpVerificationType(null);
-    setOtpVerificationIdentifier(null);
-  };
+  // handleOpenOtpModal and handleOtpSuccess removed
 
   const summaryStats = [
     { title: "Total Enquiries", value: 5, icon: ListChecks, imageHint: "document list" },
@@ -239,38 +215,7 @@ export default function ParentDashboardPage() {
                   </Badge>
                 )}
               </div>
-                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                    <Button
-                      variant="secondary" 
-                      size="sm" 
-                        className={cn(
-                        "h-auto rounded-full", 
-                        isEmailVerified
-                          ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
-                          : "text-xs font-normal px-3 py-1.5 underline bg-card text-primary hover:text-primary/80 hover:bg-secondary/80 border border-border" 
-                      )}
-                      onClick={() => !isEmailVerified && handleOpenOtpModal("email")}
-                      disabled={isEmailVerified}
-                    >
-                      {isEmailVerified ? <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> : <MailCheck className="mr-1.5 h-3.5 w-3.5" />}
-                      {isEmailVerified ? "Email Verified" : "Verify Email"}
-                    </Button>
-                    <Button
-                      variant="secondary" 
-                      size="sm" 
-                        className={cn(
-                        "h-auto rounded-full", 
-                        isPhoneVerified
-                          ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
-                          : "text-xs font-normal px-3 py-1.5 underline bg-card text-primary hover:text-primary/80 hover:bg-secondary/80 border border-border"
-                      )}
-                      onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
-                      disabled={isPhoneVerified}
-                    >
-                      {isPhoneVerified ? <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> : <PhoneCall className="mr-1.5 h-3.5 w-3.5" />}
-                      {isPhoneVerified ? "Phone Verified" : "Verify Phone"}
-                    </Button>
-                </div>
+                {/* Verification buttons removed from here */}
             </div>
           </div>
         </CardHeader>
@@ -377,15 +322,7 @@ export default function ParentDashboardPage() {
       </EventDialog>
 
 
-      {otpVerificationType && otpVerificationIdentifier && (
-        <OtpVerificationModal
-          isOpen={isOtpModalOpen}
-          onOpenChange={setIsOtpModalOpen}
-          verificationType={otpVerificationType}
-          identifier={otpVerificationIdentifier}
-          onSuccess={handleOtpSuccess}
-        />
-      )}
+      {/* OtpVerificationModal and its trigger logic removed */}
       <FloatingPostRequirementButton />
     </div>
   );

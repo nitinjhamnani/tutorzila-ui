@@ -1,3 +1,4 @@
+
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -60,7 +61,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/my-calendar", label: "My Calendar", icon: CalendarDays, disabled: false },
     { href: "/dashboard/manage-students", label: "Student Profiles", icon: School, disabled: false }, 
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false }, 
-    // { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true }, // Moved to footer
   ];
 
   const tutorNavItems = [
@@ -68,14 +68,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false }, 
     { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
-    // { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true }, // Moved to footer
   ];
 
   const adminNavItems = [
     { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: Users, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
     { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: DollarSign, disabled: true }, 
-    // { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true }, // Moved to footer
   ];
   
   const finalAdminNavItems = user.role === "admin" && dashboardHomeHref === "/dashboard/admin" 
@@ -91,6 +89,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const mainNavItems = [...commonNavItems, ...roleNavItems];
 
   const footerNavItems = [
+    { href: "/dashboard/my-account", label: "My Account", icon: UserCircle, disabled: false }, // Added My Account
     { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true },
     { label: "Log Out", icon: LogOut, onClick: logout },
   ];
@@ -102,9 +101,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <SidebarProvider defaultOpen={!isMobile}>
         <Sidebar 
           collapsible={isMobile ? "offcanvas" : "icon"} 
-          className="border-r pt-[var(--header-height)] bg-card shadow-md flex flex-col" // Added flex flex-col
+          className="border-r pt-[var(--header-height)] bg-card shadow-md flex flex-col"
         > 
-          <SidebarHeader className="p-4 border-b border-border/50">
+          <SidebarHeader className={cn(
+            "p-4 border-b border-border/50",
+            isMobile ? "pt-4 pb-2" : "pt-4 pb-2" // Adjusted padding for mobile and desktop
+          )}>
             <div className={cn(
                 "flex items-center w-full", 
                 isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center"
@@ -113,10 +115,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"/>
             </div>
           </SidebarHeader>
-          <SidebarContent className="flex-grow"> {/* Added flex-grow */}
+          <SidebarContent className="flex-grow"> 
             <SidebarMenu>
               {mainNavItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
+                <SidebarMenuItem key={item.href || item.label}>
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.href}
@@ -128,7 +130,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       pathname === item.href && "bg-primary/10 text-primary font-semibold" 
                     )}
                   >
-                    <Link href={item.disabled ? "#" : item.href} className="flex items-center gap-3">
+                    <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-3">
                       <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110", pathname === item.href && "text-primary")} />
                       <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </Link>
@@ -137,7 +139,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               ))}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="p-2 border-t border-border/50 mt-auto"> {/* Added mt-auto */}
+          <SidebarFooter className="p-2 border-t border-border/50 mt-auto"> 
             <SidebarMenu>
               {footerNavItems.map((item) => (
                 <SidebarMenuItem key={item.label}>

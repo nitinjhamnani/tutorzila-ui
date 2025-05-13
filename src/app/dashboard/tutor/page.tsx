@@ -26,12 +26,9 @@ export default function TutorDashboardPage() {
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null; 
 
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
-  const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
-
-  const [isEmailVerified, setIsEmailVerified] = useState(tutorUser?.isEmailVerified || false);
-  const [isPhoneVerified, setIsPhoneVerified] = useState(tutorUser?.isPhoneVerified || false);
+  // Otp Modal state and handlers removed
+  
+  // isEmailVerified and isPhoneVerified states removed
 
   const [demoSessions, setDemoSessions] = useState<DemoSession[]>([]);
   const [mockInsights, setMockInsights] = useState({
@@ -47,8 +44,7 @@ export default function TutorDashboardPage() {
 
   useEffect(() => {
     if (tutorUser) {
-      setIsEmailVerified(tutorUser.isEmailVerified || false);
-      setIsPhoneVerified(tutorUser.isPhoneVerified || false);
+      // Verification status state updates removed
       
       const tutorSpecificDemos = MOCK_DEMO_SESSIONS.filter(
         demo => MOCK_TUTOR_PROFILES.find(t => t.id === tutorUser.id && t.name === demo.tutorName)
@@ -79,7 +75,7 @@ export default function TutorDashboardPage() {
       });
       setCompletionPercentage(Math.round((completed / totalSteps) * 100));
     }
-  }, [tutorUser]);
+  }, [tutorUser]); // Removed tutorUser.isEmailVerified and tutorUser.isPhoneVerified dependencies
 
 
   if (!tutorUser || tutorUser.role !== 'tutor') {
@@ -101,23 +97,7 @@ export default function TutorDashboardPage() {
     }
   };
 
-  const handleOpenOtpModal = (type: "email" | "phone") => {
-    if (!user) return;
-    setOtpVerificationType(type);
-    setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number"); 
-    setIsOtpModalOpen(true);
-  };
-
-  const handleOtpSuccess = () => {
-    if (otpVerificationType === "email") {
-      setIsEmailVerified(true);
-    } else if (otpVerificationType === "phone") {
-      setIsPhoneVerified(true);
-    }
-    setIsOtpModalOpen(false); 
-    setOtpVerificationType(null);
-    setOtpVerificationIdentifier(null);
-  };
+  // handleOpenOtpModal and handleOtpSuccess removed
 
   const handleUpdateDemoSession = (updatedDemo: DemoSession) => {
     setDemoSessions(prevSessions => 
@@ -195,38 +175,7 @@ export default function TutorDashboardPage() {
                   </Badge>
                 )}
               </div>
-              <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <Button
-                    variant="secondary" 
-                    size="sm" 
-                      className={cn(
-                      "h-auto rounded-full text-primary", 
-                      isEmailVerified
-                        ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
-                        : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80 hover:bg-secondary/80" 
-                    )}
-                    onClick={() => !isEmailVerified && handleOpenOtpModal("email")}
-                    disabled={isEmailVerified}
-                  >
-                    {isEmailVerified ? <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> : <MailCheck className="mr-1.5 h-3.5 w-3.5" />}
-                    {isEmailVerified ? "Email Verified" : "Verify Email"}
-                  </Button>
-                  <Button
-                    variant="secondary" 
-                    size="sm" 
-                      className={cn(
-                      "h-auto rounded-full text-primary", 
-                      isPhoneVerified
-                        ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
-                        : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80 hover:bg-secondary/80"
-                      )}
-                    onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
-                    disabled={isPhoneVerified}
-                  >
-                    {isPhoneVerified ? <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> : <PhoneCall className="mr-1.5 h-3.5 w-3.5" />}
-                    {isPhoneVerified ? "Phone Verified" : "Verify Phone"}
-                  </Button>
-              </div>
+              {/* Verification buttons removed from here */}
             </div>
           </div>
           <div className="absolute top-4 right-4 flex space-x-2">
@@ -328,17 +277,8 @@ export default function TutorDashboardPage() {
         </Card>
       </div>
 
-      {otpVerificationType && otpVerificationIdentifier && (
-        <OtpVerificationModal
-          isOpen={isOtpModalOpen}
-          onOpenChange={setIsOtpModalOpen}
-          verificationType={otpVerificationType}
-          identifier={otpVerificationIdentifier}
-          onSuccess={handleOtpSuccess}
-        />
-      )}
+      {/* OtpVerificationModal and its trigger logic removed */}
     </div>
   );
 }
-
 
