@@ -15,6 +15,31 @@ import { cn } from "@/lib/utils";
 import { MailCheck, PhoneCall, CheckCircle, XCircle, Camera } from "lucide-react";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 
+interface SummaryStatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  colorClass?: string;
+  imageHint: string;
+}
+
+function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", imageHint }: SummaryStatCardProps) {
+  return (
+    <Card className="bg-card border border-border/30 rounded-xl shadow-none hover:shadow-lg transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out">
+      <CardContent className="p-4 flex items-center gap-4">
+        <div className={cn("p-3 rounded-lg bg-opacity-10", colorClass === "text-primary" ? "bg-primary/10" : "bg-green-500/10")}>
+          <Icon className={cn("w-6 h-6", colorClass)} />
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">{title}</p>
+          <p className="text-xl font-bold text-foreground">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export default function ParentDashboardPage() {
   const { user } = useAuthMock();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +60,6 @@ export default function ParentDashboardPage() {
   }, [user]);
 
   if (!user || user.role !== 'parent') {
-    // This case should ideally be handled by layout or middleware redirecting non-parents.
     return <div className="text-center p-8">Access Denied. This dashboard is for parents only.</div>;
   }
 
@@ -51,7 +75,6 @@ export default function ParentDashboardPage() {
         title: "Profile Picture Updated (Mock)",
         description: `${file.name} selected. In a real app, this would be uploaded.`,
       });
-      // Here you would typically call an API to upload the image and update the user's avatar URL
     }
   };
   
@@ -65,7 +88,6 @@ export default function ParentDashboardPage() {
   const handleOtpSuccess = () => {
     if (otpVerificationType === "email") {
       setIsEmailVerified(true);
-      // Potentially update user context/state here if useAuthMock doesn't auto-refresh
     } else if (otpVerificationType === "phone") {
       setIsPhoneVerified(true);
     }
@@ -73,6 +95,13 @@ export default function ParentDashboardPage() {
     setOtpVerificationType(null);
     setOtpVerificationIdentifier(null);
   };
+
+  const summaryStats = [
+    { title: "Total Requirements Posted", value: 5, icon: ListChecks, colorClass: "text-primary", imageHint: "document list" },
+    { title: "Active Tuitions", value: 2, icon: CalendarDays, colorClass: "text-green-500", imageHint: "active calendar" },
+    { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-blue-500", imageHint: "chat bubble" },
+    { title: "Payments Made", value: "₹12,500", icon: DollarSign, colorClass: "text-yellow-500", imageHint: "money stack" },
+  ];
 
   const parentActionCards = [
       <ActionCard
@@ -93,21 +122,33 @@ export default function ParentDashboardPage() {
         imageHint="list checkmark"
       />,
       <ActionCard
-        key="my-tuition"
-        title="My Tuition"
-        cardDescriptionText="Explore profiles of qualified tutors and manage demo requests."
-        Icon={School} 
+        key="find-tutors" // Renamed from my-tuition
+        title="Find Tutors"
+        cardDescriptionText="Explore profiles of qualified tutors and find the perfect match for your child."
+        Icon={SearchCheck} // Changed Icon
         buttonInContent={true}
         actionButtonText="View All Tutors"
-        ActionButtonIcon={SearchCheck}
-        href="/search-tuitions" // Changed from /dashboard/tutors to public search page
+        ActionButtonIcon={Eye}
+        href="/search-tuitions" 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
-        actionButtonText2="Demo Requests"
-        ActionButtonIcon2={MessageSquareQuote}
-        href2="/dashboard/demo-sessions"
-        imageHint="student profile"
+        imageHint="magnifying glass" // Updated image hint
+      />,
+      <ActionCard
+        key="demo-sessions"
+        title="Demo Sessions"
+        cardDescriptionText="Manage demo class requests, view upcoming demos, and book full classes."
+        Icon={MessageSquareQuote} 
+        buttonInContent={true}
+        actionButtonText="View Demo Sessions"
+        ActionButtonIcon={Eye} 
+        href="/dashboard/demo-sessions"
+        disabled={true} 
+        actionButtonVariant="outline"
+        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
+        className="shadow-none border border-border/30 hover:shadow-lg"
+        imageHint="demo class"
       />,
       <ActionCard
         key="manage-students"
@@ -123,21 +164,6 @@ export default function ParentDashboardPage() {
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
         imageHint="student profile"
-      />,
-      <ActionCard
-        key="my-payments"
-        title="My Payments"
-        cardDescriptionText="Track all tuition payments, view history, and manage pending transactions."
-        Icon={DollarSign} 
-        buttonInContent={true}
-        actionButtonText="View Payments"
-        ActionButtonIcon={DollarSign} 
-        href="/dashboard/payments"
-        disabled={true} 
-        actionButtonVariant="outline"
-        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg"
-        imageHint="payment history"
       />,
        <ActionCard
         key="my-classes"
@@ -155,19 +181,19 @@ export default function ParentDashboardPage() {
         imageHint="class schedule"
       />,
       <ActionCard
-        key="demo-sessions"
-        title="Demo Sessions"
-        cardDescriptionText="Manage demo class requests, view upcoming demos, and book full classes."
-        Icon={MessageSquareQuote} 
+        key="my-payments"
+        title="My Payments"
+        cardDescriptionText="Track all tuition payments, view history, and manage pending transactions."
+        Icon={DollarSign} 
         buttonInContent={true}
-        actionButtonText="View Demo Sessions"
-        ActionButtonIcon={MessageSquareQuote} 
-        href="/dashboard/demo-sessions" // Link for demo sessions
-        disabled={true} // For now, can be enabled later
+        actionButtonText="View Payments"
+        ActionButtonIcon={DollarSign} 
+        href="/dashboard/payments"
+        disabled={true} 
         actionButtonVariant="outline"
         actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
         className="shadow-none border border-border/30 hover:shadow-lg"
-        imageHint="demo class"
+        imageHint="payment history"
       />
     ];
 
@@ -254,6 +280,19 @@ export default function ParentDashboardPage() {
         </CardHeader>
       </Card>
 
+      {/* Summary Cards Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        {summaryStats.map((stat, index) => (
+          <SummaryStatCard 
+            key={stat.title} 
+            {...stat}
+            // imageHint={stat.imageHint} // Ensure imageHint is passed
+          />
+        ))}
+      </div>
+
+
+      {/* Action Cards Section */}
       {parentActionCards.length > 0 && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> 
           {parentActionCards.map((card, index) => (
@@ -286,8 +325,8 @@ interface ActionCardProps {
   description?: string; 
   href?: string; 
   Icon: React.ElementType;
-  imageHint?: string; // No longer used for parent dashboard as showImage defaults to false
-  showImage?: boolean; // Defaults to false for parent dashboard
+  imageHint?: string; 
+  showImage?: boolean; 
   disabled?: boolean;
   actionButtonText?: string;
   ActionButtonIcon?: React.ElementType;
@@ -312,7 +351,7 @@ function ActionCard({
   ActionButtonIcon, 
   actionButtonVariant,
   actionButtonClassName,
-  buttonInContent = false, // Defaulted to false
+  buttonInContent = false, 
   cardDescriptionText, 
   actionButtonText2,
   ActionButtonIcon2,
@@ -358,7 +397,6 @@ function ActionCard({
         )}
       </CardHeader>
       <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
-        {/* Description for cards without buttons directly in content can go here if needed */}
         {description && !buttonInContent && ( 
             <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
         )}
@@ -378,4 +416,5 @@ function ActionCard({
     </Card>
   );
 }
+
 

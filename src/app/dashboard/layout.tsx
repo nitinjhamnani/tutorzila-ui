@@ -58,11 +58,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const tutorNavItems = [
-    // These would normally be in the sidebar, but tutors won't have a sidebar.
-    // Tutors can navigate to search-tuitions via AppHeader or other links.
-    // My Applications is disabled anyway.
-    // { href: "/search-tuitions", label: "Search Tuitions", icon: Search }, 
-    // { href: "/dashboard/my-applications", label: "My Applications", icon: Briefcase, disabled: true },
+    { href: "/dashboard/enquiries", label: "My Enquiries", icon: Briefcase },
+    { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: true }, // Added for tutor
+    { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: true }, // Added for tutor
+    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: true }, // Added for tutor
   ];
 
   const adminNavItems = [
@@ -73,16 +72,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   let roleNavItems = [];
   if (user.role === "parent") roleNavItems = parentNavItems;
-  // For tutors, roleNavItems will be empty as they won't have a sidebar.
+  else if (user.role === 'tutor') roleNavItems = tutorNavItems;
   else if (user.role === "admin") roleNavItems = [...parentNavItems, ...tutorNavItems, ...adminNavItems]; 
 
   const navItems = [...commonNavItems, ...roleNavItems];
 
-  if (user.role === 'tutor') {
+  if (user.role === 'tutor' && isMobile) { // Tutor mobile view still uses AppHeader and no sidebar
     return (
       <>
         <AppHeader />
-        <div className="flex-grow bg-background"> {/* Removed pt-[var(--header-height)] */}
+        <div className="flex-grow bg-background"> 
           <div className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
             {children}
           </div>
@@ -97,6 +96,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </>
     );
   }
+
 
   return (
     <>
@@ -199,5 +199,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
+
 
 
