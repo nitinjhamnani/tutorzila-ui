@@ -313,8 +313,8 @@ export default function ParentDashboardPage() {
             Consolidated view of demo schedules, classes, and payment due dates.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 md:p-5 grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
-          {/* Dummy Calendar Component */}
+        <CardContent className="p-4 md:p-5">
+          {/* Calendar Grid */}
           <div>
             <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-2">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => <div key={day}>{day}</div>)}
@@ -373,9 +373,9 @@ export default function ParentDashboardPage() {
               ))}
             </div>
           </div>
-
-          {/* Upcoming Events List */}
-          <div className="border-l border-border/30 pl-4 md:pl-6">
+          
+          {/* Upcoming Events List - MOVED BELOW CALENDAR */}
+          <div className="border-t border-border/30 mt-6 pt-4">
             <h4 className="text-md font-semibold text-foreground mb-3">Upcoming Events</h4>
             {upcomingEvents.length > 0 ? (
               <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
