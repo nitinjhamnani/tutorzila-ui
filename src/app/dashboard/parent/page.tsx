@@ -110,7 +110,7 @@ export default function ParentDashboardPage() {
       <ActionCard
         key="my-enquiries"
         title="My Enquiries"
-        descriptionText="Manage your posted tuition needs and track tutor applications."
+        descriptionText="View and manage all tutoring requests you've posted."
         IconComponent={ListChecks} 
         quickInsightText="2 Active Enquiries"
         ctaText="View My Enquiries"
@@ -120,7 +120,7 @@ export default function ParentDashboardPage() {
       <ActionCard
         key="my-classes" 
         title="My Classes" 
-        descriptionText="Browse tutor profiles or manage booked classes." 
+        descriptionText="Track all your booked and ongoing classes."
         IconComponent={SearchCheck}
         quickInsightText="Find your next tutor"
         ctaText="View All Classes" 
@@ -130,7 +130,7 @@ export default function ParentDashboardPage() {
        <ActionCard
         key="my-demos" 
         title="My Demos" 
-        descriptionText="View upcoming demos, manage schedules, and track progress."
+        descriptionText="Check scheduled, past, and upcoming demo sessions."
         IconComponent={MessageSquareQuote} 
         quickInsightText="1 Upcoming Demo" 
         ctaText="View All Demos" 
@@ -141,7 +141,7 @@ export default function ParentDashboardPage() {
         <ActionCard
         key="payments"
         title="My Payments"
-        descriptionText="Track your tuition payment history and manage outstanding payments."
+        descriptionText="View your payment history and status."
         IconComponent={DollarSign} 
         quickInsightText="View Payment History"
         ctaText="Manage Payments"
@@ -373,6 +373,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
