@@ -2,11 +2,11 @@
 "use client";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck } from "lucide-react";
+import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star } from "lucide-react"; // Added UsersRound, Star
 import Link from "next/link";
-import type { User } from "@/types";
+import type { User, TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, type ChangeEvent, useState, useEffect } from "react"; 
 import { useToast } from "@/hooks/use-toast"; 
@@ -14,25 +14,31 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { MailCheck, PhoneCall, CheckCircle, XCircle, Camera } from "lucide-react";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+import Image from "next/image";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
+import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
+
 
 interface SummaryStatCardProps {
   title: string;
   value: string | number;
   icon: React.ElementType;
   colorClass?: string;
-  imageHint: string;
+  bgColorClass?: string; // Added for icon background
+  imageHint: string; // Kept for data-ai-hint on images if used, but for icons it's for semantic meaning
 }
 
-function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", imageHint }: SummaryStatCardProps) {
+function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", bgColorClass = "bg-primary/10", imageHint }: SummaryStatCardProps) {
   return (
-    <Card className="bg-card border border-border/30 rounded-xl shadow-none hover:shadow-lg transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out">
-      <CardContent className="p-4 flex items-center gap-4">
-        <div className={cn("p-3 rounded-lg bg-opacity-10", colorClass === "text-primary" ? "bg-primary/10" : "bg-green-500/10")}>
-          <Icon className={cn("w-6 h-6", colorClass)} />
+    <Card className="bg-card border border-border/30 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out">
+      <CardContent className="p-4 md:p-5 flex items-center gap-3 md:gap-4">
+        <div className={cn("p-3 rounded-lg", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}>
+          <Icon className={cn("w-5 h-5 md:w-6 md:h-6", colorClass)} />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">{title}</p>
-          <p className="text-xl font-bold text-foreground">{value}</p>
+          <p className="text-lg md:text-xl font-bold text-foreground">{value}</p>
         </div>
       </CardContent>
     </Card>
@@ -97,127 +103,118 @@ export default function ParentDashboardPage() {
   };
 
   const summaryStats = [
-    { title: "Total Requirements Posted", value: 5, icon: ListChecks, colorClass: "text-primary", imageHint: "document list" },
-    { title: "Active Tuitions", value: 2, icon: CalendarDays, colorClass: "text-green-500", imageHint: "active calendar" },
-    { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-blue-500", imageHint: "chat bubble" },
-    { title: "Payments Made", value: "₹12,500", icon: DollarSign, colorClass: "text-yellow-500", imageHint: "money stack" },
+    { title: "Requirements Posted", value: 5, icon: ListChecks, colorClass: "text-blue-600", bgColorClass:"bg-blue-100/70", imageHint: "document list" },
+    { title: "Active Classes", value: 2, icon: CalendarDays, colorClass: "text-green-600", bgColorClass:"bg-green-100/70", imageHint: "active calendar" },
+    { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-purple-600", bgColorClass:"bg-purple-100/70", imageHint: "chat bubble" },
+    { title: "Payments Made", value: "₹12,500", icon: DollarSign, colorClass: "text-yellow-600", bgColorClass:"bg-yellow-100/70", imageHint: "money stack" },
   ];
 
   const parentActionCards = [
       <ActionCard
         key="my-enquiries"
         title="My Enquiries"
-        cardDescriptionText="Manage your posted tuition needs and connect with suitable tutors."
-        Icon={ListChecks} 
-        buttonInContent={true}
-        actionButtonText="View My Enquiries"
-        ActionButtonIcon={Eye} 
-        href="/dashboard/my-requirements" 
-        actionButtonVariant="outline"
-        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg"
-        actionButtonText2="Create Enquiry"
-        ActionButtonIcon2={PlusCircle}
-        href2="/dashboard/post-requirement" 
-        imageHint="list checkmark"
+        descriptionText="Manage your posted tuition needs and connect with suitable tutors."
+        IconComponent={ListChecks} 
+        quickInsightText="2 Active Enquiries"
+        ctaText="Manage Enquiries"
+        ctaHref="/dashboard/my-requirements" 
+        cardBgClass="bg-blue-50/50 hover:bg-blue-100/60"
+        accentTextClass="text-blue-700"
+        accentBgClass="bg-blue-100 group-hover:bg-blue-200/80"
+        illustrationHint="enquiry list"
       />,
       <ActionCard
-        key="find-tutors" // Renamed from my-tuition
+        key="find-tutors"
         title="Find Tutors"
-        cardDescriptionText="Explore profiles of qualified tutors and find the perfect match for your child."
-        Icon={SearchCheck} // Changed Icon
-        buttonInContent={true}
-        actionButtonText="View All Tutors"
-        ActionButtonIcon={Eye}
-        href="/search-tuitions" 
-        actionButtonVariant="outline"
-        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg"
-        imageHint="magnifying glass" // Updated image hint
+        descriptionText="Explore profiles of qualified tutors and find the perfect match for your child."
+        IconComponent={SearchCheck}
+        quickInsightText="50+ Verified Tutors"
+        ctaText="Browse Tutors"
+        ctaHref="/search-tuitions" 
+        cardBgClass="bg-green-50/50 hover:bg-green-100/60"
+        accentTextClass="text-green-700"
+        accentBgClass="bg-green-100 group-hover:bg-green-200/80"
+        illustrationHint="magnifying glass people"
       />,
       <ActionCard
         key="demo-sessions"
         title="Demo Sessions"
-        cardDescriptionText="Manage demo class requests, view upcoming demos, and book full classes."
-        Icon={MessageSquareQuote} 
-        buttonInContent={true}
-        actionButtonText="View Demo Sessions"
-        ActionButtonIcon={Eye} 
-        href="/dashboard/demo-sessions"
+        descriptionText="Manage demo class requests, view upcoming demos, and book full classes."
+        IconComponent={MessageSquareQuote} 
+        quickInsightText="1 Upcoming Demo"
+        ctaText="View Demos"
+        ctaHref="/dashboard/demo-sessions"
         disabled={true} 
-        actionButtonVariant="outline"
-        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg"
-        imageHint="demo class"
+        cardBgClass="bg-purple-50/50 hover:bg-purple-100/60"
+        accentTextClass="text-purple-700"
+        accentBgClass="bg-purple-100 group-hover:bg-purple-200/80"
+        illustrationHint="online class"
       />,
       <ActionCard
         key="manage-students"
         title="Student Profiles"
-        cardDescriptionText="Add and manage profiles for your children to personalize tuition needs."
-        Icon={UserCircleIcon} 
-        buttonInContent={true}
-        actionButtonText="Manage Students"
-        ActionButtonIcon={Edit3} 
-        href="/dashboard/manage-students"
+        descriptionText="Add and manage profiles for your children to personalize tuition needs."
+        IconComponent={School} // Changed Icon
+        quickInsightText="2 Student Profiles"
+        ctaText="Manage Students"
+        ctaHref="/dashboard/manage-students"
         disabled={true} 
-        actionButtonVariant="outline"
-        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg"
-        imageHint="student profile"
+        cardBgClass="bg-yellow-50/50 hover:bg-yellow-100/60"
+        accentTextClass="text-yellow-700"
+        accentBgClass="bg-yellow-100 group-hover:bg-yellow-200/80"
+        illustrationHint="student graduation"
       />,
        <ActionCard
         key="my-classes"
         title="My Scheduled Classes"
-        cardDescriptionText="View upcoming classes, manage schedules, and track attendance for each student."
-        Icon={CalendarDays} 
-        buttonInContent={true}
-        actionButtonText="View My Classes"
-        ActionButtonIcon={CalendarDays} 
-        href="/dashboard/my-classes"
+        descriptionText="View upcoming classes, manage schedules, and track attendance."
+        IconComponent={CalendarDays} 
+        quickInsightText="2 Active Classes"
+        ctaText="View My Classes"
+        ctaHref="/dashboard/my-classes"
         disabled={true} 
-        actionButtonVariant="outline"
-        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg"
-        imageHint="class schedule"
+        cardBgClass="bg-pink-50/50 hover:bg-pink-100/60"
+        accentTextClass="text-pink-700"
+        accentBgClass="bg-pink-100 group-hover:bg-pink-200/80"
+        illustrationHint="calendar schedule"
       />,
       <ActionCard
         key="my-payments"
         title="My Payments"
-        cardDescriptionText="Track all tuition payments, view history, and manage pending transactions."
-        Icon={DollarSign} 
-        buttonInContent={true}
-        actionButtonText="View Payments"
-        ActionButtonIcon={DollarSign} 
-        href="/dashboard/payments"
+        descriptionText="Track all tuition payments, view history, and manage transactions."
+        IconComponent={DollarSign} 
+        quickInsightText="₹2500 Due"
+        ctaText="View Payments"
+        ctaHref="/dashboard/payments"
         disabled={true} 
-        actionButtonVariant="outline"
-        actionButtonClassName="bg-card border-foreground text-foreground hover:bg-accent hover:text-accent-foreground text-sm"
-        className="shadow-none border border-border/30 hover:shadow-lg"
-        imageHint="payment history"
+        cardBgClass="bg-indigo-50/50 hover:bg-indigo-100/60"
+        accentTextClass="text-indigo-700"
+        accentBgClass="bg-indigo-100 group-hover:bg-indigo-200/80"
+        illustrationHint="money transaction"
       />
     ];
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden border-0 shadow-none w-full">
-        <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
+    <div className="space-y-6 md:space-y-8">
+      <Card className="bg-card rounded-xl animate-in fade-in duration-700 ease-out overflow-hidden border border-border/30 shadow-sm w-full">
+        <CardHeader className="pt-4 px-4 pb-3 md:pt-5 md:px-6 md:pb-4 relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="relative group shrink-0">
                 <Avatar
-                  className="h-16 w-16 border-2 border-primary/30 group-hover:opacity-80 transition-opacity cursor-pointer"
+                  className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 group-hover:opacity-80 transition-opacity cursor-pointer shadow-sm"
                   onClick={handleAvatarClick} 
                 >
                   <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl">
+                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
                     {user.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <button
                   onClick={handleAvatarClick}
-                  className="absolute -bottom-2 -right-2 flex items-center justify-center bg-primary text-primary-foreground p-1.5 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
+                  className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center bg-primary text-primary-foreground p-1.5 rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
                   aria-label="Update profile picture"
                 >
-                  <Camera className="w-3.5 h-3.5" />
+                  <Camera className="w-3 h-3 md:w-3.5 md:h-3.5" />
                 </button>
                 <input
                   type="file"
@@ -248,10 +245,10 @@ export default function ParentDashboardPage() {
                       variant="secondary" 
                       size="sm" 
                         className={cn(
-                        "h-auto rounded-full text-primary", 
+                        "h-auto rounded-full", 
                         isEmailVerified
                           ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
-                          : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80 hover:bg-secondary/80" 
+                          : "text-xs font-normal px-3 py-1.5 underline bg-card text-primary hover:text-primary/80 hover:bg-secondary/80 border border-border" 
                       )}
                       onClick={() => !isEmailVerified && handleOpenOtpModal("email")}
                       disabled={isEmailVerified}
@@ -263,10 +260,10 @@ export default function ParentDashboardPage() {
                       variant="secondary" 
                       size="sm" 
                         className={cn(
-                        "h-auto rounded-full text-primary", 
+                        "h-auto rounded-full", 
                         isPhoneVerified
                           ? "bg-primary text-primary-foreground border border-primary hover:bg-primary/90 py-0.5 px-2 text-xs font-semibold cursor-default no-underline" 
-                          : "text-xs font-normal px-3 py-1.5 underline bg-card hover:text-primary/80 hover:bg-secondary/80"
+                          : "text-xs font-normal px-3 py-1.5 underline bg-card text-primary hover:text-primary/80 hover:bg-secondary/80 border border-border"
                       )}
                       onClick={() => !isPhoneVerified && handleOpenOtpModal("phone")}
                       disabled={isPhoneVerified}
@@ -286,20 +283,52 @@ export default function ParentDashboardPage() {
           <SummaryStatCard 
             key={stat.title} 
             {...stat}
-            // imageHint={stat.imageHint} // Ensure imageHint is passed
           />
         ))}
       </div>
 
+      {/* Top Rated Tutors Carousel */}
+      <section className="animate-in fade-in duration-500 ease-out" style={{animationDelay: "0.3s"}}>
+        <div className="flex items-center justify-between mb-4 md:mb-5">
+            <h2 className="text-xl md:text-2xl font-semibold text-primary flex items-center">
+                <Star className="w-5 h-5 md:w-6 md:h-6 mr-2 text-yellow-500 fill-yellow-400"/> Top Rated Tutors
+            </h2>
+            <Button variant="link" asChild className="text-sm text-primary hover:text-primary/80">
+                <Link href="/search-tuitions">View All</Link>
+            </Button>
+        </div>
+        <Carousel
+            opts={{
+                align: "start",
+                loop: MOCK_TUTOR_PROFILES.length > 3, 
+            }}
+            className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
+        >
+            <CarouselContent className="-ml-3.5 md:-ml-4.5">
+            {MOCK_TUTOR_PROFILES.slice(0, 8).map((tutor, index) => ( // Show up to 8 tutors
+                <CarouselItem key={tutor.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/3 xl:basis-1/4 pl-3.5 md:pl-4.5">
+                <div className="p-1.5 h-full">
+                    <TutorProfileCard tutor={tutor} />
+                </div>
+                </CarouselItem>
+            ))}
+            </CarouselContent>
+            <div className="flex justify-center items-center mt-6 md:mt-8 space-x-3">
+            <CarouselPrevious className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
+            <CarouselNext className="static transform-none w-10 h-10 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
+            </div>
+        </Carousel>
+      </section>
+
 
       {/* Action Cards Section */}
       {parentActionCards.length > 0 && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2"> 
+          <div className="grid gap-5 md:gap-6 md:grid-cols-2 lg:grid-cols-3"> 
           {parentActionCards.map((card, index) => (
             <div 
               key={index} 
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-              style={{ animationDelay: `${index * 0.1 + 0.2}s` }} 
+              style={{ animationDelay: `${index * 0.08 + 0.4}s` }} 
             >
               {card}
             </div>
@@ -322,99 +351,73 @@ export default function ParentDashboardPage() {
 
 interface ActionCardProps {
   title: string;
-  description?: string; 
-  href?: string; 
-  Icon: React.ElementType;
-  imageHint?: string; 
-  showImage?: boolean; 
+  IconComponent: React.ElementType;
+  illustrationHint?: string;
+  descriptionText: string;
+  quickInsightText: string;
+  ctaText: string;
+  ctaHref: string;
+  cardBgClass: string;
+  accentTextClass: string;
+  accentBgClass: string;
   disabled?: boolean;
-  actionButtonText?: string;
-  ActionButtonIcon?: React.ElementType;
-  actionButtonVariant?: ButtonProps['variant'];
-  actionButtonClassName?: string;
-  buttonInContent?: boolean;
-  cardDescriptionText?: string; 
-  actionButtonText2?: string; 
-  ActionButtonIcon2?: React.ElementType;
-  href2?: string; 
-  disabled2?: boolean; 
-  className?: string;
 }
 
 function ActionCard({ 
   title, 
-  description, 
-  href, 
-  Icon, 
+  IconComponent,
+  illustrationHint,
+  descriptionText,
+  quickInsightText,
+  ctaText,
+  ctaHref,
+  cardBgClass,
+  accentTextClass,
+  accentBgClass,
   disabled,
-  actionButtonText,
-  ActionButtonIcon, 
-  actionButtonVariant,
-  actionButtonClassName,
-  buttonInContent = false, 
-  cardDescriptionText, 
-  actionButtonText2,
-  ActionButtonIcon2,
-  href2,
-  disabled2,
-  className,
 }: ActionCardProps) {
-
-  const renderSingleButton = (text?: string, btnHref?: string, btnDisabled?: boolean, BtnIcon?: React.ElementType) => {
-    const ButtonIconComponent = BtnIcon; 
-    return (
-      <Button 
-        asChild 
-        variant={actionButtonVariant || (btnDisabled ? "default" : "default")}
-        className={cn(
-          "w-full transform transition-transform hover:scale-105 active:scale-95 text-base py-2.5", 
-          actionButtonClassName 
-        )} 
-        disabled={btnDisabled}
-      >
-        <Link href={btnDisabled || !btnHref ? "#" : btnHref}>
-          {ButtonIconComponent && <ButtonIconComponent className="mr-2 h-4 w-4" />}
-          {text || (btnDisabled ? "Coming Soon" : title)}
-        </Link>
-      </Button>
-    );
-  };
   
-
   return (
-    <Card className={cn("group transition-all duration-300 flex flex-col bg-card h-full rounded-lg border shadow-none border-border/30 hover:shadow-lg overflow-hidden", className)}>
-      <CardHeader className={cn("p-4 md:p-5 pt-6", cardDescriptionText && "pb-2")}> 
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary/20 transition-all duration-300">
-             <Icon className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
-          </div>
-          <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{title}</CardTitle>
-        </div>
-        {cardDescriptionText && ( 
-          <CardDescription className="text-sm mt-1 text-muted-foreground">
-            {cardDescriptionText}
-          </CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className={cn("flex-grow p-4 md:p-5 flex flex-col", cardDescriptionText ? "pt-2" : "pt-0")}>
-        {description && !buttonInContent && ( 
-            <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
-        )}
-        {buttonInContent ? (
-          <>
-             {description && ( 
-                 <p className="text-sm text-muted-foreground line-clamp-3 flex-grow text-[15px]">{description}</p>
-             )}
-
-            <div className="mt-auto pt-4 space-y-3"> 
-              {actionButtonText && renderSingleButton(actionButtonText, href, disabled, ActionButtonIcon)}
-              {actionButtonText2 && ActionButtonIcon2 && renderSingleButton(actionButtonText2, href2, disabled2, ActionButtonIcon2)}
+    <Card className={cn(
+        "group transition-all duration-300 ease-out flex flex-col h-full rounded-2xl shadow-md hover:shadow-xl overflow-hidden border border-border/20 transform hover:-translate-y-1.5 hover:scale-[1.02]",
+        cardBgClass
+    )}>
+      <CardHeader className="p-5 md:p-6 text-center items-center"> 
+        {illustrationHint ? (
+            <Image 
+                src={`https://picsum.photos/seed/${illustrationHint.replace(/\s+/g, '')}/300/180`}
+                alt={`${title} illustration`}
+                width={300}
+                height={180}
+                className="w-full h-32 md:h-36 object-cover rounded-lg mb-4 shadow-sm group-hover:scale-105 transition-transform duration-300 ease-out"
+                data-ai-hint={illustrationHint}
+            />
+        ) : (
+            <div className={cn("p-3.5 rounded-full mb-3 shadow-md transition-all duration-300 ease-out group-hover:scale-110", accentBgClass)}>
+                <IconComponent className={cn("w-8 h-8 md:w-9 md:h-9", accentTextClass)} />
             </div>
-          </>
-        ) : null}
+        )}
+        <CardTitle className={cn("text-lg md:text-xl font-semibold transition-colors duration-300", accentTextClass)}>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-5 md:p-6 pt-0 text-center flex-grow flex flex-col justify-between">
+        <div>
+            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{descriptionText}</p>
+            <p className={cn("text-2xl font-bold mb-5 transition-colors duration-300", accentTextClass)}>{quickInsightText}</p>
+        </div>
       </CardContent>
+      <CardFooter className={cn("p-4 md:p-5 border-t transition-colors duration-300", cardBgClass, "group-hover:bg-opacity-80")}>
+        <Button 
+            asChild 
+            variant="default" 
+            className={cn(
+                "w-full transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-sm md:text-base py-2.5 shadow-md hover:shadow-lg",
+                "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" // Default primary button style
+            )} 
+            disabled={disabled}
+        >
+          <Link href={disabled ? "#" : ctaHref}>{disabled ? "Coming Soon" : ctaText}</Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
-
-
