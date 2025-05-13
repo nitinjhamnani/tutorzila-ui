@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, X, ShieldCheck } from "lucide-react";
+import { AlertTriangle, X, ShieldCheck, ShieldAlert } from "lucide-react"; // Added ShieldAlert
 import { cn } from "@/lib/utils";
 
 const SESSION_STORAGE_KEY = "tutorzila-verification-banner-dismissed";
@@ -91,3 +91,4 @@ export function VerificationBanner() {
     </div>
   );
 }
+
