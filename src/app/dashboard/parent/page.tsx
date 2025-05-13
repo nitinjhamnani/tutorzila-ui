@@ -4,7 +4,7 @@
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction } from "lucide-react";
+import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import type { User, TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -266,7 +266,7 @@ export default function ParentDashboardPage() {
       <Card className="bg-card border border-border/30 rounded-xl shadow-sm animate-in fade-in duration-500 ease-out" style={{ animationDelay: `0.8s` }}>
         <CardHeader>
           <CardTitle className="text-xl font-semibold text-primary flex items-center">
-            <CalendarDays className="w-6 h-6 mr-2.5" /> My Calendar
+            <CalendarIcon className="w-6 h-6 mr-2.5" /> My Calendar
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground mt-1">
             View scheduled demos, classes, and payment due dates.
@@ -343,7 +343,7 @@ function ActionCard({
         </div>
       </CardContent>
       <CardFooter className={cn(
-        "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col sm:flex-row gap-2 items-stretch", // Added items-stretch for equal height buttons
+        "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col sm:flex-row gap-2 items-stretch w-full", // Added w-full
         "bg-card group-hover:bg-muted/30"
         )}>
         <Button 
@@ -351,7 +351,7 @@ function ActionCard({
             variant="default" 
             size="sm"
             className={cn(
-                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-3 shadow-sm hover:shadow-md", // Adjusted px
+                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", // Changed px-3 to px-2
                 "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
             )} 
             disabled={disabled}
@@ -364,7 +364,7 @@ function ActionCard({
             variant="outline"
             size="sm"
             className={cn(
-                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-3 shadow-sm hover:shadow-md", // Adjusted px
+                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", // Changed px-3 to px-2
                 "bg-card border-primary text-primary hover:bg-primary/5"
             )} 
             disabled={disabled2}
@@ -379,3 +379,4 @@ function ActionCard({
     </Card>
   );
 }
+
