@@ -102,15 +102,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           className="border-r pt-[var(--header-height)] bg-card shadow-md" 
         > 
           <SidebarHeader className="p-4 border-b border-border/50">
-            {/* The div below controls the alignment of the SidebarTrigger */}
             <div className={cn(
-                "flex items-center w-full", // w-full ensures the div takes full width of header for justify-end to work
+                "flex items-center w-full", 
                 isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center"
-                // Desktop: default to justify-end (trigger on right)
-                // Desktop Icon-Collapsed: override to justify-center (trigger centered in narrow header)
               )}
             >
-              {/* Logo is removed from here as requested */}
               <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"/>
             </div>
           </SidebarHeader>
@@ -139,35 +135,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="p-2 border-t border-border/50"> 
-            <div className="group-data-[collapsible=icon]:hidden flex flex-col gap-2 p-2">
-                <div className="flex items-center gap-3 p-2 rounded-md bg-muted/30"> 
-                  <Avatar className="h-10 w-10 border-2 border-primary/50">
-                      <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                      <AvatarFallback className="bg-primary/20 text-primary font-semibold">{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                      <p className="text-sm font-semibold text-foreground">{user.name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" className="justify-start gap-2.5 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" disabled>
-                  <Settings className="h-4 w-4" /> Settings
-                </Button>
-                <Button variant="ghost" size="sm" onClick={logout} className="justify-start gap-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-                  <LogOut className="h-4 w-4" /> Log Out
-                </Button>
-            </div>
-            <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-2 py-2">
-               <Button variant="ghost" size="icon" disabled title="Settings" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-not-allowed">
-                  <Settings className="h-5 w-5" />
-                </Button>
-              <Button variant="ghost" size="icon" onClick={logout} title="Log Out" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-                  <LogOut className="h-5 w-5" />
-                </Button>
-            </div>
+            {/* User card (avatar, name, role, settings, logout) removed from here */}
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--header-height)_+_1rem)]"> {/* Reduced top padding further */}
+        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--header-height)_+_1rem)]">
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           {children}
           </div>
