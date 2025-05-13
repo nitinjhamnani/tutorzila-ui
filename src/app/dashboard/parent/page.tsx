@@ -343,7 +343,7 @@ function ActionCard({
         </div>
       </CardContent>
       <CardFooter className={cn(
-        "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col sm:flex-row gap-2 items-stretch w-full", // Added w-full
+        "p-3 md:p-4 border-t transition-colors duration-300 flex flex-col sm:flex-row gap-2 items-stretch w-full", 
         "bg-card group-hover:bg-muted/30"
         )}>
         <Button 
@@ -351,7 +351,7 @@ function ActionCard({
             variant="default" 
             size="sm"
             className={cn(
-                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", // Changed px-3 to px-2
+                "w-full sm:flex-1 sm:min-w-0 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", 
                 "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
             )} 
             disabled={disabled}
@@ -364,7 +364,7 @@ function ActionCard({
             variant="outline"
             size="sm"
             className={cn(
-                "w-full sm:flex-1 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", // Changed px-3 to px-2
+                "w-full sm:flex-1 sm:min-w-0 transform transition-all duration-300 ease-out hover:scale-105 active:scale-95 text-xs md:text-sm py-2 px-2 shadow-sm hover:shadow-md", 
                 "bg-card border-primary text-primary hover:bg-primary/5"
             )} 
             disabled={disabled2}
@@ -379,4 +379,5 @@ function ActionCard({
     </Card>
   );
 }
+
 
