@@ -1,3 +1,4 @@
+
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -53,7 +54,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const parentNavItems = [
     { href: "/dashboard/post-requirement", label: "Post Requirement", icon: PlusCircle },
-    { href: "/dashboard/my-requirements", label: "My Requirements", icon: ListChecks },
+    { href: "/dashboard/my-requirements", label: "My Enquiries", icon: ListChecks }, // Renamed here
     { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck },
     { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
@@ -102,7 +103,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           collapsible={isMobile ? "offcanvas" : "icon"} 
           className="border-r pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height))] bg-card shadow-md flex flex-col"
         > 
-          <SidebarHeader className={cn(
+           <SidebarHeader className={cn(
             "p-4 border-b border-border/50",
             isMobile ? "pt-4 pb-2" : "pt-4 pb-2" 
           )}>
