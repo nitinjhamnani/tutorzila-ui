@@ -4,7 +4,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   { 
     id: "t1", 
     name: "Dr. Emily Carter", 
-    email: "emily.carter@example.com", 
+    email: "dr.emily.carter@example.com", // Changed email to avoid conflict if "tutor@example.com" is used for generic tutor
     role: "tutor", 
     avatar: "https://picsum.photos/seed/emilycarter/128", 
     subjects: ["Physics", "Mathematics", "Chemistry"], 
@@ -133,7 +133,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   },
   {
     id: "t6",
-    name: "Mock Tutor",
+    name: "Mock Tutor General", // Renamed for clarity
     email: "tutor@example.com",
     role: "tutor",
     avatar: "https://picsum.photos/seed/mocktutor/128",
@@ -170,7 +170,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
 export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   {
     id: "demo1",
-    tutorName: "Dr. Emily Carter",
+    tutorName: "Dr. Emily Carter", // Matched to an existing tutor profile
     studentName: "Ravi Sharma",
     subject: "Physics",
     gradeLevel: "Grade 11-12",
@@ -193,7 +193,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo3",
-    tutorName: "John Adebayo",
+    tutorName: "John Adebayo", // Matched to an existing tutor profile
     studentName: "Amit Patel",
     subject: "Chemistry",
     gradeLevel: "Grade 11-12",
@@ -205,7 +205,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
    {
     id: "demo4",
-    tutorName: "Sophia Chen",
+    tutorName: "Sophia Chen", // Matched to an existing tutor profile
     studentName: "Sneha Reddy",
     subject: "Biology",
     gradeLevel: "Grade 9-10",
@@ -227,24 +227,24 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo6",
-    tutorName: "Mock Tutor",
+    tutorName: "Mock Tutor General", // Using the generic tutor
     studentName: "Aarav Gupta",
     subject: "General Science",
     gradeLevel: "Grade 7",
     board: "CBSE",
-    date: new Date(Date.now() + 86400000 * 4).toISOString(), // 4 days from now
+    date: new Date(Date.now() + 86400000 * 4).toISOString(), 
     time: "3:00 PM - 3:30 PM",
     status: "Scheduled",
     joinLink: "#",
   },
   {
     id: "demo7",
-    tutorName: "Mock Tutor",
+    tutorName: "Mock Tutor General",
     studentName: "Ishika Jain",
     subject: "Mathematics",
     gradeLevel: "Grade 8",
     board: "State Board",
-    date: new Date(Date.now() + 86400000 * 6).toISOString(), // 6 days from now
+    date: new Date(Date.now() + 86400000 * 6).toISOString(), 
     time: "10:00 AM - 10:30 AM",
     status: "Scheduled",
   },
@@ -265,7 +265,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     location: "Online", 
     status: "open", 
     postedAt: new Date("2025-05-01T10:00:00Z").toISOString(), 
-    additionalNotes: "Looking for help with basic algebra and problem-solving skills.", 
+    additionalNotes: "Looking for help with basic algebra and problem-solving skills. Student is a quick learner but needs to build confidence in exams.", 
     board: "CBSE", 
     teachingMode: ["Online"], 
     applicantsCount: 3 
@@ -282,7 +282,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     location: "Student's Home", 
     status: "matched", 
     postedAt: new Date("2025-05-05T14:30:00Z").toISOString(), 
-    additionalNotes: "Needs assistance with Physics and Chemistry chapters. Tutor selected, classes ongoing.", 
+    additionalNotes: "Needs assistance with Physics and Chemistry chapters for final exams. Tutor selected (Ms. Anya Sharma), classes ongoing. Focus on practical examples.", 
     board: "ICSE", 
     teachingMode: ["Offline (In-person)"], 
     applicantsCount: 7
@@ -300,7 +300,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     location: "Tutor's Home", 
     status: "closed", 
     postedAt: new Date("2025-04-12T09:00:00Z").toISOString(), 
-    additionalNotes: "Found a tutor (Mr. Ramesh) but decided not to start classes at this time.", 
+    additionalNotes: "Found a tutor (Mr. Ramesh Kumar) but decided not to start classes at this time due to schedule conflicts. Might reconsider next term.", 
     board: "State Board", 
     teachingMode: ["Offline (In-person)"], 
     applicantsCount: 5 
@@ -311,13 +311,13 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     parentName: "Alice Smith", 
     subject: "Hindi", 
     gradeLevel: "Grade 4", 
-    scheduleDetails: "Flexible online sessions", 
+    scheduleDetails: "Flexible online sessions, 2 times a week", 
     preferredDays: ["Flexible"], 
     preferredTime: ["Flexible"], 
     location: "Online", 
     status: "closed", 
     postedAt: new Date("2025-03-25T11:00:00Z").toISOString(), 
-    additionalNotes: "No suitable tutor was found for this requirement.", 
+    additionalNotes: "No suitable tutor was found for this requirement after reviewing 2 applications. Requirement closed.", 
     board: "CBSE", 
     teachingMode: ["Online"], 
     applicantsCount: 2
@@ -329,14 +329,15 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     parentName: "Bob Johnson", 
     subject: "Physics", 
     gradeLevel: "Grade 11-12", 
-    scheduleDetails: "Weekends, 4 hours total", 
-    preferredDays: ["Weekends"], 
-    preferredTime: ["4 hours total"], 
+    scheduleDetails: "Weekends, 4 hours total, prefer morning", 
+    preferredDays: ["Saturday", "Sunday"], 
+    preferredTime: ["9 AM - 11 AM"], 
     location: "Student's Home", 
     status: "open", 
-    postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
+    postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
     board: "ICSE", 
     teachingMode: ["Offline (In-person)"], 
-    applicantsCount: 3 
+    applicantsCount: 3,
+    additionalNotes: "Needs urgent help for upcoming competitive exams. Strong fundamentals required."
   },
 ];

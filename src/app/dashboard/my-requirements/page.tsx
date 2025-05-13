@@ -1,3 +1,4 @@
+// src/app/dashboard/my-requirements/page.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -16,86 +17,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
+import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 
-
-// Mock data - updated as per user request
-const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
-  // Current Enquiries
-  { 
-    id: "current1", 
-    parentId: "p1", 
-    parentName: "Alice Smith", 
-    subject: "Mathematics", 
-    gradeLevel: "Grade 6", 
-    scheduleDetails: "Mon, Wed 5-6 PM", 
-    preferredDays: ["Mon", "Wed"], 
-    preferredTime: ["5-6 PM"], 
-    location: "Online", 
-    status: "open", 
-    postedAt: new Date("2025-05-01T10:00:00Z").toISOString(), 
-    additionalNotes: "Looking for help with basic algebra and problem-solving skills.", 
-    board: "CBSE", 
-    teachingMode: ["Online"], 
-    applicantsCount: 3 
-  },
-  { 
-    id: "current2", 
-    parentId: "p1", 
-    parentName: "Alice Smith", 
-    subject: "Science", 
-    gradeLevel: "Grade 8", 
-    scheduleDetails: "Tues, Thurs 6-7:30 PM", 
-    preferredDays: ["Tues", "Thurs"], 
-    preferredTime: ["6-7:30 PM"], 
-    location: "Student's Home", 
-    status: "matched", // "matched" for In Progress
-    postedAt: new Date("2025-05-05T14:30:00Z").toISOString(), 
-    additionalNotes: "Needs assistance with Physics and Chemistry chapters. Tutor selected, classes ongoing.", 
-    board: "ICSE", 
-    teachingMode: ["Offline (In-person)"], 
-    applicantsCount: 7
-  },
-  // Past Enquiries
-  { 
-    id: "past1", 
-    parentId: "p1", 
-    parentName: "Alice Smith", 
-    subject: "English", 
-    gradeLevel: "Grade 5", 
-    scheduleDetails: "Sat 10-11 AM", 
-    preferredDays: ["Saturday"], 
-    preferredTime: ["10-11 AM"], 
-    location: "Tutor's Home", 
-    status: "closed", 
-    postedAt: new Date("2025-04-12T09:00:00Z").toISOString(), 
-    additionalNotes: "Found a tutor (Mr. Ramesh) but decided not to start classes at this time.", 
-    board: "State Board", 
-    teachingMode: ["Offline (In-person)"], 
-    applicantsCount: 5 
-  },
-  { 
-    id: "past2", 
-    parentId: "p1", 
-    parentName: "Alice Smith", 
-    subject: "Hindi", 
-    gradeLevel: "Grade 4", 
-    scheduleDetails: "Flexible online sessions", 
-    preferredDays: ["Flexible"], 
-    preferredTime: ["Flexible"], 
-    location: "Online", 
-    status: "closed", 
-    postedAt: new Date("2025-03-25T11:00:00Z").toISOString(), 
-    additionalNotes: "No suitable tutor was found for this requirement.", 
-    board: "CBSE", 
-    teachingMode: ["Online"], 
-    applicantsCount: 2
-  },
-  // Existing mock data (can be kept or removed if only the new ones are needed)
-  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", preferredDays: ["Mon", "Wed", "Fri"], preferredTime: ["5-7 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"], applicantsCount: 10 },
-  { id: "6", parentId: "p1", parentName: "Alice Smith", subject: "History", gradeLevel: "Grade 9-10", scheduleDetails: "Tues 6-8 PM", preferredDays: ["Tuesday"], preferredTime: ["6-8 PM"], location: "Student's Home", status: "matched", postedAt: new Date(Date.now() - 86400000 * 15).toISOString(), board: "State Board", teachingMode: ["Offline (In-person)"], applicantsCount: 3 },
-  { id: "7", parentId: "p1", parentName: "Alice Smith", subject: "Science", gradeLevel: "Grade 6-8", scheduleDetails: "Weekends 10-12 AM", preferredDays: ["Saturday", "Sunday"], preferredTime: ["10-12 AM"], location: "Online", status: "closed", postedAt: new Date(Date.now() - 86400000 * 30).toISOString(), board: "ICSE", teachingMode: ["Online"], applicantsCount: 5 },
-  { id: "8", parentId: "p1", parentName: "Alice Smith", subject: "English", gradeLevel: "Grade 11-12", scheduleDetails: "Flexible evenings", preferredDays: ["Flexible"], preferredTime: ["Evenings"], location: "Tutor's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), board: "IB", teachingMode: ["Offline (In-person)"], applicantsCount: 1 },
-];
 
 export default function MyRequirementsPage() {
   const { user } = useAuthMock();
@@ -112,8 +35,7 @@ export default function MyRequirementsPage() {
 
   useEffect(() => {
     if (user) {
-      // In a real app, fetch requirements for the logged-in user
-      // For now, using the new MOCK_ALL_PARENT_REQUIREMENTS
+      // Filter mock requirements for the logged-in user (e.g., Alice Smith)
       setAllRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id || req.parentName === user.name));
     }
   }, [user]);
@@ -237,7 +159,7 @@ export default function MyRequirementsPage() {
   if (!user) return <div className="flex h-screen items-center justify-center text-sm font-medium text-muted-foreground animate-in fade-in duration-300">Loading...</div>;
 
   return (
-    <div className="space-y-6 container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-24"> {/* Reduced space-y and py, added bottom padding for FAB */}
+    <div className="space-y-6 container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-24"> 
       <Tabs defaultValue="current" className="w-full">
         <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
           <TabsTrigger value="current" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">Current</TabsTrigger>
