@@ -121,26 +121,23 @@ export default function ParentDashboardPage() {
         illustrationHint="enquiry list"
       />,
       <ActionCard
-        key="my-tuitions"
-        title="My Tuitions"
-        descriptionText="Browse tutor profiles or manage demo requests and booked classes."
+        key="my-classes" // Changed from my-tuitions
+        title="My Classes" // Changed from My Tuitions
+        descriptionText="Browse tutor profiles or manage booked classes." // Updated description
         IconComponent={SearchCheck}
         quickInsightText="Find your next tutor"
-        ctaText="View All Tutors"
-        ctaHref="/search-tuitions" 
-        actionButtonText2="Demo Requests"
-        ActionButtonIcon2={MessageSquareQuote}
-        href2="/dashboard/demo-sessions"
+        ctaText="View All Classes" // Changed from View All Tutors
+        ctaHref="/dashboard/my-classes" // Changed href
         illustrationHint="student profile"
       />,
        <ActionCard
-        key="my-classes"
-        title="My Scheduled Classes"
-        descriptionText="View upcoming classes, manage schedules, and track progress."
-        IconComponent={CalendarDays} 
-        quickInsightText="2 Active Classes"
-        ctaText="View My Classes"
-        ctaHref="/dashboard/my-classes"
+        key="my-demos" // Changed from my-classes
+        title="My Demos" // Changed from My Scheduled Classes
+        descriptionText="View upcoming demos, manage schedules, and track progress."
+        IconComponent={MessageSquareQuote} // Changed icon to MessageSquareQuote for demos
+        quickInsightText="1 Upcoming Demo" // Updated quick insight
+        ctaText="View All Demos" // Changed from View My Classes
+        ctaHref="/dashboard/demo-sessions" // Changed href
         disabled={false} 
         illustrationHint="calendar schedule"
       />,
@@ -379,5 +376,6 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
