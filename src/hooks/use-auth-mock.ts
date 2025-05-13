@@ -126,17 +126,26 @@ export function useAuthMock() {
         role: 'admin',
         name: 'Admin User', 
       };
-    } else { 
-      finalUserData = {
-        ...baseUserData,
-        role: 'parent',
-      };
+    } else { // PARENT
+      if (email.toLowerCase() === "alice.smith@example.com") {
+        finalUserData = {
+          ...baseUserData,
+          id: "p1", // Match mock data parentId
+          name: "Alice Smith", // Match mock data parentName
+          role: 'parent',
+        };
+      } else {
+        finalUserData = {
+          ...baseUserData,
+          role: 'parent',
+        };
+      }
     }
     
     setUser(finalUserData);
     // Updated redirect logic
     if (finalUserData.role === 'tutor') {
-      router.push("/dashboard/tutor");
+      router.push("/dashboard/enquiries"); // Tutor dashboard is now My Enquiries
     } else if (finalUserData.role === 'parent') {
       router.push("/dashboard/parent");
     } else if (finalUserData.role === 'admin') {
@@ -183,7 +192,7 @@ export function useAuthMock() {
     setUser(mockUserData);
     // Updated redirect logic
     if (role === 'tutor') {
-      router.push("/dashboard/tutor");
+      router.push("/dashboard/enquiries"); // Tutor dashboard is now My Enquiries
     } else if (role === 'parent') {
       router.push("/dashboard/parent");
     } else {
@@ -208,3 +217,4 @@ export function useAuthMock() {
     logout,
   };
 }
+
