@@ -391,7 +391,7 @@ export default function ParentDashboardPage() {
         </CardContent>
       </Card>
 
-      <EventDialog open={isEventDetailsModalOpen} onOpenChange={setIsEventDetailsModalOpen}>
+      <Dialog open={isEventDetailsModalOpen} onOpenChange={setIsEventDetailsModalOpen}>
         <EventDialogContent className="sm:max-w-sm bg-card">
           <EventDialogHeader>
             <EventDialogTitle className="text-base text-primary">
@@ -415,7 +415,7 @@ export default function ParentDashboardPage() {
             )) : <p className="text-xs text-muted-foreground text-center">No events for this day.</p>}
           </div>
         </EventDialogContent>
-      </EventDialog>
+      </Dialog>
 
 
       {otpVerificationType && otpVerificationIdentifier && (
