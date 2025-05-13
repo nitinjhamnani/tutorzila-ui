@@ -29,12 +29,14 @@ interface SummaryStatCardProps {
 function SummaryStatCard({ title, value, icon: Icon, colorClass = "text-primary", bgColorClass = "bg-primary/10", imageHint }: SummaryStatCardProps) {
   return (
     <Card className="bg-card border border-border/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out aspect-square flex flex-col justify-center items-center text-center p-2">
-        <div className={cn("p-2.5 mb-1.5 rounded-full shadow-sm", bgColorClass, colorClass === "text-primary" ? "bg-primary/10" : "")}>
-          <Icon className={cn("w-5 h-5", colorClass)} />
+        <div className={cn("p-3 mb-2 rounded-full shadow-sm", bgColorClass, "bg-primary/10")}> {/* Ensured bg-primary/10 for icon background */}
+          <Icon className={cn("w-6 h-6", colorClass)} /> {/* Increased icon size */}
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
-          <p className="text-sm font-bold text-foreground whitespace-nowrap truncate leading-tight mt-0.5">{value}</p>
+          <div className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-7 h-7 flex items-center justify-center mx-auto mb-1 leading-tight"> {/* Encapsulated number */}
+             {value}
+          </div>
+          <p className="text-[10px] text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
         </div>
     </Card>
   );
@@ -101,14 +103,14 @@ export default function ParentDashboardPage() {
     { title: "Total Enquiries", value: 5, icon: ListChecks, colorClass: "text-blue-600", bgColorClass:"bg-blue-100/70", imageHint: "document list" },
     { title: "Active Classes", value: 2, icon: CalendarDays, colorClass: "text-green-600", bgColorClass:"bg-green-100/70", imageHint: "active calendar" },
     { title: "Upcoming Demos", value: 1, icon: MessageSquareQuote, colorClass: "text-purple-600", bgColorClass:"bg-purple-100/70", imageHint: "chat bubble" },
-    { title: "Payments Made", value: "₹12.5k", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" }, 
+    { title: "Payments Made", value: "₹12k", icon: DollarSign, colorClass: "text-red-500", bgColorClass:"bg-red-100/70", imageHint: "money stack" }, 
   ];
 
   const parentActionCards = [
       <ActionCard
         key="my-enquiries"
         title="My Enquiries"
-        descriptionText="Manage your posted tuition needs."
+        descriptionText="Manage your posted tuition needs and track tutor applications."
         IconComponent={ListChecks} 
         quickInsightText="2 Active Enquiries"
         ctaText="View My Enquiries"
@@ -121,11 +123,11 @@ export default function ParentDashboardPage() {
       <ActionCard
         key="my-tuitions"
         title="My Tuitions"
-        descriptionText="Browse tutors or manage demo requests."
+        descriptionText="Browse tutor profiles or manage demo requests and booked classes."
         IconComponent={SearchCheck}
         quickInsightText="Find your next tutor"
         ctaText="View All Tutors"
-        ctaHref="/search-tuitions"
+        ctaHref="/search-tuitions" // Or /dashboard/parent/find-tutors if specific parent view
         actionButtonText2="Demo Requests"
         ActionButtonIcon2={MessageSquareQuote}
         href2="/dashboard/demo-sessions"
@@ -134,7 +136,7 @@ export default function ParentDashboardPage() {
        <ActionCard
         key="my-classes"
         title="My Scheduled Classes"
-        descriptionText="View upcoming classes and schedules."
+        descriptionText="View upcoming classes, manage schedules, and track progress."
         IconComponent={CalendarDays} 
         quickInsightText="2 Active Classes"
         ctaText="View My Classes"
@@ -142,21 +144,11 @@ export default function ParentDashboardPage() {
         disabled={false} 
         illustrationHint="calendar schedule"
       />,
-      <ActionCard
-        key="student-profiles"
-        title="Student Profiles"
-        descriptionText="Add and manage profiles for your children."
-        IconComponent={School} 
-        quickInsightText="Manage Student Details"
-        ctaText="View Profiles"
-        ctaHref="/dashboard/manage-students"
-        disabled={false} 
-        illustrationHint="students learning"
-      />,
+      // Student Profiles card removed
         <ActionCard
         key="payments"
         title="My Payments"
-        descriptionText="Track your tuition payment history."
+        descriptionText="Track your tuition payment history and manage outstanding payments."
         IconComponent={DollarSign} 
         quickInsightText="View Payment History"
         ctaText="Manage Payments"
@@ -259,7 +251,7 @@ export default function ParentDashboardPage() {
       </div>
 
       {parentActionCards.length > 0 && (
-          <div className="grid gap-4 md:gap-5 md:grid-cols-2 lg:grid-cols-3"> 
+          <div className="grid gap-4 md:gap-5 md:grid-cols-2 lg:grid-cols-2"> {/* Adjusted lg:grid-cols-2 for 4 cards */}
           {parentActionCards.map((card, index) => (
             <div 
               key={index} 
@@ -385,3 +377,4 @@ function ActionCard({
     </Card>
   );
 }
+
