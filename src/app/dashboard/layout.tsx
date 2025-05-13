@@ -132,8 +132,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       item.disabled && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-3">
-                      <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110")} />
+                    <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-2.5">
+                      <item.icon className={cn("transition-transform duration-200 group-hover:scale-110")} />
                       <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -158,13 +158,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     )}
                   >
                     {item.onClick ? (
-                      <div className="flex items-center gap-3 w-full">
-                        <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110")} />
+                      <div className="flex items-center gap-2.5 w-full">
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110")} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     ) : (
-                      <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-3">
-                        <item.icon className={cn("h-5 w-5 transition-transform duration-200 group-hover:scale-110")} />
+                      <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-2.5">
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110")} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
                     )}
