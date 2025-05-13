@@ -1,3 +1,4 @@
+
 // src/app/dashboard/parent/page.tsx
 "use client";
 
@@ -16,7 +17,6 @@ import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-// Calendar import removed as it's no longer used directly on this page
 import { Dialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription } from "@/components/ui/dialog";
 import { format, isSameDay, isSameMonth } from "date-fns";
 
@@ -35,7 +35,8 @@ function SummaryStatCard({ title, value, icon: Icon, imageHint }: SummaryStatCar
           <Icon className={cn("w-7 h-7", "text-primary")} />
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-1 leading-tight">
+          {/* Removed the div that created the circular background for the number */}
+          <div className="text-2xl md:text-3xl font-bold text-primary mb-1 leading-tight">
              {value}
           </div>
           <p className="text-xs text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
@@ -495,5 +496,6 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
