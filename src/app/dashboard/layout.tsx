@@ -50,15 +50,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const commonNavItems = [
     { href: dashboardHomeHref, label: "Dashboard", icon: LayoutDashboard }, 
-    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true }, // Added Messages
   ];
 
   const parentNavItems = [
     { href: "/dashboard/post-requirement", label: "Post Requirement", icon: PlusCircle },
     { href: "/dashboard/my-requirements", label: "My Enquiries", icon: ListChecks }, 
     { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck },
-    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
+    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
     { href: "/dashboard/my-calendar", label: "My Calendar", icon: CalendarDays, disabled: false },
     { href: "/dashboard/manage-students", label: "Student Profiles", icon: School, disabled: false }, 
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false }, 
@@ -67,6 +67,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const tutorNavItems = [
     { href: "/dashboard/enquiries", label: "My Enquiries", icon: Briefcase },
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false }, 
     { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false }, 
   ];
@@ -75,6 +76,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: Users, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
     { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: DollarSign, disabled: true }, 
+    { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
   ];
   
   const finalAdminNavItems = user.role === "admin" && dashboardHomeHref === "/dashboard/admin" 
