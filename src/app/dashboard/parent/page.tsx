@@ -304,7 +304,7 @@ export default function ParentDashboardPage() {
       )}
       
        {/* Calendar Section - Two Part Layout */}
-      <div className="grid lg:grid-cols-3 gap-6 md:gap-8 items-stretch animate-in fade-in duration-500 ease-out" style={{ animationDelay: '0.8s' }}>
+      <div className="grid lg:grid-cols-3 gap-6 md:gap-8 items-start animate-in fade-in duration-500 ease-out" style={{ animationDelay: '0.8s' }}>
         {/* Left: Upcoming Events */}
         <Card className="lg:col-span-2 bg-card border border-border/30 rounded-xl shadow-sm flex flex-col">
           <CardHeader className="pb-3 border-b border-border/30">
@@ -353,8 +353,8 @@ export default function ParentDashboardPage() {
               Click on a date to view or add events.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-3 md:p-4 flex-grow flex items-center justify-center">
-            <div className="max-w-sm w-full">
+          <CardContent className="p-3 md:p-4 flex items-center justify-center"> {/* Removed flex-grow */}
+            <div className="w-full max-w-[280px] sm:max-w-[320px] mx-auto"> {/* Adjusted calendar container width */}
               <Calendar
                 mode="single"
                 selected={clickedDay || undefined}
@@ -364,13 +364,12 @@ export default function ParentDashboardPage() {
                 captionLayout="dropdown-buttons"
                 fromYear={new Date().getFullYear() - 5}
                 toYear={new Date().getFullYear() + 5}
-                weekStartsOn={1}
-                className="rounded-md border bg-background shadow-inner p-1.5 w-full"
+                weekStartsOn={1} // Monday
+                className="rounded-md border bg-background shadow-inner p-1.5 w-full" 
                 classNames={{
                   day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 text-xs font-normal aria-selected:opacity-100"),
-                  day_today: "bg-primary/10 text-primary font-bold relative",
                   nav_button: cn(buttonVariants({ variant: "outline" }), "h-7 w-7 p-0"),
-                  caption_label: "text-sm font-medium hidden",
+                  caption_label: "text-sm font-medium hidden", 
                   head_cell: "text-muted-foreground rounded-md w-full sm:w-8 font-normal text-[0.8rem]", 
                   cell: "h-8 w-full sm:w-8 text-center text-xs p-0 relative", 
                 }}
@@ -547,6 +546,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
