@@ -1,4 +1,3 @@
-
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -54,7 +53,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const parentNavItems = [
     { href: "/dashboard/post-requirement", label: "Post Requirement", icon: PlusCircle },
-    { href: "/dashboard/my-requirements", label: "My Enquiries", icon: ListChecks }, 
+    { href: "/dashboard/my-enquiries", label: "My Enquiries", icon: ListChecks }, 
     { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck },
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false }, 
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
@@ -177,7 +176,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 py-4 md:py-6 bg-background pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height)_+_1rem)]"> 
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
           {children}
           </div>
         </SidebarInset>
@@ -191,3 +190,4 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
+

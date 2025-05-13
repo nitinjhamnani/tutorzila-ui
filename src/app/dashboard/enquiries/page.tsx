@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -82,7 +81,7 @@ export default function AllEnquiriesPage() {
     setTeachingModeFilter("All");
   };
   
-  const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
+  // const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12"; // Removed as padding is handled by SidebarInset
 
   // Mock counts - replace with actual logic later
   const tabCounts = {
@@ -146,7 +145,7 @@ export default function AllEnquiriesPage() {
 
 
   return (
-    <div className={`${containerPadding} pb-8 pt-0`}>
+    <div className="pb-8 pt-0"> {/* Removed containerPadding and rely on SidebarInset */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Panel */}
         {/* Mobile Accordion Filter */}
