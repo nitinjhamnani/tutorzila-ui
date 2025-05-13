@@ -125,9 +125,6 @@ export default function ParentDashboardPage() {
         quickInsightText="Find your next tutor"
         ctaText="View All Classes" 
         ctaHref="/dashboard/my-classes" 
-        actionButtonText2="Demo Requests"
-        ActionButtonIcon2={MessageSquareQuote}
-        href2="/dashboard/demo-sessions"
         illustrationHint="student profile"
       />,
        <ActionCard
@@ -376,6 +373,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
