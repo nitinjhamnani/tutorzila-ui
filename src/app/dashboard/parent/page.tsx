@@ -16,7 +16,7 @@ import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar } from "@/components/ui/calendar";
+// Calendar import removed as it's no longer used directly on this page
 import { Dialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription } from "@/components/ui/dialog";
 import { format, isSameDay, isSameMonth } from "date-fns";
 
@@ -82,7 +82,6 @@ export default function ParentDashboardPage() {
   const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
   
-  const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
   const [selectedDayEvents, setSelectedDayEvents] = useState<MockEvent[]>([]);
   const [isEventDetailsModalOpen, setIsEventDetailsModalOpen] = useState(false);
   const [clickedDay, setClickedDay] = useState<Date | null>(null);
@@ -303,30 +302,33 @@ export default function ParentDashboardPage() {
         </div>
       )}
       
-       {/* Calendar Section - Two Part Layout */}
-      <div className="grid lg:grid-cols-3 gap-6 md:gap-8 items-start animate-in fade-in duration-500 ease-out" style={{ animationDelay: '0.8s' }}>
-        {/* Left: Upcoming Events */}
-        <Card className="lg:col-span-2 bg-card border border-border/30 rounded-xl shadow-sm flex flex-col">
+       {/* Upcoming Events Section */}
+      <div className="animate-in fade-in duration-500 ease-out" style={{ animationDelay: '0.8s' }}>
+        <Card className="bg-card border border-border/30 rounded-xl shadow-sm flex flex-col">
           <CardHeader className="pb-3 border-b border-border/30">
             <CardTitle className="text-lg font-semibold text-primary flex items-center">
               <LucideCalendarIcon className="w-5 h-5 mr-2" /> Upcoming Events
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground mt-0.5">
-              Your next scheduled activities.
+              Your next scheduled activities. Click on an event for more details.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 md:p-6 flex-grow">
             {upcomingCalendarEvents.length > 0 ? (
               <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
                 {upcomingCalendarEvents.map(event => (
-                  <div key={`${event.title}-${event.date}`} className="flex items-center gap-2.5 p-2.5 border border-border/20 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs">
+                  <button 
+                    key={`${event.title}-${event.date}`} 
+                    onClick={() => { setSelectedDayEvents([event]); setClickedDay(event.date); setIsEventDetailsModalOpen(true); }}
+                    className="w-full flex items-center gap-2.5 p-2.5 border border-border/20 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs text-left"
+                  >
                     <div className={cn("w-2 h-2 rounded-full shrink-0", getEventTypeColor(event.type))}></div>
                     <div className="flex-grow min-w-0">
                       <p className="font-medium text-foreground/90 truncate">{event.title}</p>
                       <p className="text-[10px] text-muted-foreground">{format(event.date, "MMM d, p")}</p>
                     </div>
                     <ArrowRight className="w-3 h-3 text-muted-foreground shrink-0"/>
-                  </div>
+                  </button>
                 ))}
               </div>
             ) : (
@@ -337,71 +339,10 @@ export default function ParentDashboardPage() {
             )}
           </CardContent>
           <div className="p-3 border-t border-border/30 mt-auto">
-             <Button variant="link" size="sm" className="w-full text-primary text-xs p-0 h-auto">
-                See all events
+             <Button variant="link" size="sm" className="w-full text-primary text-xs p-0 h-auto" disabled>
+                See all events (Coming Soon)
              </Button>
           </div>
-        </Card>
-
-        {/* Right: Calendar Widget */}
-        <Card className="lg:col-span-1 bg-card border border-border/30 rounded-xl shadow-sm flex flex-col">
-          <CardHeader className="pb-3 border-b border-border/30">
-            <CardTitle className="text-lg font-semibold text-primary flex items-center">
-              <LucideCalendarIcon className="w-5 h-5 mr-2" /> My Calendar
-            </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground mt-0.5">
-              Click on a date to view or add events.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 md:p-4 flex items-center justify-center"> 
-            <div className="w-full max-w-[280px] sm:max-w-[320px] mx-auto"> 
-              <Calendar
-                mode="single"
-                selected={clickedDay || undefined}
-                month={currentMonthDate}
-                onMonthChange={setCurrentMonthDate}
-                onDayClick={handleDayClick}
-                captionLayout="dropdown-buttons"
-                fromYear={new Date().getFullYear() - 5}
-                toYear={new Date().getFullYear() + 5}
-                weekStartsOn={1} 
-                className="rounded-md border bg-background shadow-inner p-1.5 w-full" 
-                classNames={{
-                  day: cn(
-                    buttonVariants({ variant: "ghost" }),
-                    "h-7 w-7 p-0 text-[0.65rem] font-normal aria-selected:opacity-100" // Smaller day buttons
-                  ),
-                  nav_button: cn(
-                    buttonVariants({ variant: "outline" }),
-                    "h-6 w-6 p-0 text-xs" // Smaller nav buttons
-                  ),
-                  caption_label: "text-sm font-medium hidden",
-                  head_cell: // Smaller head cells
-                    "text-muted-foreground rounded-md w-7 text-center font-normal text-[0.65rem] px-0",
-                  cell: // Smaller cells, ensure flex to center content
-                    "h-7 w-7 text-center text-[0.65rem] p-0 relative flex items-center justify-center",
-                  }}
-                components={{
-                  DayContent: ({ date, displayMonth }) => {
-                    const isCurrentDisplayMonth = isSameMonth(date, displayMonth);
-                    const dayEvents = mockEvents.filter(event => isSameDay(event.date, date));
-                    return (
-                      <>
-                        {format(date, "d")}
-                        {dayEvents.length > 0 && isCurrentDisplayMonth && (
-                          <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex space-x-0.5">
-                            {dayEvents.slice(0, 3).map((event, i) => (
-                              <div key={i} className={cn("w-1 h-1 rounded-full", getEventTypeColor(event.type))}></div> // Smaller dots
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    );
-                  }
-                }}
-              />
-            </div>
-          </CardContent>
         </Card>
       </div>
 
@@ -554,4 +495,5 @@ function ActionCard({
     </Card>
   );
 }
+
 
