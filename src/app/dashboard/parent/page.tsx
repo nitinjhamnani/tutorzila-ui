@@ -259,15 +259,55 @@ export default function ParentDashboardPage() {
             <CalendarIcon className="w-6 h-6 mr-2.5" /> My Calendar
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground mt-1">
-            View scheduled demos, classes, and payment due dates.
+            Consolidated view of demo schedules, classes, and payment due dates.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-5 text-center">
-          <Construction className="w-16 h-16 text-primary/30 mx-auto mb-5" />
-          <p className="text-xl font-semibold text-foreground/70 mb-1.5">Interactive Calendar Coming Soon!</p>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            This section will display all your tutoring-related events in one place.
-          </p>
+        <CardContent className="p-5">
+          {/* Placeholder for Calendar Component */}
+          <div className="mb-6 p-4 border border-dashed border-border/50 rounded-lg text-center bg-muted/20">
+            <Construction className="w-12 h-12 text-primary/40 mx-auto mb-3" />
+            <p className="text-md font-medium text-foreground/60">Interactive Calendar Coming Soon</p>
+            <p className="text-xs text-muted-foreground">Hover/click on dates to see event summaries.</p>
+          </div>
+
+          {/* Placeholder for Upcoming Events List */}
+          <div>
+            <h4 className="text-md font-semibold text-foreground mb-3">Upcoming Events</h4>
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+              {/* Example Event Item - Replace with dynamic data */}
+              <div className="flex items-center gap-3 p-2.5 border border-border/30 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs">
+                <div className="p-1.5 bg-blue-100/70 text-blue-600 rounded-md">
+                  <CalendarDays className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-grow">
+                  <p className="font-medium text-foreground/90">Math Class with Dr. Carter</p>
+                  <p className="text-muted-foreground">Tomorrow, 4:00 PM - 5:00 PM</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-2.5 border border-border/30 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs">
+                <div className="p-1.5 bg-green-100/70 text-green-600 rounded-md">
+                  <MessageSquareQuote className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-grow">
+                  <p className="font-medium text-foreground/90">Physics Demo with John A.</p>
+                  <p className="text-muted-foreground">In 3 days, 11:00 AM - 11:30 AM</p>
+                </div>
+              </div>
+               <div className="flex items-center gap-3 p-2.5 border border-border/30 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs">
+                <div className="p-1.5 bg-red-100/70 text-red-500 rounded-md">
+                  <DollarSign className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-grow">
+                  <p className="font-medium text-foreground/90">Payment Due for English Class</p>
+                  <p className="text-muted-foreground">Next week</p>
+                </div>
+              </div>
+              <div className="text-center text-muted-foreground py-4">
+                <Construction className="w-10 h-10 text-primary/30 mx-auto mb-2" />
+                <p className="text-xs">Full event list coming soon.</p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -367,6 +407,7 @@ function ActionCard({
     </Card>
   );
 }
+
 
 
 
