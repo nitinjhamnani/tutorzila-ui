@@ -50,7 +50,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     setIsShortlisted(!isShortlisted);
     toast({
       title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
-      description: `Enquiry for ${requirement.subject.join(', ')} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
+      description: `Enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
     });
   };
 
@@ -70,8 +70,8 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0 space-y-1">
-            <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors truncate">
-              {requirement.subject.join(', ')}
+            <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors">
+              {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </p>
             <div className="text-[10px] sm:text-[11px] text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 items-center">
               {requirement.gradeLevel && <span className="flex items-center"><GraduationCap className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.gradeLevel}</span>}
@@ -98,7 +98,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         </Link>
         {!isPastEnquiry && (
           <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end">
-            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} >
+            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled={false} >
               <Edit3 className="h-3.5 w-3.5" />
             </Button>
             <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)}>
@@ -127,8 +127,8 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
-            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors line-clamp-2">
-              {requirement.subject.join(', ')}
+            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors">
+               {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
             <CardDescription className="text-[11px] text-muted-foreground mt-0.5">
               Posted {timeAgo}
@@ -199,19 +199,20 @@ interface InfoItemProps {
   label: string;
   value: string;
   truncateValue?: number;
+  className?: string; // Add className to InfoItemProps
 }
 
-function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
-  const displayValue = truncateValue && value.length > truncateValue 
+function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoItemProps) {
+  const displayValue = truncateValue && value && value.length > truncateValue 
     ? `${value.substring(0, truncateValue - 3)}...` 
     : value;
 
   return (
-    <div className="flex items-start text-xs">
+    <div className={cn("flex items-start text-xs", className)}>
       <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px] transition-transform duration-300 group-hover:scale-105" />
-      <div>
+      <div className="min-w-0 flex-1">
         <strong className="text-foreground/80 font-medium">{label}:</strong>&nbsp;
-        <span className="text-muted-foreground">{displayValue}</span>
+        <span className="text-muted-foreground break-words">{displayValue}</span>
       </div>
     </div>
   );
