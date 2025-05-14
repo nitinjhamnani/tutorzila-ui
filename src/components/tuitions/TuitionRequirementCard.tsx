@@ -60,7 +60,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     // List Item Layout for "My Enquiries"
     return (
       <div className={cn(
-        "group bg-card border-b last:border-b-0 rounded-none shadow-none hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3", 
+        "group bg-card border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3", 
         isPastEnquiry && "opacity-70 bg-muted/50"
       )}>
         <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer">
@@ -175,7 +175,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!(isParentContext && showActions) && ( 
+        {!(isParentContext && showActions) && !isParentContext && ( 
           <Button 
             asChild 
             className={cn(
@@ -216,4 +216,3 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
     </div>
   );
 }
-
