@@ -5,7 +5,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   { 
     id: "t1", 
     name: "Dr. Emily Carter", 
-    email: "dr.emily.carter@example.com",
+    email: "emily.carter@example.com",
     role: "tutor", 
     avatar: "https://picsum.photos/seed/emilycarter/128", 
     subjects: ["Physics", "Mathematics", "Chemistry"], 
@@ -251,22 +251,20 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
 ];
 
-// Mock data for parent requirements used in MyRequirementsPage
 export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
-  // Current Enquiries for Alice Smith (parentId: "p1")
   { 
     id: "current1", 
     parentId: "p1", 
     parentName: "Alice Smith", 
     subject: ["Mathematics"], 
     gradeLevel: "Grade 6", 
-    scheduleDetails: "Mon, Wed 5-6 PM", 
+    scheduleDetails: "Looking for help with basic algebra and problem-solving skills. Student is a quick learner but needs to build confidence in exams.", 
     preferredDays: ["Mon", "Wed"], 
-    preferredTime: ["5-6 PM"], 
+    preferredTimeSlots: ["1700-1900"], 
     location: "Online", 
     status: "open", 
     postedAt: new Date("2025-05-01T10:00:00Z").toISOString(), 
-    additionalNotes: "Looking for help with basic algebra and problem-solving skills. Student is a quick learner but needs to build confidence in exams.", 
+    additionalNotes: "Student is a quick learner but needs to build confidence in exams.", 
     board: "CBSE", 
     teachingMode: ["Online"], 
     applicantsCount: 3 
@@ -277,27 +275,26 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     parentName: "Alice Smith", 
     subject: ["Science"], 
     gradeLevel: "Grade 8", 
-    scheduleDetails: "Tues, Thurs 6-7:30 PM", 
+    scheduleDetails: "Needs assistance with Physics and Chemistry chapters for final exams. Focus on practical examples.", 
     preferredDays: ["Tues", "Thurs"], 
-    preferredTime: ["6-7:30 PM"], 
+    preferredTimeSlots: ["1800-2000"], 
     location: "Student's Home", 
     status: "matched", 
     postedAt: new Date("2025-05-05T14:30:00Z").toISOString(), 
-    additionalNotes: "Needs assistance with Physics and Chemistry chapters for final exams. Tutor selected (Ms. Anya Sharma), classes ongoing. Focus on practical examples.", 
+    additionalNotes: "Tutor selected (Ms. Anya Sharma), classes ongoing.", 
     board: "ICSE", 
     teachingMode: ["Offline (In-person)"], 
     applicantsCount: 7
   },
-  // Past Enquiries for Alice Smith (parentId: "p1")
   { 
     id: "past1", 
     parentId: "p1", 
     parentName: "Alice Smith", 
     subject: ["English"], 
     gradeLevel: "Grade 5", 
-    scheduleDetails: "Sat 10-11 AM", 
+    scheduleDetails: "Focus on grammar and creative writing.", 
     preferredDays: ["Saturday"], 
-    preferredTime: ["10-11 AM"], 
+    preferredTimeSlots: ["1000-1200"], 
     location: "Tutor's Home", 
     status: "closed", 
     postedAt: new Date("2025-04-12T09:00:00Z").toISOString(), 
@@ -312,9 +309,9 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     parentName: "Alice Smith", 
     subject: ["Hindi"], 
     gradeLevel: "Grade 4", 
-    scheduleDetails: "Flexible online sessions, 2 times a week", 
+    scheduleDetails: "Need help with reading and writing.", 
     preferredDays: ["Flexible"], 
-    preferredTime: ["Flexible"], 
+    preferredTimeSlots: ["Flexible"], 
     location: "Online", 
     status: "closed", 
     postedAt: new Date("2025-03-25T11:00:00Z").toISOString(), 
@@ -323,22 +320,21 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     teachingMode: ["Online"], 
     applicantsCount: 2
   },
-  // Other mock requirements for different parents or scenarios if needed for broader testing
   { 
     id: "other1", 
     parentId: "p2", 
     parentName: "Bob Johnson", 
     subject: ["Physics", "Chemistry"], 
     gradeLevel: "Grade 11-12", 
-    scheduleDetails: "Weekends, 4 hours total, prefer morning", 
+    scheduleDetails: "Needs urgent help for upcoming competitive exams. Strong fundamentals required.", 
     preferredDays: ["Saturday", "Sunday"], 
-    preferredTime: ["9 AM - 11 AM"], 
+    preferredTimeSlots: ["0800-1000"], 
     location: "Student's Home", 
     status: "open", 
-    postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+    postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
     board: "ICSE", 
     teachingMode: ["Offline (In-person)"], 
     applicantsCount: 3,
-    additionalNotes: "Needs urgent help for upcoming competitive exams. Strong fundamentals required."
+    additionalNotes: "Looking for experienced tutors only."
   },
 ];

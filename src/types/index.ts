@@ -8,35 +8,35 @@ export interface User {
   role: UserRole;
   avatar?: string; // URL to avatar image
   status?: "Active" | "Inactive"; 
-  phone?: string; // Added phone
-  isEmailVerified?: boolean; // Added email verification status
-  isPhoneVerified?: boolean; // Added phone verification status
-  gender?: "male" | "female" | "other" | ""; // Added gender
-  dateOfBirth?: string; // ISO date string, Added dateOfBirth
+  phone?: string; 
+  isEmailVerified?: boolean; 
+  isPhoneVerified?: boolean; 
+  gender?: "male" | "female" | "other" | ""; 
+  dateOfBirth?: string; // ISO date string
 }
 
 export interface TuitionRequirement {
   id:string;
   parentId: string;
-  parentName?: string; // Optional, denormalized
-  subject: string[]; // Changed from string to string[]
+  parentName?: string; 
+  subject: string[]; 
   gradeLevel: string;
-  scheduleDetails: string; // Kept for full context if needed elsewhere, or for initial data
+  scheduleDetails: string; 
   preferredDays?: string[]; 
-  preferredTime?: string[]; 
-  location?: string; // e.g., "Online", "Student's Home", "Tutor's Home"
+  preferredTimeSlots?: string[]; // Changed from preferredTime
+  location?: string; 
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
   postedAt: string; // ISO date string
-  board?: string; // e.g., "CBSE", "ICSE"
-  teachingMode?: string[]; // e.g., ["Online"], ["Offline"], ["Online", "Offline"]
-  applicantsCount?: number; // Added to show number of applicants
+  board?: string; 
+  teachingMode?: string[]; 
+  applicantsCount?: number; 
 }
 
 export interface TutorProfile extends User {
   subjects: string[];
-  grade?: string; // Grade level the tutor specializes in - represents a general grade category
-  experience: string; // e.g., "5+ years", "1-3 years"
+  grade?: string; 
+  experience: string; 
   hourlyRate?: string; 
   bio?: string;
   qualifications?: string[]; 
@@ -61,7 +61,7 @@ export interface Testimonial {
 
 export interface DemoSession {
   id: string;
-  tutorName?: string; // Added to associate demo with a tutor
+  tutorName?: string; 
   studentName: string;
   subject: string; 
   gradeLevel: string; 

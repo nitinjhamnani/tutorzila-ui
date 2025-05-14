@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { PlusCircle, ListChecks, Search, Edit3, Trash2, XCircle, CheckCircle as CheckCircleIcon, Archive, Send, UserCheck, AlertTriangle } from "lucide-react";
@@ -25,6 +26,7 @@ import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 export default function MyRequirementsPage() {
   const { user } = useAuthMock();
   const { toast } = useToast();
+  const router = useRouter(); // Initialize router
   const [allRequirements, setAllRequirements] = useState<TuitionRequirement[]>([]);
   
   const [selectedRequirement, setSelectedRequirement] = useState<TuitionRequirement | null>(null);
@@ -46,8 +48,7 @@ export default function MyRequirementsPage() {
   const pastRequirements = useMemo(() => allRequirements.filter(req => req.status === 'closed'), [allRequirements]);
 
   const handleEdit = (id: string) => {
-    const requirementToEdit = allRequirements.find(req => req.id === id);
-    toast({ title: "Edit Action (Mock)", description: `Editing requirement for ${requirementToEdit?.subject.join(', ')}. Feature coming soon.` });
+    router.push(`/dashboard/my-requirements/edit/${id}`);
   };
 
   const openDeleteConfirm = (id: string) => {
@@ -169,7 +170,7 @@ export default function MyRequirementsPage() {
   if (!user) return <div className="flex h-screen items-center justify-center text-sm font-medium text-muted-foreground animate-in fade-in duration-300">Loading...</div>;
 
   return (
-    <div className="space-y-6 pb-20 md:pb-24"> 
+    <div className="space-y-0 pb-20 md:pb-24"> 
        <BreadcrumbHeader
         segments={[
           { label: "Dashboard", href: "/dashboard/parent" },
