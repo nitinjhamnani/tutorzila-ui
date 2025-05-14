@@ -125,16 +125,12 @@ export default function MyRequirementsPage() {
     const reqToReopen = allRequirements.find(req => req.id === id);
     if (reqToReopen) {
       // Update status in local state
-      setAllRequirements(prev => prev.map(req => 
-        req.id === id 
-          ? { ...req, status: "open" } 
+      setAllRequirements(prev => prev.map(req =>
+        req.id === id
+          ? { ...req, status: "open" } // Removed additionalNotes update
           : req
       ));
-      toast({
-        title: "Enquiry Reopened",
-        description: `Requirement for ${reqToReopen.subject.join(', ')} is now active and ready for editing.`
-      });
-      // Redirect to edit page
+      // No toast message before navigation
       router.push(`/dashboard/my-requirements/edit/${id}`);
     }
   };
