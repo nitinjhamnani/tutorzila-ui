@@ -19,7 +19,7 @@ interface TuitionRequirementCardProps {
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onClose?: (id: string) => void;
-  onReopen?: (id: string) => void; // New prop for reopening
+  onReopen?: (id: string) => void;
   isParentContext?: boolean;
 }
 
@@ -57,7 +57,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
 
   const isPastEnquiry = requirement.status === 'closed';
 
-  if (isParentContext) {
+  if (isParentContext && showActions) {
     return (
       <div className={cn(
         "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3",
@@ -97,7 +97,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </div>
         </Link>
         <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end min-w-[calc(3*1.75rem+2*0.375rem)]">
-            {showActions && !isPastEnquiry && (
+            {!isPastEnquiry && ( // Edit, Delete, Close for open/matched
             <>
                 <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit?.(requirement.id); }}>
                 <Edit3 className="h-3.5 w-3.5" />
@@ -110,14 +110,12 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 </Button>
             </>
             )}
-            {showActions && isPastEnquiry && (
+            {isPastEnquiry && ( // Reopen for closed
               <>
                 <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen?.(requirement.id); }}>
                   <Archive className="h-3.5 w-3.5" />
                 </Button>
-                <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete?.(requirement.id); }}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                 {/* Delete button is removed for past enquiries as per user request */}
               </>
             )}
         </div>
@@ -129,7 +127,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   return (
     <Card className={cn(
       "group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
-      isPastEnquiry && "opacity-70 bg-muted/50"
+      isPastEnquiry && "opacity-70 bg-muted/50" // This condition might not be relevant here if !isParentContext
     )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
