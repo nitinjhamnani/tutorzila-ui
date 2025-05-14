@@ -12,7 +12,7 @@ import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirement
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -54,11 +54,10 @@ export default function MyRequirementsPage() {
   const handleDelete = (id: string) => {
     const requirementToDelete = allRequirements.find(req => req.id === id);
     if (requirementToDelete) {
-        setSelectedRequirement(requirementToDelete); // Could be used for a confirmation dialog
-        // For mock, directly remove and show toast
+        setSelectedRequirement(requirementToDelete); 
         setAllRequirements(prev => prev.filter(req => req.id !== id));
         toast({ 
-          title: "Requirement Deleted (Mock)", 
+          title: "Requirement Deleted", 
           description: `Requirement for ${requirementToDelete.subject} has been removed from your list.`,
           variant: "destructive"
         });
@@ -130,7 +129,7 @@ export default function MyRequirementsPage() {
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[], type: 'current' | 'past' | 'all') => {
     if (requirementsToRender.length > 0) {
       return (
-        <div className="flex flex-col bg-card border rounded-lg shadow-sm overflow-hidden">
+        <div className="flex flex-col bg-card border rounded-lg shadow-sm overflow-hidden space-y-0">
           {requirementsToRender.map((req) => (
             <TuitionRequirementCard
               key={req.id}
@@ -139,7 +138,7 @@ export default function MyRequirementsPage() {
               onDelete={() => handleDelete(req.id)}
               onClose={() => handleCloseRequirement(req.id)}
               showActions={type === 'current' || (type === 'all' && (req.status === 'open' || req.status === 'matched'))}
-              isParentContext={true} // Indicate this is the parent's view
+              isParentContext={true} 
             />
           ))}
         </div>
@@ -163,7 +162,17 @@ export default function MyRequirementsPage() {
   if (!user) return <div className="flex h-screen items-center justify-center text-sm font-medium text-muted-foreground animate-in fade-in duration-300">Loading...</div>;
 
   return (
-    <div className="space-y-6 container mx-auto px-0 sm:px-0 lg:px-0 py-0 pb-20 md:pb-24"> {/* Removed container padding */}
+    <div className="space-y-6 pb-20 md:pb-24"> 
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-primary flex items-center">
+          <ListChecks className="mr-2.5 h-6 w-6" />
+          My Enquiries
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          View and manage your current and past tuition requirements.
+        </p>
+      </div>
+
       <Tabs defaultValue="current" className="w-full">
         <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
           <TabsTrigger value="current" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">Current</TabsTrigger>
