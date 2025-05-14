@@ -116,6 +116,17 @@ export default function MyRequirementsPage() {
     resetCloseFlow();
   };
 
+  const handleReopen = (id: string) => {
+    const reqToReopen = allRequirements.find(req => req.id === id);
+    if (reqToReopen) {
+      updateRequirementStatus(id, "open", "Enquiry reopened by parent.");
+      toast({
+        title: "Enquiry Reopened",
+        description: `Requirement for ${reqToReopen.subject.join(', ')} is now active. You can edit it.`
+      });
+    }
+  };
+
   const updateRequirementStatus = (id: string, status: "open" | "matched" | "closed", additionalNotes?: string) => {
     setAllRequirements(prev => prev.map(req => 
       req.id === id 
@@ -145,7 +156,8 @@ export default function MyRequirementsPage() {
               onEdit={() => handleEdit(req.id)}
               onDelete={() => openDeleteConfirm(req.id)}
               onClose={() => handleCloseRequirement(req.id)}
-              showActions={type === 'current' || (type === 'all' && (req.status === 'open' || req.status === 'matched'))}
+              onReopen={() => handleReopen(req.id)}
+              showActions={true} // Actions are always relevant in this parent context
               isParentContext={true} 
             />
           ))}
@@ -278,3 +290,4 @@ export default function MyRequirementsPage() {
     </div>
   );
 }
+

@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info } from "lucide-react";
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ interface TuitionRequirementCardProps {
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onClose?: (id: string) => void;
+  onReopen?: (id: string) => void; // New prop for reopening
   isParentContext?: boolean;
 }
 
@@ -31,7 +32,7 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
-export function TuitionRequirementCard({ requirement, showActions, onEdit, onDelete, onClose, isParentContext = false }: TuitionRequirementCardProps) {
+export function TuitionRequirementCard({ requirement, showActions, onEdit, onDelete, onClose, onReopen, isParentContext = false }: TuitionRequirementCardProps) {
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const { toast } = useToast();
@@ -108,6 +109,16 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 <XCircle className="h-3.5 w-3.5" />
                 </Button>
             </>
+            )}
+            {showActions && isPastEnquiry && (
+              <>
+                <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen?.(requirement.id); }}>
+                  <Archive className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete?.(requirement.id); }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
             )}
         </div>
       </div>
