@@ -5,7 +5,7 @@
 import { Button, buttonVariants } from "@/components/ui/button"; 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon as LucideCalendarIcon, ArrowRight } from "lucide-react"; // Removed ChevronLeft, ChevronRight
+import { PlusCircle, Eye, ListChecks, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle as UserCircleIcon, Edit3, SearchCheck, UsersRound, Star, Camera, MailCheck, PhoneCall, CheckCircle, XCircle, Briefcase, Construction, CalendarIcon as LucideCalendarIcon, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { User, TutorProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,9 +17,11 @@ import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import Image from "next/image";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog as EventDialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription } from "@/components/ui/dialog";
+import { Dialog as EventDialog, DialogContent as EventDialogContent, DialogHeader as EventDialogHeader, DialogTitle as EventDialogTitle, DialogDescription as EventDialogDescription, DialogTrigger as EventDialogTrigger } from "@/components/ui/dialog";
 import { format, isSameDay } from "date-fns"; 
 import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
+import { Calendar } from "@/components/ui/calendar";
+// BreadcrumbHeader import removed as it's not used on this page
 
 
 interface SummaryStatCardProps {
@@ -32,14 +34,14 @@ interface SummaryStatCardProps {
 function SummaryStatCard({ title, value, icon: Icon, imageHint }: SummaryStatCardProps) {
   return (
     <Card className="bg-card border border-border/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 animate-in fade-in zoom-in-95 ease-out aspect-square flex flex-col justify-center items-center text-center p-2">
-        <div className={cn("p-3 mb-2 rounded-full shadow-sm", "bg-primary/10")}>
-          <Icon className={cn("w-7 h-7", "text-primary")} />
+        <div className={cn("p-2.5 mb-1.5 rounded-full shadow-sm", "bg-primary/10")}>
+          <Icon className={cn("w-6 h-6", "text-primary")} />
         </div>
         <div className="min-w-0">
-          <div className="text-2xl md:text-3xl font-bold text-primary mb-1 leading-tight">
+          <div className="text-xl md:text-2xl font-bold text-primary mb-0.5 leading-tight">
              {value}
           </div>
-          <p className="text-xs text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
+          <p className="text-[10px] text-muted-foreground whitespace-nowrap truncate font-medium leading-tight">{title}</p>
         </div>
     </Card>
   );
@@ -72,7 +74,7 @@ const getEventTypeColor = (type: MockEvent['type']) => {
 
 
 export default function ParentDashboardPage() {
-  const { user } = useAuthMock();
+  const { user, isAuthenticated } = useAuthMock();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
@@ -80,9 +82,25 @@ export default function ParentDashboardPage() {
   const [isEventDetailsModalOpen, setIsEventDetailsModalOpen] = useState(false);
   const [clickedDay, setClickedDay] = useState<Date | null>(null);
 
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
+  const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
 
-  if (!user || user.role !== 'parent') {
-    return <div className="text-center p-8">Access Denied. This dashboard is for parents only.</div>;
+  const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  useEffect(() => {
+    if (user) {
+      setIsEmailVerified(user.isEmailVerified || false);
+      setIsPhoneVerified(user.isPhoneVerified || false);
+    }
+  }, [user]);
+
+
+  if (!isAuthenticated || !user || user.role !== 'parent') {
+    // This check might be redundant if dashboard layout handles it, but good for direct page access
+    return <div className="text-center p-8">Access Denied or not logged in. This dashboard is for parents only.</div>;
   }
 
   const handleAvatarClick = () => {
@@ -97,7 +115,28 @@ export default function ParentDashboardPage() {
         title: "Profile Picture Updated (Mock)",
         description: `${file.name} selected. In a real app, this would be uploaded.`,
       });
+      // Here, you'd typically upload the file and update the user's avatar URL in your state/backend
     }
+  };
+  
+  const handleOpenOtpModal = (type: "email" | "phone") => {
+    if (!user) return;
+    setOtpVerificationType(type);
+    setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number");
+    setIsOtpModalOpen(true);
+  };
+
+  const handleOtpSuccess = () => {
+    if (otpVerificationType === "email") {
+      setIsEmailVerified(true);
+      if (user) user.isEmailVerified = true; 
+    } else if (otpVerificationType === "phone") {
+      setIsPhoneVerified(true);
+      if (user) user.isPhoneVerified = true;
+    }
+    setIsOtpModalOpen(false);
+    setOtpVerificationType(null);
+    setOtpVerificationIdentifier(null);
   };
   
   const summaryStats = [
@@ -157,8 +196,12 @@ export default function ParentDashboardPage() {
     .sort((a, b) => a.date.getTime() - b.date.getTime())
     .slice(0, 4); 
 
+  const isUserVerified = isEmailVerified && isPhoneVerified;
+
+
   return (
-    <div className="space-y-6 md:space-y-8 pb-20 md:pb-24"> {/* Added bottom padding for FAB */}
+    <div className="space-y-6 md:space-y-8 pb-20 md:pb-24">
+      {/* BreadcrumbHeader removed from here */}
       <Card className="bg-card rounded-xl animate-in fade-in duration-700 ease-out overflow-hidden border border-border/30 shadow-sm w-full">
         <CardHeader className="pt-4 px-4 pb-3 md:pt-5 md:px-6 md:pb-4 relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -192,7 +235,6 @@ export default function ParentDashboardPage() {
                 <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
                 {user.status && (
                     <Badge 
-                    variant={user.status === "Active" ? "default" : "destructive"} 
                     className={cn(
                       "text-xs py-0.5 px-2 border",
                       user.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500 hover:bg-opacity-80",
@@ -202,7 +244,17 @@ export default function ParentDashboardPage() {
                     {user.status}
                   </Badge>
                 )}
+                 <Badge 
+                    className={cn(
+                      "text-xs py-0.5 px-2 border",
+                      isUserVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
+                    )}
+                  >
+                    {isUserVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                    {isUserVerified ? "Verified" : "Not Verified"}
+                  </Badge>
               </div>
+              {/* Verification buttons have been moved to sidebar/My Account */}
             </div>
           </div>
         </CardHeader>
@@ -247,11 +299,11 @@ export default function ParentDashboardPage() {
               {upcomingCalendarEvents.length > 0 ? (
                 <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
                   {upcomingCalendarEvents.map(event => (
-                    <button 
-                      key={`${event.title}-${event.date}`} 
-                      onClick={() => { setSelectedDayEvents([event]); setClickedDay(event.date); setIsEventDetailsModalOpen(true); }}
-                      className="w-full flex items-center gap-2.5 p-2.5 border border-border/20 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs text-left"
-                    >
+                        <button 
+                          key={`${event.title}-${event.date.toISOString()}`} 
+                          onClick={() => { setSelectedDayEvents([event]); setClickedDay(event.date); setIsEventDetailsModalOpen(true); }}
+                          className="w-full flex items-center gap-2.5 p-2.5 border border-border/20 rounded-md bg-background hover:bg-muted/50 transition-colors text-xs text-left"
+                        >
                       <div className={cn("w-2 h-2 rounded-full shrink-0", getEventTypeColor(event.type))}></div>
                       <div className="flex-grow min-w-0">
                         <p className="font-medium text-foreground/90 truncate">{event.title}</p>
@@ -308,6 +360,15 @@ export default function ParentDashboardPage() {
       </EventDialog>
 
       <FloatingPostRequirementButton />
+       {otpVerificationType && otpVerificationIdentifier && (
+        <OtpVerificationModal
+          isOpen={isOtpModalOpen}
+          onOpenChange={setIsOtpModalOpen}
+          verificationType={otpVerificationType}
+          identifier={otpVerificationIdentifier}
+          onSuccess={handleOtpSuccess}
+        />
+      )}
     </div>
   );
 }
