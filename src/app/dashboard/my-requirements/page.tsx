@@ -45,21 +45,23 @@ export default function MyRequirementsPage() {
   const pastRequirements = useMemo(() => allRequirements.filter(req => req.status === 'closed'), [allRequirements]);
 
   const handleEdit = (id: string) => {
-    toast({ title: "Edit Action (Mock)", description: `Editing requirement ID: ${id}. Feature coming soon.` });
+    const requirementToEdit = allRequirements.find(req => req.id === id);
+    toast({ title: "Edit Action (Mock)", description: `Editing requirement for ${requirementToEdit?.subject}. Feature coming soon.` });
+    // In a real app, you'd navigate to an edit page or open an edit modal
+    // e.g., router.push(`/dashboard/my-requirements/edit/${id}`);
   };
 
   const handleDelete = (id: string) => {
     const requirementToDelete = allRequirements.find(req => req.id === id);
     if (requirementToDelete) {
-        setSelectedRequirement(requirementToDelete);
-        // For a real delete, you would open a confirmation dialog first
-        // For mock, we'll just show a toast
+        setSelectedRequirement(requirementToDelete); // Could be used for a confirmation dialog
+        // For mock, directly remove and show toast
+        setAllRequirements(prev => prev.filter(req => req.id !== id));
         toast({ 
-          title: "Delete Action (Mock)", 
-          description: `Deleting requirement ID: ${id}. This is a mock, no data will be deleted.`,
+          title: "Requirement Deleted (Mock)", 
+          description: `Requirement for ${requirementToDelete.subject} has been removed from your list.`,
           variant: "destructive"
         });
-        // Example: setAllRequirements(prev => prev.filter(req => req.id !== id));
     }
   };
 
@@ -78,7 +80,7 @@ export default function MyRequirementsPage() {
       setIsTutorNameModalOpen(true);
     } else {
       if (selectedRequirement) {
-        updateRequirementStatus(selectedRequirement.id, "closed", "No tutor specified.");
+        updateRequirementStatus(selectedRequirement.id, "closed", "Tutor not found or not specified.");
         toast({ title: "Requirement Closed", description: `${selectedRequirement.subject} requirement has been marked as closed.` });
       }
       resetCloseFlow();
@@ -128,7 +130,7 @@ export default function MyRequirementsPage() {
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[], type: 'current' | 'past' | 'all') => {
     if (requirementsToRender.length > 0) {
       return (
-        <div className="flex flex-col bg-card border rounded-lg shadow-sm overflow-hidden divide-y divide-border">
+        <div className="flex flex-col bg-card border rounded-lg shadow-sm overflow-hidden">
           {requirementsToRender.map((req) => (
             <TuitionRequirementCard
               key={req.id}
@@ -137,6 +139,7 @@ export default function MyRequirementsPage() {
               onDelete={() => handleDelete(req.id)}
               onClose={() => handleCloseRequirement(req.id)}
               showActions={type === 'current' || (type === 'all' && (req.status === 'open' || req.status === 'matched'))}
+              isParentContext={true} // Indicate this is the parent's view
             />
           ))}
         </div>
@@ -245,4 +248,3 @@ export default function MyRequirementsPage() {
     </div>
   );
 }
-

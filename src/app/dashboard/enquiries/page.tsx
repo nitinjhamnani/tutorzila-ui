@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -99,7 +100,7 @@ export default function AllEnquiriesPage() {
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
-              <TuitionRequirementCard requirement={req} />
+              <TuitionRequirementCard requirement={req} isParentContext={false} />
             </div>
           ))}
         </div>

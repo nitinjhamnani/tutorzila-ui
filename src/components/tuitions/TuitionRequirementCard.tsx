@@ -15,10 +15,11 @@ import { useToast } from "@/hooks/use-toast";
 
 interface TuitionRequirementCardProps {
   requirement: TuitionRequirement;
-  showActions?: boolean;
+  showActions?: boolean; // For "My Enquiries" list view
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onClose?: (id: string) => void;
+  isParentContext?: boolean; // True if this card is shown in the parent's own enquiry management context
 }
 
 const getInitials = (name?: string): string => {
@@ -30,7 +31,7 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
-export function TuitionRequirementCard({ requirement, showActions, onEdit, onDelete, onClose }: TuitionRequirementCardProps) {
+export function TuitionRequirementCard({ requirement, showActions, onEdit, onDelete, onClose, isParentContext = false }: TuitionRequirementCardProps) {
   const postedDate = new Date(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const { toast } = useToast();
@@ -59,12 +60,12 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     // List Item Layout for "My Enquiries"
     return (
       <div className={cn(
-        "group bg-card border-b last:border-b-0 rounded-none shadow-none hover:bg-muted/30 transition-colors duration-200 flex flex-row items-center p-3 justify-between",
+        "group bg-card border-b last:border-b-0 rounded-none shadow-none hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3", // Added gap and responsive padding
         isPastEnquiry && "opacity-70 bg-muted/50"
       )}>
-        <div className="flex items-center space-x-3 flex-grow min-w-0">
-          <Avatar className="h-9 w-9 shrink-0 rounded-md shadow-sm border border-primary/20">
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px]">
+        <div className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
           </Avatar>
@@ -72,7 +73,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors truncate">
               {requirement.subject}
             </p>
-            <div className="text-[10px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 items-center">
+            <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 items-center">
               {requirement.gradeLevel && <span><GraduationCap className="w-2.5 h-2.5 inline mr-0.5" /> {requirement.gradeLevel}</span>}
               {requirement.teachingMode && requirement.teachingMode.length > 0 && (
                 <span><RadioTower className="w-2.5 h-2.5 inline mr-0.5" /> {requirement.teachingMode.join(', ')}</span>
@@ -81,7 +82,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
               <Badge 
                 variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'} 
                 className={cn(
-                    "text-[9px] py-0 px-1.5 border font-medium", // Adjusted padding
+                    "text-[9px] py-0 px-1.5 border font-medium", 
                     requirement.status === 'open' && "bg-blue-100 text-blue-700 border-blue-500/50",
                     requirement.status === 'matched' && "bg-green-100 text-green-700 border-green-500/50",
                     requirement.status === 'closed' && "bg-gray-100 text-gray-600 border-gray-400/50",
@@ -93,11 +94,11 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </div>
         </div>
         {!isPastEnquiry && (
-          <div className="flex space-x-1.5 shrink-0 ml-2">
+          <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end">
             <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled>
               <Edit3 className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)} disabled>
+            <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)}>
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
             <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Requirement" onClick={() => onClose?.(requirement.id)}>
@@ -113,7 +114,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   return (
     <Card className={cn(
       "group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
-      isPastEnquiry && "opacity-70 bg-muted/50" // Should not apply here if showActions is false
+      isPastEnquiry && "opacity-70 bg-muted/50" 
     )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
@@ -169,18 +170,20 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        <Button 
-          asChild 
-          className={cn(
-            "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5",
-            "bg-primary border-primary text-primary-foreground hover:bg-primary/90"
-          )}
-        >
-          <Link href={`/dashboard/enquiries/${requirement.id}`}> 
-              <Send className="w-3.5 h-3.5 mr-1.5" />
-              Apply Now
-          </Link>
-        </Button>
+        {!isParentContext && ( // Only show "Apply Now" if not in parent's context
+          <Button 
+            asChild 
+            className={cn(
+              "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5",
+              "bg-primary border-primary text-primary-foreground hover:bg-primary/90"
+            )}
+          >
+            <Link href={`/dashboard/enquiries/${requirement.id}`}> 
+                <Send className="w-3.5 h-3.5 mr-1.5" />
+                Apply Now
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
