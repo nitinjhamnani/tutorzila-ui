@@ -26,17 +26,16 @@ export function BreadcrumbHeader({ segments, className }: BreadcrumbHeaderProps)
               {index > 0 && (
                 <ChevronRight className="h-4 w-4 mx-1.5 text-muted-foreground/70 shrink-0" />
               )}
-              {segment.href && !isLastSegment ? (
+              {segment.href && !isLastSegment ? ( // Linked intermediate segments
                 <Link
                   href={segment.href}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   {segment.label}
                 </Link>
-              ) : isLastSegment ? (
-                <span className="text-xl font-semibold text-foreground">{segment.label}</span>
-              ) : (
-                // For intermediate segments that are not links (though less common for breadcrumbs)
+              ) : isLastSegment ? ( // Last segment (current page)
+                <span className="text-sm font-semibold text-foreground">{segment.label}</span>
+              ) : ( // Non-linked intermediate segments (less common)
                 <span className="text-sm text-muted-foreground">{segment.label}</span>
               )}
             </li>
