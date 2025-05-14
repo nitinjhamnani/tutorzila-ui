@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
+import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 
 
 export default function MyRequirementsPage() {
@@ -47,8 +48,6 @@ export default function MyRequirementsPage() {
   const handleEdit = (id: string) => {
     const requirementToEdit = allRequirements.find(req => req.id === id);
     toast({ title: "Edit Action (Mock)", description: `Editing requirement for ${requirementToEdit?.subject}. Feature coming soon.` });
-    // In a real app, you'd navigate to an edit page or open an edit modal
-    // e.g., router.push(`/dashboard/my-requirements/edit/${id}`);
   };
 
   const handleDelete = (id: string) => {
@@ -163,15 +162,13 @@ export default function MyRequirementsPage() {
 
   return (
     <div className="space-y-6 pb-20 md:pb-24"> 
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-primary flex items-center">
-          <ListChecks className="mr-2.5 h-6 w-6" />
-          My Enquiries
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          View and manage your current and past tuition requirements.
-        </p>
-      </div>
+       <BreadcrumbHeader
+        segments={[
+          { label: "Dashboard", href: "/dashboard/parent" },
+          { label: "My Enquiries" },
+        ]}
+        className="mb-6"
+      />
 
       <Tabs defaultValue="current" className="w-full">
         <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
