@@ -1,30 +1,30 @@
 
-"use client"; 
+"use client";
 
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Users, BookOpen } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Users, BookOpen } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import Link from "next/link"; 
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface TuitionRequirementCardProps {
   requirement: TuitionRequirement;
-  showActions?: boolean; 
+  showActions?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onClose?: (id: string) => void;
-  isParentContext?: boolean; 
+  isParentContext?: boolean;
 }
 
 const getInitials = (name?: string): string => {
   if (!name || name.trim() === "") return "??";
-  const parts = name.trim().split(/\s+/); 
+  const parts = name.trim().split(/\s+/);
   if (parts.length === 1) {
     return parts[0].substring(0, 2).toUpperCase();
   }
@@ -36,17 +36,17 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const { toast } = useToast();
 
-  const parentInitials = getInitials(requirement.parentName); 
+  const parentInitials = getInitials(requirement.parentName);
   const [isShortlisted, setIsShortlisted] = useState(false);
-  const [mockViewsCount, setMockViewsCount] = useState<number | null>(null); 
+  const [mockViewsCount, setMockViewsCount] = useState<number | null>(null);
 
   useEffect(() => {
     setMockViewsCount(Math.floor(Math.random() * 150) + 20);
   }, []);
 
   const handleShortlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault(); 
-    e.stopPropagation(); 
+    e.preventDefault();
+    e.stopPropagation();
     setIsShortlisted(!isShortlisted);
     toast({
       title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
@@ -56,11 +56,11 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
 
   const isPastEnquiry = requirement.status === 'closed';
 
-  if (isParentContext && showActions) {
-    // List Item Layout for "My Enquiries"
+  if (isParentContext) {
+    // List Item Layout for "My Enquiries" (for current, past, and all)
     return (
       <div className={cn(
-        "group bg-card border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3", 
+        "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3",
         isPastEnquiry && "opacity-70 bg-muted/50"
       )}>
         <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer">
@@ -82,10 +82,10 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                  <span className="flex items-center"><Building className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.board}</span>
               )}
               <span className="flex items-center"><Clock className="w-3 h-3 inline mr-1 text-primary/70" /> {timeAgo}</span>
-              <Badge 
-                variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'} 
+              <Badge
+                variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'}
                 className={cn(
-                    "text-[9px] py-0.5 px-1.5 border font-medium", 
+                    "text-[9px] py-0.5 px-1.5 border font-medium",
                     requirement.status === 'open' && "bg-blue-100 text-blue-700 border-blue-500/50",
                     requirement.status === 'matched' && "bg-green-100 text-green-700 border-green-500/50",
                     requirement.status === 'closed' && "bg-gray-100 text-gray-600 border-gray-400/50",
@@ -96,19 +96,22 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </div>
           </div>
         </Link>
-        {!isPastEnquiry && (
-          <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end">
-            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled={false} >
-              <Edit3 className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Requirement" onClick={() => onClose?.(requirement.id)}>
-              <XCircle className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        )}
+        {/* Action buttons container - always rendered to maintain layout consistency, content conditional */}
+        <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end min-w-[calc(3*1.75rem+2*0.375rem)]">
+            {showActions && !isPastEnquiry && (
+            <>
+                <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit?.(requirement.id); }}>
+                <Edit3 className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete?.(requirement.id); }}>
+                <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Requirement" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose?.(requirement.id); }}>
+                <XCircle className="h-3.5 w-3.5" />
+                </Button>
+            </>
+            )}
+        </div>
       </div>
     );
   }
@@ -117,7 +120,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   return (
     <Card className={cn(
       "group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
-      isPastEnquiry && "opacity-70 bg-muted/50" 
+      isPastEnquiry && "opacity-70 bg-muted/50"
     )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
@@ -150,7 +153,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3"> 
+      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3">
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
@@ -175,15 +178,15 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!(isParentContext && showActions) && !isParentContext && ( 
-          <Button 
-            asChild 
+        {!(isParentContext && showActions) && !isParentContext && (
+          <Button
+            asChild
             className={cn(
               "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5",
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90"
             )}
           >
-            <Link href={`/dashboard/enquiries/${requirement.id}`}> 
+            <Link href={`/dashboard/enquiries/${requirement.id}`}>
                 <Send className="w-3.5 h-3.5 mr-1.5" />
                 Apply Now
             </Link>
@@ -199,12 +202,12 @@ interface InfoItemProps {
   label: string;
   value: string;
   truncateValue?: number;
-  className?: string; // Add className to InfoItemProps
+  className?: string;
 }
 
 function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoItemProps) {
-  const displayValue = truncateValue && value && value.length > truncateValue 
-    ? `${value.substring(0, truncateValue - 3)}...` 
+  const displayValue = truncateValue && value && value.length > truncateValue
+    ? `${value.substring(0, truncateValue - 3)}...`
     : value;
 
   return (
@@ -217,3 +220,4 @@ function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoIt
     </div>
   );
 }
+    
