@@ -128,7 +128,7 @@ export default function MyRequirementsPage() {
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[], type: 'current' | 'past' | 'all') => {
     if (requirementsToRender.length > 0) {
       return (
-        <div className="flex flex-col bg-card border rounded-lg shadow-sm overflow-hidden space-y-0">
+        <div className="flex flex-col bg-card border rounded-lg shadow-sm overflow-hidden space-y-0"> {/* Changed to space-y-0 for card-internal borders */}
           {requirementsToRender.map((req) => (
             <TuitionRequirementCard
               key={req.id}
@@ -254,3 +254,4 @@ export default function MyRequirementsPage() {
     </div>
   );
 }
+

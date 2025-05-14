@@ -69,20 +69,23 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
               {parentInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0">
+          <div className="flex-grow min-w-0 space-y-1">
             <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors truncate">
               {requirement.subject}
             </p>
-            <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 items-center">
-              {requirement.gradeLevel && <span><GraduationCap className="w-2.5 h-2.5 inline mr-0.5" /> {requirement.gradeLevel}</span>}
+            <div className="text-[10px] sm:text-[11px] text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 items-center">
+              {requirement.gradeLevel && <span className="flex items-center"><GraduationCap className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.gradeLevel}</span>}
               {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-                <span><RadioTower className="w-2.5 h-2.5 inline mr-0.5" /> {requirement.teachingMode.join(', ')}</span>
+                <span className="flex items-center"><RadioTower className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.teachingMode.join(', ')}</span>
               )}
-              <span><Clock className="w-2.5 h-2.5 inline mr-0.5" /> {timeAgo}</span>
+               {requirement.board && (
+                 <span className="flex items-center"><Building className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.board}</span>
+              )}
+              <span className="flex items-center"><Clock className="w-3 h-3 inline mr-1 text-primary/70" /> {timeAgo}</span>
               <Badge 
                 variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'} 
                 className={cn(
-                    "text-[9px] py-0 px-1.5 border font-medium", 
+                    "text-[9px] py-0.5 px-1.5 border font-medium", 
                     requirement.status === 'open' && "bg-blue-100 text-blue-700 border-blue-500/50",
                     requirement.status === 'matched' && "bg-green-100 text-green-700 border-green-500/50",
                     requirement.status === 'closed' && "bg-gray-100 text-gray-600 border-gray-400/50",
@@ -132,20 +135,22 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </CardDescription>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-              "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
-              isShortlisted && "text-primary"
-          )}
-          onClick={handleShortlistToggle}
-          title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
-          >
-          <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
-        </Button>
+        {!isParentContext && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+                "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+                isShortlisted && "text-primary"
+            )}
+            onClick={handleShortlistToggle}
+            title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+            >
+            <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
+          </Button>
+        )}
       </CardHeader>
-      <CardContent className="space-y-1.5 text-xs flex-grow p-4 pt-3"> 
+      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3"> 
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
@@ -211,3 +216,4 @@ function InfoItem({ icon: Icon, label, value, truncateValue }: InfoItemProps) {
     </div>
   );
 }
+
