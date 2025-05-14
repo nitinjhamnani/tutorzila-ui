@@ -1,10 +1,11 @@
+
 import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   { 
     id: "t1", 
     name: "Dr. Emily Carter", 
-    email: "dr.emily.carter@example.com", // Changed email to avoid conflict if "tutor@example.com" is used for generic tutor
+    email: "dr.emily.carter@example.com",
     role: "tutor", 
     avatar: "https://picsum.photos/seed/emilycarter/128", 
     subjects: ["Physics", "Mathematics", "Chemistry"], 
@@ -133,7 +134,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   },
   {
     id: "t6",
-    name: "Mock Tutor General", // Renamed for clarity
+    name: "Mock Tutor General",
     email: "tutor@example.com",
     role: "tutor",
     avatar: "https://picsum.photos/seed/mocktutor/128",
@@ -170,7 +171,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
 export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   {
     id: "demo1",
-    tutorName: "Dr. Emily Carter", // Matched to an existing tutor profile
+    tutorName: "Dr. Emily Carter", 
     studentName: "Ravi Sharma",
     subject: "Physics",
     gradeLevel: "Grade 11-12",
@@ -193,7 +194,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo3",
-    tutorName: "John Adebayo", // Matched to an existing tutor profile
+    tutorName: "John Adebayo", 
     studentName: "Amit Patel",
     subject: "Chemistry",
     gradeLevel: "Grade 11-12",
@@ -205,7 +206,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
    {
     id: "demo4",
-    tutorName: "Sophia Chen", // Matched to an existing tutor profile
+    tutorName: "Sophia Chen", 
     studentName: "Sneha Reddy",
     subject: "Biology",
     gradeLevel: "Grade 9-10",
@@ -227,7 +228,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo6",
-    tutorName: "Mock Tutor General", // Using the generic tutor
+    tutorName: "Mock Tutor General", 
     studentName: "Aarav Gupta",
     subject: "General Science",
     gradeLevel: "Grade 7",
@@ -257,7 +258,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     id: "current1", 
     parentId: "p1", 
     parentName: "Alice Smith", 
-    subject: "Mathematics", 
+    subject: ["Mathematics"], 
     gradeLevel: "Grade 6", 
     scheduleDetails: "Mon, Wed 5-6 PM", 
     preferredDays: ["Mon", "Wed"], 
@@ -274,7 +275,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     id: "current2", 
     parentId: "p1", 
     parentName: "Alice Smith", 
-    subject: "Science", 
+    subject: ["Science"], 
     gradeLevel: "Grade 8", 
     scheduleDetails: "Tues, Thurs 6-7:30 PM", 
     preferredDays: ["Tues", "Thurs"], 
@@ -292,7 +293,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     id: "past1", 
     parentId: "p1", 
     parentName: "Alice Smith", 
-    subject: "English", 
+    subject: ["English"], 
     gradeLevel: "Grade 5", 
     scheduleDetails: "Sat 10-11 AM", 
     preferredDays: ["Saturday"], 
@@ -309,7 +310,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     id: "past2", 
     parentId: "p1", 
     parentName: "Alice Smith", 
-    subject: "Hindi", 
+    subject: ["Hindi"], 
     gradeLevel: "Grade 4", 
     scheduleDetails: "Flexible online sessions, 2 times a week", 
     preferredDays: ["Flexible"], 
@@ -327,7 +328,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     id: "other1", 
     parentId: "p2", 
     parentName: "Bob Johnson", 
-    subject: "Physics", 
+    subject: ["Physics", "Chemistry"], 
     gradeLevel: "Grade 11-12", 
     scheduleDetails: "Weekends, 4 hours total, prefer morning", 
     preferredDays: ["Saturday", "Sunday"], 

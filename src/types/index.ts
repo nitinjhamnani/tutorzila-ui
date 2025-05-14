@@ -1,3 +1,4 @@
+
 export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
@@ -18,7 +19,7 @@ export interface TuitionRequirement {
   id:string;
   parentId: string;
   parentName?: string; // Optional, denormalized
-  subject: string; // Changed from string[] to string
+  subject: string[]; // Changed from string to string[]
   gradeLevel: string;
   scheduleDetails: string; // Kept for full context if needed elsewhere, or for initial data
   preferredDays?: string[]; 

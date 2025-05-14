@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Users } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Users, BookOpen } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -50,13 +50,13 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     setIsShortlisted(!isShortlisted);
     toast({
       title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
-      description: `Enquiry for ${requirement.subject} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
+      description: `Enquiry for ${requirement.subject.join(', ')} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
     });
   };
 
   const isPastEnquiry = requirement.status === 'closed';
 
-  if (showActions && isParentContext) {
+  if (isParentContext && showActions) {
     // List Item Layout for "My Enquiries"
     return (
       <div className={cn(
@@ -71,7 +71,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Avatar>
           <div className="flex-grow min-w-0 space-y-1">
             <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors truncate">
-              {requirement.subject}
+              {requirement.subject.join(', ')}
             </p>
             <div className="text-[10px] sm:text-[11px] text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 items-center">
               {requirement.gradeLevel && <span className="flex items-center"><GraduationCap className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.gradeLevel}</span>}
@@ -98,7 +98,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         </Link>
         {!isPastEnquiry && (
           <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end">
-            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled>
+            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} >
               <Edit3 className="h-3.5 w-3.5" />
             </Button>
             <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)}>
@@ -128,7 +128,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Avatar>
           <div className="flex-grow min-w-0">
             <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors line-clamp-2">
-              {requirement.subject}
+              {requirement.subject.join(', ')}
             </CardTitle>
             <CardDescription className="text-[11px] text-muted-foreground mt-0.5">
               Posted {timeAgo}

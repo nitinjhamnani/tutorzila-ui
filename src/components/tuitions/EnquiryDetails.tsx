@@ -110,7 +110,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
     setIsShortlisted(!isShortlisted);
     toast({
       title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
-      description: `Enquiry for ${requirement.subject} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
+      description: `Enquiry for ${requirement.subject.join(', ')} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
     });
   };
 
@@ -151,7 +151,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             Tutoring Requirements
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2.5 pl-6 text-xs">
-            <DetailItem label="Subject(s)" value={requirement.subject} />
+            <DetailItem label="Subject(s)" value={requirement.subject.join(', ')} />
             <DetailItem label="Grade Level" value={requirement.gradeLevel} />
             {requirement.board && <DetailItem label="Board" value={requirement.board} />}
              {requirement.applicantsCount !== undefined && (
@@ -277,7 +277,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                 )}
               </DialogContent>
             </Dialog>
-            {/* Removed the standalone "Apply Now (Mock)" / "Applied" button */}
         </div>
       </CardFooter>
     </Card>
@@ -303,4 +302,3 @@ function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
     </div>
   );
 }
-

@@ -21,13 +21,13 @@ import { cn } from "@/lib/utils";
 
 // Mock data - replace with API call in a real app
 const MOCK_REQUIREMENTS: TuitionRequirement[] = [
-  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: "Mathematics", gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", preferredDays: ["Mon", "Wed", "Fri"], preferredTime: ["5-7 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"], applicantsCount: 5 },
-  { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: "Physics", gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", preferredDays: ["Weekends"], preferredTime: ["4 hours total"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"], applicantsCount: 3 },
-  { id: "3", parentId: "p3", parentName: "Carol Williams", subject: "English", gradeLevel: "Grade 6-8", scheduleDetails: "Tues, Thurs 4-6 PM", preferredDays: ["Tues", "Thurs"], preferredTime: ["4-6 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), additionalNotes: "Focus on grammar and essay writing.", board: "State Board", teachingMode: ["Online"], applicantsCount: 8 },
-  { id: "4", parentId: "p4", parentName: "David Brown", subject: "Computer Science", gradeLevel: "College Level", scheduleDetails: "Flexible, project-based", preferredDays: ["Flexible"], preferredTime: ["Project-based"], location: "Online", status: "open", postedAt: new Date().toISOString(), board: "IB", teachingMode: ["Online", "Offline (In-person)"], applicantsCount: 2 },
-  { id: "5", parentId: "p5", parentName: "Eve Davis", subject: "Mathematics", gradeLevel: "Grade 1-5", scheduleDetails: "Sat 10 AM - 12 PM", preferredDays: ["Saturday"], preferredTime: ["10 AM - 12 PM"], location: "Tutor's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 3).toISOString(), board: "IGCSE", teachingMode: ["Offline (In-person)"], applicantsCount: 12 },
-  { id: "6", parentId: "p6", parentName: "Frank Green", subject: "Chemistry", gradeLevel: "Grade 9-10", scheduleDetails: "Mon 7-9 PM", preferredDays: ["Monday"], preferredTime: ["7-9 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), board: "CBSE", teachingMode: ["Online"], applicantsCount: 0 },
-  { id: "7", parentId: "p7", parentName: "Grace Hall", subject: "Biology", gradeLevel: "Grade 11-12", scheduleDetails: "Flexible Evening Hours", preferredDays: ["Flexible Evenings"], preferredTime: ["Evening Hours"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 6).toISOString(), additionalNotes: "Looking for an experienced biology tutor for IB curriculum.", board: "IB", teachingMode: ["Offline (In-person)"], applicantsCount: 7 },
+  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: ["Mathematics"], gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", preferredDays: ["Mon", "Wed", "Fri"], preferredTime: ["5-7 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"], applicantsCount: 5 },
+  { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: ["Physics"], gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", preferredDays: ["Weekends"], preferredTime: ["4 hours total"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"], applicantsCount: 3 },
+  { id: "3", parentId: "p3", parentName: "Carol Williams", subject: ["English"], gradeLevel: "Grade 6-8", scheduleDetails: "Tues, Thurs 4-6 PM", preferredDays: ["Tues", "Thurs"], preferredTime: ["4-6 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), additionalNotes: "Focus on grammar and essay writing.", board: "State Board", teachingMode: ["Online"], applicantsCount: 8 },
+  { id: "4", parentId: "p4", parentName: "David Brown", subject: ["Computer Science"], gradeLevel: "College Level", scheduleDetails: "Flexible, project-based", preferredDays: ["Flexible"], preferredTime: ["Project-based"], location: "Online", status: "open", postedAt: new Date().toISOString(), board: "IB", teachingMode: ["Online", "Offline (In-person)"], applicantsCount: 2 },
+  { id: "5", parentId: "p5", parentName: "Eve Davis", subject: ["Mathematics", "Science"], gradeLevel: "Grade 1-5", scheduleDetails: "Sat 10 AM - 12 PM", preferredDays: ["Saturday"], preferredTime: ["10 AM - 12 PM"], location: "Tutor's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 3).toISOString(), board: "IGCSE", teachingMode: ["Offline (In-person)"], applicantsCount: 12 },
+  { id: "6", parentId: "p6", parentName: "Frank Green", subject: ["Chemistry"], gradeLevel: "Grade 9-10", scheduleDetails: "Mon 7-9 PM", preferredDays: ["Monday"], preferredTime: ["7-9 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), board: "CBSE", teachingMode: ["Online"], applicantsCount: 0 },
+  { id: "7", parentId: "p7", parentName: "Grace Hall", subject: ["Biology"], gradeLevel: "Grade 11-12", scheduleDetails: "Flexible Evening Hours", preferredDays: ["Flexible Evenings"], preferredTime: ["Evening Hours"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 6).toISOString(), additionalNotes: "Looking for an experienced biology tutor for IB curriculum.", board: "IB", teachingMode: ["Offline (In-person)"], applicantsCount: 7 },
 ];
 
 const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"];
@@ -55,7 +55,7 @@ export default function AllEnquiriesPage() {
     return requirements.filter((req) => {
       const searchTermLower = searchTerm.toLowerCase();
       const matchesSearchTerm = searchTerm === "" || 
-        req.subject.toLowerCase().includes(searchTermLower) ||
+        req.subject.some(s => s.toLowerCase().includes(searchTermLower)) ||
         req.gradeLevel.toLowerCase().includes(searchTermLower) ||
         (req.parentName && req.parentName.toLowerCase().includes(searchTermLower)) ||
         (req.location && req.location.toLowerCase().includes(searchTermLower)) ||
@@ -63,7 +63,7 @@ export default function AllEnquiriesPage() {
         (req.teachingMode && req.teachingMode.some(tm => tm.toLowerCase().includes(searchTermLower))) ||
         (req.additionalNotes && req.additionalNotes.toLowerCase().includes(searchTermLower));
       
-      const matchesSubject = subjectFilter === "All" || req.subject === subjectFilter;
+      const matchesSubject = subjectFilter === "All" || req.subject.includes(subjectFilter);
       const matchesGradeLevel = gradeLevelFilter === "All" || req.gradeLevel === gradeLevelFilter;
       const matchesLocation = locationFilter === "All" || req.location === locationFilter;
       const matchesBoard = boardFilter === "All" || req.board === boardFilter;
@@ -82,7 +82,6 @@ export default function AllEnquiriesPage() {
     setTeachingModeFilter("All");
   };
   
-  // Mock counts - replace with actual logic later
   const tabCounts = {
     recommended: filteredRequirements.length, 
     applied: 0, 
@@ -144,10 +143,8 @@ export default function AllEnquiriesPage() {
 
 
   return (
-    <div className="w-full pb-8 pt-0"> {/* Added w-full */}
+    <div className="w-full pb-8 pt-0"> 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filter Panel */}
-        {/* Mobile Accordion Filter */}
         <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
           <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-sm overflow-hidden">
             <AccordionItem value="filters" className="border-b-0">
@@ -168,7 +165,6 @@ export default function AllEnquiriesPage() {
           </Accordion>
         </div>
 
-        {/* Desktop Static Filter Panel */}
         <aside className="lg:w-[300px] xl:w-[320px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block shrink-0">
           <Card className="bg-card border rounded-lg shadow-sm">
             <CardHeader className="pb-4 border-b border-border/30">
@@ -183,8 +179,7 @@ export default function AllEnquiriesPage() {
           </Card>
         </aside>
 
-        {/* Enquiry List (Right) */}
-        <main className="flex-1 space-y-6 min-w-0"> {/* Added min-w-0 */}
+        <main className="flex-1 space-y-6 min-w-0"> 
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
              <ScrollArea className="w-full whitespace-nowrap pb-2">
               <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">

@@ -20,9 +20,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+
+
+const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
+const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner"];
+const locationsList = ["Online", "Student's Home", "Tutor's Home", "Public Place (e.g. Library)"];
 
 const tuitionRequirementSchema = z.object({
-  subject: z.string().min(2, { message: "Subject must be at least 2 characters." }),
+  subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string().min(1, { message: "Grade level is required." }),
   scheduleDetails: z.string().min(10, { message: "Please provide schedule details (at least 10 characters)." }),
   location: z.string().optional(),
@@ -31,16 +37,13 @@ const tuitionRequirementSchema = z.object({
 
 type TuitionRequirementFormValues = z.infer<typeof tuitionRequirementSchema>;
 
-const subjects = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music"];
-const gradeLevels = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner"];
-const locations = ["Online", "Student's Home", "Tutor's Home", "Public Place (e.g. Library)"];
 
 export function TuitionRequirementForm() {
   const { toast } = useToast();
   const form = useForm<TuitionRequirementFormValues>({
     resolver: zodResolver(tuitionRequirementSchema),
     defaultValues: {
-      subject: "",
+      subject: [],
       gradeLevel: "",
       scheduleDetails: "",
       location: "Online",
@@ -53,7 +56,7 @@ export function TuitionRequirementForm() {
     console.log(values);
     toast({
       title: "Requirement Posted!",
-      description: `Your tuition requirement for ${values.subject} has been posted.`,
+      description: `Your tuition requirement for ${values.subject.join(', ')} has been posted.`,
     });
     form.reset(); // Reset form after submission
   }
@@ -71,20 +74,17 @@ export function TuitionRequirementForm() {
               control={form.control}
               name="subject"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subject</FormLabel>
-                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/50">
-                        <SelectValue placeholder="Select a subject" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                <FormItem className="flex flex-col">
+                  <FormLabel>Subject(s)</FormLabel>
+                   <MultiSelectCommand
+                      options={subjectsList}
+                      selectedValues={field.value || []}
+                      onValueChange={field.onChange}
+                      placeholder="Select subjects..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
+                    />
                   <FormDescription>
-                    Which subject do you need a tutor for?
+                    Which subject(s) do you need a tutor for? You can select multiple.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -104,7 +104,7 @@ export function TuitionRequirementForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {gradeLevels.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
+                      {gradeLevelsList.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormDescription>
@@ -149,7 +149,7 @@ export function TuitionRequirementForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                      {locationsList.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -181,5 +181,3 @@ export function TuitionRequirementForm() {
     </Card>
   );
 }
-
-    

@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { PlusCircle, ListChecks, Search, Edit3, Trash2, XCircle, CheckCircle as CheckCircleIcon, Archive, Send, UserCheck } from "lucide-react";
+import { PlusCircle, ListChecks, Search, Edit3, Trash2, XCircle, CheckCircle as CheckCircleIcon, Archive, Send, UserCheck, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import type { TuitionRequirement } from "@/types";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
@@ -33,11 +33,11 @@ export default function MyRequirementsPage() {
   const [tutorName, setTutorName] = useState("");
   const [isStartClassesConfirmOpen, setIsStartClassesConfirmOpen] = useState(false);
   const [isTutorNameModalOpen, setIsTutorNameModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
 
   useEffect(() => {
     if (user) {
-      // Filter mock requirements for the logged-in user (e.g., Alice Smith)
       setAllRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id || req.parentName === user.name));
     }
   }, [user]);
@@ -47,20 +47,28 @@ export default function MyRequirementsPage() {
 
   const handleEdit = (id: string) => {
     const requirementToEdit = allRequirements.find(req => req.id === id);
-    toast({ title: "Edit Action (Mock)", description: `Editing requirement for ${requirementToEdit?.subject}. Feature coming soon.` });
+    toast({ title: "Edit Action (Mock)", description: `Editing requirement for ${requirementToEdit?.subject.join(', ')}. Feature coming soon.` });
   };
 
-  const handleDelete = (id: string) => {
+  const openDeleteConfirm = (id: string) => {
     const requirementToDelete = allRequirements.find(req => req.id === id);
     if (requirementToDelete) {
         setSelectedRequirement(requirementToDelete); 
-        setAllRequirements(prev => prev.filter(req => req.id !== id));
-        toast({ 
-          title: "Requirement Deleted", 
-          description: `Requirement for ${requirementToDelete.subject} has been removed from your list.`,
-          variant: "destructive"
-        });
+        setIsDeleteConfirmOpen(true);
     }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedRequirement) {
+      setAllRequirements(prev => prev.filter(req => req.id !== selectedRequirement.id));
+      toast({ 
+        title: "Requirement Deleted", 
+        description: `Requirement for ${selectedRequirement.subject.join(', ')} has been removed.`,
+        variant: "destructive"
+      });
+    }
+    setIsDeleteConfirmOpen(false);
+    setSelectedRequirement(null);
   };
 
   const handleCloseRequirement = (id: string) => {
@@ -79,7 +87,7 @@ export default function MyRequirementsPage() {
     } else {
       if (selectedRequirement) {
         updateRequirementStatus(selectedRequirement.id, "closed", "Tutor not found or not specified.");
-        toast({ title: "Requirement Closed", description: `${selectedRequirement.subject} requirement has been marked as closed.` });
+        toast({ title: "Requirement Closed", description: `${selectedRequirement.subject.join(', ')} requirement has been marked as closed.` });
       }
       resetCloseFlow();
     }
@@ -100,8 +108,8 @@ export default function MyRequirementsPage() {
       toast({ 
           title: start ? "Classes Initiated (Mock)" : "Requirement Closed", 
           description: start 
-            ? `Classes for ${selectedRequirement.subject} with ${tutorName || 'selected tutor'} will start soon. The requirement is now closed.` 
-            : `${selectedRequirement.subject} requirement has been marked as closed. You chose not to start classes now.`
+            ? `Classes for ${selectedRequirement.subject.join(', ')} with ${tutorName || 'selected tutor'} will start soon. The requirement is now closed.` 
+            : `${selectedRequirement.subject.join(', ')} requirement has been marked as closed. You chose not to start classes now.`
       });
     }
     resetCloseFlow();
@@ -128,13 +136,13 @@ export default function MyRequirementsPage() {
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[], type: 'current' | 'past' | 'all') => {
     if (requirementsToRender.length > 0) {
       return (
-        <div className="flex flex-col gap-4"> {/* Changed from single card to flex container with gap */}
+        <div className="flex flex-col gap-4"> 
           {requirementsToRender.map((req) => (
             <TuitionRequirementCard
               key={req.id}
               requirement={req}
               onEdit={() => handleEdit(req.id)}
-              onDelete={() => handleDelete(req.id)}
+              onDelete={() => openDeleteConfirm(req.id)}
               onClose={() => handleCloseRequirement(req.id)}
               showActions={type === 'current' || (type === 'all' && (req.status === 'open' || req.status === 'matched'))}
               isParentContext={true} 
@@ -188,6 +196,21 @@ export default function MyRequirementsPage() {
         </TabsContent>
       </Tabs>
 
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center"><AlertTriangle className="mr-2 h-5 w-5 text-destructive"/>Confirm Deletion</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the enquiry for <strong>{selectedRequirement?.subject.join(', ')}</strong>? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className={buttonVariants({ variant: "destructive" })}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Dialog for "Did you find a tutor?" */}
       <AlertDialog open={isCloseConfirmOpen} onOpenChange={setIsCloseConfirmOpen}>
@@ -195,7 +218,7 @@ export default function MyRequirementsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center"><UserCheck className="mr-2 h-5 w-5 text-primary"/> Found a Tutor?</AlertDialogTitle>
             <AlertDialogDescription>
-              Did you find a suitable tutor for your requirement: <strong>{selectedRequirement?.subject}</strong>?
+              Did you find a suitable tutor for your requirement: <strong>{selectedRequirement?.subject.join(', ')}</strong>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -211,7 +234,7 @@ export default function MyRequirementsPage() {
           <DialogHeader>
             <DialogTitle>Tutor Found!</DialogTitle>
             <DialogDescription>
-              Great! Please enter the name of the tutor you found for <strong>{selectedRequirement?.subject}</strong>.
+              Great! Please enter the name of the tutor you found for <strong>{selectedRequirement?.subject.join(', ')}</strong>.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -241,7 +264,7 @@ export default function MyRequirementsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center"><Send className="mr-2 h-5 w-5 text-primary"/> Start Classes?</AlertDialogTitle>
             <AlertDialogDescription>
-              Would you like to start classes with <strong>{tutorName || "the selected tutor"}</strong> for your <strong>{selectedRequirement?.subject}</strong> requirement?
+              Would you like to start classes with <strong>{tutorName || "the selected tutor"}</strong> for your <strong>{selectedRequirement?.subject.join(', ')}</strong> requirement?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
