@@ -119,11 +119,12 @@ export default function MyRequirementsPage() {
   const handleReopen = (id: string) => {
     const reqToReopen = allRequirements.find(req => req.id === id);
     if (reqToReopen) {
-      updateRequirementStatus(id, "open", "Enquiry reopened by parent.");
+      updateRequirementStatus(id, "open", "Enquiry reopened by parent. Ready for editing.");
       toast({
         title: "Enquiry Reopened",
-        description: `Requirement for ${reqToReopen.subject.join(', ')} is now active. You can edit it.`
+        description: `Requirement for ${reqToReopen.subject.join(', ')} is now active and ready for editing.`
       });
+      router.push(`/dashboard/my-requirements/edit/${id}`);
     }
   };
 
@@ -133,7 +134,7 @@ export default function MyRequirementsPage() {
         ? { 
             ...req, 
             status, 
-            additionalNotes: additionalNotes ? `${req.additionalNotes ? req.additionalNotes + " " : ""}Update: ${additionalNotes}` : req.additionalNotes 
+            additionalNotes: additionalNotes ? `${req.additionalNotes ? req.additionalNotes.split("Update:")[0].trim() + " " : ""}Update: ${additionalNotes}` : req.additionalNotes 
           } 
         : req
     ));
@@ -157,7 +158,7 @@ export default function MyRequirementsPage() {
               onDelete={() => openDeleteConfirm(req.id)}
               onClose={() => handleCloseRequirement(req.id)}
               onReopen={() => handleReopen(req.id)}
-              showActions={true} // Actions are always relevant in this parent context
+              showActions={true} 
               isParentContext={true} 
             />
           ))}
