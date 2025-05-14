@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Users } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -15,11 +15,11 @@ import { useToast } from "@/hooks/use-toast";
 
 interface TuitionRequirementCardProps {
   requirement: TuitionRequirement;
-  showActions?: boolean; // For "My Enquiries" list view
+  showActions?: boolean; 
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onClose?: (id: string) => void;
-  isParentContext?: boolean; // True if this card is shown in the parent's own enquiry management context
+  isParentContext?: boolean; 
 }
 
 const getInitials = (name?: string): string => {
@@ -56,14 +56,14 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
 
   const isPastEnquiry = requirement.status === 'closed';
 
-  if (showActions) {
+  if (showActions && isParentContext) {
     // List Item Layout for "My Enquiries"
     return (
       <div className={cn(
-        "group bg-card border-b last:border-b-0 rounded-none shadow-none hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3", // Added gap and responsive padding
+        "group bg-card border-b last:border-b-0 rounded-none shadow-none hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3", 
         isPastEnquiry && "opacity-70 bg-muted/50"
       )}>
-        <div className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto">
+        <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px] sm:text-xs">
               {parentInitials}
@@ -92,7 +92,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
               </Badge>
             </div>
           </div>
-        </div>
+        </Link>
         {!isPastEnquiry && (
           <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end">
             <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled>
@@ -170,7 +170,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!isParentContext && ( // Only show "Apply Now" if not in parent's context
+        {!(isParentContext && showActions) && ( 
           <Button 
             asChild 
             className={cn(
