@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Users, BookOpen } from "lucide-react";
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -57,11 +57,10 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   const isPastEnquiry = requirement.status === 'closed';
 
   if (isParentContext) {
-    // List Item Layout for "My Enquiries" (for current, past, and all)
     return (
       <div className={cn(
         "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3",
-        isPastEnquiry && "opacity-70 bg-muted/50"
+        isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
       )}>
         <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
@@ -96,7 +95,6 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </div>
           </div>
         </Link>
-        {/* Action buttons container - always rendered to maintain layout consistency, content conditional */}
         <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end min-w-[calc(3*1.75rem+2*0.375rem)]">
             {showActions && !isPastEnquiry && (
             <>
@@ -178,7 +176,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!(isParentContext && showActions) && !isParentContext && (
+        {!isParentContext && (
           <Button
             asChild
             className={cn(
