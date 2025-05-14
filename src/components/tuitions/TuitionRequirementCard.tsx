@@ -1,9 +1,10 @@
+
 "use client"; 
 
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle } from "lucide-react"; 
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info } from "lucide-react"; 
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -54,10 +55,65 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
 
   const isPastEnquiry = requirement.status === 'closed';
 
+  if (showActions) {
+    // List Item Layout for "My Enquiries"
+    return (
+      <div className={cn(
+        "group bg-card border-b last:border-b-0 rounded-none shadow-none hover:bg-muted/30 transition-colors duration-200 flex flex-row items-center p-3 justify-between",
+        isPastEnquiry && "opacity-70 bg-muted/50"
+      )}>
+        <div className="flex items-center space-x-3 flex-grow min-w-0">
+          <Avatar className="h-9 w-9 shrink-0 rounded-md shadow-sm border border-primary/20">
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px]">
+              {parentInitials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-grow min-w-0">
+            <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors truncate">
+              {requirement.subject}
+            </p>
+            <div className="text-[10px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 items-center">
+              {requirement.gradeLevel && <span><GraduationCap className="w-2.5 h-2.5 inline mr-0.5" /> {requirement.gradeLevel}</span>}
+              {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+                <span><RadioTower className="w-2.5 h-2.5 inline mr-0.5" /> {requirement.teachingMode.join(', ')}</span>
+              )}
+              <span><Clock className="w-2.5 h-2.5 inline mr-0.5" /> {timeAgo}</span>
+              <Badge 
+                variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'} 
+                className={cn(
+                    "text-[9px] py-0 px-1.5 border font-medium", // Adjusted padding
+                    requirement.status === 'open' && "bg-blue-100 text-blue-700 border-blue-500/50",
+                    requirement.status === 'matched' && "bg-green-100 text-green-700 border-green-500/50",
+                    requirement.status === 'closed' && "bg-gray-100 text-gray-600 border-gray-400/50",
+                )}
+              >
+                {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+              </Badge>
+            </div>
+          </div>
+        </div>
+        {!isPastEnquiry && (
+          <div className="flex space-x-1.5 shrink-0 ml-2">
+            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled>
+              <Edit3 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)} disabled>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Requirement" onClick={() => onClose?.(requirement.id)}>
+              <XCircle className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Original Card Layout (for public listings etc.)
   return (
     <Card className={cn(
       "group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
-      isPastEnquiry && "opacity-70 bg-muted/50"
+      isPastEnquiry && "opacity-70 bg-muted/50" // Should not apply here if showActions is false
     )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
@@ -75,33 +131,18 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </CardDescription>
           </div>
         </div>
-        {!showActions && ( // Only show shortlist toggle on public/tutor listing
-            <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-                "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
-                isShortlisted && "text-primary"
-            )}
-            onClick={handleShortlistToggle}
-            title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
-            >
-            <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
-            </Button>
-        )}
-        {showActions && (
-             <Badge 
-                variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'} 
-                className={cn(
-                    "absolute top-2 right-2 text-[10px] py-0.5 px-2 border font-medium",
-                    requirement.status === 'open' && "bg-blue-100 text-blue-700 border-blue-500/50",
-                    requirement.status === 'matched' && "bg-green-100 text-green-700 border-green-500/50",
-                    requirement.status === 'closed' && "bg-gray-100 text-gray-600 border-gray-400/50",
-                )}
-            >
-                {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-            </Badge>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+              "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+              isShortlisted && "text-primary"
+          )}
+          onClick={handleShortlistToggle}
+          title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+          >
+          <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
+        </Button>
       </CardHeader>
       <CardContent className="space-y-1.5 text-xs flex-grow p-4 pt-3"> 
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
@@ -128,30 +169,18 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!showActions && (
-            <Button 
-            asChild 
-            className="transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5 bg-primary border-primary text-primary-foreground hover:bg-primary/90"
-            >
-            <Link href={`/dashboard/enquiries/${requirement.id}`}> 
-                <Send className="w-3.5 h-3.5 mr-1.5" />
-                Apply Now
-            </Link>
-            </Button>
-        )}
-        {showActions && !isPastEnquiry && (
-          <div className="flex space-x-1.5">
-            <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={() => onEdit?.(requirement.id)} disabled>
-              <Edit3 className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={() => onDelete?.(requirement.id)} disabled>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-             <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Requirement" onClick={() => onClose?.(requirement.id)}>
-              <XCircle className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        )}
+        <Button 
+          asChild 
+          className={cn(
+            "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5",
+            "bg-primary border-primary text-primary-foreground hover:bg-primary/90"
+          )}
+        >
+          <Link href={`/dashboard/enquiries/${requirement.id}`}> 
+              <Send className="w-3.5 h-3.5 mr-1.5" />
+              Apply Now
+          </Link>
+        </Button>
       </CardFooter>
     </Card>
   );

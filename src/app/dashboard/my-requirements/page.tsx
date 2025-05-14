@@ -1,3 +1,4 @@
+
 // src/app/dashboard/my-requirements/page.tsx
 "use client";
 
@@ -127,7 +128,7 @@ export default function MyRequirementsPage() {
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[], type: 'current' | 'past' | 'all') => {
     if (requirementsToRender.length > 0) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        <div className="flex flex-col bg-card border rounded-lg shadow-sm overflow-hidden divide-y divide-border">
           {requirementsToRender.map((req) => (
             <TuitionRequirementCard
               key={req.id}
@@ -159,7 +160,7 @@ export default function MyRequirementsPage() {
   if (!user) return <div className="flex h-screen items-center justify-center text-sm font-medium text-muted-foreground animate-in fade-in duration-300">Loading...</div>;
 
   return (
-    <div className="space-y-6 container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-24"> 
+    <div className="space-y-6 container mx-auto px-0 sm:px-0 lg:px-0 py-0 pb-20 md:pb-24"> {/* Removed container padding */}
       <Tabs defaultValue="current" className="w-full">
         <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
           <TabsTrigger value="current" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">Current</TabsTrigger>
@@ -244,3 +245,4 @@ export default function MyRequirementsPage() {
     </div>
   );
 }
+
