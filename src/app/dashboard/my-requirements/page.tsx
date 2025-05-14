@@ -40,7 +40,12 @@ export default function MyRequirementsPage() {
 
   useEffect(() => {
     if (user) {
-      setAllRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id || req.parentName === user.name));
+      // Ensure mock data uses subject arrays
+      const userRequirements = MOCK_ALL_PARENT_REQUIREMENTS.map(req => ({
+        ...req,
+        subject: Array.isArray(req.subject) ? req.subject : [req.subject]
+      })).filter(req => req.parentId === user.id || req.parentName === user.name);
+      setAllRequirements(userRequirements);
     }
   }, [user]);
 
@@ -119,11 +124,17 @@ export default function MyRequirementsPage() {
   const handleReopen = (id: string) => {
     const reqToReopen = allRequirements.find(req => req.id === id);
     if (reqToReopen) {
-      updateRequirementStatus(id, "open", "Enquiry reopened by parent. Ready for editing.");
+      // Update status in local state
+      setAllRequirements(prev => prev.map(req => 
+        req.id === id 
+          ? { ...req, status: "open" } 
+          : req
+      ));
       toast({
         title: "Enquiry Reopened",
         description: `Requirement for ${reqToReopen.subject.join(', ')} is now active and ready for editing.`
       });
+      // Redirect to edit page
       router.push(`/dashboard/my-requirements/edit/${id}`);
     }
   };
