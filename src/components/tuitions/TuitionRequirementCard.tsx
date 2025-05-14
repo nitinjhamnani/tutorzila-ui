@@ -58,11 +58,14 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   const isPastEnquiry = requirement.status === 'closed';
 
   if (isParentContext && showActions) {
+    // Parent's "My Enquiries" list view
     return (
-      <div className={cn(
-        "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3",
-        isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
-      )}>
+      <div
+        className={cn(
+          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3",
+          isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
+        )}
+      >
         <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px] sm:text-xs">
@@ -97,26 +100,20 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </div>
         </Link>
         <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end min-w-[calc(3*1.75rem+2*0.375rem)]">
-            {!isPastEnquiry && ( // Edit, Delete, Close for open/matched
-            <>
-                <Button variant="outline" size="icon" className="h-7 w-7" title="Edit" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit?.(requirement.id); }}>
-                <Edit3 className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="destructive" size="icon" className="h-7 w-7" title="Delete" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete?.(requirement.id); }}>
-                <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Requirement" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose?.(requirement.id); }}>
-                <XCircle className="h-3.5 w-3.5" />
-                </Button>
-            </>
-            )}
-            {isPastEnquiry && ( // Reopen for closed
+            {/* CTAs are removed from current enquiries card, moved to detail page */}
+            {/* For Past Enquiries, only Reopen button remains on the card */}
+            {isPastEnquiry && (
               <>
                 <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen?.(requirement.id); }}>
                   <Archive className="h-3.5 w-3.5" />
                 </Button>
-                 {/* Delete button is removed for past enquiries as per user request */}
               </>
+            )}
+             {/* Current Enquiries (open/matched) do not show CTAs on the card anymore */}
+             {!isPastEnquiry && onEdit && onDelete && onClose && (
+              <div className="hidden sm:flex space-x-1.5">
+                {/* This div is kept for spacing consistency but buttons are removed */}
+              </div>
             )}
         </div>
       </div>
@@ -127,7 +124,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   return (
     <Card className={cn(
       "group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
-      isPastEnquiry && "opacity-70 bg-muted/50" // This condition might not be relevant here if !isParentContext
+      isPastEnquiry && "opacity-70 bg-muted/50" 
     )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
@@ -185,7 +182,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!isParentContext && (
+        {!isParentContext && ( // Apply Now button for tutors
           <Button
             asChild
             className={cn(
