@@ -37,6 +37,12 @@ export default function TutorDashboardPage() {
   });
   
   const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
+  const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (tutorUser) {
@@ -68,8 +74,10 @@ export default function TutorDashboardPage() {
         if (isComplete) completed++;
       });
       setCompletionPercentage(Math.round((completed / totalSteps) * 100));
+      setIsEmailVerified(tutorUser.isEmailVerified || false);
+      setIsPhoneVerified(tutorUser.isPhoneVerified || false);
     }
-  }, [tutorUser]); 
+  }, [tutorUser, demoSessions]); // Added demoSessions as a dependency to re-calculate insights if demos change
 
 
   if (!tutorUser || tutorUser.role !== 'tutor') {
@@ -122,9 +130,29 @@ export default function TutorDashboardPage() {
     { title: "Upcoming Demos", value: mockInsights.upcomingDemos, icon: CalendarClock, imageHint: "calendar clock" },
   ];
 
+  const handleOpenOtpModal = (type: "email" | "phone") => {
+    if (!user) return;
+    setOtpVerificationType(type);
+    setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number");
+    setIsOtpModalOpen(true);
+  };
+
+  const handleOtpSuccess = () => {
+    if (otpVerificationType === "email") {
+      setIsEmailVerified(true);
+      if (user) user.isEmailVerified = true; 
+    } else if (otpVerificationType === "phone") {
+      setIsPhoneVerified(true);
+      if (user) user.isPhoneVerified = true;
+    }
+    setIsOtpModalOpen(false);
+    setOtpVerificationType(null);
+    setOtpVerificationIdentifier(null);
+  };
+
   return (
     <div className="space-y-6">
-      <Card className="bg-card rounded-none animate-in fade-in duration-700 ease-out overflow-hidden border-0 shadow-none w-full">
+      <Card className="bg-card rounded-none animate-in fade-in duration-700 ease-out overflow-hidden shadow-none w-full border-0">
         <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="relative shrink-0">
@@ -154,7 +182,7 @@ export default function TutorDashboardPage() {
               </div>
             <div className="flex-grow">
               <div className="flex items-center gap-2 mb-1">
-                <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
+                <CardTitle className="text-foreground tracking-tight text-lg md:text-xl font-semibold">Welcome back, {user.name}!</CardTitle>
                 {tutorUser.status && (
                    <Badge 
                     className={cn(
@@ -166,13 +194,46 @@ export default function TutorDashboardPage() {
                     {user.status}
                   </Badge>
                 )}
+                 <Badge 
+                    className={cn(
+                      "text-xs py-0.5 px-2 border",
+                      (isEmailVerified && isPhoneVerified) ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
+                    )}
+                  >
+                    {(isEmailVerified && isPhoneVerified) ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                    {(isEmailVerified && isPhoneVerified) ? "Verified" : "Not Verified"}
+                  </Badge>
+              </div>
+              <div className="flex items-center gap-3 mt-2">
+                {!isEmailVerified && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => handleOpenOtpModal("email")}
+                    className="text-xs p-0 h-auto text-primary hover:text-primary/80 underline"
+                  >
+                    <MailCheck className="mr-1 h-3.5 w-3.5" /> Verify Email
+                  </Button>
+                )}
+                {!isPhoneVerified && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => handleOpenOtpModal("phone")}
+                    className="text-xs p-0 h-auto text-primary hover:text-primary/80 underline"
+                    disabled={!user.phone}
+                  >
+                    <PhoneCall className="mr-1 h-3.5 w-3.5" /> 
+                    {user.phone ? "Verify Phone" : "Add Phone to Verify"}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
           <div className="absolute top-4 right-4 flex space-x-2">
-            <Button asChild variant="ghost" size="icon" className="h-8 w-8 p-1.5 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground" title="View Public Profile">
+            <Button asChild variant="ghost" size="icon" className="h-8 w-8 p-1.5 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground bg-primary hover:bg-primary/90" title="View Public Profile">
               <Link href={`/tutors/${user.id}`}>
-                <Eye className="h-4 w-4" />
+                <Eye className="h-4 w-4 text-primary-foreground" />
               </Link>
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 p-1.5 rounded-full text-primary-foreground bg-primary hover:bg-primary/90" title="Share Profile">
@@ -184,9 +245,9 @@ export default function TutorDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card className="bg-card border border-border/30 rounded-none shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
+          <Card className="bg-card rounded-none shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out border-0" style={{ animationDelay: `0.2s` }}>
             <CardHeader className="pb-3 border-b border-border/20">
-              <CardTitle className="text-lg font-semibold text-primary flex items-center"> 
+              <CardTitle className="text-base font-semibold text-primary flex items-center"> 
                 <LayoutDashboard className="w-4 h-4 mr-2"/> 
                 My Insights
               </CardTitle>
@@ -194,17 +255,17 @@ export default function TutorDashboardPage() {
                 Quick overview of your tutoring activity and performance.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> 
+            <CardContent className="p-3 md:p-4 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5"> 
               {insightCardsData.map((insight, index) => (
                 <Card 
                   key={insight.title} 
-                  className="group bg-muted/30 border border-border/20 rounded-none shadow-xs hover:shadow-md transition-all duration-300 p-3 text-center transform hover:-translate-y-0.5" 
+                  className="group bg-muted/30 border-0 rounded-none shadow-xs hover:shadow-md transition-all duration-300 p-2.5 text-center transform hover:-translate-y-0.5" 
                   style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
                 >
-                  <div className={cn("p-2 bg-primary/10 rounded-full text-primary inline-block mb-2 group-hover:bg-primary/20 transition-colors shadow-sm")}>
-                    <insight.icon className="w-4 h-4 transition-transform group-hover:scale-110" />
+                  <div className={cn("p-1.5 bg-primary/10 rounded-full text-primary inline-block mb-1.5 group-hover:bg-primary/20 transition-colors shadow-sm")}>
+                    <insight.icon className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
                   </div>
-                  <p className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{insight.value}</p>
+                  <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{insight.value}</p>
                   <p className="text-[10px] text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p>
                 </Card>
               ))}
@@ -223,7 +284,7 @@ export default function TutorDashboardPage() {
 
 
       <div className="mt-8 animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
-        <Card className="bg-card border border-border/30 rounded-none shadow-none overflow-hidden">
+        <Card className="bg-card rounded-none shadow-none overflow-hidden border-0">
           <CardHeader className="pb-4 border-b border-border/30">
             <CardTitle className="text-xl font-semibold text-primary flex items-center">
               <CalendarDays className="w-6 h-6 mr-2.5" />
@@ -234,9 +295,9 @@ export default function TutorDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 md:p-5">
-            {demoSessions.length > 0 ? (
+            {demoSessions.filter(demo => demo.status === "Scheduled").length > 0 ? ( // Filter for scheduled demos
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {demoSessions.slice(0,3).map((demo, index) => ( 
+                {demoSessions.filter(demo => demo.status === "Scheduled").slice(0,3).map((demo, index) => ( 
                     <div 
                       key={demo.id}
                       className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
@@ -258,7 +319,7 @@ export default function TutorDashboardPage() {
               </div>
             )}
           </CardContent>
-          {demoSessions.length > 3 && (
+          {demoSessions.filter(demo => demo.status === "Scheduled").length > 3 && (
             <CardFooter className="p-4 border-t border-border/30 bg-muted/20">
               <Button variant="outline" asChild className="w-full sm:w-auto mx-auto text-sm">
                 <Link href="/dashboard/demo-sessions">View All Demos</Link>
@@ -267,6 +328,16 @@ export default function TutorDashboardPage() {
           )}
         </Card>
       </div>
+       {otpVerificationType && otpVerificationIdentifier && (
+        <OtpVerificationModal
+          isOpen={isOtpModalOpen}
+          onOpenChange={setIsOtpModalOpen}
+          verificationType={otpVerificationType}
+          identifier={otpVerificationIdentifier}
+          onSuccess={handleOtpSuccess}
+        />
+      )}
     </div>
   );
 }
+

@@ -50,7 +50,7 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
 
   return (
     <Dialog>
-      <Card className="bg-card border border-border/40 rounded-none shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-1">
+      <Card className="bg-card border-0 rounded-none shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-1">
         <CardHeader className="p-4 pb-3 bg-muted/20 border-b border-border/30">
           <div className="flex justify-between items-start gap-2">
             <div className="flex-grow min-w-0">
@@ -135,3 +135,4 @@ function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
     </div>
   );
 }
+
