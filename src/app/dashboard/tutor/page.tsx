@@ -135,12 +135,12 @@ export default function TutorDashboardPage() {
       <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden border-0 shadow-none w-full">
         <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="relative group shrink-0">
+            <div className="relative shrink-0">
                 <Avatar
-                  className="h-16 w-16 border-2 border-primary/30 group-hover:opacity-80 transition-opacity cursor-pointer"
+                  className="h-16 w-16 border-2 border-primary/30 hover:opacity-80 transition-opacity cursor-pointer"
                   onClick={handleAvatarClick} 
                 >
-                  <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
+                  <AvatarImage src={tutorUser.avatar || `https://avatar.vercel.sh/${tutorUser.email}.png`} alt={tutorUser.name} />
                   <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl">
                     {user.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -163,10 +163,10 @@ export default function TutorDashboardPage() {
             <div className="flex-grow">
               <div className="flex items-center gap-2 mb-1">
                 <CardTitle className="text-foreground tracking-tight text-xl md:text-2xl font-semibold">Welcome back, {user.name}!</CardTitle>
-                {user.status && (
+                {tutorUser.status && (
                    <Badge 
                     className={cn(
-                      "text-xs py-0.5 px-2 border",
+                      "text-xs py-0.5 px-2 border select-none",
                       user.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500 hover:bg-opacity-80",
                     )}
                   >
@@ -179,12 +179,12 @@ export default function TutorDashboardPage() {
             </div>
           </div>
           <div className="absolute top-4 right-4 flex space-x-2">
-            <Button asChild variant="default" size="icon" className="h-8 w-8 p-1.5 rounded-full shadow-md hover:bg-primary/90" title="View Public Profile">
+            <Button asChild variant="ghost" size="icon" className="h-8 w-8 p-1.5 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground" title="View Public Profile">
               <Link href={`/tutors/${user.id}`}>
-                <Eye className="h-4 w-4 text-primary-foreground" />
+                <Eye className="h-4 w-4" />
               </Link>
             </Button>
-            <Button variant="default" size="icon" className="h-8 w-8 p-1.5 rounded-full shadow-md hover:bg-primary/90" title="Share Profile">
+            <Button variant="ghost" size="icon" className="h-8 w-8 p-1.5 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground" title="Share Profile">
               <Share2 className="h-4 w-4 text-primary-foreground" />
             </Button>
           </div>
@@ -193,27 +193,27 @@ export default function TutorDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
+          <Card className="bg-card border border-border/30 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
             <CardHeader className="pb-3 border-b border-border/20">
               <CardTitle className="text-lg font-semibold text-primary flex items-center"> 
                 <LayoutDashboard className="w-4 h-4 mr-2"/> 
                 My Insights
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground mt-0.5"> 
-                Overview of your tutoring activity and performance.
+                Quick overview of your tutoring activity and performance.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> 
               {insightCardsData.map((insight, index) => (
                 <Card 
                   key={insight.title} 
-                  className="group bg-background/50 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-2.5 text-center transform hover:scale-105" // Reduced padding
+                  className="group bg-muted/30 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-3 text-center transform hover:-translate-y-0.5" 
                   style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
                 >
-                  <div className={cn("p-1.5 bg-primary/10 rounded-full text-primary inline-block mb-1.5 group-hover:bg-primary/20 transition-all shadow-sm")}> {/* Reduced padding and margin */}
-                    <insight.icon className="w-3.5 h-3.5 transition-transform group-hover:scale-110" /> {/* Reduced icon size */}
+                  <div className={cn("p-2 bg-primary/10 rounded-full text-primary inline-block mb-2 group-hover:bg-primary/20 transition-colors shadow-sm")}>
+                    <insight.icon className="w-4 h-4 transition-transform group-hover:scale-110" />
                   </div>
-                  <p className="text-lg font-bold text-primary group-hover:text-primary/90 transition-colors">{insight.value}</p> {/* Reduced font size */}
+                  <p className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{insight.value}</p>
                   <p className="text-[10px] text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p> {/* Reduced font size */}
                 </Card>
               ))}

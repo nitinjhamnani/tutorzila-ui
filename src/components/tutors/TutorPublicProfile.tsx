@@ -39,9 +39,8 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format }
-from 'date-fns';
-import { FixedPostRequirementBanner } from "@/components/shared/FixedPostRequirementBanner";
+import { format } from 'date-fns';
+import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
 
 
 interface TutorPublicProfileProps {
@@ -108,7 +107,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star
                     key={index}
-                    className={`w-3 h-3 ${index < Math.floor(rating) ? "fill-primary text-primary" : "text-muted-foreground/40"}`} // Changed to primary color
+                    className={`w-3 h-3 ${index < Math.floor(rating) ? "fill-primary text-primary" : "text-muted-foreground/40"}`} 
                   />
                 ))}
                 <span className="ml-1.5 text-[10px] text-muted-foreground">({rating.toFixed(1)} stars)</span>
@@ -125,10 +124,10 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 variant="outline"
                 className={cn(
                   "w-full transform transition-transform hover:scale-105 active:scale-95",
-                  "py-3", 
+                  "py-2.5", 
                   "bg-primary border-primary text-primary-foreground", 
                   "hover:bg-primary/90", 
-                  "font-semibold text-[15px]" 
+                  "font-semibold text-sm" 
                 )}
               >
                 <MessageSquare className="mr-2 h-4 w-4" /> Book a Session
@@ -145,7 +144,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm"> {/* Reduced gap-y */}
               <InfoSection icon={BookOpen} title="Subjects Taught">
                 <div className="flex flex-wrap gap-1.5 mt-0.5">
                   {tutor.subjects.map((subject) => {
@@ -159,15 +158,15 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                   })}
                 </div>
               </InfoSection>
-              {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} className="text-[13px]" />}
-              {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} className="text-[13px]" />}
-              {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} className="text-[13px]" />}
+              {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} className="text-xs" />}
+              {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} className="text-xs" />}
+              {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} className="text-xs" />}
               {tutor.teachingMode && (
-                <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} className="text-[13px]" />
+                <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} className="text-xs" />
               )}
-               {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-[13px]" />}
-               {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-[13px]" />}
-               {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={Clock} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-[13px]" />}
+               {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-xs" />}
+               {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-xs" />}
+               {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={Clock} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
             </CardContent>
           </Card>
 
@@ -178,7 +177,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
+                <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
               </CardContent>
             </Card>
           
@@ -191,7 +190,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
               <CardContent className="space-y-3">
                 {mockReviews.length > 0 ? mockReviews.map((review, index) => (
                     <React.Fragment key={review.id}>
-                        <div className="p-0">
+                        <div className="p-0 bg-transparent">
                             <div className="flex items-start justify-between mb-1">
                                <div className="flex items-center">
                                     <Avatar className="h-8 w-8 mr-2.5 border-primary/20 border">
@@ -223,7 +222,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
 
         </main>
       </div>
-      <FixedPostRequirementBanner />
+      <FloatingPostRequirementButton />
     </div>
   );
 }
@@ -243,12 +242,8 @@ function InfoSection({ icon: Icon, title, content, children, className }: InfoSe
                 <Icon className="w-3 h-3 mr-1.5 text-primary/80"/>
                 {title}
             </div>
-            {content && <p className={cn("text-[13px] text-foreground/70 pl-[18px]", className)}>{content}</p>}
-            {children && <div className={cn("text-[13px] pl-[18px]", className)}>{children}</div>}
+            {content && <p className={cn("text-xs text-foreground/70 pl-[18px]", className)}>{content}</p>}
+            {children && <div className={cn("text-xs pl-[18px]", className)}>{children}</div>}
         </div>
     )
 }
-
-
-
-
