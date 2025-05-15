@@ -17,22 +17,21 @@ import {
   HardDrive, ArrowUp, ArrowDown, ChevronDown, LayoutGrid, Info, Ruler, Filter,
   Image as ImageIcon, BookOpen as BookOpenIcon, Globe as GlobeIcon,
   FileText, LifeBuoy, UserCog, BarChart2, Settings2 as Settings2Icon,
-  Eye, Camera, CheckCircle, DollarSign, Briefcase, CalendarDays, RadioTower, Presentation, NotebookPen, Star // Added Star
+  Eye, Camera, CheckCircle, DollarSign, Briefcase, CalendarDays, RadioTower, Presentation, NotebookPen, Star
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
 
-
-const snippetPrimaryColor = '#4F46E5';
-const snippetPrimaryText = `text-[${snippetPrimaryColor}]`;
-const snippetPrimaryBg = `bg-[${snippetPrimaryColor}]`;
-const snippetPrimaryBgHover = `hover:bg-[${snippetPrimaryColor}]/90`; // Adjusted for hover
+const snippetPagePrimaryColor = '#4F46E5'; // From the snippet for this page
+const snippetPrimaryText = `text-[${snippetPagePrimaryColor}]`;
+const snippetPrimaryBg = `bg-[${snippetPagePrimaryColor}]`;
+const snippetPrimaryBgHover = `hover:bg-[${snippetPagePrimaryColor}]/90`;
 
 export default function TutorDashboardPage() {
   const { user, isAuthenticated } = useAuthMock();
-  const tutorUser = user as TutorProfile | null; // Assuming 'user' is a TutorProfile
+  const tutorUser = user as TutorProfile | null;
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,24 +39,21 @@ export default function TutorDashboardPage() {
   const [isClient, setIsClient] = useState(false);
   const [mockDaysLeft, setMockDaysLeft] = useState(0);
 
-
   useEffect(() => {
     setIsClient(true);
+    // Ensure this runs only on client after mount
     setMockDaysLeft(Math.floor(Math.random() * 60) + 30);
   }, []);
-
 
   useEffect(() => {
     if (tutorUser && isClient) {
       let completedFields = 0;
-      const totalFields = 5; // Example: avatar, subjects, experience, hourlyRate, qualifications
-
+      const totalFields = 5;
       if (tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh')) completedFields++;
       if (tutorUser.subjects && tutorUser.subjects.length > 0) completedFields++;
       if (tutorUser.experience && tutorUser.experience.trim() !== "") completedFields++;
       if (tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== "") completedFields++;
       if (tutorUser.qualifications && tutorUser.qualifications.length > 0) completedFields++;
-
       setCompletionPercentage(Math.round((completedFields / totalFields) * 100));
     }
   }, [tutorUser, isClient]);
@@ -70,17 +66,32 @@ export default function TutorDashboardPage() {
     );
   }
 
+  const handleAvatarUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log("New avatar selected:", file.name);
+      toast({
+        title: "Avatar Update (Mock)",
+        description: `${file.name} selected. In a real app, this would upload.`,
+      });
+    }
+  };
+  
   const dashboardMetrics = [
-    { title: "Total Enquiries", value: "15", trend: "2 new", IconEl: Briefcase, iconBg: "bg-blue-50", iconColor: snippetPrimaryText, trendColor: "text-green-600", TrendIconEl: ArrowUp },
+    { title: "Total Enquiries", value: "15", trend: "2 new", IconEl: Briefcase, iconBg: "bg-blue-50", iconColor: `text-[${snippetPagePrimaryColor}]`, trendColor: "text-green-600", TrendIconEl: ArrowUp },
     { title: "Active Classes", value: "5", trend: "1 upcoming", IconEl: CalendarDays, iconBg: "bg-green-50", iconColor: "text-green-600", trendColor: "text-green-600", TrendIconEl: ArrowUp },
     { title: "Demos Completed", value: "12", trend: "85%", IconEl: CheckCircle2, iconBg: "bg-yellow-50", iconColor: "text-yellow-600", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Avg. Rating", value: tutorUser.rating?.toFixed(1) || "N/A", trend: "+0.1", IconEl: Star, iconBg: `bg-[${snippetPrimaryColor}]/10`, iconColor: snippetPrimaryText, trendColor: "text-green-600", TrendIconEl: ArrowUp },
+    { title: "Avg. Rating", value: tutorUser.rating?.toFixed(1) || "N/A", trend: "+0.1", IconEl: Star, iconBg: `bg-[${snippetPagePrimaryColor}]/10`, iconColor: `text-[${snippetPagePrimaryColor}]`, trendColor: "text-green-600", TrendIconEl: ArrowUp },
     { title: "Total Earnings", value: `₹${(Math.random() * 20000 + 5000).toFixed(0)}`, trend: "+₹1.2k", IconEl: DollarSign, iconBg: "bg-indigo-50", iconColor: "text-indigo-600", trendColor: "text-green-600", TrendIconEl: ArrowUp },
     { title: "Profile Views", value: String(Math.floor(Math.random() * 300) + 50), trend: "5.1%", IconEl: Eye, iconBg: "bg-teal-50", iconColor: "text-teal-600", trendColor: "text-green-600", TrendIconEl: ArrowUp },
   ];
 
   const quickActions = [
-     { title: "My Enquiries", description: "View and respond to tuition requests.", IconEl: Briefcase, iconBg: "bg-blue-50", iconTextColor: `text-[${snippetPrimaryColor}]`, href:"/dashboard/enquiries" },
+     { title: "My Enquiries", description: "View and respond to tuition requests.", IconEl: Briefcase, iconBg: "bg-blue-50", iconTextColor: `text-[${snippetPagePrimaryColor}]`, href:"/dashboard/enquiries" },
      { title: "My Classes", description: "Manage your scheduled classes.", IconEl: CalendarDays, iconBg: "bg-purple-50", iconTextColor: "text-purple-600", href:"/dashboard/my-classes" },
      { title: "Edit Profile", description: "Update your personal & tutoring details.", IconEl: UserCog, iconBg: "bg-green-50", iconTextColor: "text-green-600", href: "/dashboard/tutor/edit-personal-details" },
      { title: "My Payments", description: "Track your earnings and payouts.", IconEl: DollarSign, iconBg: "bg-orange-50", iconTextColor: "text-orange-500", href: "/dashboard/payments" },
@@ -89,27 +100,6 @@ export default function TutorDashboardPage() {
      { title: "Support", description: "Get help from our support team.", IconEl: LifeBuoy, iconBg: "bg-teal-50", iconTextColor: "text-teal-600", href: "#" },
      { title: "Settings", description: "Adjust your account preferences.", IconEl: Settings2Icon, iconBg: "bg-yellow-50", iconTextColor: "text-yellow-600", href: "/dashboard/settings" },
   ];
-
-
-  const handleAvatarUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleAvatarFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Simulate upload
-      console.log("New avatar selected:", file.name);
-      toast({
-        title: "Avatar Update (Mock)",
-        description: `${file.name} selected. In a real app, this would upload.`,
-      });
-      // Here you would typically handle the upload and update the user's avatar URL
-      // For mock, we could update the user object in useAuthMock if it supported it
-      // or just show a toast.
-    }
-  };
-
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -131,9 +121,9 @@ export default function TutorDashboardPage() {
                         onClick={handleAvatarUploadClick}
                         className={cn(
                           "absolute -bottom-2 -right-2 flex items-center justify-center p-2 rounded-full cursor-pointer shadow-md transition-colors",
-                          snippetPrimaryBg, // Use snippet's primary color
-                          "text-white", // Assuming white icon for snippet's primary bg
-                          `hover:${snippetPrimaryBgHover}`
+                           `bg-[${snippetPagePrimaryColor}]`, 
+                          "text-white",
+                          `hover:bg-[${snippetPagePrimaryColor}]/90`
                         )}
                         aria-label="Update profile picture"
                       >
@@ -154,15 +144,15 @@ export default function TutorDashboardPage() {
                   <div className="mt-4">
                       <div className="flex items-center justify-between mb-1.5">
                           <span className="text-sm font-medium text-muted-foreground">Setup progress</span>
-                          <span className="text-sm font-bold" style={{ color: snippetPrimaryColor }}>{completionPercentage}%</span>
+                          <span className="text-sm font-bold" style={{ color: snippetPagePrimaryColor }}>{completionPercentage}%</span>
                       </div>
                       <Progress
                           value={completionPercentage}
-                          className="h-2 rounded-full bg-gray-200" // snippet's bg-gray-100 equivalent
-                          indicatorClassName={cn("rounded-full", snippetPrimaryBg)} // snippet's bg-primary
+                          className="h-2 rounded-full bg-gray-100" 
+                          indicatorClassName={cn("rounded-full", `bg-[${snippetPagePrimaryColor}]`)} 
                       />
                        {completionPercentage < 100 && (
-                        <Link href="/dashboard/tutor/edit-personal-details" className="mt-2.5 text-xs font-medium flex items-center gap-1 hover:underline" style={{ color: snippetPrimaryColor }}>
+                        <Link href="/dashboard/tutor/edit-personal-details" className="mt-2.5 text-xs font-medium flex items-center gap-1 hover:underline" style={{ color: snippetPagePrimaryColor }}>
                             Complete Your Profile <ArrowRight className="w-3 h-3" />
                         </Link>
                       )}
@@ -174,18 +164,18 @@ export default function TutorDashboardPage() {
                 <div className="bg-gray-100 rounded-lg p-4 w-full sm:min-w-[220px]">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Current Plan</p>
+                      <p className="text-sm text-gray-500">Current Plan</p>
                       <p className="font-semibold text-foreground">Business Pro</p>
-                      <p className="text-xs text-muted-foreground mt-1">Expires on April 28, 2025</p>
+                      <p className="text-xs text-gray-500 mt-1">Expires on April 28, 2025</p>
                     </div>
-                    <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg", "bg-blue-100", snippetPrimaryText)}> {/* Matching snippet more closely */}
+                    <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg", "bg-blue-50", `text-[${snippetPagePrimaryColor}]`)}>
                         <Crown className="w-5 h-5" />
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto">
-                    <Button className={cn("text-white px-4 py-2 rounded-button whitespace-nowrap transition-colors w-full xs:w-auto text-sm font-medium", snippetPrimaryBg, snippetPrimaryBgHover)}>
+                    <Button className={cn("text-white px-4 py-2 rounded-button whitespace-nowrap transition-colors w-full xs:w-auto text-sm font-medium", `bg-[${snippetPagePrimaryColor}]`, `hover:bg-[${snippetPagePrimaryColor}]/90`)}>
                         Upgrade Plan
                     </Button>
                     <Button variant="outline" className="bg-card border border-gray-300 text-gray-700 px-4 py-2 rounded-button whitespace-nowrap hover:bg-gray-100 transition-colors flex items-center gap-2 w-full xs:w-auto text-sm font-medium">
@@ -219,22 +209,6 @@ export default function TutorDashboardPage() {
                 </div>
               </div>
             ))}
-          </div>
-          
-          {/* Chart Placeholders */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
-            <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 lg:col-span-2">
-              <h2 className="text-md md:text-lg font-semibold text-foreground mb-4 md:mb-5">Monthly User Sessions (Placeholder)</h2>
-              <div id="monthly-sessions-chart" className="w-full h-[250px] md:h-[300px] bg-gray-100 rounded-lg flex items-center justify-center text-muted-foreground">Chart Area</div>
-            </div>
-            <div className="bg-card rounded-xl shadow-lg p-6 md:p-8">
-              <h2 className="text-md md:text-lg font-semibold text-foreground mb-4 md:mb-5">Traffic Sources (Placeholder)</h2>
-              <div id="traffic-sources-chart" className="w-full h-[250px] md:h-[300px] bg-gray-100 rounded-lg flex items-center justify-center text-muted-foreground">Chart Area</div>
-            </div>
-          </div>
-          <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8">
-            <h2 className="text-md md:text-lg font-semibold text-foreground mb-4 md:mb-5">Catalogue Usage Statistics (Placeholder)</h2>
-            <div id="catalogue-usage-chart" className="w-full h-[300px] md:h-[350px] bg-gray-100 rounded-lg flex items-center justify-center text-muted-foreground">Chart Area</div>
           </div>
           
           {/* Feature Access / Quick Actions */}
