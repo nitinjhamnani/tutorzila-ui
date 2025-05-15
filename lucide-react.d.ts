@@ -116,6 +116,16 @@ declare module "lucide-react" {
     export const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Archive: React.FC<React.SVGProps<SVGSVGElement>>;
     export const AlertTriangle: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const MessageSquare: React.FC<React.SVGProps<SVGSVGElement>>; // Added MessageSquare
+    export const MessageSquare: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Crown: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const CheckCircle2: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const ArrowUp: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const ArrowDown: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const LayoutGrid: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Ruler: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const UploadCloud: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Percent: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const HardDrive: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
+
