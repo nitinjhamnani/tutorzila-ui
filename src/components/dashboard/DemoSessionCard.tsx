@@ -5,7 +5,7 @@ import type { DemoSession } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Video, CheckCircle, XCircle, AlertTriangle, BookOpen, GraduationCap, ShieldCheck, Settings } from "lucide-react"; // Changed Edit3 to Settings
+import { Calendar, Clock, User, Video, CheckCircle, XCircle, AlertTriangle, BookOpen, GraduationCap, ShieldCheck, Settings } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -50,7 +50,7 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
 
   return (
     <Dialog>
-      <Card className="bg-card border border-border/40 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-1">
+      <Card className="bg-card border border-border/40 rounded-none shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-1">
         <CardHeader className="p-4 pb-3 bg-muted/20 border-b border-border/30">
           <div className="flex justify-between items-start gap-2">
             <div className="flex-grow min-w-0">
@@ -68,10 +68,10 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
                   variant="outline"
                   className={cn(
                     "text-[0.65rem] py-1 px-2 border font-medium whitespace-nowrap cursor-pointer rounded-full flex items-center gap-1",
-                    "bg-card text-primary border-primary/60 hover:border-primary hover:text-primary/90" // Updated styling for white background
+                    "bg-card text-primary border-primary/60 hover:border-primary hover:text-primary/90" 
                   )}
                 >
-                  <Settings className="h-3 w-3" /> Manage {/* Changed icon to Settings */}
+                  <Settings className="h-3 w-3" /> Manage
                 </Badge>
               </DialogTrigger>
             ) : (
@@ -135,4 +135,3 @@ function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
     </div>
   );
 }
-

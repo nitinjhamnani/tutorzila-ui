@@ -25,11 +25,7 @@ export default function TutorDashboardPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null; 
-
-  // Otp Modal state and handlers removed
   
-  // isEmailVerified and isPhoneVerified states removed
-
   const [demoSessions, setDemoSessions] = useState<DemoSession[]>([]);
   const [mockInsights, setMockInsights] = useState({
     leadBalance: 0,
@@ -44,10 +40,8 @@ export default function TutorDashboardPage() {
 
   useEffect(() => {
     if (tutorUser) {
-      // Verification status state updates removed
-      
       const tutorSpecificDemos = MOCK_DEMO_SESSIONS.filter(
-        demo => MOCK_TUTOR_PROFILES.find(t => t.id === tutorUser.id && t.name === demo.tutorName)
+        demo => demo.tutorName && MOCK_TUTOR_PROFILES.find(t => t.id === tutorUser.id && t.name === demo.tutorName)
       );
       setDemoSessions(tutorSpecificDemos);
 
@@ -75,7 +69,7 @@ export default function TutorDashboardPage() {
       });
       setCompletionPercentage(Math.round((completed / totalSteps) * 100));
     }
-  }, [tutorUser]); // Removed tutorUser.isEmailVerified and tutorUser.isPhoneVerified dependencies
+  }, [tutorUser]); 
 
 
   if (!tutorUser || tutorUser.role !== 'tutor') {
@@ -96,8 +90,6 @@ export default function TutorDashboardPage() {
       });
     }
   };
-
-  // handleOpenOtpModal and handleOtpSuccess removed
 
   const handleUpdateDemoSession = (updatedDemo: DemoSession) => {
     setDemoSessions(prevSessions => 
@@ -132,7 +124,7 @@ export default function TutorDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card rounded-lg animate-in fade-in duration-700 ease-out overflow-hidden border-0 shadow-none w-full">
+      <Card className="bg-card rounded-none animate-in fade-in duration-700 ease-out overflow-hidden border-0 shadow-none w-full">
         <CardHeader className="pt-2 px-4 pb-4 md:pt-3 md:px-5 md:pb-5 relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="relative shrink-0">
@@ -175,7 +167,6 @@ export default function TutorDashboardPage() {
                   </Badge>
                 )}
               </div>
-              {/* Verification buttons removed from here */}
             </div>
           </div>
           <div className="absolute top-4 right-4 flex space-x-2">
@@ -184,8 +175,8 @@ export default function TutorDashboardPage() {
                 <Eye className="h-4 w-4" />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 p-1.5 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground" title="Share Profile">
-              <Share2 className="h-4 w-4 text-primary-foreground" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 p-1.5 rounded-full text-primary-foreground bg-primary hover:bg-primary/90" title="Share Profile">
+              <Share2 className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
@@ -193,7 +184,7 @@ export default function TutorDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card className="bg-card border border-border/30 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
+          <Card className="bg-card border border-border/30 rounded-none shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{ animationDelay: `0.2s` }}>
             <CardHeader className="pb-3 border-b border-border/20">
               <CardTitle className="text-lg font-semibold text-primary flex items-center"> 
                 <LayoutDashboard className="w-4 h-4 mr-2"/> 
@@ -207,14 +198,14 @@ export default function TutorDashboardPage() {
               {insightCardsData.map((insight, index) => (
                 <Card 
                   key={insight.title} 
-                  className="group bg-muted/30 border border-border/20 rounded-lg shadow-xs hover:shadow-md transition-all duration-300 p-3 text-center transform hover:-translate-y-0.5" 
+                  className="group bg-muted/30 border border-border/20 rounded-none shadow-xs hover:shadow-md transition-all duration-300 p-3 text-center transform hover:-translate-y-0.5" 
                   style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
                 >
                   <div className={cn("p-2 bg-primary/10 rounded-full text-primary inline-block mb-2 group-hover:bg-primary/20 transition-colors shadow-sm")}>
                     <insight.icon className="w-4 h-4 transition-transform group-hover:scale-110" />
                   </div>
                   <p className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{insight.value}</p>
-                  <p className="text-[10px] text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p> {/* Reduced font size */}
+                  <p className="text-[10px] text-muted-foreground group-hover:text-foreground/90 transition-colors mt-0.5">{insight.title}</p>
                 </Card>
               ))}
             </CardContent>
@@ -232,7 +223,7 @@ export default function TutorDashboardPage() {
 
 
       <div className="mt-8 animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out">
-        <Card className="bg-card border border-border/30 rounded-xl shadow-none overflow-hidden">
+        <Card className="bg-card border border-border/30 rounded-none shadow-none overflow-hidden">
           <CardHeader className="pb-4 border-b border-border/30">
             <CardTitle className="text-xl font-semibold text-primary flex items-center">
               <CalendarDays className="w-6 h-6 mr-2.5" />
@@ -276,9 +267,6 @@ export default function TutorDashboardPage() {
           )}
         </Card>
       </div>
-
-      {/* OtpVerificationModal and its trigger logic removed */}
     </div>
   );
 }
-
