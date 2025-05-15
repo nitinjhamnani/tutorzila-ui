@@ -27,14 +27,16 @@ export default function TutorDashboardPage() {
   const tutorUser = user as TutorProfile | null; 
   
   const [demoSessions, setDemoSessions] = useState<DemoSession[]>([]);
-  const [mockInsights, setMockInsights] = useState({
-    leadBalance: 0,
-    activeLeads: 0,
-    demosCompleted: 0,
-    profileViews: 0,
-    applicationsSent: 0,
-    upcomingDemos: 0,
-  });
+  
+  // Initialize mockInsights with random values only once
+  const [mockInsights, setMockInsights] = useState(() => ({
+    leadBalance: Math.floor(Math.random() * 50) + 10,
+    activeLeads: Math.floor(Math.random() * 10) + 2,
+    demosCompleted: 0, // Will be updated by useEffect
+    profileViews: Math.floor(Math.random() * 200) + 50,
+    applicationsSent: Math.floor(Math.random() * 30) + 5,
+    upcomingDemos: 0, // Will be updated by useEffect
+  }));
   
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
@@ -43,22 +45,13 @@ export default function TutorDashboardPage() {
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
   const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
 
-
+  // Effect for tutorUser-dependent states
   useEffect(() => {
     if (tutorUser) {
       const tutorSpecificDemos = MOCK_DEMO_SESSIONS.filter(
         demo => demo.tutorName && MOCK_TUTOR_PROFILES.find(t => t.id === tutorUser.id && t.name === demo.tutorName)
       );
       setDemoSessions(tutorSpecificDemos);
-
-      setMockInsights({
-        leadBalance: Math.floor(Math.random() * 50) + 10,
-        activeLeads: Math.floor(Math.random() * 10) + 2,
-        demosCompleted: tutorSpecificDemos.filter(d => d.status === "Completed").length,
-        profileViews: Math.floor(Math.random() * 200) + 50,
-        applicationsSent: Math.floor(Math.random() * 30) + 5,
-        upcomingDemos: tutorSpecificDemos.filter(d => d.status === "Scheduled").length,
-      });
 
       // Calculate profile completion
       let completed = 0;
@@ -74,10 +67,30 @@ export default function TutorDashboardPage() {
         if (isComplete) completed++;
       });
       setCompletionPercentage(Math.round((completed / totalSteps) * 100));
+      
       setIsEmailVerified(tutorUser.isEmailVerified || false);
       setIsPhoneVerified(tutorUser.isPhoneVerified || false);
+
+      // Re-initialize random parts of mockInsights if tutorUser changes
+      // This helps if you expect these random numbers to be "per tutor session"
+      setMockInsights(prev => ({
+        ...prev, // keep demosCompleted and upcomingDemos as they are managed by another effect
+        leadBalance: Math.floor(Math.random() * 50) + 10,
+        activeLeads: Math.floor(Math.random() * 10) + 2,
+        profileViews: Math.floor(Math.random() * 200) + 50,
+        applicationsSent: Math.floor(Math.random() * 30) + 5,
+      }));
     }
-  }, [tutorUser, demoSessions]); // Added demoSessions as a dependency to re-calculate insights if demos change
+  }, [tutorUser]);
+
+  // Effect for demoSessions-dependent parts of mockInsights
+  useEffect(() => {
+    setMockInsights(prev => ({
+      ...prev,
+      demosCompleted: demoSessions.filter(d => d.status === "Completed").length,
+      upcomingDemos: demoSessions.filter(d => d.status === "Scheduled").length,
+    }));
+  }, [demoSessions]);
 
 
   if (!tutorUser || tutorUser.role !== 'tutor') {
@@ -103,11 +116,7 @@ export default function TutorDashboardPage() {
     setDemoSessions(prevSessions => 
       prevSessions.map(session => session.id === updatedDemo.id ? updatedDemo : session)
     );
-     setMockInsights(prev => ({
-      ...prev,
-      upcomingDemos: demoSessions.filter(d => d.id !== updatedDemo.id && d.status === "Scheduled").length + (updatedDemo.status === "Scheduled" ? 1 : 0),
-      demosCompleted: demoSessions.filter(d => d.id !== updatedDemo.id && d.status === "Completed").length + (updatedDemo.status === "Completed" ? 1 : 0),
-    }));
+    // Removed direct setMockInsights call from here
   };
 
   const handleCancelDemoSession = (sessionId: string) => {
@@ -115,10 +124,7 @@ export default function TutorDashboardPage() {
       session.id === sessionId ? { ...session, status: "Cancelled" as const } : session
     );
     setDemoSessions(updatedSessions);
-    setMockInsights(prev => ({
-      ...prev,
-      upcomingDemos: updatedSessions.filter(d => d.status === "Scheduled").length,
-    }));
+    // Removed direct setMockInsights call from here
   };
   
   const insightCardsData = [
@@ -295,7 +301,7 @@ export default function TutorDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 md:p-5">
-            {demoSessions.filter(demo => demo.status === "Scheduled").length > 0 ? ( // Filter for scheduled demos
+            {demoSessions.filter(demo => demo.status === "Scheduled").length > 0 ? ( 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {demoSessions.filter(demo => demo.status === "Scheduled").slice(0,3).map((demo, index) => ( 
                     <div 
@@ -340,4 +346,3 @@ export default function TutorDashboardPage() {
     </div>
   );
 }
-
