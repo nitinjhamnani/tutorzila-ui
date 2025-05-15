@@ -50,7 +50,7 @@ export function UpdateProfileActionsCard({ user }: UpdateProfileActionsCardProps
           </div>
           <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">My Profile</CardTitle>
         </div>
-        <CardDescription className="text-sm mt-1 text-muted-foreground">
+        <CardDescription className="text-xs mt-0.5 text-muted-foreground">
           Complete your profile to attract more students.
         </CardDescription>
       </CardHeader>
