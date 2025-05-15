@@ -1,5 +1,4 @@
 
-// src/app/dashboard/tutor/page.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -67,7 +66,7 @@ import {
   PhoneCall,
   Mail,
   Phone,
-  FileText, // Added FileText import
+  FileText, 
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -96,9 +95,11 @@ export default function TutorDashboardPage() {
   const [completionPercentage, setCompletionPercentage] = useState(0);
   
   const [isClient, setIsClient] = useState(false);
+  const [mockDaysLeft, setMockDaysLeft] = useState(0); // For subscription overview
 
   useEffect(() => {
     setIsClient(true);
+    setMockDaysLeft(Math.floor(Math.random() * 90) + 30); // Random days left between 30-120
   }, []);
   
 
@@ -107,7 +108,7 @@ export default function TutorDashboardPage() {
       let completedFields = 0;
       const totalFields = 5; 
 
-      if (tutorUser.bio && tutorUser.bio.trim() !== "") completedFields++;
+      if (tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh')) completedFields++;
       if (tutorUser.subjects && tutorUser.subjects.length > 0) completedFields++;
       if (tutorUser.experience && tutorUser.experience.trim() !== "") completedFields++;
       if (tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== "") completedFields++;
@@ -119,13 +120,15 @@ export default function TutorDashboardPage() {
 
 
   if (!isAuthenticated || !tutorUser || tutorUser.role !== 'tutor') {
+    // This should ideally be handled by a higher-level auth guard or layout
+    // For now, redirecting or showing an access denied message might be appropriate.
+    // router.push('/'); // Example redirect
     return <div className="flex items-center justify-center min-h-screen"><p>Access Denied. Please log in as a tutor.</p></div>;
   }
   
-  const snippetPrimaryColor = '#4F46E5'; 
-  const pagePrimaryColor = 'hsl(var(--primary))'; // Using app's primary color for text
-  const pagePrimaryBg = 'bg-primary';
-  const pagePrimaryText = 'text-primary';
+  const snippetPrimaryColor = '#4F46E5'; // From snippet's tailwind.config
+  const snippetPrimaryText = 'text-[#4F46E5]'; // For text color
+  const snippetPrimaryBg = 'bg-[#4F46E5]';
   
   const setupSteps = [
     { title: "Create Account", description: "Your account is ready to use", IconEl: UserPlus, buttonText: "View Profile", href: "/dashboard/my-account", completed: true, iconColor: "text-green-600", bgColor: "bg-green-50", borderColor: "border-green-100", iconBg: "bg-green-100", statusIcon: CheckCircle2 },
@@ -135,7 +138,7 @@ export default function TutorDashboardPage() {
   ];
 
   const dashboardMetrics = [
-    { title: "Total Sessions", value: "3,287", trend: "12.5%", IconEl: UserIconLucide, iconBg: "bg-blue-50", iconColor: "text-[#4F46E5]", trendColor: "text-green-600", TrendIconEl: ArrowUp },
+    { title: "Total Sessions", value: "3,287", trend: "12.5%", IconEl: UserIconLucide, iconBg: "bg-blue-50", iconColor: snippetPrimaryText, trendColor: "text-green-600", TrendIconEl: ArrowUp },
     { title: "Product Inquiries", value: "144", trend: "8.2%", IconEl: MessageSquare, iconBg: "bg-orange-50", iconColor: "text-orange-500", trendColor: "text-green-600", TrendIconEl: ArrowUp },
     { title: "Conversion Rate", value: "3.6%", trend: "1.8%", IconEl: Percent, iconBg: "bg-green-50", iconColor: "text-green-600", trendColor: "text-red-500", TrendIconEl: ArrowDown },
     { title: "Average Session Time", value: "4m 32s", trend: "0:42", IconEl: Clock, iconBg: "bg-purple-50", iconColor: "text-purple-600", trendColor: "text-green-600", TrendIconEl: ArrowUp },
@@ -144,7 +147,7 @@ export default function TutorDashboardPage() {
   ];
 
   const quickActions = [
-     { title: "Image Save Settings", description: "Configure how images are saved", IconEl: Settings, iconBg: "bg-blue-50", iconTextColor: "text-[#4F46E5]", href:"#" },
+     { title: "Image Save Settings", description: "Configure how images are saved", IconEl: Settings, iconBg: "bg-blue-50", iconTextColor: snippetPrimaryText, href:"#" },
      { title: "Personalize Catalog", description: "Customize your product catalog", IconEl: BookOpenIcon, iconBg: "bg-purple-50", iconTextColor: "text-purple-600", href:"#" },
      { title: "Add to Website", description: "Integrate your catalog", IconEl: GlobeIcon, iconBg: "bg-green-50", iconTextColor: "text-green-600", href: "#" },
      { title: "Custom Room Log", description: "View custom configurations", IconEl: FileText, iconBg: "bg-orange-50", iconTextColor: "text-orange-500", href: "#" },
@@ -156,226 +159,216 @@ export default function TutorDashboardPage() {
 
 
   return (
-    <>
-        {/* Header Section - From Snippet */}
-        <header className="bg-card shadow-sm">
-            <div className="max-w-7xl mx-auto px-6 py-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                       <Link href="/" className="flex items-center">
-                         <Image src={logoAsset} alt="Tutorzila Logo" width={150} height={40} className="h-10 w-auto mr-2" priority />
-                      </Link>
-                      <span className="text-muted-foreground text-sm mx-2">|</span>
-                      <span className="text-muted-foreground text-sm font-medium">Dashboard</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary h-8 w-8">
-                            <Bell className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary h-8 w-8">
-                            <Settings className="h-5 w-5" />
-                        </Button>
-                        <div className="flex items-center gap-2">
-                             <Avatar className="h-8 w-8 border-2 border-primary/30">
-                               <AvatarImage src={tutorUser.avatar || `https://avatar.vercel.sh/${tutorUser.email}.png`} alt={tutorUser.name} />
-                              <AvatarFallback className={cn(pagePrimaryBg,"text-primary-foreground text-xs font-medium")}>
-                                {tutorUser.name?.split(" ").map((n) => n[0]).join("").toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm font-medium text-foreground">{tutorUser.name}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+    <div className="bg-foreground"> {/* Outer div with application's foreground color */}
+      {/* Header Section from Snippet - Main Application Header is removed for tutors */}
+      {/* This header is local to the tutor dashboard content */}
+      {/* Header Removed as per user request */}
 
-        {/* Main Content */}
-        <main className="flex-grow">
-            <div className="max-w-7xl mx-auto px-6 py-8">
-                {/* Welcome Section */}
-                <div className="bg-card rounded-xl shadow-sm p-6 mb-6 md:mb-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div>
-                            <h1 className="text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
-                            <p className="text-muted-foreground mt-1 text-sm">Welcome back to your dashboard</p>
-                            
-                            <div className="mt-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm text-muted-foreground">Setup progress</span>
-                                    <span className={cn("text-sm font-medium", pagePrimaryText)}>{completionPercentage}%</span>
-                                </div>
-                                <Progress 
-                                  value={completionPercentage} 
-                                  className="h-2 rounded-full bg-gray-100" 
-                                  indicatorClassName={cn("rounded-full", completionPercentage === 100 ? "bg-green-500" : "bg-[#4F46E5]")}
-                                />
-                                <Link href="/dashboard/tutor/edit-personal-details" className={cn("mt-2 inline-block text-xs font-medium hover:underline", pagePrimaryText)}>
-                                    Complete Your Profile <ArrowRight className="inline h-3 w-3" />
-                                </Link>
-                            </div>
-                        </div>
-                        
-                        <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
-                            <div className="bg-gray-100 rounded-lg p-4 min-w-[180px] sm:min-w-[200px]">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Current Plan</p>
-                                        <p className="font-semibold text-sm text-foreground">Business Pro</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Expires on April 28, 2025</p>
-                                    </div>
-                                    <div className={cn("w-8 h-8 flex items-center justify-center bg-blue-100 rounded-md text-sm", "text-[#4F46E5]")}>
-                                        <Crown className="h-4 w-4"/>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                                 <Button className={cn("text-xs px-3 py-1.5 h-auto whitespace-nowrap hover:bg-opacity-90 bg-[#4F46E5] text-primary-foreground")} style={{borderRadius: 'var(--radius-button)'}}>
-                                    Upgrade Plan
-                                </Button>
-                                <Button variant="outline" className="text-xs px-3 py-1.5 h-auto border-gray-300 hover:bg-gray-100 whitespace-nowrap flex items-center gap-1.5 text-gray-700" style={{borderRadius: 'var(--radius-button)'}}>
-                                    <Share2 className="h-3 w-3" />
-                                    Share Link
-                                </Button>
-                            </div>
-                        </div>
+      {/* Main Content */}
+      <main className="flex-grow">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8"> {/* Added padding back here */}
+          {/* Welcome Section */}
+          <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div>
+                <h1 className="text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
+                <p className="text-muted-foreground mt-1 text-sm">Welcome back to your dashboard</p>
+                
+                <div className="mt-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-muted-foreground">Setup progress</span>
+                        <span className={cn("text-sm font-medium", snippetPrimaryText)}>{completionPercentage}%</span>
                     </div>
+                    <Progress 
+                        value={completionPercentage} 
+                        className="h-2 rounded-full bg-gray-100" 
+                        indicatorClassName={cn("rounded-full", completionPercentage === 100 ? "bg-green-500" : snippetPrimaryBg)}
+                    />
+                    <Link href="/dashboard/tutor/edit-personal-details" className={cn("mt-2 inline-block text-xs font-medium hover:underline", snippetPrimaryText)}>
+                        Complete Your Profile <ArrowRight className="inline h-3 w-3" />
+                    </Link>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="bg-gray-100 rounded-lg p-4 min-w-[200px]">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500">Current Plan</p>
+                      <p className="font-semibold text-gray-800">Business Pro</p>
+                      <p className="text-xs text-gray-500 mt-1">Expires on April 28, 2025</p>
+                    </div>
+                    <div className={cn("w-8 h-8 flex items-center justify-center bg-blue-50 rounded-md text-sm", snippetPrimaryText)}>
+                      <Crown className="h-4 w-4"/>
+                    </div>
+                  </div>
                 </div>
                 
-                {/* Quick Setup Section */}
-                <div className="bg-card rounded-xl shadow-sm p-6 mb-6 md:mb-8">
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <h2 className="text-lg font-semibold text-foreground">Quick Setup Guide</h2>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground">
-                                {setupSteps.filter(s => s.completed).length} of {setupSteps.length} completed
-                            </span>
-                            <div className={cn("w-5 h-5 flex items-center justify-center rounded-full", "bg-[#4F46E5]/10 text-[#4F46E5]")}>
-                                <CheckCircle className="h-3.5 w-3.5" />
-                            </div>
+                <div className="flex gap-3">
+                    <Button className={cn("text-xs px-4 py-2 h-auto whitespace-nowrap hover:bg-opacity-90", snippetPrimaryBg, "text-primary-foreground rounded-button")}>
+                      Upgrade Plan
+                    </Button>
+                    <Button variant="outline" className="text-xs px-4 py-2 h-auto border-gray-300 hover:bg-gray-100 whitespace-nowrap flex items-center gap-2 text-gray-700 rounded-button">
+                        <div className="w-4 h-4 flex items-center justify-center">
+                            <Share2 className="h-3 w-3" />
                         </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {setupSteps.map((step, index) => (
-                            <div key={index} className={cn("border rounded-lg p-4 relative transition-all duration-200 hover:shadow-md", step.bgColor, step.borderColor)}>
-                                <div className="absolute top-2.5 right-2.5 w-4 h-4 flex items-center justify-center">
-                                    <step.statusIcon className={cn("h-4 w-4", step.completed ? step.iconColor : "text-gray-400")} />
-                                </div>
-                                <div className={cn("w-8 h-8 flex items-center justify-center rounded-full mb-2.5", step.iconBg)}>
-                                    <step.IconEl className={cn("h-4 w-4", step.iconColor)} />
-                                </div>
-                                <h3 className="font-medium text-sm text-foreground">{step.title}</h3>
-                                <p className="text-xs text-muted-foreground mt-0.5 h-8 line-clamp-2">{step.description}</p>
-                                {step.completed ? (
-                                    <Button asChild variant="link" size="sm" className={cn("mt-3 text-xs p-0 h-auto font-medium whitespace-nowrap", "text-[#4F46E5]")}>
-                                      <Link href={step.href}>
-                                        {step.buttonText} <ArrowRight className="inline h-3 w-3 ml-1" />
-                                      </Link>
-                                    </Button>
-                                ) : (
-                                    <Button size="sm" className={cn("mt-3 text-xs px-3 py-1.5 h-auto whitespace-nowrap bg-[#4F46E5] text-primary-foreground hover:bg-opacity-90")} style={{borderRadius: 'var(--radius-button)'}}>
-                                      {step.buttonText}
-                                    </Button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                        Share Link
+                    </Button>
                 </div>
-                
-                {/* Dashboard Metrics */}
-                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-                    {dashboardMetrics.map((metric, index) => (
-                    <div key={index} className="bg-card rounded-xl shadow-sm p-5">
-                        <div className="flex items-start justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">{metric.title}</p>
-                            <h3 className="text-xl font-semibold text-foreground mt-0.5">{metric.value}</h3>
-                            {metric.trend && (
-                                <div className={cn("flex items-center mt-1 text-[10px]", metric.trendColor)}>
-                                    {metric.TrendIconEl && <metric.TrendIconEl className={cn("h-3 w-3")} />}
-                                    <span className="font-medium ml-0.5">{metric.trend}</span>
-                                    <span className="text-muted-foreground ml-1">from last month</span>
-                                </div>
-                            )}
-                        </div>
-                        <div className={cn("w-8 h-8 flex items-center justify-center rounded-md text-sm", metric.iconBg, metric.iconColor)}>
-                            <metric.IconEl className="h-4 w-4" />
-                        </div>
-                        </div>
-                        {metric.title === "Storage Used" && (
-                             <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-teal-500 rounded-full" style={{ width: "42%"}}></div>
-                            </div>
-                        )}
-                    </div>
-                    ))}
-                </div>
-                
-                {/* Charts - Placeholders */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
-                    <div className="bg-card rounded-xl shadow-sm p-5 lg:col-span-2">
-                        <div className="flex items-center justify-between mb-4 md:mb-6">
-                            <h2 className="text-base font-semibold text-foreground">Monthly User Sessions</h2>
-                            <Button variant="outline" size="sm" className="text-xs h-7 px-2 border-gray-300 hover:bg-gray-100 text-gray-700" style={{borderRadius: 'var(--radius-button)'}}>
-                                Last 6 Months <ChevronDown className="h-3 w-3 ml-1" />
-                            </Button>
-                        </div>
-                        <div id="monthly-sessions-chart" className="w-full h-[250px] bg-gray-100 rounded-md flex items-center justify-center text-sm text-muted-foreground">Chart: Monthly Sessions</div>
-                    </div>
-                    <div className="bg-card rounded-xl shadow-sm p-5">
-                        <h2 className="text-base font-semibold text-foreground mb-4 md:mb-6">Traffic Sources</h2>
-                        <div id="traffic-sources-chart" className="w-full h-[250px] bg-gray-100 rounded-md flex items-center justify-center text-sm text-muted-foreground">Chart: Traffic Sources</div>
-                    </div>
-                </div>
-                <div className="bg-card rounded-xl shadow-sm p-5 mb-6 md:mb-8">
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <h2 className="text-base font-semibold text-foreground">Catalogue Usage Statistics</h2>
-                        <div className="px-0.5 py-0.5 bg-gray-100 rounded-full flex items-center text-xs">
-                            <Button variant="ghost" size="sm" className="px-2.5 py-1 h-auto bg-card text-foreground rounded-full shadow-sm whitespace-nowrap text-[10px]">Monthly</Button>
-                            <Button variant="ghost" size="sm" className="px-2.5 py-1 h-auto text-muted-foreground rounded-full whitespace-nowrap text-[10px]">Weekly</Button>
-                        </div>
-                    </div>
-                    <div id="catalogue-usage-chart" className="w-full h-[300px] bg-gray-100 rounded-md flex items-center justify-center text-sm text-muted-foreground">Chart: Catalogue Usage</div>
-                </div>
-                
-                {/* Quick Actions */}
-                 <div className="mb-6 md:mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 md:mb-6">Quick Actions</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                    {quickActions.map((action, index) => (
-                        <Link key={index} href={action.href || "#"} className="block">
-                        <div className="bg-card rounded-xl shadow-sm p-5 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col justify-between transform hover:-translate-y-0.5">
-                            <div>
-                            <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg mb-3", action.iconBg)}>
-                                <action.IconEl className={cn("h-5 w-5", action.iconTextColor)} />
-                            </div>
-                            <h3 className="font-medium text-sm text-foreground">{action.title}</h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">{action.description}</p>
-                            </div>
-                        </div>
-                        </Link>
-                    ))}
-                    </div>
-                </div>
+              </div>
             </div>
-        </main>
-        
-        {/* Footer - Snippet Style */}
-        <footer className="bg-card border-t border-gray-200 mt-auto">
-            <div className="max-w-7xl mx-auto px-6 py-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-center md:text-left">
-                    <div className="text-xs text-muted-foreground">
-                        © {new Date().getFullYear()} Tutorzila. All rights reserved. v1.0.0
-                    </div>
-                    <div className="flex items-center justify-center md:justify-end gap-4">
-                        <Link href="/privacy-policy" className="text-xs text-muted-foreground hover:text-primary">Privacy Policy</Link>
-                        <Link href="/terms-and-conditions" className="text-xs text-muted-foreground hover:text-primary">Terms of Service</Link>
-                        <Link href="/faq" className="text-xs text-muted-foreground hover:text-primary">Help Center</Link>
-                    </div>
+          </div>
+          
+          {/* Quick Setup Section */}
+          <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-foreground">Quick Setup Guide</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {setupSteps.filter(s => s.completed).length} of {setupSteps.length} completed
+                </span>
+                <div className={cn("w-6 h-6 flex items-center justify-center rounded-full", snippetPrimaryBg+"/10", snippetPrimaryText)}>
+                  <CheckCircle className="h-3.5 w-3.5" />
                 </div>
+              </div>
             </div>
-        </footer>
-    </>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {setupSteps.map((step, index) => (
+                <div key={index} className={cn("border rounded-lg p-4 relative transition-all duration-200 hover:shadow-md", step.bgColor, step.borderColor)}>
+                  <div className="absolute top-3 right-3 w-5 h-5 flex items-center justify-center">
+                    <step.statusIcon className={cn("h-4 w-4", step.completed ? step.iconColor : "text-gray-400")} />
+                  </div>
+                  <div className={cn("w-10 h-10 flex items-center justify-center rounded-full mb-3", step.iconBg)}>
+                    <step.IconEl className={cn("h-4 w-4", step.iconColor)} />
+                  </div>
+                  <h3 className="font-medium text-foreground">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-1 h-10 line-clamp-2">{step.description}</p>
+                  {step.completed ? (
+                    <Button asChild variant="link" size="sm" className={cn("mt-4 text-sm p-0 h-auto font-medium whitespace-nowrap flex items-center gap-1", snippetPrimaryText)}>
+                      <Link href={step.href || "#"}>
+                        {step.buttonText}
+                        <div className="w-4 h-4 flex items-center justify-center">
+                            <ArrowRight className="h-3 w-3" />
+                        </div>
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button size="sm" className={cn("mt-4 text-sm px-3 py-1.5 h-auto whitespace-nowrap rounded-button", snippetPrimaryBg, "text-primary-foreground hover:bg-opacity-90")}>
+                      {step.buttonText}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Dashboard Metrics */}
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+              {dashboardMetrics.map((metric, index) => (
+              <div key={index} className="bg-card rounded-xl shadow-lg p-5">
+                  <div className="flex items-start justify-between">
+                  <div>
+                      <p className="text-sm text-muted-foreground">{metric.title}</p>
+                      <h3 className="text-2xl font-semibold text-foreground mt-1">{metric.value}</h3>
+                      {metric.trend && (
+                          <div className={cn("flex items-center mt-1 text-sm", metric.trendColor)}>
+                              {metric.TrendIconEl && <metric.TrendIconEl className={cn("h-4 w-4")} />}
+                              <span className="font-medium ml-0.5">{metric.trend}</span>
+                              <span className="text-muted-foreground ml-1 text-xs">from last month</span>
+                          </div>
+                      )}
+                  </div>
+                  <div className={cn("w-10 h-10 flex items-center justify-center rounded-md text-sm", metric.iconBg, metric.iconColor)}>
+                      <metric.IconEl className="h-5 w-5" />
+                  </div>
+                  </div>
+                  {metric.title === "Storage Used" && (
+                       <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-teal-500 rounded-full" style={{ width: "42%"}}></div>
+                      </div>
+                  )}
+              </div>
+              ))}
+          </div>
+          
+          {/* Charts - Placeholders */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
+              <div className="bg-card rounded-xl shadow-lg p-5 lg:col-span-2">
+                  <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-lg font-semibold text-foreground">Monthly User Sessions</h2>
+                      <div className="flex items-center">
+                          <div className="relative">
+                              <Button variant="outline" className="flex items-center gap-2 text-sm text-gray-600 border-gray-300 rounded-button px-3 py-1.5 hover:bg-gray-50">
+                                  <span>Last 6 Months</span>
+                                  <div className="w-4 h-4 flex items-center justify-center">
+                                      <ChevronDown className="h-4 w-4" />
+                                  </div>
+                              </Button>
+                          </div>
+                      </div>
+                  </div>
+                  <div id="monthly-sessions-chart" className="w-full h-[300px] bg-gray-100 rounded-md flex items-center justify-center text-sm text-muted-foreground">Chart: Monthly Sessions</div>
+              </div>
+              
+              <div className="bg-card rounded-xl shadow-lg p-5">
+                  <h2 className="text-lg font-semibold text-foreground mb-6">Traffic Sources</h2>
+                  <div id="traffic-sources-chart" className="w-full h-[300px] bg-gray-100 rounded-md flex items-center justify-center text-sm text-muted-foreground">Chart: Traffic Sources</div>
+              </div>
+          </div>
+          
+          {/* Visual Statistics */}
+          <div className="bg-card rounded-xl shadow-lg p-5 mb-6 md:mb-8">
+              <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-foreground">Catalogue Usage Statistics</h2>
+                  <div className="flex items-center gap-2">
+                      <div className="px-1 py-1 bg-gray-100 rounded-full flex items-center">
+                          <Button variant="ghost" size="sm" className="px-3 py-1 h-auto bg-card text-foreground rounded-full shadow-sm whitespace-nowrap text-sm">Monthly</Button>
+                          <Button variant="ghost" size="sm" className="px-3 py-1 h-auto text-muted-foreground rounded-full whitespace-nowrap text-sm">Weekly</Button>
+                      </div>
+                  </div>
+              </div>
+              <div id="catalogue-usage-chart" className="w-full h-[350px] bg-gray-100 rounded-md flex items-center justify-center text-sm text-muted-foreground">Chart: Catalogue Usage</div>
+          </div>
+          
+          {/* Feature Access */}
+          <div className="mb-6 md:mb-8">
+              <h2 className="text-lg font-semibold text-foreground mb-6">Quick Actions</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {quickActions.map((action, index) => (
+                  <Link key={index} href={action.href || "#"} className="block">
+                  <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col justify-between transform hover:-translate-y-1">
+                      <div>
+                      <div className={cn("w-12 h-12 flex items-center justify-center rounded-lg mb-4", action.iconBg)}>
+                          <action.IconEl className={cn("h-6 w-6", action.iconTextColor)} />
+                      </div>
+                      <h3 className="font-medium text-foreground">{action.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{action.description}</p>
+                      </div>
+                  </div>
+                  </Link>
+              ))}
+              </div>
+          </div>
+        </div>
+      </main>
+      
+      {/* Footer specific to this dashboard design */}
+      <footer className="bg-card border-t border-gray-200 mt-auto">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="text-sm text-muted-foreground">
+                      © {new Date().getFullYear()} Tutorzila. All rights reserved. v1.0.0 
+                  </div>
+                  <div className="flex items-center gap-6">
+                      <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link>
+                      <Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link>
+                      <Link href="/faq" className="text-sm text-muted-foreground hover:text-primary">Help Center</Link>
+                  </div>
+              </div>
+          </div>
+      </footer>
+    </div>
   );
 }
 
