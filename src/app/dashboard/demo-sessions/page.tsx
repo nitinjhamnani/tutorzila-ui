@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, CalendarDays, Users, Star as StarIcon, MessageSquareQuote, Edit3, XCircle, Video, MessageSquareText, Clock as ClockIcon } from "lucide-react";
+import { Search, ListFilter, PlusCircle, CalendarDays, Users, Star as StarIcon, MessageSquareQuote, Edit3, XCircle, Video, MessageSquareText, Clock as ClockIcon, XIcon, BookOpen } from "lucide-react";
 import type { DemoSession } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -16,22 +16,18 @@ import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
 import { ParentDemoSessionCard } from "@/components/dashboard/parent/ParentDemoSessionCard"; 
 import { Label } from "@/components/ui/label"; 
 
-// Placeholder icons, ensure they are declared in lucide-react.d.ts if used or replace with actual ones
-const CheckCircle: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-);
 const Info: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
 );
 
-
 export default function MyDemosPage() {
   const [allDemos, setAllDemos] = useState<DemoSession[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("All");
+  const [tutorFilter, setTutorFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
-    // Simulate fetching data
     setAllDemos(MOCK_DEMO_SESSIONS);
   }, []);
 
@@ -43,12 +39,13 @@ export default function MyDemosPage() {
         (demo.tutorName && demo.tutorName.toLowerCase().includes(searchLower)) ||
         demo.studentName.toLowerCase().includes(searchLower);
       
+      const matchesSubject = subjectFilter === "All" || demo.subject === subjectFilter;
+      const matchesTutor = tutorFilter === "All" || demo.tutorName === tutorFilter;
       const matchesStatus = statusFilter === "All" || demo.status === statusFilter;
-      // Add subject filter if needed
 
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesSubject && matchesTutor && matchesStatus;
     });
-  }, [searchTerm, statusFilter, allDemos]);
+  }, [searchTerm, subjectFilter, tutorFilter, statusFilter, allDemos]);
 
   const scheduledDemos = useMemo(() => filteredDemos.filter(d => d.status === "Scheduled"), [filteredDemos]);
   const requestedDemos = useMemo(() => filteredDemos.filter(d => d.status === "Requested"), [filteredDemos]);
@@ -56,7 +53,19 @@ export default function MyDemosPage() {
 
   const mockActionHandler = (action: string, demoId: string) => {
     console.log(`${action} clicked for demo ID: ${demoId}`);
-    // Add toast or further mock logic here
+  };
+
+  const uniqueSubjects = ["All", ...new Set(MOCK_DEMO_SESSIONS.map(d => d.subject))];
+  const uniqueTutorNames = ["All", ...new Set(MOCK_DEMO_SESSIONS.map(d => d.tutorName).filter(Boolean) as string[])];
+  const demoStatuses = ["All", "Scheduled", "Requested", "Completed", "Cancelled"];
+  
+  const showClearFilters = searchTerm !== "" || subjectFilter !== "All" || tutorFilter !== "All" || statusFilter !== "All";
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSubjectFilter("All");
+    setTutorFilter("All");
+    setStatusFilter("All");
   };
 
   const renderDemoList = (demos: DemoSession[], tabName: string) => {
@@ -100,49 +109,26 @@ export default function MyDemosPage() {
         { label: "My Demos" }
       ]} />
       
-      <Card className="bg-card border rounded-lg shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg font-semibold text-primary flex items-center">
-            <ListFilter className="w-5 h-5 mr-2" /> Filter Demos
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search by subject, tutor, student..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-input border-border focus:border-primary"
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Placeholder for Subject Filter */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
-              <Input disabled placeholder="Subject Filter (Coming Soon)" className="text-xs h-9" />
-            </div>
-            {/* Placeholder for Tutor Filter */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Tutor</Label>
-              <Input disabled placeholder="Tutor Filter (Coming Soon)" className="text-xs h-9" />
-            </div>
-            {/* Status Filter */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Status</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="bg-input border-border focus:border-primary text-xs h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {["All", "Scheduled", "Requested", "Completed", "Cancelled"].map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-6 p-4 bg-card border rounded-lg shadow-sm items-center">
+        <div className="relative flex-grow sm:flex-grow-0 sm:w-auto min-w-[200px] w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search by subject, tutor, student..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 text-sm bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg w-full"
+          />
+        </div>
+        <FilterSelect label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={uniqueSubjects} icon={BookOpen} />
+        <FilterSelect label="Tutor" value={tutorFilter} onValueChange={setTutorFilter} options={uniqueTutorNames} icon={Users} />
+        <FilterSelect label="Status" value={statusFilter} onValueChange={setStatusFilter} options={demoStatuses} icon={ListFilter} />
+        {showClearFilters && (
+          <Button onClick={resetFilters} variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive sm:ml-auto">
+            <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear Filters
+          </Button>
+        )}
+      </div>
 
       <Tabs defaultValue="scheduled" className="w-full">
         <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
@@ -171,3 +157,29 @@ export default function MyDemosPage() {
   );
 }
 
+interface FilterSelectProps {
+  label: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: string[];
+  icon?: React.ElementType;
+}
+
+function FilterSelect({ label, value, onValueChange, options, icon: Icon }: FilterSelectProps) {
+  return (
+    <div className="space-y-1.5 flex-grow sm:flex-grow-0 sm:w-auto min-w-[150px] w-full">
+      <Label className="text-xs font-medium text-muted-foreground flex items-center">
+        {Icon && <Icon className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>}
+        {label}
+      </Label>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}

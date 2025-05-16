@@ -8,12 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, CalendarDays, Users, Star as StarIcon } from "lucide-react";
+import { Search, ListFilter, PlusCircle, CalendarDays, Users, Star as StarIcon, XIcon, BookOpen } from "lucide-react";
 import { ClassCard } from "@/components/dashboard/ClassCard";
 import type { MyClass } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Label } from "@/components/ui/label"; // Added import
+import { Label } from "@/components/ui/label";
 
 const MOCK_CLASSES: MyClass[] = [
   { id: "c1", subject: "Advanced Algebra", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Mon", "Wed"], time: "6:00 PM - 7:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 2).toISOString() },
@@ -56,6 +56,15 @@ export default function MyClassesPage() {
   const uniqueTutors = ["All", ...new Set(MOCK_CLASSES.map(c => c.tutorName))];
   const uniqueStatuses = ["All", "Ongoing", "Upcoming", "Past", "Cancelled"];
 
+  const showClearFilters = searchTerm !== "" || subjectFilter !== "All" || tutorFilter !== "All" || statusFilter !== "All";
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSubjectFilter("All");
+    setTutorFilter("All");
+    setStatusFilter("All");
+  };
+
   const renderClassList = (classes: MyClass[], tabName: string) => {
     if (classes.length === 0) {
       return (
@@ -91,33 +100,27 @@ export default function MyClassesPage() {
         { label: "My Classes" }
       ]} />
       
-      {/* Search and Filters */}
-      <Card className="bg-card border rounded-lg shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg font-semibold text-primary flex items-center">
-            <ListFilter className="w-5 h-5 mr-2" /> Filter Classes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search by subject, tutor, student..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-input border-border focus:border-primary"
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FilterSelect label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={uniqueSubjects} />
-            <FilterSelect label="Tutor" value={tutorFilter} onValueChange={setTutorFilter} options={uniqueTutors} />
-            <FilterSelect label="Status" value={statusFilter} onValueChange={setStatusFilter} options={uniqueStatuses} />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-6 p-4 bg-card border rounded-lg shadow-sm items-center">
+        <div className="relative flex-grow sm:flex-grow-0 sm:w-auto min-w-[200px] w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search by class, tutor, student..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 text-sm bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg w-full"
+          />
+        </div>
+        <FilterSelect label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={uniqueSubjects} icon={BookOpen} />
+        <FilterSelect label="Tutor" value={tutorFilter} onValueChange={setTutorFilter} options={uniqueTutors} icon={Users} />
+        <FilterSelect label="Status" value={statusFilter} onValueChange={setStatusFilter} options={uniqueStatuses} icon={ListFilter} />
+        {showClearFilters && (
+          <Button onClick={resetFilters} variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive sm:ml-auto">
+            <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear Filters
+          </Button>
+        )}
+      </div>
 
-      {/* Tabs for Class Categories */}
       <Tabs defaultValue="ongoing" className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
           <TabsTrigger value="ongoing">Ongoing ({ongoingClasses.length})</TabsTrigger>
@@ -134,20 +137,23 @@ export default function MyClassesPage() {
   );
 }
 
-
 interface FilterSelectProps {
   label: string;
   value: string;
   onValueChange: (value: string) => void;
   options: string[];
+  icon?: React.ElementType;
 }
 
-function FilterSelect({ label, value, onValueChange, options }: FilterSelectProps) {
+function FilterSelect({ label, value, onValueChange, options, icon: Icon }: FilterSelectProps) {
   return (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+    <div className="space-y-1.5 flex-grow sm:flex-grow-0 sm:w-auto min-w-[150px] w-full">
+      <Label className="text-xs font-medium text-muted-foreground flex items-center">
+        {Icon && <Icon className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>}
+        {label}
+      </Label>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="bg-input border-border focus:border-primary text-xs h-9">
+        <SelectTrigger className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -157,4 +163,3 @@ function FilterSelect({ label, value, onValueChange, options }: FilterSelectProp
     </div>
   );
 }
-
