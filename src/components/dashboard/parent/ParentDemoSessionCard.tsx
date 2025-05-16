@@ -19,7 +19,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-  DialogTrigger, // Added DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Input }
@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ParentDemoSessionCardProps {
   demo: DemoSession;
-  onReschedule: (demoId: string, newDate: Date, newTime: string, reason: string) => void; // Updated to include details
+  onReschedule: (demoId: string, newDate: Date, newTime: string, reason: string) => void;
   onCancel: (demoId: string) => void;
   onEditRequest: (demoId: string) => void;
   onWithdrawRequest: (demoId: string) => void;
@@ -45,7 +45,6 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
   const [newSelectedDate, setNewSelectedDate] = useState<Date | undefined>(new Date(demo.date));
   const [newTimeInput, setNewTimeInput] = useState(demo.time);
   const [rescheduleReasonInput, setRescheduleReasonInput] = useState("");
-  // Local state to track if a reschedule request has been initiated for this card
   const [localRescheduleStatus, setLocalRescheduleStatus] = useState<'idle' | 'pending' | 'confirmed'>(demo.rescheduleStatus || 'idle');
 
 
@@ -80,8 +79,6 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
       });
       return;
     }
-    // Call the prop function to handle actual reschedule logic (e.g., API call)
-    // For now, we'll just update local status for UI feedback
     onReschedule(demo.id, newSelectedDate, newTimeInput, rescheduleReasonInput);
     setLocalRescheduleStatus('pending'); 
     setIsRescheduleModalOpen(false);
@@ -144,14 +141,14 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                   <Edit3 className="w-3 h-3 mr-1" /> Reschedule
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-card">
-                <DialogHeader>
+              <DialogContent className="sm:max-w-sm bg-card p-0 rounded-xl overflow-hidden"> {/* Changed max-w-md to sm:max-w-sm */}
+                <DialogHeader className="p-6 pb-4 border-b">
                   <DialogTitle>Reschedule Demo Session</DialogTitle>
                   <DialogDescription>
                     Request a new date and time for your demo with {demo.tutorName} for {demo.subject}.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <div className="grid gap-4 py-4 px-6 max-h-[70vh] overflow-y-auto">
                   <div className="space-y-2">
                     <Label htmlFor="new-date">New Date</Label>
                     <Calendar
@@ -160,7 +157,7 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                       onSelect={setNewSelectedDate}
                       initialFocus
                       disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                      className="rounded-md border"
+                      className="rounded-md border p-2" // Added padding for better spacing
                     />
                   </div>
                   <div className="space-y-2">
@@ -170,6 +167,7 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                       value={newTimeInput} 
                       onChange={(e) => setNewTimeInput(e.target.value)} 
                       placeholder="e.g., 5:00 PM - 5:30 PM"
+                      className="text-xs h-9"
                     />
                   </div>
                   <div className="space-y-2">
@@ -179,14 +177,15 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                       value={rescheduleReasonInput}
                       onChange={(e) => setRescheduleReasonInput(e.target.value)}
                       placeholder="Briefly explain why you need to reschedule."
+                      className="text-xs min-h-[60px]"
                     />
                   </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="p-6 pt-4 border-t">
                   <DialogClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline" size="sm">Cancel</Button>
                   </DialogClose>
-                  <Button type="button" onClick={handleRescheduleSubmit}>Submit Request</Button>
+                  <Button type="button" onClick={handleRescheduleSubmit} size="sm">Submit Request</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
