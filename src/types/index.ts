@@ -62,14 +62,17 @@ export interface Testimonial {
 export interface DemoSession {
   id: string;
   tutorName?: string;
+  tutorAvatarSeed?: string; 
   studentName: string;
   subject: string;
   gradeLevel: string;
   board: string;
-  date: string;
+  date: string; // ISO string
   time: string;
-  status: "Scheduled" | "Completed" | "Cancelled";
+  status: "Scheduled" | "Completed" | "Cancelled" | "Requested"; // Added "Requested"
   joinLink?: string;
+  mode?: "Online" | "Offline (In-person)";
+  feedbackSubmitted?: boolean;
 }
 
 export interface MyClass {
