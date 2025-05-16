@@ -81,7 +81,7 @@ export function SignUpForm() {
   };
 
   return (
-    <Card className="w-full max-w-lg shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
+    <Card className="w-full max-w-2xl shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="flex flex-col items-center pt-8 pb-6">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
@@ -265,4 +265,6 @@ export function SignUpForm() {
     </Card>
   );
 }
+    
+
     
