@@ -78,7 +78,7 @@ declare module "lucide-react" {
     export const ClipboardEdit: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UserCog: React.FC<React.SVGProps<SVGSVGElement>>;
     export const VenetianMask: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>>; // Ensure CalendarIcon is declared
     export const Info: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Settings2: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ArrowLeft: React.FC<React.SVGProps<SVGSVGElement>>;

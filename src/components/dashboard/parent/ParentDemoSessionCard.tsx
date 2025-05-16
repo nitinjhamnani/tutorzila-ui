@@ -22,8 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
-import { Input }
-from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -141,7 +141,7 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                   <Edit3 className="w-3 h-3 mr-1" /> Reschedule
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-sm bg-card p-0 rounded-xl overflow-hidden"> {/* Changed max-w-md to sm:max-w-sm */}
+              <DialogContent className="sm:max-w-sm bg-card p-0 rounded-xl overflow-hidden"> 
                 <DialogHeader className="p-6 pb-4 border-b">
                   <DialogTitle>Reschedule Demo Session</DialogTitle>
                   <DialogDescription>
@@ -151,14 +151,32 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                 <div className="grid gap-4 py-4 px-6 max-h-[70vh] overflow-y-auto">
                   <div className="space-y-2">
                     <Label htmlFor="new-date">New Date</Label>
-                    <Calendar
-                      mode="single"
-                      selected={newSelectedDate}
-                      onSelect={setNewSelectedDate}
-                      initialFocus
-                      disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                      className="rounded-md border p-2" // Added padding for better spacing
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal pl-3 text-xs h-9",
+                            !newSelectedDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50" />
+                          {newSelectedDate ? format(newSelectedDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={newSelectedDate}
+                          onSelect={setNewSelectedDate}
+                          initialFocus
+                          disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                          captionLayout="dropdown-buttons"
+                          fromYear={new Date().getFullYear()}
+                          toYear={new Date().getFullYear() + 1}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="new-time">New Time</Label>
@@ -166,7 +184,7 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                       id="new-time" 
                       value={newTimeInput} 
                       onChange={(e) => setNewTimeInput(e.target.value)} 
-                      placeholder="e.g., 5:00 PM - 5:30 PM"
+                      placeholder="e.g., 5:00 PM or HH:MM AM/PM"
                       className="text-xs h-9"
                     />
                   </div>
