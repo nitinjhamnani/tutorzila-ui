@@ -1,19 +1,21 @@
-
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, CalendarDays, Users, Star as StarIcon, XIcon, BookOpen } from "lucide-react";
+import { Search, ListFilter, PlusCircle, CalendarDays, Users, Star as StarIcon, XIcon, BookOpen, FilterIcon } from "lucide-react";
 import { ClassCard } from "@/components/dashboard/ClassCard";
 import type { MyClass } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const MOCK_CLASSES: MyClass[] = [
   { id: "c1", subject: "Advanced Algebra", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Mon", "Wed"], time: "6:00 PM - 7:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 2).toISOString() },
@@ -25,11 +27,36 @@ const MOCK_CLASSES: MyClass[] = [
   { id: "c7", subject: "Calculus I", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Mon"], time: "4:00 PM - 5:00 PM" }, status: "Cancelled" },
 ];
 
+const uniqueSubjects = ["All", ...new Set(MOCK_CLASSES.map(c => c.subject))];
+const uniqueTutors = ["All", ...new Set(MOCK_CLASSES.map(c => c.tutorName))];
+const allStatuses = ["Ongoing", "Upcoming", "Past", "Cancelled"];
+
+
 export default function MyClassesPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  // Main filter states
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [tutorFilter, setTutorFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilters, setStatusFilters] = useState<string[]>([]); // For multi-select checkboxes
+
+  // Temporary states for the dialog
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [tempSubjectFilter, setTempSubjectFilter] = useState(subjectFilter);
+  const [tempTutorFilter, setTempTutorFilter] = useState(tutorFilter);
+  const [tempStatusFilters, setTempStatusFilters] = useState<string[]>(statusFilters);
+
+  useEffect(() => {
+    // When dialog opens, sync temp filters with main filters
+    if (isFilterDialogOpen) {
+      setTempSubjectFilter(subjectFilter);
+      setTempTutorFilter(tutorFilter);
+      setTempStatusFilters([...statusFilters]);
+    }
+  }, [isFilterDialogOpen, subjectFilter, tutorFilter, statusFilters]);
+
+  const filtersApplied = useMemo(() => {
+    return searchTerm !== "" || subjectFilter !== "All" || tutorFilter !== "All" || statusFilters.length > 0;
+  }, [searchTerm, subjectFilter, tutorFilter, statusFilters]);
 
   const filteredClasses = useMemo(() => {
     return MOCK_CLASSES.filter(c => {
@@ -41,28 +68,40 @@ export default function MyClassesPage() {
       
       const matchesSubject = subjectFilter === "All" || c.subject === subjectFilter;
       const matchesTutor = tutorFilter === "All" || c.tutorName === tutorFilter;
-      const matchesStatus = statusFilter === "All" || c.status === statusFilter;
+      const matchesStatus = statusFilters.length === 0 || statusFilters.includes(c.status);
 
       return matchesSearch && matchesSubject && matchesTutor && matchesStatus;
     });
-  }, [searchTerm, subjectFilter, tutorFilter, statusFilter]);
+  }, [searchTerm, subjectFilter, tutorFilter, statusFilters]);
 
   const ongoingClasses = useMemo(() => filteredClasses.filter(c => c.status === "Ongoing"), [filteredClasses]);
   const upcomingClasses = useMemo(() => filteredClasses.filter(c => c.status === "Upcoming"), [filteredClasses]);
   const pastClasses = useMemo(() => filteredClasses.filter(c => c.status === "Past"), [filteredClasses]);
   const cancelledClasses = useMemo(() => filteredClasses.filter(c => c.status === "Cancelled"), [filteredClasses]);
 
-  const uniqueSubjects = ["All", ...new Set(MOCK_CLASSES.map(c => c.subject))];
-  const uniqueTutors = ["All", ...new Set(MOCK_CLASSES.map(c => c.tutorName))];
-  const uniqueStatuses = ["All", "Ongoing", "Upcoming", "Past", "Cancelled"];
+  const handleApplyFilters = () => {
+    setSubjectFilter(tempSubjectFilter);
+    setTutorFilter(tempTutorFilter);
+    setStatusFilters([...tempStatusFilters]);
+    setIsFilterDialogOpen(false);
+  };
 
-  const showClearFilters = searchTerm !== "" || subjectFilter !== "All" || tutorFilter !== "All" || statusFilter !== "All";
-
-  const resetFilters = () => {
+  const handleClearFilters = () => {
     setSearchTerm("");
+    setTempSubjectFilter("All");
+    setTempTutorFilter("All");
+    setTempStatusFilters([]);
+    // Apply immediately
     setSubjectFilter("All");
     setTutorFilter("All");
-    setStatusFilter("All");
+    setStatusFilters([]);
+    setIsFilterDialogOpen(false);
+  };
+  
+  const handleStatusCheckboxChange = (statusValue: string, checked: boolean) => {
+    setTempStatusFilters(prev => 
+      checked ? [...prev, statusValue] : prev.filter(s => s !== statusValue)
+    );
   };
 
   const renderClassList = (classes: MyClass[], tabName: string) => {
@@ -100,8 +139,8 @@ export default function MyClassesPage() {
         { label: "My Classes" }
       ]} />
       
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-6 p-4 bg-card border rounded-lg shadow-sm items-center">
-        <div className="relative flex-grow sm:flex-grow-0 sm:w-auto min-w-[200px] w-full">
+       <div className="flex flex-col sm:flex-row gap-3 mb-6 p-4 bg-card border rounded-lg shadow-sm items-center justify-between">
+        <div className="relative flex-grow w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -111,15 +150,82 @@ export default function MyClassesPage() {
             className="pl-10 pr-4 py-2 text-sm bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg w-full"
           />
         </div>
-        <FilterSelect label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={uniqueSubjects} icon={BookOpen} />
-        <FilterSelect label="Tutor" value={tutorFilter} onValueChange={setTutorFilter} options={uniqueTutors} icon={Users} />
-        <FilterSelect label="Status" value={statusFilter} onValueChange={setStatusFilter} options={uniqueStatuses} icon={ListFilter} />
-        {showClearFilters && (
-          <Button onClick={resetFilters} variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive sm:ml-auto">
-            <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear Filters
-          </Button>
-        )}
+        <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                 <DialogTrigger asChild>
+                    <Button 
+                      variant={filtersApplied ? "default" : "outline"} 
+                      size="sm" 
+                      className={cn(
+                        "text-xs h-9 px-3 py-1.5 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5",
+                        filtersApplied && "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
+                    >
+                      <FilterIcon className="mr-1.5 h-3.5 w-3.5" /> Filter Results
+                    </Button>
+                  </DialogTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Filter Classes</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden">
+            <DialogHeader className="p-6 pb-4 border-b">
+              <DialogTitle className="text-lg font-semibold text-primary flex items-center">
+                <FilterIcon className="mr-2 h-5 w-5" /> Filter Classes
+              </DialogTitle>
+              <DialogDescription>
+                Refine your class list by subject, tutor, or status.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="space-y-1.5">
+                <Label htmlFor="filter-subject" className="text-xs font-medium text-muted-foreground flex items-center"><BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Subject</Label>
+                <Select value={tempSubjectFilter} onValueChange={setTempSubjectFilter}>
+                  <SelectTrigger id="filter-subject" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {uniqueSubjects.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="filter-tutor" className="text-xs font-medium text-muted-foreground flex items-center"><Users className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Tutor</Label>
+                <Select value={tempTutorFilter} onValueChange={setTempTutorFilter}>
+                  <SelectTrigger id="filter-tutor" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {uniqueTutors.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-medium text-muted-foreground flex items-center"><ListFilter className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Status</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {allStatuses.map(status => (
+                    <div key={status} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`status-${status}`}
+                        checked={tempStatusFilters.includes(status)}
+                        onCheckedChange={(checked) => handleStatusCheckboxChange(status, !!checked)}
+                      />
+                      <Label htmlFor={`status-${status}`} className="text-xs font-normal text-foreground cursor-pointer">{status}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <DialogFooter className="p-6 pt-4 border-t gap-2 sm:justify-between">
+              <Button variant="ghost" onClick={handleClearFilters} className="text-xs text-muted-foreground hover:text-destructive">
+                <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear All
+              </Button>
+              <Button onClick={handleApplyFilters} className="text-xs">Apply Filters</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
+
 
       <Tabs defaultValue="ongoing" className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
@@ -133,33 +239,6 @@ export default function MyClassesPage() {
         <TabsContent value="past">{renderClassList(pastClasses, "Past")}</TabsContent>
         <TabsContent value="cancelled">{renderClassList(cancelledClasses, "Cancelled")}</TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-interface FilterSelectProps {
-  label: string;
-  value: string;
-  onValueChange: (value: string) => void;
-  options: string[];
-  icon?: React.ElementType;
-}
-
-function FilterSelect({ label, value, onValueChange, options, icon: Icon }: FilterSelectProps) {
-  return (
-    <div className="space-y-1.5 flex-grow sm:flex-grow-0 sm:w-auto min-w-[150px] w-full">
-      <Label className="text-xs font-medium text-muted-foreground flex items-center">
-        {Icon && <Icon className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>}
-        {label}
-      </Label>
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
-        </SelectContent>
-      </Select>
     </div>
   );
 }
