@@ -168,7 +168,7 @@ html {
   animation: slideInFromRight10 0.7s ease-out;
 }
 .animate-in.slide-in-from-top-5 {
- animation: slideInFromTop5 0.5s ease-out;
+  animation: slideInFromTop5 0.5s ease-out;
 }
 
 
@@ -260,4 +260,9 @@ html, body, *, ::before, ::after { /* Added ::before and ::after for pseudo-elem
 }
 html, body {
   overflow-x: hidden; /* Prevent horizontal scrollbars */
+}
+
+/* Custom text size class */
+.tz-text-vsm {
+  font-size: 13px !important;
 }
