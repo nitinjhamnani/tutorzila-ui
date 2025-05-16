@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Edit3, MessageSquareText, Info, ListFilter } from "lucide-react"; // Added MessageSquareQuote
+import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Edit3, MessageSquareText, Info, ListFilter, Users } from "lucide-react"; // Added Users
 import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -129,3 +129,4 @@ function InfoItem({ icon: Icon, label, value }: InfoItemPropsLocal) {
     </div>
   );
 }
+
