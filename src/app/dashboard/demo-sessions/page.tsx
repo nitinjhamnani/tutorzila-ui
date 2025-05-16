@@ -13,8 +13,8 @@ import type { DemoSession } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
-import { ParentDemoSessionCard } from "@/components/dashboard/parent/ParentDemoSessionCard"; // Corrected import path
-import { Label } from "@/components/ui/label"; // Added import for Label
+import { ParentDemoSessionCard } from "@/components/dashboard/parent/ParentDemoSessionCard"; 
+import { Label } from "@/components/ui/label"; 
 
 // Placeholder icons, ensure they are declared in lucide-react.d.ts if used or replace with actual ones
 const CheckCircle: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -34,17 +34,6 @@ export default function MyDemosPage() {
     // Simulate fetching data
     setAllDemos(MOCK_DEMO_SESSIONS);
   }, []);
-
-  const summaryStats = useMemo(() => {
-    const upcoming = allDemos.filter(d => d.status === "Scheduled" && new Date(d.date) >= new Date()).length;
-    const requested = allDemos.filter(d => d.status === "Requested").length;
-    const completed = allDemos.filter(d => d.status === "Completed").length;
-    return [
-      { title: "Upcoming Demos", value: upcoming, icon: CalendarDays },
-      { title: "Pending Requests", value: requested, icon: MessageSquareQuote },
-      { title: "Completed Demos", value: completed, icon: CheckCircle },
-    ];
-  }, [allDemos]);
 
   const filteredDemos = useMemo(() => {
     return allDemos.filter(demo => {
@@ -110,20 +99,6 @@ export default function MyDemosPage() {
         { label: "Dashboard", href: "/dashboard/parent" },
         { label: "My Demos" }
       ]} />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {summaryStats.map(stat => (
-            <Card key={stat.title} className="bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium text-muted-foreground uppercase">{stat.title}</CardTitle>
-                    <stat.icon className="h-4 w-4 text-primary/70" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-primary">{stat.value}</div>
-                </CardContent>
-            </Card>
-        ))}
-      </div>
       
       <Card className="bg-card border rounded-lg shadow-sm">
         <CardHeader className="pb-4">
@@ -195,3 +170,4 @@ export default function MyDemosPage() {
     </div>
   );
 }
+

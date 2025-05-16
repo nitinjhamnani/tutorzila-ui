@@ -13,6 +13,7 @@ import { ClassCard } from "@/components/dashboard/ClassCard";
 import type { MyClass } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Label } from "@/components/ui/label"; // Added import
 
 const MOCK_CLASSES: MyClass[] = [
   { id: "c1", subject: "Advanced Algebra", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Mon", "Wed"], time: "6:00 PM - 7:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 2).toISOString() },
@@ -22,14 +23,6 @@ const MOCK_CLASSES: MyClass[] = [
   { id: "c5", subject: "World History: Ancient Civilizations", tutorName: "John Adebayo", tutorAvatarSeed: "johnadebayo", studentName: "Rohan S.", mode: "Offline (In-person)", schedule: { days: ["Sun"], time: "2:00 PM - 4:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 15).toISOString() },
   { id: "c6", subject: "Web Development Fundamentals", tutorName: "Sophia Chen", tutorAvatarSeed: "sophiachen", studentName: "Priya M.", mode: "Online", schedule: { days: ["Wed"], time: "6:30 PM - 8:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 30).toISOString() },
   { id: "c7", subject: "Calculus I", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Mon"], time: "4:00 PM - 5:00 PM" }, status: "Cancelled" },
-];
-
-
-const summaryStats = [
-    { title: "Active Classes", value: MOCK_CLASSES.filter(c => c.status === "Ongoing").length, icon: CalendarDays },
-    { title: "Upcoming This Week", value: MOCK_CLASSES.filter(c => c.status === "Upcoming" && new Date(c.startDate!).getTime() < Date.now() + 86400000 * 7).length, icon: CalendarDays },
-    { title: "Engaged Tutors", value: new Set(MOCK_CLASSES.filter(c=> c.status === "Ongoing" || c.status === "Upcoming").map(c => c.tutorName)).size, icon: Users },
-    { title: "Avg. Tutor Rating", value: "4.7", icon: StarIcon }, // Mock
 ];
 
 export default function MyClassesPage() {
@@ -97,21 +90,6 @@ export default function MyClassesPage() {
         { label: "Dashboard", href: "/dashboard/parent" },
         { label: "My Classes" }
       ]} />
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {summaryStats.map(stat => (
-            <Card key={stat.title} className="bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium text-muted-foreground uppercase">{stat.title}</CardTitle>
-                    <stat.icon className="h-4 w-4 text-primary/70" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-primary">{stat.value}</div>
-                </CardContent>
-            </Card>
-        ))}
-      </div>
       
       {/* Search and Filters */}
       <Card className="bg-card border rounded-lg shadow-sm">
@@ -167,7 +145,7 @@ interface FilterSelectProps {
 function FilterSelect({ label, value, onValueChange, options }: FilterSelectProps) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger className="bg-input border-border focus:border-primary text-xs h-9">
           <SelectValue />
