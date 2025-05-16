@@ -127,5 +127,9 @@ declare module "lucide-react" {
     export const Percent: React.FC<React.SVGProps<SVGSVGElement>>;
     export const HardDrive: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Bell: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const ListFilter: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const MessageSquareText: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Edit2: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const XOctagon: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }

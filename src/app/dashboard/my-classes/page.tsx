@@ -1,36 +1,182 @@
+
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState, useMemo } from "react";
+import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, PlusCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Search, ListFilter, PlusCircle, CalendarDays, Users, Star as StarIcon } from "lucide-react";
+import { ClassCard } from "@/components/dashboard/ClassCard";
+import type { MyClass } from "@/types";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+const MOCK_CLASSES: MyClass[] = [
+  { id: "c1", subject: "Advanced Algebra", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Mon", "Wed"], time: "6:00 PM - 7:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 2).toISOString() },
+  { id: "c2", subject: "Shakespearean Sonnets", tutorName: "John Adebayo", tutorAvatarSeed: "johnadebayo", studentName: "Priya M.", mode: "Offline (In-person)", schedule: { days: ["Sat"], time: "10:00 AM - 12:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 4).toISOString() },
+  { id: "c3", subject: "Introduction to Python", tutorName: "Sophia Chen", tutorAvatarSeed: "sophiachen", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Tues", "Thurs"], time: "7:00 PM - 8:00 PM" }, status: "Upcoming", startDate: new Date(Date.now() + 86400000 * 7).toISOString() },
+  { id: "c4", subject: "Organic Chemistry Basics", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Fri"], time: "5:00 PM - 6:30 PM" }, status: "Upcoming", startDate: new Date(Date.now() + 86400000 * 10).toISOString() },
+  { id: "c5", subject: "World History: Ancient Civilizations", tutorName: "John Adebayo", tutorAvatarSeed: "johnadebayo", studentName: "Rohan S.", mode: "Offline (In-person)", schedule: { days: ["Sun"], time: "2:00 PM - 4:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 15).toISOString() },
+  { id: "c6", subject: "Web Development Fundamentals", tutorName: "Sophia Chen", tutorAvatarSeed: "sophiachen", studentName: "Priya M.", mode: "Online", schedule: { days: ["Wed"], time: "6:30 PM - 8:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 30).toISOString() },
+  { id: "c7", subject: "Calculus I", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Mon"], time: "4:00 PM - 5:00 PM" }, status: "Cancelled" },
+];
+
+
+const summaryStats = [
+    { title: "Active Classes", value: MOCK_CLASSES.filter(c => c.status === "Ongoing").length, icon: CalendarDays },
+    { title: "Upcoming This Week", value: MOCK_CLASSES.filter(c => c.status === "Upcoming" && new Date(c.startDate!).getTime() < Date.now() + 86400000 * 7).length, icon: CalendarDays },
+    { title: "Engaged Tutors", value: new Set(MOCK_CLASSES.filter(c=> c.status === "Ongoing" || c.status === "Upcoming").map(c => c.tutorName)).size, icon: Users },
+    { title: "Avg. Tutor Rating", value: "4.7", icon: StarIcon }, // Mock
+];
+
 export default function MyClassesPage() {
-  return (
-    <div className="space-y-6">
-      <Card className="bg-card border rounded-lg shadow-sm animate-in fade-in duration-500 ease-out">
-        <CardHeader className="p-5">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <div>
-              <CardTitle className="text-2xl font-semibold text-primary tracking-tight flex items-center">
-                <CalendarDays className="w-6 h-6 mr-2.5"/>
-                My Scheduled Classes
-              </CardTitle>
-              <CardDescription className="text-sm text-foreground/70 mt-1">
-                View, manage, and track all your scheduled tuition sessions.
-              </CardDescription>
-            </div>
-             {/* Placeholder for future actions like "Schedule New Class" */}
-          </div>
-        </CardHeader>
-        <CardContent className="p-5 text-center">
-          <CalendarDays className="w-16 h-16 text-primary/30 mx-auto mb-5" />
-          <p className="text-xl font-semibold text-foreground/70 mb-1.5">Class Management Coming Soon!</p>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            This section will allow you to see your upcoming and past classes, reschedule, or cancel sessions for each student.
+  const [searchTerm, setSearchTerm] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("All");
+  const [tutorFilter, setTutorFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+
+  const filteredClasses = useMemo(() => {
+    return MOCK_CLASSES.filter(c => {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = searchTerm === "" ||
+        c.subject.toLowerCase().includes(searchLower) ||
+        c.tutorName.toLowerCase().includes(searchLower) ||
+        c.studentName.toLowerCase().includes(searchLower);
+      
+      const matchesSubject = subjectFilter === "All" || c.subject === subjectFilter;
+      const matchesTutor = tutorFilter === "All" || c.tutorName === tutorFilter;
+      const matchesStatus = statusFilter === "All" || c.status === statusFilter;
+
+      return matchesSearch && matchesSubject && matchesTutor && matchesStatus;
+    });
+  }, [searchTerm, subjectFilter, tutorFilter, statusFilter]);
+
+  const ongoingClasses = useMemo(() => filteredClasses.filter(c => c.status === "Ongoing"), [filteredClasses]);
+  const upcomingClasses = useMemo(() => filteredClasses.filter(c => c.status === "Upcoming"), [filteredClasses]);
+  const pastClasses = useMemo(() => filteredClasses.filter(c => c.status === "Past"), [filteredClasses]);
+  const cancelledClasses = useMemo(() => filteredClasses.filter(c => c.status === "Cancelled"), [filteredClasses]);
+
+  const uniqueSubjects = ["All", ...new Set(MOCK_CLASSES.map(c => c.subject))];
+  const uniqueTutors = ["All", ...new Set(MOCK_CLASSES.map(c => c.tutorName))];
+  const uniqueStatuses = ["All", "Ongoing", "Upcoming", "Past", "Cancelled"];
+
+  const renderClassList = (classes: MyClass[], tabName: string) => {
+    if (classes.length === 0) {
+      return (
+        <div className="text-center py-16 bg-card border rounded-lg shadow-sm">
+          <CalendarDays className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+          <p className="text-md font-semibold text-foreground/70 mb-2">No {tabName.toLowerCase()} classes found.</p>
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto mb-4">
+            {tabName === "Upcoming" ? "You have no upcoming scheduled classes." : 
+             tabName === "Ongoing" ? "You currently have no ongoing classes." :
+             "There are no classes in this category."}
           </p>
+          <Button asChild variant="default" size="sm">
+            <Link href="/dashboard/post-requirement">
+              <PlusCircle className="mr-2 h-4 w-4" /> Post a Tuition Requirement
+            </Link>
+          </Button>
+        </div>
+      );
+    }
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        {classes.map(classData => (
+          <ClassCard key={classData.id} classData={classData} />
+        ))}
+      </div>
+    );
+  };
+  
+  return (
+    <div className="space-y-6 pb-8">
+      <BreadcrumbHeader segments={[
+        { label: "Dashboard", href: "/dashboard/parent" },
+        { label: "My Classes" }
+      ]} />
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {summaryStats.map(stat => (
+            <Card key={stat.title} className="bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xs font-medium text-muted-foreground uppercase">{stat.title}</CardTitle>
+                    <stat.icon className="h-4 w-4 text-primary/70" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold text-primary">{stat.value}</div>
+                </CardContent>
+            </Card>
+        ))}
+      </div>
+      
+      {/* Search and Filters */}
+      <Card className="bg-card border rounded-lg shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-semibold text-primary flex items-center">
+            <ListFilter className="w-5 h-5 mr-2" /> Filter Classes
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search by subject, tutor, student..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-input border-border focus:border-primary"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FilterSelect label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={uniqueSubjects} />
+            <FilterSelect label="Tutor" value={tutorFilter} onValueChange={setTutorFilter} options={uniqueTutors} />
+            <FilterSelect label="Status" value={statusFilter} onValueChange={setStatusFilter} options={uniqueStatuses} />
+          </div>
         </CardContent>
       </Card>
+
+      {/* Tabs for Class Categories */}
+      <Tabs defaultValue="ongoing" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 bg-muted/50 p-1 rounded-lg shadow-sm mb-6">
+          <TabsTrigger value="ongoing">Ongoing ({ongoingClasses.length})</TabsTrigger>
+          <TabsTrigger value="upcoming">Upcoming ({upcomingClasses.length})</TabsTrigger>
+          <TabsTrigger value="past">Past ({pastClasses.length})</TabsTrigger>
+          <TabsTrigger value="cancelled">Cancelled ({cancelledClasses.length})</TabsTrigger>
+        </TabsList>
+        <TabsContent value="ongoing">{renderClassList(ongoingClasses, "Ongoing")}</TabsContent>
+        <TabsContent value="upcoming">{renderClassList(upcomingClasses, "Upcoming")}</TabsContent>
+        <TabsContent value="past">{renderClassList(pastClasses, "Past")}</TabsContent>
+        <TabsContent value="cancelled">{renderClassList(cancelledClasses, "Cancelled")}</TabsContent>
+      </Tabs>
     </div>
   );
 }
+
+
+interface FilterSelectProps {
+  label: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: string[];
+}
+
+function FilterSelect({ label, value, onValueChange, options }: FilterSelectProps) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger className="bg-input border-border focus:border-primary text-xs h-9">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
