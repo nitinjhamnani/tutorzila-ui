@@ -117,38 +117,38 @@ export function SignUpForm() {
                     value={selectedRole}
                     className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                   >
-                    <FormItem className="relative">
+                    <FormItem className="relative group">
                       <FormControl>
                         <RadioGroupItem value="parent" id="role-parent-signup" className="sr-only" />
                       </FormControl>
                       <Label
                         htmlFor="role-parent-signup"
                         className={cn(
-                          "group flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform",
                           selectedRole === "parent"
                             ? "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary text-primary-foreground"
-                            : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
+                            : "border-border bg-card hover:scale-[1.03] hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
                         )}
                       >
-                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' || 'group-hover:text-primary-foreground' ? 'text-primary-foreground' : 'text-muted-foreground')} />
-                        <span className={cn("font-medium text-sm", selectedRole === 'parent' || 'group-hover:text-primary-foreground' ? 'text-primary-foreground' : 'text-foreground')}>Parent</span>
+                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
+                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Parent</span>
                       </Label>
                     </FormItem>
-                    <FormItem className="relative">
+                    <FormItem className="relative group">
                       <FormControl>
                         <RadioGroupItem value="tutor" id="role-tutor-signup" className="sr-only" />
                       </FormControl>
                       <Label
                         htmlFor="role-tutor-signup"
                         className={cn(
-                          "group flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform",
                           selectedRole === "tutor"
                             ? "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary text-primary-foreground"
-                            : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
+                            : "border-border bg-card hover:scale-[1.03] hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
                         )}
                       >
-                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' || 'group-hover:text-primary-foreground' ? 'text-primary-foreground' : 'text-muted-foreground')} />
-                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' || 'group-hover:text-primary-foreground' ? 'text-primary-foreground' : 'text-foreground')}>Tutor</span>
+                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
+                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -197,7 +197,7 @@ export function SignUpForm() {
                   control={form.control}
                   name="countryCode"
                   render={({ field }) => (
-                    <FormItem className="w-1/3">
+                    <FormItem className="w-auto min-w-[120px]"> {/* Adjusted width */}
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg h-full py-3 text-base">
@@ -206,7 +206,7 @@ export function SignUpForm() {
                         </FormControl>
                         <SelectContent>
                           {MOCK_COUNTRY_CODES.map(code => (
-                            <SelectItem key={code.value} value={code.value}>{code.label}</SelectItem>
+                            <SelectItem key={code.value} value={code.value} className="text-sm">{code.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
