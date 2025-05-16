@@ -19,6 +19,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  DialogTrigger, // Added DialogTrigger
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Input }
