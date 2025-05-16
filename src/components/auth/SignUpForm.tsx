@@ -38,7 +38,7 @@ const signUpSchema = z.object({
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only.").optional().or(z.literal("")),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   confirmPassword: z.string(),
-  role: z.enum(["parent", "tutor"], { required_error: "You need to select your role." }),
+  role: z.enum(["parent", "tutor"], { required_error: "You must select a role (Parent or Tutor)." }),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
@@ -60,7 +60,7 @@ const MOCK_COUNTRY_CODES = [
 export function SignUpForm() {
   const { signup } = useAuthMock();
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState<UserRole>("parent");
+  const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -71,16 +71,29 @@ export function SignUpForm() {
       localPhoneNumber: "",
       password: "",
       confirmPassword: "",
-      role: "parent",
+      role: undefined, // No default role
       acceptTerms: false,
     },
   });
 
   useEffect(() => {
+    // This effect ensures the form's 'role' field is updated if selectedRole changes.
+    // However, since the RadioGroup's onValueChange directly updates the form,
+    // this might only be needed if selectedRole could be changed by other means.
+    // For now, it's fine but could be simplified if handleRoleChange is the sole updater.
     form.setValue("role", selectedRole);
   }, [selectedRole, form]);
 
   function onSubmit(values: SignUpFormValues) {
+    // Ensure role is set before proceeding, though Zod schema should catch this
+    if (!values.role) {
+      toast({
+        variant: "destructive",
+        title: "Role Selection Required",
+        description: "Please select if you are signing up as a Parent or a Tutor.",
+      });
+      return;
+    }
     const fullPhoneNumber = values.localPhoneNumber ? `${values.countryCode}${values.localPhoneNumber}` : undefined;
     signup(values.name, values.email, values.role as UserRole, fullPhoneNumber);
     toast({
@@ -89,7 +102,8 @@ export function SignUpForm() {
     });
   }
 
-  const handleRoleChange = (role: UserRole) => {
+  const handleRoleChange = (roleValue: string) => {
+    const role = roleValue as UserRole;
     setSelectedRole(role);
     form.setValue("role", role, { shouldValidate: true });
   };
@@ -113,42 +127,42 @@ export function SignUpForm() {
                 <FormItem className="space-y-3">
                   <FormLabel className="text-base font-semibold text-foreground sr-only">I am signing up as:</FormLabel>
                   <RadioGroup
-                    onValueChange={(value) => handleRoleChange(value as UserRole)}
-                    value={selectedRole}
+                    onValueChange={handleRoleChange} // Directly pass handleRoleChange
+                    value={field.value} // Bind to form field's value
                     className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                   >
-                    <FormItem className="group relative">
+                    <FormItem className="relative">
                       <FormControl>
                         <RadioGroupItem value="parent" id="role-parent-signup" className="sr-only" />
                       </FormControl>
                       <Label
                         htmlFor="role-parent-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform",
-                          selectedRole === "parent"
+                          "group flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
+                          field.value === "parent"
                             ? "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary text-primary-foreground"
-                            : "border-border bg-card hover:scale-[1.03] hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
+                            : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
                         )}
                       >
-                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
-                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Parent</span>
+                        <Users className={cn("mr-3 h-5 w-5 transition-colors", field.value === 'parent' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
+                        <span className={cn("font-medium text-sm", field.value === 'parent' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Parent</span>
                       </Label>
                     </FormItem>
-                    <FormItem className="group relative">
+                    <FormItem className="relative">
                       <FormControl>
                         <RadioGroupItem value="tutor" id="role-tutor-signup" className="sr-only" />
                       </FormControl>
                       <Label
                         htmlFor="role-tutor-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform",
-                          selectedRole === "tutor"
+                          "group flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105",
+                          field.value === "tutor"
                             ? "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary text-primary-foreground"
-                            : "border-border bg-card hover:scale-[1.03] hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
+                            : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
                         )}
                       >
-                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
-                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Tutor</span>
+                        <School className={cn("mr-3 h-5 w-5 transition-colors", field.value === 'tutor' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
+                         <span className={cn("font-medium text-sm", field.value === 'tutor' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
