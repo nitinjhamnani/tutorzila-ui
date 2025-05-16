@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -110,12 +109,13 @@ export function SignUpForm() {
                       <Label
                         htmlFor="role-parent-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "hover:bg-primary hover:text-primary-foreground", // Updated hover style
                           selectedRole === "parent" && "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary/5"
                         )}
                       >
-                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80')} />
-                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary' : 'text-foreground group-hover:text-primary/80')}>Parent</span>
+                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary' : 'text-muted-foreground')} />
+                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary' : 'text-foreground')}>Parent</span>
                       </Label>
                     </FormItem>
                     <FormItem className="relative">
@@ -125,12 +125,13 @@ export function SignUpForm() {
                       <Label
                         htmlFor="role-tutor-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "flex items-center justify-start rounded-lg border-2 border-border bg-card p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "hover:bg-primary hover:text-primary-foreground", // Updated hover style
                           selectedRole === "tutor" && "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary/5"
                         )}
                       >
-                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80')} />
-                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground group-hover:text-primary/80')}>Tutor</span>
+                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary' : 'text-muted-foreground')} />
+                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary' : 'text-foreground')}>Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
