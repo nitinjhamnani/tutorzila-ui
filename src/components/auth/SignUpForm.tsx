@@ -71,21 +71,16 @@ export function SignUpForm() {
       localPhoneNumber: "",
       password: "",
       confirmPassword: "",
-      role: undefined, // No default role
+      role: undefined, 
       acceptTerms: false,
     },
   });
 
   useEffect(() => {
-    // This effect ensures the form's 'role' field is updated if selectedRole changes.
-    // However, since the RadioGroup's onValueChange directly updates the form,
-    // this might only be needed if selectedRole could be changed by other means.
-    // For now, it's fine but could be simplified if handleRoleChange is the sole updater.
     form.setValue("role", selectedRole);
   }, [selectedRole, form]);
 
   function onSubmit(values: SignUpFormValues) {
-    // Ensure role is set before proceeding, though Zod schema should catch this
     if (!values.role) {
       toast({
         variant: "destructive",
@@ -127,8 +122,8 @@ export function SignUpForm() {
                 <FormItem className="space-y-3">
                   <FormLabel className="text-base font-semibold text-foreground sr-only">I am signing up as:</FormLabel>
                   <RadioGroup
-                    onValueChange={handleRoleChange} // Directly pass handleRoleChange
-                    value={field.value} // Bind to form field's value
+                    onValueChange={handleRoleChange} 
+                    value={field.value} 
                     className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                   >
                     <FormItem className="relative">
@@ -145,7 +140,7 @@ export function SignUpForm() {
                         )}
                       >
                         <Users className={cn("mr-3 h-5 w-5 transition-colors", field.value === 'parent' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
-                        <span className={cn("font-medium text-sm", field.value === 'parent' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Parent</span>
+                        <span className={cn("font-medium text-sm", field.value === 'parent' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>I am Parent</span>
                       </Label>
                     </FormItem>
                     <FormItem className="relative">
@@ -162,7 +157,7 @@ export function SignUpForm() {
                         )}
                       >
                         <School className={cn("mr-3 h-5 w-5 transition-colors", field.value === 'tutor' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
-                         <span className={cn("font-medium text-sm", field.value === 'tutor' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Tutor</span>
+                         <span className={cn("font-medium text-sm", field.value === 'tutor' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>I am Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -211,7 +206,7 @@ export function SignUpForm() {
                   control={form.control}
                   name="countryCode"
                   render={({ field }) => (
-                    <FormItem className="w-auto min-w-[120px]"> {/* Adjusted width */}
+                    <FormItem className="w-auto min-w-[120px]"> 
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
@@ -336,4 +331,6 @@ export function SignUpForm() {
     </Card>
   );
 }
+    
+
     
