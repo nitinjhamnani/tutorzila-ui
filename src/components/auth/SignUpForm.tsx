@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, User, Users, School, CheckSquare } from "lucide-react";
+import { Mail, Lock, User, Users, School, CheckSquare, Phone } from "lucide-react"; // Added Phone
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,7 @@ import { useState, useEffect } from 'react';
 const signUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
+  phone: z.string().min(10, { message: "Phone number must be at least 10 digits." }).regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format (e.g., +91XXXXXXXXXX or XXXXXXXXXX).").optional().or(z.literal("")),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   confirmPassword: z.string(),
   role: z.enum(["parent", "tutor"], { required_error: "You need to select your role." }),
@@ -56,6 +57,7 @@ export function SignUpForm() {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       password: "",
       confirmPassword: "",
       role: "parent",
@@ -68,7 +70,7 @@ export function SignUpForm() {
   }, [selectedRole, form]);
 
   function onSubmit(values: SignUpFormValues) {
-     signup(values.name, values.email, values.role as UserRole);
+     signup(values.name, values.email, values.role as UserRole, values.phone);
     toast({
       title: "Account Created!",
       description: `Welcome to Tutorzila, ${values.name}! You are registered as a ${values.role}.`,
@@ -116,8 +118,8 @@ export function SignUpForm() {
                             : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
                         )}
                       >
-                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
-                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Parent</span>
+                        <Users className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'parent' ? 'text-primary-foreground group-hover:text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
+                        <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary-foreground group-hover:text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Parent</span>
                       </Label>
                     </FormItem>
                     <FormItem className="relative">
@@ -133,8 +135,8 @@ export function SignUpForm() {
                             : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
                         )}
                       >
-                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
-                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Tutor</span>
+                        <School className={cn("mr-3 h-5 w-5 transition-colors", selectedRole === 'tutor' ? 'text-primary-foreground group-hover:text-primary-foreground' : 'text-muted-foreground group-hover:text-primary-foreground')} />
+                         <span className={cn("font-medium text-sm", selectedRole === 'tutor' ? 'text-primary-foreground group-hover:text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Tutor</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -169,6 +171,22 @@ export function SignUpForm() {
                      <div className="relative">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                       <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Phone Number (Optional)</FormLabel>
+                  <FormControl>
+                     <div className="relative">
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input type="tel" placeholder="+91 XXXXXXXXXX" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -265,6 +283,4 @@ export function SignUpForm() {
     </Card>
   );
 }
-    
-
     

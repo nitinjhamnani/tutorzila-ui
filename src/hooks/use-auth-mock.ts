@@ -1,10 +1,11 @@
+
 "use client";
 
 import type { User, UserRole, TutorProfile } from "@/types";
 import { useRouter } from "next/navigation";
 import { useAtom } from "jotai";
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
-import { useEffect, useState } from "react"; // Added useState
+import { useEffect, useState } from "react";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
 
 const initialUser: User | null = null;
@@ -13,7 +14,6 @@ const localStorageJSONStorage = createJSONStorage<User | null>(() => {
   if (typeof window !== 'undefined') {
     return localStorage;
   }
-  // Provide a dummy storage for SSR, though atomWithStorage aims for client-side
   return {
     getItem: () => null,
     setItem: () => {},
@@ -33,7 +33,7 @@ const ensureArrayField = (value: any): string[] => {
 export function useAuthMock() {
   const [user, setUser] = useAtom(userAtom);
   const router = useRouter();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // New state
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
     setIsCheckingAuth(true);
@@ -51,7 +51,7 @@ export function useAuthMock() {
     }
     setIsCheckingAuth(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // setUser is stable
+  }, []);
 
 
   const login = (email: string, role?: UserRole) => {
@@ -130,11 +130,19 @@ export function useAuthMock() {
       if (email.toLowerCase() === "alice.smith@example.com") {
         finalUserData = {
           ...baseUserData,
-          id: "p1", // Match mock data parentId
-          name: "Alice Smith", // Match mock data parentName
+          id: "p1", 
+          name: "Alice Smith", 
           role: 'parent',
         };
-      } else {
+      } else if (email.toLowerCase() === "bob.johnson@example.com") {
+        finalUserData = {
+            ...baseUserData,
+            id: "p2",
+            name: "Bob Johnson",
+            role: 'parent',
+        };
+      }
+       else {
         finalUserData = {
           ...baseUserData,
           role: 'parent',
@@ -143,20 +151,19 @@ export function useAuthMock() {
     }
     
     setUser(finalUserData);
-    // Updated redirect logic
     if (finalUserData.role === 'tutor') {
-      router.push("/dashboard/enquiries"); // Tutor dashboard is now My Enquiries
+      router.push("/dashboard/enquiries");
     } else if (finalUserData.role === 'parent') {
       router.push("/dashboard/parent");
     } else if (finalUserData.role === 'admin') {
       router.push("/dashboard/admin");
     } else {
-      router.push("/dashboard"); // Fallback, should ideally not be hit
+      router.push("/dashboard"); 
     }
     return Promise.resolve(finalUserData);
   };
 
-  const signup = (name: string, email: string, role: UserRole) => {
+  const signup = (name: string, email: string, role: UserRole, phone?: string) => {
      let mockUserData: User | TutorProfile = {
       id: Date.now().toString(),
       name,
@@ -164,7 +171,7 @@ export function useAuthMock() {
       role,
       avatar: `https://i.pravatar.cc/150?u=${email}`,
       status: "Active",
-      phone: role === "tutor" ? "9876543210" : undefined, 
+      phone: phone || (role === "tutor" ? "9876543210" : undefined), 
       isEmailVerified: false,
       isPhoneVerified: false,
       gender: "",
@@ -190,13 +197,12 @@ export function useAuthMock() {
       } as TutorProfile;
     }
     setUser(mockUserData);
-    // Updated redirect logic
     if (role === 'tutor') {
-      router.push("/dashboard/enquiries"); // Tutor dashboard is now My Enquiries
+      router.push("/dashboard/enquiries"); 
     } else if (role === 'parent') {
       router.push("/dashboard/parent");
     } else {
-       router.push("/dashboard"); // Fallback
+       router.push("/dashboard"); 
     }
   };
 
@@ -211,10 +217,9 @@ export function useAuthMock() {
   return {
     user,
     isAuthenticated: !!user,
-    isCheckingAuth, // Expose isCheckingAuth
+    isCheckingAuth,
     login,
     signup,
     logout,
   };
 }
-
