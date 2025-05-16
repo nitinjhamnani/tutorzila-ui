@@ -117,7 +117,7 @@ export function SignUpForm() {
                     value={selectedRole}
                     className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                   >
-                    <FormItem className="relative group">
+                    <FormItem className="group relative">
                       <FormControl>
                         <RadioGroupItem value="parent" id="role-parent-signup" className="sr-only" />
                       </FormControl>
@@ -134,7 +134,7 @@ export function SignUpForm() {
                         <span className={cn("font-medium text-sm", selectedRole === 'parent' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>Parent</span>
                       </Label>
                     </FormItem>
-                    <FormItem className="relative group">
+                    <FormItem className="group relative">
                       <FormControl>
                         <RadioGroupItem value="tutor" id="role-tutor-signup" className="sr-only" />
                       </FormControl>
@@ -200,7 +200,7 @@ export function SignUpForm() {
                     <FormItem className="w-auto min-w-[120px]"> {/* Adjusted width */}
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg h-full py-3 text-base">
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
                             <SelectValue placeholder="Code" />
                           </SelectTrigger>
                         </FormControl>
