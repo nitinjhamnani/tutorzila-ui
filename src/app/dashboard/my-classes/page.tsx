@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -37,7 +38,7 @@ export default function MyClassesPage() {
   // Main filter states
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [tutorFilter, setTutorFilter] = useState("All");
-  const [statusFilters, setStatusFilters] = useState<string[]>([]); // For multi-select checkboxes
+  const [statusFilters, setStatusFilters] = useState<string[]>([]); 
 
   // Temporary states for the dialog
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
@@ -46,7 +47,6 @@ export default function MyClassesPage() {
   const [tempStatusFilters, setTempStatusFilters] = useState<string[]>(statusFilters);
 
   useEffect(() => {
-    // When dialog opens, sync temp filters with main filters
     if (isFilterDialogOpen) {
       setTempSubjectFilter(subjectFilter);
       setTempTutorFilter(tutorFilter);
@@ -87,7 +87,7 @@ export default function MyClassesPage() {
   };
 
   const handleClearFilters = () => {
-    setSearchTerm("");
+    setSearchTerm(""); // Clear search term as well
     setTempSubjectFilter("All");
     setTempTutorFilter("All");
     setTempStatusFilters([]);
@@ -147,7 +147,7 @@ export default function MyClassesPage() {
             placeholder="Search by class, tutor, student..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 text-sm bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg w-full"
+            className="pl-10 pr-4 py-2 text-sm bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg w-full h-9"
           />
         </div>
         <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
@@ -157,18 +157,18 @@ export default function MyClassesPage() {
                  <DialogTrigger asChild>
                     <Button 
                       variant={filtersApplied ? "default" : "outline"} 
-                      size="sm" 
+                      size="icon"
                       className={cn(
-                        "text-xs h-9 px-3 py-1.5 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5",
+                        "h-9 w-9 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center",
                         filtersApplied && "bg-primary text-primary-foreground hover:bg-primary/90"
                       )}
                     >
-                      <FilterIcon className="mr-1.5 h-3.5 w-3.5" /> Filter Results
+                      <FilterIcon className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Filter Classes</p>
+                <p>Filter Results</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
