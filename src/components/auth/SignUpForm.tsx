@@ -81,7 +81,7 @@ export function SignUpForm() {
   };
 
   return (
-    <Card className="w-full max-w-3xl shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
+    <Card className="w-full max-w-lg shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="flex flex-col items-center pt-8 pb-6">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
@@ -110,7 +110,7 @@ export function SignUpForm() {
                       <Label
                         htmlFor="role-parent-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "group flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
                           selectedRole === "parent"
                             ? "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary text-primary-foreground"
                             : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
@@ -127,7 +127,7 @@ export function SignUpForm() {
                       <Label
                         htmlFor="role-tutor-signup"
                         className={cn(
-                          "flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
+                          "group flex items-center justify-start rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-[1.03]",
                           selectedRole === "tutor"
                             ? "border-primary ring-2 ring-primary shadow-md scale-[1.03] bg-primary text-primary-foreground"
                             : "border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary hover:ring-2 hover:ring-primary hover:shadow-md"
