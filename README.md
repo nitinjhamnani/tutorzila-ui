@@ -9,7 +9,6 @@ To get started, take a look at src/app/page.tsx.
 To run this project on your local machine, follow these steps:
 
 1.  **Install Node.js:** If you don't have Node.js installed, download and install it from the official website: [https://nodejs.org/](https://nodejs.org/) 
-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
 
 2.  **Clone the repository:** If the project is in a Git repository, clone it to your local machine using a Git client.
 
