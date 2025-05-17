@@ -24,6 +24,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, LinkIcon, ClockIcon, Save, Ban, Edit3 } from "lucide-react";
 import { format } from "date-fns";
@@ -33,7 +35,7 @@ import type { DemoSession } from "@/types";
 const manageDemoSchema = z.object({
   date: z.date({ required_error: "Please select a date." }),
   time: z.string().min(1, "Time is required. e.g., 5:00 PM - 5:30 PM"),
-  meetingUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  meetingUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal(''))
 });
 
 type ManageDemoFormValues = z.infer<typeof manageDemoSchema>;
@@ -61,7 +63,6 @@ export function ManageDemoModal({
     defaultValues: {
       date: new Date(demoSession.date),
       time: demoSession.time,
-      meetingUrl: demoSession.joinLink || "",
     },
   });
 
@@ -71,6 +72,8 @@ export function ManageDemoModal({
         date: new Date(demoSession.date),
         time: demoSession.time,
         meetingUrl: demoSession.joinLink || "",
+        rescheduleDate: undefined,
+        rescheduleTime: undefined,
       });
     }
   }, [demoSession, form]); // Removed isOpen from dependencies
@@ -80,8 +83,8 @@ export function ManageDemoModal({
     const updatedDemoData: DemoSession = {
       ...demoSession,
       date: data.date.toISOString(),
-      time: data.time,
-      joinLink: data.meetingUrl || undefined,
+      date: data.rescheduleDate?.toISOString() || data.date.toISOString(), // Use reschedule date if provided, otherwise original date
+      time: data.rescheduleTime || data.time, // Use reschedule time if provided, otherwise original time
       status: "Scheduled", 
     };
     
@@ -166,6 +169,65 @@ export function ManageDemoModal({
               </FormItem>
             )}
           />
+
+                  <FormField
+                    control={form.control}
+                    name="rescheduleDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>New Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date(new Date().setHours(0, 0, 0, 0)) || isSubmitting
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="rescheduleTime"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>New Time</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            {...field}
+                            className="w-[240px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
           <FormField
             control={form.control}

@@ -20,10 +20,10 @@ export function ClassCard({ classData }: ClassCardProps) {
 
   const getStatusBadgeVariant = () => {
     switch (status) {
-      case "Ongoing": return "bg-green-100 text-green-700 border-green-500/50";
-      case "Upcoming": return "bg-blue-100 text-blue-700 border-blue-500/50";
-      case "Past": return "bg-gray-100 text-gray-700 border-gray-400/50";
-      case "Cancelled": return "bg-red-100 text-red-700 border-red-500/50";
+ case "Ongoing": return "bg-green-50 text-green-700 border-green-400";
+      case "Upcoming": return "bg-blue-500 text-white";
+      case "Past": return "bg-gray-500 text-white";
+      case "Cancelled": return "bg-red-500 text-white";
       default: return "outline";
     }
   };

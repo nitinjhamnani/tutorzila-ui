@@ -187,19 +187,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             )}
           </div>
         </section>
-
-        {requirement.additionalNotes && (
-          <>
-            <Separator />
-            <section className="space-y-2">
-              <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
-                <Info className="w-4 h-4 mr-2 text-primary/80" />
-                Additional Notes
-              </h3>
-              <p className="text-[11px] text-muted-foreground pl-6 whitespace-pre-wrap">{requirement.additionalNotes}</p>
-            </section>
-          </>
-        )}
       </CardContent>
 
       <CardFooter className="bg-muted/30 p-4 border-t flex flex-col sm:flex-row justify-between items-center gap-2">
