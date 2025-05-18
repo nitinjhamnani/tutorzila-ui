@@ -4,19 +4,14 @@
 import { useState, useMemo, useEffect } from "react";
 import type { TuitionRequirement } from "@/types";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// Select components are removed as they were part of the filter panel
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, BookOpen, Users, MapPin, FilterIcon as LucideFilter, ListFilter, Building, Users2, GraduationCap, RadioTower, Clock, ListChecks, CheckSquare, Star, Inbox, ChevronDown } from "lucide-react"; 
+import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, ChevronDown } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // Added ScrollBar
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+// Accordion components are removed
 import { cn } from "@/lib/utils";
 
 // Mock data - replace with API call in a real app
@@ -30,20 +25,11 @@ const MOCK_REQUIREMENTS: TuitionRequirement[] = [
   { id: "7", parentId: "p7", parentName: "Grace Hall", subject: ["Biology"], gradeLevel: "Grade 11-12", scheduleDetails: "Flexible Evening Hours", preferredDays: ["Flexible Evenings"], preferredTimeSlots: ["Evening Hours"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 6).toISOString(), additionalNotes: "Looking for an experienced biology tutor for IB curriculum.", board: "IB", teachingMode: ["Offline (In-person)"], applicantsCount: 7 },
 ];
 
-const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"];
-const gradeLevels = ["All", "Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
-const locations = ["All", "Online", "Student's Home", "Tutor's Home", "Public Place (e.g. Library)"];
-const boards = ["All", "CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
-const teachingModes = ["All", "Online", "Offline (In-person)"];
-
+// Filter options are removed
 
 export default function AllEnquiriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [subjectFilter, setSubjectFilter] = useState("All");
-  const [gradeLevelFilter, setGradeLevelFilter] = useState("All");
-  const [locationFilter, setLocationFilter] = useState("All");
-  const [boardFilter, setBoardFilter] = useState("All");
-  const [teachingModeFilter, setTeachingModeFilter] = useState("All");
+  // State variables for specific filters are removed
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
   const [activeTab, setActiveTab] = useState("recommended");
 
@@ -55,7 +41,7 @@ export default function AllEnquiriesPage() {
     return requirements.filter((req) => {
       const searchTermLower = searchTerm.toLowerCase();
       const matchesSearchTerm = searchTerm === "" || 
-        req.subject.some(s => s.toLowerCase().includes(searchTermLower)) ||
+        (Array.isArray(req.subject) ? req.subject.some(s => s.toLowerCase().includes(searchTermLower)) : req.subject.toLowerCase().includes(searchTermLower)) ||
         req.gradeLevel.toLowerCase().includes(searchTermLower) ||
         (req.parentName && req.parentName.toLowerCase().includes(searchTermLower)) ||
         (req.location && req.location.toLowerCase().includes(searchTermLower)) ||
@@ -63,25 +49,12 @@ export default function AllEnquiriesPage() {
         (req.teachingMode && req.teachingMode.some(tm => tm.toLowerCase().includes(searchTermLower))) ||
         (req.additionalNotes && req.additionalNotes.toLowerCase().includes(searchTermLower));
       
-      const matchesSubject = subjectFilter === "All" || req.subject.includes(subjectFilter);
-      const matchesGradeLevel = gradeLevelFilter === "All" || req.gradeLevel === gradeLevelFilter;
-      const matchesLocation = locationFilter === "All" || req.location === locationFilter;
-      const matchesBoard = boardFilter === "All" || req.board === boardFilter;
-      const matchesTeachingMode = teachingModeFilter === "All" || (req.teachingMode && req.teachingMode.includes(teachingModeFilter));
-
-      return matchesSearchTerm && matchesSubject && matchesGradeLevel && matchesLocation && matchesBoard && matchesTeachingMode;
+      return matchesSearchTerm;
     });
-  }, [searchTerm, subjectFilter, gradeLevelFilter, locationFilter, boardFilter, teachingModeFilter, requirements]);
+  }, [searchTerm, requirements]);
 
-  const resetFilters = () => {
-    setSearchTerm("");
-    setSubjectFilter("All");
-    setGradeLevelFilter("All");
-    setLocationFilter("All");
-    setBoardFilter("All");
-    setTeachingModeFilter("All");
-  };
-  
+  // resetFilters function is removed
+
   const tabCounts = {
     recommended: filteredRequirements.length, 
     applied: 0, 
@@ -113,72 +86,36 @@ export default function AllEnquiriesPage() {
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             There are no enquiries in this category. Try other filters or check back later.
           </p>
-           <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-5">
+           <Button onClick={() => setSearchTerm("")} variant="outline" className="mt-6 text-sm py-2 px-5">
             <XIcon className="w-3.5 h-3.5 mr-1.5" />
-            Clear All Filters
+            Clear Search
           </Button>
         </CardContent>
       </Card>
     );
   };
 
-  const filterPanelContent = (
-    <>
-      <FilterItem icon={BookOpen} label="Subject" value={subjectFilter} onValueChange={setSubjectFilter} options={subjects} />
-      <FilterItem icon={GraduationCap} label="Grade Level" value={gradeLevelFilter} onValueChange={setGradeLevelFilter} options={gradeLevels} />
-      <FilterItem icon={Building} label="Board" value={boardFilter} onValueChange={setBoardFilter} options={boards} />
-      <FilterItem icon={MapPin} label="Location" value={locationFilter} onValueChange={setLocationFilter} options={locations} />
-      <FilterItem icon={RadioTower} label="Teaching Mode" value={teachingModeFilter} onValueChange={setTeachingModeFilter} options={teachingModes} />
-      <Button 
-        onClick={resetFilters} 
-        variant="outline" 
-        size="sm"
-        className="w-full bg-card border-primary text-primary hover:bg-primary/10 hover:text-primary transform transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-2 text-sm py-2 px-3"
-      >
-        <XIcon className="w-4 h-4" />
-        Reset All Filters
-      </Button>
-    </>
-  );
-
+  // filterPanelContent and FilterItem component are removed
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8"> 
-      <div className="lg:hidden mb-6 animate-in fade-in slide-in-from-top-5 duration-500 ease-out">
-        <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-sm overflow-hidden">
-          <AccordionItem value="filters" className="border-b-0">
-            <AccordionTrigger className="w-full hover:no-underline px-4 py-3 data-[state=open]:border-b data-[state=open]:border-border/30">
-              <div className="flex flex-row justify-between items-center w-full">
-                <h3 className="text-lg font-semibold text-primary flex items-center">
-                  <LucideFilter className="w-5 h-5 mr-2.5"/>
-                  Filter Enquiries
-                </h3>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-0">
-              <div className="p-4 space-y-5">
-                {filterPanelContent}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      {/* Mobile Filter Accordion Removed */}
+      {/* Desktop Filter Aside Panel Removed */}
+
+      {/* Search Bar - Kept for now */}
+      <div className="relative mb-6 animate-in fade-in duration-500 ease-out">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search by subject, grade, keywords..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2.5 text-sm bg-card border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
+          />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <aside className="lg:w-[300px] xl:w-[320px] space-y-6 animate-in fade-in slide-in-from-left-5 duration-500 ease-out hidden lg:block shrink-0">
-          <Card className="bg-card border rounded-lg shadow-sm">
-            <CardHeader className="pb-4 border-b border-border/30">
-              <CardTitle className="text-xl font-semibold text-primary flex items-center">
-                <LucideFilter className="w-5 h-5 mr-2.5"/>
-                Filter Enquiries
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-5">
-              {filterPanelContent}
-            </CardContent>
-          </Card>
-        </aside>
-
+        {/* Removed the <aside> filter panel */}
         <div className="flex-1 space-y-6 min-w-0"> 
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
              <ScrollArea className="w-full whitespace-nowrap pb-2">
@@ -218,35 +155,4 @@ export default function AllEnquiriesPage() {
   );
 }
 
-
-interface FilterItemProps {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  onValueChange: (value: string) => void;
-  options: string[];
-}
-
-function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
-  return (
-    <div className="space-y-1.5">
-      <label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center">
-        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label}
-      </label>
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger 
-          id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} 
-          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs"
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <ScrollArea className="h-[180px]">
-            {options.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
-          </ScrollArea>
-        </SelectContent>
-      </Select>
-    </div>
-  );
-}
-
+// FilterItemProps and FilterItem component definition removed
