@@ -45,7 +45,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
   }
 
-  const dashboardHomeHref = user.role === "admin" ? "/dashboard/admin" : user.role === 'tutor' ? '/dashboard/enquiries' : `/dashboard/parent`;
+  const dashboardHomeHref = user.role === "admin" ? "/dashboard/admin" : user.role === 'tutor' ? '/dashboard/tutor' : `/dashboard/parent`;
 
   const commonNavItems = [
     { href: dashboardHomeHref, label: "Dashboard", icon: LayoutDashboard },
@@ -65,6 +65,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const tutorNavItems = [
     // "/dashboard/enquiries" is handled by dashboardHomeHref for tutors
+    { href: "/dashboard/enquiries", label: "My Enquiries", icon: Briefcase },
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
@@ -104,7 +105,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <SidebarProvider defaultOpen={!isMobile}>
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
-          className="border-r pt-[var(--verification-banner-height,0px)] bg-card shadow-md flex flex-col" // Adjusted pt
+          className="border-r pt-[var(--verification-banner-height,0px)] bg-card shadow-md flex flex-col"
         >
           <SidebarHeader className={cn(
             "p-4 border-b border-border/50",
@@ -189,13 +190,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="px-6 sm:px-8 md:px-10 lg:px-12 pb-4 md:pb-6 bg-background pt-[var(--verification-banner-height,0px)] overflow-x-hidden"> {/* Adjusted padding */}
+        <SidebarInset className="pb-4 md:pb-6 bg-background pt-[var(--verification-banner-height,0px)] overflow-x-hidden"> 
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
           </div>
         </SidebarInset>
       </SidebarProvider>
-      {/* Removed local style tag for --header-height and --logo-height */}
     </>
   );
 }
