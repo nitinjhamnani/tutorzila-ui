@@ -4,14 +4,14 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft, Menu as MenuIconLucide } from "lucide-react"; // Renamed Menu to avoid conflict
+import { PanelLeft, Menu as MenuIconLucide } from "lucide-react"; 
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive, SheetTitle as RadixSheetTitle } from "@/components/ui/sheet"; 
+import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive, SheetTitle as RadixSheetTitle, SheetTrigger as RadixSheetTrigger } from "@/components/ui/sheet"; 
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -202,6 +202,8 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
+            {/* The SidebarHeader, SidebarContent_custom, and SidebarFooter are passed as children */}
+            {/* The SheetTitle is now rendered by SidebarHeader when isMobile is true */}
             {children}
           </SheetContent>
         </Sheet>
@@ -363,8 +365,8 @@ const SidebarHeader = React.forwardRef<
         )}
         {...props}
       >
+        <RadixSheetTitle className="sr-only">Sidebar Menu</RadixSheetTitle> {/* Ensure title is present for mobile sheet */}
         {children} 
-         <RadixSheetTitle className="sr-only">Sidebar Menu</RadixSheetTitle>
       </SheetHeaderPrimitive>
     );
   }
@@ -421,7 +423,7 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden", // Already has flex-1 and overflow-auto
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden", 
         className
       )}
       {...props}
@@ -749,7 +751,6 @@ const SidebarMenuSubButton = React.forwardRef<
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
-// Renamed SheetTitle to avoid conflicts, used RadixSheetTitle
 export {
   Sidebar,
   SidebarContent,
@@ -777,3 +778,5 @@ export {
   useSidebar,
   RadixSheetTitle as SheetTitle, 
 }
+
+    
