@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen } from "lucide-react";
-import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
+import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"; // Corrected import
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -30,12 +30,10 @@ export default function TutorDemoSessionsPage() {
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   
-  // Main filter states
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [studentFilter, setStudentFilter] = useState("All");
   const [statusFilters, setStatusFilters] = useState<string[]>([]); 
 
-  // Temporary states for the dialog
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempSubjectFilter, setTempSubjectFilter] = useState(subjectFilter);
   const [tempStudentFilter, setTempStudentFilter] = useState(studentFilter);
@@ -115,7 +113,6 @@ export default function TutorDemoSessionsPage() {
     setTempSubjectFilter("All");
     setTempStudentFilter("All");
     setTempStatusFilters([]);
-    // Apply immediately
     setSubjectFilter("All");
     setStudentFilter("All");
     setStatusFilters([]);
@@ -138,7 +135,6 @@ export default function TutorDemoSessionsPage() {
           <p className="text-xs text-muted-foreground max-w-xs mx-auto mb-4">
             There are no demos in this category for you.
           </p>
-          {/* Potentially a button to "Create Demo Slot" or similar for tutors */}
         </div>
       );
     }
@@ -148,8 +144,8 @@ export default function TutorDemoSessionsPage() {
           <UpcomingSessionCard 
             key={demo.id} 
             sessionDetails={{ type: 'demo', data: demo }}
-            onUpdateSession={handleUpdateSession} // For manage demo modal
-            onCancelSession={handleCancelSession} // For manage demo modal
+            onUpdateSession={handleUpdateSession}
+            onCancelSession={handleCancelSession}
           />
         ))}
       </div>
