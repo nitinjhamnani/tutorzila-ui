@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info } from "lucide-react";
+import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -33,7 +33,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const studentInitials = getStudentInitials(demo.studentName);
 
-  const statusBadgeClasses = () => {
+  const statusBadgeClasses = () => { // This function is used for color scheme, we'll adapt for the specific footer badge
     switch (demo.status) {
       case "Scheduled": return "bg-blue-100 text-blue-700 border-blue-500/50";
       case "Requested": return "bg-yellow-100 text-yellow-700 border-yellow-500/50";
@@ -45,11 +45,11 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
 
   const StatusIcon = () => {
     switch (demo.status) {
-      case "Scheduled": return <Clock className="mr-1.5 h-3 w-3" />;
-      case "Requested": return <MessageSquareQuote className="mr-1.5 h-3 w-3" />;
-      case "Completed": return <CheckCircle className="mr-1.5 h-3 w-3" />;
-      case "Cancelled": return <XCircle className="mr-1.5 h-3 w-3" />;
-      default: return <Info className="mr-1.5 h-3 w-3" />;
+      case "Scheduled": return <Clock className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />; // Icon styled for footer badge
+      case "Requested": return <MessageSquareQuote className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
+      case "Completed": return <CheckCircle className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
+      case "Cancelled": return <XCircle className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
+      default: return <Info className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
     }
   };
 
@@ -71,7 +71,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 Student: {demo.studentName}
               </CardDescription>
             </div>
-             {/* Status Badge removed from header, will be conditionally added to footer */}
+            {/* Status Badge removed from header for demo cards, will be shown in footer if Scheduled */}
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -82,30 +82,21 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
           {demo.mode && <InfoItem icon={RadioTower} label="Mode:" value={demo.mode} />}
         </CardContent>
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
-          <div> {/* Left side of footer for status */}
-            {demo.status === "Scheduled" && (
-              <Badge
+           <div className="flex items-center">
+            <Badge
                 variant="outline"
                 className={cn(
-                  "text-[10px] py-0.5 px-1.5 border font-medium whitespace-nowrap rounded-full",
-                  statusBadgeClasses() 
+                    "py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center",
+                    // Apply status specific colors if needed, or keep neutral like enquiry badges
+                    // For example, if you want the blue color for "Scheduled":
+                    // demo.status === "Scheduled" && "border-blue-500/50 bg-blue-100/50 text-blue-700"
                 )}
-              >
-                <StatusIcon />
+            >
+                <StatusIcon /> 
                 {demo.status}
-              </Badge>
-            )}
-            {(demo.status === "Completed" || demo.status === "Cancelled" || demo.status === "Requested") && (
-                 <Badge
-                    variant="outline"
-                    className={cn("text-[10px] py-0.5 px-1.5 border font-medium whitespace-nowrap rounded-full", statusBadgeClasses())}
-                >
-                    <StatusIcon />
-                    {demo.status}
-                </Badge>
-            )}
+            </Badge>
           </div>
-          <div className="flex items-center gap-2"> {/* Right side of footer for buttons */}
+          <div className="flex items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
               <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
                 <a href={demo.joinLink} target="_blank" rel="noopener noreferrer">
@@ -160,5 +151,3 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
-
-    
