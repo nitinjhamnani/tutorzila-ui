@@ -16,18 +16,21 @@ import type { TutorProfile } from "@/types";
 export function TutorDashboardHeader() {
   const { user } = useAuthMock();
   const tutorUser = user as TutorProfile | null;
-  const isMobile = useIsMobile();
+  // isMobile from useIsMobile is for conditional styling if needed, 
+  // but SidebarTrigger itself handles context for mobile/desktop behavior.
+  const isMobile = useIsMobile(); 
 
   return (
-    <header className="bg-card p-4 shadow-sm w-full"> {/* Removed sticky and z-index as it's wrapped by a sticky div in layout */}
+    <header className="bg-card p-4 shadow-sm w-full">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          {isMobile && (
-            <SidebarTrigger className="mr-2 md:hidden">
-              <Menu className="h-6 w-6" />
-            </SidebarTrigger>
-          )}
-          {/* Logo and "Dashboard" text removed as per earlier request to simplify this local header */}
+          {/* Always render SidebarTrigger; it's responsive by context */}
+          <SidebarTrigger className="mr-2"> {/* Removed isMobile condition */}
+            <Menu className="h-6 w-6" />
+          </SidebarTrigger>
+          <Link href="/" className="flex items-center">
+            <Image src={logoAsset} alt="Tutorzila Logo" width={150} height={40} className="h-8 md:h-10 w-auto" priority />
+          </Link>
         </div>
         
         <div className="flex items-center gap-2 md:gap-3">
@@ -59,3 +62,4 @@ export function TutorDashboardHeader() {
     </header>
   );
 }
+
