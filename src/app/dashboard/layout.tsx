@@ -14,11 +14,11 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SheetTitle, // Ensure SheetTitle is imported
+  SheetTitle, 
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 // Keep Menu as MenuIcon alias if used elsewhere, or just use Menu
-import { Menu as MenuIcon, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, Home as HomeIcon } from "lucide-react";
+import { Menu as MenuIcon, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, Home as HomeIcon, Users as UsersIcon, BookOpen, BarChart2, MessageSquare } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -60,10 +60,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const tutorNavItems = [
-    // The Enquiries link is handled by dashboardHomeHref if it's the main tutor dashboard page
-    // This conditional ensures it's added if the dashboardHomeHref is different
-    ...(user.role === 'tutor' && dashboardHomeHref !== "/dashboard/enquiries" ? [{ href: "/dashboard/enquiries", label: "Enquiries", icon: Briefcase }] : []),
-    // { href: "/dashboard/demo-sessions", label: "Demos", icon: MessageSquareQuote, disabled: false }, // Removed this line
+    { href: "/dashboard/enquiries", label: "Enquiries", icon: Briefcase },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
   ];
@@ -71,7 +68,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const adminNavItems = [
     { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: UsersIcon, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
-    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: BarChart2, disabled: true }, // Corrected icon
+    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: BarChart2, disabled: true }, 
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
   ];
 
@@ -86,27 +83,30 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const mainNavItems = [...commonNavItems, ...roleNavItems];
 
-  const footerNavItems = [
+  const accountSettingsNavItems = [
     { href: "/dashboard/my-account", label: "My Account", icon: UserCircle, disabled: false },
     { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon, disabled: true },
-    { label: "Log Out", icon: LogOut, onClick: logout },
   ];
+  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+
 
   const tutorHeaderPaths = [
     '/dashboard/tutor',
-    '/dashboard/enquiries',
-    '/dashboard/my-classes', // Kept for consistency, though "Demos" is the active link
-    '/dashboard/payments',
-    '/dashboard/demo-sessions',
+    '/dashboard/enquiries', // Main enquiries list for tutor
+    // Ensure dynamic enquiry detail paths are covered
+    '/dashboard/my-classes', // My Classes for Tutor (if any)
+    '/dashboard/payments',   // My Payments for Tutor
+    '/dashboard/demo-sessions', // Demo Sessions for Tutor
     '/dashboard/my-account',
     '/dashboard/tutor/edit-personal-details',
     '/dashboard/tutor/edit-tutoring-details'
   ];
-
-  const showTutorHeader = isAuthenticated && user?.role === 'tutor' &&
+  
+  const showTutorHeader = isAuthenticated && user?.role === 'tutor' && 
     (
       tutorHeaderPaths.some(p => pathname === p || (p === '/dashboard/enquiries' && pathname.startsWith('/dashboard/enquiries/')))
     );
+
 
   return (
     <>
@@ -117,20 +117,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            showTutorHeader
-              ? "pt-0" // No top padding if TutorDashboardHeader is shown (it's sticky below banner)
-              : "pt-[var(--verification-banner-height,0px)]"
+            showTutorHeader || user?.role === 'tutor' // For tutor, padding accounts for VerificationBanner only
+              ? "pt-[var(--verification-banner-height,0px)]" 
+              : "pt-[var(--verification-banner-height,0px)]" // For others, it's the same as no AppHeader is shown here
           )}
         >
-           {/* Render SidebarHeader only if TutorDashboardHeader is NOT shown OR if it's mobile view */}
-          {(!showTutorHeader || isMobile) && (
-            <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-              {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
-              <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
+          <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
+            {/* SheetTitle for mobile is now handled inside Sidebar component */}
+            <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
                 {!isMobile && <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"><MenuIcon className="h-5 w-5"/></SidebarTrigger>}
-              </div>
-            </SidebarHeader>
-          )}
+            </div>
+          </SidebarHeader>
 
           <SidebarContent className="flex-grow">
             <SidebarMenu>
@@ -166,7 +163,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </SidebarContent>
           <SidebarFooter className="p-2 border-t border-border/50 mt-auto">
             <SidebarMenu>
-              {footerNavItems.map((item) => {
+              {accountSettingsNavItems.map((item) => {
                  const isActive = !item.onClick && item.href ? pathname === item.href : false;
                 return (
                 <SidebarMenuItem key={item.label}>
@@ -179,15 +176,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     className={cn(
                       "transition-all duration-200 group h-10 text-sm font-medium",
                       item.disabled && "opacity-50 cursor-not-allowed",
-                      item.label === "Log Out" && "text-destructive hover:text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive",
-                       isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary/10 hover:text-primary",
+                      isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary/10 hover:text-primary",
                        "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90",
                        "group-data-[collapsible=icon]:justify-center"
                     )}
                   >
                     {item.onClick ? (
                       <div className="flex items-center gap-2.5 w-full">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : item.label === "Log Out" ? "" : "group-hover:text-primary" )} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : "group-hover:text-primary" )} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     ) : (
@@ -200,28 +196,43 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 </SidebarMenuItem>
                 );
               })}
+                <SidebarMenuItem key={logoutNavItem.label}>
+                  <SidebarMenuButton
+                    onClick={logoutNavItem.onClick}
+                    tooltip={{ children: logoutNavItem.label, className: "ml-1.5 text-xs" }}
+                    className={cn(
+                        "transition-all duration-200 group h-10 text-sm font-medium",
+                        "text-destructive hover:text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive",
+                        "group-data-[collapsible=icon]:justify-center"
+                    )}
+                    >
+                     <div className="flex items-center gap-2.5 w-full">
+                        <logoutNavItem.icon className="transition-transform duration-200 group-hover:scale-110" />
+                        <span className="group-data-[collapsible=icon]:hidden">{logoutNavItem.label}</span>
+                      </div>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
 
         <div className="flex flex-col flex-1">
-          {showTutorHeader && (
+           {showTutorHeader && (
             <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
               <TutorDashboardHeader />
             </div>
           )}
           <SidebarInset className={cn(
             "pb-4 md:pb-6 bg-background overflow-x-hidden",
-             showTutorHeader
-              ? "pt-0"
-              : "pt-[var(--verification-banner-height,0px)]"
+             showTutorHeader 
+              ? "pt-0" // TutorDashboardHeader already accounts for banner
+              : "pt-[var(--verification-banner-height,0px)]" // Others just account for banner
           )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
               {children}
             </div>
           </SidebarInset>
         </div>
-
       </SidebarProvider>
     </>
   );
