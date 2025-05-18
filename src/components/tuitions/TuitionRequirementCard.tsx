@@ -62,7 +62,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     return (
       <div
         className={cn(
-          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3",
+          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3 overflow-hidden", // Added overflow-hidden
           isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
         )}
       >
@@ -73,7 +73,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0 space-y-1">
-            <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors">
+            <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
               {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </p>
             <div className="text-[10px] sm:text-[11px] text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 items-center">
@@ -105,7 +105,6 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen(requirement.id); }}>
                   <Archive className="h-3.5 w-3.5" />
                 </Button>
-                 {/* Delete button for past enquiries is removed as per previous request */}
               </>
             )}
         </div>
@@ -116,8 +115,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   // Tutor's "View All Enquiries" list view & public listings
   return (
     <Card className={cn(
-      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
-      isPastEnquiry && "opacity-70 bg-muted/50" 
+      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-0.5 overflow-hidden" // Added overflow-hidden
     )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
         <div className="flex items-start space-x-3">
@@ -127,7 +125,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
-            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors">
+            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
             <CardDescription className="text-[11px] text-muted-foreground mt-0.5">
@@ -162,7 +160,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             <InfoItem icon={MapPin} label="Location" value={requirement.location} />
         )}
       </CardContent>
-      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-between items-center">
+      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
         <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
@@ -175,12 +173,12 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!isParentContext && ( 
+        {!isParentContext && (
           <Button
             asChild
             className={cn(
               "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5",
-              "bg-primary border-primary text-primary-foreground hover:bg-primary/90"
+              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto mt-2 sm:mt-0"
             )}
           >
             <Link href={`/dashboard/enquiries/${requirement.id}`}>
@@ -217,4 +215,3 @@ function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoIt
     </div>
   );
 }
-    

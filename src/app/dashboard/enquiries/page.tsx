@@ -6,9 +6,9 @@ import type { TuitionRequirement } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, FilterIcon as LucideFilterIcon } from "lucide-react"; 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; 
+import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, FilterIcon as LucideFilterIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +35,7 @@ export default function AllEnquiriesPage() {
   const filteredRequirements = useMemo(() => {
     return requirements.filter((req) => {
       const searchTermLower = searchTerm.toLowerCase();
-      const matchesSearchTerm = searchTerm === "" || 
+      const matchesSearchTerm = searchTerm === "" ||
         (Array.isArray(req.subject) ? req.subject.some(s => s.toLowerCase().includes(searchTermLower)) : req.subject.toLowerCase().includes(searchTermLower)) ||
         req.gradeLevel.toLowerCase().includes(searchTermLower) ||
         (req.parentName && req.parentName.toLowerCase().includes(searchTermLower)) ||
@@ -43,14 +43,14 @@ export default function AllEnquiriesPage() {
         (req.board && req.board.toLowerCase().includes(searchTermLower)) ||
         (req.teachingMode && req.teachingMode.some(tm => tm.toLowerCase().includes(searchTermLower))) ||
         (req.additionalNotes && req.additionalNotes.toLowerCase().includes(searchTermLower));
-      
+
       return matchesSearchTerm;
     });
   }, [searchTerm, requirements]);
 
   const tabCounts = {
-    recommended: filteredRequirements.length, 
-    applied: 0, 
+    recommended: filteredRequirements.length,
+    applied: 0,
     received: 0,
     shortlisted: 0,
   };
@@ -60,7 +60,7 @@ export default function AllEnquiriesPage() {
       return (
         <div className="grid grid-cols-1 gap-4 md:gap-5">
           {enquiries.map((req, index) => (
-            <div 
+            <div
               key={req.id}
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
@@ -72,7 +72,7 @@ export default function AllEnquiriesPage() {
       );
     }
     return (
-      <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
+      <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out overflow-hidden">
         <CardContent className="flex flex-col items-center">
           <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-5" />
           <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Here Yet</p>
@@ -89,16 +89,16 @@ export default function AllEnquiriesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8"> 
-      <Card className="mb-6 animate-in fade-in duration-500 ease-out shadow-md rounded-xl">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+      <Card className="mb-6 animate-in fade-in duration-500 ease-out shadow-md rounded-xl overflow-hidden">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center">
+          <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
             <SearchIcon className="w-5 h-5 mr-2.5"/>
             Search & Filter Enquiries
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative w-full sm:flex-1 min-w-0"> 
+          <div className="relative w-full sm:flex-1 min-w-0">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -108,8 +108,8 @@ export default function AllEnquiriesPage() {
                 className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
               />
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="w-full sm:w-auto text-sm shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
             onClick={() => console.log("Filter button clicked")}
           >
@@ -120,7 +120,7 @@ export default function AllEnquiriesPage() {
       </Card>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1 space-y-6 min-w-0"> 
+        <div className="flex-1 space-y-6 min-w-0">
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
              <ScrollArea className="w-full whitespace-nowrap pb-2">
               <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
@@ -144,7 +144,7 @@ export default function AllEnquiriesPage() {
               {renderEnquiryList(filteredRequirements)}
             </TabsContent>
             <TabsContent value="applied" className="mt-6">
-              {renderEnquiryList([])} 
+              {renderEnquiryList([])}
             </TabsContent>
             <TabsContent value="received" className="mt-6">
               {renderEnquiryList([])}
@@ -158,7 +158,3 @@ export default function AllEnquiriesPage() {
     </div>
   );
 }
-
-    
-
-    
