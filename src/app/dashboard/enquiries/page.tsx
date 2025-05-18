@@ -112,34 +112,40 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
+          <CardHeader className="p-0 mb-3 sm:mb-4">
+            <CardTitle className="text-base sm:text-lg font-semibold text-primary flex items-center break-words">
               <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
               Search & Filter Enquiries
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="flex flex-row items-center gap-3"> {/* Changed from flex-col sm:flex-row */}
-                <div className="relative w-full sm:flex-1 min-w-0"> {/* Ensure this takes up space and can shrink */}
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder="Search by subject, grade, keywords..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
-                    />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              {/* Group 1: Search input and Filter Icon Button */}
+              <div className="flex items-center gap-3 w-full sm:flex-1">
+                <div className="relative flex-1 min-w-0">
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search by subject, grade, keywords..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
+                  />
                 </div>
                 <Button
                   variant="default"
-                  className="w-full sm:w-auto text-sm py-2.5 px-5 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
+                  size="icon"
+                  className="h-11 w-11 shrink-0" // Height matches input, fixed width
                   onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
                 >
                   <LucideFilterIcon className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Filter</span>
                 </Button>
+              </div>
+
+              {/* Group 2: Category Dropdown */}
+              <div className="w-full sm:w-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -165,6 +171,7 @@ export default function AllEnquiriesPage() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+              </div>
             </div>
           </CardContent>
         </Card>
