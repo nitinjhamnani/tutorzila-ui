@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive, SheetTitle as RadixSheetTitle } from "@/components/ui/sheet"; // Renamed SheetTitle to avoid conflict
+import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive, SheetTitle as RadixSheetTitle } from "@/components/ui/sheet"; 
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -81,7 +81,9 @@ const SidebarProvider = React.forwardRef<
         } else {
           _setOpen(openState)
         }
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        if (typeof document !== 'undefined') {
+          document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        }
       },
       [setOpenProp, open]
     )
@@ -102,9 +104,10 @@ const SidebarProvider = React.forwardRef<
           toggleSidebar()
         }
       }
-
-      window.addEventListener("keydown", handleKeyDown)
-      return () => window.removeEventListener("keydown", handleKeyDown)
+      if (typeof window !== 'undefined') {
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+      }
     }, [toggleSidebar])
 
     const state = open ? "expanded" : "collapsed"
@@ -191,7 +194,7 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden" 
+            className={cn("w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden flex flex-col", className)}
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -199,7 +202,7 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            <div className="flex h-full w-full flex-col">{children}</div>
+            {children}
           </SheetContent>
         </Sheet>
       )
@@ -252,9 +255,6 @@ Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
-  // Omit 'asChild' from the props SidebarTrigger itself accepts for its internal Button,
-  // as it always wants to render a concrete button with specific content.
-  // If SidebarTrigger itself were to be a slot, it would need a different handling.
   Omit<React.ComponentProps<typeof Button>, 'asChild'> & { children?: React.ReactNode }
 >(({ className, onClick, children, ...props }, ref) => {
   const { toggleSidebar } = useSidebar();
@@ -270,13 +270,9 @@ const SidebarTrigger = React.forwardRef<
         onClick?.(event);
         toggleSidebar();
       }}
-      {...props} // Pass down other props like `type`, `disabled`, etc.
-      asChild={false} // Explicitly ensure this Button renders as a <button>
+      {...props} 
+      asChild={false} 
     >
-      {/* If children are provided to SidebarTrigger, use them as the icon.
-          Otherwise, use the default PanelLeft icon.
-          The Menu icon for mobile will be passed as children.
-      */}
       {children || <PanelLeft />}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
@@ -425,7 +421,7 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden", // Already has flex-1 and overflow-auto
         className
       )}
       {...props}
@@ -781,5 +777,3 @@ export {
   useSidebar,
   RadixSheetTitle as SheetTitle, 
 }
-
-    
