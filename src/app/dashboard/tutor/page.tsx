@@ -14,20 +14,21 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MOCK_DEMO_SESSIONS, MOCK_CLASSES } from "@/lib/mock-data";
-// import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"; // Temporarily commented out
+import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+
 import {
   User, CalendarDays, CheckCircle2, Star, DollarSign, Eye, ArrowUp, ArrowDown, Percent,
   Briefcase, UserCog, LifeBuoy, Settings as SettingsIcon, Presentation, RadioTower,
   Clock as ClockIcon, BookOpen as BookOpenIcon, Globe as GlobeIcon, FileText, Palette,
   Link as LinkIcon, UploadCloud, Ruler, FilterIcon as LucideFilterIcon, ListFilter,
-  Users as UsersIcon, BarChart2, MessageSquare, ShoppingBag, HardDrive, LayoutGrid,
-  Crown, Share2, ArrowRight, PanelLeft, Camera, Menu, Info, Bell
+  Users as UsersIcon, BarChart2, MessageSquare, ShoppingBag, HardDrive,
+  LayoutGrid, Crown, Share2, ArrowRight, PanelLeft, Camera, Menu, Info, Bell
 } from "lucide-react";
-import logoAsset from '@/assets/images/logo.png';
+import { isSameDay, parseISO, format } from 'date-fns';
 
-// Define the QuickActionCardProps interface at the top level
+// QuickActionCard definition (moved to top-level for clarity)
 interface QuickActionCardProps {
   title: string;
   description: string;
@@ -35,39 +36,48 @@ interface QuickActionCardProps {
   href: string;
   disabled?: boolean;
   buttonText?: string;
+  iconBg?: string;
+  iconTextColor?: string;
 }
 
-// Define the QuickActionCard component at the top level
-const QuickActionCard: React.FC<QuickActionCardProps> = ({ title, description, IconEl, href, disabled, buttonText = "Go" }) => {
-  return (
-    <LinkOrDiv href={disabled ? "#" : href} passHref={!disabled} legacyBehavior={!disabled}>
-      <a className={cn("block h-full", disabled && "opacity-60 cursor-not-allowed")}>
+const QuickActionCard: React.FC<QuickActionCardProps> = ({ title, description, IconEl, href, disabled, buttonText = "Go", iconBg = "bg-primary/10", iconTextColor = "text-primary" }) => {
+  if (disabled) {
+    return (
+      <div className={cn("block h-full", "opacity-60 cursor-not-allowed")}>
         <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
           <div>
-            <div className={cn("w-10 h-10 flex items-center justify-center bg-primary/10 rounded-lg text-primary mb-3")}>
-              <IconEl className="w-5 h-5" />
+            <div className={cn("w-12 h-12 flex items-center justify-center rounded-lg text-xl shrink-0 mb-4", iconBg, iconTextColor)}>
+              <IconEl className="w-6 h-6" />
             </div>
-            <h3 className="font-semibold text-foreground text-sm mb-1">{title}</h3>
-            <p className="text-xs text-muted-foreground line-clamp-2">{description}</p>
+            <h3 className="font-semibold text-foreground text-base mb-1">{title}</h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
           </div>
-          {!disabled && (
-            <Button variant="link" className="mt-3 text-xs text-primary p-0 justify-start h-auto">
-              {buttonText} <ArrowRight className="ml-1 w-3 h-3" />
-            </Button>
-          )}
-          {disabled && (
-             <p className="mt-3 text-xs text-muted-foreground p-0">Coming Soon</p>
-          )}
+          <Button variant="link" className="mt-4 text-xs text-primary p-0 justify-start h-auto" disabled>
+            Coming Soon
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link href={href} passHref legacyBehavior>
+      <a className={cn("block h-full")}>
+        <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
+          <div>
+            <div className={cn("w-12 h-12 flex items-center justify-center rounded-lg text-xl shrink-0 mb-4", iconBg, iconTextColor)}>
+              <IconEl className="w-6 h-6" />
+            </div>
+            <h3 className="font-semibold text-foreground text-base mb-1">{title}</h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
+          </div>
+          <Button variant="link" className="mt-4 text-xs text-primary p-0 justify-start h-auto">
+            {buttonText} <ArrowRight className="ml-1 w-3 h-3" />
+          </Button>
         </div>
       </a>
-    </LinkOrDiv>
+    </Link>
   );
-};
-const LinkOrDiv = ({ href, passHref, legacyBehavior, children, ...props }: any) => {
-  if (href === "#" || props.disabled) {
-    return <div {...props}>{children}</div>;
-  }
-  return <Link href={href} passHref={passHref} legacyBehavior={legacyBehavior} {...props}>{children}</Link>;
 };
 
 
@@ -78,7 +88,7 @@ export default function TutorDashboardPage() {
   const tutorUser = user as TutorProfile | null;
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // const [upcomingSessions, setUpcomingSessions] = useState<Array<{ type: 'demo' | 'class'; data: DemoSession | MyClass; sortDate: Date }>>([]); // Temporarily commented out
+  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ type: 'demo' | 'class'; data: DemoSession | MyClass; sortDate: Date }>>([]);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -99,33 +109,20 @@ export default function TutorDashboardPage() {
       if (tutorUser.experience && tutorUser.experience.trim() !== "") completedFields++;
       if (tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== "") completedFields++;
       setCompletionPercentage(Math.round((completedFields / totalFields) * 100));
-    }
-  }, [tutorUser]);
 
-  // Temporarily commenting out upcomingSessions logic
-  /*
-  useEffect(() => {
-    if (tutorUser) {
+      // Simplified upcoming sessions logic
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-
-      const tutorDemos = MOCK_DEMO_SESSIONS.filter(
-        (demo) => (demo.tutorName === tutorUser.name || demo.tutorId === tutorUser.id) &&
-                   demo.status === "Scheduled" &&
-                   new Date(demo.date) >= today
-      ).map(d => ({ type: 'demo' as const, data: d, sortDate: new Date(d.date) }));
-
-      const tutorClasses = MOCK_CLASSES.filter(
-        (c) => (c.tutorName === tutorUser.name || c.tutorId === tutorUser.id) &&
-               ((c.status === "Upcoming" && c.startDate && new Date(c.startDate) >= today) ||
-                (c.status === "Ongoing" && c.nextSession && new Date(c.nextSession) >= today))
-      ).map(c => ({ type: 'class' as const, data: c, sortDate: new Date(c.nextSession || c.startDate || Date.now()) }));
+      let combined: Array<{ type: 'demo' | 'class'; data: DemoSession | MyClass; sortDate: Date }> = [];
       
-      const combined = [...tutorDemos, ...tutorClasses].sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
-      setUpcomingSessions(combined);
+      // Example: Add one mock demo if available for simplicity
+      const mockDemo = MOCK_DEMO_SESSIONS.find(d => (d.tutorName === tutorUser.name || d.tutorId === tutorUser.id) && d.status === "Scheduled" && new Date(d.date) >= today);
+      if (mockDemo) {
+        combined.push({ type: 'demo', data: mockDemo, sortDate: new Date(mockDemo.date) });
+      }
+      setUpcomingSessions(combined.sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime()));
     }
   }, [tutorUser]);
-  */
 
   const handleAvatarUploadClick = () => {
     fileInputRef.current?.click();
@@ -138,35 +135,18 @@ export default function TutorDashboardPage() {
     }
   };
 
-  // Temporarily commenting out dashboardMetrics
-  /*
-  const dashboardMetrics = [
-    { title: "Total Enquiries", value: "25", trend: "2 new", IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Active Classes", value: "5", trend: "1 upcoming", IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Demos Completed", value: "12", trend: "85%", IconEl: CheckCircle2, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Avg. Rating", value: tutorUser?.rating?.toFixed(1) || "N/A", trend: "+0.1", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Total Earnings", value: `₹${(Math.random() * 20000 + 5000).toFixed(0)}`, trend: "+₹1.2k", IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Profile Views", value: String(Math.floor(Math.random() * 300) + 50), trend: "5.1%", IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-  ];
-  */
-
-  // Temporarily commenting out quickActions
-  /*
-  const quickActions = [
-    { title: "My Enquiries", description: "View and respond to tuition requests.", IconEl: Briefcase, href:"/dashboard/tutor/enquiries", buttonText: "View Enquiries"},
-    { title: "My Classes", description: "Manage scheduled classes & content.", IconEl: CalendarDays, href:"/dashboard/tutor/classes", buttonText: "Manage Classes" },
-    { title: "Edit Profile", description: "Update personal & tutoring details.", IconEl: UserCog, href: "/dashboard/tutor/my-account", buttonText: "Update Profile" },
-    { title: "My Payments", description: "Track your earnings and payouts.", IconEl: DollarSign, href: "/dashboard/tutor/payments", buttonText: "View Payments" },
-    { title: "Demo Sessions", description: "Manage demo class requests and schedules.", IconEl: RadioTower, href: "/dashboard/tutor/demo-sessions", buttonText: "Manage Demos"},
-    { title: "View Public Profile", description: "See how your profile appears.", IconEl: Eye, href: `/tutors/${tutorUser?.id || 'unknown'}`, buttonText: "View Profile" },
-    { title: "Support", description: "Get help or report issues.", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
-    { title: "Settings", description: "Adjust account preferences.", IconEl: SettingsIcon, href: "#", disabled: true, buttonText: "Go to Settings" },
-  ];
-  */
-
   if (isCheckingAuth || !isAuthenticated || !tutorUser) {
     return <div className="flex min-h-screen items-center justify-center p-4 text-muted-foreground">Loading Tutor Dashboard...</div>;
   }
+
+  // Simplified data for metrics and actions to ensure parsing
+  const dashboardMetrics = [
+    { title: "Total Sessions", value: "0", trend: "N/A", IconEl: User, iconBg: "bg-primary/10", iconColor: "text-primary", TrendIconEl: ArrowUp },
+  ];
+
+  const quickActions = [
+    { title: "My Enquiries", description: "View and respond to tuition requests.", IconEl: Briefcase, href: "/tutor/enquiries", buttonText: "View Enquiries" },
+  ];
 
   return (
         <main className="flex-grow">
@@ -196,12 +176,12 @@ export default function TutorDashboardPage() {
                             </div>
                             <div>
                                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
-                                <p className="text-xs text-muted-foreground mt-1 tz-text-vsm">Welcome back to your dashboard</p>
+                                <p className="tz-text-vsm text-gray-600 mt-1">Welcome back to your dashboard</p>
                                 
                                 <div className="mt-4">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-xs text-muted-foreground tz-text-vsm">Setup progress</span>
-                                        <span className={cn("text-xs font-medium tz-text-vsm", "text-primary")}>{completionPercentage}%</span>
+                                        <span className="tz-text-vsm text-gray-600">Setup progress</span>
+                                        <span className={cn("tz-text-vsm font-medium", "text-primary")}>{completionPercentage}%</span>
                                     </div>
                                     <Progress value={completionPercentage} className="h-2 rounded-full bg-gray-100" indicatorClassName={cn("rounded-full", "bg-primary")} />
                                     {completionPercentage < 100 && (
@@ -212,108 +192,71 @@ export default function TutorDashboardPage() {
                                 </div>
                             </div>
                         </div>
-                        
-                        <div className="flex flex-col sm:flex-row gap-4 items-start w-full md:w-auto">
-                            <div className="bg-secondary rounded p-4 w-full sm:w-auto sm:min-w-[200px]">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground tz-text-vsm">Current Plan</p>
-                                        <p className="font-semibold text-foreground text-sm">Business Pro</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5 tz-text-vsm">Expires on April 28, 2025</p>
-                                    </div>
-                                    <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
-                                        <Crown className="w-5 h-5" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto">
-                                <Button className={cn("bg-primary text-primary-foreground px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-button whitespace-nowrap w-full xs:w-auto hover:bg-primary/90")}>
-                                    Upgrade Plan
-                                </Button>
-                                <Button variant="outline" className={cn("border-border text-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-accent flex items-center gap-1.5 text-xs md:text-sm font-medium w-full xs:w-auto", "bg-card")}>
-                                    <div className="w-4 h-4 flex items-center justify-center">
-                                        <Share2 className="w-3 h-3 md:w-4 md:h-4" />
-                                    </div>
-                                    Share Link
-                                </Button>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
-                {/* Dashboard Metrics - Temporarily Hidden */}
-                {/*
-                <div className="mb-6 md:mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-3 md:mb-4">Key Metrics</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-                        {dashboardMetrics.map((metric, index) => (
-                            <div key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-xs sm:text-sm text-muted-foreground">{metric.title}</p>
-                                        <h3 className={cn("text-xl sm:text-2xl font-semibold mt-0.5", metric.iconColor)}>{metric.value}</h3>
-                                        {metric.trend && (
-                                            <div className={cn("flex items-center mt-1 text-xs", metric.trendColor || "text-green-600")}>
-                                                {metric.TrendIconEl && <metric.TrendIconEl className="w-3 h-3" />}
-                                                <span className="font-medium ml-0.5">{metric.trend}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", metric.iconBg, metric.iconColor)}>
-                                        <metric.IconEl className="w-5 h-5" />
+                {/* Dashboard Metrics Simplified */}
+                {dashboardMetrics.length > 0 && (
+                    <div className="mb-6 md:mb-8">
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Dashboard Metrics</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                            {dashboardMetrics.map((metric, index) => (
+                                <div key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="text-xs sm:text-sm text-muted-foreground">{metric.title}</p>
+                                            <h3 className={cn("text-xl sm:text-2xl font-semibold mt-0.5", metric.iconColor)}>{metric.value}</h3>
+                                            {metric.trend && (
+                                                <div className={cn("flex items-center mt-1 text-xs", metric.trendColor || "text-green-600")}>
+                                                    {metric.TrendIconEl && <metric.TrendIconEl className="w-3 h-3" />}
+                                                    <span className="font-medium ml-0.5">{metric.trend}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", metric.iconBg, metric.iconColor)}>
+                                            <metric.IconEl className="w-5 h-5" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-                */}
+                )}
 
-                {/* Upcoming Sessions Section - Temporarily Hidden */}
-                {/*
-                {upcomingSessions.length > 0 && (
+                {/* Upcoming Sessions Simplified */}
+                 {upcomingSessions.length > 0 && (
                     <div className="mb-6 md:mb-8">
-                        <h2 className="text-lg font-semibold text-foreground mb-3 md:mb-4">Upcoming Sessions</h2>
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Upcoming Sessions</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                            {upcomingSessions.slice(0, 3).map((session) => (
+                            {upcomingSessions.map((session, index) => (
                                 <UpcomingSessionCard
-                                    key={`${session.type}-${session.data.id}`}
+                                    key={`${session.type}-${session.data.id}-${index}`}
                                     sessionDetails={session}
                                     onUpdateSession={(updatedDemo) => console.log("Update Demo (mock):", updatedDemo)}
                                     onCancelSession={(sessionId) => console.log("Cancel Demo (mock):", sessionId)}
                                 />
                             ))}
                         </div>
-                        {upcomingSessions.length > 3 && (
-                            <div className="text-center mt-4">
-                                <Button variant="link" asChild className="text-primary hover:text-primary/90 text-sm">
-                                    <Link href="/dashboard/tutor/demo-sessions">View All Sessions <ArrowRight className="ml-1.5 h-3.5 w-3.5"/></Link>
-                                </Button>
-                            </div>
-                        )}
                     </div>
                 )}
-                {upcomingSessions.length === 0 && (
+                 {upcomingSessions.length === 0 && (
                      <div className="mb-6 md:mb-8 p-6 bg-card rounded-xl shadow-lg text-center border-0">
-                        <h2 className="text-lg font-semibold text-foreground mb-3">Upcoming Sessions</h2>
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3">Upcoming Sessions</h2>
                         <p className="text-sm text-muted-foreground">No upcoming sessions scheduled yet.</p>
                     </div>
                 )}
-                */}
-
-                {/* Quick Actions Section - Temporarily Hidden */}
-                {/*
-                <div className="mb-6 md:mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-3 md:mb-4">Quick Actions</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                    {quickActions.map((action) => (
-                        <QuickActionCard key={action.title} {...action} />
-                    ))}
+                
+                {/* Quick Actions Simplified */}
+                {quickActions.length > 0 && (
+                    <div className="mb-6 md:mb-8">
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                        {quickActions.map((action) => (
+                            <QuickActionCard key={action.title} {...action} />
+                        ))}
+                        </div>
                     </div>
-                </div>
-                */}
-                <p className="text-center text-muted-foreground">Dashboard sections (Metrics, Upcoming Sessions, Quick Actions) are temporarily hidden for debugging.</p>
-
+                )}
             </div>
         </main>
   );
