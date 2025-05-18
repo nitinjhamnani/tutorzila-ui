@@ -19,21 +19,27 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Briefcase,
-  CalendarDays,
+  DollarSign,
   UserCircle,
   LogOut,
   Settings as SettingsIcon,
-  MessageSquareQuote,
+  Menu,
   School,
-  DollarSign,
-  Menu as MenuIcon, // Alias Menu for clarity
+  CalendarDays,
+  MessageSquare,
+  HomeIcon as HomeIconLucide,
+  Users as UsersIconLucide,
+  BookOpen,
+  BarChart2,
+  SearchCheck,
+  MessageSquareQuote,
 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
-// TutorDashboardHeader import removed
+// TutorDashboardHeader component and its import are removed
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -42,22 +48,21 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!isCheckingAuth) {
-      if (!isAuthenticated || user?.role !== 'tutor') {
-        router.replace("/");
-      }
+    if (isCheckingAuth) {
+      return;
+    }
+    if (!isAuthenticated || user?.role !== 'tutor') {
+      router.replace("/");
     }
   }, [isAuthenticated, isCheckingAuth, router, user]);
 
-  // Effect to set CSS variable for header height is removed as TutorDashboardHeader is removed
   useEffect(() => {
-    // No header, so set header height to 0
+    // When TutorDashboardHeader is removed, set header height to 0 for padding calculations
     document.documentElement.style.setProperty('--header-height', '0px');
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px'); // Cleanup
     };
   }, []);
-
 
   if (isCheckingAuth || !user || user.role !== 'tutor') {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
@@ -66,9 +71,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote }, // Changed icon from CalendarDays
-    { href: "/tutor/classes", label: "Classes", icon: School },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote },
+    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
+    { href: "/tutor/messages", label: "Messages", icon: MessageSquare, disabled: true },
   ];
 
   const accountSettingsNavItems = [
@@ -77,9 +83,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  // Calculate padding for sidebar and main content based only on verification banner
-  const paddingTopClass = "pt-[var(--verification-banner-height,0px)]";
-
+  const paddingTopClass = "pt-[var(--verification-banner-height,0px)]"; // Only accounts for verification banner now
 
   return (
     <>
@@ -90,14 +94,15 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            paddingTopClass // Only accounts for verification banner now
+            paddingTopClass
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-            {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
+            <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
-                {/* SidebarTrigger for desktop collapse/expand - This button itself uses MenuIcon */}
-                {!isMobile && <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors"><MenuIcon className="h-5 w-5"/></SidebarMenuButton>}
+              <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors">
+                <Menu className="h-5 w-5" />
+              </SidebarMenuButton>
             </div>
           </SidebarHeader>
 
@@ -133,61 +138,59 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           <SidebarFooter className="p-2 border-t border-border/50 mt-auto">
             <SidebarMenu>
               {accountSettingsNavItems.map((item) => {
-                 const isActive = item.href ? pathname === item.href : false;
+                const isActive = item.href ? pathname === item.href : false;
                 return (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive}
-                    tooltip={{ children: item.label, className: "ml-1.5 text-xs" }}
-                    disabled={item.disabled}
-                    className={cn(
-                      "transition-all duration-200 group h-10 text-sm font-medium",
-                      item.disabled && "opacity-50 cursor-not-allowed",
-                      isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground",
-                       "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90",
-                       "group-data-[collapsible=icon]:justify-center"
-                    )}
-                  >
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={{ children: item.label, className: "ml-1.5 text-xs" }}
+                      disabled={item.disabled}
+                      className={cn(
+                        "transition-all duration-200 group h-10 text-sm font-medium",
+                        item.disabled && "opacity-50 cursor-not-allowed",
+                        isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground",
+                        "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90",
+                        "group-data-[collapsible=icon]:justify-center"
+                      )}
+                    >
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive && "text-primary-foreground")} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 );
               })}
-                <SidebarMenuItem key={logoutNavItem.label}>
-                  <SidebarMenuButton
-                    onClick={logoutNavItem.onClick}
-                    tooltip={{ children: logoutNavItem.label, className: "ml-1.5 text-xs" }}
-                    className={cn(
-                        "transition-all duration-200 group h-10 text-sm font-medium",
-                        "text-destructive hover:text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive",
-                        "group-data-[collapsible=icon]:justify-center"
-                    )}
-                    >
-                     <div className="flex items-center gap-2.5 w-full">
-                        <logoutNavItem.icon className="transition-transform duration-200 group-hover:scale-110" />
-                        <span className="group-data-[collapsible=icon]:hidden">{logoutNavItem.label}</span>
-                      </div>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
+              <SidebarMenuItem key={logoutNavItem.label}>
+                <SidebarMenuButton
+                  onClick={logoutNavItem.onClick}
+                  tooltip={{ children: logoutNavItem.label, className: "ml-1.5 text-xs" }}
+                  className={cn(
+                    "transition-all duration-200 group h-10 text-sm font-medium",
+                    "text-destructive hover:text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive",
+                    "group-data-[collapsible=icon]:justify-center"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5 w-full">
+                    <logoutNavItem.icon className="transition-transform duration-200 group-hover:scale-110" />
+                    <span className="group-data-[collapsible=icon]:hidden">{logoutNavItem.label}</span>
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
 
         <SidebarInset className={cn(
-            "flex-1 pb-4 md:pb-6 bg-gray-50 overflow-y-auto", 
-             paddingTopClass // Only accounts for verification banner now
-          )}>
-            <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
-                {children}
-            </div>
-          </SidebarInset>
-        
+          "flex-1 pb-4 md:pb-6 bg-secondary overflow-y-auto", // Changed bg-gray-50 to bg-secondary
+          paddingTopClass
+        )}>
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+            {children}
+          </div>
+        </SidebarInset>
       </SidebarProvider>
     </>
   );
 }
-
