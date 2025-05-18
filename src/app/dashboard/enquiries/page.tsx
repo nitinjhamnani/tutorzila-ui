@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
 import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, FilterIcon as LucideFilterIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -80,8 +80,8 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 w-full">
-        <Card className="bg-card rounded-none shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8"> {/* Matched tutor dashboard content wrapper */}
+        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0"> {/* Adjusted padding */}
           <CardHeader className="p-0 mb-4">
             <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
               <SearchIcon className="w-5 h-5 mr-2.5"/>
@@ -102,7 +102,7 @@ export default function AllEnquiriesPage() {
             <Button
               variant="outline"
               size="sm"
-              className="w-full sm:w-auto border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
+              className="w-full sm:w-auto border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4"
               onClick={() => console.log("Filter button clicked")}
             >
               <LucideFilterIcon className="w-4 h-4" />
@@ -149,3 +149,4 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
+
