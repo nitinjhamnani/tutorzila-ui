@@ -4,12 +4,13 @@
 import { useEffect, useState, useRef, type ChangeEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // Added import
+import { useRouter } from "next/navigation";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import type { TutorProfile, DemoSession } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
@@ -52,13 +53,13 @@ import {
   Crown,
   Share2,
   Bell,
-  MessageSquare,
-  ArrowRight,
-  Menu
+  Menu,
+  MailCheck,
+  PhoneCall,
+  MessageSquare
 } from "lucide-react";
+// import logoAsset from '@/assets/images/logo.png'; // Not used in this header structure
 
-
-// Helper component for MetricCard
 interface MetricCardProps {
   title: string;
   value: string;
@@ -68,20 +69,18 @@ interface MetricCardProps {
   iconColor: string;
   trendColor?: string;
   TrendIconEl?: React.ElementType;
-  isProgress?: boolean;
-  progressValue?: number;
 }
 
-function MetricCard({ title, value, trend, IconEl, iconBg, iconColor, trendColor, TrendIconEl, isProgress = false, progressValue = 0 }: MetricCardProps) {
+function MetricCard({ title, value, trend, IconEl, iconBg, iconColor, trendColor, TrendIconEl }: MetricCardProps) {
   return (
-    <div className="bg-card rounded-none shadow-lg p-3 md:p-4 border-0"> {/* Reduced padding */}
+    <div className="bg-card rounded-none shadow-lg p-3 md:p-4 border-0">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs text-muted-foreground">{title}</p>
-          <h3 className={cn("text-lg md:text-xl font-semibold mt-0.5", iconColor)}>{value}</h3> {/* Reduced font size & margin */}
+          <h3 className={cn("text-xl md:text-2xl font-semibold mt-0.5", iconColor)}>{value}</h3>
           {trend && TrendIconEl && (
-            <div className={cn("flex items-center mt-0.5 text-xs", trendColor || "text-green-600")}> {/* Reduced margin & font size */}
-              <TrendIconEl className="w-3 h-3" /> {/* Reduced icon size */}
+            <div className={cn("flex items-center mt-0.5 text-xs", trendColor || "text-green-600")}>
+              <TrendIconEl className="w-3 h-3" />
               <span className={cn("font-medium ml-0.5")}>{trend}</span>
             </div>
           )}
@@ -89,34 +88,27 @@ function MetricCard({ title, value, trend, IconEl, iconBg, iconColor, trendColor
              <span className={cn("text-xs font-medium mt-0.5 block", trendColor || "text-green-600")}>{trend}</span>
           )}
         </div>
-        <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", iconBg, iconColor)}> {/* Reduced icon container size */}
-          <IconEl className="w-4 h-4" /> {/* Reduced icon size */}
+        <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", iconBg, iconColor)}>
+          <IconEl className="w-4 h-4" />
         </div>
       </div>
-      {isProgress && (
-        <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden"> {/* Reduced margin & height */}
-          <Progress value={progressValue} className="h-1" indicatorClassName="bg-primary" />
-        </div>
-      )}
     </div>
   );
 }
 
-
-// Helper component for QuickActionCard
 interface QuickActionCardProps {
   title: string;
   description: string;
   IconEl: React.ElementType;
-  iconBg: string;
-  iconTextColor: string;
   href: string;
   disabled?: boolean;
+  iconBg?: string;
+  iconTextColor?: string;
 }
 
-function QuickActionCard({ title, description, IconEl, iconBg, iconTextColor, href, disabled }: QuickActionCardProps) {
+function QuickActionCard({ title, description, IconEl, href, disabled, iconBg = "bg-primary/10", iconTextColor = "text-primary" }: QuickActionCardProps) {
   const cardContent = (
-    <div className="bg-card rounded-none shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
+    <div className={cn("bg-card rounded-none shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1")}>
       <div>
         <div className={cn("w-12 h-12 flex items-center justify-center rounded-lg mb-4", iconBg, iconTextColor)}>
           <IconEl className="w-6 h-6" />
@@ -148,17 +140,22 @@ export default function TutorDashboardPage() {
   const tutorUser = user as TutorProfile | null;
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [mockDaysLeft, setMockDaysLeft] = useState(23); // Kept static for now, as per snippet
+  const [mockDaysLeft, setMockDaysLeft] = useState(23); 
   const [demoSessions, setDemoSessions] = useState<DemoSession[]>([]);
-  const isMobile = useIsMobile(); // For mobile-specific UI like SidebarTrigger
+  const isMobile = useIsMobile();
 
+  useEffect(() => {
+    if (!isCheckingAuth) {
+      if (!isAuthenticated || !tutorUser || tutorUser.role !== 'tutor') {
+        router.replace("/");
+      }
+    }
+  }, [isAuthenticated, tutorUser, isCheckingAuth, router]);
 
-  // Single effect for all initializations based on tutorUser
   useEffect(() => {
     if (tutorUser) {
-      // Profile Completion
       let completedFields = 0;
-      const totalFields = 5; // Adjust if more fields are tracked
+      const totalFields = 5; 
       if (tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh')) completedFields++;
       if (tutorUser.subjects && tutorUser.subjects.length > 0) completedFields++;
       if (tutorUser.bio && tutorUser.bio.trim() !== "") completedFields++;
@@ -166,22 +163,12 @@ export default function TutorDashboardPage() {
       if (tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== "") completedFields++;
       setCompletionPercentage(Math.round((completedFields / totalFields) * 100));
 
-      // Demo Sessions
       const userDemos = MOCK_DEMO_SESSIONS.filter(
-        (demo) => demo.tutorName === tutorUser.name && demo.status === "Scheduled"
+        (demo) => (demo.tutorName === tutorUser.name || demo.tutorId === tutorUser.id) && demo.status === "Scheduled"
       );
       setDemoSessions(userDemos);
     }
   }, [tutorUser]);
-
-
-  useEffect(() => {
-    if (!isCheckingAuth) {
-      if (!isAuthenticated || !user || user.role !== 'tutor') {
-        router.replace("/"); // Redirect to home if not an authenticated tutor
-      }
-    }
-  }, [isAuthenticated, user, isCheckingAuth, router]);
 
   if (isCheckingAuth || !isAuthenticated || !tutorUser) {
     return <div className="flex min-h-screen items-center justify-center p-4 text-muted-foreground">Loading Tutor Dashboard...</div>;
@@ -195,7 +182,6 @@ export default function TutorDashboardPage() {
     const file = event.target.files?.[0];
     if (file) {
       toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
-      // Here you would normally upload the file and update user.avatar
     }
   };
   
@@ -219,129 +205,134 @@ export default function TutorDashboardPage() {
      { title: "Settings", description: "Adjust account preferences.", IconEl: SettingsIcon, href: "/dashboard/settings", disabled: true, iconBg:"bg-muted/50", iconTextColor: "text-muted-foreground" },
    ];
 
+
   return (
-    <div className="flex-grow"> {/* Removed p-4 md:p-8 as it's on the layout now */}
-        <main className="flex-grow">
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-                {/* Welcome Section */}
-                <div className="bg-card rounded-none shadow-none p-6 md:p-8 mb-6 md:mb-8 border-0">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                             <div className="relative group shrink-0">
-                                <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                                  <AvatarImage src={tutorUser.avatar || `https://avatar.vercel.sh/${tutorUser.email}.png`} alt={tutorUser.name} />
-                                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
-                                    {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <button
-                                  onClick={handleAvatarUploadClick}
-                                  className={cn(
-                                    "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
-                                    "bg-primary/20 hover:bg-primary/30"
-                                  )}
-                                  aria-label="Update profile picture"
-                                >
-                                  <Camera className={cn("w-3 h-3 md:w-3.5 md:h-3.5", "text-primary")} />
-                                </button>
-                                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-                            </div>
-                            <div>
-                                <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
-                                <p className="text-gray-600 mt-1 tz-text-vsm">Welcome back to your dashboard</p>
-                                
-                                <div className="mt-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs text-gray-600 tz-text-vsm">Setup progress</span>
-                                        <span className="text-xs font-medium text-primary">{completionPercentage}%</span>
-                                    </div>
-                                    <Progress value={completionPercentage} className="h-2 rounded-full bg-gray-100" indicatorClassName="bg-primary rounded-full" />
-                                     {completionPercentage < 100 && (
-                                        <Link href="/dashboard/tutor/edit-personal-details" className={cn("mt-1 block hover:underline tz-text-vsm font-medium", "text-primary")}>
-                                            Complete Your Profile
-                                        </Link>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        
-                         <div className="flex flex-col sm:flex-row gap-4 items-start">
-                            <div className="bg-secondary rounded-lg p-4 w-full sm:w-auto sm:min-w-[200px]">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground tz-text-vsm">Current Plan</p>
-                                        <p className="font-semibold text-foreground text-sm">Business Pro</p>
-                                        <p className="text-xs text-muted-foreground mt-1 tz-text-vsm">Expires on April 28, 2025</p>
-                                    </div>
-                                    <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
-                                        <Crown className="w-4 h-4 md:w-5 md:h-5" />
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap xs:flex-nowrap gap-3 w-full sm:w-auto">
-                                <Button className={cn("bg-primary text-white px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-button whitespace-nowrap w-full xs:w-auto hover:bg-primary/90")}>
-                                    Upgrade Plan
-                                </Button>
-                                <Button variant="outline" className={cn("border-gray-200 text-gray-700 px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-gray-50 flex items-center gap-1.5 text-xs md:text-sm font-medium w-full xs:w-auto", "bg-card")}>
-                                    <div className="w-4 h-4 flex items-center justify-center">
-                                        <Share2 className="w-3 h-3 md:w-4 md:h-4" />
-                                    </div>
-                                    Share Link
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                {/* Dashboard Metrics */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5 mb-6 md:mb-8">
-                  {dashboardMetrics.map((metric, index) => (
-                     <MetricCard key={index} {...metric} />
-                  ))}
-                </div>
-                                
-                {/* Upcoming Tuition Demos - Only if there are sessions */}
-                {demoSessions.length > 0 && (
-                <div className="mb-6 md:mb-8">
-                    <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4 md:mb-5">Upcoming Tuition Demos</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-                    {demoSessions.slice(0, 3).map((demo) => (
-                        <DemoSessionCard
-                        key={demo.id}
-                        demo={demo}
-                        onUpdateSession={(updatedDemo) => {
-                            setDemoSessions(prev => prev.map(d => d.id === updatedDemo.id ? updatedDemo : d));
-                            console.log("Demo updated (mock):", updatedDemo);
-                        }}
-                        onCancelSession={(sessionId) => {
-                            setDemoSessions(prev => prev.map(d => d.id === sessionId ? {...d, status: "Cancelled"} : d));
-                            console.log("Demo cancelled (mock):", sessionId);
-                        }}
-                        />
-                    ))}
-                    </div>
-                    {demoSessions.length > 3 && (
-                        <div className="text-center mt-4">
-                        <Button variant="link" asChild className="text-primary hover:text-primary/90 text-sm">
-                            <Link href="/dashboard/demo-sessions">View All Demos <ArrowRight className="ml-1.5 h-3.5 w-3.5"/></Link>
-                        </Button>
-                        </div>
+    <div className="flex-grow"> {/* Removed padding as it's handled by SidebarInset from layout */}
+      {/* Local Header specific to this dashboard - Intentionally removed as per previous steps */}
+      
+      <main className="flex-grow"> {/* Main content area */}
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8"> {/* Container with padding */}
+          {/* Welcome Section */}
+          <div className="bg-card rounded-none shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6"> {/* Changed to md:items-start */}
+              <div className="flex items-center gap-4">
+                <div className="relative group shrink-0">
+                  <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
+                    <AvatarImage src={tutorUser.avatar || `https://avatar.vercel.sh/${tutorUser.email}.png`} alt={tutorUser.name} />
+                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
+                      {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    onClick={handleAvatarUploadClick}
+                    className={cn(
+                      "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
+                      "bg-primary/20 hover:bg-primary/30"
                     )}
+                    aria-label="Update profile picture"
+                  >
+                    <Camera className={cn("w-3 h-3 md:w-3.5 md:h-3.5", "text-primary")} />
+                  </button>
+                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                 </div>
-                )}
-                
-                {/* Quick Actions */}
-                <div className="mb-6 md:mb-8">
-                  <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4 md:mb-5">Quick Actions</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                  {quickActions.map((action, index) => (
-                    <QuickActionCard key={index} {...action} />
-                  ))}
+                <div>
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
+                  <p className="text-xs text-gray-600 mt-1 tz-text-vsm">Welcome back to your dashboard</p>
+                  
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-600 tz-text-vsm">Setup progress</span>
+                      <span className={cn("text-xs font-medium tz-text-vsm", "text-primary")}>{completionPercentage}%</span>
+                    </div>
+                    <Progress value={completionPercentage} className="h-2 rounded-full bg-gray-100" indicatorClassName={cn("rounded-full", "bg-primary")} />
+                     {completionPercentage < 100 && (
+                        <Link href="/dashboard/tutor/edit-personal-details" className={cn("mt-1 block hover:underline tz-text-vsm font-medium", "text-primary")}>
+                            Complete Your Profile
+                        </Link>
+                    )}
                   </div>
                 </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 items-start"> {/* Changed to items-start */}
+                <div className="bg-secondary rounded p-4 w-full sm:w-auto sm:min-w-[200px]"> {/* Current Plan Card */}
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground tz-text-vsm">Current Plan</p>
+                      <p className="font-semibold text-foreground text-sm">Business Pro</p>
+                      <p className="text-xs text-muted-foreground mt-1 tz-text-vsm">Expires on April 28, 2025</p>
+                    </div>
+                    <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
+                        <Crown className="w-4 h-4 md:w-5 md:h-5" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap xs:flex-nowrap gap-3 w-full sm:w-auto">
+                  <Button className={cn("bg-primary text-white px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-button whitespace-nowrap w-full xs:w-auto hover:bg-primary/90")}>
+                      Upgrade Plan
+                  </Button>
+                  <Button variant="outline" className={cn("border-gray-200 text-gray-700 px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-gray-50 flex items-center gap-1.5 text-xs md:text-sm font-medium w-full xs:w-auto", "bg-card")}>
+                    <div className="w-4 h-4 flex items-center justify-center">
+                        <Share2 className="w-3 h-3 md:w-4 md:h-4" />
+                    </div>
+                    Share Link
+                  </Button>
+                </div>
+              </div>
             </div>
-        </main>
+          </div>
+          
+          {/* Dashboard Metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5 mb-6 md:mb-8">
+            {dashboardMetrics.map((metric, index) => (
+               <MetricCard key={index} {...metric} />
+            ))}
+          </div>
+                            
+          {/* Upcoming Tuition Demos - Only if there are sessions */}
+          {demoSessions.length > 0 && (
+            <div className="mb-6 md:mb-8">
+                <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4 md:mb-5">Upcoming Tuition Demos</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                {demoSessions.slice(0, 3).map((demo) => (
+                    <DemoSessionCard
+                    key={demo.id}
+                    demo={demo}
+                    onUpdateSession={(updatedDemo) => {
+                        setDemoSessions(prev => prev.map(d => d.id === updatedDemo.id ? updatedDemo : d));
+                        console.log("Demo updated (mock):", updatedDemo);
+                    }}
+                    onCancelSession={(sessionId) => {
+                        setDemoSessions(prev => prev.map(d => d.id === sessionId ? {...d, status: "Cancelled"} : d));
+                        console.log("Demo cancelled (mock):", sessionId);
+                    }}
+                    />
+                ))}
+                </div>
+                {demoSessions.length > 3 && (
+                    <div className="text-center mt-4">
+                    <Button variant="link" asChild className="text-primary hover:text-primary/90 text-sm">
+                        <Link href="/dashboard/demo-sessions">View All Demos <ArrowRight className="ml-1.5 h-3.5 w-3.5"/></Link>
+                    </Button>
+                    </div>
+                )}
+            </div>
+          )}
+          
+          {/* Quick Actions */}
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4 md:mb-5">Quick Actions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            {quickActions.map((action, index) => (
+              <QuickActionCard key={index} {...action} />
+            ))}
+            </div>
+          </div>
+        </div>
+      </main>
+      {/* Footer specific to this dashboard - Intentionally removed */}
     </div>
   );
 }
+

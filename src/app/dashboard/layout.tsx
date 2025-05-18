@@ -18,28 +18,27 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit, MessageSquare } from "lucide-react";
-import { Logo } from "@/components/shared/Logo";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-// AppHeader import removed as it's no longer used directly in this layout for all roles
+import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
+import { VerificationBanner } from "@/components/shared/VerificationBanner"; // Ensure VerificationBanner is imported
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { user, logout, isAuthenticated } = useAuthMock();
+  const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock(); // Added isCheckingAuth
   const router = useRouter();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  // const [isCheckingAuth, setIsCheckingAuth] = useState(true); // Already provided by useAuthMock
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isCheckingAuth && !isAuthenticated) {
       router.push("/");
-    } else {
-      setIsCheckingAuth(false);
     }
-  }, [isAuthenticated, router]);
+    // Removed setIsCheckingAuth(false) as it's handled by useAuthMock
+  }, [isAuthenticated, isCheckingAuth, router]);
 
   if (isCheckingAuth || !user) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
@@ -58,14 +57,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
-    // { href: "/dashboard/my-calendar", label: "My Calendar", icon: CalendarDays, disabled: false }, // Calendar removed
     { href: "/dashboard/manage-students", label: "Student Profiles", icon: School, disabled: false },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
   ];
 
   const tutorNavItems = [
-    // "/dashboard/enquiries" is handled by dashboardHomeHref for tutors
-    { href: "/dashboard/enquiries", label: "My Enquiries", icon: Briefcase },
+    // "/dashboard/enquiries" is handled by dashboardHomeHref if it's the same
+    // Only add if dashboardHomeHref is different
+    ...(dashboardHomeHref !== "/dashboard/enquiries" ? [{ href: "/dashboard/enquiries", label: "My Enquiries", icon: Briefcase }] : []),
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
@@ -95,30 +94,49 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true },
     { label: "Log Out", icon: LogOut, onClick: logout },
   ];
-  
-  // The shared AppHeader is no longer rendered here for any dashboard user.
-  // Specific dashboard layouts/pages (like tutor's) will implement their own headers if needed.
+
+  const tutorHeaderPaths = [
+    '/dashboard/tutor',
+    '/dashboard/enquiries',
+    '/dashboard/my-classes',
+    '/dashboard/payments',
+    '/dashboard/demo-sessions',
+    '/dashboard/my-account',
+    '/dashboard/tutor/edit-personal-details',
+    '/dashboard/tutor/edit-tutoring-details'
+  ];
+  const showTutorHeader = isAuthenticated && user?.role === 'tutor' && tutorHeaderPaths.includes(pathname);
+  const showAppHeader = !isAuthenticated || (user && user.role !== 'tutor' && !pathname.startsWith('/dashboard'));
+
 
   return (
     <>
-      {/* AppHeader is removed from here */}
+      {/* Global Verification Banner - Always rendered if conditions met within it */}
+      <VerificationBanner /> 
+      
       <SidebarProvider defaultOpen={!isMobile}>
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
-          className="border-r pt-[var(--verification-banner-height,0px)] bg-card shadow-md flex flex-col"
+          className={cn(
+            "border-r bg-card shadow-md flex flex-col",
+             // Adjust top padding based on whether TutorDashboardHeader is shown or not
+            showTutorHeader ? "pt-0" : "pt-[var(--verification-banner-height,0px)]" 
+          )}
         >
-          <SidebarHeader className={cn(
-            "p-4 border-b border-border/50",
-            isMobile ? "pt-4 pb-2" : "pt-4 pb-2"
-          )}>
-            <div className={cn(
-              "flex items-center w-full",
-              isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center"
-            )}
-            >
-              <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors" />
-            </div>
-          </SidebarHeader>
+          {!showTutorHeader && ( // Only show this sidebar header if TutorDashboardHeader is NOT shown
+            <SidebarHeader className={cn(
+              "p-4 border-b border-border/50",
+              isMobile ? "pt-4 pb-2" : "pt-4 pb-2"
+            )}>
+              <div className={cn(
+                "flex items-center w-full",
+                isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center"
+              )}
+              >
+                <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors" />
+              </div>
+            </SidebarHeader>
+          )}
           <SidebarContent className="flex-grow">
             <SidebarMenu>
               {mainNavItems.map((item) => {
@@ -190,11 +208,26 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="pb-4 md:pb-6 bg-background pt-[var(--verification-banner-height,0px)] overflow-x-hidden"> 
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
-            {children}
-          </div>
-        </SidebarInset>
+        
+        <div className="flex flex-col flex-1">
+          {showTutorHeader && (
+            <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
+              <TutorDashboardHeader />
+            </div>
+          )}
+          <SidebarInset className={cn(
+            "pb-4 md:pb-6 bg-background overflow-x-hidden",
+            // Dynamic top padding based on whether TutorDashboardHeader is shown
+            showTutorHeader 
+              ? "pt-[calc(var(--verification-banner-height,0px)_+_0rem)]" // No extra padding if tutor header is there, header itself has padding
+              : "pt-[var(--verification-banner-height,0px)]"
+          )}> 
+            <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+              {children}
+            </div>
+          </SidebarInset>
+        </div>
+
       </SidebarProvider>
     </>
   );
