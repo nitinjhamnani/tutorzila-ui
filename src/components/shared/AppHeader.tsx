@@ -7,15 +7,15 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle as SheetTitleComponent,
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict with local SheetTitle
   SheetTrigger
 } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger as ShadDialogTrigger,
+  DialogTitle, // This is the actual DialogTitle from the component
+  DialogTrigger as ShadDialogTrigger, // Aliased to avoid conflict
 } from "@/components/ui/dialog";
 import { Menu, LogIn, UserPlus, Search, HomeIcon } from "lucide-react";
 import { Logo } from "./Logo";
@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { SignInForm } from "@/components/auth/SignInForm";
-import { usePathname } from "next/navigation"; // Keep for scroll behavior based on path
+import { usePathname } from "next/navigation";
 
 export function AppHeader() {
   const pathname = usePathname();
@@ -39,7 +39,15 @@ export function AppHeader() {
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll();
+    handleScroll(); // Call on mount to set initial state
+
+    // Check for signin query param on mount
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('signin') === 'true') {
+        setSignInModalOpen(true);
+      }
+    }
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -48,20 +56,12 @@ export function AppHeader() {
 
   const headerClasses = cn(
     "sticky z-50 w-full transition-all duration-300 ease-in-out",
-    "top-[var(--verification-banner-height,0px)]",
+    "top-[var(--verification-banner-height,0px)]", // Adjust for verification banner
     isScrolled || pathname !== "/" ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
   );
 
-  const findTutorButtonClass = cn(
-    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
-    "border-primary text-primary hover:bg-primary/10",
-    (isScrolled || pathname !== "/") && "border-primary text-primary hover:bg-primary/10",
-    !(isScrolled || pathname !== "/") && "text-card hover:bg-card/20 border-card"
-  );
-
   const signInButtonClass = cn(
-    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg",
-    "bg-primary hover:bg-primary/90 text-primary-foreground"
+    "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg"
   );
   
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
@@ -80,12 +80,12 @@ export function AppHeader() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3">
-            <Button asChild variant="outline" className={findTutorButtonClass}>
+            <Button asChild variant="default" className={cn(signInButtonClass, "bg-transparent hover:bg-primary/10 text-primary border-primary border-2")}>
               <Link href="/search-tuitions">Find Tutors</Link>
             </Button>
             <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
               <ShadDialogTrigger asChild>
-                <Button className={signInButtonClass}>Sign In</Button>
+                <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>Sign In</Button>
               </ShadDialogTrigger>
               <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
                 <DialogHeader className="sr-only">
@@ -108,14 +108,14 @@ export function AppHeader() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col pt-[var(--verification-banner-height,0px)]">
                 <SheetHeader className="p-4 border-b">
-                  <SheetTitleComponent>
+                  <SheetTitleComponent> {/* Use aliased SheetTitleComponent */}
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                       <Logo className="h-[calc(var(--logo-height)_/_1.5)] w-auto" />
                     </Link>
                   </SheetTitleComponent>
                 </SheetHeader>
                 <div className="flex flex-col space-y-2 p-4 overflow-y-auto flex-grow">
-                  <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false) }}>
+                  <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false); router.push('/search-tuitions'); }}>
                     <Link href="/search-tuitions">
                       <Search className="h-5 w-5 text-primary" /> Find Tutors
                     </Link>
@@ -123,7 +123,7 @@ export function AppHeader() {
 
                   <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
                     setSignInModalOpen(isOpen);
-                    if (isOpen) setMobileMenuOpen(false);
+                    if (isOpen) setMobileMenuOpen(false); // Close mobile menu when dialog opens
                   }}>
                     <ShadDialogTrigger asChild>
                       <Button variant="ghost" className={mobileButtonClass}>
@@ -138,7 +138,7 @@ export function AppHeader() {
                     </DialogContent>
                   </Dialog>
 
-                  <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => setMobileMenuOpen(false)}>
+                  <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false); router.push('/sign-up'); }}>
                     <Link href="/sign-up">
                       <UserPlus className="h-5 w-5 text-primary" /> Sign Up
                     </Link>
