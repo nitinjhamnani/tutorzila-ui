@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
 import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, FilterIcon as LucideFilterIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -79,16 +79,16 @@ export default function AllEnquiriesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto w-full py-6 md:py-8"> {/* Removed px-4 md:px-6 and overflow-x-hidden */}
-      <Card className="mb-6 animate-in fade-in duration-500 ease-out shadow-md rounded-xl overflow-hidden w-full">
-        <CardHeader className="p-4"> {/* Adjusted padding */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 w-full"> 
+      <Card className="bg-card rounded-none shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0 animate-in fade-in duration-500 ease-out w-full">
+        <CardHeader className="p-0 mb-4">
           <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
             <SearchIcon className="w-5 h-5 mr-2.5"/>
             Search & Filter Enquiries
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 flex flex-col sm:flex-row items-center gap-3"> {/* Adjusted padding */}
-          <div className="relative w-full sm:flex-1 min-w-0"> {/* Search Input Wrapper */}
+        <CardContent className="p-0 flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative w-full sm:flex-1 min-w-0">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -101,7 +101,7 @@ export default function AllEnquiriesPage() {
           <Button 
             variant="outline" 
             className="w-full sm:w-auto text-sm py-2.5 px-5 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
-            onClick={() => console.log("Filter button clicked")} // Placeholder action
+            onClick={() => console.log("Filter button clicked")}
           >
             <LucideFilterIcon className="w-4 h-4" />
             Filter
@@ -146,6 +146,3 @@ export default function AllEnquiriesPage() {
     </div>
   );
 }
-
-
-    
