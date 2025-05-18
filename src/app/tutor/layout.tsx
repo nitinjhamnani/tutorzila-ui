@@ -16,12 +16,23 @@ import {
   SheetTitle,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Menu as MenuIcon, LayoutDashboard, Briefcase, CalendarDays, School, DollarSign, UserCircle, LogOut, Settings as SettingsIcon, MessageSquare, MessageSquareQuote } from "lucide-react";
+import { 
+  Menu as MenuIcon, 
+  LayoutDashboard, 
+  Briefcase, 
+  CalendarDays, 
+  School, 
+  DollarSign, 
+  UserCircle, 
+  LogOut, 
+  Settings as SettingsIcon,
+  MessageSquareQuote
+} from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
+// import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader"; // Commented out for debugging
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
@@ -39,9 +50,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }, [isAuthenticated, isCheckingAuth, router, user]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--header-height', '4rem'); 
+    // Header is removed for debugging, so set its height to 0
+    document.documentElement.style.setProperty('--header-height', '0px'); 
     return () => {
-      document.documentElement.style.setProperty('--header-height', '0px');
+      document.documentElement.style.setProperty('--header-height', '0px'); // Reset on unmount
     };
   }, []);
 
@@ -52,9 +64,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote }, // Changed from CalendarDays
+    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote },
     { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
-    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
+    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
   ];
 
   const accountSettingsNavItems = [
@@ -64,17 +76,20 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col"> {/* Ensure overall page background is gray-50 */}
+    <div className="bg-gray-50 min-h-screen flex flex-col">
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
+        {/* TutorDashboardHeader rendering removed for debugging
         <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
-          <TutorDashboardHeader />
+           <TutorDashboardHeader />
         </div>
+        */}
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
+             // Adjusted padding: only accounts for verification banner as header is removed
+            "pt-[var(--verification-banner-height,0px)]"
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
@@ -161,13 +176,14 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         </Sidebar>
 
         <SidebarInset className={cn(
-            "pb-4 md:pb-6 overflow-x-hidden", // Removed bg-gray-50, inherited from parent
-            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
+            "pb-4 md:pb-6 overflow-x-hidden", 
+             // Adjusted padding: only accounts for verification banner as header is removed
+            "pt-[var(--verification-banner-height,0px)]"
         )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
                 {children}
             </div>
-        </SidebarInset>
+          </SidebarInset>
       </SidebarProvider>
     </div>
   );
