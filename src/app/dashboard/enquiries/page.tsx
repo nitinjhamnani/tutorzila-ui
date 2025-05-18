@@ -6,8 +6,8 @@ import type { TuitionRequirement } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, Star, CheckCircle, FilterIcon as LucideFilterIcon, Bookmark, ListChecks, ChevronDown, Users as UsersIcon, Briefcase } from "lucide-react"; // Added Briefcase
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription as it's not used
+import { SearchIcon, XIcon, Star, CheckCircle, FilterIcon as LucideFilterIcon, Bookmark, ListChecks, ChevronDown, Users as UsersIcon, Briefcase } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
 const allEnquiryStatuses = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
 type EnquiryStatusCategory = typeof allEnquiryStatuses[number];
 
@@ -28,15 +27,14 @@ type EnquiryStatusCategory = typeof allEnquiryStatuses[number];
 export default function AllEnquiriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
-  const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>('Recommended'); // Default to Recommended
+  const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>('Recommended');
 
   useEffect(() => {
-    // Simulate fetching open requirements
     setRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open'));
   }, []);
 
   const categoryCounts = useMemo(() => {
-    const openRequirements = requirements; // Already filtered for open status
+    const openRequirements = requirements;
     return {
       "All Enquiries": openRequirements.length,
       "Recommended": openRequirements.filter(r => r.mockIsRecommended).length,
@@ -79,7 +77,6 @@ export default function AllEnquiriesPage() {
     if (activeFilterCategory === 'Shortlisted') {
       return filtered.filter(req => req.mockIsShortlistedByCurrentUser);
     }
-    // 'All Enquiries' category or default shows all search-matched open requirements
     return filtered;
   }, [searchTerm, requirements, activeFilterCategory]);
 
@@ -123,13 +120,13 @@ export default function AllEnquiriesPage() {
           <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
             <CardHeader className="p-0 mb-3 sm:mb-4">
               <CardTitle className="text-lg sm:text-xl font-semibold text-primary flex items-center break-words">
-                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/> {/* Changed icon to Briefcase */}
-                Manage Enquiries {/* Changed title */}
+                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
+                Manage Enquiries
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3 w-full sm:flex-1"> 
+                <div className="flex items-center gap-3 w-full sm:flex-grow sm:max-w-lg">
                   <div className="relative flex-1 min-w-0">
                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -140,7 +137,15 @@ export default function AllEnquiriesPage() {
                       className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
                     />
                   </div>
-                  {/* Removed main Filter Button as per previous request to simplify for this view */}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-11 w-11 shrink-0 sm:h-11 sm:w-auto sm:px-4 sm:py-3 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
+                    onClick={() => console.log("Main filter button clicked")}
+                  >
+                    <LucideFilterIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline text-sm">Filter</span>
+                  </Button>
                 </div>
 
                 <div className="w-full sm:w-auto">
@@ -151,11 +156,11 @@ export default function AllEnquiriesPage() {
                         className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-11"
                       >
                         <span className="text-primary-foreground">
-                          {selectedCategoryLabel} (
-                          {filterCategoriesForDropdown.find(
+                          {selectedCategoryLabel} ({
+                          filterCategoriesForDropdown.find(
                               (cat) => cat.value === activeFilterCategory
-                          )?.count || 0}
-                          )
+                          )?.count || 0
+                          })
                         </span>
                         <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
                       </Button>
@@ -168,7 +173,7 @@ export default function AllEnquiriesPage() {
                           key={category.value}
                           onClick={() => setActiveFilterCategory(category.value)}
                           className={cn(
-                            "text-sm", 
+                            "text-sm",
                             activeFilterCategory === category.value && "bg-primary text-primary-foreground"
                           )}
                         >
@@ -183,7 +188,6 @@ export default function AllEnquiriesPage() {
             </CardContent>
           </Card>
 
-          {/* Enquiry List */}
           <div className="mt-6">
             {renderEnquiryList(filteredRequirements)}
           </div>
