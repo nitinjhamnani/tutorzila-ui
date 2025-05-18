@@ -4,14 +4,12 @@
 import { useState, useMemo, useEffect } from "react";
 import type { TuitionRequirement } from "@/types";
 import { Input } from "@/components/ui/input";
-// Select components are removed as they were part of the filter panel
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, ChevronDown } from "lucide-react"; 
+import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, FilterIcon as LucideFilterIcon } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// Accordion components are removed
 import { cn } from "@/lib/utils";
 
 // Mock data - replace with API call in a real app
@@ -25,11 +23,8 @@ const MOCK_REQUIREMENTS: TuitionRequirement[] = [
   { id: "7", parentId: "p7", parentName: "Grace Hall", subject: ["Biology"], gradeLevel: "Grade 11-12", scheduleDetails: "Flexible Evening Hours", preferredDays: ["Flexible Evenings"], preferredTimeSlots: ["Evening Hours"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 6).toISOString(), additionalNotes: "Looking for an experienced biology tutor for IB curriculum.", board: "IB", teachingMode: ["Offline (In-person)"], applicantsCount: 7 },
 ];
 
-// Filter options are removed
-
 export default function AllEnquiriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  // State variables for specific filters are removed
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
   const [activeTab, setActiveTab] = useState("recommended");
 
@@ -52,8 +47,6 @@ export default function AllEnquiriesPage() {
       return matchesSearchTerm;
     });
   }, [searchTerm, requirements]);
-
-  // resetFilters function is removed
 
   const tabCounts = {
     recommended: filteredRequirements.length, 
@@ -95,27 +88,41 @@ export default function AllEnquiriesPage() {
     );
   };
 
-  // filterPanelContent and FilterItem component are removed
-
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8"> 
-      {/* Mobile Filter Accordion Removed */}
-      {/* Desktop Filter Aside Panel Removed */}
-
-      {/* Search Bar - Kept for now */}
-      <div className="relative mb-6 animate-in fade-in duration-500 ease-out">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search by subject, grade, keywords..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2.5 text-sm bg-card border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
-          />
-      </div>
+      <Card className="mb-6 animate-in fade-in duration-500 ease-out shadow-md rounded-xl">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-semibold text-primary flex items-center">
+            <SearchIcon className="w-5 h-5 mr-2.5"/>
+            Search & Filter Enquiries
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Find relevant tuition opportunities.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-grow w-full">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search by subject, grade, keywords..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
+              />
+          </div>
+          <Button 
+            variant="outline" 
+            className="w-full sm:w-auto text-sm shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
+            onClick={() => console.log("Filter button clicked")} // Placeholder action
+          >
+            <LucideFilterIcon className="w-4 h-4"/>
+            Filter
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Removed the <aside> filter panel */}
         <div className="flex-1 space-y-6 min-w-0"> 
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
              <ScrollArea className="w-full whitespace-nowrap pb-2">
@@ -154,5 +161,3 @@ export default function AllEnquiriesPage() {
     </div>
   );
 }
-
-// FilterItemProps and FilterItem component definition removed
