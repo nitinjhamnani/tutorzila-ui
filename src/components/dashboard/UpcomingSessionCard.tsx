@@ -68,17 +68,33 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
     }
   };
 
+  const isDemo = type === 'demo';
+
   return (
     <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
-      <Card className="bg-card border-0 rounded-none shadow-lg p-4 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5">
-        <CardHeader className="p-0 pb-3 bg-card border-b border-border/30">
+      <Card className={cn(
+        "w-full flex flex-col overflow-hidden h-full",
+        isDemo 
+          ? "bg-card border border-border/50 rounded-lg shadow-md" 
+          : "bg-card border-0 rounded-none shadow-lg p-4 transform hover:-translate-y-0.5" 
+      )}>
+        <CardHeader className={cn(
+          "pb-3 border-b",
+          isDemo ? "bg-muted/30 p-3 sm:p-4 border-border/50" : "p-0 bg-card border-border/30"
+        )}>
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <Badge variant="outline" className={cn("text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full", type === 'demo' ? "bg-purple-100 text-purple-700 border-purple-500/50" : "bg-teal-100 text-teal-700 border-teal-500/50")}>
-                {type === 'demo' ? "Demo" : "Class"}
+              <Badge variant="outline" className={cn(
+                "text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full", 
+                isDemo ? "bg-purple-100 text-purple-700 border-purple-500/50" : "bg-teal-100 text-teal-700 border-teal-500/50"
+              )}>
+                {isDemo ? "Demo" : "Class"}
               </Badge>
               <div className="flex-grow min-w-0">
-                <CardTitle className="text-xs sm:text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors line-clamp-1" title={title}>
+                <CardTitle className={cn(
+                  "font-semibold group-hover:text-primary/90 transition-colors line-clamp-1",
+                  isDemo ? "text-base text-primary" : "text-xs sm:text-sm text-primary"
+                  )} title={title}>
                   {title}
                 </CardTitle>
                 <CardDescription className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 flex items-center">
@@ -96,9 +112,12 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="p-0 pt-3 space-y-1.5 text-xs flex-grow">
+        <CardContent className={cn(
+          "text-xs flex-grow",
+          isDemo ? "p-3 sm:p-4 space-y-2" : "p-0 pt-3 space-y-1.5"
+          )}>
           {mode && <InfoItem icon={mode === "Online" ? Video : UsersIcon} label="Mode" value={mode} />}
-          {type === 'demo' && (
+          {isDemo && (
             <>
               <InfoItem icon={GraduationCap} label="Grade" value={(data as DemoSession).gradeLevel} />
               <InfoItem icon={ShieldCheck} label="Board" value={(data as DemoSession).board} />
@@ -106,7 +125,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
               <InfoItem icon={ClockIcon} label="Time" value={`${(data as DemoSession).startTime} - ${(data as DemoSession).endTime}`} />
             </>
           )}
-          {type === 'class' && (
+          {!isDemo && (
             <>
               <InfoItem icon={CalendarDays} label="Schedule" value={(data as MyClass).schedule.days.join(', ')} />
               <InfoItem icon={ClockIcon} label="Time" value={(data as MyClass).schedule.time} />
@@ -115,30 +134,33 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
             </>
           )}
         </CardContent>
-        <CardFooter className="p-0 pt-3 border-t border-border/30 bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-end items-center gap-2">
-          {(type === 'demo' && (data as DemoSession).joinLink && (data as DemoSession).status === "Scheduled") || (type === 'class' && (data as MyClass).mode === "Online" && ((data as MyClass).status === "Ongoing" || (data as MyClass).status === "Upcoming")) ? (
+        <CardFooter className={cn(
+          "border-t flex justify-end items-center gap-2",
+          isDemo ? "bg-muted/30 p-3 sm:p-4 border-border/50" : "p-0 pt-3 border-border/30 bg-card/50 group-hover:bg-muted/20 transition-colors duration-300"
+          )}>
+          {(isDemo && (data as DemoSession).joinLink && (data as DemoSession).status === "Scheduled") || (!isDemo && (data as MyClass).mode === "Online" && ((data as MyClass).status === "Ongoing" || (data as MyClass).status === "Upcoming")) ? (
             <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
-              <Link href={type === 'demo' ? (data as DemoSession).joinLink || "#" : "#"} target="_blank" rel="noopener noreferrer">
-                <Video className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> {type === 'demo' ? "Join Demo" : "Join Class"}
+              <Link href={isDemo ? (data as DemoSession).joinLink || "#" : "#"} target="_blank" rel="noopener noreferrer">
+                <Video className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> {isDemo ? "Join Demo" : "Join Class"}
               </Link>
             </Button>
           ) : null }
           
-          {(type === 'demo' && (data as DemoSession).status === "Scheduled" && onUpdateSession && onCancelSession) && (
+          {(isDemo && (data as DemoSession).status === "Scheduled" && onUpdateSession && onCancelSession) && (
              <DialogTrigger asChild>
                 <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
                   <Settings className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Manage
                 </Button>
               </DialogTrigger>
           )}
-          {(type === 'class' && ((data as MyClass).status === "Ongoing" || (data as MyClass).status === "Upcoming")) && (
+          {(!isDemo && ((data as MyClass).status === "Ongoing" || (data as MyClass).status === "Upcoming")) && (
             <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary" onClick={() => console.log("Manage class:", data.id)}>
               <Settings className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Manage
             </Button>
           )}
         </CardFooter>
       </Card>
-      {type === 'demo' && onUpdateSession && onCancelSession && (
+      {isDemo && onUpdateSession && onCancelSession && (
         <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
             <ManageDemoModal
               demoSession={data as DemoSession}
@@ -172,3 +194,6 @@ function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
     </div>
   );
 }
+
+
+    
