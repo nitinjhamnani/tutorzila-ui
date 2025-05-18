@@ -1,12 +1,12 @@
-// src/app/dashboard/tutor/demo-sessions/page.tsx
+// src/app/tutor/demo-sessions/page.tsx
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDays, CheckCircle, ChevronDown, ListFilter, MessageSquareQuote, PlusCircle, XCircle, Clock, FilterIcon as LucideFilterIcon, Star } from "lucide-react";
-import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"; // Changed import
+import { Card, CardContent, CardHeader, CardTitle, CardDescription as ShadCNCardDescription } from "@/components/ui/card"; // Renamed CardDescription to avoid conflict
+import { CalendarDays, CheckCircle, ChevronDown, ListFilter, MessageSquareQuote, PlusCircle, XCircle, Clock, FilterIcon as LucideFilterIcon, Star, Users as UsersIcon, BookOpen, Search } from "lucide-react"; // Added Search
+import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -21,11 +21,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogTitleComponent, DialogDescription, DialogFooter } from "@/components/ui/dialog"; // Renamed DialogTitle
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogTitleComponent, DialogDescription as DialogDescriptionComponent, DialogFooter } from "@/components/ui/dialog"; // Renamed DialogTitle & DialogDescription
 import { Select, SelectContent as FormSelectContent, SelectItem as FormSelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select"; // Aliased imports
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // Ensure ScrollArea and ScrollBar are imported
 
-const allDemoStatuses = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
-type DemoStatusCategory = typeof allDemoStatuses[number];
+const allDemoStatusesForPage = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
+type DemoStatusCategory = typeof allDemoStatusesForPage[number];
 
 
 export default function TutorDemoSessionsPage() {
@@ -36,12 +39,11 @@ export default function TutorDemoSessionsPage() {
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("All Demos");
   
-  // State for search and detailed filters
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempDemoSubjectFilter, setTempDemoSubjectFilter] = useState("All");
   const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All");
-  const [tempDemoStatusFilters, setTempDemoStatusFilters] = useState<string[]>([]); // For checkbox multi-select
+  const [tempDemoStatusFilters, setTempDemoStatusFilters] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -58,35 +60,32 @@ export default function TutorDemoSessionsPage() {
   const uniqueDemoStudents = useMemo(() => ["All", ...new Set(allTutorDemos.map(d => d.studentName))], [allTutorDemos]);
   const availableDemoStatusesForFilterDialog = ["Scheduled", "Requested", "Completed", "Cancelled"];
 
-
   const categoryCounts = useMemo(() => {
-    const countFilteredDemos = (statusCategory?: DemoStatusCategory) => {
-        return allTutorDemos.filter(demo => {
-            const searchLower = searchTerm.toLowerCase();
-            const matchesSearch = searchTerm === "" ||
-                demo.subject.toLowerCase().includes(searchLower) ||
-                demo.studentName.toLowerCase().includes(searchLower);
+    const countFiltered = (statusCategory?: DemoStatusCategory) => {
+      return allTutorDemos.filter(demo => {
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = searchTerm === "" ||
+            demo.subject.toLowerCase().includes(searchLower) ||
+            demo.studentName.toLowerCase().includes(searchLower);
 
-            const detailedSubjectFilter = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
-            const detailedStudentFilter = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
-            const detailedStatusFilters = tempDemoStatusFilters.length === 0 || tempDemoStatusFilters.includes(demo.status);
-            
-            const matchesDetailedFilters = detailedSubjectFilter && detailedStudentFilter && detailedStatusFilters;
-            
-            const matchesCategoryTab = !statusCategory || statusCategory === "All Demos" || demo.status === statusCategory;
+        const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
+        const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
+        const detailedStatusFiltersMatch = tempDemoStatusFilters.length === 0 || tempDemoStatusFilters.includes(demo.status);
+        
+        const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch && detailedStatusFiltersMatch;
+        const matchesCategoryTab = !statusCategory || statusCategory === "All Demos" || demo.status === statusCategory;
 
-            return matchesSearch && matchesDetailedFilters && matchesCategoryTab;
-        }).length;
+        return matchesSearch && matchesDetailedFilters && matchesCategoryTab;
+      }).length;
     };
     return {
-      "All Demos": countFilteredDemos("All Demos"),
-      "Scheduled": countFilteredDemos("Scheduled"),
-      "Requested": countFilteredDemos("Requested"),
-      "Completed": countFilteredDemos("Completed"),
-      "Cancelled": countFilteredDemos("Cancelled"),
+      "All Demos": countFiltered("All Demos"),
+      "Scheduled": countFiltered("Scheduled"),
+      "Requested": countFiltered("Requested"),
+      "Completed": countFiltered("Completed"),
+      "Cancelled": countFiltered("Cancelled"),
     };
   }, [allTutorDemos, searchTerm, tempDemoSubjectFilter, tempDemoStudentFilter, tempDemoStatusFilters]);
-
 
   const filterCategoriesForDropdown: { label: DemoStatusCategory; value: DemoStatusCategory; icon: React.ElementType; count: number }[] = [
     { label: "All Demos", value: "All Demos", icon: ListFilter, count: categoryCounts["All Demos"] },
@@ -100,7 +99,6 @@ export default function TutorDemoSessionsPage() {
     return filterCategoriesForDropdown.find(cat => cat.value === activeDemoCategoryFilter)?.label || "All Demos";
   }, [activeDemoCategoryFilter, filterCategoriesForDropdown]);
 
-
   const filteredDemos = useMemo(() => {
     return allTutorDemos.filter(demo => {
         const searchLower = searchTerm.toLowerCase();
@@ -108,12 +106,11 @@ export default function TutorDemoSessionsPage() {
             demo.subject.toLowerCase().includes(searchLower) ||
             demo.studentName.toLowerCase().includes(searchLower);
 
-        const detailedSubjectFilter = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
-        const detailedStudentFilter = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
-        const detailedStatusFilters = tempDemoStatusFilters.length === 0 || tempDemoStatusFilters.includes(demo.status);
+        const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
+        const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
+        const detailedStatusFiltersMatch = tempDemoStatusFilters.length === 0 || tempDemoStatusFilters.includes(demo.status);
         
-        const matchesDetailedFilters = detailedSubjectFilter && detailedStudentFilter && detailedStatusFilters;
-
+        const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch && detailedStatusFiltersMatch;
         const matchesCategory = activeDemoCategoryFilter === "All Demos" || demo.status === activeDemoCategoryFilter;
         
         return matchesSearch && matchesDetailedFilters && matchesCategory;
@@ -129,8 +126,6 @@ export default function TutorDemoSessionsPage() {
   };
   
   const handleApplyDetailedFilters = () => {
-      // This function is now used to apply filters from the dialog
-      // The main filteredDemos useMemo will automatically update
       setIsFilterDialogOpen(false);
   };
 
@@ -138,14 +133,18 @@ export default function TutorDemoSessionsPage() {
       setTempDemoSubjectFilter("All");
       setTempDemoStudentFilter("All");
       setTempDemoStatusFilters([]);
+      setSearchTerm(""); // Also clear search term
+      setActiveDemoCategoryFilter("All Demos"); // Reset category filter
       setIsFilterDialogOpen(false);
-      // Optionally, also reset main search term and category filter if desired
-      // setSearchTerm("");
-      // setActiveDemoCategoryFilter("All Demos");
+  };
+  
+  const handleStatusCheckboxChange = (statusValue: string, checked: boolean) => {
+    setTempDemoStatusFilters(prev => 
+      checked ? [...prev, statusValue] : prev.filter(s => s !== statusValue)
+    );
   };
 
-
-   const renderDemoList = (demos: DemoSession[]) => {
+  const renderDemoList = (demos: DemoSession[]) => {
     if (demos.length === 0) {
       return (
         <Card className="text-center py-16 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
@@ -192,8 +191,8 @@ export default function TutorDemoSessionsPage() {
             </CardTitle>
           </CardHeader>
            <CardContent className="p-0">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3 w-full sm:flex-1">
+             <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+                <div className="flex items-center gap-3 w-full sm:w-auto sm:flex-1">
                     {/* Search Input - remains unchanged */}
                     <div className="relative flex-1 min-w-0">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -202,7 +201,7 @@ export default function TutorDemoSessionsPage() {
                             placeholder="Search by subject, student..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
+                            className="pl-10 pr-4 py-3 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
                         />
                     </div>
                     {/* Filter Icon Button */}
@@ -222,9 +221,9 @@ export default function TutorDemoSessionsPage() {
                                 <DialogTitleComponent className="text-lg font-semibold text-primary flex items-center">
                                     <LucideFilterIcon className="mr-2 h-5 w-5" /> Filter Demo Options
                                 </DialogTitleComponent>
-                                <DialogDescription>
+                                <DialogDescriptionComponent>
                                     Refine your demo list by subject, student, or status.
-                                </DialogDescription>
+                                </DialogDescriptionComponent>
                             </DialogHeader>
                             <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                                 <div className="space-y-1.5">
@@ -245,7 +244,21 @@ export default function TutorDemoSessionsPage() {
                                         </FormSelectContent>
                                     </Select>
                                 </div>
-                                {/* Status Checkboxes - To be implemented */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-medium text-muted-foreground flex items-center"><ListFilter className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Status</Label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                    {availableDemoStatusesForFilterDialog.map(status => (
+                                        <div key={status} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`status-demo-${status}`}
+                                            checked={tempDemoStatusFilters.includes(status)}
+                                            onCheckedChange={(checked) => handleStatusCheckboxChange(status, !!checked)}
+                                        />
+                                        <Label htmlFor={`status-demo-${status}`} className="text-xs font-normal text-foreground cursor-pointer">{status}</Label>
+                                        </div>
+                                    ))}
+                                    </div>
+                                </div>
                             </div>
                             <DialogFooter className="p-6 pt-4 border-t gap-2 sm:justify-between">
                                 <Button variant="ghost" onClick={handleClearDetailedFilters} className="text-xs text-muted-foreground hover:text-destructive">
@@ -256,7 +269,7 @@ export default function TutorDemoSessionsPage() {
                         </DialogContent>
                     </Dialog>
                 </div>
-                <div className="w-full sm:w-auto mt-3 sm:mt-0 flex items-center gap-3">
+                <div className="w-full sm:w-auto mt-3 sm:mt-0 flex flex-col sm:flex-row items-center gap-3">
                      <Button
                         variant="default"
                         size="sm"
@@ -312,4 +325,3 @@ export default function TutorDemoSessionsPage() {
     </main>
   );
 }
-
