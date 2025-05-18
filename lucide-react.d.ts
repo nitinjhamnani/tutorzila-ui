@@ -30,7 +30,7 @@ declare module "lucide-react" {
     export const TrendingUp: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UsersRound: React.FC<React.SVGProps<SVGSVGElement>>;
     export const FileText: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const Star: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Star: React.FC<React.SVGProps<SVGSVGElement>>; // Ensure this is Star, not StarIcon
     export const Mail: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UserPlus: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Phone: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -100,7 +100,7 @@ declare module "lucide-react" {
     export const Unlock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Lock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Presentation: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>; 
+    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>; // Keep this if StarIcon is specifically used elsewhere, otherwise could be removed if only Star is standard
     export const Bookmark: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Brain: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Sparkles: React.FC<React.SVGProps<SVGSVGElement>>;
