@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { GraduationCap, CalendarDays, MapPin, Building, Users as UsersIcon, Clock, Eye, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, Bookmark, UserCheck, AlertTriangle, CheckCircle } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // Removed AvatarImage
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -68,8 +68,8 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         )}
       >
         <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer overflow-hidden">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px] sm:text-xs">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border-0">
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-md text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
           </Avatar>
@@ -106,6 +106,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 <Archive className="h-3.5 w-3.5" />
               </Button>
             )}
+            {/* Action buttons for current enquiries are now moved to the detail page */}
         </div>
       </div>
     );
@@ -116,13 +117,13 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     <Card className="bg-card rounded-xl shadow-lg p-4 md:p-5 border-0 w-full overflow-hidden">
       <CardHeader className="p-0 pb-3 relative">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border-0">
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-md text-xs">
               {parentInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
-            <CardTitle className="text-sm sm:text-base font-semibold text-primary break-words">
+            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground mt-0.5">
@@ -135,7 +136,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             variant="ghost"
             size="icon"
             className={cn(
-                "absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full", // Adjusted positioning
+                "absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
                 isShortlisted && "text-primary"
             )}
             onClick={handleShortlistToggle}
@@ -173,9 +174,9 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         {!isParentContext && (
           <Button
             asChild
-            size="sm" // Use standard size prop
+            size="sm" 
             className={cn(
-              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto", // Adjusted padding and height
+              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto", 
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             )}
           >

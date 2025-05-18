@@ -32,7 +32,7 @@ import {
   Users as UsersIcon, 
 } from "lucide-react";
 import { formatDistanceToNow, format, parseISO } from "date-fns";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // Removed AvatarImage
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
@@ -110,8 +110,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
     e.stopPropagation(); 
     setIsShortlisted(prev => {
       const newShortlistStatus = !prev;
-      // In a real app, you'd also update the backend here
-      // MOCK_ALL_PARENT_REQUIREMENTS.find(r => r.id === requirement.id)!.mockIsShortlistedByCurrentUser = newShortlistStatus;
       toast({
         title: newShortlistStatus ? "Added to Shortlist" : "Removed from Shortlist",
         description: `Enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} has been ${newShortlistStatus ? 'added to' : 'removed from'} your shortlist.`,
@@ -127,7 +125,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           <div className="flex items-center space-x-3 flex-grow min-w-0">
             {requirement.parentName && (
               <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
-                <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-md text-xs">
                   {parentInitials}
                 </AvatarFallback>
               </Avatar>
