@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription as DialogDescription } from "@/components/ui/card";
 import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen } from "lucide-react";
-import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard"; // Updated import
+import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -124,7 +124,7 @@ export default function TutorDemoSessionsPage() {
       );
     }
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+      <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Changed grid columns here */}
         {demos.map(demo => (
             <TutorDemoCard 
                 key={demo.id} 
@@ -252,3 +252,4 @@ export default function TutorDemoSessionsPage() {
     </main>
   );
 }
+
