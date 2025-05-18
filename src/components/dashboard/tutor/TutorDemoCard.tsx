@@ -61,7 +61,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 Demo: {demo.subject}
               </CardTitle>
               <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-                Student: {demo.studentName}
+                With {demo.studentName}
               </CardDescription>
             </div>
             {demo.status === "Scheduled" && (
@@ -111,7 +111,6 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 </Link>
               </Button>
             )}
-            {/* Manage button removed from footer */}
           </div>
         </CardFooter>
       </Card>
@@ -152,5 +151,3 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
-
-    
