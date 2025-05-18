@@ -4,9 +4,9 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive } from "lucide-react";
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, AlertTriangle } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -62,17 +62,17 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     return (
       <div
         className={cn(
-          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3 overflow-hidden", // Added overflow-hidden
+          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3 overflow-hidden",
           isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
         )}
       >
-        <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer">
+        <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer overflow-hidden">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0 space-y-1">
+          <div className="flex-grow min-w-0 space-y-1 overflow-hidden">
             <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
               {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </p>
@@ -101,11 +101,15 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         </Link>
         <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end min-w-[calc(3*1.75rem+2*0.375rem)]">
             {isPastEnquiry && onReopen && (
-              <>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen(requirement.id); }}>
-                  <Archive className="h-3.5 w-3.5" />
-                </Button>
-              </>
+              <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen(requirement.id); }}>
+                <Archive className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {/* Delete button only if not past and onDelete is provided */}
+            {!isPastEnquiry && onDelete && (
+              <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(requirement.id); }}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
             )}
         </div>
       </div>
@@ -115,16 +119,17 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   // Tutor's "View All Enquiries" list view & public listings
   return (
     <Card className={cn(
-      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-0.5 overflow-hidden" // Added overflow-hidden
+      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full w-full transform hover:-translate-y-0.5 overflow-hidden" 
     )}>
-      <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
+      <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative overflow-hidden">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20 mt-0.5">
+            <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName || "Parent"} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
               {parentInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0">
+          <div className="flex-grow min-w-0"> {/* Ensure this can shrink */}
             <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
@@ -148,7 +153,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3">
+      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3 min-w-0 overflow-hidden"> {/* Added min-w-0 and overflow-hidden */}
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
@@ -160,8 +165,8 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             <InfoItem icon={MapPin} label="Location" value={requirement.location} />
         )}
       </CardContent>
-      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
-        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
+      <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-3 overflow-hidden">
+        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground w-full sm:w-auto min-w-0"> {/* Added min-w-0 */}
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <Eye className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {mockViewsCount} Views
@@ -177,7 +182,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           <Button
             asChild
             className={cn(
-              "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 px-2.5",
+              "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 h-auto px-3", 
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto mt-2 sm:mt-0"
             )}
           >
@@ -206,12 +211,15 @@ function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoIt
     : value;
 
   return (
-    <div className={cn("flex items-start text-xs", className)}>
+    <div className={cn("flex items-start text-xs w-full min-w-0", className)}> {/* Ensure w-full and min-w-0 */}
       <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px] transition-transform duration-300 group-hover:scale-105" />
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1"> {/* This allows the text to shrink and wrap */}
         <strong className="text-foreground/80 font-medium">{label}:</strong>&nbsp;
         <span className="text-muted-foreground break-words">{displayValue}</span>
       </div>
     </div>
   );
 }
+
+    
+    

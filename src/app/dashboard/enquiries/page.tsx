@@ -11,17 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-
-// Mock data - replace with API call in a real app
-const MOCK_REQUIREMENTS: TuitionRequirement[] = [
-  { id: "1", parentId: "p1", parentName: "Alice Smith", subject: ["Mathematics"], gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", preferredDays: ["Mon", "Wed", "Fri"], preferredTimeSlots: ["5-7 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"], applicantsCount: 5 },
-  { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: ["Physics"], gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", preferredDays: ["Weekends"], preferredTimeSlots: ["4 hours total"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"], applicantsCount: 3 },
-  { id: "3", parentId: "p3", parentName: "Carol Williams", subject: ["English"], gradeLevel: "Grade 6-8", scheduleDetails: "Tues, Thurs 4-6 PM", preferredDays: ["Tues", "Thurs"], preferredTimeSlots: ["4-6 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), additionalNotes: "Focus on grammar and essay writing.", board: "State Board", teachingMode: ["Online"], applicantsCount: 8 },
-  { id: "4", parentId: "p4", parentName: "David Brown", subject: ["Computer Science"], gradeLevel: "College Level", scheduleDetails: "Flexible, project-based", preferredDays: ["Flexible"], preferredTimeSlots: ["Project-based"], location: "Online", status: "open", postedAt: new Date().toISOString(), board: "IB", teachingMode: ["Online", "Offline (In-person)"], applicantsCount: 2 },
-  { id: "5", parentId: "p5", parentName: "Eve Davis", subject: ["Mathematics", "Science"], gradeLevel: "Grade 1-5", scheduleDetails: "Sat 10 AM - 12 PM", preferredDays: ["Saturday"], preferredTimeSlots: ["10 AM - 12 PM"], location: "Tutor's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 3).toISOString(), board: "IGCSE", teachingMode: ["Offline (In-person)"], applicantsCount: 12 },
-  { id: "6", parentId: "p6", parentName: "Frank Green", subject: ["Chemistry"], gradeLevel: "Grade 9-10", scheduleDetails: "Mon 7-9 PM", preferredDays: ["Monday"], preferredTimeSlots: ["7-9 PM"], location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 1).toISOString(), board: "CBSE", teachingMode: ["Online"], applicantsCount: 0 },
-  { id: "7", parentId: "p7", parentName: "Grace Hall", subject: ["Biology"], gradeLevel: "Grade 11-12", scheduleDetails: "Flexible Evening Hours", preferredDays: ["Flexible Evenings"], preferredTimeSlots: ["Evening Hours"], location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 6).toISOString(), additionalNotes: "Looking for an experienced biology tutor for IB curriculum.", board: "IB", teachingMode: ["Offline (In-person)"], applicantsCount: 7 },
-];
+import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data"; 
 
 export default function AllEnquiriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,14 +19,14 @@ export default function AllEnquiriesPage() {
   const [activeTab, setActiveTab] = useState("recommended");
 
   useEffect(() => {
-    setRequirements(MOCK_REQUIREMENTS.filter(r => r.status === 'open'));
+    setRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open'));
   }, []);
 
   const filteredRequirements = useMemo(() => {
     return requirements.filter((req) => {
       const searchTermLower = searchTerm.toLowerCase();
       const matchesSearchTerm = searchTerm === "" ||
-        (Array.isArray(req.subject) ? req.subject.some(s => s.toLowerCase().includes(searchTermLower)) : req.subject.toLowerCase().includes(searchTermLower)) ||
+        (Array.isArray(req.subject) ? req.subject.some(s => s.toLowerCase().includes(searchTermLower)) : String(req.subject).toLowerCase().includes(searchTermLower)) ||
         req.gradeLevel.toLowerCase().includes(searchTermLower) ||
         (req.parentName && req.parentName.toLowerCase().includes(searchTermLower)) ||
         (req.location && req.location.toLowerCase().includes(searchTermLower)) ||
@@ -49,20 +39,20 @@ export default function AllEnquiriesPage() {
   }, [searchTerm, requirements]);
 
   const tabCounts = {
-    recommended: filteredRequirements.length,
-    applied: 0,
-    received: 0,
-    shortlisted: 0,
+    recommended: filteredRequirements.length, 
+    applied: 0, 
+    received: 0, 
+    shortlisted: 0, 
   };
 
-  const renderEnquiryList = (enquiries: TuitionRequirement[]) => {
-    if (enquiries.length > 0) {
+  const renderEnquiryList = (enquiriesToRender: TuitionRequirement[]) => {
+    if (enquiriesToRender.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-4 md:gap-5">
-          {enquiries.map((req, index) => (
+        <div className="grid grid-cols-1 gap-4 md:gap-5"> 
+          {enquiriesToRender.map((req, index) => (
             <div
               key={req.id}
-              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
+              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full w-full"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
               <TuitionRequirementCard requirement={req} isParentContext={false} />
@@ -89,12 +79,12 @@ export default function AllEnquiriesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full overflow-x-hidden"> {/* Added w-full and overflow-x-hidden */}
       <Card className="mb-6 animate-in fade-in duration-500 ease-out shadow-md rounded-xl overflow-hidden">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
             <SearchIcon className="w-5 h-5 mr-2.5"/>
-            Search & Filter Enquiries
+            Search Enquiries
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-center gap-3">
@@ -108,19 +98,10 @@ export default function AllEnquiriesPage() {
                 className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
               />
           </div>
-          <Button
-            variant="outline"
-            className="w-full sm:w-auto text-sm shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
-            onClick={() => console.log("Filter button clicked")}
-          >
-            <LucideFilterIcon className="w-4 h-4"/>
-            Filter
-          </Button>
         </CardContent>
       </Card>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1 space-y-6 min-w-0">
+      <div className="flex-1 space-y-6 min-w-0"> 
            <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
              <ScrollArea className="w-full whitespace-nowrap pb-2">
               <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
@@ -144,17 +125,19 @@ export default function AllEnquiriesPage() {
               {renderEnquiryList(filteredRequirements)}
             </TabsContent>
             <TabsContent value="applied" className="mt-6">
-              {renderEnquiryList([])}
+              {renderEnquiryList([])} 
             </TabsContent>
             <TabsContent value="received" className="mt-6">
-              {renderEnquiryList([])}
+              {renderEnquiryList([])} 
             </TabsContent>
             <TabsContent value="shortlisted" className="mt-6">
-              {renderEnquiryList([])}
+              {renderEnquiryList([])} 
             </TabsContent>
           </Tabs>
         </div>
-      </div>
     </div>
   );
 }
+
+    
+    
