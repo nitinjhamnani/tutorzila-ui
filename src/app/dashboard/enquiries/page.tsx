@@ -94,11 +94,11 @@ export default function AllEnquiriesPage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center">
             <SearchIcon className="w-5 h-5 mr-2.5"/>
-            Search &amp; Filter Enquiries
+            Search & Filter Enquiries
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative flex-grow w-full">
+          <div className="relative w-full min-w-0"> {/* Added min-w-0 */}
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -158,6 +158,5 @@ export default function AllEnquiriesPage() {
     </div>
   );
 }
-
 
     
