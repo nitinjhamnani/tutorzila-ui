@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Eye } from "lucide-react";
+import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Eye, Edit3 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -34,23 +34,15 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const studentInitials = getStudentInitials(demo.studentName);
 
-  const statusBadgeClasses = () => {
-    switch (demo.status) {
-      case "Scheduled": return "border-blue-500/50 bg-blue-100/50 text-blue-700";
-      case "Requested": return "border-yellow-500/50 bg-yellow-100/50 text-yellow-700";
-      case "Completed": return "border-green-500/50 bg-green-100/50 text-green-700";
-      case "Cancelled": return "border-red-500/50 bg-red-100/50 text-red-700";
-      default: return "border-gray-500/50 bg-gray-100/50 text-gray-700";
-    }
-  };
+  const statusIconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
 
   const StatusIcon = () => {
     switch (demo.status) {
-      case "Scheduled": return <Clock className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
-      case "Requested": return <MessageSquareQuote className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
-      case "Completed": return <CheckCircle className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
-      case "Cancelled": return <XCircle className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
-      default: return <Info className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
+      case "Scheduled": return <Clock className={statusIconClasses} />;
+      case "Requested": return <MessageSquareQuote className={statusIconClasses} />;
+      case "Completed": return <CheckCircle className={statusIconClasses} />;
+      case "Cancelled": return <XCircle className={statusIconClasses} />;
+      default: return <Info className={statusIconClasses} />;
     }
   };
 
@@ -72,7 +64,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 Student: {demo.studentName}
               </CardDescription>
             </div>
-            {/* Status Badge removed from header to be placed in footer */}
+            {/* Status badge moved to footer */}
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -84,24 +76,22 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
         </CardContent>
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
            <div className="flex items-center">
-            <Badge
-                variant="outline"
+            <div
                 className={cn(
-                    "py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center",
-                    statusBadgeClasses() 
+                    "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
                 )}
             >
                 <StatusIcon /> 
                 {demo.status}
-            </Badge>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
               <Button
                 asChild
-                size="sm"
+                size="xs" // Using a predefined small size
                 className={cn(
-                  "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
+                  "text-[11px] py-1 px-2.5 h-auto", // Custom fine-tuning if needed
                   "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
                 )}
               >
@@ -110,11 +100,22 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 </Link>
               </Button>
             )}
-            {/* Manage button removed */}
+             {demo.status === "Scheduled" && (
+                <DialogTrigger asChild>
+                     <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-7 w-7 text-primary/80 border-primary/50 hover:bg-primary/10 hover:text-primary"
+                        title="Manage Demo"
+                     >
+                        <Settings className="h-3.5 w-3.5" />
+                    </Button>
+                </DialogTrigger>
+            )}
           </div>
         </CardFooter>
       </Card>
-      {demo.status === "Scheduled" && ( // Modal is still needed if "Manage" is triggered elsewhere or in future
+      {demo.status === "Scheduled" && (
         <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
           <ManageDemoModal
             demoSession={demo}
@@ -151,3 +152,5 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+
+    
