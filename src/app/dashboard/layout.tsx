@@ -62,8 +62,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const tutorNavItems = [
     { href: "/dashboard/enquiries", label: "Enquiries", icon: Briefcase },
     { href: "/dashboard/tutor/demo-sessions", label: "Demos", icon: CalendarDays },
+    { href: "/dashboard/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
-    { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
+    { href: "/dashboard/payments", label: "Payments", icon: DollarSign, disabled: false },
   ];
 
   const adminNavItems = [
@@ -94,9 +95,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const tutorHeaderPaths = [
     '/dashboard/tutor',
     '/dashboard/enquiries',
-    '/dashboard/my-classes', 
+    '/dashboard/my-classes', // This is the old path for parent, tutor has /dashboard/tutor/classes
     '/dashboard/payments',
-    '/dashboard/tutor/demo-sessions', // Updated path
+    '/dashboard/tutor/demo-sessions', 
+    '/dashboard/tutor/classes', // New tutor classes path
     '/dashboard/my-account',
     '/dashboard/tutor/edit-personal-details',
     '/dashboard/tutor/edit-tutoring-details'
@@ -142,7 +144,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       className={cn(
                         "transition-all duration-200 group h-10 text-sm font-medium",
                         item.disabled && "opacity-50 cursor-not-allowed",
-                        isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary/10 hover:text-primary focus:bg-primary focus:text-primary-foreground",
+                        isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground",
                         "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90",
                         "group-data-[collapsible=icon]:justify-center"
                       )}
@@ -150,7 +152,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn(
                             "transition-transform duration-200 group-hover:scale-110",
-                            isActive ? "text-primary-foreground" : (item.disabled ? "" : (isActive ? "text-primary-foreground" : "group-hover:text-primary group-focus:text-primary"))
+                            isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground")
                          )} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
@@ -175,19 +177,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     className={cn(
                       "transition-all duration-200 group h-10 text-sm font-medium",
                       item.disabled && "opacity-50 cursor-not-allowed",
-                      isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary/10 hover:text-primary focus:bg-primary focus:text-primary-foreground",
+                      isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground",
                        "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90",
                        "group-data-[collapsible=icon]:justify-center"
                     )}
                   >
                     {item.onClick ? (
                       <div className="flex items-center gap-2.5 w-full">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : (isActive ? "text-primary-foreground" : "group-hover:text-primary group-focus:text-primary")) )} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground"))} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     ) : (
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : (isActive ? "text-primary-foreground" : "group-hover:text-primary group-focus:text-primary")))} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground"))} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
                     )}
