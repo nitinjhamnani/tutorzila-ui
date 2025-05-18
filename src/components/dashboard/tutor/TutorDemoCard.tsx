@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Eye, Edit3 } from "lucide-react";
+import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Eye, Edit3, Users as UsersIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -34,17 +34,23 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const studentInitials = getStudentInitials(demo.studentName);
 
-  const statusIconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
-
   const StatusIcon = () => {
+    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
     switch (demo.status) {
-      case "Scheduled": return <Clock className={statusIconClasses} />;
-      case "Requested": return <MessageSquareQuote className={statusIconClasses} />;
-      case "Completed": return <CheckCircle className={statusIconClasses} />;
-      case "Cancelled": return <XCircle className={statusIconClasses} />;
-      default: return <Info className={statusIconClasses} />;
+      case "Scheduled": return <Clock className={iconClasses} />;
+      case "Requested": return <MessageSquareQuote className={iconClasses} />;
+      case "Completed": return <CheckCircle className={iconClasses} />;
+      case "Cancelled": return <XCircle className={iconClasses} />;
+      default: return <Info className={iconClasses} />;
     }
   };
+
+  const ModeIcon = () => {
+    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
+    if (demo.mode === "Online") return <RadioTower className={iconClasses} />;
+    if (demo.mode === "Offline (In-person)") return <UsersIcon className={iconClasses} />;
+    return null;
+  }
 
   return (
     <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
@@ -67,9 +73,11 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             {demo.status === "Scheduled" && (
                 <DialogTrigger asChild>
                      <Button
-                        variant="default" // Changed to default for primary background
+                        variant="default"
                         size="icon"
-                        className="absolute top-0 right-0 h-7 w-7 text-primary-foreground bg-primary hover:bg-primary/90" // Ensure primary background and white icon
+                        className={cn(
+                            "absolute top-0 right-0 h-7 w-7 text-primary-foreground bg-primary hover:bg-primary/90",
+                        )}
                         title="Manage Demo"
                      >
                         <Settings className="h-4 w-4" />
@@ -83,10 +91,10 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
           {demo.board && <InfoItem icon={ShieldCheck} label="Board:" value={demo.board} />}
           <InfoItem icon={CalendarDays} label="Date:" value={format(demoDate, "MMM d, yyyy")} />
           <InfoItem icon={Clock} label="Time:" value={`${demo.startTime} - ${demo.endTime}`} />
-          {demo.mode && <InfoItem icon={RadioTower} label="Mode:" value={demo.mode} />}
+          {/* Mode InfoItem removed from here */}
         </CardContent>
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
-           <div className="flex items-center">
+           <div className="flex items-center space-x-2"> {/* Wrapper for left-aligned badges */}
             <Badge
                 className={cn(
                     "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
@@ -95,6 +103,16 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 <StatusIcon />
                 {demo.status}
             </Badge>
+            {demo.mode && (
+              <Badge
+                className={cn(
+                    "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                )}
+              >
+                <ModeIcon />
+                {demo.mode === "Offline (In-person)" ? "Offline" : demo.mode}
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
