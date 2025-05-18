@@ -1,4 +1,4 @@
-
+// src/components/tuitions/TuitionRequirementCard.tsx
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -111,10 +111,10 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     );
   }
 
-  // Tutor's "View All Enquiries" list view & public listings (Redesigned for Mobile Compatibility)
+  // Tutor's "View All Enquiries" list view & public listings
   return (
-    <Card className="bg-card border border-border/40 rounded-lg shadow-sm w-full overflow-hidden">
-      <CardHeader className="p-3 sm:p-4 relative">
+    <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden">
+      <CardHeader className="p-4 md:p-5 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
             <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName || "Parent"} />
@@ -136,7 +136,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             variant="ghost"
             size="icon"
             className={cn(
-                "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+                "absolute top-3 right-3 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
                 isShortlisted && "text-primary"
             )}
             onClick={handleShortlistToggle}
@@ -146,7 +146,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="p-3 sm:p-4 pt-2 space-y-1.5 sm:space-y-2 text-xs">
+      <CardContent className="p-4 md:p-5 pt-2 space-y-2 text-xs">
         <InfoItem icon={GraduationCap} label="Grade:" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board:" value={requirement.board} />
@@ -158,7 +158,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             <InfoItem icon={MapPin} label="Location:" value={requirement.location} />
         )}
       </CardContent>
-      <CardFooter className="p-3 sm:p-4 pt-2 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+      <CardFooter className="p-4 md:p-5 pt-3 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
@@ -175,7 +175,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           <Button
             asChild
             className={cn(
-              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
+              "w-full sm:w-auto text-xs py-2 px-4 h-auto", // Adjusted padding and height
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             )}
           >
