@@ -31,7 +31,7 @@ import {
   Bookmark,
   Users as UsersIcon, 
 } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, parseISO } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -60,14 +60,15 @@ const getInitials = (name?: string): string => {
 };
 
 export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
-  const postedDate = new Date(requirement.postedAt);
+  const postedDate = requirement.postedAt ? parseISO(requirement.postedAt) : new Date();
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const formattedPostedDate = format(postedDate, "MMMM d, yyyy 'at' h:mm a");
   const { toast } = useToast();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false); 
-  const [isShortlisted, setIsShortlisted] = useState(false); 
+  const [isShortlisted, setIsShortlisted] = useState(requirement.mockIsShortlistedByCurrentUser || false); 
 
+  const parentInitials = getInitials(requirement.parentName);
   const mockParentEmail = `${requirement.parentName?.toLowerCase().replace(/\s+/g, '.')}@example.com`;
   const mockParentPhone = `+91-98765XXXXX`; 
 
@@ -107,10 +108,15 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const handleShortlistToggle = (e: React.MouseEvent) => {
     e.preventDefault(); 
     e.stopPropagation(); 
-    setIsShortlisted(!isShortlisted);
-    toast({
-      title: isShortlisted ? "Removed from Shortlist" : "Added to Shortlist",
-      description: `Enquiry for ${requirement.subject.join(', ')} has been ${isShortlisted ? 'removed from' : 'added to'} your shortlist.`,
+    setIsShortlisted(prev => {
+      const newShortlistStatus = !prev;
+      // In a real app, you'd also update the backend here
+      // MOCK_ALL_PARENT_REQUIREMENTS.find(r => r.id === requirement.id)!.mockIsShortlistedByCurrentUser = newShortlistStatus;
+      toast({
+        title: newShortlistStatus ? "Added to Shortlist" : "Removed from Shortlist",
+        description: `Enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} has been ${newShortlistStatus ? 'added to' : 'removed from'} your shortlist.`,
+      });
+      return newShortlistStatus;
     });
   };
 
@@ -118,15 +124,25 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
       <CardHeader className="bg-muted/30 p-4 md:p-5 border-b relative"> 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-          <div className="flex-grow">
+          <div className="flex items-center space-x-3 flex-grow min-w-0">
             {requirement.parentName && (
-                 <CardTitle className="text-xl md:text-2xl font-semibold text-primary tracking-tight mb-1">
-                    {requirement.parentName}
-                 </CardTitle>
+              <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
+                 <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName} />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
+                  {parentInitials}
+                </AvatarFallback>
+              </Avatar>
             )}
-            <CardDescription className="text-xs text-foreground/70 mt-0.5">
-              Posted {timeAgo} (on {formattedPostedDate})
-            </CardDescription>
+            <div className="flex-grow min-w-0">
+                {requirement.parentName && (
+                    <CardTitle className="text-xl md:text-2xl font-semibold text-primary tracking-tight mb-1 break-words">
+                        {requirement.parentName}
+                    </CardTitle>
+                )}
+                <CardDescription className="text-xs text-foreground/70 mt-0.5">
+                Posted {timeAgo} (on {formattedPostedDate})
+                </CardDescription>
+            </div>
           </div>
            <Button
             variant="ghost"
@@ -148,14 +164,14 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
         <section className="space-y-2">
           <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
             <BookOpen className="w-4 h-4 mr-2 text-primary/80" />
-            Tutoring Requirements
+            Requirements
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2.5 pl-6 text-xs">
-            <DetailItem label="Subject(s)" value={requirement.subject.join(', ')} />
-            <DetailItem label="Grade Level" value={requirement.gradeLevel} />
-            {requirement.board && <DetailItem label="Board" value={requirement.board} />}
+            <DetailItem label="Subject(s)" value={Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} className="text-xs"/>
+            <DetailItem label="Grade Level" value={requirement.gradeLevel} className="text-xs" />
+            {requirement.board && <DetailItem label="Board" value={requirement.board} className="text-xs"/>}
              {requirement.applicantsCount !== undefined && (
-              <DetailItem label="Applicants" value={String(requirement.applicantsCount)} icon={UsersIcon} />
+              <DetailItem label="Applicants" value={String(requirement.applicantsCount)} icon={UsersIcon} className="text-xs"/>
             )}
           </div>
         </section>
@@ -170,14 +186,14 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2.5 pl-6 text-xs">
             {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-              <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
+              <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} className="text-xs"/>
             )}
-            {requirement.preferredTime && requirement.preferredTime.length > 0 && (
-              <DetailItem label="Preferred Time" value={requirement.preferredTime.join(', ')} icon={Clock} />
+            {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
+              <DetailItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} className="text-xs"/>
             )}
-            {requirement.location && <DetailItem label="Location Preference" value={requirement.location} icon={MapPin} />}
+            {requirement.location && <DetailItem label="Location Preference" value={requirement.location} icon={MapPin} className="text-xs"/>}
             {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-              <DetailItem label="Teaching Mode(s)" icon={RadioTower}>
+              <DetailItem label="Teaching Mode(s)" icon={RadioTower} className="text-xs">
                 <div className="flex flex-wrap gap-1 mt-0.5">
                   {requirement.teachingMode.map(mode => (
                     <Badge key={mode} variant="secondary" className="text-[10px] py-0.5 px-1.5">{mode}</Badge>
@@ -187,6 +203,21 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             )}
           </div>
         </section>
+
+        {requirement.additionalNotes && (
+          <>
+            <Separator />
+            <section className="space-y-2">
+              <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
+                <Info className="w-4 h-4 mr-2 text-primary/80" />
+                Additional Notes
+              </h3>
+              <p className="text-xs text-foreground/80 leading-relaxed pl-6 whitespace-pre-wrap">
+                {requirement.additionalNotes}
+              </p>
+            </section>
+          </>
+        )}
       </CardContent>
 
       <CardFooter className="bg-muted/30 p-4 border-t flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -275,17 +306,21 @@ interface DetailItemProps {
   value?: string;
   icon?: React.ElementType;
   children?: React.ReactNode;
+  className?: string;
 }
 
-function DetailItem({ label, value, icon: Icon, children }: DetailItemProps) {
+function DetailItem({ label, value, icon: Icon, children, className }: DetailItemProps) {
   return (
-    <div className="flex flex-col">
+    <div className={cn("flex flex-col", className)}>
       <span className="text-[11px] text-muted-foreground font-medium flex items-center mb-0.5">
         {Icon && <Icon className="w-3 h-3 mr-1.5 text-primary/70" />}
         {label}
       </span>
-      {value && <p className="text-[11px] text-foreground/90">{value}</p>}
+      {value && <p className="text-foreground/90">{value}</p>}
       {children}
     </div>
   );
 }
+
+
+    
