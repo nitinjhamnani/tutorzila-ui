@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, ChevronDown, CheckCircle, Clock, XCircle as XCircleIcon, Star } from "lucide-react"; // Renamed XCircle to XCircleIcon to avoid conflict
+import { Search, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, ChevronDown, CheckCircle, Clock, XCircle as XCircleIcon, Star, CalendarDays } from "lucide-react"; // Added CalendarDays, removed ListFilter
 import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
@@ -32,13 +31,7 @@ export default function TutorDemoSessionsPage() {
   const tutorUser = user as TutorProfile | null;
 
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
-  
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("All Demos");
-
-  // States for the filter dialog (though detailed filtering is removed for now, keeping structure if needed later)
-  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  // const [tempDemoSubjectFilter, setTempDemoSubjectFilter] = useState("All");
-  // const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All");
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -63,7 +56,7 @@ export default function TutorDemoSessionsPage() {
   }, [allTutorDemos]);
 
   const filterCategoriesForDropdown: { label: DemoStatusCategory; value: DemoStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "All Demos", value: "All Demos", icon: ListFilter, count: categoryCounts["All Demos"] },
+    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] }, // Changed icon to CalendarDays
     { label: "Scheduled", value: "Scheduled", icon: Clock, count: categoryCounts.Scheduled },
     { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
     { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
@@ -78,7 +71,6 @@ export default function TutorDemoSessionsPage() {
   const filteredDemos = useMemo(() => {
     return allTutorDemos.filter(demo => {
       const matchesCategory = activeDemoCategoryFilter === "All Demos" || demo.status === activeDemoCategoryFilter;
-      // Add detailed filtering logic here if temp filters from dialog are used
       return matchesCategory;
     });
   }, [activeDemoCategoryFilter, allTutorDemos]);
@@ -128,7 +120,7 @@ export default function TutorDemoSessionsPage() {
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3">
             <CardTitle className="text-base sm:text-lg font-semibold text-primary flex items-center break-words">
-              <ListFilter className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
+              <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/> {/* Changed icon here */}
               Manage Demo Sessions
             </CardTitle>
           </CardHeader>

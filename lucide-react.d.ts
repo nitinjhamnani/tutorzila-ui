@@ -30,7 +30,7 @@ declare module "lucide-react" {
     export const TrendingUp: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UsersRound: React.FC<React.SVGProps<SVGSVGElement>>;
     export const FileText: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const Star: React.FC<React.SVGProps<SVGSVGElement>>; // Ensure this is Star, not StarIcon
+    export const Star: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Mail: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UserPlus: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Phone: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -78,7 +78,7 @@ declare module "lucide-react" {
     export const ClipboardEdit: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UserCog: React.FC<React.SVGProps<SVGSVGElement>>;
     export const VenetianMask: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>>; // Ensure CalendarIcon is declared
+    export const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Info: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Settings2: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ArrowLeft: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -100,7 +100,7 @@ declare module "lucide-react" {
     export const Unlock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Lock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Presentation: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>; // Keep this if StarIcon is specifically used elsewhere, otherwise could be removed if only Star is standard
+    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Bookmark: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Brain: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Sparkles: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -127,7 +127,7 @@ declare module "lucide-react" {
     export const Percent: React.FC<React.SVGProps<SVGSVGElement>>;
     export const HardDrive: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Bell: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const ListFilter: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const ListFilter: React.FC<React.SVGProps<SVGSVGElement>>; // Added for demo page
     export const MessageSquareText: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Edit2: React.FC<React.SVGProps<SVGSVGElement>>;
     export const XOctagon: React.FC<React.SVGProps<SVGSVGElement>>;
