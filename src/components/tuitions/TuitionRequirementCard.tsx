@@ -62,12 +62,13 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     return (
       <div
         className={cn(
-          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3 overflow-hidden",
+          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3 overflow-hidden w-full", // Added w-full
           isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
         )}
       >
         <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer overflow-hidden">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
+             <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName || "Parent"} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
@@ -105,7 +106,16 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 <Archive className="h-3.5 w-3.5" />
               </Button>
             )}
-            {/* Delete button only if not past and onDelete is provided */}
+            {!isPastEnquiry && onEdit && ( // Show Edit only if not past and onEdit is provided
+              <Button variant="outline" size="icon" className="h-7 w-7" title="Edit Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(requirement.id); }}>
+                <Edit3 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {!isPastEnquiry && onClose && ( // Show Close only if not past and onClose is provided
+              <Button variant="destructiveOutline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(requirement.id); }}>
+                <XCircle className="h-3.5 w-3.5" />
+              </Button>
+            )}
             {!isPastEnquiry && onDelete && (
               <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(requirement.id); }}>
                 <Trash2 className="h-3.5 w-3.5" />
@@ -129,7 +139,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
               {parentInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0"> {/* Ensure this can shrink */}
+          <div className="flex-grow min-w-0">
             <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
@@ -153,7 +163,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3 min-w-0 overflow-hidden"> {/* Added min-w-0 and overflow-hidden */}
+      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3 min-w-0 overflow-hidden">
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
@@ -166,7 +176,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         )}
       </CardContent>
       <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-3 overflow-hidden">
-        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground w-full sm:w-auto min-w-0"> {/* Added min-w-0 */}
+        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground w-full sm:w-auto min-w-0">
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <Eye className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {mockViewsCount} Views
@@ -211,15 +221,12 @@ function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoIt
     : value;
 
   return (
-    <div className={cn("flex items-start text-xs w-full min-w-0", className)}> {/* Ensure w-full and min-w-0 */}
+    <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
       <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px] transition-transform duration-300 group-hover:scale-105" />
-      <div className="min-w-0 flex-1"> {/* This allows the text to shrink and wrap */}
+      <div className="min-w-0 flex-1">
         <strong className="text-foreground/80 font-medium">{label}:</strong>&nbsp;
         <span className="text-muted-foreground break-words">{displayValue}</span>
       </div>
     </div>
   );
 }
-
-    
-    
