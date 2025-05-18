@@ -14,21 +14,22 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SheetTitle,
+  SheetTitle, // Ensure SheetTitle is imported
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit, MessageSquare, Menu as MenuIcon } from "lucide-react";
+// Keep Menu as MenuIcon alias if used elsewhere, or just use Menu
+import { Menu as MenuIcon, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, Home as HomeIcon } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
-import { VerificationBanner } from "@/components/shared/VerificationBanner"; 
+import { VerificationBanner } from "@/components/shared/VerificationBanner";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock(); 
+  const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const isMobile = useIsMobile();
 
@@ -59,20 +60,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const tutorNavItems = [
-    // "/dashboard/enquiries" is handled by dashboardHomeHref if it's for the main tutor dashboard
-    // It's also the base path for individual enquiry details, so the header should show there.
-    // Only add if dashboardHomeHref is different and user is tutor
+    // The Enquiries link is handled by dashboardHomeHref if it's the main tutor dashboard page
+    // This conditional ensures it's added if the dashboardHomeHref is different
     ...(user.role === 'tutor' && dashboardHomeHref !== "/dashboard/enquiries" ? [{ href: "/dashboard/enquiries", label: "Enquiries", icon: Briefcase }] : []),
-    { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
+    // { href: "/dashboard/demo-sessions", label: "Demos", icon: MessageSquareQuote, disabled: false }, // Removed this line
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
-    { href: "/dashboard/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
   ];
 
   const adminNavItems = [
-    { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: Users, disabled: true },
+    { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: UsersIcon, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
-    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: DollarSign, disabled: true },
+    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: BarChart2, disabled: true }, // Corrected icon
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
   ];
 
@@ -89,43 +88,41 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const footerNavItems = [
     { href: "/dashboard/my-account", label: "My Account", icon: UserCircle, disabled: false },
-    { href: "/dashboard/settings", label: "Settings", icon: Settings, disabled: true },
+    { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon, disabled: true },
     { label: "Log Out", icon: LogOut, onClick: logout },
   ];
 
   const tutorHeaderPaths = [
     '/dashboard/tutor',
-    '/dashboard/enquiries', // Covers listing
-    '/dashboard/my-classes',
+    '/dashboard/enquiries',
+    '/dashboard/my-classes', // Kept for consistency, though "Demos" is the active link
     '/dashboard/payments',
     '/dashboard/demo-sessions',
     '/dashboard/my-account',
     '/dashboard/tutor/edit-personal-details',
     '/dashboard/tutor/edit-tutoring-details'
   ];
-  
-  const showTutorHeader = isAuthenticated && user?.role === 'tutor' && 
-    (
-      tutorHeaderPaths.includes(pathname) || // Exact matches
-      pathname.startsWith('/dashboard/enquiries/') // For individual enquiry detail pages
-    );
 
+  const showTutorHeader = isAuthenticated && user?.role === 'tutor' &&
+    (
+      tutorHeaderPaths.some(p => pathname === p || (p === '/dashboard/enquiries' && pathname.startsWith('/dashboard/enquiries/')))
+    );
 
   return (
     <>
-      <VerificationBanner /> 
-      
+      <VerificationBanner />
+
       <SidebarProvider defaultOpen={!isMobile}>
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            // Adjust top padding if TutorDashboardHeader is shown (it's sticky below banner)
-            showTutorHeader ? "pt-0" : "pt-[var(--verification-banner-height,0px)]" 
+            showTutorHeader
+              ? "pt-0" // No top padding if TutorDashboardHeader is shown (it's sticky below banner)
+              : "pt-[var(--verification-banner-height,0px)]"
           )}
         >
-          {/* Render SidebarHeader only if TutorDashboardHeader is NOT shown, to avoid duplicate triggers on desktop */}
-          {/* On mobile, TutorDashboardHeader has its own trigger, and this SidebarHeader will be inside the Sheet, providing a title */}
+           {/* Render SidebarHeader only if TutorDashboardHeader is NOT shown OR if it's mobile view */}
           {(!showTutorHeader || isMobile) && (
             <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
               {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
@@ -138,7 +135,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarContent className="flex-grow">
             <SidebarMenu>
               {mainNavItems.map((item) => {
-                const isActive = item.href ? pathname === item.href || (item.href === '/dashboard/enquiries' && pathname.startsWith('/dashboard/enquiries/')) : false;
+                const isActive = item.href ? pathname === item.href || (item.href === '/dashboard/enquiries' && pathname.startsWith('/dashboard/enquiries/')) || (item.href === '/dashboard/demo-sessions' && pathname.startsWith('/dashboard/demo-sessions')) : false;
                 return (
                   <SidebarMenuItem key={item.href || item.label}>
                     <SidebarMenuButton
@@ -206,7 +203,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        
+
         <div className="flex flex-col flex-1">
           {showTutorHeader && (
             <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
@@ -214,11 +211,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           )}
           <SidebarInset className={cn(
-            "pb-4 md:pb-6 bg-background overflow-x-hidden", // Changed py-4 to pb-4
-             showTutorHeader 
-              ? "pt-0" 
+            "pb-4 md:pb-6 bg-background overflow-x-hidden",
+             showTutorHeader
+              ? "pt-0"
               : "pt-[var(--verification-banner-height,0px)]"
-          )}> 
+          )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
               {children}
             </div>
@@ -229,4 +226,3 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
-
