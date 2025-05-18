@@ -18,14 +18,15 @@ export function TutorDashboardHeader() {
   const isMobile = useIsMobile();
 
   return (
-    // The header itself is NOT sticky. Its container in the layout will handle stickiness.
+    // Removed sticky, top, and z-index classes. Stickiness handled by layout.
     <header className="bg-card p-4 shadow-sm w-full">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-            <SidebarTrigger className="mr-2"> {/* Always render trigger, visibility controlled by CSS in sidebar for md:hidden */}
-              <Menu className="h-6 w-6" />
-            </SidebarTrigger>
-          {/* Logo was removed from tutor header in a previous step based on request */}
+          {/* SidebarTrigger is always rendered, controlled by SidebarProvider context */}
+          <SidebarTrigger className="mr-2"> {/* Adjusted: Removed md:hidden */}
+            <Menu className="h-6 w-6" />
+          </SidebarTrigger>
+          {/* Tutorzila logo placeholder removed as per previous instruction to not have logo in tutor header */}
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
