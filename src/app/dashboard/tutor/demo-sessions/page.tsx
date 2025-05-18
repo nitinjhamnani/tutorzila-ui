@@ -7,16 +7,16 @@ import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, ChevronDown, CheckCircle, Star } from "lucide-react"; // Added ChevronDown, CheckCircle, Star
-import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, ChevronDown, CheckCircle, Star, Clock, XCircle } from "lucide-react"; // Added Clock, XCircle
+import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle as DialogTitleComponent, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle as DialogTitleComponent, DialogDescription as DialogDescriptionComponent } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -101,7 +101,6 @@ export default function TutorDemoSessionsPage() {
       
       const matchesCategory = activeDemoCategoryFilter === "All Demos" || demo.status === activeDemoCategoryFilter;
       
-      // Apply detailed filters from dialog
       const matchesDialogSubject = dialogSubjectFilter === "All" || demo.subject === dialogSubjectFilter;
       const matchesDialogStudent = dialogStudentFilter === "All" || demo.studentName === dialogStudentFilter;
 
@@ -126,7 +125,6 @@ export default function TutorDemoSessionsPage() {
   const resetDialogFilters = () => {
     setTempDialogSubjectFilter("All");
     setTempDialogStudentFilter("All");
-    // Apply immediately
     setDialogSubjectFilter("All");
     setDialogStudentFilter("All");
     setIsFilterDialogOpen(false);
@@ -147,11 +145,11 @@ export default function TutorDemoSessionsPage() {
     return (
       <div className="grid grid-cols-1 gap-4 md:gap-5">
         {demos.map(demo => (
-            <UpcomingSessionCard 
+            <TutorDemoCard 
                 key={demo.id} 
-                sessionDetails={{ type: 'demo', data: demo }}
-                onUpdateSession={handleUpdateSession} // Pass through if UpcomingSessionCard handles it
-                onCancelSession={handleCancelSession}   // Pass through if UpcomingSessionCard handles it
+                demo={demo}
+                onUpdateSession={handleUpdateSession} 
+                onCancelSession={handleCancelSession}  
             />
         ))}
       </div>
@@ -165,10 +163,6 @@ export default function TutorDemoSessionsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <BreadcrumbHeader segments={[
-          { label: "Dashboard", href: "/dashboard/tutor" },
-          { label: "Demo Sessions" }
-        ]} />
         
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3">
@@ -217,9 +211,9 @@ export default function TutorDemoSessionsPage() {
                       <DialogTitleComponent className="text-lg font-semibold text-primary flex items-center">
                         <LucideFilterIcon className="mr-2 h-5 w-5" /> Filter Demo Sessions
                       </DialogTitleComponent>
-                      <DialogDescription>
+                      <DialogDescriptionComponent>
                         Refine your demo list by subject or student.
-                      </DialogDescription>
+                      </DialogDescriptionComponent>
                     </DialogHeader>
                     <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                       <div className="space-y-1.5">
