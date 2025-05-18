@@ -7,10 +7,9 @@ import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen } from "lucide-react";
-import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"; // Corrected import
+import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -81,16 +80,6 @@ export default function TutorDemoSessionsPage() {
     });
   }, [searchTerm, subjectFilter, studentFilter, statusFilters, allTutorDemos]);
 
-  const scheduledDemos = useMemo(() => filteredDemos.filter(d => d.status === "Scheduled"), [filteredDemos]);
-  const requestedDemos = useMemo(() => filteredDemos.filter(d => d.status === "Requested"), [filteredDemos]);
-  const pastDemos = useMemo(() => filteredDemos.filter(d => d.status === "Completed" || d.status === "Cancelled"), [filteredDemos]);
-
-  const tabCounts = useMemo(() => ({
-    scheduled: scheduledDemos.length,
-    requested: requestedDemos.length,
-    past: pastDemos.length,
-  }), [scheduledDemos, requestedDemos, pastDemos]);
-
   const handleUpdateSession = (updatedDemo: DemoSession) => {
     setAllTutorDemos(prevDemos => prevDemos.map(d => d.id === updatedDemo.id ? updatedDemo : d));
     console.log("Demo session updated (mock):", updatedDemo);
@@ -125,15 +114,15 @@ export default function TutorDemoSessionsPage() {
     );
   };
 
-  const renderDemoList = (demos: DemoSession[], tabName: string) => {
+  const renderDemoList = (demos: DemoSession[]) => {
     if (!isAuthenticated || !tutorUser) return null;
     if (demos.length === 0) {
       return (
         <div className="text-center py-16 bg-card border rounded-lg shadow-sm">
           <MessageSquareQuote className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-          <p className="text-md font-semibold text-foreground/70 mb-2">No {tabName.toLowerCase()} found.</p>
+          <p className="text-md font-semibold text-foreground/70 mb-2">No demos found.</p>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto mb-4">
-            There are no demos in this category for you.
+            There are no demos matching your current filters.
           </p>
         </div>
       );
@@ -262,20 +251,13 @@ export default function TutorDemoSessionsPage() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="scheduled" className="w-full">
-          <ScrollArea className="w-full whitespace-nowrap pb-2">
-            <TabsList className="inline-flex gap-1.5 sm:gap-2 bg-card border rounded-lg p-1 shadow-sm">
-              <TabsTrigger value="scheduled" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2">Scheduled ({tabCounts.scheduled})</TabsTrigger>
-              <TabsTrigger value="requested" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2">Requested ({tabCounts.requested})</TabsTrigger>
-              <TabsTrigger value="past" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:bg-muted/80 transition-all text-xs sm:text-sm py-1.5 sm:py-2">Past ({tabCounts.past})</TabsTrigger>
-            </TabsList>
-            <ScrollBar orientation="horizontal" className="h-2 mt-1" />
-          </ScrollArea>
-          <TabsContent value="scheduled">{renderDemoList(scheduledDemos, "Scheduled Demos")}</TabsContent>
-          <TabsContent value="requested">{renderDemoList(requestedDemos, "Demo Requests")}</TabsContent>
-          <TabsContent value="past">{renderDemoList(pastDemos, "Past Demos")}</TabsContent>
-        </Tabs>
+        {/* Removed Tabs Section */}
+        <div className="mt-6">
+          {renderDemoList(filteredDemos)}
+        </div>
+
       </div>
     </main>
   );
 }
+
