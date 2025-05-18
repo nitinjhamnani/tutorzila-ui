@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, AlertTriangle } from "lucide-react";
+import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, AlertTriangle, CheckCircle } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     return (
       <div
         className={cn(
-          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3 overflow-hidden w-full", // Added w-full
+          "group border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 flex flex-col sm:flex-row items-center p-3 sm:p-4 justify-between gap-3 overflow-hidden w-full",
           isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
         )}
       >
@@ -106,17 +106,17 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 <Archive className="h-3.5 w-3.5" />
               </Button>
             )}
-            {!isPastEnquiry && onEdit && ( // Show Edit only if not past and onEdit is provided
+            {!isPastEnquiry && onEdit && (
               <Button variant="outline" size="icon" className="h-7 w-7" title="Edit Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(requirement.id); }}>
                 <Edit3 className="h-3.5 w-3.5" />
               </Button>
             )}
-            {!isPastEnquiry && onClose && ( // Show Close only if not past and onClose is provided
+            {!isPastEnquiry && onClose && ( 
               <Button variant="destructiveOutline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(requirement.id); }}>
                 <XCircle className="h-3.5 w-3.5" />
               </Button>
             )}
-            {!isPastEnquiry && onDelete && (
+             {!isPastEnquiry && onDelete && (
               <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(requirement.id); }}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -139,11 +139,11 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
               {parentInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0">
+          <div className="flex-grow min-w-0"> {/* Added min-w-0 here */}
             <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
-            <CardDescription className="text-[11px] text-muted-foreground mt-0.5">
+            <CardDescription className="text-[11px] text-muted-foreground mt-0.5 break-words">
               Posted {timeAgo}
             </CardDescription>
           </div>
@@ -176,7 +176,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         )}
       </CardContent>
       <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-3 overflow-hidden">
-        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground w-full sm:w-auto min-w-0">
+        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground w-full sm:w-auto min-w-0"> {/* Added min-w-0 and flex-wrap */}
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <Eye className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {mockViewsCount} Views
@@ -192,8 +192,8 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           <Button
             asChild
             className={cn(
-              "transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 h-auto px-3", 
-              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto mt-2 sm:mt-0"
+              "w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 h-auto px-3", 
+              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 mt-2 sm:mt-0"
             )}
           >
             <Link href={`/dashboard/enquiries/${requirement.id}`}>
@@ -223,7 +223,7 @@ function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoIt
   return (
     <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
       <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px] transition-transform duration-300 group-hover:scale-105" />
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1"> {/* Added min-w-0 to the text container */}
         <strong className="text-foreground/80 font-medium">{label}:</strong>&nbsp;
         <span className="text-muted-foreground break-words">{displayValue}</span>
       </div>
