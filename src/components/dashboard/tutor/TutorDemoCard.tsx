@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { DemoSession } from "@/types";
@@ -34,6 +33,21 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const studentInitials = getStudentInitials(demo.studentName);
 
+  const statusBadgeClasses = () => {
+    switch (demo.status) {
+      case "Scheduled":
+        return "bg-blue-100 text-blue-700 border-blue-500/50 hover:bg-blue-200";
+      case "Requested":
+        return "bg-yellow-100 text-yellow-700 border-yellow-500/50 hover:bg-yellow-200";
+      case "Completed":
+        return "bg-green-100 text-green-700 border-green-500/50 hover:bg-green-200";
+      case "Cancelled":
+        return "bg-red-100 text-red-700 border-red-500/50 hover:bg-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-500/50 hover:bg-gray-200";
+    }
+  };
+
   const StatusIcon = () => {
     const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
     switch (demo.status) {
@@ -66,7 +80,8 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
               <CardTitle className="text-sm sm:text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                 Demo: {demo.subject}
               </CardTitle>
-              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
+                <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
                 With {demo.studentName}
               </CardDescription>
             </div>
@@ -91,7 +106,6 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
           {demo.board && <InfoItem icon={ShieldCheck} label="Board:" value={demo.board} />}
           <InfoItem icon={CalendarDays} label="Date:" value={format(demoDate, "MMM d, yyyy")} />
           <InfoItem icon={Clock} label="Time:" value={`${demo.startTime} - ${demo.endTime}`} />
-          {/* Mode InfoItem removed from here */}
         </CardContent>
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
            <div className="flex items-center space-x-2"> {/* Wrapper for left-aligned badges */}
