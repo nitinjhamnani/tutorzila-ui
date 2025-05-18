@@ -3,11 +3,11 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
+// BreadcrumbHeader import removed
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription as DialogDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription as DialogDescription } from "@/components/ui/card"; // Renamed to avoid conflict
 import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen } from "lucide-react";
 import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle as DialogTitleComponent } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle as DialogTitleComponent } from "@/components/ui/dialog"; // Renamed DialogTitle to DialogTitleComponent
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -124,7 +124,7 @@ export default function TutorDemoSessionsPage() {
       );
     }
     return (
-      <div className="grid grid-cols-1 gap-4 md:gap-5"> {/* Changed grid columns here */}
+      <div className="grid grid-cols-1 gap-4 md:gap-5">
         {demos.map(demo => (
             <TutorDemoCard 
                 key={demo.id} 
@@ -144,10 +144,7 @@ export default function TutorDemoSessionsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <BreadcrumbHeader segments={[
-          { label: "Dashboard", href: "/dashboard/tutor" },
-          { label: "Demo Sessions" }
-        ]} />
+        {/* BreadcrumbHeader removed from here */}
         
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3">
