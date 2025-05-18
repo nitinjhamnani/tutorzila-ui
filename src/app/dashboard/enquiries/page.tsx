@@ -6,35 +6,63 @@ import type { TuitionRequirement } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, Star, CheckCircle, FilterIcon as LucideFilterIcon, Bookmark } from "lucide-react"; 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { SearchIcon, XIcon, Star, CheckCircle, FilterIcon as LucideFilterIcon, Bookmark, ListChecks, ChevronDown } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // Import ScrollArea and ScrollBar
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function AllEnquiriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
-  const [activeFilterCategory, setActiveFilterCategory] = useState<'recommended' | 'applied' | 'shortlisted' | 'all'>('recommended');
+  const [activeFilterCategory, setActiveFilterCategory] = useState<'all' | 'recommended' | 'applied' | 'shortlisted'>('all');
 
   useEffect(() => {
     setRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open'));
   }, []);
 
+  const categoryCounts = useMemo(() => {
+    const openRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open');
+    return {
+      all: openRequirements.length,
+      recommended: openRequirements.filter(r => r.mockIsRecommended).length,
+      applied: openRequirements.filter(r => r.mockIsAppliedByCurrentUser).length,
+      shortlisted: openRequirements.filter(r => r.mockIsShortlistedByCurrentUser).length,
+    };
+  }, []);
+
+  const filterCategoriesForDropdown = [
+    { label: "All Enquiries", value: 'all' as const, icon: ListChecks, count: categoryCounts.all },
+    { label: "Recommended", value: 'recommended' as const, icon: Star, count: categoryCounts.recommended },
+    { label: "Applied", value: 'applied' as const, icon: CheckCircle, count: categoryCounts.applied },
+    { label: "Shortlisted", value: 'shortlisted' as const, icon: Bookmark, count: categoryCounts.shortlisted },
+  ];
+
+  const selectedCategoryLabel = useMemo(() => {
+    return filterCategoriesForDropdown.find(cat => cat.value === activeFilterCategory)?.label || "All Enquiries";
+  }, [activeFilterCategory, filterCategoriesForDropdown]);
+
   const filteredRequirements = useMemo(() => {
     let filtered = requirements.filter((req) => {
       const searchTermLower = searchTerm.toLowerCase();
-      const matchesSearchTerm = searchTerm === "" || 
+      const matchesSearchTerm = searchTerm === "" ||
         (Array.isArray(req.subject) ? req.subject.some(s => s.toLowerCase().includes(searchTermLower)) : req.subject.toLowerCase().includes(searchTermLower)) ||
         req.gradeLevel.toLowerCase().includes(searchTermLower) ||
         (req.parentName && req.parentName.toLowerCase().includes(searchTermLower)) ||
         (req.location && req.location.toLowerCase().includes(searchTermLower)) ||
         (req.additionalNotes && req.additionalNotes.toLowerCase().includes(searchTermLower));
-      
+
       return matchesSearchTerm;
     });
 
-    // Apply category filter
     if (activeFilterCategory === 'recommended') {
       return filtered.filter(req => req.mockIsRecommended);
     }
@@ -48,20 +76,6 @@ export default function AllEnquiriesPage() {
     return filtered;
   }, [searchTerm, requirements, activeFilterCategory]);
 
-  const categoryCounts = useMemo(() => {
-    const openRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open');
-    return {
-      recommended: openRequirements.filter(r => r.mockIsRecommended).length,
-      applied: openRequirements.filter(r => r.mockIsAppliedByCurrentUser).length,
-      shortlisted: openRequirements.filter(r => r.mockIsShortlistedByCurrentUser).length,
-    };
-  }, []);
-
-  const filterCategories = [
-    { label: "Recommended", value: 'recommended' as const, icon: Star, count: categoryCounts.recommended },
-    { label: "Applied", value: 'applied' as const, icon: CheckCircle, count: categoryCounts.applied },
-    { label: "Shortlisted", value: 'shortlisted' as const, icon: Bookmark, count: categoryCounts.shortlisted },
-  ];
 
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[]) => {
     if (requirementsToRender.length > 0) {
@@ -87,7 +101,7 @@ export default function AllEnquiriesPage() {
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             There are no tuition enquiries matching your current filters.
           </p>
-           <Button onClick={() => { setSearchTerm(""); setActiveFilterCategory('recommended'); }} variant="outline" className="mt-6 text-sm py-2 px-5">
+           <Button onClick={() => { setSearchTerm(""); setActiveFilterCategory('all'); }} variant="outline" className="mt-6 text-sm py-2 px-5">
             <XIcon className="w-3.5 h-3.5 mr-1.5" />
             Clear Search & Filters
           </Button>
@@ -98,7 +112,7 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-4">
             <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
@@ -118,10 +132,35 @@ export default function AllEnquiriesPage() {
                       className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
                     />
                 </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5"
+                    >
+                      <span>{selectedCategoryLabel}</span>
+                      <ChevronDown className="w-4 h-4 opacity-70" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[220px]">
+                    <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {filterCategoriesForDropdown.map((category) => (
+                      <DropdownMenuItem
+                        key={category.value}
+                        onClick={() => setActiveFilterCategory(category.value)}
+                        className={cn("text-sm", activeFilterCategory === category.value && "bg-accent")}
+                      >
+                        <category.icon className="mr-2 h-4 w-4" />
+                        {category.label} ({category.count})
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button
                   variant="default"
                   className="w-full sm:w-auto text-sm py-2.5 px-5 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
-                  onClick={() => console.log("Filter button clicked - placeholder")}
+                  onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
                 >
                   <LucideFilterIcon className="w-4 h-4 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">Filter</span>
@@ -129,26 +168,6 @@ export default function AllEnquiriesPage() {
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex flex-wrap items-center gap-2 mb-4 sm:mb-6">
-          {filterCategories.map(category => (
-            <Button
-              key={category.value}
-              variant={activeFilterCategory === category.value ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveFilterCategory(category.value)}
-              className={cn(
-                "text-xs sm:text-sm py-1.5 px-3 sm:px-4 rounded-full flex items-center gap-1.5 transition-all",
-                activeFilterCategory === category.value 
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-card text-foreground border-border hover:bg-muted/80"
-              )}
-            >
-              <category.icon className="w-3.5 h-3.5" />
-              {category.label} ({category.count})
-            </Button>
-          ))}
-        </div>
 
         <div className="mt-6">
           {renderEnquiryList(filteredRequirements)}
