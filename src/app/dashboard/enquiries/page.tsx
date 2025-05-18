@@ -23,7 +23,7 @@ import {
 export default function AllEnquiriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
-  const [activeFilterCategory, setActiveFilterCategory] = useState<'all' | 'recommended' | 'applied' | 'shortlisted'>('all');
+  const [activeFilterCategory, setActiveFilterCategory] = useState<'all' | 'recommended' | 'applied' | 'shortlisted'>('recommended');
 
   useEffect(() => {
     setRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open'));
@@ -47,7 +47,7 @@ export default function AllEnquiriesPage() {
   ];
 
   const selectedCategoryLabel = useMemo(() => {
-    return filterCategoriesForDropdown.find(cat => cat.value === activeFilterCategory)?.label || "All Enquiries";
+    return filterCategoriesForDropdown.find(cat => cat.value === activeFilterCategory)?.label || "Recommended";
   }, [activeFilterCategory, filterCategoriesForDropdown]);
 
   const filteredRequirements = useMemo(() => {
@@ -101,7 +101,7 @@ export default function AllEnquiriesPage() {
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             There are no tuition enquiries matching your current filters.
           </p>
-           <Button onClick={() => { setSearchTerm(""); setActiveFilterCategory('all'); }} variant="outline" className="mt-6 text-sm py-2 px-5">
+           <Button onClick={() => { setSearchTerm(""); setActiveFilterCategory('recommended'); }} variant="outline" className="mt-6 text-sm py-2 px-5">
             <XIcon className="w-3.5 h-3.5 mr-1.5" />
             Clear Search & Filters
           </Button>
@@ -112,7 +112,7 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 w-full">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-4">
             <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
@@ -121,8 +121,8 @@ export default function AllEnquiriesPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="relative w-full sm:flex-1 min-w-0">
+            <div className="flex flex-row items-center gap-3"> {/* Changed from flex-col sm:flex-row */}
+                <div className="relative w-full sm:flex-1 min-w-0"> {/* Ensure this takes up space and can shrink */}
                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="search"
@@ -132,6 +132,14 @@ export default function AllEnquiriesPage() {
                       className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
                     />
                 </div>
+                <Button
+                  variant="default"
+                  className="w-full sm:w-auto text-sm py-2.5 px-5 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
+                  onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
+                >
+                  <LucideFilterIcon className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Filter</span>
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -157,14 +165,6 @@ export default function AllEnquiriesPage() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button
-                  variant="default"
-                  className="w-full sm:w-auto text-sm py-2.5 px-5 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
-                  onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
-                >
-                  <LucideFilterIcon className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Filter</span>
-                </Button>
             </div>
           </CardContent>
         </Card>
@@ -176,3 +176,4 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
+
