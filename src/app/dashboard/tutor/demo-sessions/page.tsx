@@ -7,17 +7,16 @@ import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription as DialogDescription } from "@/components/ui/card"; // Renamed CardDescription
+import { Card, CardContent, CardHeader, CardTitle, CardDescription as DialogDescription } from "@/components/ui/card";
 import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen } from "lucide-react";
-import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"; // Updated import
+import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard"; // Updated import
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle as DialogTitleComponent } from "@/components/ui/dialog"; // Renamed DialogTitle
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle as DialogTitleComponent } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -29,12 +28,10 @@ export default function TutorDemoSessionsPage() {
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   
-  // Main filter states
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [studentFilter, setStudentFilter] = useState("All");
   const [statusFilters, setStatusFilters] = useState<string[]>([]); 
 
-  // Temporary states for the dialog
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempSubjectFilter, setTempSubjectFilter] = useState(subjectFilter);
   const [tempStudentFilter, setTempStudentFilter] = useState(studentFilter);
@@ -84,12 +81,10 @@ export default function TutorDemoSessionsPage() {
 
   const handleUpdateSession = (updatedDemo: DemoSession) => {
     setAllTutorDemos(prevDemos => prevDemos.map(d => d.id === updatedDemo.id ? updatedDemo : d));
-    // console.log("Demo session updated (mock):", updatedDemo);
   };
 
   const handleCancelSession = (sessionId: string) => {
     setAllTutorDemos(prevDemos => prevDemos.map(d => d.id === sessionId ? { ...d, status: "Cancelled" } : d));
-    // console.log("Demo session cancelled (mock):", sessionId);
   };
 
   const handleApplyFilters = () => {
@@ -113,6 +108,32 @@ export default function TutorDemoSessionsPage() {
   const handleStatusCheckboxChange = (statusValue: string, checked: boolean) => {
     setTempStatusFilters(prev => 
       checked ? [...prev, statusValue] : prev.filter(s => s !== statusValue)
+    );
+  };
+
+   const renderDemoList = (demos: DemoSession[]) => {
+    if (demos.length === 0) {
+      return (
+        <div className="text-center py-16 bg-card border rounded-lg shadow-sm">
+            <MessageSquareQuote className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+            <p className="text-md font-semibold text-foreground/70 mb-2">No demos found.</p>
+            <p className="text-xs text-muted-foreground max-w-xs mx-auto mb-4">
+                There are no demos matching your current filters.
+            </p>
+        </div>
+      );
+    }
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        {demos.map(demo => (
+            <TutorDemoCard 
+                key={demo.id} 
+                demo={demo}
+                onUpdateSession={handleUpdateSession}
+                onCancelSession={handleCancelSession}
+            />
+        ))}
+      </div>
     );
   };
 
@@ -225,30 +246,9 @@ export default function TutorDemoSessionsPage() {
         </Card>
 
         <div className="mt-6">
-          {filteredDemos.length > 0 ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                {filteredDemos.map(demo => (
-                    <UpcomingSessionCard 
-                        key={demo.id} 
-                        sessionDetails={{ type: 'demo', data: demo }}
-                        onUpdateSession={handleUpdateSession}
-                        onCancelSession={handleCancelSession}
-                    />
-                ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 bg-card border rounded-lg shadow-sm">
-                <MessageSquareQuote className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-                <p className="text-md font-semibold text-foreground/70 mb-2">No demos found.</p>
-                <p className="text-xs text-muted-foreground max-w-xs mx-auto mb-4">
-                    There are no demos matching your current filters.
-                </p>
-            </div>
-          )}
+          {renderDemoList(filteredDemos)}
         </div>
       </div>
     </main>
   );
 }
-
-    
