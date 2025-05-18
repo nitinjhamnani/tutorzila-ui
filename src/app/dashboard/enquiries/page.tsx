@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
 import { SearchIcon, XIcon, ListChecks, CheckSquare, Star, Inbox, FilterIcon as LucideFilterIcon } from "lucide-react"; 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -98,7 +98,7 @@ export default function AllEnquiriesPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative w-full min-w-0"> {/* Added min-w-0 */}
+          <div className="relative w-full sm:flex-1 min-w-0"> 
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -111,7 +111,7 @@ export default function AllEnquiriesPage() {
           <Button 
             variant="outline" 
             className="w-full sm:w-auto text-sm shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
-            onClick={() => console.log("Filter button clicked")} // Placeholder action
+            onClick={() => console.log("Filter button clicked")}
           >
             <LucideFilterIcon className="w-4 h-4"/>
             Filter
@@ -158,5 +158,7 @@ export default function AllEnquiriesPage() {
     </div>
   );
 }
+
+    
 
     
