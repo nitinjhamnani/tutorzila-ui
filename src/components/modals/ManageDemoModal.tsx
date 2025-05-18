@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -5,8 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import * as z from "zod";
 import {
-  // Dialog, // No longer needed here as it's handled by the parent
-  // DialogContent, // No longer needed here
   DialogHeader,
   DialogTitle,
   DialogDescription,
@@ -24,8 +23,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, LinkIcon, ClockIcon, Save, Ban, Edit3 } from "lucide-react";
 import { format } from "date-fns";
@@ -41,15 +38,13 @@ const manageDemoSchema = z.object({
 type ManageDemoFormValues = z.infer<typeof manageDemoSchema>;
 
 interface ManageDemoModalProps {
-  // isOpen: boolean; // Handled by Dialog's open state
-  onOpenChange?: (isOpen: boolean) => void; // To close the dialog from parent
+  onOpenChange?: (isOpen: boolean) => void;
   demoSession: DemoSession;
   onUpdateSession: (updatedDemo: DemoSession) => void;
   onCancelSession: (sessionId: string) => void;
 }
 
 export function ManageDemoModal({
-  // isOpen, // Not needed
   onOpenChange,
   demoSession,
   onUpdateSession,
@@ -63,6 +58,7 @@ export function ManageDemoModal({
     defaultValues: {
       date: new Date(demoSession.date),
       time: demoSession.time,
+      meetingUrl: demoSession.joinLink || "",
     },
   });
 
@@ -72,45 +68,42 @@ export function ManageDemoModal({
         date: new Date(demoSession.date),
         time: demoSession.time,
         meetingUrl: demoSession.joinLink || "",
-        rescheduleDate: undefined,
-        rescheduleTime: undefined,
       });
     }
-  }, [demoSession, form]); // Removed isOpen from dependencies
+  }, [demoSession, form]);
 
   const onSubmit: SubmitHandler<ManageDemoFormValues> = async (data) => {
     setIsSubmitting(true);
     const updatedDemoData: DemoSession = {
       ...demoSession,
       date: data.date.toISOString(),
-      date: data.rescheduleDate?.toISOString() || data.date.toISOString(), // Use reschedule date if provided, otherwise original date
-      time: data.rescheduleTime || data.time, // Use reschedule time if provided, otherwise original time
+      time: data.time,
       status: "Scheduled", 
+      joinLink: data.meetingUrl || undefined,
     };
     
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     onUpdateSession(updatedDemoData);
     toast({
       title: "Demo Session Updated!",
       description: `Details for the demo with ${demoSession.studentName} have been updated.`,
     });
     setIsSubmitting(false);
-    if (onOpenChange) onOpenChange(false); // Close the dialog
+    if (onOpenChange) onOpenChange(false);
   };
 
   const handleCancelDemo = async () => {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
     onCancelSession(demoSession.id);
     toast({
       variant: "destructive",
       title: "Demo Session Cancelled",
       description: `The demo with ${demoSession.studentName} has been cancelled.`,
     });
-    if (onOpenChange) onOpenChange(false); // Close the dialog
+    if (onOpenChange) onOpenChange(false);
   };
 
   return (
-    // The Dialog and DialogContent tags are removed as this component is now rendered *inside* a DialogContent
     <>
       <DialogHeader className="p-6 pb-4 border-b">
          <div className="flex items-center gap-3">
@@ -169,65 +162,6 @@ export function ManageDemoModal({
               </FormItem>
             )}
           />
-
-                  <FormField
-                    control={form.control}
-                    name="rescheduleDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>New Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-[240px] pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0)) || isSubmitting
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="rescheduleTime"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>New Time</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="time"
-                            {...field}
-                            className="w-[240px]"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
           <FormField
             control={form.control}
