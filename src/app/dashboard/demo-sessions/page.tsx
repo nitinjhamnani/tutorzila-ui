@@ -30,7 +30,7 @@ const allDemoStatuses = ["Scheduled", "Requested", "Completed", "Cancelled"];
 
 
 export default function MyDemosPage() {
-  const [allDemos, setAllDemos] = useState<DemoSession[]>([]);
+  const [allDemos, setAllDemos] = useState<DemoSession[]>(MOCK_DEMO_SESSIONS); // Initialize with mock data
   const [searchTerm, setSearchTerm] = useState("");
   
   // Main filter states
@@ -46,7 +46,7 @@ export default function MyDemosPage() {
 
 
   useEffect(() => {
-    setAllDemos(MOCK_DEMO_SESSIONS);
+    // setAllDemos(MOCK_DEMO_SESSIONS); // Already initialized
   }, []);
 
   useEffect(() => {
@@ -81,10 +81,30 @@ export default function MyDemosPage() {
   const requestedDemos = useMemo(() => filteredDemos.filter(d => d.status === "Requested"), [filteredDemos]);
   const pastDemos = useMemo(() => filteredDemos.filter(d => d.status === "Completed" || d.status === "Cancelled"), [filteredDemos]);
 
-  const mockActionHandler = (action: string, demoId: string) => {
-    console.log(`${action} clicked for demo ID: ${demoId}`);
-    // In a real app, you'd update state or make API calls here
+ const handleRescheduleDemo = (demoId: string, newDate: Date, newStartTime: string, newEndTime: string, reason: string) => {
+    console.log(`Reschedule request for demo ID: ${demoId}`, { newDate, newStartTime, newEndTime, reason });
+    // Mock update: find the demo and update its status/details
+    setAllDemos(prevDemos =>
+      prevDemos.map(d =>
+        d.id === demoId
+          ? { ...d, rescheduleStatus: 'pending' as const } // Set status to pending
+          : d
+      )
+    );
+    // In a real app, you'd make an API call here
   };
+
+  const handleCancelDemo = (demoId: string) => {
+    console.log(`Cancel request for demo ID: ${demoId}`);
+    setAllDemos(prevDemos =>
+      prevDemos.map(d =>
+        d.id === demoId
+          ? { ...d, status: 'Cancelled' as const, rescheduleStatus: 'idle' as const }
+          : d
+      )
+    );
+  };
+
 
   const handleApplyFilters = () => {
     setSubjectFilter(tempSubjectFilter);
@@ -94,7 +114,7 @@ export default function MyDemosPage() {
   };
 
   const resetFilters = () => {
-    setSearchTerm(""); // Clear search term as well
+    setSearchTerm(""); 
     setTempSubjectFilter("All");
     setTempTutorFilter("All");
     setTempStatusFilters([]);
@@ -134,11 +154,11 @@ export default function MyDemosPage() {
           <ParentDemoSessionCard 
             key={demo.id} 
             demo={demo} 
-            onReschedule={(id) => mockActionHandler("Reschedule", id)}
-            onCancel={(id) => mockActionHandler("Cancel", id)}
-            onEditRequest={(id) => mockActionHandler("Edit Request", id)}
-            onWithdrawRequest={(id) => mockActionHandler("Withdraw Request", id)}
-            onGiveFeedback={(id) => mockActionHandler("Give Feedback", id)}
+            onReschedule={handleRescheduleDemo}
+            onCancel={handleCancelDemo}
+            onEditRequest={(id) => console.log("Edit Request for", id)}
+            onWithdrawRequest={(id) => console.log("Withdraw Request for", id)}
+            onGiveFeedback={(id) => console.log("Give Feedback for", id)}
           />
         ))}
       </div>

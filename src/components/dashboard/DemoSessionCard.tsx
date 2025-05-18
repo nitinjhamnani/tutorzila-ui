@@ -89,7 +89,7 @@ export function DemoSessionCard({ demo, onUpdateSession, onCancelSession }: Demo
           <InfoItem icon={GraduationCap} label="Grade" value={demo.gradeLevel} />
           <InfoItem icon={ShieldCheck} label="Board" value={demo.board} />
           <InfoItem icon={Calendar} label="Date" value={format(demoDate, "MMM d, yyyy")} />
-          <InfoItem icon={Clock} label="Time" value={demo.time} />
+          <InfoItem icon={Clock} label="Time" value={`${demo.startTime} - ${demo.endTime}`} />
         </CardContent>
         <CardFooter className="p-3 border-t border-border/30 bg-card/50 group-hover:bg-muted/20 transition-colors duration-300">
           {demo.joinLink && demo.status === "Scheduled" ? (
@@ -135,4 +135,3 @@ function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
     </div>
   );
 }
-

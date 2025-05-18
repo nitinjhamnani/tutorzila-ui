@@ -27,10 +27,53 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Select, SelectContentItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select"; // Renamed to avoid conflict
+
+const rescheduleSchema = z.object({
+  newDate: z.date({ required_error: "Please select a new date."}),
+  newStartTime: z.string().min(1, "Please select a start time."),
+  newEndTime: z.string().min(1, "Please select an end time."),
+  reason: z.string().max(200, "Reason must be 200 characters or less.").optional(),
+}).refine(data => {
+   if (data.newStartTime && data.newEndTime) {
+    const [startHour, startMinutePeriod] = data.newStartTime.split(/:| /);
+    const [endHour, endMinutePeriod] = data.newEndTime.split(/:| /);
+    let startH = parseInt(startHour);
+    let endH = parseInt(endHour);
+    if (startMinutePeriod === 'PM' && startH !== 12) startH += 12;
+    if (startMinutePeriod === 'AM' && startH === 12) startH = 0; 
+    if (endMinutePeriod === 'PM' && endH !== 12) endH += 12;
+    if (endMinutePeriod === 'AM' && endH === 12) endH = 0;
+    const startDate = new Date(data.newDate); // Use the selected date
+    startDate.setHours(startH, parseInt(data.newStartTime.split(':')[1].split(' ')[0]), 0, 0);
+    const endDate = new Date(data.newDate); // Use the selected date
+    endDate.setHours(endH, parseInt(data.newEndTime.split(':')[1].split(' ')[0]), 0, 0);
+    return endDate > startDate;
+  }
+  return true;
+}, {
+  message: "End time must be after start time.",
+  path: ["newEndTime"],
+});
+
+type RescheduleFormValues = z.infer<typeof rescheduleSchema>;
+
+const timeSlotsForReschedule = Array.from({ length: 2 * 14 }, (_, i) => { // 7 AM to 9 PM (14 hours)
+  const hour = Math.floor(i / 2) + 7;
+  const minute = (i % 2) * 30;
+  const date = new Date();
+  date.setHours(hour, minute);
+  const formattedTime = format(date, "hh:mm a"); 
+  return { value: formattedTime, label: formattedTime };
+});
+
 
 interface ParentDemoSessionCardProps {
   demo: DemoSession;
-  onReschedule: (demoId: string, newDate: Date, newTime: string, reason: string) => void;
+  onReschedule: (demoId: string, newDate: Date, newStartTime: string, newEndTime: string, reason: string) => void;
   onCancel: (demoId: string) => void;
   onEditRequest: (demoId: string) => void;
   onWithdrawRequest: (demoId: string) => void;
@@ -42,10 +85,28 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
   const demoDate = new Date(demo.date);
 
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
-  const [newSelectedDate, setNewSelectedDate] = useState<Date | undefined>(new Date(demo.date));
-  const [newTimeInput, setNewTimeInput] = useState(demo.time);
-  const [rescheduleReasonInput, setRescheduleReasonInput] = useState("");
   const [localRescheduleStatus, setLocalRescheduleStatus] = useState<'idle' | 'pending' | 'confirmed'>(demo.rescheduleStatus || 'idle');
+
+  const form = useForm<RescheduleFormValues>({
+    resolver: zodResolver(rescheduleSchema),
+    defaultValues: {
+      newDate: new Date(demo.date),
+      newStartTime: demo.startTime,
+      newEndTime: demo.endTime,
+      reason: "",
+    },
+  });
+   useEffect(() => {
+    if (demo) {
+      form.reset({
+        newDate: new Date(demo.date),
+        newStartTime: demo.startTime,
+        newEndTime: demo.endTime,
+        reason: "",
+      });
+      setLocalRescheduleStatus(demo.rescheduleStatus || 'idle');
+    }
+  }, [demo, form]);
 
 
   const getStatusBadgeVariant = () => {
@@ -70,18 +131,11 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
     }
   };
   
-  const handleRescheduleSubmit = () => {
-    if (!newSelectedDate || !newTimeInput.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Missing Information",
-        description: "Please select a new date and time for the reschedule request.",
-      });
-      return;
-    }
-    onReschedule(demo.id, newSelectedDate, newTimeInput, rescheduleReasonInput);
+  const handleRescheduleSubmit = (values: RescheduleFormValues) => {
+    onReschedule(demo.id, values.newDate, values.newStartTime, values.newEndTime, values.reason || "");
     setLocalRescheduleStatus('pending'); 
     setIsRescheduleModalOpen(false);
+    form.reset();
     toast({
       title: "Reschedule Request Sent",
       description: "Your request has been sent to the tutor for confirmation.",
@@ -117,7 +171,7 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
       </CardHeader>
       <CardContent className="p-4 space-y-2 text-xs flex-grow">
         <InfoItem icon={CalendarDays} label="Date" value={format(demoDate, "MMM d, yyyy")} />
-        <InfoItem icon={Clock} label="Time" value={demo.time} />
+        <InfoItem icon={Clock} label="Time" value={`${demo.startTime} - ${demo.endTime}`} />
         {demo.mode && <InfoItem icon={demo.mode === "Online" ? Video : UsersIcon} label="Mode" value={demo.mode} />}
         <InfoItem icon={ListFilter} label="Grade" value={demo.gradeLevel} />
         <InfoItem icon={ListFilter} label="Board" value={demo.board} />
@@ -141,70 +195,129 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                   <Edit3 className="w-3 h-3 mr-1" /> Reschedule
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-sm bg-card p-0 rounded-xl overflow-hidden"> 
+              <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden"> 
                 <DialogHeader className="p-6 pb-4 border-b">
                   <DialogTitle>Reschedule Demo Session</DialogTitle>
                   <DialogDescription>
                     Request a new date and time for your demo with {demo.tutorName} for {demo.subject}.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4 px-6 max-h-[70vh] overflow-y-auto">
-                  <div className="space-y-2">
-                    <Label htmlFor="new-date">New Date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal pl-3 text-xs h-9",
-                            !newSelectedDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50" />
-                          {newSelectedDate ? format(newSelectedDate, "PPP") : <span>Pick a date</span>}
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleRescheduleSubmit)} className="grid gap-4 py-4 px-6 max-h-[70vh] overflow-y-auto">
+                    <FormField
+                      control={form.control}
+                      name="newDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>New Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal pl-3 text-xs h-9",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50" />
+                                  {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                                disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                                captionLayout="dropdown-buttons"
+                                fromYear={new Date().getFullYear()}
+                                toYear={new Date().getFullYear() + 1}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                       <FormField
+                        control={form.control}
+                        name="newStartTime"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>New Start Time</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <FormSelectTrigger className="text-xs h-9">
+                                  <FormSelectValue placeholder="Start time" />
+                                </FormSelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {timeSlotsForReschedule.map(slot => (
+                                  <SelectContentItem key={`start-${slot.value}`} value={slot.value} className="text-xs">{slot.label}</SelectContentItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="newEndTime"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>New End Time</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <FormSelectTrigger className="text-xs h-9">
+                                  <FormSelectValue placeholder="End time" />
+                                </FormSelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {timeSlotsForReschedule.map(slot => (
+                                  <SelectContentItem key={`end-${slot.value}`} value={slot.value} className="text-xs">{slot.label}</SelectContentItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="reason"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Reason for Reschedule (Optional)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field}
+                              placeholder="Briefly explain why you need to reschedule (max 200 chars)."
+                              className="text-xs min-h-[60px]"
+                            />
+                          </FormControl>
+                           <FormDescription className="text-xs text-muted-foreground text-right">
+                            {field.value?.length || 0}/200
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <DialogFooter className="pt-4">
+                        <DialogClose asChild>
+                          <Button type="button" variant="outline" size="sm">Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit" size="sm" disabled={form.formState.isSubmitting}>
+                          {form.formState.isSubmitting ? "Submitting..." : "Submit Request"}
                         </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={newSelectedDate}
-                          onSelect={setNewSelectedDate}
-                          initialFocus
-                          disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                          captionLayout="dropdown-buttons"
-                          fromYear={new Date().getFullYear()}
-                          toYear={new Date().getFullYear() + 1}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="new-time">New Time</Label>
-                    <Input 
-                      id="new-time" 
-                      value={newTimeInput} 
-                      onChange={(e) => setNewTimeInput(e.target.value)} 
-                      placeholder="e.g., 5:00 PM or HH:MM AM/PM"
-                      className="text-xs h-9"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="reschedule-reason">Reason for Reschedule (Optional)</Label>
-                    <Textarea 
-                      id="reschedule-reason"
-                      value={rescheduleReasonInput}
-                      onChange={(e) => setRescheduleReasonInput(e.target.value)}
-                      placeholder="Briefly explain why you need to reschedule."
-                      className="text-xs min-h-[60px]"
-                    />
-                  </div>
-                </div>
-                <DialogFooter className="p-6 pt-4 border-t">
-                  <DialogClose asChild>
-                    <Button type="button" variant="outline" size="sm">Cancel</Button>
-                  </DialogClose>
-                  <Button type="button" onClick={handleRescheduleSubmit} size="sm">Submit Request</Button>
-                </DialogFooter>
+                      </DialogFooter>
+                  </form>
+                </Form>
               </DialogContent>
             </Dialog>
             <Button size="xs" variant="destructiveOutline" className="text-[11px] py-1 px-2 h-auto" onClick={() => onCancel(demo.id)}>
@@ -252,5 +365,3 @@ function InfoItem({ icon: Icon, label, value }: InfoItemPropsLocal) {
     </div>
   );
 }
-
-    

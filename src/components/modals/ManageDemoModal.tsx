@@ -23,17 +23,56 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, LinkIcon, ClockIcon, Save, Ban, Edit3 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { DemoSession } from "@/types";
 
+const timeSlots = Array.from({ length: 2 * 14 }, (_, i) => { // 7 AM to 9 PM (14 hours)
+  const hour = Math.floor(i / 2) + 7;
+  const minute = (i % 2) * 30;
+  const date = new Date();
+  date.setHours(hour, minute);
+  const formattedTime = format(date, "hh:mm a"); // e.g., "07:00 AM"
+  return { value: formattedTime, label: formattedTime };
+});
+
+
 const manageDemoSchema = z.object({
   date: z.date({ required_error: "Please select a date." }),
-  time: z.string().min(1, "Time is required. e.g., 5:00 PM - 5:30 PM"),
+  startTime: z.string().min(1, "Start time is required."),
+  endTime: z.string().min(1, "End time is required."),
   meetingUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal(''))
+}).refine(data => {
+  // Basic time comparison; for robust comparison, parse to Date objects
+  if (data.startTime && data.endTime) {
+    const [startHour, startMinutePeriod] = data.startTime.split(/:| /);
+    const [endHour, endMinutePeriod] = data.endTime.split(/:| /);
+
+    let startH = parseInt(startHour);
+    let endH = parseInt(endHour);
+
+    if (startMinutePeriod === 'PM' && startH !== 12) startH += 12;
+    if (startMinutePeriod === 'AM' && startH === 12) startH = 0; // Midnight case
+    if (endMinutePeriod === 'PM' && endH !== 12) endH += 12;
+    if (endMinutePeriod === 'AM' && endH === 12) endH = 0;
+
+    const startDate = new Date();
+    startDate.setHours(startH, parseInt(data.startTime.split(':')[1].split(' ')[0]), 0, 0);
+
+    const endDate = new Date();
+    endDate.setHours(endH, parseInt(data.endTime.split(':')[1].split(' ')[0]), 0, 0);
+
+    return endDate > startDate;
+  }
+  return true;
+}, {
+  message: "End time must be after start time.",
+  path: ["endTime"],
 });
+
 
 type ManageDemoFormValues = z.infer<typeof manageDemoSchema>;
 
@@ -57,7 +96,8 @@ export function ManageDemoModal({
     resolver: zodResolver(manageDemoSchema),
     defaultValues: {
       date: new Date(demoSession.date),
-      time: demoSession.time,
+      startTime: demoSession.startTime || "",
+      endTime: demoSession.endTime || "",
       meetingUrl: demoSession.joinLink || "",
     },
   });
@@ -66,7 +106,8 @@ export function ManageDemoModal({
     if (demoSession) {
       form.reset({
         date: new Date(demoSession.date),
-        time: demoSession.time,
+        startTime: demoSession.startTime || "",
+        endTime: demoSession.endTime || "",
         meetingUrl: demoSession.joinLink || "",
       });
     }
@@ -77,7 +118,8 @@ export function ManageDemoModal({
     const updatedDemoData: DemoSession = {
       ...demoSession,
       date: data.date.toISOString(),
-      time: data.time,
+      startTime: data.startTime,
+      endTime: data.endTime,
       status: "Scheduled", 
       joinLink: data.meetingUrl || undefined,
     };
@@ -115,7 +157,7 @@ export function ManageDemoModal({
               Manage Demo Session
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground mt-0.5">
-              Update details for the demo with {demoSession.studentName}.
+              Update details for the demo with {demoSession.studentName} for {demoSession.subject}.
             </DialogDescription>
           </div>
         </div>
@@ -162,28 +204,57 @@ export function ManageDemoModal({
               </FormItem>
             )}
           />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="startTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Time</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
+                    <FormControl>
+                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
+                        <ClockIcon className="mr-2 h-4 w-4 opacity-50" />
+                        <SelectValue placeholder="Select start time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeSlots.map(slot => (
+                        <SelectItem key={slot.value} value={slot.value}>{slot.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Time</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                      <ClockIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        placeholder="e.g., 4:00 PM - 4:30 PM" 
-                        {...field} 
-                        className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" 
-                        disabled={isSubmitting}
-                      />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="endTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Time</FormLabel>
+                   <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
+                    <FormControl>
+                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
+                        <ClockIcon className="mr-2 h-4 w-4 opacity-50" />
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeSlots.map(slot => (
+                        <SelectItem key={slot.value} value={slot.value}>{slot.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
 
           <FormField
             control={form.control}

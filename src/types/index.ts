@@ -61,6 +61,7 @@ export interface Testimonial {
 
 export interface DemoSession {
   id: string;
+  tutorId?: string; // Added tutorId
   tutorName?: string;
   tutorAvatarSeed?: string; 
   studentName: string;
@@ -68,11 +69,13 @@ export interface DemoSession {
   gradeLevel: string;
   board: string;
   date: string; // ISO string
-  time: string;
-  status: "Scheduled" | "Completed" | "Cancelled" | "Requested"; // Added "Requested"
+  startTime: string; // e.g., "4:00 PM"
+  endTime: string;   // e.g., "4:30 PM"
+  status: "Scheduled" | "Completed" | "Cancelled" | "Requested";
   joinLink?: string;
   mode?: "Online" | "Offline (In-person)";
   feedbackSubmitted?: boolean;
+  rescheduleStatus?: 'idle' | 'pending' | 'confirmed';
 }
 
 export interface MyClass {
