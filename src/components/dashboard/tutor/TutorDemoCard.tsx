@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
+import Link from "next/link";
 
 interface TutorDemoCardProps {
   demo: DemoSession;
@@ -33,19 +34,19 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const studentInitials = getStudentInitials(demo.studentName);
 
-  const statusBadgeClasses = () => { // This function is used for color scheme, we'll adapt for the specific footer badge
+  const statusBadgeClasses = () => {
     switch (demo.status) {
-      case "Scheduled": return "bg-blue-100 text-blue-700 border-blue-500/50";
-      case "Requested": return "bg-yellow-100 text-yellow-700 border-yellow-500/50";
-      case "Completed": return "bg-green-100 text-green-700 border-green-500/50";
-      case "Cancelled": return "bg-red-100 text-red-700 border-red-500/50";
-      default: return "bg-gray-100 text-gray-700 border-gray-500/50";
+      case "Scheduled": return "border-blue-500/50 bg-blue-100/50 text-blue-700";
+      case "Requested": return "border-yellow-500/50 bg-yellow-100/50 text-yellow-700";
+      case "Completed": return "border-green-500/50 bg-green-100/50 text-green-700";
+      case "Cancelled": return "border-red-500/50 bg-red-100/50 text-red-700";
+      default: return "border-gray-500/50 bg-gray-100/50 text-gray-700";
     }
   };
 
   const StatusIcon = () => {
     switch (demo.status) {
-      case "Scheduled": return <Clock className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />; // Icon styled for footer badge
+      case "Scheduled": return <Clock className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
       case "Requested": return <MessageSquareQuote className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
       case "Completed": return <CheckCircle className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
       case "Cancelled": return <XCircle className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />;
@@ -58,7 +59,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
       <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
         <CardHeader className="p-0 pb-3 sm:pb-4">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm border border-primary/20">
+            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-xs">
                 {studentInitials}
               </AvatarFallback>
@@ -67,11 +68,11 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
               <CardTitle className="text-sm sm:text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                 Demo: {demo.subject}
               </CardTitle>
-              <CardDescription className="text-xs text-muted-foreground mt-0.5">
+              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
                 Student: {demo.studentName}
               </CardDescription>
             </div>
-            {/* Status Badge removed from header for demo cards, will be shown in footer if Scheduled */}
+            {/* Status Badge removed from header to be placed in footer */}
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -87,9 +88,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 variant="outline"
                 className={cn(
                     "py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center",
-                    // Apply status specific colors if needed, or keep neutral like enquiry badges
-                    // For example, if you want the blue color for "Scheduled":
-                    // demo.status === "Scheduled" && "border-blue-500/50 bg-blue-100/50 text-blue-700"
+                    statusBadgeClasses() 
                 )}
             >
                 <StatusIcon /> 
@@ -98,23 +97,24 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
           </div>
           <div className="flex items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
-              <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
-                <a href={demo.joinLink} target="_blank" rel="noopener noreferrer">
+              <Button
+                asChild
+                size="sm"
+                className={cn(
+                  "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
+                  "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
+                )}
+              >
+                <Link href={demo.joinLink} target="_blank" rel="noopener noreferrer">
                   <Video className="w-3 h-3 mr-1" /> Join Session
-                </a>
+                </Link>
               </Button>
             )}
-            {demo.status === "Scheduled" && (
-              <DialogTrigger asChild>
-                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
-                  <Settings className="w-3 h-3 mr-1" /> Manage
-                </Button>
-              </DialogTrigger>
-            )}
+            {/* Manage button removed */}
           </div>
         </CardFooter>
       </Card>
-      {demo.status === "Scheduled" && (
+      {demo.status === "Scheduled" && ( // Modal is still needed if "Manage" is triggered elsewhere or in future
         <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
           <ManageDemoModal
             demoSession={demo}
