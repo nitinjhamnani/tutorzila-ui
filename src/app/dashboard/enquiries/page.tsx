@@ -116,15 +116,14 @@ export default function AllEnquiriesPage() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-lg sm:text-xl font-semibold text-primary flex items-center break-words">
+            <CardTitle className="text-xl font-semibold text-primary flex items-center break-words">
               <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
               Search & Filter Enquiries
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3"> {/* Changed from justify-between to gap-3 */}
-              {/* Group 1: Search input and Filter Icon Button */}
-              <div className="flex items-center gap-3 w-full sm:flex-grow sm:max-w-lg"> {/* Let this group grow but cap its max width */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
+              <div className="flex items-center gap-3 w-full sm:flex-grow sm:max-w-lg"> 
                 <div className="relative flex-1 min-w-0">
                   <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -137,6 +136,7 @@ export default function AllEnquiriesPage() {
                 </div>
                 <Button
                   variant="default"
+                  size="icon"
                   className="h-11 w-11 shrink-0 flex items-center justify-center sm:w-auto sm:px-4" 
                   onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
                 >
@@ -145,8 +145,7 @@ export default function AllEnquiriesPage() {
                 </Button>
               </div>
 
-              {/* Group 2: Category Dropdown */}
-              <div className="w-full sm:w-auto mt-3 sm:mt-0"> {/* Add margin-top for mobile, reset for sm+ */}
+              <div className="w-full sm:w-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -170,7 +169,10 @@ export default function AllEnquiriesPage() {
                       <DropdownMenuItem
                         key={category.value}
                         onClick={() => setActiveFilterCategory(category.value)}
-                        className={cn("text-sm", activeFilterCategory === category.value && "bg-accent")}
+                        className={cn(
+                          "text-sm", 
+                          activeFilterCategory === category.value && "bg-primary text-primary-foreground"
+                        )}
                       >
                         <category.icon className="mr-2 h-4 w-4" />
                         {category.label} ({category.count})
@@ -191,5 +193,3 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
-
-    
