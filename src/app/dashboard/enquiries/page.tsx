@@ -7,20 +7,22 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
 import { SearchIcon, XIcon, Star, CheckCircle, FilterIcon as LucideFilterIcon, Bookmark } from "lucide-react"; 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // Import ScrollArea and ScrollBar
+import { cn } from "@/lib/utils";
 
 export default function AllEnquiriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [requirements, setRequirements] = useState<TuitionRequirement[]>([]);
+  const [activeFilterCategory, setActiveFilterCategory] = useState<'recommended' | 'applied' | 'shortlisted' | 'all'>('recommended');
 
   useEffect(() => {
-    // Simulate fetching all open requirements for tutors
     setRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open'));
   }, []);
 
   const filteredRequirements = useMemo(() => {
-    return requirements.filter((req) => {
+    let filtered = requirements.filter((req) => {
       const searchTermLower = searchTerm.toLowerCase();
       const matchesSearchTerm = searchTerm === "" || 
         (Array.isArray(req.subject) ? req.subject.some(s => s.toLowerCase().includes(searchTermLower)) : req.subject.toLowerCase().includes(searchTermLower)) ||
@@ -31,8 +33,35 @@ export default function AllEnquiriesPage() {
       
       return matchesSearchTerm;
     });
-  }, [searchTerm, requirements]);
 
+    // Apply category filter
+    if (activeFilterCategory === 'recommended') {
+      return filtered.filter(req => req.mockIsRecommended);
+    }
+    if (activeFilterCategory === 'applied') {
+      return filtered.filter(req => req.mockIsAppliedByCurrentUser);
+    }
+    if (activeFilterCategory === 'shortlisted') {
+      return filtered.filter(req => req.mockIsShortlistedByCurrentUser);
+    }
+    // 'all' category or default shows all search-matched open requirements
+    return filtered;
+  }, [searchTerm, requirements, activeFilterCategory]);
+
+  const categoryCounts = useMemo(() => {
+    const openRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open');
+    return {
+      recommended: openRequirements.filter(r => r.mockIsRecommended).length,
+      applied: openRequirements.filter(r => r.mockIsAppliedByCurrentUser).length,
+      shortlisted: openRequirements.filter(r => r.mockIsShortlistedByCurrentUser).length,
+    };
+  }, []);
+
+  const filterCategories = [
+    { label: "Recommended", value: 'recommended' as const, icon: Star, count: categoryCounts.recommended },
+    { label: "Applied", value: 'applied' as const, icon: CheckCircle, count: categoryCounts.applied },
+    { label: "Shortlisted", value: 'shortlisted' as const, icon: Bookmark, count: categoryCounts.shortlisted },
+  ];
 
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[]) => {
     if (requirementsToRender.length > 0) {
@@ -56,11 +85,11 @@ export default function AllEnquiriesPage() {
           <LucideFilterIcon className="w-16 h-16 text-primary/30 mx-auto mb-5" />
           <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            There are no tuition enquiries matching your current search.
+            There are no tuition enquiries matching your current filters.
           </p>
-           <Button onClick={() => setSearchTerm("")} variant="outline" className="mt-6 text-sm py-2 px-5">
+           <Button onClick={() => { setSearchTerm(""); setActiveFilterCategory('recommended'); }} variant="outline" className="mt-6 text-sm py-2 px-5">
             <XIcon className="w-3.5 h-3.5 mr-1.5" />
-            Clear Search
+            Clear Search & Filters
           </Button>
         </CardContent>
       </Card>
@@ -69,16 +98,16 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-3">
+          <CardHeader className="p-0 mb-4">
             <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
               <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
               Search & Filter Enquiries
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="flex flex-row items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
                 <div className="relative w-full sm:flex-1 min-w-0">
                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -91,8 +120,8 @@ export default function AllEnquiriesPage() {
                 </div>
                 <Button
                   variant="default"
-                  className="w-auto text-sm py-2.5 px-5 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
-                  onClick={() => console.log("Filter button clicked")}
+                  className="w-full sm:w-auto text-sm py-2.5 px-5 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
+                  onClick={() => console.log("Filter button clicked - placeholder")}
                 >
                   <LucideFilterIcon className="w-4 h-4 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">Filter</span>
@@ -100,6 +129,26 @@ export default function AllEnquiriesPage() {
             </div>
           </CardContent>
         </Card>
+
+        <div className="flex flex-wrap items-center gap-2 mb-4 sm:mb-6">
+          {filterCategories.map(category => (
+            <Button
+              key={category.value}
+              variant={activeFilterCategory === category.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveFilterCategory(category.value)}
+              className={cn(
+                "text-xs sm:text-sm py-1.5 px-3 sm:px-4 rounded-full flex items-center gap-1.5 transition-all",
+                activeFilterCategory === category.value 
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-card text-foreground border-border hover:bg-muted/80"
+              )}
+            >
+              <category.icon className="w-3.5 h-3.5" />
+              {category.label} ({category.count})
+            </Button>
+          ))}
+        </div>
 
         <div className="mt-6">
           {renderEnquiryList(filteredRequirements)}
