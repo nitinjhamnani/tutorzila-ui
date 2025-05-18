@@ -16,7 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Menu as MenuIcon, LayoutDashboard, Briefcase, CalendarDays, School, DollarSign, UserCircle, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { Menu as MenuIcon, LayoutDashboard, Briefcase, CalendarDays, School, DollarSign, UserCircle, LogOut, Settings as SettingsIcon, MessageSquare, MessageSquareQuote } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -24,23 +24,21 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
 
-export default function TutorSpecificDashboardLayout({ children }: { children: ReactNode }) {
+export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (isCheckingAuth) {
-      return;
-    }
-    if (!isAuthenticated || user?.role !== 'tutor') {
-      router.replace("/"); // Redirect if not a tutor or not authenticated
+    if (!isCheckingAuth) {
+      if (!isAuthenticated || user?.role !== 'tutor') {
+        router.replace("/"); 
+      }
     }
   }, [isAuthenticated, isCheckingAuth, router, user]);
 
   useEffect(() => {
-    // CSS variable for header height (TutorDashboardHeader height)
     document.documentElement.style.setProperty('--header-height', '4rem'); 
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
@@ -48,26 +46,25 @@ export default function TutorSpecificDashboardLayout({ children }: { children: R
   }, []);
 
   if (isCheckingAuth || !user || user.role !== 'tutor') {
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Dashboard...</div>;
+    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote }, // Changed from CalendarDays
     { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
-    // { href: "/tutor/messages", label: "Messages", icon: MessageSquare, disabled: true }, // Assuming Messages is tutor specific
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
   ];
 
   const accountSettingsNavItems = [
     { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
-    // { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true }, // Assuming Settings is tutor specific
+    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
   return (
-    <>
+    <div className="bg-gray-50 min-h-screen flex flex-col"> {/* Ensure overall page background is gray-50 */}
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
         <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
@@ -83,7 +80,6 @@ export default function TutorSpecificDashboardLayout({ children }: { children: R
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
             {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
-                {/* This trigger is for desktop only in this header config; mobile trigger is in TutorDashboardHeader */}
                 {!isMobile && <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors"><MenuIcon className="h-5 w-5"/></SidebarMenuButton>}
             </div>
           </SidebarHeader>
@@ -91,7 +87,7 @@ export default function TutorSpecificDashboardLayout({ children }: { children: R
           <SidebarContent className="flex-grow">
             <SidebarMenu>
               {tutorNavItems.map((item) => {
-                const isActive = item.href ? pathname === item.href || pathname.startsWith(item.href + '/') && item.href !== "/tutor/dashboard" : false;
+                const isActive = item.href ? pathname === item.href || (pathname.startsWith(item.href + '/') && item.href !== "/tutor/dashboard") : false;
                 return (
                   <SidebarMenuItem key={item.href || item.label}>
                     <SidebarMenuButton
@@ -165,14 +161,14 @@ export default function TutorSpecificDashboardLayout({ children }: { children: R
         </Sidebar>
 
         <SidebarInset className={cn(
-            "pb-4 md:pb-6 bg-gray-50 overflow-x-hidden", // Using bg-gray-50 from snippet for tutor area
+            "pb-4 md:pb-6 overflow-x-hidden", // Removed bg-gray-50, inherited from parent
             "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
         )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
-            {children}
+                {children}
             </div>
         </SidebarInset>
       </SidebarProvider>
-    </>
+    </div>
   );
 }
