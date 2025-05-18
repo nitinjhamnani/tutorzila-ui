@@ -13,7 +13,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SheetTitle,
+  SheetTitle, // This import might be unused now in this file, but keep for safety if other dialogs use it.
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,11 +27,6 @@ import {
   School,
   CalendarDays,
   MessageSquare,
-  HomeIcon as HomeIconLucide,
-  Users as UsersIconLucide,
-  BookOpen,
-  BarChart2,
-  SearchCheck,
   MessageSquareQuote,
 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -39,7 +34,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
-// TutorDashboardHeader component and its import are removed
+// TutorDashboardHeader is removed as per user request.
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -57,7 +52,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }, [isAuthenticated, isCheckingAuth, router, user]);
 
   useEffect(() => {
-    // When TutorDashboardHeader is removed, set header height to 0 for padding calculations
+    // Since TutorDashboardHeader is removed, effective header height is 0 for padding calculations below banner
     document.documentElement.style.setProperty('--header-height', '0px');
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px'); // Cleanup
@@ -71,7 +66,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote }, // Changed from CalendarDays
     { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
     { href: "/tutor/messages", label: "Messages", icon: MessageSquare, disabled: true },
@@ -83,13 +78,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const paddingTopClass = "pt-[var(--verification-banner-height,0px)]"; // Only accounts for verification banner now
+  const paddingTopClass = "pt-[var(--verification-banner-height,0px)]"; // Only accounts for verification banner
 
   return (
     <>
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
-        {/* TutorDashboardHeader rendering removed */}
+        {/* TutorDashboardHeader is removed */}
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
@@ -98,7 +93,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-            <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>
+            {/* Removed SheetTitle from here as Sidebar component handles it for mobile sheet */}
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
               <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors">
                 <Menu className="h-5 w-5" />
@@ -184,7 +179,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
         <SidebarInset className={cn(
           "flex-1 pb-4 md:pb-6 bg-secondary overflow-y-auto", // Changed bg-gray-50 to bg-secondary
-          paddingTopClass
+          paddingTopClass // Use padding for verification banner only
         )}>
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
