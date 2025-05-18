@@ -9,27 +9,25 @@ import { Bell, Settings as SettingsIcon, Menu } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import logoAsset from '@/assets/images/logo.png';
+import { Logo } from "@/components/shared/Logo"; // Ensure Logo is imported
 import { cn } from "@/lib/utils";
 import type { TutorProfile } from "@/types";
 
 export function TutorDashboardHeader() {
   const { user } = useAuthMock();
   const tutorUser = user as TutorProfile | null;
-  // isMobile from useIsMobile is for conditional styling if needed, 
-  // but SidebarTrigger itself handles context for mobile/desktop behavior.
   const isMobile = useIsMobile(); 
 
   return (
     <header className="bg-card p-4 shadow-sm w-full">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          {/* Always render SidebarTrigger; it's responsive by context */}
-          <SidebarTrigger className="mr-2"> {/* Removed isMobile condition */}
+          {/* SidebarTrigger will control the main sidebar from DashboardLayout */}
+          <SidebarTrigger className="mr-2"> 
             <Menu className="h-6 w-6" />
           </SidebarTrigger>
-          <Link href="/" className="flex items-center">
-            <Image src={logoAsset} alt="Tutorzila Logo" width={150} height={40} className="h-8 md:h-10 w-auto" priority />
+          <Link href={user?.role === 'tutor' ? "/dashboard/tutor" : "/"} className="flex items-center">
+            <Logo className="h-24 w-auto" /> {/* Increased height */}
           </Link>
         </div>
         
@@ -62,4 +60,3 @@ export function TutorDashboardHeader() {
     </header>
   );
 }
-
