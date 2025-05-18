@@ -100,30 +100,23 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </div>
         </Link>
         <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end min-w-[calc(3*1.75rem+2*0.375rem)]">
-            {/* CTAs are removed from current enquiries card, moved to detail page */}
-            {/* For Past Enquiries, only Reopen button remains on the card */}
-            {isPastEnquiry && (
+            {isPastEnquiry && onReopen && (
               <>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen?.(requirement.id); }}>
+                <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen(requirement.id); }}>
                   <Archive className="h-3.5 w-3.5" />
                 </Button>
+                 {/* Delete button for past enquiries is removed as per previous request */}
               </>
-            )}
-             {/* Current Enquiries (open/matched) do not show CTAs on the card anymore */}
-             {!isPastEnquiry && onEdit && onDelete && onClose && (
-              <div className="hidden sm:flex space-x-1.5">
-                {/* This div is kept for spacing consistency but buttons are removed */}
-              </div>
             )}
         </div>
       </div>
     );
   }
 
-  // Original Card Layout (for public listings etc.)
+  // Tutor's "View All Enquiries" list view & public listings
   return (
     <Card className={cn(
-      "group bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
+      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden h-full transform hover:-translate-y-0.5",
       isPastEnquiry && "opacity-70 bg-muted/50" 
     )}>
       <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative">
@@ -169,7 +162,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             <InfoItem icon={MapPin} label="Location" value={requirement.location} />
         )}
       </CardContent>
-      <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-between items-center">
+      <CardFooter className="p-4 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-between items-center">
         <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
@@ -182,7 +175,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </Badge>
           )}
         </div>
-        {!isParentContext && ( // Apply Now button for tutors
+        {!isParentContext && ( 
           <Button
             asChild
             className={cn(
