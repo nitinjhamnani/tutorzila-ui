@@ -7,28 +7,28 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardRedirectPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock(); // Added isCheckingAuth
+  const { user, isAuthenticated, isCheckingAuth } = useAuthMock(); 
   const router = useRouter();
 
   useEffect(() => {
     if (isCheckingAuth) {
-      return; // Wait until authentication check is complete
+      return; 
     }
 
     if (!isAuthenticated) {
-      router.replace("/"); // Redirect to homepage or login page if not authenticated
+      router.replace("/"); 
       return;
     }
 
     if (user) {
       if (user.role === "parent") {
         router.replace("/dashboard/parent");
-      } else if (user.role === "tutor") {
-        router.replace("/dashboard/tutor");
       } else if (user.role === "admin") {
         router.replace("/dashboard/admin");
-      } else {
-        // Fallback if role is unknown or not handled, redirect to homepage
+      } 
+      // Tutor redirection is handled by useAuthMock directly to /tutor/dashboard
+      else if (user.role !== "tutor") { 
+        // Fallback if role is unknown or not handled (and not tutor), redirect to homepage
         router.replace("/");
       }
     }

@@ -1,67 +1,36 @@
 
 "use client";
 
-import { useEffect, useState, ChangeEvent, useRef } from "react";
+import React, { useState, useEffect, useRef, type ChangeEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import type { TutorProfile, DemoSession, MyClass } from "@/types";
+import type { User, TutorProfile, DemoSession, MyClass } from "@/types"; // Assuming MyClass is also relevant
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MOCK_DEMO_SESSIONS, MOCK_CLASSES } from "@/lib/mock-data";
-import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"; // Path might need adjustment if component moved
+// import { useIsMobile } from "@/hooks/use-mobile";
+// import { SidebarTrigger } from "@/components/ui/sidebar"; // No longer needed here, handled by layout
 
 import {
-  User,
-  CalendarDays,
-  CheckCircle2,
-  Star,
-  DollarSign,
-  Eye,
-  ArrowUp,
-  ArrowDown,
-  Percent,
-  Briefcase,
-  UserCog,
-  LifeBuoy,
-  Settings as SettingsIcon,
-  Presentation,
-  RadioTower,
-  Clock as ClockIcon,
-  BookOpen as BookOpenIcon,
-  Globe as GlobeIcon,
-  FileText,
-  Palette,
-  Link as LinkIcon,
-  UploadCloud,
-  Ruler,
-  FilterIcon as LucideFilterIcon,
-  ListFilter,
-  Users as UsersIcon,
-  BarChart2,
-  MessageSquare,
-  ShoppingBag,
-  HardDrive,
-  LayoutGrid,
-  Crown,
-  Share2,
-  ArrowRight,
-  Camera,
-  Menu,
-  Info,
-  Bell
+  LayoutGrid, User as UserIconLucide, CalendarDays, CheckCircle2, Star, DollarSign, Eye, ArrowUp, ArrowDown, Percent,
+  Briefcase, UserCog, LifeBuoy, Settings as SettingsIconLucide, Presentation, RadioTower,
+  Clock as ClockIconLucide, BookOpen as BookOpenIconLucide, Globe as GlobeIconLucide, FileText as FileTextIconLucide, Palette as PaletteIconLucide,
+  Link as LinkIconLucide, UploadCloud as UploadCloudIconLucide, Ruler as RulerIconLucide, FilterIcon as FilterIconLucide,
+  ListFilter as ListFilterIconLucide, Users as UsersIconLucide, BarChart2 as BarChart2IconLucide, MessageSquare as MessageSquareIconLucide,
+  ShoppingBag as ShoppingBagIconLucide, HardDrive as HardDriveIconLucide, Crown as CrownIconLucide, Share2 as Share2IconLucide, ArrowRight, PanelLeft, Camera as CameraIconLucide,
+  Menu as MenuIconLucide, Info as InfoIconLucide, Bell as BellIconLucide
 } from "lucide-react";
-import logoAsset from '@/assets/images/logo.png';
+import { format, isSameDay, parseISO } from 'date-fns';
 
+// Helper component, defined at top level
 interface QuickActionCardProps {
   title: string;
   description: string;
@@ -69,26 +38,50 @@ interface QuickActionCardProps {
   href: string;
   disabled?: boolean;
   buttonText?: string;
+  iconBg?: string;
+  iconTextColor?: string;
 }
 
-const QuickActionCard: React.FC<QuickActionCardProps> = ({ title, description, IconEl, href, disabled, buttonText = "Go" }) => {
-  return (
-    <div className={cn("bg-card rounded-xl shadow-lg p-5 hover:shadow-2xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1", disabled && "opacity-60 cursor-not-allowed")}>
-      <div>
-        <div className={cn("w-12 h-12 flex items-center justify-center bg-primary/10 rounded-lg text-primary mb-4")}>
-          <IconEl className="w-6 h-6" />
+const QuickActionCard: React.FC<QuickActionCardProps> = ({ title, description, IconEl, href, disabled, buttonText = "Go", iconBg = "bg-primary/10", iconTextColor = "text-primary" }) => {
+  if (disabled) {
+    return (
+      <div className={cn("block h-full", "opacity-60 cursor-not-allowed")}>
+        <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
+          <div>
+            <div className={cn("w-12 h-12 flex items-center justify-center rounded-lg text-xl shrink-0 mb-4", iconBg, iconTextColor)}>
+              <IconEl className="w-6 h-6" />
+            </div>
+            <h3 className="font-medium text-foreground text-base mb-1">{title}</h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
+          </div>
+          <Button variant="link" className="mt-4 text-xs text-primary p-0 justify-start h-auto" disabled>
+            Coming Soon
+          </Button>
         </div>
-        <h3 className="font-semibold text-foreground text-base">{title}</h3>
-        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
       </div>
-      <Button asChild variant="link" className="mt-4 text-xs text-primary p-0 justify-start" disabled={disabled}>
-        <Link href={disabled ? "#" : href}>
-          {disabled ? "Coming Soon" : buttonText} <ArrowRight className="ml-1 w-3 h-3" />
-        </Link>
-      </Button>
-    </div>
+    );
+  }
+
+  return (
+    <Link href={href} passHref legacyBehavior>
+      <a className={cn("block h-full")}>
+        <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
+          <div>
+            <div className={cn("w-12 h-12 flex items-center justify-center rounded-lg text-xl shrink-0 mb-4", iconBg, iconTextColor)}>
+              <IconEl className="w-6 h-6" />
+            </div>
+            <h3 className="font-medium text-foreground text-base mb-1">{title}</h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
+          </div>
+          <Button variant="link" className="mt-4 text-xs text-primary p-0 justify-start h-auto">
+            {buttonText} <ArrowRight className="ml-1 w-3 h-3" />
+          </Button>
+        </div>
+      </a>
+    </Link>
   );
 };
+
 
 export default function TutorDashboardPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -97,8 +90,10 @@ export default function TutorDashboardPage() {
   const tutorUser = user as TutorProfile | null;
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [mockDaysLeft, setMockDaysLeft] = useState(23);
+  
+  // Simplified state for upcoming sessions for now
   const [upcomingSessions, setUpcomingSessions] = useState<Array<{ type: 'demo' | 'class'; data: DemoSession | MyClass; sortDate: Date }>>([]);
+
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -111,7 +106,7 @@ export default function TutorDashboardPage() {
   useEffect(() => {
     if (tutorUser) {
       let completedFields = 0;
-      const totalFields = 5;
+      const totalFields = 5; 
       if (tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh')) completedFields++;
       if (tutorUser.subjects && tutorUser.subjects.length > 0) completedFields++;
       if (tutorUser.bio && tutorUser.bio.trim() !== "") completedFields++;
@@ -119,25 +114,11 @@ export default function TutorDashboardPage() {
       if (tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== "") completedFields++;
       setCompletionPercentage(Math.round((completedFields / totalFields) * 100));
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const demos = MOCK_DEMO_SESSIONS.filter(
-        (demo) => (demo.tutorName === tutorUser.name || demo.tutorId === tutorUser.id) &&
-                   demo.status === "Scheduled" &&
-                   new Date(demo.date) >= today
-      ).map(d => ({ type: 'demo' as const, data: d, sortDate: new Date(d.date) }));
-
-      const classes = MOCK_CLASSES.filter(
-        (c) => (c.tutorName === tutorUser.name || c.tutorId === tutorUser.id) &&
-               ((c.status === "Upcoming" && c.startDate && new Date(c.startDate) >= today) ||
-                (c.status === "Ongoing" && c.nextSession && new Date(c.nextSession) >= today))
-      ).map(c => ({ type: 'class' as const, data: c, sortDate: new Date(c.nextSession || c.startDate || Date.now()) }));
-      
-      const combinedSessions = [...demos, ...classes].sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
-      setUpcomingSessions(combinedSessions);
+      // Simplified upcoming sessions for now
+      setUpcomingSessions([]); 
     }
   }, [tutorUser]);
+
 
   const handleAvatarUploadClick = () => {
     fileInputRef.current?.click();
@@ -150,28 +131,20 @@ export default function TutorDashboardPage() {
     }
   };
 
-  if (isCheckingAuth || !isAuthenticated || !tutorUser) {
+  if (isCheckingAuth || !tutorUser) {
     return <div className="flex min-h-screen items-center justify-center p-4 text-muted-foreground">Loading Tutor Dashboard...</div>;
   }
 
+  // Simplified metric data
   const dashboardMetrics = [
-    { title: "Total Sessions", value: "32", trend: "5 new", IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Enquiries Responded", value: "18", trend: "90%", IconEl: MessageSquare, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Conversion Rate", value: "25%", trend: "2%", IconEl: Percent, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-red-500", TrendIconEl: ArrowDown },
-    { title: "Avg. Rating", value: tutorUser.rating?.toFixed(1) || "N/A", trend: "+0.1", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Total Earnings", value: `₹12,500`, trend: "+₹1.2k", IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
-    { title: "Profile Views", value: "289", trend: "5.1%", IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
+    { title: "Total Sessions", value: "0", trend: "N/A", IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
+    { title: "Enquiries Responded", value: "0", trend: "N/A", IconEl: MessageSquareIconLucide, iconBg: "bg-primary/10", iconColor: "text-primary", trendColor: "text-green-600", TrendIconEl: ArrowUp },
   ];
 
+  // Simplified quick actions
   const quickActions = [
-     { title: "My Enquiries", description: "View and respond to tuition requests.", IconEl: Briefcase, href:"/tutor/enquiries", buttonText: "View Enquiries"},
-     { title: "My Classes", description: "Manage scheduled classes & content.", IconEl: CalendarDays, href:"/tutor/classes", buttonText: "Manage Classes" },
+     { title: "My Enquiries", description: "View and respond to tuition requests.", IconEl: Briefcase, href: "/tutor/enquiries", buttonText: "View Enquiries"},
      { title: "Edit Profile", description: "Update personal & tutoring details.", IconEl: UserCog, href: "/tutor/my-account", buttonText: "Update Profile" },
-     { title: "My Payments", description: "Track your earnings and payouts.", IconEl: DollarSign, href: "/tutor/payments", buttonText: "View Payments" },
-     { title: "Demo Sessions", description: "Manage demo class requests and schedules.", IconEl: Presentation, href: "/tutor/demo-sessions", buttonText: "Manage Demos"},
-     { title: "View Public Profile", description: "See how your profile appears.", IconEl: Eye, href: `/tutors/${tutorUser.id}`, buttonText: "View Profile" },
-     { title: "Support", description: "Get help or report issues.", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
-     { title: "Settings", description: "Adjust account preferences.", IconEl: SettingsIcon, href: "#", disabled: true, buttonText: "Go to Settings" },
    ];
 
   return (
@@ -196,117 +169,95 @@ export default function TutorDashboardPage() {
                                     )}
                                     aria-label="Update profile picture"
                                 >
-                                    <Camera className={cn("w-3 h-3 md:w-3.5 md:h-3.5", "text-primary")} />
+                                    <CameraIconLucide className={cn("w-3 h-3 md:w-3.5 md:h-3.5", "text-primary")} />
                                 </button>
                                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                             </div>
                             <div>
-                                <h1 className="text-xl md:text-2xl font-semibold text-gray-800">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
-                                <p className="text-xs text-muted-foreground mt-1 tz-text-vsm">Welcome back to your dashboard</p>
+                                <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
+                                <p className="text-xs text-gray-600 mt-1 tz-text-vsm">Welcome back to your dashboard</p>
+                                
                                 <div className="mt-4">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-xs text-muted-foreground tz-text-vsm">Setup progress</span>
-                                        <span className={cn("text-xs font-medium tz-text-vsm", "text-primary")}>{completionPercentage}%</span>
+                                        <span className="text-xs text-gray-600 tz-text-vsm">Setup progress</span>
+                                        <span className={cn("text-sm font-medium tz-text-vsm", "text-primary")}>{completionPercentage}%</span>
                                     </div>
                                     <Progress value={completionPercentage} className="h-2 rounded-full bg-gray-100" indicatorClassName={cn("rounded-full", "bg-primary")} />
                                     {completionPercentage < 100 && (
-                                        <Link href="/tutor/my-account" className={cn("mt-1 block hover:underline tz-text-vsm font-medium", "text-primary")}>
+                                        <Link href="/tutor/edit-personal-details" className={cn("mt-1 block hover:underline tz-text-vsm font-medium", "text-primary")}>
                                             Complete Your Profile
                                         </Link>
                                     )}
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-4 items-start w-full md:w-auto">
-                            <div className="bg-secondary rounded-lg p-4 w-full sm:w-auto sm:min-w-[220px]">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground tz-text-vsm">Current Plan</p>
-                                        <p className="font-semibold text-foreground text-sm">Business Pro</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5 tz-text-vsm">Expires on April 28, 2025</p>
-                                    </div>
-                                    <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
-                                        <Crown className="w-4 h-4 md:w-5 md:h-5" />
+                        
+                        {/* Placeholder for Plan & Share buttons, if needed */}
+                        {/* 
+                        <div className="flex flex-col sm:flex-row gap-4 items-start md:items-stretch">
+                           ... Plan card and buttons ...
+                        </div>
+                        */}
+                    </div>
+                </div>
+                
+                {/* Placeholder for Quick Setup Guide - Removed */}
+                
+                {/* Dashboard Metrics */}
+                {dashboardMetrics.length > 0 && (
+                    <div className="mb-6 md:mb-8">
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Dashboard Metrics</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                            {dashboardMetrics.map((metric, index) => (
+                                <div key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="text-xs sm:text-sm text-muted-foreground">{metric.title}</p>
+                                            <h3 className={cn("text-xl sm:text-2xl font-semibold mt-0.5", metric.iconColor)}>{metric.value}</h3>
+                                            {metric.trend && (
+                                                <div className={cn("flex items-center mt-1 text-xs", metric.trendColor || "text-green-600")}>
+                                                    {metric.TrendIconEl && <metric.TrendIconEl className="w-3 h-3" />}
+                                                    <span className="font-medium ml-0.5">{metric.trend}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", metric.iconBg, metric.iconColor)}>
+                                            <metric.IconEl className="w-5 h-5" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto">
-                                <Button className={cn("bg-primary text-white px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-button whitespace-nowrap w-full xs:w-auto hover:bg-primary/90")}>
-                                    Upgrade Plan
-                                </Button>
-                                <Button variant="outline" className={cn("border-gray-200 text-gray-700 px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-gray-50 flex items-center gap-1.5 text-xs md:text-sm font-medium w-full xs:w-auto", "bg-card")}>
-                                    <div className="w-4 h-4 flex items-center justify-center">
-                                        <Share2 className="w-3 h-3 md:w-4 md:h-4" />
-                                    </div>
-                                    Share Link
-                                </Button>
-                            </div>
+                            ))}
                         </div>
                     </div>
-                </div>
+                )}
 
-                {/* Dashboard Metrics */}
-                <div className="mb-6 md:mb-8">
-                    <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Key Metrics</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-                        {dashboardMetrics.map((metric, index) => (
-                            <div key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-xs sm:text-sm text-muted-foreground">{metric.title}</p>
-                                        <h3 className={cn("text-xl sm:text-2xl font-semibold mt-0.5", metric.iconColor)}>{metric.value}</h3>
-                                        {metric.trend && (
-                                            <div className={cn("flex items-center mt-1 text-xs", metric.trendColor || "text-green-600")}>
-                                                {metric.TrendIconEl && <metric.TrendIconEl className="w-3 h-3" />}
-                                                <span className="font-medium ml-0.5">{metric.trend}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", metric.iconBg, metric.iconColor)}>
-                                        <metric.IconEl className="w-5 h-5" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Upcoming Sessions Section */}
+                {/* Upcoming Sessions - Placeholder for now */}
+                {/* 
                 {upcomingSessions.length > 0 && (
                     <div className="mb-6 md:mb-8">
                         <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Upcoming Sessions</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                            {upcomingSessions.slice(0, 3).map((session, index) => (
-                                <UpcomingSessionCard 
-                                    key={`${session.type}-${session.data.id}-${index}`} 
-                                    sessionDetails={session} 
-                                    onUpdateSession={(updatedDemo) => console.log("Update Demo (mock):", updatedDemo)}
-                                    onCancelSession={(sessionId) => console.log("Cancel Demo (mock):", sessionId)}
-                                />
-                            ))}
+                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                           {upcomingSessions.map((session) => (
+                                <UpcomingSessionCard key={`${session.type}-${session.data.id}`} sessionDetails={session} />
+                           ))}
                         </div>
-                        {upcomingSessions.length > 3 && (
-                            <div className="text-center mt-4">
-                                <Button variant="link" asChild className="text-primary hover:text-primary/90 text-sm">
-                                    <Link href="/tutor/demo-sessions">View All Sessions <ArrowRight className="ml-1.5 h-3.5 w-3.5"/></Link>
-                                </Button>
-                            </div>
-                        )}
                     </div>
                 )}
+                */}
                 
-                {/* Quick Actions Section */}
-                <div className="mb-6 md:mb-8">
-                    <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {/* Quick Actions */}
+                {quickActions.length > 0 && (
+                    <div className="mb-6 md:mb-8">
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                         {quickActions.map((action) => (
                             <QuickActionCard key={action.title} {...action} />
                         ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </main>
   );
 }
 
-    

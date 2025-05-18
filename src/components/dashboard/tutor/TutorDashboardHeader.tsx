@@ -9,7 +9,7 @@ import { Bell, Settings as SettingsIcon, Menu } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Logo } from "@/components/shared/Logo"; // Ensure Logo is imported
+import { Logo } from "@/components/shared/Logo"; 
 import { cn } from "@/lib/utils";
 import type { TutorProfile } from "@/types";
 
@@ -22,12 +22,11 @@ export function TutorDashboardHeader() {
     <header className="bg-card p-4 shadow-sm w-full">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          {/* SidebarTrigger will control the main sidebar from DashboardLayout */}
           <SidebarTrigger className="mr-2"> 
             <Menu className="h-6 w-6" />
           </SidebarTrigger>
-          <Link href={user?.role === 'tutor' ? "/dashboard/tutor" : "/"} className="flex items-center">
-            <Logo className="h-24 w-auto" /> {/* Increased height */}
+          <Link href="/tutor/dashboard" className="flex items-center">
+            <Logo className="h-24 w-auto" />
           </Link>
         </div>
         

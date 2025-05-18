@@ -16,7 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Menu, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, HomeIcon as HomeIconLucide, Users as UsersIconLucide, BookOpen, BarChart2, MessageSquare } from "lucide-react";
+import { Menu as MenuIcon, LayoutDashboard, Briefcase, CalendarDays, School, DollarSign, UserCircle, LogOut, Settings as SettingsIcon } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -24,7 +24,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default function TutorSpecificDashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
@@ -34,115 +34,64 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (isCheckingAuth) {
       return;
     }
-    if (!isAuthenticated) {
-      router.replace("/");
-    } else if (user?.role === 'tutor') {
-      // This case should ideally not be hit if login/signup redirects correctly to /tutor/dashboard
-      // But as a fallback, ensure tutors are on their specific dashboard path.
-      if (!pathname.startsWith('/tutor')) {
-        router.replace('/tutor/dashboard');
-      }
+    if (!isAuthenticated || user?.role !== 'tutor') {
+      router.replace("/"); // Redirect if not a tutor or not authenticated
     }
-  }, [isAuthenticated, isCheckingAuth, router, user, pathname]);
+  }, [isAuthenticated, isCheckingAuth, router, user]);
 
   useEffect(() => {
-    // Determine if the TutorDashboardHeader should be shown for non-tutor roles or general dashboard paths.
-    // Based on current setup, it shouldn't be, so header height is 0 for parent/admin in this layout.
-    document.documentElement.style.setProperty('--header-height', '0px');
+    // CSS variable for header height (TutorDashboardHeader height)
+    document.documentElement.style.setProperty('--header-height', '4rem'); 
+    return () => {
+      document.documentElement.style.setProperty('--header-height', '0px');
+    };
   }, []);
 
-
-  if (isCheckingAuth || !user) {
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
+  if (isCheckingAuth || !user || user.role !== 'tutor') {
+    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Dashboard...</div>;
   }
 
-  // This layout is now primarily for Parent and Admin
-  // Tutor specific layout and header are handled in src/app/tutor/layout.tsx
-
-  let dashboardHomeHref = "/dashboard"; // Default fallback
-  if (user.role === "admin") {
-    dashboardHomeHref = "/dashboard/admin";
-  } else if (user.role === 'parent') {
-    dashboardHomeHref = "/dashboard/parent";
-  }
-  // Tutor case removed from here as tutors use /tutor/layout.tsx
-
-  const commonNavItems = [
-    { href: dashboardHomeHref, label: "Dashboard", icon: LayoutDashboard },
+  const tutorNavItems = [
+    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays },
+    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
+    // { href: "/tutor/messages", label: "Messages", icon: MessageSquare, disabled: true }, // Assuming Messages is tutor specific
+    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
   ];
-
-  const parentNavItems = [
-    { href: "/dashboard/parent/my-requirements", label: "My Enquiries", icon: ListChecks },
-    { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck },
-    { href: "/dashboard/parent/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
-    { href: "/dashboard/parent/messages", label: "Messages", icon: MessageSquare, disabled: true },
-    { href: "/dashboard/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
-    { href: "/dashboard/parent/manage-students", label: "Student Profiles", icon: School, disabled: false },
-    { href: "/dashboard/parent/payments", label: "My Payments", icon: DollarSign, disabled: false },
-  ];
-
-  // tutorNavItems removed from here
-
-  const adminNavItems = [
-    { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: UsersIconLucide, disabled: true },
-    { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
-    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: BarChart2, disabled: true },
-    { href: "/dashboard/admin/messages", label: "Messages", icon: MessageSquare, disabled: true },
-  ];
-
-  const finalAdminNavItems = user.role === "admin" && dashboardHomeHref === "/dashboard/admin"
-    ? adminNavItems
-    : [{ href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck }, ...adminNavItems];
-
-  let roleNavItems = [];
-  if (user.role === "parent") roleNavItems = parentNavItems;
-  else if (user.role === "admin") roleNavItems = finalAdminNavItems;
-  // Tutor role items removed from here
-
-  const mainNavItems = [...commonNavItems, ...roleNavItems];
-
-  let myAccountHref = "/dashboard/my-account"; // Default for admin
-  if (user.role === 'parent') {
-    myAccountHref = "/dashboard/parent/my-account";
-  }
-  // Tutor My Account is handled in /tutor/layout.tsx
-
-  let settingsHref = "/dashboard/settings"; // Default for admin
-  if (user.role === 'parent') {
-    settingsHref = "/dashboard/parent/settings";
-  }
 
   const accountSettingsNavItems = [
-    { href: myAccountHref, label: "My Account", icon: UserCircle, disabled: false },
-    { href: settingsHref, label: "Settings", icon: SettingsIcon, disabled: true },
+    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
+    // { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true }, // Assuming Settings is tutor specific
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
-
-  // TutorDashboardHeader logic has been removed from here
 
   return (
     <>
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
-        {/* TutorDashboardHeader rendering removed from here */}
+        <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
+          <TutorDashboardHeader />
+        </div>
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            "pt-[var(--verification-banner-height,0px)]" // Only accounts for verification banner
+            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-             {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
+            {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
-                {!isMobile && <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors"><Menu className="h-5 w-5"/></SidebarMenuButton>}
+                {/* This trigger is for desktop only in this header config; mobile trigger is in TutorDashboardHeader */}
+                {!isMobile && <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors"><MenuIcon className="h-5 w-5"/></SidebarMenuButton>}
             </div>
           </SidebarHeader>
 
           <SidebarContent className="flex-grow">
             <SidebarMenu>
-              {mainNavItems.map((item) => {
-                const isActive = item.href ? pathname === item.href || (pathname.startsWith(item.href + '/') && item.href !== dashboardHomeHref && item.href !== "/dashboard") : false;
+              {tutorNavItems.map((item) => {
+                const isActive = item.href ? pathname === item.href || pathname.startsWith(item.href + '/') && item.href !== "/tutor/dashboard" : false;
                 return (
                   <SidebarMenuItem key={item.href || item.label}>
                     <SidebarMenuButton
@@ -171,15 +120,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarFooter className="p-2 border-t border-border/50 mt-auto">
             <SidebarMenu>
               {accountSettingsNavItems.map((item) => {
-                 const isActive = !item.onClick && item.href ? pathname === item.href : false;
+                 const isActive = item.href ? pathname === item.href : false;
                 return (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
-                    asChild={!item.onClick}
+                    asChild
                     isActive={isActive}
                     tooltip={{ children: item.label, className: "ml-1.5 text-xs" }}
                     disabled={item.disabled}
-                    onClick={item.onClick}
                     className={cn(
                       "transition-all duration-200 group h-10 text-sm font-medium",
                       item.disabled && "opacity-50 cursor-not-allowed",
@@ -188,17 +136,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                        "group-data-[collapsible=icon]:justify-center"
                     )}
                   >
-                    {item.onClick ? (
-                      <div className="flex items-center gap-2.5 w-full">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive && "text-primary-foreground")} />
-                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                      </div>
-                    ) : (
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive && "text-primary-foreground")} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
-                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 );
@@ -224,14 +165,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </Sidebar>
 
         <SidebarInset className={cn(
-            "pb-4 md:pb-6 bg-background overflow-x-hidden",
-             "pt-[var(--verification-banner-height,0px)]" // Only accounts for verification banner now
-          )}>
+            "pb-4 md:pb-6 bg-gray-50 overflow-x-hidden", // Using bg-gray-50 from snippet for tutor area
+            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
+        )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
-              {children}
+            {children}
             </div>
-          </SidebarInset>
-        
+        </SidebarInset>
       </SidebarProvider>
     </>
   );

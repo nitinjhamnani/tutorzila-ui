@@ -100,7 +100,7 @@ export function useAuthMock() {
           preferredDays: ensureArrayField(existingMockTutor.preferredDays),
           preferredTimeSlots: ensureArrayField(existingMockTutor.preferredTimeSlots),
         };
-      } else {
+      } else { // Create a generic new tutor profile if not in MOCK_TUTOR_PROFILES
         finalUserData = {
           ...baseUserData, 
           role: 'tutor', 
@@ -152,13 +152,13 @@ export function useAuthMock() {
     
     setUser(finalUserData);
     if (finalUserData.role === 'tutor') {
-      router.push("/dashboard/enquiries");
+      router.push("/tutor/dashboard"); // Updated redirect for tutor
     } else if (finalUserData.role === 'parent') {
       router.push("/dashboard/parent");
     } else if (finalUserData.role === 'admin') {
       router.push("/dashboard/admin");
     } else {
-      router.push("/dashboard"); 
+      router.push("/"); // Fallback to homepage
     }
     return Promise.resolve(finalUserData);
   };
@@ -198,11 +198,11 @@ export function useAuthMock() {
     }
     setUser(mockUserData);
     if (role === 'tutor') {
-      router.push("/dashboard/enquiries"); 
+      router.push("/tutor/dashboard"); // Updated redirect for tutor
     } else if (role === 'parent') {
       router.push("/dashboard/parent");
     } else {
-       router.push("/dashboard"); 
+       router.push("/"); // Fallback to homepage
     }
   };
 
