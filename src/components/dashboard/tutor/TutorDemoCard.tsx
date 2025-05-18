@@ -49,7 +49,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   return (
     <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
       <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
-        <CardHeader className="p-0 pb-3 sm:pb-4">
+        <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
             <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-xs">
@@ -64,7 +64,18 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 Student: {demo.studentName}
               </CardDescription>
             </div>
-            {/* Status badge moved to footer */}
+            {demo.status === "Scheduled" && (
+                <DialogTrigger asChild>
+                     <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="absolute top-0 right-0 h-7 w-7 text-primary/80 border-0 hover:bg-primary/10 hover:text-primary"
+                        title="Manage Demo"
+                     >
+                        <Settings className="h-4 w-4" />
+                    </Button>
+                </DialogTrigger>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -89,9 +100,9 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             {demo.joinLink && demo.status === "Scheduled" && (
               <Button
                 asChild
-                size="xs" // Using a predefined small size
+                size="sm"
                 className={cn(
-                  "text-[11px] py-1 px-2.5 h-auto", // Custom fine-tuning if needed
+                  "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
                   "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
                 )}
               >
@@ -100,18 +111,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 </Link>
               </Button>
             )}
-             {demo.status === "Scheduled" && (
-                <DialogTrigger asChild>
-                     <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-7 w-7 text-primary/80 border-primary/50 hover:bg-primary/10 hover:text-primary"
-                        title="Manage Demo"
-                     >
-                        <Settings className="h-3.5 w-3.5" />
-                    </Button>
-                </DialogTrigger>
-            )}
+            {/* Manage button removed from footer */}
           </div>
         </CardFooter>
       </Card>
