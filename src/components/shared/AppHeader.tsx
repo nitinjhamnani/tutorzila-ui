@@ -16,15 +16,15 @@ import {
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle as SheetTitleComponent, 
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict
   SheetTrigger 
 } from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
   DialogHeader, 
-  DialogTitle,
-  DialogTrigger as ShadDialogTrigger,
+  DialogTitle, // This DialogTitle is from the main Dialog, not Sheet
+  DialogTrigger as ShadDialogTrigger, // Aliased to avoid conflict
 } from "@/components/ui/dialog";
 import { LayoutDashboard, LogOut, Settings, LifeBuoy, Search, Edit, Menu, LogIn, UserPlus, HomeIcon, UserCircle, ClipboardList, UsersRound } from "lucide-react";
 import { Logo } from "./Logo";
@@ -47,10 +47,9 @@ export function AppHeader() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Check if banner is effectively present by checking the CSS variable it sets
       const bannerHeightString = getComputedStyle(document.documentElement).getPropertyValue('--verification-banner-height').trim();
       const bannerHeight = parseFloat(bannerHeightString) || 0;
-      setIsScrolled(window.scrollY > (bannerHeight > 0 ? 10 : 20) ); // Adjust scroll threshold if banner is present
+      setIsScrolled(window.scrollY > (bannerHeight > 0 ? 10 : 20) ); 
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -63,15 +62,15 @@ export function AppHeader() {
 
   const headerClasses = cn(
     "sticky z-50 w-full transition-all duration-300 ease-in-out",
-    "top-[var(--verification-banner-height,0px)]", // Sticky below the banner
-    isScrolled || pathname !== "/" ? "bg-card shadow-md border-b border-border" : "bg-transparent"
+    "top-[var(--verification-banner-height,0px)]", 
+    isScrolled || pathname !== "/" ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
   );
   
   const findTutorButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg border-2",
     "border-primary text-primary hover:bg-primary/10",
      (isScrolled || pathname !== "/") && "border-primary text-primary hover:bg-primary/10",
-     !(isScrolled || pathname !== "/") && "border-card text-card hover:bg-card/20" 
+     !(isScrolled || pathname !== "/") && "text-card hover:bg-card/20 border-card" 
   );
   
   const signInButtonClass = cn(
@@ -99,18 +98,18 @@ export function AppHeader() {
         </Link>
         
         <nav className="hidden items-center space-x-1 md:flex">
-           {isAuthenticated && user && user.role === 'tutor' && (
+           {/* {isAuthenticated && user && user.role === 'tutor' && (
              <>
                <Button
                  asChild
                  className={cn(
                    "text-xs font-semibold py-1.5 px-3 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 flex items-center gap-1.5 mx-1", 
-                   pathname === "/dashboard/my-account" // Changed from /dashboard to /dashboard/my-account
+                   pathname === "/dashboard/my-account"
                      ? "bg-primary text-primary-foreground shadow-sm border-primary" 
                      : "bg-card text-primary border border-primary hover:bg-primary/10" 
                  )}
                >
-                 <Link href="/dashboard/my-account"> {/* Changed from /dashboard to /dashboard/my-account */}
+                 <Link href="/dashboard/my-account">
                    <UserCircle className="h-3.5 w-3.5" /> My Profile
                  </Link>
                </Button>
@@ -141,7 +140,7 @@ export function AppHeader() {
                  </Link>
                </Button>
              </>
-           )}
+           )} */}
            {isAuthenticated && user && user.role !== 'tutor' && ( 
              <Button asChild variant="ghost" className={navButtonClasses}>
                 <Link href="/dashboard">
@@ -153,11 +152,9 @@ export function AppHeader() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3">
-             {!(isAuthenticated && user?.role === 'tutor') && (
-                <Button asChild variant="outline" className={findTutorButtonClass}>
-                  <Link href="/search-tuitions">Find Tutors</Link>
-                </Button>
-              )}
+              <Button asChild variant="outline" className={findTutorButtonClass}>
+                <Link href="/search-tuitions">Find Tutors</Link>
+              </Button>
             {!isAuthenticated && (
               <>
                 <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
@@ -230,7 +227,7 @@ export function AppHeader() {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] p-0 flex flex-col pt-[var(--verification-banner-height,0px)]"> {/* Adjust pt for banner */}
+              <SheetContent side="right" className="w-[300px] p-0 flex flex-col pt-[var(--verification-banner-height,0px)]"> 
                 <SheetHeader className="p-4 border-b">
                   <SheetTitleComponent> 
                      <Link href={logoHref} onClick={() => setMobileMenuOpen(false)}>
@@ -252,7 +249,7 @@ export function AppHeader() {
                         </div>
                       </div>
 
-                      {user.role === 'tutor' && (
+                      {/* {user.role === 'tutor' && (
                         <>
                           <Link href="/dashboard/my-account" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <UserCircle className="h-5 w-5 text-primary" /> My Profile
@@ -264,8 +261,8 @@ export function AppHeader() {
                             <UsersRound className="h-5 w-5 text-primary" /> My Classes
                           </Link>
                         </>
-                      )}
-                      {user.role !== 'tutor' && ( // For parent and admin
+                      )} */}
+                      {user.role !== 'tutor' && ( 
                         <>
                           <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>
                             <LayoutDashboard className="h-5 w-5 text-primary" /> Dashboard
@@ -285,7 +282,7 @@ export function AppHeader() {
                       
                       <Separator className="my-3" />
                        <Link href="/dashboard/my-account" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}
-                         aria-disabled={user.role === 'admin'} // Disable for admin, as My Account might not be relevant
+                         aria-disabled={user.role === 'admin'} 
                        >
                         <UserCircle className="h-5 w-5" /> My Account
                       </Link>
@@ -341,3 +338,4 @@ export function AppHeader() {
     </header>
   );
 }
+

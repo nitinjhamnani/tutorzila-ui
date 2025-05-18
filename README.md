@@ -17,7 +17,3 @@ To run this project on your local machine, follow these steps:
 4.  **Install dependencies:** Run the following command to install all the necessary project dependencies:
 npm install
 npm run dev
-
-
-
-
