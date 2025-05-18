@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     // "/dashboard/enquiries" is handled by dashboardHomeHref if it's for the main tutor dashboard
     // It's also the base path for individual enquiry details, so the header should show there.
     // Only add if dashboardHomeHref is different and user is tutor
-    ...(user.role === 'tutor' && dashboardHomeHref !== "/dashboard/enquiries" ? [{ href: "/dashboard/enquiries", label: "View Enquiries", icon: Briefcase }] : []),
+    ...(user.role === 'tutor' && dashboardHomeHref !== "/dashboard/enquiries" ? [{ href: "/dashboard/enquiries", label: "Enquiries", icon: Briefcase }] : []),
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
@@ -138,7 +138,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarContent className="flex-grow">
             <SidebarMenu>
               {mainNavItems.map((item) => {
-                const isActive = pathname === item.href || (item.href === '/dashboard/enquiries' && pathname.startsWith('/dashboard/enquiries/'));
+                const isActive = item.href ? pathname === item.href || (item.href === '/dashboard/enquiries' && pathname.startsWith('/dashboard/enquiries/')) : false;
                 return (
                   <SidebarMenuItem key={item.href || item.label}>
                     <SidebarMenuButton
@@ -154,7 +154,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                         "group-data-[collapsible=icon]:justify-center"
                       )}
                     >
-                      <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-2.5">
+                      <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn(
                             "transition-transform duration-200 group-hover:scale-110",
                             isActive ? "text-primary-foreground" : "group-hover:text-primary"
@@ -170,7 +170,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarFooter className="p-2 border-t border-border/50 mt-auto">
             <SidebarMenu>
               {footerNavItems.map((item) => {
-                 const isActive = !item.onClick && pathname === item.href;
+                 const isActive = !item.onClick && item.href ? pathname === item.href : false;
                 return (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
@@ -194,7 +194,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     ) : (
-                      <Link href={item.disabled ? "#" : item.href!} className="flex items-center gap-2.5">
+                      <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : "group-hover:text-primary")} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
@@ -214,7 +214,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           )}
           <SidebarInset className={cn(
-            "pb-4 md:pb-6 bg-background overflow-x-hidden",
+            "pb-4 md:pb-6 bg-background overflow-x-hidden", // Changed py-4 to pb-4
              showTutorHeader 
               ? "pt-0" 
               : "pt-[var(--verification-banner-height,0px)]"
