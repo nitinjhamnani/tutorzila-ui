@@ -135,7 +135,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   {
     id: "t6",
     name: "Mock Tutor General",
-    email: "tutor@example.com",
+    email: "tutor@example.com", // This is the generic tutor login
     role: "tutor",
     avatar: "https://picsum.photos/seed/mocktutor/128",
     subjects: ["General Science", "Mathematics"],
@@ -179,8 +179,8 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     gradeLevel: "Grade 11",
     board: "CBSE",
     date: new Date(Date.now() + 86400000 * 2).toISOString(), 
-    startTime: "4:00 PM",
-    endTime: "4:30 PM",
+    startTime: "04:00 PM",
+    endTime: "04:30 PM",
     status: "Scheduled",
     joinLink: "https://zoom.us/j/123456789",
     mode: "Online",
@@ -212,8 +212,8 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     gradeLevel: "Grade 10",
     board: "IB",
     date: new Date(Date.now() + 86400000 * 7).toISOString(), 
-    startTime: "6:00 PM",
-    endTime: "6:30 PM",
+    startTime: "06:00 PM",
+    endTime: "06:30 PM",
     status: "Requested",
     mode: "Online",
   },
@@ -227,8 +227,8 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     gradeLevel: "Grade 10",
     board: "CBSE",
     date: new Date(Date.now() - 86400000 * 3).toISOString(), 
-    startTime: "3:00 PM",
-    endTime: "3:30 PM",
+    startTime: "03:00 PM",
+    endTime: "03:30 PM",
     status: "Completed",
     mode: "Online",
     feedbackSubmitted: true,
@@ -243,14 +243,14 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     gradeLevel: "Grade 7",
     board: "State Board",
     date: new Date(Date.now() - 86400000 * 10).toISOString(),
-    startTime: "5:00 PM",
-    endTime: "5:30 PM",
+    startTime: "05:00 PM",
+    endTime: "05:30 PM",
     status: "Cancelled",
     mode: "Offline (In-person)",
   },
   {
     id: "demo6",
-    tutorId: "t6",
+    tutorId: "t6", // Mock Tutor General
     tutorName: "Mock Tutor General",
     tutorAvatarSeed: "mocktutor",
     studentName: "Aarav Gupta (Son)",
@@ -258,10 +258,10 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     gradeLevel: "Grade 7",
     board: "CBSE",
     date: new Date(Date.now() + 86400000 * 4).toISOString(),
-    startTime: "3:00 PM",
-    endTime: "3:30 PM",
+    startTime: "03:00 PM",
+    endTime: "03:30 PM",
     status: "Scheduled",
-    joinLink: "#",
+    joinLink: "#", // Placeholder join link
     mode: "Online",
   },
    {
@@ -419,7 +419,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     applicantsCount: 6
   },
   {
-    id: "other1",
+    id: "other1", // Belongs to Bob Johnson
     parentId: "p2",
     parentName: "Bob Johnson",
     subject: ["Physics", "Chemistry"],
@@ -487,3 +487,5 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     applicantsCount: 2
   }
 ];
+
+    

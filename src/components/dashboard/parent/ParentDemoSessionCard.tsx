@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Edit3, MessageSquareText, Info, ListFilter, Users as UsersIcon, CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, addMinutes, parse } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -31,7 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Select, SelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue, SelectContent } from "@/components/ui/select"; // Corrected import
+import { Select, SelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue, SelectContent } from "@/components/ui/select"; 
 
 const rescheduleSchema = z.object({
   newDate: z.date({ required_error: "Please select a new date."}),
@@ -40,23 +40,14 @@ const rescheduleSchema = z.object({
   reason: z.string().max(200, "Reason must be 200 characters or less.").optional(),
 }).refine(data => {
    if (data.newStartTime && data.newEndTime) {
-    const [startHourString, startMinuteString] = data.newStartTime.split(':');
-    const startPeriod = data.newStartTime.includes('PM') ? 'PM' : 'AM';
-    let startH = parseInt(startHourString);
-    if (startPeriod === 'PM' && startH !== 12) startH += 12;
-    if (startPeriod === 'AM' && startH === 12) startH = 0; 
-    
-    const [endHourString, endMinuteString] = data.newEndTime.split(':');
-    const endPeriod = data.newEndTime.includes('PM') ? 'PM' : 'AM';
-    let endH = parseInt(endHourString);
-    if (endPeriod === 'PM' && endH !== 12) endH += 12;
-    if (endPeriod === 'AM' && endH === 12) endH = 0; 
-
-    const startDate = new Date(data.newDate); 
-    startDate.setHours(startH, parseInt(startMinuteString.split(' ')[0]), 0, 0);
-    const endDate = new Date(data.newDate); 
-    endDate.setHours(endH, parseInt(endMinuteString.split(' ')[0]), 0, 0);
-    return endDate > startDate;
+    try {
+      const baseDateStr = "2000-01-01"; // Use a consistent base date for parsing HH:mm a
+      const startDateTime = parse(`${baseDateStr} ${data.newStartTime}`, 'yyyy-MM-dd hh:mm a', new Date());
+      const endDateTime = parse(`${baseDateStr} ${data.newEndTime}`, 'yyyy-MM-dd hh:mm a', new Date());
+      return endDateTime > startDateTime;
+    } catch (e) {
+      return false; // Invalid time format
+    }
   }
   return true;
 }, {
@@ -66,11 +57,11 @@ const rescheduleSchema = z.object({
 
 type RescheduleFormValues = z.infer<typeof rescheduleSchema>;
 
-const timeSlotsForReschedule = Array.from({ length: 2 * 14 }, (_, i) => { // 7 AM to 9 PM (14 hours)
+const timeSlotsForReschedule = Array.from({ length: 2 * (21 - 7) + 1 }, (_, i) => { 
   const hour = Math.floor(i / 2) + 7;
   const minute = (i % 2) * 30;
   const date = new Date();
-  date.setHours(hour, minute);
+  date.setHours(hour, minute, 0, 0);
   const formattedTime = format(date, "hh:mm a"); 
   return { value: formattedTime, label: formattedTime };
 });
@@ -370,5 +361,6 @@ function InfoItem({ icon: Icon, label, value }: InfoItemPropsLocal) {
     </div>
   );
 }
+
 
     

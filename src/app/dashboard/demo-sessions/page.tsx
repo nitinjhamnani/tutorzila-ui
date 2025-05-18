@@ -30,7 +30,7 @@ const allDemoStatuses = ["Scheduled", "Requested", "Completed", "Cancelled"];
 
 
 export default function MyDemosPage() {
-  const [allDemos, setAllDemos] = useState<DemoSession[]>(MOCK_DEMO_SESSIONS); // Initialize with mock data
+  const [allDemos, setAllDemos] = useState<DemoSession[]>(MOCK_DEMO_SESSIONS); 
   const [searchTerm, setSearchTerm] = useState("");
   
   // Main filter states
@@ -83,15 +83,13 @@ export default function MyDemosPage() {
 
  const handleRescheduleDemo = (demoId: string, newDate: Date, newStartTime: string, newEndTime: string, reason: string) => {
     console.log(`Reschedule request for demo ID: ${demoId}`, { newDate, newStartTime, newEndTime, reason });
-    // Mock update: find the demo and update its status/details
     setAllDemos(prevDemos =>
       prevDemos.map(d =>
         d.id === demoId
-          ? { ...d, rescheduleStatus: 'pending' as const } // Set status to pending
+          ? { ...d, date: newDate.toISOString(), startTime: newStartTime, endTime: newEndTime, rescheduleStatus: 'pending' as const, status: 'Scheduled' as const } 
           : d
       )
     );
-    // In a real app, you'd make an API call here
   };
 
   const handleCancelDemo = (demoId: string) => {
@@ -286,3 +284,5 @@ export default function MyDemosPage() {
     </div>
   );
 }
+
+    

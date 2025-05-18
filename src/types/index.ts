@@ -23,7 +23,7 @@ export interface TuitionRequirement {
   gradeLevel: string;
   scheduleDetails: string;
   preferredDays?: string[];
-  preferredTimeSlots?: string[];
+  preferredTimeSlots?: string[]; // Changed from preferredTime
   location?: string;
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
@@ -35,7 +35,7 @@ export interface TuitionRequirement {
 
 export interface TutorProfile extends User {
   subjects: string[];
-  grade?: string;
+  grade?: string; // This might be redundant if gradeLevelsTaught is comprehensive
   experience: string;
   hourlyRate?: string;
   bio?: string;
@@ -54,14 +54,14 @@ export interface Testimonial {
   name: string;
   role: "Parent" | "Tutor";
   text: string;
-  avatarSeed: string;
+  avatarSeed: string; // For picsum.photos seed
   rating: number;
-  date: string;
+  date: string; // ISO String
 }
 
 export interface DemoSession {
   id: string;
-  tutorId?: string; // Added tutorId
+  tutorId?: string;
   tutorName?: string;
   tutorAvatarSeed?: string; 
   studentName: string;
@@ -94,3 +94,5 @@ export interface MyClass {
   endDate?: string; // ISO date string
   nextSession?: string; // ISO date string (for upcoming/ongoing)
 }
+
+    

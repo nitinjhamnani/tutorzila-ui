@@ -26,53 +26,33 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, LinkIcon, ClockIcon, Save, Ban, Edit3 } from "lucide-react";
-import { format } from "date-fns";
+import { format, addMinutes, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { DemoSession } from "@/types";
 
-const timeSlots = Array.from({ length: 2 * 14 }, (_, i) => { // 7 AM to 9 PM (14 hours)
+const timeSlots = Array.from({ length: 2 * (21 - 7) + 1 }, (_, i) => { // 7 AM to 9 PM (21:00)
   const hour = Math.floor(i / 2) + 7;
   const minute = (i % 2) * 30;
   const date = new Date();
-  date.setHours(hour, minute);
-  const formattedTime = format(date, "hh:mm a"); // e.g., "07:00 AM"
-  return { value: formattedTime, label: formattedTime };
+  date.setHours(hour, minute, 0, 0);
+  return { value: format(date, "hh:mm a"), label: format(date, "hh:mm a") };
 });
 
+const durationOptions = [
+  { value: 30, label: "30 minutes" },
+  { value: 45, label: "45 minutes" },
+  { value: 60, label: "60 minutes" },
+  { value: 75, label: "75 minutes" },
+  { value: 90, label: "90 minutes" },
+  { value: 120, label: "120 minutes" },
+];
 
 const manageDemoSchema = z.object({
   date: z.date({ required_error: "Please select a date." }),
   startTime: z.string().min(1, "Start time is required."),
-  endTime: z.string().min(1, "End time is required."),
+  duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
   meetingUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal(''))
-}).refine(data => {
-  // Basic time comparison; for robust comparison, parse to Date objects
-  if (data.startTime && data.endTime) {
-    const [startHour, startMinutePeriod] = data.startTime.split(/:| /);
-    const [endHour, endMinutePeriod] = data.endTime.split(/:| /);
-
-    let startH = parseInt(startHour);
-    let endH = parseInt(endHour);
-
-    if (startMinutePeriod === 'PM' && startH !== 12) startH += 12;
-    if (startMinutePeriod === 'AM' && startH === 12) startH = 0; // Midnight case
-    if (endMinutePeriod === 'PM' && endH !== 12) endH += 12;
-    if (endMinutePeriod === 'AM' && endH === 12) endH = 0;
-
-    const startDate = new Date();
-    startDate.setHours(startH, parseInt(data.startTime.split(':')[1].split(' ')[0]), 0, 0);
-
-    const endDate = new Date();
-    endDate.setHours(endH, parseInt(data.endTime.split(':')[1].split(' ')[0]), 0, 0);
-
-    return endDate > startDate;
-  }
-  return true;
-}, {
-  message: "End time must be after start time.",
-  path: ["endTime"],
 });
-
 
 type ManageDemoFormValues = z.infer<typeof manageDemoSchema>;
 
@@ -92,12 +72,24 @@ export function ManageDemoModal({
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Helper function to calculate initial duration
+  const calculateInitialDuration = (start: string, end: string, date: string): number => {
+    try {
+      const startDate = parse(`${format(new Date(date), 'yyyy-MM-dd')} ${start}`, 'yyyy-MM-dd hh:mm a', new Date());
+      const endDate = parse(`${format(new Date(date), 'yyyy-MM-dd')} ${end}`, 'yyyy-MM-dd hh:mm a', new Date());
+      const diffInMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60);
+      return durationOptions.some(opt => opt.value === diffInMinutes) ? diffInMinutes : 30;
+    } catch {
+      return 30; // Default duration
+    }
+  };
+
   const form = useForm<ManageDemoFormValues>({
     resolver: zodResolver(manageDemoSchema),
     defaultValues: {
       date: new Date(demoSession.date),
-      startTime: demoSession.startTime || "",
-      endTime: demoSession.endTime || "",
+      startTime: demoSession.startTime || "04:00 PM",
+      duration: calculateInitialDuration(demoSession.startTime, demoSession.endTime, demoSession.date),
       meetingUrl: demoSession.joinLink || "",
     },
   });
@@ -106,8 +98,8 @@ export function ManageDemoModal({
     if (demoSession) {
       form.reset({
         date: new Date(demoSession.date),
-        startTime: demoSession.startTime || "",
-        endTime: demoSession.endTime || "",
+        startTime: demoSession.startTime || "04:00 PM",
+        duration: calculateInitialDuration(demoSession.startTime, demoSession.endTime, demoSession.date),
         meetingUrl: demoSession.joinLink || "",
       });
     }
@@ -115,11 +107,29 @@ export function ManageDemoModal({
 
   const onSubmit: SubmitHandler<ManageDemoFormValues> = async (data) => {
     setIsSubmitting(true);
+
+    let calculatedEndTime = "";
+    try {
+      const startDateTimeStr = `${format(data.date, 'yyyy-MM-dd')} ${data.startTime}`;
+      const startDateTime = parse(startDateTimeStr, 'yyyy-MM-dd hh:mm a', new Date());
+      const endDateTime = addMinutes(startDateTime, data.duration);
+      calculatedEndTime = format(endDateTime, "hh:mm a");
+    } catch (error) {
+      console.error("Error calculating end time:", error);
+      toast({
+        variant: "destructive",
+        title: "Time Calculation Error",
+        description: "Could not calculate the end time. Please check start time format.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+    
     const updatedDemoData: DemoSession = {
       ...demoSession,
       date: data.date.toISOString(),
       startTime: data.startTime,
-      endTime: data.endTime,
+      endTime: calculatedEndTime, // Use calculated end time
       status: "Scheduled", 
       joinLink: data.meetingUrl || undefined,
     };
@@ -221,7 +231,7 @@ export function ManageDemoModal({
                     </FormControl>
                     <SelectContent>
                       {timeSlots.map(slot => (
-                        <SelectItem key={slot.value} value={slot.value}>{slot.label}</SelectItem>
+                        <SelectItem key={`start-${slot.value}`} value={slot.value}>{slot.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -232,20 +242,20 @@ export function ManageDemoModal({
 
             <FormField
               control={form.control}
-              name="endTime"
+              name="duration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End Time</FormLabel>
-                   <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
+                  <FormLabel>Duration</FormLabel>
+                   <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)} disabled={isSubmitting}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
                         <ClockIcon className="mr-2 h-4 w-4 opacity-50" />
-                        <SelectValue placeholder="Select end time" />
+                        <SelectValue placeholder="Select duration" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {timeSlots.map(slot => (
-                        <SelectItem key={slot.value} value={slot.value}>{slot.label}</SelectItem>
+                      {durationOptions.map(option => (
+                        <SelectItem key={option.value} value={String(option.value)}>{option.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -282,7 +292,7 @@ export function ManageDemoModal({
           <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-between pt-3">
              <Button
               type="button"
-              variant="destructive"
+              variant="destructiveOutline" 
               onClick={handleCancelDemo}
               disabled={isSubmitting}
               className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-2 px-3.5"
@@ -304,3 +314,5 @@ export function ManageDemoModal({
     </>
   );
 }
+
+    
