@@ -112,81 +112,82 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-lg sm:text-xl font-semibold text-primary flex items-center break-words">
-              <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
-              Search & Filter Enquiries
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                {/* Group 1: Search input and Filter Icon Button */}
-                <div className="flex items-center gap-3 w-full sm:flex-1">
-                    <div className="relative flex-1 min-w-0">
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        type="search"
-                        placeholder="Search by subject, grade, keywords..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
-                    />
-                    </div>
-                    <Button
-                    variant="default"
-                    size="icon"
-                    className="h-11 w-11 shrink-0 flex items-center justify-center" 
-                    onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
-                    >
-                    <LucideFilterIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="hidden sm:inline sm:ml-1.5">Filter</span>
-                    </Button>
-                </div>
-
-                {/* Group 2: Category Dropdown */}
-                <div className="w-full sm:w-auto">
-                    <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
+            <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
+            <CardHeader className="p-0 mb-4">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-primary flex items-center break-words">
+                <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
+                Search & Filter Enquiries
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    {/* Group 1: Search input and Filter Icon Button */}
+                    <div className="flex items-center gap-3 w-full sm:w-auto"> {/* Removed sm:flex-1 */}
+                        <div className="relative flex-1 min-w-0">
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            placeholder="Search by subject, grade, keywords..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
+                        />
+                        </div>
                         <Button
-                        variant="outline"
-                        className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-11"
+                        variant="default"
+                        className="h-11 w-11 shrink-0 flex items-center justify-center sm:w-auto sm:px-4" 
+                        onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
                         >
-                        <span>
-                            {selectedCategoryLabel} (
-                            {filterCategoriesForDropdown.find(
-                                (cat) => cat.value === activeFilterCategory
-                            )?.count || 0}
-                            )
-                        </span>
-                        <ChevronDown className="w-4 h-4 opacity-70" />
+                        <LucideFilterIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="hidden sm:inline sm:ml-1.5">Filter</span>
                         </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[220px]">
-                        <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {filterCategoriesForDropdown.map((category) => (
-                        <DropdownMenuItem
-                            key={category.value}
-                            onClick={() => setActiveFilterCategory(category.value)}
-                            className={cn("text-sm", activeFilterCategory === category.value && "bg-accent")}
-                        >
-                            <category.icon className="mr-2 h-4 w-4" />
-                            {category.label} ({category.count})
-                        </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
-          </CardContent>
-        </Card>
+                    </div>
 
-        <div className="mt-6">
-          {renderEnquiryList(filteredRequirements)}
+                    {/* Group 2: Category Dropdown */}
+                    <div className="w-full sm:w-auto">
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                            variant="outline"
+                            className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-11"
+                            >
+                            <span>
+                                {selectedCategoryLabel} (
+                                {filterCategoriesForDropdown.find(
+                                    (cat) => cat.value === activeFilterCategory
+                                )?.count || 0}
+                                )
+                            </span>
+                            <ChevronDown className="w-4 h-4 opacity-70" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-[220px]">
+                            <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {filterCategoriesForDropdown.map((category) => (
+                            <DropdownMenuItem
+                                key={category.value}
+                                onClick={() => setActiveFilterCategory(category.value)}
+                                className={cn("text-sm", activeFilterCategory === category.value && "bg-accent")}
+                            >
+                                <category.icon className="mr-2 h-4 w-4" />
+                                {category.label} ({category.count})
+                            </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
+            </CardContent>
+            </Card>
+
+            <div className="mt-6">
+            {renderEnquiryList(filteredRequirements)}
+            </div>
         </div>
-      </div>
     </main>
   );
 }
+
+    
