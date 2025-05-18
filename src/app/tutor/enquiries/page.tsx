@@ -20,13 +20,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 
 const allEnquiryStatuses = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
 type EnquiryStatusCategory = typeof allEnquiryStatuses[number];
 
-export default function TutorViewAllEnquiriesPage() {
+export default function AllEnquiriesPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,12 +45,40 @@ export default function TutorViewAllEnquiriesPage() {
 
   const categoryCounts = useMemo(() => {
     return {
-      "All Enquiries": allOpenRequirements.length,
-      "Recommended": allOpenRequirements.filter(r => r.mockIsRecommended).length,
-      "Applied": allOpenRequirements.filter(r => r.mockIsAppliedByCurrentUser).length,
-      "Shortlisted": allOpenRequirements.filter(r => r.mockIsShortlistedByCurrentUser).length,
+      "All Enquiries": allOpenRequirements.filter(r =>
+        (searchTerm === "" ||
+          (Array.isArray(r.subject) ? r.subject.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) : r.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          r.gradeLevel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (r.parentName && r.parentName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.location && r.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.additionalNotes && r.additionalNotes.toLowerCase().includes(searchTerm.toLowerCase())))
+      ).length,
+      "Recommended": allOpenRequirements.filter(r => r.mockIsRecommended &&
+        (searchTerm === "" ||
+          (Array.isArray(r.subject) ? r.subject.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) : r.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          r.gradeLevel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (r.parentName && r.parentName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.location && r.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.additionalNotes && r.additionalNotes.toLowerCase().includes(searchTerm.toLowerCase())))
+      ).length,
+      "Applied": allOpenRequirements.filter(r => r.mockIsAppliedByCurrentUser &&
+        (searchTerm === "" ||
+          (Array.isArray(r.subject) ? r.subject.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) : r.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          r.gradeLevel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (r.parentName && r.parentName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.location && r.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.additionalNotes && r.additionalNotes.toLowerCase().includes(searchTerm.toLowerCase())))
+      ).length,
+      "Shortlisted": allOpenRequirements.filter(r => r.mockIsShortlistedByCurrentUser &&
+        (searchTerm === "" ||
+          (Array.isArray(r.subject) ? r.subject.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) : r.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          r.gradeLevel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (r.parentName && r.parentName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.location && r.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (r.additionalNotes && r.additionalNotes.toLowerCase().includes(searchTerm.toLowerCase())))
+      ).length,
     };
-  }, [allOpenRequirements]);
+  }, [allOpenRequirements, searchTerm]);
 
   const filterCategoriesForDropdown: { label: EnquiryStatusCategory; value: EnquiryStatusCategory; icon: React.ElementType; count: number }[] = [
     { label: "All Enquiries", value: "All Enquiries", icon: ListChecks, count: categoryCounts["All Enquiries"] },
@@ -91,7 +118,7 @@ export default function TutorViewAllEnquiriesPage() {
   const renderEnquiryList = (requirementsToRender: TuitionRequirement[]) => {
     if (requirementsToRender.length > 0) {
       return (
-        <div className="grid grid-cols-1 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-4 md:gap-5">
           {requirementsToRender.map((req, index) => (
             <div
               key={req.id}
@@ -127,12 +154,11 @@ export default function TutorViewAllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 w-full">
-         <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/tutor/dashboard" }, { label: "Enquiries" }]} />
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-4 sm:mb-6 border-0">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
+        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3 sm:mb-4">
-            <CardTitle className="text-base sm:text-lg font-semibold text-primary flex items-center break-words">
-              <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
+            <CardTitle className="text-xl font-semibold text-primary flex items-center break-words">
+              <Briefcase className="w-5 h-5 mr-2.5"/>
               Manage Enquiries
             </CardTitle>
           </CardHeader>
@@ -146,7 +172,7 @@ export default function TutorViewAllEnquiriesPage() {
                     placeholder="Search by subject, grade, keywords..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 text-xs sm:text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
+                    className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
                   />
                 </div>
                 <Button
@@ -164,10 +190,10 @@ export default function TutorViewAllEnquiriesPage() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="default"
-                      className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-11"
+                      className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-11 bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       <span className="text-primary-foreground">
-                        {selectedCategoryLabel} ({
+                         {selectedCategoryLabel} ({
                         filterCategoriesForDropdown.find(
                             (cat) => cat.value === activeFilterCategory
                         )?.count || 0
