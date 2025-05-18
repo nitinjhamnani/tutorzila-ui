@@ -49,13 +49,13 @@ export default function AllEnquiriesPage() {
                     />
                 </div>
                 <Button
-                  variant="outline"
+                  variant="default" // Changed to default for primary background
                   size="sm"
-                  className="w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-1.5" /* Changed from w-full sm:w-auto to w-auto */
+                  className="w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-md flex items-center gap-1.5" 
                   onClick={() => console.log("Filter button clicked")}
                 >
                   <LucideFilterIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Filter</span> {/* Optionally hide text on very small screens if needed */}
+                  <span className="hidden sm:inline">Filter</span>
                 </Button>
             </div>
           </CardContent>
@@ -75,4 +75,3 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
-
