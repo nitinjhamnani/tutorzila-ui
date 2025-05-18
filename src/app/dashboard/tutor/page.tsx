@@ -1,2 +1,29 @@
-// This file has been moved to src/app/tutor/dashboard/page.tsx
-// It can be safely deleted.
+
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton'; // For a loading state
+
+export default function OldTutorDashboardRedirectPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/tutor/dashboard');
+  }, [router]);
+
+  // Return a loading state or null while redirecting
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <Skeleton className="h-12 w-1/2 mb-4 rounded-md" />
+      <Skeleton className="h-8 w-3/4 mb-6 rounded-md" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        <Skeleton className="h-48 w-full rounded-lg" />
+        <Skeleton className="h-48 w-full rounded-lg" />
+      </div>
+      <p className="mt-8 text-lg font-medium text-muted-foreground animate-pulse">
+        Redirecting to your dashboard...
+      </p>
+    </div>
+  );
+}
