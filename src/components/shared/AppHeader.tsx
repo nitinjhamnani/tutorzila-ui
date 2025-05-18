@@ -14,16 +14,15 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle, // This is the actual DialogTitle from the component
-  DialogTrigger as ShadDialogTrigger, // Aliased to avoid conflict
+  DialogTitle, 
+  DialogTrigger as ShadDialogTrigger, 
 } from "@/components/ui/dialog";
-import { Menu, LogIn, UserPlus, Search, HomeIcon } from "lucide-react";
+import { Menu, LogIn, UserPlus, Search, HomeIcon } from "lucide-react"; // UserPlus might be removed if sign-up link is gone
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
-import { SignInForm } from "@/components/auth/SignInForm";
 import { usePathname } from "next/navigation";
+import { SignInForm } from "@/components/auth/SignInForm";
 
 export function AppHeader() {
   const pathname = usePathname();
@@ -39,9 +38,8 @@ export function AppHeader() {
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Call on mount to set initial state
+    handleScroll(); 
 
-    // Check for signin query param on mount
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('signin') === 'true') {
@@ -56,7 +54,7 @@ export function AppHeader() {
 
   const headerClasses = cn(
     "sticky z-50 w-full transition-all duration-300 ease-in-out",
-    "top-[var(--verification-banner-height,0px)]", // Adjust for verification banner
+    "top-[var(--verification-banner-height,0px)]", 
     isScrolled || pathname !== "/" ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
   );
 
@@ -74,10 +72,6 @@ export function AppHeader() {
           <Logo className="h-[var(--logo-height)] w-auto" />
         </Link>
 
-        <nav className="hidden items-center space-x-1 md:flex">
-          {/* Public navigation items can go here if any are needed besides buttons */}
-        </nav>
-
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3">
             <Button asChild variant="default" className={cn(signInButtonClass, "bg-transparent hover:bg-primary/10 text-primary border-primary border-2")}>
@@ -88,34 +82,35 @@ export function AppHeader() {
                 <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>Sign In</Button>
               </ShadDialogTrigger>
               <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                <DialogHeader className="sr-only">
+                 <DialogHeader className="sr-only">
                   <DialogTitle>Sign In to Tutorzila</DialogTitle>
                 </DialogHeader>
                 <SignInForm onSuccess={() => setSignInModalOpen(false)} />
               </DialogContent>
             </Dialog>
-             <Button asChild variant="default" className={cn(signInButtonClass, "bg-transparent hover:bg-primary/10 text-primary border-primary border-2")}>
-              <Link href="/sign-up">Sign Up</Link>
-            </Button>
+            {/* Sign Up Button Removed */}
           </div>
 
           <div className="md:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn((isScrolled || pathname !== "/") ? "text-foreground" : "text-card-foreground hover:bg-white/10 active:bg-white/20", "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2")}>
+                <Button variant="ghost" size="icon" className={cn(
+                  (isScrolled || pathname !== "/") ? "text-foreground" : "text-card-foreground hover:bg-white/10 active:bg-white/20", 
+                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                )}>
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col pt-[var(--verification-banner-height,0px)]">
                 <SheetHeader className="p-4 border-b">
-                  <SheetTitleComponent> {/* Use aliased SheetTitleComponent */}
+                  <SheetTitleComponent> 
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                       <Logo className="h-[calc(var(--logo-height)_/_1.5)] w-auto" />
                     </Link>
                   </SheetTitleComponent>
                 </SheetHeader>
                 <div className="flex flex-col space-y-2 p-4 overflow-y-auto flex-grow">
-                  <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false); router.push('/search-tuitions'); }}>
+                  <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false); }}>
                     <Link href="/search-tuitions">
                       <Search className="h-5 w-5 text-primary" /> Find Tutors
                     </Link>
@@ -123,7 +118,7 @@ export function AppHeader() {
 
                   <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
                     setSignInModalOpen(isOpen);
-                    if (isOpen) setMobileMenuOpen(false); // Close mobile menu when dialog opens
+                    if (isOpen) setMobileMenuOpen(false); 
                   }}>
                     <ShadDialogTrigger asChild>
                       <Button variant="ghost" className={mobileButtonClass}>
@@ -137,12 +132,7 @@ export function AppHeader() {
                       <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
                     </DialogContent>
                   </Dialog>
-
-                  <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false); router.push('/sign-up'); }}>
-                    <Link href="/sign-up">
-                      <UserPlus className="h-5 w-5 text-primary" /> Sign Up
-                    </Link>
-                  </Button>
+                  {/* Sign Up Button Removed from Mobile Menu */}
                 </div>
               </SheetContent>
             </Sheet>
