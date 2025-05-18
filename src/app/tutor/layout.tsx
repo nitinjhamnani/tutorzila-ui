@@ -1,5 +1,6 @@
 
 "use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,22 +14,22 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SheetTitle,
-  SidebarTrigger, // Added SidebarTrigger here as it's used in SidebarHeader
+  SidebarTrigger,
+  SheetTitle, // Keep if SidebarHeader uses it for mobile sheets
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
 import {
   LayoutDashboard,
   Briefcase,
+  DollarSign, // Added DollarSign
   CalendarDays,
-  School,
   UserCircle,
-  Settings as SettingsIcon, // Aliased for clarity
+  Settings as SettingsIcon, // Aliased
   LogOut,
-  Menu as MenuIcon, // Aliased for clarity
+  School,
   MessageSquareQuote,
+  Menu as MenuIcon, // Aliased
 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
@@ -47,30 +48,27 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }, []);
 
   useEffect(() => {
-    if (hasMounted) {
-      document.documentElement.style.setProperty('--header-height', '4rem'); // Assuming TutorDashboardHeader is h-16
-    } else {
-      document.documentElement.style.setProperty('--header-height', '0px');
-    }
+    // No TutorDashboardHeader in this layout, so header height is 0
+    document.documentElement.style.setProperty('--header-height', '0px');
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
     };
-  }, [hasMounted]);
+  }, []); // Removed hasMounted dependency for this specific effect as it's simpler
 
   useEffect(() => {
-    if (!isCheckingAuth) {
+    if (!isCheckingAuth && hasMounted) { // Ensure hasMounted before checking role
       if (!isAuthenticated || user?.role !== 'tutor') {
         router.replace("/");
       }
     }
-  }, [isAuthenticated, isCheckingAuth, user, router]);
+  }, [isAuthenticated, isCheckingAuth, user, router, hasMounted]);
 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays, disabled: false }, // Was MessageSquareQuote, changed to CalendarDays
+    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote, disabled: false },
     { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
-    // { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true }, // Payments link removed earlier
+    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
   ];
 
   const accountSettingsNavItems = [
@@ -80,43 +78,34 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  if (isCheckingAuth || !user) {
+  if (isCheckingAuth || !hasMounted || !user) { // Combined check for loading/auth
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
-  if (user.role !== 'tutor') {
-    // This case should ideally be handled by the useEffect redirect, but as a fallback
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Access Denied. Redirecting...</div>;
+  
+  if (user.role !== 'tutor') { // This check should ideally happen after hasMounted and user is confirmed
+    // router.replace("/") was already called in useEffect, this is a fallback render.
+     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Access Denied. Redirecting...</div>;
   }
 
-  const paddingTopForContentArea = "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]";
+  const paddingTopClass = "pt-[var(--verification-banner-height,0px)]";
 
   return (
     <div className="flex flex-col min-h-screen">
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
-        {hasMounted && (
-          <div className="sticky top-[var(--verification-banner-height,0px)] z-30 w-full">
-            <TutorDashboardHeader />
-          </div>
-        )}
-        <div className={cn("flex flex-1 overflow-hidden", paddingTopForContentArea)}>
+        <div className={cn("flex flex-1 overflow-hidden", paddingTopClass)}>
           <Sidebar
             collapsible={isMobile ? "offcanvas" : "icon"}
             className="border-r bg-card shadow-md flex flex-col"
-            // No explicit top padding here as the parent div is already offset
           >
             <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-              {/* SheetTitle is handled by Sidebar component for mobile view */}
               <div className={cn("flex items-center w-full",
-                  isMobile ? "justify-start" : // Mobile trigger on the left
-                  "justify-end group-data-[collapsible=icon]:justify-center"
+                  isMobile ? "justify-start" : 
+                  "justify-end group-data-[collapsible=icon]:justify-center" 
               )}>
-                {/* This trigger is for desktop collapse, SidebarTrigger in TutorDashboardHeader is for mobile sheet */}
-                {!isMobile && (
-                  <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors">
-                      <MenuIcon className="h-5 w-5"/>
-                  </SidebarTrigger>
-                )}
+                <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors">
+                    <MenuIcon className="h-5 w-5"/>
+                </SidebarTrigger>
               </div>
             </SidebarHeader>
             <SidebarContent className="flex-grow">
@@ -198,15 +187,16 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           <SidebarInset
             className={cn(
               "flex-1 bg-secondary overflow-y-auto",
-              "pb-4 md:pb-6 px-4 md:px-6" // Standard padding for content area
+              "pb-4 md:pb-6 px-4 md:px-6" // Standard padding for the content area itself
             )}
           >
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
               {children}
             </div>
           </SidebarInset>
-        </SidebarProvider>
-      </div>
+        </div>
+      </SidebarProvider>
     </div>
   );
 }
+
