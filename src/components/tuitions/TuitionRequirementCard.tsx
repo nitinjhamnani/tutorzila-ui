@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Briefcase, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, AlertTriangle, CheckCircle } from "lucide-react";
+import { GraduationCap, CalendarDays, MapPin, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, AlertTriangle, CheckCircle } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -106,21 +106,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 <Archive className="h-3.5 w-3.5" />
               </Button>
             )}
-            {!isPastEnquiry && onEdit && (
-              <Button variant="outline" size="icon" className="h-7 w-7" title="Edit Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(requirement.id); }}>
-                <Edit3 className="h-3.5 w-3.5" />
-              </Button>
-            )}
-            {!isPastEnquiry && onClose && ( 
-              <Button variant="destructiveOutline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(requirement.id); }}>
-                <XCircle className="h-3.5 w-3.5" />
-              </Button>
-            )}
-             {!isPastEnquiry && onDelete && (
-              <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(requirement.id); }}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
+            {/* Action buttons removed from here for current enquiries, will be on detail page */}
         </div>
       </div>
     );
@@ -129,9 +115,9 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   // Tutor's "View All Enquiries" list view & public listings
   return (
     <Card className={cn(
-      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full w-full transform hover:-translate-y-0.5 overflow-hidden" 
+      "group bg-card border-0 rounded-xl shadow-lg p-4 md:p-5 w-full overflow-hidden transition-all duration-300 flex flex-col h-full" 
     )}>
-      <CardHeader className="p-4 pb-3 bg-muted/20 border-b relative overflow-hidden">
+      <CardHeader className="p-0 pb-3 mb-3 border-b border-border/20 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20 mt-0.5">
             <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName || "Parent"} />
@@ -139,7 +125,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
               {parentInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0"> {/* Added min-w-0 here */}
+          <div className="flex-grow min-w-0">
             <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
@@ -153,7 +139,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             variant="ghost"
             size="icon"
             className={cn(
-                "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+                "absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
                 isShortlisted && "text-primary"
             )}
             onClick={handleShortlistToggle}
@@ -163,20 +149,22 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-2 text-xs flex-grow p-4 pt-3 min-w-0 overflow-hidden">
-        <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
-        {requirement.board && (
-          <InfoItem icon={Building} label="Board" value={requirement.board} />
-        )}
-         {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-            <InfoItem icon={RadioTower} label="Mode" value={requirement.teachingMode.join(', ')} />
-        )}
-        {requirement.location && (
-            <InfoItem icon={MapPin} label="Location" value={requirement.location} />
-        )}
+      <CardContent className="p-0 space-y-2 text-xs flex-grow min-w-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+            <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
+            {requirement.board && (
+            <InfoItem icon={Building} label="Board" value={requirement.board} />
+            )}
+            {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+                <InfoItem icon={RadioTower} label="Mode" value={requirement.teachingMode.join(', ')} />
+            )}
+            {requirement.location && (
+                <InfoItem icon={MapPin} label="Location" value={requirement.location} />
+            )}
+        </div>
       </CardContent>
-      <CardFooter className="p-3 border-t bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-3 overflow-hidden">
-        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground w-full sm:w-auto min-w-0"> {/* Added min-w-0 and flex-wrap */}
+      <CardFooter className="p-0 pt-3 mt-3 border-t border-border/20 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground min-w-0">
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <Eye className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {mockViewsCount} Views
@@ -192,7 +180,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           <Button
             asChild
             className={cn(
-              "w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-1.5 h-auto px-3", 
+              "w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-2 px-3.5 h-auto", 
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 mt-2 sm:mt-0"
             )}
           >
@@ -223,7 +211,7 @@ function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoIt
   return (
     <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
       <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px] transition-transform duration-300 group-hover:scale-105" />
-      <div className="min-w-0 flex-1"> {/* Added min-w-0 to the text container */}
+      <div className="min-w-0 flex-1">
         <strong className="text-foreground/80 font-medium">{label}:</strong>&nbsp;
         <span className="text-muted-foreground break-words">{displayValue}</span>
       </div>
