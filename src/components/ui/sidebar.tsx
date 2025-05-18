@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -19,6 +18,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+
+// Export SheetTitle for use within this component and potentially others
+export { RadixSheetTitle as SheetTitle };
+
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -194,7 +197,10 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className={cn("w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden flex flex-col", className)}
+            className={cn(
+                "w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden flex flex-col", 
+                className
+            )}
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -202,8 +208,8 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            {/* The SidebarHeader, SidebarContent_custom, and SidebarFooter are passed as children */}
-            {/* The SheetTitle is now rendered by SidebarHeader when isMobile is true */}
+            {/* Add a direct SheetTitle for accessibility when in mobile sheet mode */}
+            <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>
             {children}
           </SheetContent>
         </Sheet>
@@ -365,7 +371,7 @@ const SidebarHeader = React.forwardRef<
         )}
         {...props}
       >
-        <RadixSheetTitle className="sr-only">Sidebar Menu</RadixSheetTitle> {/* Ensure title is present for mobile sheet */}
+        {/* RadixSheetTitle is no longer rendered here for mobile, as it's provided by Sidebar's SheetContent */}
         {children} 
       </SheetHeaderPrimitive>
     );
@@ -414,7 +420,7 @@ const SidebarSeparator = React.forwardRef<
 })
 SidebarSeparator.displayName = "SidebarSeparator"
 
-const SidebarContent = React.forwardRef<
+const SidebarContent_custom = React.forwardRef< // Renamed to avoid conflict with SheetContent
   HTMLDivElement,
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
@@ -430,7 +436,7 @@ const SidebarContent = React.forwardRef<
     />
   )
 })
-SidebarContent.displayName = "SidebarContent"
+SidebarContent_custom.displayName = "SidebarContent_custom" // Renamed displayName
 
 const SidebarGroup = React.forwardRef<
   HTMLDivElement,
@@ -751,9 +757,10 @@ const SidebarMenuSubButton = React.forwardRef<
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
+// Export SidebarContent as SidebarContent_custom to avoid naming conflict
 export {
   Sidebar,
-  SidebarContent,
+  SidebarContent_custom as SidebarContent, // Exporting the custom-named component
   SidebarFooter,
   SidebarGroup,
   SidebarGroupAction,
@@ -776,7 +783,9 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
-  RadixSheetTitle as SheetTitle, 
+  // RadixSheetTitle is re-exported as SheetTitle from the ui/sheet.ts file,
+  // so importing it here might be redundant if already imported from sheet.
+  // However, if direct usage of RadixSheetTitle is needed for some reason
+  // it can be exported from here, but typical usage would be via the ui/sheet.ts export.
 }
-
     
