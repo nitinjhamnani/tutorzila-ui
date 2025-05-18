@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, ChevronDown, CheckCircle, Clock, XCircle, Star } from "lucide-react";
+import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, ChevronDown, CheckCircle, Clock, XCircle as XCircleIcon, Star } from "lucide-react"; // Renamed XCircle to XCircleIcon to avoid conflict
 import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,6 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, Dialo
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 
 const demoStatuses = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
@@ -34,8 +33,12 @@ export default function TutorDemoSessionsPage() {
 
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
   
-  // For the category dropdown
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("All Demos");
+
+  // States for the filter dialog (though detailed filtering is removed for now, keeping structure if needed later)
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  // const [tempDemoSubjectFilter, setTempDemoSubjectFilter] = useState("All");
+  // const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All");
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -64,7 +67,7 @@ export default function TutorDemoSessionsPage() {
     { label: "Scheduled", value: "Scheduled", icon: Clock, count: categoryCounts.Scheduled },
     { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
     { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
-    { label: "Cancelled", value: "Cancelled", icon: XCircle, count: categoryCounts.Cancelled },
+    { label: "Cancelled", value: "Cancelled", icon: XCircleIcon, count: categoryCounts.Cancelled },
   ];
   
   const selectedCategoryLabel = useMemo(() => {
@@ -75,6 +78,7 @@ export default function TutorDemoSessionsPage() {
   const filteredDemos = useMemo(() => {
     return allTutorDemos.filter(demo => {
       const matchesCategory = activeDemoCategoryFilter === "All Demos" || demo.status === activeDemoCategoryFilter;
+      // Add detailed filtering logic here if temp filters from dialog are used
       return matchesCategory;
     });
   }, [activeDemoCategoryFilter, allTutorDemos]);
@@ -125,11 +129,11 @@ export default function TutorDemoSessionsPage() {
           <CardHeader className="p-0 mb-3">
             <CardTitle className="text-base sm:text-lg font-semibold text-primary flex items-center break-words">
               <ListFilter className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
-              Filter Demo Sessions
+              Manage Demo Sessions
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end"> {/* Changed to justify-end for category filter */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
               <div className="w-full sm:w-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
