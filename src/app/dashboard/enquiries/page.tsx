@@ -92,13 +92,10 @@ export default function AllEnquiriesPage() {
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8"> 
       <Card className="mb-6 animate-in fade-in duration-500 ease-out shadow-md rounded-xl">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-semibold text-primary flex items-center">
+          <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center">
             <SearchIcon className="w-5 h-5 mr-2.5"/>
-            Search & Filter Enquiries
+            Search &amp; Filter Enquiries
           </CardTitle>
-          {/* <CardDescription className="text-sm text-muted-foreground">
-            Find relevant tuition opportunities.
-          </CardDescription> */}
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-grow w-full">
@@ -108,7 +105,7 @@ export default function AllEnquiriesPage() {
                 placeholder="Search by subject, grade, keywords..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg"
+                className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
               />
           </div>
           <Button 
@@ -161,3 +158,6 @@ export default function AllEnquiriesPage() {
     </div>
   );
 }
+
+
+    
