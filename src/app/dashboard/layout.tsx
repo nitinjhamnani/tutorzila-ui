@@ -14,7 +14,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  // SheetTitle, // Removed direct import if not used elsewhere, RadixSheetTitle is used in sidebar.tsx
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Menu, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, HomeIcon as HomeIconLucide, Users as UsersIconLucide, BookOpen, BarChart2, MessageSquare } from "lucide-react";
@@ -64,7 +63,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/tutor/demo-sessions", label: "Demos", icon: CalendarDays },
     { href: "/dashboard/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
-    { href: "/dashboard/payments", label: "Payments", icon: DollarSign, disabled: false },
+    { href: "/dashboard/payments", label: "Payments", icon: DollarSign, disabled: false }, // Renamed here
   ];
 
   const adminNavItems = [
@@ -95,10 +94,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const tutorHeaderPaths = [
     '/dashboard/tutor',
     '/dashboard/enquiries',
-    '/dashboard/my-classes', // This is the old path for parent, tutor has /dashboard/tutor/classes
+    // '/dashboard/my-classes', // Parent path, tutor uses /dashboard/tutor/classes
     '/dashboard/payments',
     '/dashboard/tutor/demo-sessions', 
-    '/dashboard/tutor/classes', // New tutor classes path
+    '/dashboard/tutor/classes', 
     '/dashboard/my-account',
     '/dashboard/tutor/edit-personal-details',
     '/dashboard/tutor/edit-tutoring-details'
@@ -120,7 +119,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
              showTutorHeader
-              ? "pt-[calc(var(--verification-banner-height,0px)_+_var(--tutor-header-height,4rem))]" 
+              ? "pt-[calc(var(--verification-banner-height,0px)_+_var(--tutor-header-height,0px))]" 
               : "pt-[var(--verification-banner-height,0px)]"
           )}
         >
@@ -144,7 +143,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       className={cn(
                         "transition-all duration-200 group h-10 text-sm font-medium",
                         item.disabled && "opacity-50 cursor-not-allowed",
-                        isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground",
+                        isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground", // Corrected hover
                         "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90",
                         "group-data-[collapsible=icon]:justify-center"
                       )}
@@ -177,7 +176,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     className={cn(
                       "transition-all duration-200 group h-10 text-sm font-medium",
                       item.disabled && "opacity-50 cursor-not-allowed",
-                      isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground",
+                      isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground", // Corrected hover
                        "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90",
                        "group-data-[collapsible=icon]:justify-center"
                     )}
@@ -237,10 +236,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </SidebarProvider>
       <style jsx global>{`
         :root {
-          --tutor-header-height: 4rem; 
+          --tutor-header-height: ${showTutorHeader ? '4rem' : '0px'}; 
         }
       `}</style>
     </>
   );
 }
-
