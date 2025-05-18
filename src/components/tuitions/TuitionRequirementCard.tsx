@@ -1,4 +1,3 @@
-
 // src/components/tuitions/TuitionRequirementCard.tsx
 "use client";
 
@@ -69,7 +68,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         )}
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 justify-between gap-3">
-          <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer overflow-hidden">
+          <Link href={`/dashboard/parent/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer overflow-hidden">
             <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
                 {parentInitials}
@@ -116,7 +115,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
 
   // Tutor's "View All Enquiries" list view & public listings
   return (
-    <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
+    <Card className="bg-card rounded-xl shadow-lg border border-border/30 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
@@ -148,7 +147,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
+      <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 text-xs flex-grow">
         <InfoItem icon={GraduationCap} label="Grade:" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board:" value={requirement.board} />
@@ -182,7 +181,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             )}
           >
-            <Link href={`/dashboard/enquiries/${requirement.id}`}>
+            <Link href={`/tutor/enquiries/${requirement.id}`}>
                 <Send className="w-3 h-3 mr-1.5" />
                 Apply Now
             </Link>
@@ -211,4 +210,3 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
-

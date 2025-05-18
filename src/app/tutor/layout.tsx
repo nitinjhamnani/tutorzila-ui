@@ -1,4 +1,4 @@
-
+// src/app/tutor/layout.tsx
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -13,9 +13,10 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SheetTitle, // This import might be unused now in this file, but keep for safety if other dialogs use it.
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
+import { VerificationBanner } from "@/components/shared/VerificationBanner";
 import {
   LayoutDashboard,
   Briefcase,
@@ -23,18 +24,17 @@ import {
   UserCircle,
   LogOut,
   Settings as SettingsIcon,
-  Menu,
+  Menu as MenuIcon,
   School,
   CalendarDays,
-  MessageSquare,
   MessageSquareQuote,
 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { VerificationBanner } from "@/components/shared/VerificationBanner";
-// TutorDashboardHeader is removed as per user request.
+import { SheetTitle } from "@/components/ui/sheet";
+
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -52,10 +52,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }, [isAuthenticated, isCheckingAuth, router, user]);
 
   useEffect(() => {
-    // Since TutorDashboardHeader is removed, effective header height is 0 for padding calculations below banner
-    document.documentElement.style.setProperty('--header-height', '0px');
+    document.documentElement.style.setProperty('--header-height', '4rem'); // Assuming TutorDashboardHeader is h-16 (p-4)
     return () => {
-      document.documentElement.style.setProperty('--header-height', '0px'); // Cleanup
+      document.documentElement.style.setProperty('--header-height', '0px');
     };
   }, []);
 
@@ -66,10 +65,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote }, // Changed from CalendarDays
+    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays }, // Changed from MessageSquareQuote
     { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
-    { href: "/tutor/messages", label: "Messages", icon: MessageSquare, disabled: true },
   ];
 
   const accountSettingsNavItems = [
@@ -78,13 +76,15 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const paddingTopClass = "pt-[var(--verification-banner-height,0px)]"; // Only accounts for verification banner
+  const paddingTopClass = "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]";
 
   return (
     <>
       <VerificationBanner />
+      <div className="sticky top-[var(--verification-banner-height,0px)] z-30 w-full">
+        <TutorDashboardHeader />
+      </div>
       <SidebarProvider defaultOpen={!isMobile}>
-        {/* TutorDashboardHeader is removed */}
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
@@ -93,10 +93,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-            {/* Removed SheetTitle from here as Sidebar component handles it for mobile sheet */}
+            {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
               <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors">
-                <Menu className="h-5 w-5" />
+                <MenuIcon className="h-5 w-5" />
               </SidebarMenuButton>
             </div>
           </SidebarHeader>
@@ -178,8 +178,8 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         </Sidebar>
 
         <SidebarInset className={cn(
-          "flex-1 pb-4 md:pb-6 bg-secondary overflow-y-auto", // Changed bg-gray-50 to bg-secondary
-          paddingTopClass // Use padding for verification banner only
+          "flex-1 pb-4 md:pb-6 bg-secondary overflow-y-auto",
+          paddingTopClass
         )}>
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
