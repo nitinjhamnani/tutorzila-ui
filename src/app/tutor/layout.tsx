@@ -1,4 +1,3 @@
-
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -49,14 +48,18 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     }
   }, [isAuthenticated, isCheckingAuth, router, user]);
 
-  // This effect sets the CSS variable for the header height.
-  // Assuming TutorDashboardHeader height is approx 4rem (h-16 from p-4)
   useEffect(() => {
-    document.documentElement.style.setProperty('--header-height', '4rem');
+    // This effect sets the CSS variable for the header height.
+    // Assuming TutorDashboardHeader height is approx 4rem (h-16 from p-4)
+    if (isAuthenticated && user?.role === 'tutor') {
+      document.documentElement.style.setProperty('--header-height', '4rem');
+    } else {
+      document.documentElement.style.setProperty('--header-height', '0px');
+    }
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
     };
-  }, []);
+  }, [isAuthenticated, user]);
 
 
   if (isCheckingAuth || !user || user.role !== 'tutor') {
@@ -66,7 +69,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays },
     { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
   ];
@@ -77,20 +80,21 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-
   return (
     <>
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
-        {/* Sticky wrapper for the header */}
-        <div className="sticky top-[var(--verification-banner-height,0px)] z-30 w-full">
-          <TutorDashboardHeader />
-        </div>
+        {isAuthenticated && user?.role === 'tutor' && (
+          <div className="sticky top-[var(--verification-banner-height,0px)] z-30 w-full">
+            <TutorDashboardHeader />
+          </div>
+        )}
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
+            // Sidebar itself needs to start below banner AND header
+            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]" 
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
@@ -177,8 +181,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         </Sidebar>
 
         <SidebarInset className={cn(
-            "pb-4 md:pb-6 bg-gray-50 overflow-x-hidden",
-             "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
+            "pb-4 md:pb-6 bg-gray-50 overflow-x-hidden", // bg-gray-50 for the content area background
+             // Main content area MUST also start below banner AND header
+            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]" 
           )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
                 {children}

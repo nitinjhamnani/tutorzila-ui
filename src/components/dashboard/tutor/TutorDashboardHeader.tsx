@@ -18,14 +18,13 @@ export function TutorDashboardHeader() {
   const isMobile = useIsMobile();
 
   return (
-    <header className="bg-card p-4 shadow-sm w-full"> {/* REMOVED sticky, top, z-index */}
+    // The header itself is NOT sticky. Its container in the layout will handle stickiness.
+    <header className="bg-card p-4 shadow-sm w-full">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          {isMobile && (
-            <SidebarTrigger className="mr-2">
+            <SidebarTrigger className="mr-2"> {/* Always render trigger, visibility controlled by CSS in sidebar for md:hidden */}
               <Menu className="h-6 w-6" />
             </SidebarTrigger>
-          )}
           {/* Logo was removed from tutor header in a previous step based on request */}
         </div>
 
