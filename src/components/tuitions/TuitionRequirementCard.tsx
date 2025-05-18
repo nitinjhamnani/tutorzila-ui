@@ -1,3 +1,4 @@
+
 // src/components/tuitions/TuitionRequirementCard.tsx
 "use client";
 
@@ -115,9 +116,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
 
   // Tutor's "View All Enquiries" list view & public listings
   return (
-    <Card className={cn(
-        "group bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full"
-    )}>
+    <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
@@ -126,11 +125,11 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
-            <CardTitle className="text-sm sm:text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
-            <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-              Posted {timeAgo}
+            <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
+              <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
         </div>
@@ -212,3 +211,4 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+
