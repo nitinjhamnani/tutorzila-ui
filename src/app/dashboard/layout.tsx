@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const tutorNavItems = [
     { href: "/dashboard/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/dashboard/demo-sessions", label: "Demos", icon: CalendarDays },
+    { href: "/dashboard/demo-sessions", label: "Demos", icon: CalendarDays }, // Changed from MessageSquareQuote
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
   ];
@@ -118,7 +118,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
             showTutorHeader 
-              ? "pt-[var(--verification-banner-height,0px)]" 
+              ? "pt-[calc(var(--verification-banner-height,0px)_+_4rem)]" // Approx height of TutorDashboardHeader (h-16)
               : "pt-[var(--verification-banner-height,0px)]" 
           )}
         >
@@ -151,7 +151,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn(
                             "transition-transform duration-200 group-hover:scale-110",
-                            isActive ? "text-primary-foreground" : "group-hover:text-primary-foreground group-focus:text-primary-foreground"
+                            isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground")
                          )} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
@@ -183,12 +183,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   >
                     {item.onClick ? (
                       <div className="flex items-center gap-2.5 w-full">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : "group-hover:text-primary-foreground group-focus:text-primary-foreground" )} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground") )} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     ) : (
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : "group-hover:text-primary-foreground group-focus:text-primary-foreground")} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground"))} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
                     )}
@@ -208,7 +208,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     >
                      <div className="flex items-center gap-2.5 w-full">
                         <logoutNavItem.icon className="transition-transform duration-200 group-hover:scale-110" />
-                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                        <span className="group-data-[collapsible=icon]:hidden">{logoutNavItem.label}</span>
                       </div>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -225,8 +225,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarInset className={cn(
             "pb-4 md:pb-6 bg-background overflow-x-hidden",
              showTutorHeader 
-              ? "pt-0" 
-              : "pt-[var(--verification-banner-height,0px)]" 
+              ? "pt-0" // TutorDashboardHeader already has padding and accounts for banner
+              : "pt-[var(--verification-banner-height,0px)]" // For parent/admin, content starts below banner
           )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
               {children}
