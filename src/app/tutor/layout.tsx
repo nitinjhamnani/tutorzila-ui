@@ -13,23 +13,24 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-} from "@/components/ui/sidebar"; 
+  SheetTitle,
+} from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { 
-  LayoutDashboard, 
-  Briefcase, 
-  CalendarDays, 
-  School, 
-  DollarSign, 
-  UserCircle, 
-  LogOut, 
-  Settings as SettingsIcon, 
+import {
+  LayoutDashboard,
+  Briefcase,
+  CalendarDays,
+  UserCircle,
+  LogOut,
+  Settings as SettingsIcon,
   MessageSquareQuote,
-  Menu 
+  School,
+  DollarSign,
+  Menu,
 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
@@ -43,10 +44,24 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   useEffect(() => {
     if (!isCheckingAuth) {
       if (!isAuthenticated || user?.role !== 'tutor') {
-        router.replace("/"); 
+        router.replace("/");
       }
     }
   }, [isAuthenticated, isCheckingAuth, router, user]);
+
+  // This effect sets the CSS variable for the header height.
+  // Assuming TutorDashboardHeader height is approx 4rem (h-16 from p-4)
+  useEffect(() => {
+    document.documentElement.style.setProperty('--header-height', '4rem');
+    return () => {
+      document.documentElement.style.setProperty('--header-height', '0px');
+    };
+  }, []);
+
+
+  if (isCheckingAuth || !user || user.role !== 'tutor') {
+    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
+  }
 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -62,34 +77,15 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const shouldShowTutorHeader = pathname.startsWith('/tutor/');
-
-  useEffect(() => {
-    if (shouldShowTutorHeader) {
-      document.documentElement.style.setProperty('--header-height', '4rem'); 
-    } else {
-      document.documentElement.style.setProperty('--header-height', '0px');
-    }
-    return () => {
-      document.documentElement.style.setProperty('--header-height', '0px');
-    };
-  }, [shouldShowTutorHeader]);
-
-  if (isCheckingAuth || !user) {
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
-  }
-   if (user.role !== 'tutor' && !isCheckingAuth) {
-    router.replace("/");
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Redirecting...</div>;
-  }
 
   return (
     <>
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
-        {shouldShowTutorHeader && (
-          <TutorDashboardHeader /> 
-        )}
+        {/* Sticky wrapper for the header */}
+        <div className="sticky top-[var(--verification-banner-height,0px)] z-30 w-full">
+          <TutorDashboardHeader />
+        </div>
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
@@ -98,6 +94,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
+             {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
                 {!isMobile && <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors"><Menu className="h-5 w-5"/></SidebarMenuButton>}
             </div>
@@ -191,5 +188,3 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     </>
   );
 }
-
-    

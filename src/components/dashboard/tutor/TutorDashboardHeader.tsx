@@ -2,34 +2,33 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bell, Settings as SettingsIcon, Menu } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Logo } from "@/components/shared/Logo"; 
+import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 import type { TutorProfile } from "@/types";
 
 export function TutorDashboardHeader() {
   const { user } = useAuthMock();
   const tutorUser = user as TutorProfile | null;
-  const isMobile = useIsMobile(); 
+  const isMobile = useIsMobile();
 
   return (
-    <header className="bg-card p-4 shadow-sm sticky top-[var(--verification-banner-height,0px)] z-20 w-full">
+    <header className="bg-card p-4 shadow-sm w-full"> {/* REMOVED sticky, top, z-index */}
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          <SidebarTrigger className="mr-2"> 
-            <Menu className="h-6 w-6" />
-          </SidebarTrigger>
-          <Link href="/tutor/dashboard" className="flex items-center">
-            <Logo className="h-10 w-auto" />
-          </Link>
+          {isMobile && (
+            <SidebarTrigger className="mr-2">
+              <Menu className="h-6 w-6" />
+            </SidebarTrigger>
+          )}
+          {/* Logo was removed from tutor header in a previous step based on request */}
         </div>
-        
+
         <div className="flex items-center gap-2 md:gap-3">
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary relative h-8 w-8">
             <Bell className="w-4 h-4" />
@@ -59,6 +58,3 @@ export function TutorDashboardHeader() {
     </header>
   );
 }
-
-
-    
