@@ -19,14 +19,14 @@ export function TutorDashboardHeader() {
   const isMobile = useIsMobile(); 
 
   return (
-    <header className="bg-card p-4 shadow-sm w-full">
+    <header className="bg-card p-4 shadow-sm sticky top-[var(--verification-banner-height,0px)] z-20 w-full">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <SidebarTrigger className="mr-2"> 
             <Menu className="h-6 w-6" />
           </SidebarTrigger>
           <Link href="/tutor/dashboard" className="flex items-center">
-            <Logo className="h-24 w-auto" />
+            <Logo className="h-10 w-auto" />
           </Link>
         </div>
         
@@ -59,3 +59,6 @@ export function TutorDashboardHeader() {
     </header>
   );
 }
+
+
+    

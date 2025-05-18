@@ -13,11 +13,9 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SheetTitle,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"; 
 import { Button } from "@/components/ui/button";
 import { 
-  Menu as MenuIcon, 
   LayoutDashboard, 
   Briefcase, 
   CalendarDays, 
@@ -25,14 +23,15 @@ import {
   DollarSign, 
   UserCircle, 
   LogOut, 
-  Settings as SettingsIcon,
-  MessageSquareQuote
+  Settings as SettingsIcon, 
+  MessageSquareQuote,
+  Menu 
 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-// import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader"; // Commented out for debugging
+import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
@@ -49,18 +48,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     }
   }, [isAuthenticated, isCheckingAuth, router, user]);
 
-  useEffect(() => {
-    // Header is removed for debugging, so set its height to 0
-    document.documentElement.style.setProperty('--header-height', '0px'); 
-    return () => {
-      document.documentElement.style.setProperty('--header-height', '0px'); // Reset on unmount
-    };
-  }, []);
-
-  if (isCheckingAuth || !user || user.role !== 'tutor') {
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
-  }
-
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
@@ -75,34 +62,51 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
+  const shouldShowTutorHeader = pathname.startsWith('/tutor/');
+
+  useEffect(() => {
+    if (shouldShowTutorHeader) {
+      document.documentElement.style.setProperty('--header-height', '4rem'); 
+    } else {
+      document.documentElement.style.setProperty('--header-height', '0px');
+    }
+    return () => {
+      document.documentElement.style.setProperty('--header-height', '0px');
+    };
+  }, [shouldShowTutorHeader]);
+
+  if (isCheckingAuth || !user) {
+    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
+  }
+   if (user.role !== 'tutor' && !isCheckingAuth) {
+    router.replace("/");
+    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Redirecting...</div>;
+  }
+
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col">
+    <>
       <VerificationBanner />
       <SidebarProvider defaultOpen={!isMobile}>
-        {/* TutorDashboardHeader rendering removed for debugging
-        <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
-           <TutorDashboardHeader />
-        </div>
-        */}
+        {shouldShowTutorHeader && (
+          <TutorDashboardHeader /> 
+        )}
         <Sidebar
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-             // Adjusted padding: only accounts for verification banner as header is removed
-            "pt-[var(--verification-banner-height,0px)]"
+            "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-            {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
-                {!isMobile && <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors"><MenuIcon className="h-5 w-5"/></SidebarMenuButton>}
+                {!isMobile && <SidebarMenuButton className="hover:bg-primary/10 hover:text-primary transition-colors"><Menu className="h-5 w-5"/></SidebarMenuButton>}
             </div>
           </SidebarHeader>
 
           <SidebarContent className="flex-grow">
             <SidebarMenu>
               {tutorNavItems.map((item) => {
-                const isActive = item.href ? pathname === item.href || (pathname.startsWith(item.href + '/') && item.href !== "/tutor/dashboard") : false;
+                const isActive = item.href ? pathname === item.href || pathname.startsWith(item.href + '/') : false;
                 return (
                   <SidebarMenuItem key={item.href || item.label}>
                     <SidebarMenuButton
@@ -176,15 +180,16 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         </Sidebar>
 
         <SidebarInset className={cn(
-            "pb-4 md:pb-6 overflow-x-hidden", 
-             // Adjusted padding: only accounts for verification banner as header is removed
-            "pt-[var(--verification-banner-height,0px)]"
-        )}>
+            "pb-4 md:pb-6 bg-gray-50 overflow-x-hidden",
+             "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]"
+          )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
                 {children}
             </div>
           </SidebarInset>
       </SidebarProvider>
-    </div>
+    </>
   );
 }
+
+    
