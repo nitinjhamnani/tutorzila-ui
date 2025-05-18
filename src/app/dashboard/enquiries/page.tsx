@@ -80,10 +80,10 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 w-full">
-        <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-6 mb-6 md:mb-8 border-0"> {/* Applied tutor dashboard card style */}
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-6 md:py-8 w-full"> {/* Adjusted page padding */}
+        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-6 mb-6 md:mb-8 border-0"> {/* Adjusted card padding */}
           <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
+            <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words"> {/* Responsive title */}
               <SearchIcon className="w-5 h-5 mr-2.5"/>
               Search & Filter Enquiries
             </CardTitle>
@@ -96,12 +96,12 @@ export default function AllEnquiriesPage() {
                   placeholder="Search by subject, grade, keywords..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2.5 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
+                  className="pl-10 pr-4 py-2 text-xs sm:text-sm bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
                 />
             </div>
             <Button
               variant="outline"
-              className="w-full sm:w-auto text-sm py-2.5 px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
+              className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
               onClick={() => console.log("Filter button clicked")}
             >
               <LucideFilterIcon className="w-4 h-4" />
@@ -148,3 +148,4 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
+
