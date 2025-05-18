@@ -66,10 +66,10 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             </div>
             {demo.status === "Scheduled" && (
                 <DialogTrigger asChild>
-                     <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="absolute top-0 right-0 h-7 w-7 text-primary/80 border-0 hover:bg-primary/10 hover:text-primary"
+                     <Button
+                        variant="default" // Changed to default for primary background
+                        size="icon"
+                        className="absolute top-0 right-0 h-7 w-7 text-primary-foreground bg-primary hover:bg-primary/90" // Ensure primary background and white icon
                         title="Manage Demo"
                      >
                         <Settings className="h-4 w-4" />
@@ -87,14 +87,14 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
         </CardContent>
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
            <div className="flex items-center">
-            <div
+            <Badge
                 className={cn(
                     "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
                 )}
             >
-                <StatusIcon /> 
+                <StatusIcon />
                 {demo.status}
-            </div>
+            </Badge>
           </div>
           <div className="flex items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
