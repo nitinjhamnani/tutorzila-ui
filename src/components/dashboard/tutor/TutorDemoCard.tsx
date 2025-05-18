@@ -71,13 +71,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 Student: {demo.studentName}
               </CardDescription>
             </div>
-            <Badge
-              variant="outline"
-              className={cn("text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full", statusBadgeClasses())}
-            >
-              <StatusIcon />
-              {demo.status}
-            </Badge>
+             {/* Status Badge removed from header, will be conditionally added to footer */}
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -87,26 +81,46 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
           <InfoItem icon={Clock} label="Time:" value={`${demo.startTime} - ${demo.endTime}`} />
           {demo.mode && <InfoItem icon={RadioTower} label="Mode:" value={demo.mode} />}
         </CardContent>
-        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-end items-center gap-2">
-          {demo.joinLink && demo.status === "Scheduled" && (
-            <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
-              <a href={demo.joinLink} target="_blank" rel="noopener noreferrer">
-                <Video className="w-3 h-3 mr-1" /> Join Session
-              </a>
-            </Button>
-          )}
-          {demo.status === "Scheduled" && (
-            <DialogTrigger asChild>
-              <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
-                <Settings className="w-3 h-3 mr-1" /> Manage
+        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
+          <div> {/* Left side of footer for status */}
+            {demo.status === "Scheduled" && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-[10px] py-0.5 px-1.5 border font-medium whitespace-nowrap rounded-full",
+                  statusBadgeClasses() 
+                )}
+              >
+                <StatusIcon />
+                {demo.status}
+              </Badge>
+            )}
+            {(demo.status === "Completed" || demo.status === "Cancelled" || demo.status === "Requested") && (
+                 <Badge
+                    variant="outline"
+                    className={cn("text-[10px] py-0.5 px-1.5 border font-medium whitespace-nowrap rounded-full", statusBadgeClasses())}
+                >
+                    <StatusIcon />
+                    {demo.status}
+                </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2"> {/* Right side of footer for buttons */}
+            {demo.joinLink && demo.status === "Scheduled" && (
+              <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
+                <a href={demo.joinLink} target="_blank" rel="noopener noreferrer">
+                  <Video className="w-3 h-3 mr-1" /> Join Session
+                </a>
               </Button>
-            </DialogTrigger>
-          )}
-          {(demo.status === "Completed" || demo.status === "Cancelled" || demo.status === "Requested") && (
-             <Button size="xs" variant="ghost" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto text-muted-foreground cursor-default">
-              {demo.status}
-            </Button>
-          )}
+            )}
+            {demo.status === "Scheduled" && (
+              <DialogTrigger asChild>
+                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
+                  <Settings className="w-3 h-3 mr-1" /> Manage
+                </Button>
+              </DialogTrigger>
+            )}
+          </div>
         </CardFooter>
       </Card>
       {demo.status === "Scheduled" && (
@@ -146,3 +160,5 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+
+    
