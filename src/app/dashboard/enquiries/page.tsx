@@ -6,7 +6,7 @@ import type { TuitionRequirement } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { SearchIcon, XIcon, Star, CheckCircle, FilterIcon as LucideFilterIcon } from "lucide-react";
+import { SearchIcon, XIcon, Star, CheckCircle, FilterIcon as LucideFilterIcon, Bookmark } from "lucide-react"; // Added Bookmark
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -78,9 +78,9 @@ export default function AllEnquiriesPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
+        <Card className="bg-card rounded-none shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-base sm:text-lg font-semibold text-primary flex items-center break-words">
+            <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
               <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
               Search & Filter Enquiries
             </CardTitle>
@@ -99,7 +99,6 @@ export default function AllEnquiriesPage() {
                 </div>
                 <Button
                   variant="default"
-                  size="sm"
                   className="w-full sm:w-auto text-sm py-2.5 px-5 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5"
                   onClick={() => console.log("Filter button clicked")}
                 >
@@ -149,3 +148,4 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
+
