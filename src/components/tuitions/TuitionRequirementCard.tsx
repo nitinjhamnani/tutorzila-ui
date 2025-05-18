@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, CalendarDays, MapPin, Building, Users as UsersIcon, Clock, Eye, Presentation, Star as StarIcon, Bookmark, UserCheck, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, AlertTriangle, CheckCircle } from "lucide-react";
+import { GraduationCap, CalendarDays, MapPin, Building, Users as UsersIcon, Clock, Eye, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, Bookmark, UserCheck, AlertTriangle, CheckCircle } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -111,25 +111,22 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
     );
   }
 
-  // Tutor's "View All Enquiries" list view & public listings
+  // Tutor's "View All Enquiries" list view & public listings (Redesigned for Mobile Compatibility)
   return (
-    <Card className={cn(
-      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden h-full w-full",
-      "p-4 md:p-5" 
-    )}>
-      <CardHeader className="p-0 pb-3 mb-3 border-b border-border/20 relative">
+    <Card className="bg-card border border-border/40 rounded-lg shadow-sm w-full overflow-hidden">
+      <CardHeader className="p-3 sm:p-4 relative">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20 mt-0.5">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
             <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName || "Parent"} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
               {parentInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
-            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+            <CardTitle className="text-sm sm:text-base font-semibold text-primary break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
-            <CardDescription className="text-[11px] text-muted-foreground mt-0.5 break-words">
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
               Posted {timeAgo}
             </CardDescription>
           </div>
@@ -139,7 +136,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             variant="ghost"
             size="icon"
             className={cn(
-                "absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+                "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
                 isShortlisted && "text-primary"
             )}
             onClick={handleShortlistToggle}
@@ -149,22 +146,20 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="p-0 space-y-2 text-xs flex-grow min-w-0">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-            <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
-            {requirement.board && (
-            <InfoItem icon={Building} label="Board" value={requirement.board} />
-            )}
-            {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-                <InfoItem icon={RadioTower} label="Mode" value={requirement.teachingMode.join(', ')} />
-            )}
-            {requirement.location && (
-                <InfoItem icon={MapPin} label="Location" value={requirement.location} />
-            )}
-        </div>
+      <CardContent className="p-3 sm:p-4 pt-2 space-y-1.5 sm:space-y-2 text-xs">
+        <InfoItem icon={GraduationCap} label="Grade:" value={requirement.gradeLevel} />
+        {requirement.board && (
+          <InfoItem icon={Building} label="Board:" value={requirement.board} />
+        )}
+        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+            <InfoItem icon={RadioTower} label="Mode:" value={requirement.teachingMode.join(', ')} />
+        )}
+        {requirement.location && (
+            <InfoItem icon={MapPin} label="Location:" value={requirement.location} />
+        )}
       </CardContent>
-      <CardFooter className="p-0 pt-3 mt-3 border-t border-border/20 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-3">
-        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground min-w-0">
+      <CardFooter className="p-3 sm:p-4 pt-2 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+        <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <Eye className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {mockViewsCount} Views
@@ -180,12 +175,12 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           <Button
             asChild
             className={cn(
-              "w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs py-2 px-3.5 h-auto", 
-              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 mt-2 sm:mt-0"
+              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
+              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             )}
           >
             <Link href={`/dashboard/enquiries/${requirement.id}`}>
-                <Send className="w-3.5 h-3.5 mr-1.5" />
+                <Send className="w-3 h-3 mr-1.5" />
                 Apply Now
             </Link>
           </Button>
@@ -199,23 +194,17 @@ interface InfoItemProps {
   icon: React.ElementType;
   label: string;
   value: string;
-  truncateValue?: number;
   className?: string;
 }
 
-function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoItemProps) {
-  const displayValue = truncateValue && value && value.length > truncateValue
-    ? `${value.substring(0, truncateValue - 3)}...`
-    : value;
-
+function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
   return (
     <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
-      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px] transition-transform duration-300 group-hover:scale-105" />
+      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px]" />
       <div className="min-w-0 flex-1">
-        <strong className="text-foreground/80 font-medium">{label}:</strong>&nbsp;
-        <span className="text-muted-foreground break-words">{displayValue}</span>
+        <strong className="text-muted-foreground font-medium">{label}</strong>&nbsp;
+        <span className="text-foreground/90 break-words">{value}</span>
       </div>
     </div>
   );
 }
-
