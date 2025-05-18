@@ -1,3 +1,4 @@
+
 // src/components/tuitions/TuitionRequirementCard.tsx
 "use client";
 
@@ -5,8 +6,8 @@ import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, CalendarDays, MapPin, Building, Users as UsersIcon, Clock, Eye, RadioTower, Send, Edit3, Trash2, XCircle, Info, Archive, Bookmark, UserCheck, AlertTriangle, CheckCircle } from "lucide-react";
-import { formatDistanceToNow } from 'date-fns';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -33,12 +34,12 @@ const getInitials = (name?: string): string => {
 };
 
 export function TuitionRequirementCard({ requirement, showActions, onEdit, onDelete, onClose, onReopen, isParentContext = false }: TuitionRequirementCardProps) {
-  const postedDate = new Date(requirement.postedAt);
+  const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const { toast } = useToast();
 
   const parentInitials = getInitials(requirement.parentName);
-  const [isShortlisted, setIsShortlisted] = useState(false);
+  const [isShortlisted, setIsShortlisted] = useState(requirement.mockIsShortlistedByCurrentUser || false);
   const [mockViewsCount, setMockViewsCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -68,7 +69,6 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
       >
         <Link href={`/dashboard/my-requirements/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer overflow-hidden">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
-             <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName || "Parent"} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
@@ -113,11 +113,10 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
 
   // Tutor's "View All Enquiries" list view & public listings
   return (
-    <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden">
-      <CardHeader className="p-4 md:p-5 relative">
+    <Card className="bg-card rounded-xl shadow-lg p-4 md:p-5 border-0 w-full overflow-hidden">
+      <CardHeader className="p-0 pb-3 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
-            <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName || "Parent"} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
               {parentInitials}
             </AvatarFallback>
@@ -136,7 +135,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             variant="ghost"
             size="icon"
             className={cn(
-                "absolute top-3 right-3 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
+                "absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full", // Adjusted positioning
                 isShortlisted && "text-primary"
             )}
             onClick={handleShortlistToggle}
@@ -146,7 +145,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
           </Button>
         )}
       </CardHeader>
-      <CardContent className="p-4 md:p-5 pt-2 space-y-2 text-xs">
+      <CardContent className="p-0 pt-3 space-y-1.5 sm:space-y-2 text-xs">
         <InfoItem icon={GraduationCap} label="Grade:" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board:" value={requirement.board} />
@@ -158,7 +157,7 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
             <InfoItem icon={MapPin} label="Location:" value={requirement.location} />
         )}
       </CardContent>
-      <CardFooter className="p-4 md:p-5 pt-3 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+      <CardFooter className="p-0 pt-3 mt-3 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
           {mockViewsCount !== null && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
@@ -174,8 +173,9 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
         {!isParentContext && (
           <Button
             asChild
+            size="sm" // Use standard size prop
             className={cn(
-              "w-full sm:w-auto text-xs py-2 px-4 h-auto", // Adjusted padding and height
+              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto", // Adjusted padding and height
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             )}
           >
@@ -208,3 +208,5 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+
+    

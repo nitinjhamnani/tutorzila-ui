@@ -127,7 +127,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           <div className="flex items-center space-x-3 flex-grow min-w-0">
             {requirement.parentName && (
               <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
-                 <AvatarImage src={`https://avatar.vercel.sh/${parentInitials}.png?size=40`} alt={requirement.parentName} />
                 <AvatarFallback className="bg-primary/10 text-primary font-semibold rounded-md text-xs">
                   {parentInitials}
                 </AvatarFallback>
@@ -316,11 +315,10 @@ function DetailItem({ label, value, icon: Icon, children, className }: DetailIte
         {Icon && <Icon className="w-3 h-3 mr-1.5 text-primary/70" />}
         {label}
       </span>
-      {value && <p className="text-foreground/90">{value}</p>}
-      {children}
+      {value && <p className="text-foreground/90 text-xs">{value}</p>}
+      {children && <div className={cn("text-xs", className)}>{children}</div>}
     </div>
   );
 }
-
 
     
