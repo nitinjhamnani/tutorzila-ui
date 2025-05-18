@@ -17,7 +17,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit, MessageSquare } from "lucide-react";
+import { Home, SearchCheck, PlusCircle, BookOpen, Users, ShieldCheck, LogOut, Settings, Briefcase, ListChecks, LayoutDashboard, School, DollarSign, CalendarDays, MessageSquareQuote, UserCircle, LifeBuoy, Edit, MessageSquare, Menu as MenuIcon } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -59,9 +59,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const tutorNavItems = [
-    // "/dashboard/enquiries" is handled by dashboardHomeHref if it's the same
+    // "/dashboard/enquiries" is handled by dashboardHomeHref if it's for the main tutor dashboard
+    // It's also the base path for individual enquiry details, so the header should show there.
     // Only add if dashboardHomeHref is different and user is tutor
-    ...(user.role === 'tutor' && dashboardHomeHref !== "/dashboard/enquiries" ? [{ href: "/dashboard/enquiries", label: "My Enquiries", icon: Briefcase }] : []),
+    ...(user.role === 'tutor' && dashboardHomeHref !== "/dashboard/enquiries" ? [{ href: "/dashboard/enquiries", label: "View Enquiries", icon: Briefcase }] : []),
     { href: "/dashboard/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
@@ -94,7 +95,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const tutorHeaderPaths = [
     '/dashboard/tutor',
-    '/dashboard/enquiries',
+    '/dashboard/enquiries', // Covers listing
     '/dashboard/my-classes',
     '/dashboard/payments',
     '/dashboard/demo-sessions',
@@ -102,8 +103,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     '/dashboard/tutor/edit-personal-details',
     '/dashboard/tutor/edit-tutoring-details'
   ];
-  const showTutorHeader = isAuthenticated && user?.role === 'tutor' && tutorHeaderPaths.includes(pathname);
-  const showAppHeader = !isAuthenticated || (user && user.role !== 'tutor' && !pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard/tutor'));
+  
+  const showTutorHeader = isAuthenticated && user?.role === 'tutor' && 
+    (
+      tutorHeaderPaths.includes(pathname) || // Exact matches
+      pathname.startsWith('/dashboard/enquiries/') // For individual enquiry detail pages
+    );
 
 
   return (
@@ -115,20 +120,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
+            // Adjust top padding if TutorDashboardHeader is shown (it's sticky below banner)
             showTutorHeader ? "pt-0" : "pt-[var(--verification-banner-height,0px)]" 
           )}
         >
-          {!showTutorHeader && ( 
+          {/* Render SidebarHeader only if TutorDashboardHeader is NOT shown, to avoid duplicate triggers on desktop */}
+          {/* On mobile, TutorDashboardHeader has its own trigger, and this SidebarHeader will be inside the Sheet, providing a title */}
+          {(!showTutorHeader || isMobile) && (
             <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
+              {isMobile && <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>}
               <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
-                <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors" />
+                {!isMobile && <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"><MenuIcon className="h-5 w-5"/></SidebarTrigger>}
               </div>
             </SidebarHeader>
           )}
+
           <SidebarContent className="flex-grow">
             <SidebarMenu>
               {mainNavItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = pathname === item.href || (item.href === '/dashboard/enquiries' && pathname.startsWith('/dashboard/enquiries/'));
                 return (
                   <SidebarMenuItem key={item.href || item.label}>
                     <SidebarMenuButton
@@ -180,7 +190,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   >
                     {item.onClick ? (
                       <div className="flex items-center gap-2.5 w-full">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : "group-hover:text-primary" )} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : item.label === "Log Out" ? "" : "group-hover:text-primary" )} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     ) : (
@@ -206,7 +216,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarInset className={cn(
             "pb-4 md:pb-6 bg-background overflow-x-hidden",
              showTutorHeader 
-              ? "pt-0" // The TutorDashboardHeader has its own padding and handles verification banner height internally via its sticky wrapper
+              ? "pt-0" 
               : "pt-[var(--verification-banner-height,0px)]"
           )}> 
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
