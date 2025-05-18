@@ -80,10 +80,10 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-6 md:py-8 w-full"> {/* Adjusted page padding */}
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-6 mb-6 md:mb-8 border-0"> {/* Adjusted card padding */}
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-6 md:py-8 w-full">
+        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words"> {/* Responsive title */}
+            <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold text-primary flex items-center break-words">
               <SearchIcon className="w-5 h-5 mr-2.5"/>
               Search & Filter Enquiries
             </CardTitle>
@@ -148,4 +148,3 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
-
