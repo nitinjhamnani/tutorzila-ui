@@ -32,7 +32,7 @@ import {
   Users as UsersIcon, 
 } from "lucide-react";
 import { formatDistanceToNow, format, parseISO } from "date-fns";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // Removed AvatarImage
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
@@ -114,6 +114,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
         title: newShortlistStatus ? "Added to Shortlist" : "Removed from Shortlist",
         description: `Enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} has been ${newShortlistStatus ? 'added to' : 'removed from'} your shortlist.`,
       });
+      // In a real app, you would also make an API call here to update the shortlist status
       return newShortlistStatus;
     });
   };
@@ -124,19 +125,19 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="flex items-center space-x-3 flex-grow min-w-0">
             {requirement.parentName && (
-              <Avatar className="h-10 w-10 shrink-0 rounded-md shadow-sm border border-primary/20">
-                <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-md text-xs">
+              <Avatar className="h-10 w-10 shrink-0 rounded-full shadow-sm border border-primary/20">
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-xs">
                   {parentInitials}
                 </AvatarFallback>
               </Avatar>
             )}
             <div className="flex-grow min-w-0">
                 {requirement.parentName && (
-                    <CardTitle className="text-xl md:text-2xl font-semibold text-primary tracking-tight mb-1 break-words">
+                    <CardTitle className="text-lg md:text-xl font-semibold text-primary tracking-tight mb-0.5 break-words">
                         {requirement.parentName}
                     </CardTitle>
                 )}
-                <CardDescription className="text-xs text-foreground/70 mt-0.5">
+                <CardDescription className="text-xs text-foreground/70 mt-0">
                 Posted {timeAgo} (on {formattedPostedDate})
                 </CardDescription>
             </div>
@@ -159,11 +160,11 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
       <CardContent className="p-4 md:p-5 space-y-4">
         
         <section className="space-y-2">
-          <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
+          <h3 className="text-sm font-semibold text-foreground flex items-center">
             <BookOpen className="w-4 h-4 mr-2 text-primary/80" />
             Requirements
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2.5 pl-6 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
             <DetailItem label="Subject(s)" value={Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} className="text-xs"/>
             <DetailItem label="Grade Level" value={requirement.gradeLevel} className="text-xs" />
             {requirement.board && <DetailItem label="Board" value={requirement.board} className="text-xs"/>}
@@ -177,11 +178,11 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
 
         
         <section className="space-y-2">
-          <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
+          <h3 className="text-sm font-semibold text-foreground flex items-center">
             <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
             Schedule & Location
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2.5 pl-6 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
             {requirement.preferredDays && requirement.preferredDays.length > 0 && (
               <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} className="text-xs"/>
             )}
@@ -205,7 +206,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           <>
             <Separator />
             <section className="space-y-2">
-              <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center">
+              <h3 className="text-sm font-semibold text-foreground flex items-center">
                 <Info className="w-4 h-4 mr-2 text-primary/80" />
                 Additional Notes
               </h3>
@@ -313,7 +314,7 @@ function DetailItem({ label, value, icon: Icon, children, className }: DetailIte
         {Icon && <Icon className="w-3 h-3 mr-1.5 text-primary/70" />}
         {label}
       </span>
-      {value && <p className="text-foreground/90 text-xs">{value}</p>}
+      {value && <p className="text-xs text-foreground/80">{value}</p>}
       {children && <div className={cn("text-xs", className)}>{children}</div>}
     </div>
   );
