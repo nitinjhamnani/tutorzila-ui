@@ -7,7 +7,7 @@ import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, ChevronDown, CheckCircle, Clock, XCircle as XCircleIcon, Star, CalendarDays } from "lucide-react"; // Added CalendarDays, removed ListFilter
+import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CalendarDays, Clock, CheckCircle, ChevronDown } from "lucide-react";
 import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
@@ -21,8 +21,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 
-const demoStatuses = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
-type DemoStatusCategory = typeof demoStatuses[number];
+const allDemoStatuses = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
+type DemoStatusCategory = typeof allDemoStatuses[number];
 
 
 export default function TutorDemoSessionsPage() {
@@ -36,7 +36,7 @@ export default function TutorDemoSessionsPage() {
   useEffect(() => {
     if (!isCheckingAuth) {
       if (!isAuthenticated || !tutorUser || tutorUser.role !== 'tutor') {
-        router.replace("/"); 
+        router.replace("/");
       } else {
         const tutorDemos = MOCK_DEMO_SESSIONS.filter(demo => demo.tutorId === tutorUser.id || demo.tutorName === tutorUser.name);
         setAllTutorDemos(tutorDemos);
@@ -56,13 +56,13 @@ export default function TutorDemoSessionsPage() {
   }, [allTutorDemos]);
 
   const filterCategoriesForDropdown: { label: DemoStatusCategory; value: DemoStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] }, // Changed icon to CalendarDays
+    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] },
     { label: "Scheduled", value: "Scheduled", icon: Clock, count: categoryCounts.Scheduled },
     { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
     { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
-    { label: "Cancelled", value: "Cancelled", icon: XCircleIcon, count: categoryCounts.Cancelled },
+    { label: "Cancelled", value: "Cancelled", icon: XIcon, count: categoryCounts.Cancelled },
   ];
-  
+
   const selectedCategoryLabel = useMemo(() => {
     return filterCategoriesForDropdown.find(cat => cat.value === activeDemoCategoryFilter)?.label || "All Demos";
   }, [activeDemoCategoryFilter, filterCategoriesForDropdown]);
@@ -82,7 +82,7 @@ export default function TutorDemoSessionsPage() {
   const handleCancelSession = (sessionId: string) => {
     setAllTutorDemos(prevDemos => prevDemos.map(d => d.id === sessionId ? { ...d, status: "Cancelled" } : d));
   };
-  
+
    const renderDemoList = (demos: DemoSession[]) => {
     if (demos.length === 0) {
       return (
@@ -98,11 +98,11 @@ export default function TutorDemoSessionsPage() {
     return (
       <div className="grid grid-cols-1 gap-4 md:gap-5">
         {demos.map(demo => (
-            <TutorDemoCard 
-                key={demo.id} 
+            <TutorDemoCard
+                key={demo.id}
                 demo={demo}
-                onUpdateSession={handleUpdateSession} 
-                onCancelSession={handleCancelSession}  
+                onUpdateSession={handleUpdateSession}
+                onCancelSession={handleCancelSession}
             />
         ))}
       </div>
@@ -116,16 +116,24 @@ export default function TutorDemoSessionsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3">
             <CardTitle className="text-base sm:text-lg font-semibold text-primary flex items-center break-words">
-              <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/> {/* Changed icon here */}
+              <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
               Manage Demo Sessions
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-end items-center">
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-11"
+                onClick={() => console.log("Schedule Demo Clicked")}
+              >
+                <PlusCircle className="w-4 h-4 opacity-90" />
+                Schedule Demo
+              </Button>
               <div className="w-full sm:w-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -151,7 +159,7 @@ export default function TutorDemoSessionsPage() {
                         key={category.value}
                         onClick={() => setActiveDemoCategoryFilter(category.value)}
                         className={cn(
-                          "text-sm", 
+                          "text-sm",
                           activeDemoCategoryFilter === category.value && "bg-primary text-primary-foreground"
                         )}
                       >
