@@ -112,9 +112,9 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 w-full">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-3 sm:mb-4">
+          <CardHeader className="p-0 mb-4">
             <CardTitle className="text-base sm:text-lg font-semibold text-primary flex items-center break-words">
               <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2"/>
               Search & Filter Enquiries
@@ -131,16 +131,16 @@ export default function AllEnquiriesPage() {
                     placeholder="Search by subject, grade, keywords..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full"
+                    className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
                   />
                 </div>
                 <Button
                   variant="default"
-                  size="icon"
-                  className="h-11 w-11 shrink-0" // Height matches input, fixed width
+                  className="h-11 w-11 sm:w-auto sm:px-4 shrink-0 flex items-center justify-center" 
                   onClick={() => console.log("Main Filter button clicked - placeholder for advanced filters")}
                 >
                   <LucideFilterIcon className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline sm:ml-1.5">Filter</span>
                 </Button>
               </div>
 
@@ -150,7 +150,7 @@ export default function AllEnquiriesPage() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5"
+                      className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 sm:px-4 border-border hover:border-primary hover:bg-primary/10 hover:text-primary transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-11"
                     >
                       <span>{selectedCategoryLabel}</span>
                       <ChevronDown className="w-4 h-4 opacity-70" />
