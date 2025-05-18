@@ -106,7 +106,6 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
                 <Archive className="h-3.5 w-3.5" />
               </Button>
             )}
-            {/* Action buttons removed from here for current enquiries, will be on detail page */}
         </div>
       </div>
     );
@@ -115,7 +114,8 @@ export function TuitionRequirementCard({ requirement, showActions, onEdit, onDel
   // Tutor's "View All Enquiries" list view & public listings
   return (
     <Card className={cn(
-      "group bg-card border-0 rounded-xl shadow-lg p-4 md:p-5 w-full overflow-hidden transition-all duration-300 flex flex-col h-full" 
+      "group bg-card border border-border/30 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden h-full w-full",
+      "p-4 md:p-5" 
     )}>
       <CardHeader className="p-0 pb-3 mb-3 border-b border-border/20 relative">
         <div className="flex items-start space-x-3">
@@ -218,3 +218,4 @@ function InfoItem({ icon: Icon, label, value, truncateValue, className }: InfoIt
     </div>
   );
 }
+
