@@ -10,7 +10,7 @@ import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQu
 import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,12 +25,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Select, SelectContentItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select"; // Renamed to avoid conflict
+import { Select, SelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue, SelectContent } from "@/components/ui/select"; // Corrected import
 
 const rescheduleSchema = z.object({
   newDate: z.date({ required_error: "Please select a new date."}),
@@ -39,18 +40,22 @@ const rescheduleSchema = z.object({
   reason: z.string().max(200, "Reason must be 200 characters or less.").optional(),
 }).refine(data => {
    if (data.newStartTime && data.newEndTime) {
-    const [startHour, startMinutePeriod] = data.newStartTime.split(/:| /);
-    const [endHour, endMinutePeriod] = data.newEndTime.split(/:| /);
-    let startH = parseInt(startHour);
-    let endH = parseInt(endHour);
-    if (startMinutePeriod === 'PM' && startH !== 12) startH += 12;
-    if (startMinutePeriod === 'AM' && startH === 12) startH = 0; 
-    if (endMinutePeriod === 'PM' && endH !== 12) endH += 12;
-    if (endMinutePeriod === 'AM' && endH === 12) endH = 0;
-    const startDate = new Date(data.newDate); // Use the selected date
-    startDate.setHours(startH, parseInt(data.newStartTime.split(':')[1].split(' ')[0]), 0, 0);
-    const endDate = new Date(data.newDate); // Use the selected date
-    endDate.setHours(endH, parseInt(data.newEndTime.split(':')[1].split(' ')[0]), 0, 0);
+    const [startHourString, startMinuteString] = data.newStartTime.split(':');
+    const startPeriod = data.newStartTime.includes('PM') ? 'PM' : 'AM';
+    let startH = parseInt(startHourString);
+    if (startPeriod === 'PM' && startH !== 12) startH += 12;
+    if (startPeriod === 'AM' && startH === 12) startH = 0; 
+    
+    const [endHourString, endMinuteString] = data.newEndTime.split(':');
+    const endPeriod = data.newEndTime.includes('PM') ? 'PM' : 'AM';
+    let endH = parseInt(endHourString);
+    if (endPeriod === 'PM' && endH !== 12) endH += 12;
+    if (endPeriod === 'AM' && endH === 12) endH = 0; 
+
+    const startDate = new Date(data.newDate); 
+    startDate.setHours(startH, parseInt(startMinuteString.split(' ')[0]), 0, 0);
+    const endDate = new Date(data.newDate); 
+    endDate.setHours(endH, parseInt(endMinuteString.split(' ')[0]), 0, 0);
     return endDate > startDate;
   }
   return true;
@@ -257,7 +262,7 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                               </FormControl>
                               <SelectContent>
                                 {timeSlotsForReschedule.map(slot => (
-                                  <SelectContentItem key={`start-${slot.value}`} value={slot.value} className="text-xs">{slot.label}</SelectContentItem>
+                                  <SelectItem key={`start-${slot.value}`} value={slot.value} className="text-xs">{slot.label}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -279,7 +284,7 @@ export function ParentDemoSessionCard({ demo, onReschedule, onCancel, onEditRequ
                               </FormControl>
                               <SelectContent>
                                 {timeSlotsForReschedule.map(slot => (
-                                  <SelectContentItem key={`end-${slot.value}`} value={slot.value} className="text-xs">{slot.label}</SelectContentItem>
+                                  <SelectItem key={`end-${slot.value}`} value={slot.value} className="text-xs">{slot.label}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -365,3 +370,5 @@ function InfoItem({ icon: Icon, label, value }: InfoItemPropsLocal) {
     </div>
   );
 }
+
+    
