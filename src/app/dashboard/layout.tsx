@@ -14,7 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SheetTitle, 
+  // SheetTitle, // Removed direct import if not used elsewhere, RadixSheetTitle is used in sidebar.tsx
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Menu as MenuIcon, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, HomeIcon as HomeIconLucide, Users as UsersIconLucide, BookOpen, BarChart2, MessageSquare } from "lucide-react";
@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const tutorNavItems = [
     { href: "/dashboard/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/dashboard/demo-sessions", label: "Demos", icon: CalendarDays }, // Changed from MessageSquareQuote
+    { href: "/dashboard/demo-sessions", label: "Demos", icon: CalendarDays },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/payments", label: "My Payments", icon: DollarSign, disabled: false },
   ];
@@ -69,7 +69,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const adminNavItems = [
     { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: UsersIconLucide, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
-    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: BarChart2, disabled: true }, 
+    { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: BarChart2, disabled: true },
     { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, disabled: true },
   ];
 
@@ -93,16 +93,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const tutorHeaderPaths = [
     '/dashboard/tutor',
-    '/dashboard/enquiries', 
-    '/dashboard/my-classes', 
-    '/dashboard/payments',  
-    '/dashboard/demo-sessions', 
+    '/dashboard/enquiries',
+    '/dashboard/my-classes', // Assuming tutors might have a "my classes" like parents if they teach ongoing
+    '/dashboard/payments',
+    '/dashboard/demo-sessions',
     '/dashboard/my-account',
     '/dashboard/tutor/edit-personal-details',
     '/dashboard/tutor/edit-tutoring-details'
   ];
-  
-  const showTutorHeader = isAuthenticated && user?.role === 'tutor' && 
+
+  const showTutorHeader = isAuthenticated && user?.role === 'tutor' &&
     (
       tutorHeaderPaths.some(p => pathname === p || (pathname.startsWith('/dashboard/enquiries/') && p === '/dashboard/enquiries'))
     );
@@ -117,13 +117,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            showTutorHeader 
-              ? "pt-[calc(var(--verification-banner-height,0px)_+_4rem)]" // Approx height of TutorDashboardHeader (h-16)
-              : "pt-[var(--verification-banner-height,0px)]" 
+             showTutorHeader
+              ? "pt-[calc(var(--verification-banner-height,0px)_+_var(--tutor-header-height,4rem))]" // Use a variable for tutor header height
+              : "pt-[var(--verification-banner-height,0px)]"
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
-            <SheetTitle className="sr-only">Main Navigation Menu</SheetTitle>
+            {/* Removed SheetTitle from here as it's handled by Sidebar component for mobile */}
             <div className={cn("flex items-center w-full", isMobile ? "justify-end" : "justify-end group-data-[collapsible=icon]:justify-center")}>
                 {!isMobile && <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors"><MenuIcon className="h-5 w-5"/></SidebarTrigger>}
             </div>
@@ -132,7 +132,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarContent className="flex-grow">
             <SidebarMenu>
               {mainNavItems.map((item) => {
-                const isActive = item.href ? pathname === item.href || (pathname.startsWith(item.href) && item.href !== dashboardHomeHref && item.href !== "/dashboard") : false;
+                const isActive = item.href ? pathname === item.href || (pathname.startsWith(item.href + '/') && item.href !== dashboardHomeHref && item.href !== "/dashboard") : false;
                 return (
                   <SidebarMenuItem key={item.href || item.label}>
                     <SidebarMenuButton
@@ -151,7 +151,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn(
                             "transition-transform duration-200 group-hover:scale-110",
-                            isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground")
+                            isActive ? "text-primary-foreground" : (item.disabled ? "" : (isActive ? "text-primary-foreground" : "group-hover:text-primary group-focus:text-primary"))
                          )} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
@@ -183,12 +183,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   >
                     {item.onClick ? (
                       <div className="flex items-center gap-2.5 w-full">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground") )} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : (isActive ? "text-primary-foreground" : "group-hover:text-primary group-focus:text-primary")) )} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     ) : (
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
-                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : "group-hover:text-primary-foreground group-focus:text-primary-foreground"))} />
+                        <item.icon className={cn("transition-transform duration-200 group-hover:scale-110", isActive ? "text-primary-foreground" : (item.disabled ? "" : (isActive ? "text-primary-foreground" : "group-hover:text-primary group-focus:text-primary")))} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
                     )}
@@ -218,15 +218,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         <div className="flex flex-col flex-1">
            {showTutorHeader && (
-            <div className="sticky top-[var(--verification-banner-height,0px)] z-30">
+            <div className="sticky top-[var(--verification-banner-height,0px)] z-30"> {/* Ensure z-index is high enough */}
               <TutorDashboardHeader />
             </div>
           )}
           <SidebarInset className={cn(
             "pb-4 md:pb-6 bg-background overflow-x-hidden",
-             showTutorHeader 
-              ? "pt-0" // TutorDashboardHeader already has padding and accounts for banner
-              : "pt-[var(--verification-banner-height,0px)]" // For parent/admin, content starts below banner
+             showTutorHeader
+              ? "pt-0" // TutorDashboardHeader now handles its own top padding relative to banner
+              : "pt-[var(--verification-banner-height,0px)]"
           )}>
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
               {children}
@@ -234,6 +234,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </SidebarInset>
         </div>
       </SidebarProvider>
+      {/* CSS variable for tutor header height. This can be set dynamically if header height changes,
+          or kept fixed if the header height is consistent.
+          Approx. h-16 (4rem for padding + line-height) for TutorDashboardHeader
+      */}
+      <style jsx global>{`
+        :root {
+          --tutor-header-height: 4rem; 
+        }
+      `}</style>
     </>
   );
 }
+
