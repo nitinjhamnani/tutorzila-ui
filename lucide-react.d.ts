@@ -46,7 +46,7 @@ declare module "lucide-react" {
     export const XCircle: React.FC<React.SVGProps<SVGSVGElement>>;
     export const HomeIcon: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UserCircle: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const UserCircle2: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const UserCircle2: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const LayoutDashboard: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ShieldCheck: React.FC<React.SVGProps<SVGSVGElement>>;
     export const LogOut: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -78,7 +78,7 @@ declare module "lucide-react" {
     export const ClipboardEdit: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UserCog: React.FC<React.SVGProps<SVGSVGElement>>;
     export const VenetianMask: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Info: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Settings2: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ArrowLeft: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -100,7 +100,7 @@ declare module "lucide-react" {
     export const Unlock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Lock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Presentation: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const StarIcon: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Bookmark: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Brain: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Sparkles: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -111,9 +111,9 @@ declare module "lucide-react" {
     export const Circle: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ChevronUp: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ClipboardList: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const School: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const Construction: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const School: React.FC<React.SVGProps<SVGSVGElement>>; 
+    export const Construction: React.FC<React.SVGProps<SVGSVGElement>>; 
+    export const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>>; 
     export const Archive: React.FC<React.SVGProps<SVGSVGElement>>;
     export const AlertTriangle: React.FC<React.SVGProps<SVGSVGElement>>;
     export const MessageSquare: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -127,9 +127,11 @@ declare module "lucide-react" {
     export const Percent: React.FC<React.SVGProps<SVGSVGElement>>;
     export const HardDrive: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Bell: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const ListFilter: React.FC<React.SVGProps<SVGSVGElement>>; // Added for demo page
+    export const ListFilter: React.FC<React.SVGProps<SVGSVGElement>>;
     export const MessageSquareText: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Edit2: React.FC<React.SVGProps<SVGSVGElement>>;
     export const XOctagon: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
+
+    

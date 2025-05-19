@@ -4,30 +4,27 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { VerificationBanner } from "@/components/shared/VerificationBanner"; // Assuming it might be re-added later or used elsewhere
 import {
   LayoutDashboard,
   Briefcase,
   CalendarDays,
   School,
-  // UserCircle, // No longer needed for accountSettingsNavItems in this simplified version
-  // Settings as SettingsIcon, // No longer needed for accountSettingsNavItems
-  LogOut, // Still needed for logoutNavItem if logout is from somewhere else, but header button is removed
-  Menu as MenuIcon,
+  UserCircle,
+  Settings as SettingsIcon, // Alias for clarity
+  LogOut,
+  Menu as MenuIcon, // Alias for clarity
   Bell,
-  Settings as SettingsIcon, // For header icon
-  // MessageSquareQuote,
-  // DollarSign,
+  PanelLeft, // Added PanelLeft
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuthMock } from "@/hooks/use-auth-mock";
+import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Logo } from "@/components/shared/Logo";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
-
+// import { VerificationBanner } from "@/components/shared/VerificationBanner"; // Removed
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -36,8 +33,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const isMobile = useIsMobile();
   const [hasMounted, setHasMounted] = useState(false);
 
-  const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  // State for sidebar/navbar
+  const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false); // For desktop collapse
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);   // For mobile off-canvas
 
   useEffect(() => {
     setHasMounted(true);
@@ -66,14 +64,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     // { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
   ];
 
-  // const accountSettingsNavItems = [
-  //   { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
-  //   { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
-  // ];
-  // const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+  const accountSettingsNavItems = [
+    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
+    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
+  ];
+  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-
-  const headerHeight = "4rem"; 
+  const headerHeight = "4rem"; // For h-16 or p-4 header
 
   useEffect(() => {
     if (hasMounted) {
@@ -84,8 +81,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
     };
-  }, [hasMounted, headerHeight]);
-
+  }, [hasMounted]);
 
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
@@ -102,7 +98,8 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
-  const paddingTopForContentArea = hasMounted ? `pt-[var(--header-height)]` : "pt-0";
+  const paddingTopForContentArea = "pt-[var(--header-height,0px)]";
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -118,34 +115,35 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           )}
         >
           <div className="flex items-center gap-2">
-            {(isMobile || !isNavbarCollapsed) && ( // Show logo if mobile OR desktop expanded
-               <Link href="/tutor/dashboard" onClick={isMobile ? toggleMobileNav : undefined}>
-                <Logo className="h-8 w-auto" />
-              </Link>
+            {isMobile && (
+              <Button variant="ghost" size="icon" onClick={toggleMobileNav} className="text-gray-600 hover:text-primary md:hidden">
+                <MenuIcon className="h-6 w-6" />
+              </Button>
             )}
-             {/* Desktop Collapse/Expand Trigger. Mobile trigger is now part of TutorSidebar */}
-            {!isMobile && (
+             {!isMobile && (
                 <Button variant="ghost" size="icon" onClick={toggleNavbarCollapsed} className="text-gray-600 hover:text-primary">
                     <PanelLeft className="h-5 w-5" />
                 </Button>
             )}
              {/* Mobile Nav Open Trigger (Only shown if sidebar is the primary mobile nav) */}
-             {isMobile && (
-                <Button variant="ghost" size="icon" onClick={toggleMobileNav} className="text-gray-600 hover:text-primary">
-                    <MenuIcon className="h-6 w-6" />
-                </Button>
-             )}
+            <Link href="/tutor/dashboard">
+              <Logo className="h-8 w-auto" />
+            </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary relative h-8 w-8">
               <Bell className="w-4 h-4" />
               <span className="sr-only">Notifications</span>
+              <span className="absolute top-1 right-1 flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
+              </span>
             </Button>
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary h-8 w-8">
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* Avatar and Name were removed from here as per your request */}
+            {/* User Avatar and Name removed as per request */}
           </div>
         </header>
       )}
@@ -156,16 +154,18 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           isMobileNavOpen={isMobileNavOpen}
           toggleMobileNav={toggleMobileNav}
           isNavbarCollapsed={isNavbarCollapsed}
-          toggleNavbarCollapsed={toggleNavbarCollapsed} // Pass this for desktop collapse button inside sidebar
+          toggleNavbarCollapsed={toggleNavbarCollapsed}
           user={user}
           tutorNavItems={tutorNavItems}
-          // accountSettingsNavItems={accountSettingsNavItems} // Removed as logout is now elsewhere potentially
-          // logoutNavItem={logoutNavItem} // Removed as logout is now elsewhere potentially
+          accountSettingsNavItems={accountSettingsNavItems}
+          logoutNavItem={logoutNavItem}
         />
         <main className={cn(
-          "flex-1 flex flex-col overflow-hidden bg-secondary transition-all duration-300 ease-in-out",
-           // No conditional margin here, rely on sidebar's width change and flex-1
-        )}>
+            "flex-1 flex flex-col overflow-hidden bg-secondary transition-all duration-300 ease-in-out",
+            // Conditional margin for desktop sidebar
+            // No ml-* needed if sidebar is fixed/absolute for mobile and part of flex for desktop
+          )}
+        >
           <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
               {children}
