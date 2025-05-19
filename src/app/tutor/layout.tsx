@@ -4,49 +4,43 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+// Removed SidebarProvider and related ShadCN Sidebar components
 import { Button } from "@/components/ui/button";
-// Removed Sidebar-related imports
-import { VerificationBanner } from "@/components/shared/VerificationBanner"; // Kept for now, will be removed in next step if confirmed
-import {
-  Settings as SettingsIcon,
-  LogOut,
-  Bell,
-} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Logo } from "@/components/shared/Logo";
+import {
+  Bell,
+  Settings as SettingsIcon,
+  LogOut,
+  Menu as MenuIcon,
+} from "lucide-react";
+import { TutorSidebar } from "@/components/tutor/TutorSidebar"; // Import the new sidebar
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-  const isMobile = useIsMobile(); // Still might be useful for header responsiveness
+  const isMobile = useIsMobile(); // Kept for potential mobile-specific adjustments
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
-
-  const headerHeight = "4rem"; // For h-16 or p-4 header
-
+  // This useEffect sets a CSS variable for the header height.
+  // The header has p-4, making it roughly h-16 (4rem).
   useEffect(() => {
     if (hasMounted) {
-      document.documentElement.style.setProperty('--header-height', headerHeight);
-      // VerificationBanner is removed, so its height is not considered here
-      document.documentElement.style.setProperty('--verification-banner-height', '0px');
-
+      document.documentElement.style.setProperty('--header-height', '4rem');
     } else {
       document.documentElement.style.setProperty('--header-height', '0px');
-      document.documentElement.style.setProperty('--verification-banner-height', '0px');
     }
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
-      document.documentElement.style.setProperty('--verification-banner-height', '0px');
     };
   }, [hasMounted]);
 
@@ -55,25 +49,26 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }
 
   if (hasMounted && !isAuthenticated) {
-    router.replace("/"); // Redirect to home if not authenticated
+    router.replace("/");
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
 
   if (hasMounted && isAuthenticated && user?.role !== 'tutor') {
-    router.replace("/"); // Redirect to home if role is not tutor
+    router.replace("/");
     return <div className="flex h-screen items-center justify-center">Access Denied. Redirecting...</div>;
   }
 
    if (!user && hasMounted) {
-    // This case should ideally be covered by !isAuthenticated, but as a fallback:
     return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
-  const paddingTopForContentArea = "pt-[var(--header-height,0px)]"; // Only accounts for header now
+  // Padding to push content below the header.
+  // VerificationBanner was removed, so only header height is considered.
+  const paddingTopForMainContentArea = "pt-[var(--header-height,0px)]";
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary">
-      {/* <VerificationBanner /> Removed as per user instruction */}
+      {/* <VerificationBanner /> Removed */}
 
       {/* Integrated Header - Sticky */}
       {hasMounted && (
@@ -81,13 +76,14 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
             "sticky top-0 z-30", // Sticks to top-0 directly
-            `h-[${headerHeight}]`
+            "h-16" // Explicit height for header
           )}
         >
           <div className="flex items-center gap-2">
-            {/* Mobile Sidebar Trigger REMOVED as sidebar is removed */}
+            {/* Mobile Sidebar Trigger can be part of TutorSidebar or managed globally if needed */}
+            {/* For now, assuming TutorSidebar handles its own mobile toggling if needed */}
             <Link href="/tutor/dashboard">
-              <Logo className="h-10 w-auto" /> {/* Consistent logo size */}
+              <Logo className="h-8 w-auto" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -114,24 +110,26 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 <span className="text-xs font-medium text-muted-foreground hidden md:inline">{user.name}</span>
               </div>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={logoutNavItem.onClick}
-              className="text-xs h-8"
-            >
-              <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
-            </Button>
+             {/* Logout button moved to TutorSidebar */}
           </div>
         </header>
       )}
 
-      {/* Main Content Area */}
-      <main className={cn("flex-1 overflow-y-auto", paddingTopForContentArea)}>
-        <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
-          {children}
-        </div>
-      </main>
+      {/* Main content area with new TutorSidebar */}
+      <div className={cn("flex flex-1 overflow-hidden", paddingTopForMainContentArea)}>
+        {hasMounted && <TutorSidebar />} {/* Render the new sidebar */}
+        <main
+          className={cn(
+            "flex-1 overflow-y-auto bg-secondary", // Ensures main content takes remaining space and scrolls
+            "pb-4 md:pb-6 px-4 md:px-6" // Standard padding for the content area itself
+            // No dynamic top padding here, parent div handles offset
+          )}
+        >
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
