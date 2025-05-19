@@ -7,17 +7,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
 import {
-  LayoutDashboard,
-  Briefcase,
-  CalendarDays,
-  School,
-  UserCircle,
-  Settings as SettingsIcon,
-  LogOut, // Added LogOut import
-  Menu as MenuIcon,
+  LogOut,
+  Menu as MenuIcon, // Keep for potential future use if a different mobile trigger is needed for header
   Bell,
-  // MessageSquareQuote, // Assuming not used directly in this header after sidebar removal
-  // DollarSign, // Assuming not used directly in this header after sidebar removal
+  Settings as SettingsIcon,
+  // Icons for nav items are removed as nav items are removed
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -25,20 +19,35 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Logo } from "@/components/shared/Logo";
-// Sidebar specific imports are removed as sidebar itself is removed from this layout
+// Sidebar related imports are removed:
+// import {
+//   SidebarProvider,
+//   Sidebar,
+//   SidebarHeader,
+//   SidebarContent,
+//   SidebarFooter,
+//   SidebarMenu,
+//   SidebarMenuItem,
+//   SidebarMenuButton,
+//   SidebarInset,
+//   SidebarTrigger,
+// } from "@/components/ui/sidebar";
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Keep for header responsiveness if needed
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  // Navigation items for sidebar were removed. Logout logic is now directly in header.
+  // Navigation items for sidebar are removed
+  // const tutorNavItems = [...];
+  // const accountSettingsNavItems = [...];
+  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
   const headerHeight = "4rem"; // For h-16 or p-4 header
 
@@ -61,17 +70,18 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
   if (hasMounted && isAuthenticated && user?.role !== 'tutor') {
-    router.replace("/");
+    router.replace("/"); // Or a dedicated access-denied page
     return <div className="flex h-screen items-center justify-center">Access Denied. Redirecting...</div>;
   }
    if (!user && hasMounted) {
+    // This case should ideally be covered by !isAuthenticated, but as a fallback:
     return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
-  const paddingTopForContentArea = "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]";
+  const paddingTopForContent = "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]";
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-secondary">
       <VerificationBanner />
 
       {/* Integrated Header - Sticky */}
@@ -84,9 +94,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           )}
         >
           <div className="flex items-center gap-2">
-            {/* SidebarTrigger for mobile was removed as sidebar itself is removed */}
-            {/* If a different mobile navigation is needed, it would be integrated here */}
-            <Link href="/tutor/dashboard"> {/* Tutor's dashboard home */}
+            {/* Mobile Sidebar Trigger might be needed here if we add a sheet-based nav later */}
+            {/* For now, keeping it simple as per removing the vertical nav */}
+            <Link href="/tutor/dashboard">
               <Logo className="h-8 w-auto" />
             </Link>
           </div>
@@ -117,7 +127,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
              <Button
                 variant="outline"
                 size="sm"
-                onClick={logout}
+                onClick={logoutNavItem.onClick}
                 className="text-xs h-8"
               >
                 <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
@@ -126,13 +136,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         </header>
       )}
 
-      <main className={cn(
-        "flex-1 bg-secondary overflow-y-auto",
-        paddingTopForContentArea,
-        "pb-4 md:pb-6 px-4 md:px-6" // Apply consistent padding
-      )}>
-        <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
-          {children}
+      {/* Main Content Area */}
+      <main className={cn("flex-1 overflow-y-auto", paddingTopForContent)}>
+        <div className={cn(
+            "animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full",
+            "pb-4 md:pb-6 px-4 md:px-6" // Standard padding for the content area itself
+        )}>
+            {children}
         </div>
       </main>
     </div>
