@@ -5,18 +5,17 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, X, ShieldCheck, ShieldAlert } from "lucide-react"; // Added ShieldAlert
+import { X, ShieldAlert } from "lucide-react"; 
 import { cn } from "@/lib/utils";
 
 const SESSION_STORAGE_KEY = "tutorzila-verification-banner-dismissed";
 
 export function VerificationBanner() {
   const { user, isAuthenticated } = useAuthMock();
-  const [isDismissed, setIsDismissed] = useState(true); // Default to dismissed to avoid SSR issues
+  const [isDismissed, setIsDismissed] = useState(true); 
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client-side
     const dismissedInSession = sessionStorage.getItem(SESSION_STORAGE_KEY) === "true";
     setIsDismissed(dismissedInSession);
   }, []);
@@ -26,15 +25,15 @@ export function VerificationBanner() {
     const shouldShow = isAuthenticated && user && !isVerified && !isDismissed;
     setShowBanner(shouldShow);
 
-    if (shouldShow) {
-      document.documentElement.style.setProperty('--verification-banner-height', '3.5rem'); // Approx h-14
-    } else {
-      document.documentElement.style.setProperty('--verification-banner-height', '0px');
-    }
-    // Cleanup CSS variable when component unmounts or banner is hidden
-    return () => {
-      document.documentElement.style.setProperty('--verification-banner-height', '0px');
-    };
+    // This component no longer sets the CSS variable
+    // if (shouldShow) {
+    //   document.documentElement.style.setProperty('--verification-banner-height', '3.5rem'); 
+    // } else {
+    //   document.documentElement.style.setProperty('--verification-banner-height', '0px');
+    // }
+    // return () => {
+    //   document.documentElement.style.setProperty('--verification-banner-height', '0px');
+    // };
   }, [user, isAuthenticated, isDismissed]);
 
   const handleDismiss = () => {
@@ -59,11 +58,12 @@ export function VerificationBanner() {
   return (
     <div
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100]", // Higher z-index than header
-        "h-14 bg-primary/10 border-b border-primary/20 text-primary", // Banner height and styling
+        "bg-primary/10 border-b border-primary/20 text-primary", 
         "px-4 py-2 flex items-center justify-between text-sm shadow-md",
-        "backdrop-blur-sm bg-opacity-90" // Slight transparency with blur
+        "backdrop-blur-sm bg-opacity-90"
+        // Removed fixed positioning and z-index; this component is now part of normal flow
       )}
+      style={{ height: 'auto' }} // Or a specific height if needed, e.g., '3.5rem'
     >
       <div className="flex items-center gap-2">
         <ShieldAlert className="h-5 w-5 text-primary" />
@@ -91,4 +91,3 @@ export function VerificationBanner() {
     </div>
   );
 }
-
