@@ -1,22 +1,17 @@
-
+// src/app/tutor/layout.tsx
 "use client";
 
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarInset,
-  // SidebarTrigger, // No longer directly used in this layout file's JSX, but TutorSidebar uses it
-} from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Logo } from "@/components/shared/Logo";
+import { cn } from "@/lib/utils";
+import type { User, TutorProfile } from "@/types";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   LayoutDashboard,
   Briefcase,
@@ -27,21 +22,29 @@ import {
   LogOut,
   Menu as MenuIcon,
   Bell,
-  DollarSign, // Added DollarSign
-  MessageSquareQuote, // Added for Demos
+  DollarSign,
+  MessageSquareQuote,
+  PanelLeft, // Added PanelLeft import
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuthMock } from "@/hooks/use-auth-mock";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Logo } from "@/components/shared/Logo";
-import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 
+// Define the structure for navigation items
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  disabled?: boolean;
+}
+
+interface LogoutNavItem {
+  label: string;
+  icon: React.ElementType;
+  onClick: () => void;
+}
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const tutorUser = user as TutorProfile | null;
   const router = useRouter();
   const isMobile = useIsMobile();
   const [hasMounted, setHasMounted] = useState(false);
@@ -52,10 +55,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   useEffect(() => {
     setHasMounted(true);
     if (isMobile) {
-      setIsMobileNavOpen(false); // Ensure mobile nav is closed by default
-      setIsNavbarCollapsed(false); // Desktop collapse state shouldn't affect mobile overlay
+      setIsMobileNavOpen(false);
+      setIsNavbarCollapsed(false);
     } else {
-      setIsNavbarCollapsed(false); // Default to expanded on desktop
+      setIsNavbarCollapsed(false);
     }
   }, [isMobile]);
 
@@ -69,21 +72,21 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     setIsMobileNavOpen(prev => !prev);
   };
 
-  const tutorNavItems = [
-    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
-    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote, disabled: false },
-    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
-    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
+  const tutorNavItems: NavItem[] = [
+    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays }, // Was MessageSquareQuote, changed to CalendarDays for consistency
+    { href: "/tutor/classes", label: "Classes", icon: School },
+    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
   ];
 
-  const accountSettingsNavItems = [
-    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
+  const accountSettingsNavItems: NavItem[] = [
+    { href: "/tutor/my-account", label: "My Account", icon: UserCircle },
     { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
-  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+  const logoutNavItem: LogoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const headerHeight = "4rem"; // For h-16 or p-4 header
+  const headerHeight = "4rem";
 
   useEffect(() => {
     if (hasMounted) {
@@ -96,10 +99,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     };
   }, [hasMounted]);
 
+
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
-
   if (hasMounted && !isAuthenticated) {
     router.replace("/");
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
@@ -112,22 +115,20 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
-  // const paddingTopForContentArea = hasMounted ? "pt-[var(--header-height)]" : "pt-0";
-
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-secondary">
       {/* <VerificationBanner /> Removed as per user request */}
-      {/* Integrated Header - Sticky */}
+
+      {/* Integrated Header */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // Removed var(--verification-banner-height,0px)
+            "sticky top-0 z-30", // No longer depends on verification banner height
             `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
-            {/* Trigger for both mobile sheet and desktop collapse */}
             <Button
               variant="ghost"
               size="icon"
@@ -154,12 +155,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* Avatar and Name removed based on previous request */}
+            {/* User Avatar and Name Removed from here previously */}
           </div>
         </header>
       )}
 
-      <div className={cn("flex flex-1 overflow-hidden")}>
+      {/* Main Content Area for Sidebar and Page Content */}
+      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed top padding from here */}
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
@@ -171,9 +173,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={logoutNavItem}
         />
-        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary", hasMounted ? "pt-[var(--header-height)]" : "pt-0")}>
-          {/* Content is pushed down by header's height */}
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
+        <main
+          className={cn(
+            "flex-1 flex flex-col overflow-y-auto bg-secondary",
+            hasMounted ? "pt-[var(--header-height)]" : "pt-0" // Apply padding here
+          )}
+        >
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8">
             {children}
           </div>
         </main>
