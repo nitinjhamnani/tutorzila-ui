@@ -8,59 +8,42 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
-import type { User, TutorProfile } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 import {
   LayoutDashboard,
   Briefcase,
   CalendarDays,
   School,
+  DollarSign,
+  MessageSquareQuote,
   UserCircle,
   Settings as SettingsIcon,
   LogOut,
   Menu as MenuIcon,
   Bell,
-  DollarSign,
   PanelLeft,
 } from "lucide-react";
-import { TutorSidebar } from "@/components/tutor/TutorSidebar"; // Added import
-
-// Define the structure for navigation items
-interface NavItem {
-  href: string;
-  label: string;
-  icon: React.ElementType;
-  disabled?: boolean;
-}
-
-interface LogoutNavItem {
-  label: string;
-  icon: React.ElementType;
-  onClick: () => void;
-}
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
-  const tutorUser = user as TutorProfile | null;
   const router = useRouter();
   const isMobile = useIsMobile();
   const [hasMounted, setHasMounted] = useState(false);
 
-  // State for sidebar collapse on desktop
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
-  // State for mobile navigation open/close
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
     if (isMobile) {
-      setIsMobileNavOpen(false); // Ensure mobile nav is closed initially on mobile
-      setIsNavbarCollapsed(false); // Desktop collapse state doesn't apply to mobile sheet
+      setIsMobileNavOpen(false);
+      setIsNavbarCollapsed(false);
     } else {
-      setIsNavbarCollapsed(false); // Default to expanded on desktop
+      setIsNavbarCollapsed(false);
     }
   }, [isMobile]);
 
@@ -74,20 +57,20 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     setIsMobileNavOpen(prev => !prev);
   };
 
-
-  const tutorNavItems: NavItem[] = [
-    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
-    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays, disabled: false },
-    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
+  const tutorNavItems = [
+    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote },
+    { href: "/tutor/classes", label: "Classes", icon: School },
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
   ];
 
-  const accountSettingsNavItems: NavItem[] = [
-    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
+  const accountSettingsNavItems = [
+    { href: "/tutor/my-account", label: "My Account", icon: UserCircle },
     { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
-  const logoutNavItem: LogoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+
+  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
   const headerHeight = "4rem"; // For h-16 or p-4 header
 
@@ -101,7 +84,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
       document.documentElement.style.setProperty('--header-height', '0px');
     };
   }, [hasMounted]);
-
 
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
@@ -118,6 +100,8 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
+  const paddingTopForContentArea = hasMounted ? "pt-[var(--header-height)]" : "pt-0";
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* <VerificationBanner /> Removed as per user request */}
@@ -126,22 +110,20 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
       {hasMounted && (
         <header
           className={cn(
-            "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // Removed var(--verification-banner-height,0px)
+            "sticky top-0 z-30 w-full bg-card p-4 shadow-sm flex items-center justify-between",
             `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
-            {/* Combined Trigger for Mobile and Desktop */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
-              className="text-gray-600 hover:text-primary"
-              aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
-            >
-              {isMobile ? <MenuIcon className="h-6 w-6" /> : <PanelLeft className="h-5 w-5" />}
-            </Button>
+            {isMobile ? (
+                 <Button variant="ghost" size="icon" onClick={toggleMobileNav} className="text-gray-600 hover:text-primary md:hidden">
+                    <MenuIcon className="h-6 w-6" />
+                 </Button>
+            ) : (
+                <Button variant="ghost" size="icon" onClick={toggleNavbarCollapsed} className="text-gray-600 hover:text-primary hidden md:flex">
+                    <PanelLeft className="h-5 w-5" />
+                </Button>
+            )}
             <Link href="/tutor/dashboard">
               <Logo className="h-8 w-auto" />
             </Link>
@@ -159,31 +141,35 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* User Avatar and Name Removed from Header */}
+            {/* Logout Button integrated here from logoutNavItem */}
+             <Button
+                variant="outline"
+                size="sm"
+                onClick={logoutNavItem.onClick}
+                className="text-xs h-8 border-destructive text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
+              </Button>
           </div>
         </header>
       )}
 
-      {/* This div contains the sidebar and the main page content. */}
-      <div className={cn("flex flex-1")}> {/* Removed overflow-hidden and items-stretch temporarily for debugging height */}
+      {/* This div contains the sidebar and the main page content. It's pushed down by paddingTopForContentArea. */}
+      <div className={cn("flex flex-1 overflow-hidden", paddingTopForContentArea)}>
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
           toggleMobileNav={toggleMobileNav}
           isNavbarCollapsed={isNavbarCollapsed}
-          toggleNavbarCollapsed={toggleNavbarCollapsed} // Pass this for desktop collapse button inside sidebar
+          toggleNavbarCollapsed={toggleNavbarCollapsed}
           user={user}
           tutorNavItems={tutorNavItems}
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={logoutNavItem}
         />
-        <main
-          className={cn(
-            "flex-1 flex flex-col overflow-y-auto bg-secondary",
-            hasMounted ? "pt-[var(--header-height)]" : "pt-0" // This ensures content starts below header
-          )}
-        >
-          <div className="flex-grow p-4 sm:p-6 md:p-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+        {/* The <main> tag itself does NOT get paddingTopForContentArea */}
+        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary")}>
+          <div className="flex-1 p-4 sm:p-6 md:p-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
           </div>
         </main>
