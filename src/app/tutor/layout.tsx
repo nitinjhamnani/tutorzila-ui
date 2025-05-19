@@ -21,7 +21,9 @@ import {
   LogOut,
   Menu as MenuIcon,
   Bell,
-  PanelLeft
+  PanelLeft,
+  DollarSign, 
+  MessageSquareQuote
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 
@@ -36,10 +38,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
-
   useEffect(() => {
     setHasMounted(true);
-     if (!isMobile) {
+    if (!isMobile) {
       setIsMobileNavOpen(false); // Close mobile nav if switching to desktop
     }
   }, [isMobile]);
@@ -55,7 +56,18 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
       setIsMobileNavOpen((prev) => !prev);
     }
   };
+  
 
+  useEffect(() => {
+    if (hasMounted) {
+      document.documentElement.style.setProperty('--header-height', '4rem'); // Assuming h-16 or p-4 header
+    } else {
+      document.documentElement.style.setProperty('--header-height', '0px');
+    }
+    return () => {
+      document.documentElement.style.setProperty('--header-height', '0px');
+    };
+  }, [hasMounted]);
 
   const tutorNavItems = [
     { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
@@ -67,20 +79,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
   const accountSettingsNavItems = [
     { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
-    // { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
+    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
-
-  const headerHeight = "4rem"; // Corresponds to h-16 (p-4 on header)
-
-  useEffect(() => {
-    if (hasMounted) {
-      document.documentElement.style.setProperty('--header-height', headerHeight);
-    }
-    return () => {
-      document.documentElement.style.setProperty('--header-height', '0px'); // Cleanup
-    };
-  }, [hasMounted, headerHeight]);
 
 
   if (isCheckingAuth && !hasMounted) {
@@ -91,7 +92,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
   if (hasMounted && isAuthenticated && user?.role !== 'tutor') {
-    router.replace("/");
+    router.replace("/"); // Or a more specific "access denied" page for non-tutors
     return <div className="flex h-screen items-center justify-center">Access Denied. Redirecting...</div>;
   }
    if (!user && hasMounted) {
@@ -100,32 +101,29 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Integrated Header */}
+      {/* <VerificationBanner /> Removed as per user request */}
+      
+      {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
             "sticky top-0 z-30", // Removed var(--verification-banner-height,0px)
-            `h-[${headerHeight}]`
+            "h-16" // Explicit height for the header
           )}
         >
           <div className="flex items-center gap-2">
             {isMobile ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleMobileNav}
-                className="text-gray-600 hover:text-primary md:hidden"
-              >
-                <MenuIcon className="h-6 w-6" />
-              </Button>
+                <Button variant="ghost" size="icon" onClick={toggleMobileNav} className="text-gray-600 hover:text-primary md:hidden">
+                    <MenuIcon className="h-6 w-6" />
+                </Button>
             ) : (
                 <Button variant="ghost" size="icon" onClick={toggleNavbarCollapsed} className="text-gray-600 hover:text-primary hidden md:flex">
                     <PanelLeft className="h-5 w-5" />
                 </Button>
             )}
             <Link href="/tutor/dashboard">
-              <Logo className="h-8 w-auto" />
+              <Logo className="h-10 w-auto" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -141,12 +139,12 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* User Avatar and Name Removed from header */}
           </div>
         </header>
       )}
 
-      <div className={cn("flex flex-1 overflow-hidden pt-[var(--header-height,0px)]")}>
+      {/* Main Content Area for Sidebar and Page Content */}
+      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed paddingTopForContentArea */}
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
@@ -158,16 +156,12 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={logoutNavItem}
         />
-        <main
-          className={cn(
-            "flex-1 flex flex-col overflow-y-auto bg-secondary transition-all duration-300 ease-in-out",
-            // Removed conditional margin-left, relying on flex properties
-            isMobile ? "ml-0" : "", // Ensure no margin on mobile
-             "pb-4 md:pb-6 px-4 md:px-6" // Standard padding
-          )}
-        >
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
-            {children}
+        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary", hasMounted ? "pt-[var(--header-height)]" : "pt-0")}>
+          {/* This inner div ensures consistent padding for all page content */}
+          <div className="p-4 sm:p-6 md:p-8 flex-grow">
+             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
+                {children}
+             </div>
           </div>
         </main>
       </div>
