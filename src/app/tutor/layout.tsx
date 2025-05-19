@@ -160,20 +160,12 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 <span className="text-xs font-medium text-muted-foreground hidden md:inline">{user.name}</span>
               </div>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={logout}
-              className="text-xs h-8"
-            >
-              <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
-            </Button>
           </div>
         </header>
       )}
 
       {/* Main Content Area for Sidebar and Page Content */}
-      <div className={cn("flex flex-1 overflow-hidden", paddingTopForContentArea)}>
+      <div className={cn("flex flex-1 overflow-hidden")}>
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
