@@ -1,3 +1,4 @@
+
 // src/app/tutor/demo-sessions/page.tsx
 "use client";
 
@@ -5,8 +6,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays } from "lucide-react";
-import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard"; // Changed import from UpcomingSessionCard
+import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays, XCircle } from "lucide-react"; // Added XCircle
+import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -26,6 +27,8 @@ import { Select, SelectContent as FormSelectContent, SelectItem as FormSelectIte
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+// BreadcrumbHeader import removed as it's no longer used
+// import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 
 const allDemoStatusesForPage = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
 type DemoStatusCategory = typeof allDemoStatusesForPage[number];
@@ -39,7 +42,7 @@ export default function TutorDemoSessionsPage() {
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("All Demos");
   
-  const [searchTerm, setSearchTerm] = useState(""); // Kept for search bar, though filter button was removed
+  const [searchTerm, setSearchTerm] = useState("");
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   
   // Temporary states for the filter dialog
@@ -90,7 +93,7 @@ export default function TutorDemoSessionsPage() {
   }, [allTutorDemos, searchTerm, tempDemoSubjectFilter, tempDemoStudentFilter, tempDemoStatusFilters]);
 
   const filterCategoriesForDropdown: { label: DemoStatusCategory; value: DemoStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] },
+    { label: "All Demos", value: "All Demos", icon: ListFilter, count: categoryCounts["All Demos"] },
     { label: "Scheduled", value: "Scheduled", icon: Clock, count: categoryCounts.Scheduled },
     { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
     { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
@@ -189,6 +192,7 @@ export default function TutorDemoSessionsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+         {/* BreadcrumbHeader removed */}
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3 sm:mb-4">
             <CardTitle className="text-xl font-semibold text-primary flex items-center break-words">
