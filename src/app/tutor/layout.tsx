@@ -1,39 +1,46 @@
-// src/app/tutor/layout.tsx
+
 "use client";
 
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-// Sidebar related imports are removed
 import { Button } from "@/components/ui/button";
 import { VerificationBanner } from "@/components/shared/VerificationBanner";
 import {
-  Bell,
+  LayoutDashboard,
+  Briefcase,
+  CalendarDays,
+  School,
+  UserCircle,
   Settings as SettingsIcon,
-  // Icons for sidebar menu items are no longer needed here unless used in header
+  LogOut, // Added LogOut import
+  Menu as MenuIcon,
+  Bell,
+  // MessageSquareQuote, // Assuming not used directly in this header after sidebar removal
+  // DollarSign, // Assuming not used directly in this header after sidebar removal
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile"; // Kept if header has mobile-specific behavior
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Logo } from "@/components/shared/Logo";
-// Removed SidebarTrigger and other sidebar components from here
+// Sidebar specific imports are removed as sidebar itself is removed from this layout
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-  const isMobile = useIsMobile(); // Still potentially useful for other responsive elements
+  const isMobile = useIsMobile();
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  // Navigation item arrays are removed as sidebar is removed
+  // Navigation items for sidebar were removed. Logout logic is now directly in header.
 
-  const headerHeight = "4rem"; // For h-16 or p-4 header, if integrated header remains
+  const headerHeight = "4rem"; // For h-16 or p-4 header
 
   useEffect(() => {
     if (hasMounted) {
@@ -49,7 +56,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
-
   if (hasMounted && !isAuthenticated) {
     router.replace("/");
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
@@ -59,10 +65,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     return <div className="flex h-screen items-center justify-center">Access Denied. Redirecting...</div>;
   }
    if (!user && hasMounted) {
-    // This state should ideally not be reached if auth checks are robust.
-    // Redirecting to home as a fallback.
-    router.replace("/");
-    return <div className="flex h-screen items-center justify-center">User data not available. Redirecting...</div>;
+    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
   const paddingTopForContentArea = "pt-[calc(var(--verification-banner-height,0px)_+_var(--header-height,0px))]";
@@ -77,13 +80,14 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
             "sticky top-[var(--verification-banner-height,0px)] z-30",
-            `h-[${headerHeight}]` // Ensure header has a defined height for padding calculation
+            `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
-            {/* SidebarTrigger removed */}
-            <Link href="/tutor/dashboard">
-              <Logo className="h-8 w-auto" /> {/* Adjusted height */}
+            {/* SidebarTrigger for mobile was removed as sidebar itself is removed */}
+            {/* If a different mobile navigation is needed, it would be integrated here */}
+            <Link href="/tutor/dashboard"> {/* Tutor's dashboard home */}
+              <Logo className="h-8 w-auto" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -122,14 +126,11 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         </header>
       )}
 
-      {/* Main Content Area - No SidebarProvider, Sidebar, or SidebarInset */}
-      <main
-        className={cn(
-          "flex-1 bg-secondary overflow-y-auto",
-          paddingTopForContentArea, // Pushes content below header and banner
-          "pb-4 md:pb-6 px-4 md:px-6"
-        )}
-      >
+      <main className={cn(
+        "flex-1 bg-secondary overflow-y-auto",
+        paddingTopForContentArea,
+        "pb-4 md:pb-6 px-4 md:px-6" // Apply consistent padding
+      )}>
         <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
           {children}
         </div>
