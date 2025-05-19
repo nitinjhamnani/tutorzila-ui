@@ -5,11 +5,12 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+// Removed Sidebar-related imports
+import { VerificationBanner } from "@/components/shared/VerificationBanner"; // Kept for now, will be removed in next step if confirmed
 import {
-  Bell,
-  LogOut,
   Settings as SettingsIcon,
-  Menu as MenuIcon, // Keep for potential future mobile trigger in header
+  LogOut,
+  Bell,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -17,33 +18,35 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Logo } from "@/components/shared/Logo";
-// VerificationBanner import removed as it's no longer used
-// SidebarProvider and its related imports are removed
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-  const isMobile = useIsMobile(); // Still needed for responsive header elements
+  const isMobile = useIsMobile(); // Still might be useful for header responsiveness
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  // Define logoutNavItem for the header button
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const headerHeight = "4rem"; // Assuming p-4 for header, making it h-16
+  const headerHeight = "4rem"; // For h-16 or p-4 header
 
   useEffect(() => {
     if (hasMounted) {
       document.documentElement.style.setProperty('--header-height', headerHeight);
+      // VerificationBanner is removed, so its height is not considered here
+      document.documentElement.style.setProperty('--verification-banner-height', '0px');
+
     } else {
       document.documentElement.style.setProperty('--header-height', '0px');
+      document.documentElement.style.setProperty('--verification-banner-height', '0px');
     }
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
+      document.documentElement.style.setProperty('--verification-banner-height', '0px');
     };
   }, [hasMounted]);
 
@@ -63,14 +66,14 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
    if (!user && hasMounted) {
     // This case should ideally be covered by !isAuthenticated, but as a fallback:
-    return <div className="flex h-screen items-center justify-center">User data not available. Redirecting...</div>;
+    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
   const paddingTopForContentArea = "pt-[var(--header-height,0px)]"; // Only accounts for header now
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary"> {/* Ensure a background for the whole page */}
-      {/* <VerificationBanner /> Removed */}
+    <div className="flex flex-col min-h-screen bg-secondary">
+      {/* <VerificationBanner /> Removed as per user instruction */}
 
       {/* Integrated Header - Sticky */}
       {hasMounted && (
@@ -82,14 +85,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           )}
         >
           <div className="flex items-center gap-2">
-            {/* Mobile Sidebar Trigger (if we re-add sidebar for mobile) */}
-            {isMobile && (
-              <Button variant="ghost" size="icon" className="md:hidden text-gray-600 hover:text-primary">
-                <MenuIcon className="h-6 w-6" />
-              </Button>
-            )}
+            {/* Mobile Sidebar Trigger REMOVED as sidebar is removed */}
             <Link href="/tutor/dashboard">
-              <Logo className="h-8 md:h-10 w-auto" />
+              <Logo className="h-10 w-auto" /> {/* Consistent logo size */}
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -130,7 +128,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
       {/* Main Content Area */}
       <main className={cn("flex-1 overflow-y-auto", paddingTopForContentArea)}>
-        <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+        <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
           {children}
         </div>
       </main>
