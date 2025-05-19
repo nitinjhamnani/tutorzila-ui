@@ -20,14 +20,14 @@ export function TutorDashboardHeader() {
   return (
     // Header is NOT sticky here; its container in the layout will be.
     <header className="bg-card p-4 shadow-sm w-full">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="max-w-7xl mx-auto flex items-center justify-between pt-0">
         <div className="flex items-center gap-2">
           {/* SidebarTrigger is always rendered; Sidebar component handles behavior */}
           <SidebarTrigger>
             <MenuIcon className="h-6 w-6 text-gray-600 hover:text-primary" />
           </SidebarTrigger>
           <Link href="/tutor/dashboard" className="flex items-center">
-            <Logo className="h-10 w-auto" /> {/* Adjusted height for consistency */}
+            <Logo className="h-12 w-auto" /> {/* Adjusted height for consistency */}
           </Link>
         </div>
         

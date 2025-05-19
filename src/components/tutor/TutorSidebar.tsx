@@ -45,14 +45,11 @@ export function TutorSidebar() {
   return (
     <nav
       className={cn(
-        "bg-card border-r border-border flex flex-col shadow-lg fixed md:relative inset-y-0 left-0 z-20 md:z-auto transition-all duration-300 ease-in-out h-screen md:h-auto",
-        "top-[var(--header-height)] md:top-0", // Position below header on mobile, normal on desktop
-        isCollapsed ? "w-20" : "w-60"
+        "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out",
+        "fixed inset-y-0 left-0 z-20 h-screen", // Mobile styles
+ "md:relative md:top-0 md:z-auto md:self-stretch", // Desktop styles and vertical fill
+ isCollapsed ? "w-20" : "w-60" // Desktop widths
       )}
-      style={{
-        paddingTop: 'var(--header-height)', // Ensure content starts below main header
-        height: 'calc(100vh - var(--header-height))' // Full height below main header
-      }}
     >
       <div className={cn("p-4 border-b border-border flex items-center", isCollapsed ? "justify-center" : "justify-between")}>
         {!isCollapsed && (
