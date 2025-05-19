@@ -43,47 +43,53 @@ export function TutorSidebar(props: TutorSidebarProps) {
     <nav
       className={cn(
         "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out", // Base common classes
-        props.isMobile
-          ? cn( // Mobile specific positioning & sizing
-              "fixed inset-y-0 left-0 z-40 w-60 transform",
-              `top-[var(--header-height,0px)] h-[calc(100vh_-_var(--header-height,0px))]`, // Positioned below header
-              props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
-            )
-          : cn( // Desktop specific positioning & sizing
-              "relative hidden md:flex md:flex-col h-auto", // Use h-auto to let content define height
-              props.isNavbarCollapsed ? "w-20" : "w-60"
-            )
+ props.isMobile
+ ? cn( // Mobile specific positioning & sizing
+ "fixed inset-y-0 left-0 z-40 w-60 transform",
+ `top-[var(--header-height,0px)] h-[calc(100vh_-_var(--header-height,0px))]`, // Positioned below header
+ props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
+ )
+ : cn( // Desktop specific positioning & sizing
+ "relative hidden md:flex md:flex-col h-auto", // Use h-auto to let content define height
+ props.isNavbarCollapsed ? "w-20" : "w-60"
+ )
       )}
       aria-label="Tutor Navigation"
     >
       {/* Navbar Header/Logo Section */}
       <div
         className={cn(
-          "h-16 flex items-center border-b border-border shrink-0", // Fixed height for header
+ "h-16 flex items-center border-b border-border shrink-0", // Fixed height for header
           props.isMobile
             ? "justify-between px-4" // Mobile: Logo left, close button right
-            : (props.isNavbarCollapsed ? "justify-center px-2" : "justify-between px-4") // Desktop: Varies
+ : (props.isNavbarCollapsed ? "justify-center px-2" : "justify-between px-4") // Desktop: Varies
         )}
       >
-        {(!props.isNavbarCollapsed || props.isMobile) && ( // Show logo if expanded or on mobile
-          <Link href="/tutor/dashboard" onClick={props.isMobile ? props.toggleMobileNav : undefined}>
-            <Logo className="h-8 w-auto" />
-          </Link>
-        )}
-        {/* Desktop Collapse / Mobile Close Trigger */}
-        <Button
-            variant="ghost"
-            size="icon"
-            onClick={props.isMobile ? props.toggleMobileNav : props.toggleNavbarCollapsed}
-            className="text-muted-foreground hover:text-primary"
-            aria-label={props.isMobile ? "Close navigation" : (props.isNavbarCollapsed ? "Expand navigation" : "Collapse navigation")}
-        >
-            <PanelLeft className="h-5 w-5" />
-        </Button>
+ {props.user && (
+ <div
+ className={cn(
+ "flex items-center gap-2",
+ !props.isMobile && props.isNavbarCollapsed && "justify-center" // Center on collapsed desktop
+ )}
+ >
+ <Avatar className="h-8 w-8 shrink-0">
+ <AvatarFallback className="text-xs bg-primary/20 text-primary">
+ {props.user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
+ </AvatarFallback>
+ </Avatar>       
+ {(!props.isMobile && !props.isNavbarCollapsed) && ( // Show name and email on expanded desktop
+ <div className="text-xs min-w-0">
+ <p className="font-semibold text-foreground truncate">{props.user.name}</p>
+ <p className="text-muted-foreground truncate">{props.user.email}</p>
+ </div>
+ )}
+ </div>
+ )}
       </div>
 
       {/* Navigation Links */}
       <div className="flex-grow overflow-y-auto p-3 space-y-1">
+ {/* Main Nav Items */}
         {props.tutorNavItems.map((item) => {
           const isActive = item.href ? pathname === item.href || (pathname.startsWith(item.href + '/') && item.href !== "/tutor/dashboard") : false;
           return (
@@ -109,28 +115,7 @@ export function TutorSidebar(props: TutorSidebarProps) {
       </div>
 
       {/* User/Account Section */}
-      <div className="mt-auto p-3 border-t border-border shrink-0">
-        {props.user && (
-          <div
-            className={cn(
-              "flex items-center gap-2 mb-3",
-              !props.isMobile && props.isNavbarCollapsed && "justify-center"
-            )}
-          >
-            <Avatar className="h-8 w-8 shrink-0">
-              <AvatarImage src={props.user.avatar || `https://avatar.vercel.sh/${props.user.email}.png`} alt={props.user.name} />
-              <AvatarFallback className="text-xs bg-primary/20 text-primary">
-                {props.user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            {(!props.isMobile && !props.isNavbarCollapsed || props.isMobile) && (
-              <div className="text-xs min-w-0">
-                <p className="font-semibold text-foreground truncate">{props.user.name}</p>
-                <p className="text-muted-foreground truncate">{props.user.email}</p>
-              </div>
-            )}
-          </div>
-        )}
+ <div className="mt-auto p-3 border-t border-border shrink-0">
         {props.accountSettingsNavItems.map((item) => {
           const isActive = item.href ? pathname === item.href : false;
           return (
