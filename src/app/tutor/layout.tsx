@@ -1,29 +1,44 @@
-// src/app/tutor/layout.tsx
+
 "use client";
 
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuthMock } from "@/hooks/use-auth-mock";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Logo } from "@/components/shared/Logo";
+// VerificationBanner removed
 import {
   LayoutDashboard,
   Briefcase,
   CalendarDays,
   School,
   UserCircle,
-  Settings as SettingsIcon,
+  Settings as SettingsIcon, // Alias to avoid conflict if Settings is used elsewhere
   LogOut,
-  Menu as MenuIcon,
+  Menu as MenuIcon, // Alias for clarity
   Bell,
-  PanelLeft, // For desktop collapse trigger
+  // MessageSquareQuote, // Not used in tutorNavItems directly anymore
+  // DollarSign, // Not used in tutorNavItems directly anymore
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Logo } from "@/components/shared/Logo";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
+
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -32,31 +47,41 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const isMobile = useIsMobile();
   const [hasMounted, setHasMounted] = useState(false);
 
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  // State for sidebar collapse on desktop and open/close on mobile
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
+    // Initialize collapsed state based on screen size for desktop
     if (!isMobile) {
-      setIsMobileNavOpen(false); // Ensure mobile nav is closed if switching to desktop
+      setIsNavbarCollapsed(false); // Or based on a cookie/localStorage
+      setIsMobileNavOpen(false); // Ensure mobile nav is closed on desktop
+    } else {
+      setIsNavbarCollapsed(false); // Desktop collapse state doesn't apply to mobile sheet
     }
   }, [isMobile]);
 
   const toggleNavbarCollapsed = () => {
-    setIsNavbarCollapsed(prev => !prev);
+    if (!isMobile) {
+      setIsNavbarCollapsed(prev => !prev);
+    }
   };
 
   const toggleMobileNav = () => {
-    setIsMobileNavOpen(prev => !prev);
+    if (isMobile) {
+      setIsMobileNavOpen(prev => !prev);
+    }
   };
 
-  const headerHeight = "4rem"; // Corresponds to h-16 or p-4 header
+
+  const headerHeight = "4rem"; // For h-16 or p-4 header
 
   useEffect(() => {
     if (hasMounted) {
       document.documentElement.style.setProperty('--header-height', headerHeight);
     } else {
-      document.documentElement.style.setProperty('--header-height', '0px'); // Default before mount
+      document.documentElement.style.setProperty('--header-height', '0px');
     }
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
@@ -74,37 +99,35 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     router.replace("/");
     return <div className="flex h-screen items-center justify-center">Access Denied. Redirecting...</div>;
   }
-  if (!user && hasMounted) {
+   if (!user && hasMounted) {
     return <div className="flex h-screen items-center justify-center">User data not available.</div>;
   }
 
-  // paddingTopForContentArea is for the container of sidebar + main content
-  const paddingTopForContentArea = "pt-[var(--header-height,0px)]";
+  const paddingTopForContentArea = "pt-[calc(var(--header-height,0px))]";
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary">
-      {/* VerificationBanner removed */}
+    <div className="flex flex-col min-h-screen">
+      {/* <VerificationBanner /> Removed */}
 
       {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // Sticks to top-0 directly (no banner)
+            "sticky top-0 z-30", // Banner height removed from top
             `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
-            {isMobile ? (
-              <Button variant="ghost" size="icon" onClick={toggleMobileNav} className="text-gray-600 hover:text-primary md:hidden">
-                <MenuIcon className="h-6 w-6" />
-              </Button>
-            ) : (
-              <Button variant="ghost" size="icon" onClick={toggleNavbarCollapsed} className="text-gray-600 hover:text-primary hidden md:flex">
-                <PanelLeft className="h-5 w-5" />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
+              className="text-gray-600 hover:text-primary"
+            >
+              <MenuIcon className="h-6 w-6" />
+            </Button>
             <Link href="/tutor/dashboard">
               <Logo className="h-8 w-auto" />
             </Link>
@@ -145,7 +168,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         </header>
       )}
 
-      <div className={cn("flex flex-1 overflow-hidden h-full", paddingTopForContentArea)}> {/* Added h-full here */}
+      <div className={cn("flex flex-1 overflow-hidden items-stretch")}> {/* Explicitly use items-stretch */}
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
@@ -156,12 +179,24 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           user={user}
           logout={logout}
         />
-        <main className={cn("flex-1 flex flex-col overflow-y-auto")}>
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8">
+        <main className={cn(
+          "flex-1 flex flex-col overflow-y-auto bg-secondary",
+          "p-4 sm:p-6 md:p-8" 
+        )}>
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
           </div>
         </main>
       </div>
+
+        {/* Mobile Overlay */}
+        {isMobile && isMobileNavOpen && (
+            <div
+            onClick={() => setIsMobileNavOpen(false)}
+            className="fixed inset-0 z-30 bg-black/50 md:hidden"
+            />
+        )}
     </div>
   );
 }
+    
