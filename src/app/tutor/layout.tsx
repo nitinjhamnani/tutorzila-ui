@@ -22,11 +22,10 @@ import {
   Menu as MenuIcon,
   Bell,
   PanelLeft,
-  DollarSign, 
-  MessageSquareQuote
+  // MessageSquareQuote, // Not used in tutorNavItems anymore
+  // DollarSign, // Not used in tutorNavItems anymore
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
-
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -40,32 +39,32 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
   useEffect(() => {
     setHasMounted(true);
-    if (!isMobile) {
-      setIsMobileNavOpen(false); // Close mobile nav if switching to desktop
+    // Default to collapsed on mobile if not already set
+    if (isMobile) {
+      setIsNavbarCollapsed(true); // Or false depending on desired default for mobile when it becomes a drawer
     }
   }, [isMobile]);
 
   const toggleNavbarCollapsed = () => {
     if (!isMobile) {
-      setIsNavbarCollapsed((prev) => !prev);
+      setIsNavbarCollapsed(prev => !prev);
     }
   };
 
   const toggleMobileNav = () => {
-    if (isMobile) {
-      setIsMobileNavOpen((prev) => !prev);
-    }
+    setIsMobileNavOpen(prev => !prev);
   };
   
+  const headerHeight = "4rem"; // For h-16 or p-4 header
 
   useEffect(() => {
     if (hasMounted) {
-      document.documentElement.style.setProperty('--header-height', '4rem'); // Assuming h-16 or p-4 header
+      document.documentElement.style.setProperty('--header-height', headerHeight);
     } else {
       document.documentElement.style.setProperty('--header-height', '0px');
     }
     return () => {
-      document.documentElement.style.setProperty('--header-height', '0px');
+      document.documentElement.style.setProperty('--header-height', '0px'); // Cleanup
     };
   }, [hasMounted]);
 
@@ -83,16 +82,16 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
+
   if (hasMounted && !isAuthenticated) {
     router.replace("/");
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
   if (hasMounted && isAuthenticated && user?.role !== 'tutor') {
-    router.replace("/"); // Or a more specific "access denied" page for non-tutors
+    router.replace("/");
     return <div className="flex h-screen items-center justify-center">Access Denied. Redirecting...</div>;
   }
    if (!user && hasMounted) {
@@ -102,14 +101,14 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   return (
     <div className="flex flex-col min-h-screen">
       {/* <VerificationBanner /> Removed as per user request */}
-      
+
       {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // Removed var(--verification-banner-height,0px)
-            "h-16" // Explicit height for the header
+            "sticky top-0 z-30", // Sticks to the very top now
+            `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
@@ -123,7 +122,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 </Button>
             )}
             <Link href="/tutor/dashboard">
-              <Logo className="h-10 w-auto" />
+              <Logo className="h-8 w-auto" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -139,29 +138,31 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
+            {/* Logout button removed from header as requested, kept in sidebar */}
           </div>
         </header>
       )}
 
-      {/* Main Content Area for Sidebar and Page Content */}
-      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed paddingTopForContentArea */}
+      {/* This div contains the sidebar and the main page content. */}
+      {/* It has flex-1 to take remaining vertical space. No top padding here. */}
+      <div className={cn("flex flex-1 overflow-hidden")}>
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
           toggleMobileNav={toggleMobileNav}
           isNavbarCollapsed={isNavbarCollapsed}
-          toggleNavbarCollapsed={toggleNavbarCollapsed}
+          toggleNavbarCollapsed={toggleNavbarCollapsed} /* Pass this prop */
           user={user}
           tutorNavItems={tutorNavItems}
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={logoutNavItem}
         />
-        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary", hasMounted ? "pt-[var(--header-height)]" : "pt-0")}>
-          {/* This inner div ensures consistent padding for all page content */}
-          <div className="p-4 sm:p-6 md:p-8 flex-grow">
-             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
-                {children}
-             </div>
+        {/* The <main> tag will now be directly offset by the header if it needs to be. */}
+        {/* Or, individual pages will handle their own top padding. */}
+        {/* For now, removing pt-[var(--header-height)] ensures no layout-level pushing down of content */}
+        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary")}>
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full flex-1"> {/* Added flex-1 here */}
+            {children}
           </div>
         </main>
       </div>
