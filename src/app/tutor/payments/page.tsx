@@ -13,7 +13,6 @@ export default function TutorPaymentsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* Changed md:grid-cols-2 to grid-cols-1 to make the card take full width */}
         <div className="grid grid-cols-1 gap-6">
           <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-500 ease-out">
             <CardHeader className="p-5">
@@ -31,26 +30,28 @@ export default function TutorPaymentsPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-5 space-y-4">
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <Coins className="w-5 h-5 mr-3 text-green-600" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Payment Collected</p>
-                    <p className="text-2xl font-semibold text-green-600">{mockData.totalCollected}</p>
+            <CardContent className="p-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Changed from space-y-4 */}
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
+                  <div className="flex items-center">
+                    <Coins className="w-5 h-5 mr-3 text-green-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Payment Collected</p>
+                      <p className="text-2xl font-semibold text-green-600">{mockData.totalCollected}</p>
+                    </div>
                   </div>
+                  <TrendingUp className="w-6 h-6 text-green-500 opacity-70" />
                 </div>
-                <TrendingUp className="w-6 h-6 text-green-500 opacity-70" />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <FileText className="w-5 h-5 mr-3 text-orange-600" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Pending Payment</p>
-                    <p className="text-2xl font-semibold text-orange-600">{mockData.totalPending}</p>
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
+                  <div className="flex items-center">
+                    <FileText className="w-5 h-5 mr-3 text-orange-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Pending Payment</p>
+                      <p className="text-2xl font-semibold text-orange-600">{mockData.totalPending}</p>
+                    </div>
                   </div>
+                  <TrendingDown className="w-6 h-6 text-orange-500 opacity-70" />
                 </div>
-                <TrendingDown className="w-6 h-6 text-orange-500 opacity-70" />
               </div>
             </CardContent>
           </Card>
