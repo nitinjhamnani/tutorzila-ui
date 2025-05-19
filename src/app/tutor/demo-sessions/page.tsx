@@ -5,8 +5,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays } from "lucide-react";
-import { TutorDemoCard } from "@/app/tutor/components/TutorDemoCard"; // Updated import path
+import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays, XCircle } from "lucide-react";
+import { TutorDemoCard } from "@/app/tutor/components/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -27,7 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// BreadcrumbHeader removed as requested
 
 const allDemoStatusesForPage = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
 type DemoStatusCategory = typeof allDemoStatusesForPage[number];
@@ -39,13 +38,11 @@ export default function TutorDemoSessionsPage() {
   const tutorUser = user as TutorProfile | null;
 
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
-  const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("All Demos");
+  const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("Scheduled");
   
-  // For the filter dialog
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempDemoSubjectFilter, setTempDemoSubjectFilter] = useState("All");
   const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All"); 
-  // No search term state or detailed status filters needed for the main page as per simplified filter approach
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -60,12 +57,10 @@ export default function TutorDemoSessionsPage() {
 
   const uniqueDemoSubjectsForFilter = useMemo(() => ["All", ...new Set(allTutorDemos.map(d => d.subject))], [allTutorDemos]);
   const uniqueDemoStudentsForFilter = useMemo(() => ["All", ...new Set(allTutorDemos.map(d => d.studentName))], [allTutorDemos]);
-  // Statuses for dialog are fixed
-
+  
   const categoryCounts = useMemo(() => {
     const countFiltered = (statusCategory?: DemoStatusCategory) => {
       return allTutorDemos.filter(demo => {
-        // Apply detailed filters from dialog (if any were applied)
         const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
         const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
         
@@ -85,7 +80,7 @@ export default function TutorDemoSessionsPage() {
   }, [allTutorDemos, tempDemoSubjectFilter, tempDemoStudentFilter]);
 
   const filterCategoriesForDropdown: { label: DemoStatusCategory; value: DemoStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] },
+    { label: "All Demos", value: "All Demos", icon: ListFilter, count: categoryCounts["All Demos"] },
     { label: "Scheduled", value: "Scheduled", icon: Clock, count: categoryCounts.Scheduled },
     { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
     { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
@@ -93,12 +88,11 @@ export default function TutorDemoSessionsPage() {
   ];
 
   const selectedCategoryLabel = useMemo(() => {
-    return filterCategoriesForDropdown.find(cat => cat.value === activeDemoCategoryFilter)?.label || "All Demos";
+    return filterCategoriesForDropdown.find(cat => cat.value === activeDemoCategoryFilter)?.label || "Scheduled";
   }, [activeDemoCategoryFilter, filterCategoriesForDropdown]);
 
   const filteredDemos = useMemo(() => {
     return allTutorDemos.filter(demo => {
-        // Apply detailed filters from dialog (if any were applied)
         const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
         const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
         const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch;
@@ -120,15 +114,13 @@ export default function TutorDemoSessionsPage() {
   };
   
   const handleApplyDetailedFilters = () => {
-      // The main filter states tempDemoSubjectFilter and tempDemoStudentFilter are already updated by their respective Selects in the dialog.
-      // The filteredDemos memo will recompute automatically.
       setIsFilterDialogOpen(false);
   };
 
   const handleClearDetailedFilters = () => {
       setTempDemoSubjectFilter("All");
       setTempDemoStudentFilter("All");
-      setActiveDemoCategoryFilter("All Demos"); 
+      setActiveDemoCategoryFilter("Scheduled"); 
       setIsFilterDialogOpen(false);
   };
   
@@ -171,17 +163,16 @@ export default function TutorDemoSessionsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* Header Card for Title and Filters */}
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-3 sm:mb-4">
-            <CardTitle className="text-xl font-semibold text-primary flex items-center break-words">
+          <CardHeader className="p-0 mb-4">
+            <CardTitle className="text-xl font-semibold text-primary flex items-center">
               <CalendarDays className="w-5 h-5 mr-2.5"/>
               Manage Demo Sessions
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
              <div className="flex flex-col sm:flex-row gap-3 sm:justify-end items-center">
-                <Button
+                 <Button
                     variant="default"
                     size="sm"
                     className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-11 bg-primary text-primary-foreground hover:bg-primary/90"
