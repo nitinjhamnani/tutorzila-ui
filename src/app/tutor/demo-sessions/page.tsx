@@ -1,12 +1,12 @@
-
+// src/app/tutor/demo-sessions/page.tsx
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays, XCircle } from "lucide-react"; // Added Search, CheckCircle, Clock, ChevronDown, XCircle
-import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
+import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays } from "lucide-react";
+import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard"; // Changed import from UpcomingSessionCard
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogTitleComponen
 import { Select, SelectContent as FormSelectContent, SelectItem as FormSelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 const allDemoStatusesForPage = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
 type DemoStatusCategory = typeof allDemoStatusesForPage[number];
@@ -32,18 +33,19 @@ type DemoStatusCategory = typeof allDemoStatusesForPage[number];
 export default function TutorDemoSessionsPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
+  const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
 
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("All Demos");
   
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Kept for search bar, though filter button was removed
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   
   // Temporary states for the filter dialog
   const [tempDemoSubjectFilter, setTempDemoSubjectFilter] = useState("All");
-  const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All"); // Student name filter
-  const [tempDemoStatusFilters, setTempDemoStatusFilters] = useState<string[]>([]); // For checkboxes in dialog
+  const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All"); 
+  const [tempDemoStatusFilters, setTempDemoStatusFilters] = useState<string[]>([]); 
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -88,7 +90,7 @@ export default function TutorDemoSessionsPage() {
   }, [allTutorDemos, searchTerm, tempDemoSubjectFilter, tempDemoStudentFilter, tempDemoStatusFilters]);
 
   const filterCategoriesForDropdown: { label: DemoStatusCategory; value: DemoStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "All Demos", value: "All Demos", icon: ListFilter, count: categoryCounts["All Demos"] },
+    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] },
     { label: "Scheduled", value: "Scheduled", icon: Clock, count: categoryCounts.Scheduled },
     { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
     { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
@@ -106,13 +108,11 @@ export default function TutorDemoSessionsPage() {
             demo.subject.toLowerCase().includes(searchLower) ||
             demo.studentName.toLowerCase().includes(searchLower);
 
-        // Apply filters from dialog
         const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
         const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
         const detailedStatusFiltersMatch = tempDemoStatusFilters.length === 0 || tempDemoStatusFilters.includes(demo.status);
         const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch && detailedStatusFiltersMatch;
 
-        // Apply category filter from dropdown
         const matchesCategory = activeDemoCategoryFilter === "All Demos" || demo.status === activeDemoCategoryFilter;
         
         return matchesSearch && matchesDetailedFilters && matchesCategory;
@@ -121,25 +121,22 @@ export default function TutorDemoSessionsPage() {
 
   const handleUpdateSession = (updatedDemo: DemoSession) => {
     setAllTutorDemos(prevDemos => prevDemos.map(d => d.id === updatedDemo.id ? updatedDemo : d));
+    toast({ title: "Demo Updated", description: `Demo session with ${updatedDemo.studentName} has been updated.` });
   };
 
   const handleCancelSession = (sessionId: string) => {
     setAllTutorDemos(prevDemos => prevDemos.map(d => d.id === sessionId ? { ...d, status: "Cancelled" } : d));
+    toast({ title: "Demo Cancelled", description: "The demo session has been cancelled.", variant: "destructive" });
   };
   
   const handleApplyDetailedFilters = () => {
-      // This function is called when "Apply Filters" in dialog is clicked.
-      // The actual filtering happens in `filteredDemos` useMemo based on temp states.
-      // We just need to close the dialog.
       setIsFilterDialogOpen(false);
   };
 
   const handleClearDetailedFilters = () => {
-      // Reset temporary states used in dialog
       setTempDemoSubjectFilter("All");
       setTempDemoStudentFilter("All");
       setTempDemoStatusFilters([]);
-      // Also clear the main search term and category filter
       setSearchTerm(""); 
       setActiveDemoCategoryFilter("All Demos"); 
       setIsFilterDialogOpen(false);
@@ -172,10 +169,10 @@ export default function TutorDemoSessionsPage() {
     return (
       <div className="grid grid-cols-1 gap-4 md:gap-5">
         {demos.map(demo => (
-            <UpcomingSessionCard
+            <TutorDemoCard
                 key={demo.id}
-                sessionDetails={{ type: 'demo', data: demo }}
-                onUpdateSession={handleUpdateSession}
+                demo={demo}
+                onUpdateSession={handleUpdateSession} 
                 onCancelSession={handleCancelSession}
             />
         ))}
@@ -200,98 +197,19 @@ export default function TutorDemoSessionsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-             <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3 w-full sm:flex-1">
-                    {/* Search Input - remains unchanged */}
-                    <div className="relative flex-1 min-w-0">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Search by subject, student..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg w-full h-11"
-                        />
-                    </div>
-                    {/* Filter Icon Button */}
-                    <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
-                        <DialogTrigger asChild>
-                             <Button
-                                variant="default"
-                                size="icon"
-                                className={cn(
-                                    "h-11 w-11 shrink-0 sm:h-11 sm:w-auto sm:px-4 sm:py-3 border-border hover:border-primary bg-primary text-primary-foreground transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5",
-                                    filtersApplied && "ring-2 ring-offset-2 ring-primary/70"
-                                )}
-                            >
-                                <LucideFilterIcon className="h-4 w-4" />
-                                <span className="hidden sm:inline text-sm">Filter</span>
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden">
-                            <DialogHeader className="p-6 pb-4 border-b">
-                                <DialogTitleComponent className="text-lg font-semibold text-primary flex items-center">
-                                <LucideFilterIcon className="mr-2 h-5 w-5" /> Filter Demo Sessions
-                                </DialogTitleComponent>
-                                <DialogDescriptionComponent>
-                                Refine your demo list by subject, student, or status.
-                                </DialogDescriptionComponent>
-                            </DialogHeader>
-                            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                                <div className="space-y-1.5">
-                                <Label htmlFor="filter-subject-demo" className="text-xs font-medium text-muted-foreground flex items-center"><BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Subject</Label>
-                                <FormSelectTrigger id="filter-subject-demo" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
-                                    <FormSelectValue />
-                                </FormSelectTrigger>
-                                <FormSelectContent>
-                                    {uniqueDemoSubjectsForFilter.map(opt => <FormSelectItem key={opt} value={opt} className="text-xs">{opt}</FormSelectItem>)}
-                                </FormSelectContent>
-                                </div>
-                                <div className="space-y-1.5">
-                                <Label htmlFor="filter-student-demo" className="text-xs font-medium text-muted-foreground flex items-center"><UsersIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Student</Label>
-                                 <FormSelectTrigger id="filter-student-demo" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
-                                     <FormSelectValue />
-                                 </FormSelectTrigger>
-                                 <FormSelectContent>
-                                    {uniqueDemoStudentsForFilter.map(opt => <FormSelectItem key={opt} value={opt} className="text-xs">{opt}</FormSelectItem>)}
-                                 </FormSelectContent>
-                                </div>
-                                <div className="space-y-2">
-                                <Label className="text-xs font-medium text-muted-foreground flex items-center"><ListFilter className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Status</Label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {availableDemoStatusesForDialog.map(status => (
-                                    <div key={status} className="flex items-center space-x-2">
-                                        <Checkbox
-                                        id={`status-demo-${status}`}
-                                        checked={tempDemoStatusFilters.includes(status)}
-                                        onCheckedChange={(checked) => handleStatusCheckboxChange(status, !!checked)}
-                                        />
-                                        <Label htmlFor={`status-demo-${status}`} className="text-xs font-normal text-foreground cursor-pointer">{status}</Label>
-                                    </div>
-                                    ))}
-                                </div>
-                                </div>
-                            </div>
-                            <DialogFooter className="p-6 pt-4 border-t gap-2 sm:justify-between">
-                                <Button variant="ghost" onClick={handleClearDetailedFilters} className="text-xs text-muted-foreground hover:text-destructive">
-                                <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear All
-                                </Button>
-                                <Button onClick={handleApplyDetailedFilters} className="text-xs">Apply Filters</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-                
+             <div className="flex flex-col sm:flex-row gap-3 sm:justify-between items-center">
                 <div className="w-full sm:w-auto flex items-center gap-3">
                     <Button
                         variant="default"
                         size="sm"
                         className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-                        onClick={() => console.log("Schedule Demo Clicked - Placeholder")} // Placeholder action
+                        onClick={() => console.log("Schedule Demo Clicked - Placeholder")} 
                     >
                         <PlusCircle className="w-4 h-4 opacity-90" />
                         Schedule Demo
                     </Button>
+                </div>
+                <div className="w-full sm:w-auto">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -338,4 +256,3 @@ export default function TutorDemoSessionsPage() {
     </main>
   );
 }
-
