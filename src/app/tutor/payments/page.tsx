@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DollarSign, TrendingUp, TrendingDown, Coins, FileText } from "lucide-react"; // Added Coins and FileText
+import { DollarSign, TrendingUp, TrendingDown, Coins, FileText } from "lucide-react";
 
 export default function TutorPaymentsPage() {
   const mockData = {
@@ -13,7 +13,8 @@ export default function TutorPaymentsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Changed md:grid-cols-2 to grid-cols-1 to make the card take full width */}
+        <div className="grid grid-cols-1 gap-6">
           <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-500 ease-out">
             <CardHeader className="p-5">
               <div className="flex items-center gap-3">
