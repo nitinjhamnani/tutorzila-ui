@@ -1,4 +1,4 @@
-// src/app/tutor/layout.tsx
+
 "use client";
 
 import type { ReactNode } from "react";
@@ -23,9 +23,9 @@ import {
   Menu as MenuIcon,
   Bell,
   DollarSign,
-  MessageSquareQuote,
-  PanelLeft, // Added PanelLeft import
+  PanelLeft,
 } from "lucide-react";
+import { TutorSidebar } from "@/components/tutor/TutorSidebar"; // Added import
 
 // Define the structure for navigation items
 interface NavItem {
@@ -49,16 +49,18 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const isMobile = useIsMobile();
   const [hasMounted, setHasMounted] = useState(false);
 
+  // State for sidebar collapse on desktop
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
+  // State for mobile navigation open/close
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
     if (isMobile) {
-      setIsMobileNavOpen(false);
-      setIsNavbarCollapsed(false);
+      setIsMobileNavOpen(false); // Ensure mobile nav is closed initially on mobile
+      setIsNavbarCollapsed(false); // Desktop collapse state doesn't apply to mobile sheet
     } else {
-      setIsNavbarCollapsed(false);
+      setIsNavbarCollapsed(false); // Default to expanded on desktop
     }
   }, [isMobile]);
 
@@ -72,21 +74,22 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     setIsMobileNavOpen(prev => !prev);
   };
 
+
   const tutorNavItems: NavItem[] = [
-    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays }, // Was MessageSquareQuote, changed to CalendarDays for consistency
-    { href: "/tutor/classes", label: "Classes", icon: School },
+    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
+    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays, disabled: false },
+    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: true },
   ];
 
   const accountSettingsNavItems: NavItem[] = [
-    { href: "/tutor/my-account", label: "My Account", icon: UserCircle },
+    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
     { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
   const logoutNavItem: LogoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const headerHeight = "4rem";
+  const headerHeight = "4rem"; // For h-16 or p-4 header
 
   useEffect(() => {
     if (hasMounted) {
@@ -116,19 +119,20 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary">
+    <div className="flex flex-col min-h-screen">
       {/* <VerificationBanner /> Removed as per user request */}
 
-      {/* Integrated Header */}
+      {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // No longer depends on verification banner height
+            "sticky top-0 z-30", // Removed var(--verification-banner-height,0px)
             `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
+            {/* Combined Trigger for Mobile and Desktop */}
             <Button
               variant="ghost"
               size="icon"
@@ -155,19 +159,19 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* User Avatar and Name Removed from here previously */}
+            {/* User Avatar and Name Removed from Header */}
           </div>
         </header>
       )}
 
-      {/* Main Content Area for Sidebar and Page Content */}
-      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed top padding from here */}
+      {/* This div contains the sidebar and the main page content. */}
+      <div className={cn("flex flex-1")}> {/* Removed overflow-hidden and items-stretch temporarily for debugging height */}
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
           toggleMobileNav={toggleMobileNav}
           isNavbarCollapsed={isNavbarCollapsed}
-          toggleNavbarCollapsed={toggleNavbarCollapsed}
+          toggleNavbarCollapsed={toggleNavbarCollapsed} // Pass this for desktop collapse button inside sidebar
           user={user}
           tutorNavItems={tutorNavItems}
           accountSettingsNavItems={accountSettingsNavItems}
@@ -176,10 +180,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         <main
           className={cn(
             "flex-1 flex flex-col overflow-y-auto bg-secondary",
-            hasMounted ? "pt-[var(--header-height)]" : "pt-0" // Apply padding here
+            hasMounted ? "pt-[var(--header-height)]" : "pt-0" // This ensures content starts below header
           )}
         >
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8">
+          <div className="flex-grow p-4 sm:p-6 md:p-8 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
           </div>
         </main>
