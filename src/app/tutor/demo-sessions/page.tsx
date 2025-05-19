@@ -1,17 +1,24 @@
 
-// src/app/tutor/demo-sessions/page.tsx
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays, XCircle } from "lucide-react"; // Added XCircle
-import { TutorDemoCard } from "@/components/dashboard/tutor/TutorDemoCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, ListFilter, PlusCircle, FilterIcon as LucideFilterIcon, MessageSquareQuote, Users as UsersIcon, XIcon, BookOpen, CheckCircle, Clock, ChevronDown, CalendarDays } from "lucide-react";
+import { TutorDemoCard } from "@/app/tutor/components/TutorDemoCard"; // Updated import path
 import type { DemoSession, TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogTitleComponent, DialogDescription as DialogDescriptionComponent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent as FormSelectContent, SelectItem as FormSelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,15 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogTitleComponent, DialogDescription as DialogDescriptionComponent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent as FormSelectContent, SelectItem as FormSelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useToast } from "@/hooks/use-toast";
-// BreadcrumbHeader import removed as it's no longer used
-// import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
+// BreadcrumbHeader removed as requested
 
 const allDemoStatusesForPage = ["All Demos", "Scheduled", "Requested", "Completed", "Cancelled"] as const;
 type DemoStatusCategory = typeof allDemoStatusesForPage[number];
@@ -42,13 +41,11 @@ export default function TutorDemoSessionsPage() {
   const [allTutorDemos, setAllTutorDemos] = useState<DemoSession[]>([]);
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] = useState<DemoStatusCategory>("All Demos");
   
-  const [searchTerm, setSearchTerm] = useState("");
+  // For the filter dialog
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  
-  // Temporary states for the filter dialog
   const [tempDemoSubjectFilter, setTempDemoSubjectFilter] = useState("All");
   const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All"); 
-  const [tempDemoStatusFilters, setTempDemoStatusFilters] = useState<string[]>([]); 
+  // No search term state or detailed status filters needed for the main page as per simplified filter approach
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -63,24 +60,19 @@ export default function TutorDemoSessionsPage() {
 
   const uniqueDemoSubjectsForFilter = useMemo(() => ["All", ...new Set(allTutorDemos.map(d => d.subject))], [allTutorDemos]);
   const uniqueDemoStudentsForFilter = useMemo(() => ["All", ...new Set(allTutorDemos.map(d => d.studentName))], [allTutorDemos]);
-  const availableDemoStatusesForDialog = ["Scheduled", "Requested", "Completed", "Cancelled"];
+  // Statuses for dialog are fixed
 
   const categoryCounts = useMemo(() => {
     const countFiltered = (statusCategory?: DemoStatusCategory) => {
       return allTutorDemos.filter(demo => {
-        const searchLower = searchTerm.toLowerCase();
-        const matchesSearch = searchTerm === "" ||
-            demo.subject.toLowerCase().includes(searchLower) ||
-            demo.studentName.toLowerCase().includes(searchLower);
-
+        // Apply detailed filters from dialog (if any were applied)
         const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
         const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
-        const detailedStatusFiltersMatch = tempDemoStatusFilters.length === 0 || tempDemoStatusFilters.includes(demo.status);
         
-        const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch && detailedStatusFiltersMatch;
+        const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch;
         const matchesCategoryTab = !statusCategory || statusCategory === "All Demos" || demo.status === statusCategory;
 
-        return matchesSearch && matchesDetailedFilters && matchesCategoryTab;
+        return matchesDetailedFilters && matchesCategoryTab;
       }).length;
     };
     return {
@@ -90,10 +82,10 @@ export default function TutorDemoSessionsPage() {
       "Completed": countFiltered("Completed"),
       "Cancelled": countFiltered("Cancelled"),
     };
-  }, [allTutorDemos, searchTerm, tempDemoSubjectFilter, tempDemoStudentFilter, tempDemoStatusFilters]);
+  }, [allTutorDemos, tempDemoSubjectFilter, tempDemoStudentFilter]);
 
   const filterCategoriesForDropdown: { label: DemoStatusCategory; value: DemoStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "All Demos", value: "All Demos", icon: ListFilter, count: categoryCounts["All Demos"] },
+    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] },
     { label: "Scheduled", value: "Scheduled", icon: Clock, count: categoryCounts.Scheduled },
     { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
     { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
@@ -106,21 +98,16 @@ export default function TutorDemoSessionsPage() {
 
   const filteredDemos = useMemo(() => {
     return allTutorDemos.filter(demo => {
-        const searchLower = searchTerm.toLowerCase();
-        const matchesSearch = searchTerm === "" ||
-            demo.subject.toLowerCase().includes(searchLower) ||
-            demo.studentName.toLowerCase().includes(searchLower);
-
+        // Apply detailed filters from dialog (if any were applied)
         const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
         const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
-        const detailedStatusFiltersMatch = tempDemoStatusFilters.length === 0 || tempDemoStatusFilters.includes(demo.status);
-        const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch && detailedStatusFiltersMatch;
+        const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch;
 
         const matchesCategory = activeDemoCategoryFilter === "All Demos" || demo.status === activeDemoCategoryFilter;
         
-        return matchesSearch && matchesDetailedFilters && matchesCategory;
+        return matchesDetailedFilters && matchesCategory;
     });
-  }, [searchTerm, tempDemoSubjectFilter, tempDemoStudentFilter, tempDemoStatusFilters, activeDemoCategoryFilter, allTutorDemos]);
+  }, [tempDemoSubjectFilter, tempDemoStudentFilter, activeDemoCategoryFilter, allTutorDemos]);
 
   const handleUpdateSession = (updatedDemo: DemoSession) => {
     setAllTutorDemos(prevDemos => prevDemos.map(d => d.id === updatedDemo.id ? updatedDemo : d));
@@ -133,24 +120,18 @@ export default function TutorDemoSessionsPage() {
   };
   
   const handleApplyDetailedFilters = () => {
+      // The main filter states tempDemoSubjectFilter and tempDemoStudentFilter are already updated by their respective Selects in the dialog.
+      // The filteredDemos memo will recompute automatically.
       setIsFilterDialogOpen(false);
   };
 
   const handleClearDetailedFilters = () => {
       setTempDemoSubjectFilter("All");
       setTempDemoStudentFilter("All");
-      setTempDemoStatusFilters([]);
-      setSearchTerm(""); 
       setActiveDemoCategoryFilter("All Demos"); 
       setIsFilterDialogOpen(false);
   };
   
-  const handleStatusCheckboxChange = (statusValue: string, checked: boolean) => {
-    setTempDemoStatusFilters(prev => 
-      checked ? [...prev, statusValue] : prev.filter(s => s !== statusValue)
-    );
-  };
-
   const renderDemoList = (demos: DemoSession[]) => {
     if (demos.length === 0) {
       return (
@@ -187,12 +168,10 @@ export default function TutorDemoSessionsPage() {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Demo Sessions...</div>;
   }
 
-  const filtersApplied = searchTerm !== "" || tempDemoSubjectFilter !== "All" || tempDemoStudentFilter !== "All" || tempDemoStatusFilters.length > 0;
-
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-         {/* BreadcrumbHeader removed */}
+        {/* Header Card for Title and Filters */}
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3 sm:mb-4">
             <CardTitle className="text-xl font-semibold text-primary flex items-center break-words">
@@ -201,18 +180,16 @@ export default function TutorDemoSessionsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-             <div className="flex flex-col sm:flex-row gap-3 sm:justify-between items-center">
-                <div className="w-full sm:w-auto flex items-center gap-3">
-                    <Button
-                        variant="default"
-                        size="sm"
-                        className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-                        onClick={() => console.log("Schedule Demo Clicked - Placeholder")} 
-                    >
-                        <PlusCircle className="w-4 h-4 opacity-90" />
-                        Schedule Demo
-                    </Button>
-                </div>
+             <div className="flex flex-col sm:flex-row gap-3 sm:justify-end items-center">
+                <Button
+                    variant="default"
+                    size="sm"
+                    className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-11 bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={() => console.log("Schedule Demo Clicked - Placeholder")} 
+                >
+                    <PlusCircle className="w-4 h-4 opacity-90" />
+                    Schedule Demo
+                </Button>
                 <div className="w-full sm:w-auto">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
