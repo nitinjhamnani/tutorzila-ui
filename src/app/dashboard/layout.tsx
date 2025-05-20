@@ -16,12 +16,12 @@ import {
   SheetTitle,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Menu, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, HomeIcon as HomeIconLucide, Users as UsersIconLucide, BookOpen, BarChart2, MessageSquare } from "lucide-react";
+import { Menu, MessageSquareQuote, DollarSign, CalendarDays, UserCog, LifeBuoy, Settings as SettingsIcon, LogOut, ShieldCheck, Briefcase, ListChecks, LayoutDashboard, School, SearchCheck, PlusCircle, UserCircle, HomeIcon as HomeIconLucide, Users as UsersIcon, BookOpen, BarChart2, MessageSquare } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-// import { VerificationBanner } from "@/components/shared/VerificationBanner"; // Removed
+// import { TutorDashboardHeader } from "@/components/dashboard/tutor/TutorDashboardHeader"; // Removed, tutor header logic is separate
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -35,9 +35,27 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (hasMounted && !isCheckingAuth) {
+      if (!isAuthenticated) {
+        router.replace("/"); // Redirect to home if not authenticated and auth check is complete
+      } else if (user?.role === 'tutor') {
+        // This specific layout is not for tutors.
+        // Tutors should be redirected to /tutor/dashboard by useAuthMock or their specific layout
+        router.replace("/tutor/dashboard");
+      } else if (user && user.role !== 'parent' && user.role !== 'admin') {
+        // If role is somehow unknown or unhandled, redirect to home
+        router.replace("/");
+      }
+    }
+  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
+
+
+  // Header height management (simplified as AppHeader is only for public now)
+  // VerificationBanner is also removed from this context.
+  // We assume dashboard pages don't have the public AppHeader.
+  useEffect(() => {
     if (hasMounted) {
-      // Assuming header is not present for non-tutor roles in this generic layout
-      document.documentElement.style.setProperty('--header-height', '0px');
+      document.documentElement.style.setProperty('--header-height', '0px'); // No main app header in dashboard layouts
     }
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
@@ -48,17 +66,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Dashboard...</div>;
   }
-  if (hasMounted && !isAuthenticated) {
-    router.replace("/"); // Redirect to home if not authenticated
+
+  if (hasMounted && (!isAuthenticated || (user && user.role !== 'parent' && user.role !== 'admin'))) {
+    // This return will be hit if the useEffect for redirection hasn't completed yet,
+    // or if the role is tutor (before that specific redirect kicks in), or if role is invalid.
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
-  if (hasMounted && isAuthenticated && user?.role === 'tutor') {
-    // Tutors should be redirected by useAuthMock or their specific layout
-    router.replace("/tutor/dashboard"); // Or a loading page if tutor layout handles its own checks
-    return <div className="flex h-screen items-center justify-center">Redirecting tutor...</div>;
-  }
-   if (!user && hasMounted) {
-    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
+
+   if (!user && hasMounted) { // Should be caught by !isAuthenticated, but as a safeguard
+    return <div className="flex h-screen items-center justify-center">User data not available. Redirecting...</div>;
   }
 
 
@@ -76,7 +92,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const parentNavItems = [
     { href: "/dashboard/parent/my-requirements", label: "My Enquiries", icon: ListChecks },
-    { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck },
+    { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck }, // Link to public search
     { href: "/dashboard/parent/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/dashboard/parent/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/dashboard/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
@@ -85,7 +101,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const adminNavItems = [
-    { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: UsersIconLucide, disabled: true },
+    { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: UsersIcon, disabled: true },
     { href: "/dashboard/admin/manage-tuitions", label: "Manage Tuitions", icon: BookOpen, disabled: true },
     { href: "/dashboard/admin/analytics", label: "Site Analytics", icon: BarChart2, disabled: true },
     { href: "/dashboard/admin/messages", label: "Messages", icon: MessageSquare, disabled: true },
@@ -95,18 +111,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     ? adminNavItems
     : [{ href: "/dashboard/admin", label: "Admin Panel", icon: ShieldCheck }, ...adminNavItems];
 
-  let roleNavItems: any[] = []; // Initialize as empty array
+  let roleNavItems: any[] = [];
   if (user?.role === "parent") roleNavItems = parentNavItems;
   else if (user?.role === "admin") roleNavItems = finalAdminNavItems;
 
   const mainNavItems = [...commonNavItems, ...roleNavItems];
 
-  let myAccountHref = "/dashboard/my-account"; // Default for admin
+  let myAccountHref = "/dashboard/my-account"; // Default for admin if not specifically overridden
   let settingsHref = "/dashboard/settings"; // Default for admin
 
   if (user?.role === 'parent') {
     myAccountHref = "/dashboard/parent/my-account";
     settingsHref = "/dashboard/parent/settings";
+  } else if (user?.role === 'admin') {
+    // Admin might have a different path or share the generic one
+    myAccountHref = "/dashboard/admin/my-account"; // Or /dashboard/my-account if generic
+    settingsHref = "/dashboard/admin/settings";  // Or /dashboard/settings
   }
 
 
@@ -116,7 +136,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  // Header is removed, padding calculation simplified
+  // Padding is now only for verification banner if it were present
   const paddingTopClass = "pt-[var(--verification-banner-height,0px)]";
 
 
@@ -128,7 +148,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           collapsible={isMobile ? "offcanvas" : "icon"}
           className={cn(
             "border-r bg-card shadow-md flex flex-col",
-            paddingTopClass // Only accounts for verification banner if it were present
+            paddingTopClass 
           )}
         >
           <SidebarHeader className={cn("p-4 border-b border-border/50", isMobile ? "pt-4 pb-2" : "pt-4 pb-2")}>
@@ -170,15 +190,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarFooter className="p-2 border-t border-border/50 mt-auto">
             <SidebarMenu>
               {accountSettingsNavItems.map((item) => {
-                 const isActive = !item.onClick && item.href ? pathname === item.href : false;
+                 const isActive = item.href ? pathname === item.href : false;
                 return (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
-                    asChild={!item.onClick}
+                    asChild
                     isActive={isActive}
                     tooltip={{ children: item.label, className: "ml-1.5 text-xs" }}
                     disabled={item.disabled}
-                    onClick={item.onClick}
                     className={cn(
                       "transition-all duration-200 group h-10 text-sm font-medium",
                       item.disabled && "opacity-50 cursor-not-allowed",
@@ -187,17 +206,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                        "group-data-[collapsible=icon]:justify-center"
                     )}
                   >
-                    {item.onClick ? (
-                      <div className="flex items-center gap-2.5 w-full">
-                        <item.icon className={cn("transition-transform duration-200", isActive && "text-primary-foreground")} />
-                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                      </div>
-                    ) : (
                       <Link href={item.disabled || !item.href ? "#" : item.href!} className="flex items-center gap-2.5">
                         <item.icon className={cn("transition-transform duration-200", isActive && "text-primary-foreground")} />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
-                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 );
@@ -224,9 +236,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         <SidebarInset className={cn(
             "pb-4 md:pb-6 bg-secondary overflow-x-hidden",
-             paddingTopClass // Main content area still uses this for its top padding
+             paddingTopClass 
           )}>
-            <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+            <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 md:p-6"> {/* Added standard padding here */}
               {children}
             </div>
           </SidebarInset>
@@ -234,3 +246,4 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     </>
   );
 }
+
