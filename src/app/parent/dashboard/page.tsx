@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ReactNode, ElementType } from "react";
@@ -6,12 +7,14 @@ import { useRouter } from "next/navigation";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import type { User } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
-  LayoutGrid,
-  User as UserIconLucide, // Renamed to avoid conflict
+  LayoutDashboard,
+  User as UserIconLucide,
   MessageSquare,
   Percent,
   Star,
@@ -24,7 +27,7 @@ import {
   CalendarDays,
   UserCog,
   LifeBuoy,
-  Settings as SettingsIcon, // Keep alias to avoid conflict
+  Settings as SettingsIcon,
   Presentation,
   RadioTower,
   Clock as ClockIcon,
@@ -33,24 +36,61 @@ import {
   Globe as GlobeIcon,
   FileText,
   Palette,
-  Link as LinkIconLucide, // Renamed to avoid conflict
+  Link as LinkIcon,
   UploadCloud,
   Ruler,
   Filter as FilterIconLucide,
-  ListChecks, // For My Enquiries
-  SearchCheck, // For Find Tutors
-  School, // For Student Profiles
-  MessageSquareQuote, // For Demo Sessions
+  ListChecks, 
+  SearchCheck,
+  School,
+  MessageSquareQuote,
   ArrowRight,
   Camera,
   PanelLeft,
   Menu as MenuIcon,
   Info,
   Bell,
+  PlusCircle,
+  Send,
+  MailCheck,
+  PhoneCall,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
+import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+import { Badge } from "@/components/ui/badge";
 
-// Define props for the QuickActionCard
+// Copied and adapted from Tutor Dashboard's MetricCard
+interface InsightCardProps {
+  title: string;
+  value: string;
+  IconEl: ElementType;
+  iconBg?: string;
+  iconColor?: string;
+  // Trend-related props are removed as they are not needed for parent dashboard
+}
+
+function InsightCard({ title, value, IconEl, iconBg = "bg-primary/10", iconColor = "text-primary" }: InsightCardProps) {
+  return (
+    <div className="bg-card rounded-xl shadow-lg p-5 border-0">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs text-muted-foreground">{title}</p>
+          <h3 className={cn("text-xl md:text-2xl font-semibold mt-0.5", iconColor)}>{value}</h3>
+        </div>
+        {IconEl && (
+          <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", iconBg, iconColor)}>
+            <IconEl className="w-5 h-5" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 interface QuickActionCardProps {
   title: string;
   description: string;
@@ -62,7 +102,6 @@ interface QuickActionCardProps {
   iconTextColor?: string;
 }
 
-// QuickActionCard component definition
 function QuickActionCard({ title, description, IconEl, href, disabled, buttonText, iconBg = "bg-primary/10", iconTextColor = "text-primary" }: QuickActionCardProps) {
   const content = (
     <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
@@ -74,7 +113,7 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
       </div>
       <div className="mt-4 text-sm text-primary font-medium flex items-center gap-1 whitespace-nowrap">
-        {buttonText || (disabled ? "Coming Soon" : "Go")}
+        {buttonText || (disabled ? "Coming Soon" : "View")}
         {!disabled && <ArrowRight className="ml-1 w-3 h-3" />}
       </div>
     </div>
@@ -91,11 +130,19 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
   );
 }
 
-
 export default function ParentDashboardPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [hasMounted, setHasMounted] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
+  const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
+
+  const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -103,25 +150,65 @@ export default function ParentDashboardPage() {
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
-      if (!isAuthenticated) {
-        router.replace("/"); // Redirect to home if not authenticated
-      } else if (user?.role !== 'parent') {
-        router.replace("/"); // Redirect if not a parent
+      if (!isAuthenticated || user?.role !== 'parent') {
+        router.replace("/");
       }
     }
   }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
+  useEffect(() => {
+    if (user) {
+      setIsEmailVerified(user.isEmailVerified || false);
+      setIsPhoneVerified(user.isPhoneVerified || false);
+    }
+  }, [user]);
 
-  if (isCheckingAuth || !hasMounted) {
+  if (isCheckingAuth || !hasMounted || !isAuthenticated || !user || user.role !== 'parent') {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Parent Dashboard...</div>;
   }
 
-  if (!isAuthenticated || !user || user.role !== 'parent') {
-    // This case should ideally be handled by the redirect in useEffect, but as a fallback
-    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
-  }
+  const handleAvatarUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
-  const parentActionCards: QuickActionCardProps[] = [
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
+    }
+  };
+  
+  const handleOpenOtpModal = (type: "email" | "phone") => {
+    if (!user) return;
+    setOtpVerificationType(type);
+    setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number");
+    setIsOtpModalOpen(true);
+  };
+
+  const handleOtpSuccess = () => {
+    if (otpVerificationType === "email") {
+      setIsEmailVerified(true);
+      if (user) user.isEmailVerified = true; 
+    } else if (otpVerificationType === "phone") {
+      setIsPhoneVerified(true);
+      if (user) user.isPhoneVerified = true;
+    }
+    setIsOtpModalOpen(false);
+    setOtpVerificationType(null);
+    setOtpVerificationIdentifier(null);
+  };
+
+  const isUserVerified = isEmailVerified && isPhoneVerified;
+
+  // Parent-specific insight data, mirroring tutor dashboard's metric card structure
+  const parentInsightsData = [
+    { title: "Total Enquiries", value: "5", IconEl: ListChecks, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Active Classes", value: "2", IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Upcoming Demos", value: "1", IconEl: MessageSquareQuote, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Payments Made", value: "₹12k", IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary" },
+  ];
+  
+  const parentQuickActions: QuickActionCardProps[] = [
     { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-requirements", buttonText: "Manage Enquiries" },
     { title: "Find Tutors", description: "Search for qualified tutors.", IconEl: SearchCheck, href: "/search-tuitions", buttonText: "Search Now" },
     { title: "My Classes", description: "Track your booked & ongoing classes.", IconEl: CalendarDays, href: "/parent/my-classes", buttonText: "View Classes", disabled: false },
@@ -132,7 +219,6 @@ export default function ParentDashboardPage() {
     { title: "Support", description: "Get help or report issues.", IconEl: LifeBuoy, href: "#", buttonText: "Get Support", disabled: true },
   ];
 
-
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
@@ -140,25 +226,78 @@ export default function ParentDashboardPage() {
         <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
-                  {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative group shrink-0">
+                <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
+                  <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
+                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
+                    {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={handleAvatarUploadClick}
+                  className={cn(
+                    "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
+                    "bg-primary/20 hover:bg-primary/30 text-primary"
+                  )}
+                  aria-label="Update profile picture"
+                >
+                  <Camera className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                </button>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+              </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {user.name} <span className="inline-block ml-1">👋</span></h1>
-                <p className="text-xs text-muted-foreground mt-1">Welcome back to your Parent Dashboard!</p>
+                <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
+                
+                <div className="mt-3 flex items-center space-x-2 flex-wrap">
+                  {user.status && (
+                    <Badge
+                      className={cn(
+                        "text-xs py-0.5 px-2 border",
+                        user.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500 hover:bg-opacity-80",
+                      )}
+                    >
+                      {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3 text-primary-foreground" /> : <XCircle className="mr-1 h-3 w-3" />}
+                      {user.status}
+                    </Badge>
+                  )}
+                  <Badge
+                    className={cn(
+                      "text-xs py-0.5 px-2 border",
+                      isUserVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
+                    )}
+                  >
+                    {isUserVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                    {isUserVerified ? "Verified" : "Not Verified"}
+                  </Badge>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
+        {/* Parent Insights Section */}
+        <div className="mb-6 md:mb-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">My Summary</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+            {parentInsightsData.map((metric, index) => (
+              <InsightCard
+                key={index}
+                title={metric.title}
+                value={metric.value}
+                IconEl={metric.IconEl}
+                iconBg={metric.iconBg}
+                iconColor={metric.iconColor}
+              />
+            ))}
+          </div>
+        </div>
+        
         {/* Quick Actions Section */}
         <div className="mb-6 md:mb-8">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {parentActionCards.map((action) => (
+            {parentQuickActions.map((action) => (
               <QuickActionCard
                 key={action.title}
                 title={action.title}
@@ -173,9 +312,23 @@ export default function ParentDashboardPage() {
             ))}
           </div>
         </div>
+        
+        {/* Floating Action Button */}
+        <FloatingPostRequirementButton />
 
-        {/* Placeholder for other parent-specific sections if needed */}
+        {/* OTP Modal */}
+        {otpVerificationType && otpVerificationIdentifier && (
+          <OtpVerificationModal
+            isOpen={isOtpModalOpen}
+            onOpenChange={setIsOtpModalOpen}
+            verificationType={otpVerificationType}
+            identifier={otpVerificationIdentifier}
+            onSuccess={handleOtpSuccess}
+          />
+        )}
       </div>
     </main>
   );
 }
+
+    
