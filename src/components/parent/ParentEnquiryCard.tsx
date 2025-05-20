@@ -4,11 +4,11 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Users, Eye } from "lucide-react";
+import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Eye, Send } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import Link from "next/link"; // Keep Link import for Edit button
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
 interface ParentEnquiryCardProps {
@@ -46,8 +46,8 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
   const parentInitials = getInitials(requirement.parentName);
   const isPastEnquiry = requirement.status === 'closed';
 
-  const cardContent = (
-    <div
+  return (
+    <Card
       className={cn(
         "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
         isPastEnquiry && "opacity-70 bg-muted/30"
@@ -68,18 +68,18 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
-          {/* Edit Button - styled like TutorDemoCard's settings button */}
-          {!isPastEnquiry && onEdit && (
+          {onEdit && (requirement.status === 'open' || requirement.status === 'matched') && (
             <Button
-              asChild
               variant="default"
               size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(requirement.id);
+              }}
               className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
               title="Edit Enquiry"
             >
-              <Link href={`/parent/my-enquiries/edit/${requirement.id}`}>
-                <Edit3 className="h-4 w-4" />
-              </Link>
+              <Edit3 className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -100,24 +100,76 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
 
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
         <div className="flex-grow min-w-0">
-          {/* Applicants count badge removed */}
+            {/* Future placeholder for left-aligned footer content if needed */}
+             {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
+                 <Badge
+                  variant="outline"
+                  className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                >
+                  <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+                  {requirement.applicantsCount} Applicant{requirement.applicantsCount !== 1 ? 's' : ''}
+                </Badge>
+            )}
         </div>
-         {isPastEnquiry && onReopen && (
+        <div className="flex items-center gap-2">
+          {isPastEnquiry && onReopen && (
             <Button
+              variant="outline"
+              size="xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                onReopen(requirement.id);
+              }}
+              className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
+            >
+              <Archive className="mr-1.5 h-3 w-3" /> Reopen
+            </Button>
+          )}
+          {onDelete && (
+             <Button
+                variant="destructiveOutline"
+                size="xs"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(requirement);
+                }}
+                className="text-xs py-1.5 px-2.5 h-auto"
+                >
+                <Trash2 className="mr-1.5 h-3 w-3" /> Delete
+            </Button>
+          )}
+           {!isPastEnquiry && onClose && (
+             <Button
                 variant="outline"
                 size="xs"
                 onClick={(e) => {
                     e.stopPropagation();
-                    onReopen(requirement.id);
+                    onClose(requirement);
                 }}
-                className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
-            >
-                <Archive className="mr-1.5 h-3 w-3" /> Reopen
+                className="text-xs py-1.5 px-2.5 h-auto border-orange-500 text-orange-600 hover:bg-orange-500/10 hover:text-orange-700"
+                >
+                <Archive className="mr-1.5 h-3 w-3" /> Close
             </Button>
-        )}
+          )}
+          <Button
+            asChild
+            size="sm"
+            className={cn(
+              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
+              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
+            )}
+          >
+            <Link href={`/parent/my-enquiries/${requirement.id}`}>
+                <Eye className="w-3 h-3 mr-1.5" />
+                View Now
+            </Link>
+          </Button>
+        </div>
       </CardFooter>
-    </div>
+    </Card>
   );
+}
 
-  return cardContent;
+declare module "lucide-react" {
+  export const Trash2: React.FC<React.SVGProps<SVGSVGElement>>;
 }
