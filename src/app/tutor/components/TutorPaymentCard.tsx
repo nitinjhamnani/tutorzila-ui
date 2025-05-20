@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, DollarSign as DollarSignIcon, Clock, CalendarDays, CheckCircle as CheckCircleIcon, XCircle, Info, TrendingUp, FileText, Coins, CheckCircle2, BookOpen, Bell } from "lucide-react";
+import { User, DollarSign as DollarSignIcon, Clock, CalendarDays, CheckCircle as CheckCircleIcon, XCircle, Info, TrendingUp, FileText, Coins, CheckCircle2, BookOpen, Bell, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -31,9 +31,8 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
   const { toast } = useToast();
   const studentInitials = getInitials(payment.studentName);
 
-  // This function determines the icon based on status, its color will be set by the badge's text color
   const StatusIcon = () => {
-    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80"; // Consistent muted icon color
+    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
     switch (payment.status) {
       case "Pending": return <Clock className={iconClasses} />;
       case "Paid": return <CheckCircle2 className={iconClasses} />;
@@ -47,6 +46,15 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
     toast({
       title: "Payment Updated",
       description: `Payment from ${payment.studentName} for ₹${payment.amount} marked as paid.`,
+    });
+  };
+
+  const handleUpdatePayment = () => {
+    // Placeholder for future modal to update payment details
+    console.log("Update payment clicked for ID:", payment.id);
+    toast({
+      title: "Update Payment (Coming Soon)",
+      description: `Functionality to update payment details for ${payment.studentName} is not yet implemented.`,
     });
   };
 
@@ -69,7 +77,19 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
               With {payment.studentName}
             </CardDescription>
           </div>
-          {/* Status badge removed from header */}
+          {(payment.status === "Pending" || payment.status === "Overdue") && (
+            <Button
+              variant="default"
+              size="icon"
+              className={cn(
+                "absolute top-0 right-0 h-7 w-7 text-primary-foreground bg-primary hover:bg-primary/90",
+              )}
+              onClick={handleUpdatePayment}
+              title="Update Payment Details"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -84,15 +104,15 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
         )}
       </CardContent>
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
-        <div>
-          <Badge
+        <div className="flex items-center space-x-2">
+            <Badge
             className={cn(
                 "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
             )}
-          >
+            >
             <StatusIcon />
             {payment.status}
-          </Badge>
+            </Badge>
         </div>
         <div className="flex items-center gap-2">
           {payment.status === "Pending" && (
