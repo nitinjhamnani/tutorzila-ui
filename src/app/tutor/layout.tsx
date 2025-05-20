@@ -1,4 +1,4 @@
-// src/app/tutor/layout.tsx
+
 "use client";
 
 import type { ReactNode } from "react";
@@ -18,8 +18,8 @@ import {
   Bell,
   PanelLeft,
   DollarSign,
+  MessageSquareQuote,
   ListChecks,
-  MessageSquareQuote
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Logo } from "@/components/shared/Logo";
-import { TutorSidebar } from "@/components/tutor/TutorSidebar"; // Added this import
+import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -46,8 +46,8 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   useEffect(() => {
     setHasMounted(true);
   }, []);
-
-  // Effect for redirection logic
+  
+  // Moved all hooks to the top
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
       if (!isAuthenticated) {
@@ -56,7 +56,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         router.replace("/"); // Or a more appropriate page like /access-denied
       }
     }
-  }, [hasMounted, isCheckingAuth, isAuthenticated, user, router]);
+  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
   const headerHeight = "4rem"; // For h-16 or p-4 header
 
@@ -70,20 +70,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
       document.documentElement.style.setProperty('--header-height', '0px');
     };
   }, [hasMounted]);
-
-
-  if (isCheckingAuth && !hasMounted) {
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
-  }
-
-  if (hasMounted && (!isAuthenticated || user?.role !== 'tutor')) {
-    // This check is redundant if the useEffect above redirects, but acts as a safeguard.
-    // The useEffect will handle the actual redirect.
-    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
-  }
-   if (!user && hasMounted) { // Should be caught by !isAuthenticated, but good to have
-    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
-  }
 
 
   const tutorNavItems = [
@@ -101,13 +87,23 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+  
+  if (isCheckingAuth && !hasMounted) {
+    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
+  }
 
-  const paddingTopForContentArea = hasMounted ? "pt-[var(--header-height)]" : "pt-0";
+  if (hasMounted && (!isAuthenticated || user?.role !== 'tutor')) {
+    // This return is for the case where redirection hasn't happened yet or for safeguarding
+    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
+  }
+   if (!user && hasMounted) {
+    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* <VerificationBanner /> Removed as per user request */}
-      
+
       {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
@@ -118,16 +114,18 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           )}
         >
           <div className="flex items-center gap-2">
-            {/* Unified Trigger for Mobile (opens off-canvas) and Desktop (toggles collapse) */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
-              className="text-gray-600 hover:text-primary"
-              aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
-            >
-              {isMobile ? <MenuIcon className="h-6 w-6" /> : <PanelLeft className="h-5 w-5" />}
-            </Button>
+            {/* Mobile Nav Open Trigger */}
+            {isMobile && (
+                <Button variant="ghost" size="icon" onClick={toggleMobileNav} className="text-gray-600 hover:text-primary md:hidden">
+                    <MenuIcon className="h-6 w-6" />
+                </Button>
+            )}
+            {/* Desktop Nav Collapse Trigger */}
+            {!isMobile && (
+                <Button variant="ghost" size="icon" onClick={toggleNavbarCollapsed} className="text-gray-600 hover:text-primary hidden md:flex">
+                    <PanelLeft className="h-5 w-5" />
+                </Button>
+            )}
             <Link href="/tutor/dashboard">
               <Logo className="h-8 w-auto" />
             </Link>
@@ -145,14 +143,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* Avatar and Name removed as per request */}
+            {/* User Avatar and Logout removed from header as per last instruction */}
           </div>
         </header>
       )}
 
       {/* This div contains the sidebar and the main page content. */}
-      {/* It's pushed down by paddingTopForContentArea to account for the header above */}
-      <div className={cn("flex flex-1 overflow-hidden", paddingTopForContentArea)}>
+      <div className={cn("flex flex-1 overflow-hidden")}> {/* NO TOP PADDING HERE */}
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
@@ -164,8 +161,9 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={logoutNavItem}
         />
-        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary")}> {/* No top padding here */}
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8"> {/* Page content padding */}
+        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary")}> {/* NO TOP PADDING HERE */}
+          {/* The children (page content) will manage their own padding to clear the header if needed */}
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
             {children}
           </div>
         </main>
