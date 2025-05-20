@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Eye, Send } from "lucide-react";
+import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Eye, Send, Trash2 } from "lucide-react"; // Added Trash2
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -55,7 +55,8 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
     >
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground border-2 border-card">
+            {/* Removed AvatarImage to only show Fallback */}
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
@@ -68,7 +69,8 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
-          {onEdit && (requirement.status === 'open' || requirement.status === 'matched') && (
+          {/* Edit button for 'open' or 'matched' enquiries */}
+           {(requirement.status === 'open' || requirement.status === 'matched') && onEdit && (
             <Button
               variant="default"
               size="icon"
@@ -100,8 +102,7 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
 
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
         <div className="flex-grow min-w-0">
-            {/* Future placeholder for left-aligned footer content if needed */}
-             {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
+            {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
                  <Badge
                   variant="outline"
                   className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
@@ -125,7 +126,7 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               <Archive className="mr-1.5 h-3 w-3" /> Reopen
             </Button>
           )}
-          {onDelete && (
+           {onDelete && (requirement.status === 'open' || requirement.status === 'matched') && (
              <Button
                 variant="destructiveOutline"
                 size="xs"
@@ -168,8 +169,4 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
       </CardFooter>
     </Card>
   );
-}
-
-declare module "lucide-react" {
-  export const Trash2: React.FC<React.SVGProps<SVGSVGElement>>;
 }
