@@ -2,7 +2,9 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DollarSign, TrendingUp, TrendingDown, Coins, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DollarSign, TrendingUp, TrendingDown, Coins, FileText, PlusCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function TutorPaymentsPage() {
   const mockData = {
@@ -15,7 +17,7 @@ export default function TutorPaymentsPage() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <div className="grid grid-cols-1 gap-6">
           <Card className="bg-card border rounded-lg shadow-md animate-in fade-in duration-500 ease-out">
-            <CardHeader className="p-5">
+            <CardHeader className="p-5 flex flex-row items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-primary/10 rounded-full text-primary">
                   <DollarSign className="w-6 h-6" />
@@ -29,9 +31,13 @@ export default function TutorPaymentsPage() {
                   </CardDescription>
                 </div>
               </div>
+              <Button size="sm" className="transform transition-transform hover:scale-105 active:scale-95 shadow-sm text-xs py-2 px-3">
+                <PlusCircle className="mr-1.5 h-4 w-4" />
+                Collect Payment
+              </Button>
             </CardHeader>
             <CardContent className="p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Changed from space-y-4 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
                   <div className="flex items-center">
                     <Coins className="w-5 h-5 mr-3 text-green-600" />
