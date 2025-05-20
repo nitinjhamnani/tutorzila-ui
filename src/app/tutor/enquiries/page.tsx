@@ -1,12 +1,12 @@
-// src/app/tutor/enquiries/page.tsx
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import type { TuitionRequirement, TutorProfile } from "@/types";
+import type { TuitionRequirement, User } from "@/types";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin } from "lucide-react";
+import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard"; // Changed import
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -22,10 +22,10 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 
 const allEnquiryStatusesForPage = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
@@ -38,7 +38,6 @@ export default function AllEnquiriesPage() {
 
   const [allOpenRequirements, setAllOpenRequirements] = useState<TuitionRequirement[]>([]);
 
-  // States for filter dialog
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempSubjectFilter, setTempSubjectFilter] = useState<string[]>([]);
   const [tempGradeFilter, setTempGradeFilter] = useState("All");
@@ -46,8 +45,6 @@ export default function AllEnquiriesPage() {
   const [tempTeachingModeFilter, setTempTeachingModeFilter] = useState<string[]>([]);
   const [tempLocationFilter, setTempLocationFilter] = useState("All");
 
-
-  // Applied filters
   const [appliedSubjectFilter, setAppliedSubjectFilter] = useState<string[]>([]);
   const [appliedGradeFilter, setAppliedGradeFilter] = useState("All");
   const [appliedBoardFilter, setAppliedBoardFilter] = useState("All");
@@ -191,7 +188,7 @@ export default function AllEnquiriesPage() {
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
-              <TuitionRequirementCard requirement={req} showActions={false} isParentContext={false} />
+              <TutorEnquiryCard requirement={req} />
             </div>
           ))}
         </div>
@@ -222,7 +219,7 @@ export default function AllEnquiriesPage() {
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-            <CardHeader className="p-0 mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <CardHeader className="p-0 mb-4 flex flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex-grow min-w-0">
                     <CardTitle className="text-xl font-semibold text-primary flex items-center">
                         <Briefcase className="w-5 h-5 mr-2.5" />
@@ -232,7 +229,6 @@ export default function AllEnquiriesPage() {
                         Review and apply to tuition requirements posted by parents.
                     </CardDescription>
                 </div>
-                 {/* Filter Icon Button */}
                 <Dialog open={isFilterDialogOpen} onOpenChange={(isOpen) => {
                     if (!isOpen) { 
                       setTempSubjectFilter([...appliedSubjectFilter]);
@@ -244,12 +240,12 @@ export default function AllEnquiriesPage() {
                     setIsFilterDialogOpen(isOpen);
                   }}>
                     <DialogTrigger asChild>
-                        <Button
+                         <Button
                             variant="default"
-                            size="sm" 
+                            size="sm"
                             className={cn(
-                                "py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                                "text-xs",
+                                "py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
+                                "text-xs", 
                                 filtersApplied && "ring-2 ring-offset-2 ring-primary/70"
                               )}
                             title="Filter Enquiries"
@@ -313,7 +309,7 @@ export default function AllEnquiriesPage() {
                             </Select>
                         </div>
                         <div className="space-y-1.5">
-                        <Label className="text-xs font-medium text-muted-foreground flex items-center"><LucideFilterIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode</Label>
+                        <Label className="text-xs font-medium text-muted-foreground flex items-center"><RadioTower className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode</Label>
                         <div className="grid grid-cols-2 gap-2 pt-1">
                             {teachingModeOptions.map(mode => (
                             <div key={mode.id} className="flex items-center space-x-2">
@@ -337,18 +333,19 @@ export default function AllEnquiriesPage() {
                     </DialogContent>
                 </Dialog>
             </CardHeader>
+            <CardContent className="p-0"> {/* Search field and category dropdown were here, removed to place dropdown below card */} </CardContent>
         </Card>
         
-        <div className="flex flex-col sm:flex-row items-center sm:justify-end mb-4 sm:mb-6 gap-3">
-          <div className="w-full sm:w-auto">
-             <DropdownMenu>
+         {/* Filter by Category Dropdown - Moved below the card */}
+        <div className="flex flex-col sm:flex-row items-center justify-end mb-4 sm:mb-6 gap-3">
+            <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button
                     variant="default"
                     size="sm" 
                     className={cn(
                         "py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                        "text-xs sm:text-sm"
+                        "text-xs sm:text-sm rounded-[5px]" // Ensure less rounded corners
                     )}
                 >
                     <span className="text-primary-foreground">
@@ -366,7 +363,7 @@ export default function AllEnquiriesPage() {
                     onClick={() => setActiveFilterCategory(category.value)}
                     className={cn(
                         "text-sm",
-                        activeFilterCategory === category.value && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
+                        activeFilterCategory === category.value && "bg-primary text-primary-foreground hover:bg-primary focus:bg-primary hover:text-primary-foreground focus:text-primary-foreground"
                     )}
                     >
                     <category.icon className="mr-2 h-4 w-4" />
@@ -375,7 +372,6 @@ export default function AllEnquiriesPage() {
                 ))}
                 </DropdownMenuContent>
             </DropdownMenu>
-          </div>
         </div>
 
         <div className="mt-0"> 
@@ -386,3 +382,4 @@ export default function AllEnquiriesPage() {
   );
 }
 
+    

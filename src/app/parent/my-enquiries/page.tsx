@@ -47,8 +47,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-// import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton"; // Removed import
+import { ParentEnquiryCard } from "@/components/parent/ParentEnquiryCard"; // Changed import
 import type { User, TuitionRequirement } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
@@ -208,10 +207,6 @@ export default function ParentMyEnquiriesPage() {
     setAllRequirements((prev) =>
       prev.map((req) => (req.id === id ? { ...req, status: "open" } : req))
     );
-    toast({
-      title: "Enquiry Reopened",
-      description: "The enquiry is now active again. You can edit it if needed.",
-    });
     router.push(`/parent/my-enquiries/edit/${id}`);
   };
   
@@ -311,11 +306,9 @@ export default function ParentMyEnquiriesPage() {
         <div className="mt-6 space-y-4">
           {filteredRequirements.length > 0 ? (
             filteredRequirements.map((req) => (
-              <TuitionRequirementCard
+              <ParentEnquiryCard
                 key={req.id}
                 requirement={req}
-                showActions={true}
-                isParentContext={true}
                 onEdit={() => handleEdit(req.id)}
                 onDelete={() => handleOpenDeleteConfirm(req)}
                 onClose={() => handleOpenCloseEnquiryModal(req)}
@@ -332,13 +325,11 @@ export default function ParentMyEnquiriesPage() {
                 <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                   There are no enquiries matching "{activeFilterCategory}". Try a different filter or post a new requirement.
                 </p>
-                 {/* Removed FloatingPostRequirementButton from here as well since it's removed globally */}
               </CardContent>
             </Card>
           )}
         </div>
 
-        {/* Delete Confirmation Dialog */}
         {selectedRequirementForAction && (
           <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
             <AlertDialogContent>
@@ -359,7 +350,6 @@ export default function ParentMyEnquiriesPage() {
           </AlertDialog>
         )}
 
-        {/* Close Enquiry Dialog */}
         {selectedRequirementForAction && (
           <Dialog open={isCloseEnquiryModalOpen} onOpenChange={(isOpen) => {
             if (!isOpen) setSelectedRequirementForAction(null);
@@ -415,8 +405,9 @@ export default function ParentMyEnquiriesPage() {
             </DialogContent>
           </Dialog>
         )}
-        {/* <FloatingPostRequirementButton /> Removed as requested */}
       </div>
     </main>
   );
 }
+
+    
