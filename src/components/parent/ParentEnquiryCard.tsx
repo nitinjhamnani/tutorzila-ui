@@ -3,20 +3,20 @@
 
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { GraduationCap, Clock, Eye, RadioTower, Edit3, Trash2, Archive, Building, MapPin, Users as UsersIcon } from "lucide-react";
+import { Button } from "@/components/ui/button"; // Kept for Reopen button
+import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge"; // Keep Badge import if used elsewhere or for consistency, but will remove its usage in header/footer.
+// Link import is removed as the card itself will not be a link
+import { Badge } from "@/components/ui/badge";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
-  onEdit?: (id: string) => void; // Made optional as actions are removed
-  onDelete?: (requirement: TuitionRequirement) => void; // Made optional
-  onClose?: (requirement: TuitionRequirement) => void; // Made optional
-  onReopen?: (id: string) => void; // Made optional
+  onEdit?: (id: string) => void; // Prop remains, but no button for it on this card
+  onDelete?: (requirement: TuitionRequirement) => void; // Prop remains
+  onClose?: (requirement: TuitionRequirement) => void; // Prop remains
+  onReopen?: (id: string) => void; // Prop remains, used by Reopen button
 }
 
 const getInitials = (name?: string): string => {
@@ -28,6 +28,7 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
+// Helper component for info items with icons
 const InfoItem = ({ icon: Icon, label, value, className }: { icon?: React.ElementType; label?: string; value?: string | string[]; className?: string }) => {
   if (!value || (Array.isArray(value) && value.length === 0)) return null;
   const displayText = Array.isArray(value) ? value.join(", ") : value;
@@ -46,18 +47,17 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
   const parentInitials = getInitials(requirement.parentName);
   const isPastEnquiry = requirement.status === 'closed';
 
-  // Status badge logic removed from here as the badge itself is removed from header.
-
+  // Card content is now directly rendered, not wrapped in a Link
   const cardContent = (
     <div
       className={cn(
-        "bg-card rounded-lg shadow-sm w-full overflow-hidden border border-border/50",
+        "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
         isPastEnquiry && "opacity-70 bg-muted/30"
       )}
     >
-      <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-4 relative">
+      <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground border-primary/20">
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
@@ -70,11 +70,11 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
-          {/* Status Badge Removed from here */}
+          {/* Status Badge was removed as per previous request */}
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 pt-2 sm:p-5 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
+      <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
@@ -87,28 +87,28 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
         )}
       </CardContent>
 
-      <CardFooter className="p-4 pt-3 sm:p-5 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
         <div className="flex-grow min-w-0">
-          {/* Applicants Count Badge Removed */}
+           {/* Applicants Count Badge removed as per previous request */}
         </div>
-        {/* Action Buttons were already removed */}
+        {/* Action buttons are removed from here based on prior instructions. */}
+        {/* Reopen button for past enquiries remains as it's a specific action on the card itself */}
+        {isPastEnquiry && onReopen && (
+            <Button
+                variant="outline"
+                size="xs"
+                onClick={(e) => {
+                    e.stopPropagation(); // Prevent any potential parent click if this button was inside a Link
+                    onReopen(requirement.id);
+                }}
+                className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
+            >
+                <Archive className="mr-1.5 h-3 w-3" /> Reopen
+            </Button>
+        )}
       </CardFooter>
     </div>
   );
 
-  // If onEdit is defined, wrap the card content with a button or link for edit functionality
-  if (onEdit) {
-    return (
-      <button
-        onClick={() => onEdit(requirement.id)}
-        className="block w-full text-left hover:bg-muted/20 rounded-lg transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-        aria-label={`View or edit enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}`}
-      >
-        {cardContent}
-      </button>
-    );
-  }
-
-  // Otherwise, just return the card content (e.g., if no actions are needed or handled differently)
-  return cardContent;
+  return cardContent; // The card is no longer wrapped in a Link
 }
