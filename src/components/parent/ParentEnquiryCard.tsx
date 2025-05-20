@@ -3,8 +3,8 @@
 
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button"; // Kept for Reopen button
-import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive } from "lucide-react";
+import { Button } from "@/components/ui/button"; // Added Button import
+import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Users } from "lucide-react"; // Added Edit3
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -13,10 +13,10 @@ import { Badge } from "@/components/ui/badge";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
-  onEdit?: (id: string) => void; // Prop remains, but no button for it on this card
-  onDelete?: (requirement: TuitionRequirement) => void; // Prop remains
-  onClose?: (requirement: TuitionRequirement) => void; // Prop remains
-  onReopen?: (id: string) => void; // Prop remains, used by Reopen button
+  onEdit?: (id: string) => void;
+  onDelete?: (requirement: TuitionRequirement) => void;
+  onClose?: (requirement: TuitionRequirement) => void;
+  onReopen?: (id: string) => void;
 }
 
 const getInitials = (name?: string): string => {
@@ -47,7 +47,6 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
   const parentInitials = getInitials(requirement.parentName);
   const isPastEnquiry = requirement.status === 'closed';
 
-  // Card content is now directly rendered, not wrapped in a Link
   const cardContent = (
     <div
       className={cn(
@@ -55,9 +54,9 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
         isPastEnquiry && "opacity-70 bg-muted/30"
       )}
     >
-      <CardHeader className="p-0 pb-3 sm:pb-4 relative">
+      <CardHeader className="p-0 pb-3 sm:pb-4 relative"> {/* Ensure relative positioning for the button */}
         <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground border-primary/20">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
@@ -70,7 +69,21 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
-          {/* Status Badge was removed as per previous request */}
+          {/* Edit Button - styled like TutorDemoCard's settings button */}
+          {!isPastEnquiry && onEdit && (
+            <Button
+              variant="default"
+              size="icon"
+              className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
+              title="Edit Enquiry"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering link if card was clickable
+                onEdit(requirement.id);
+              }}
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardHeader>
 
@@ -89,16 +102,23 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
 
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
         <div className="flex-grow min-w-0">
-           {/* Applicants Count Badge removed as per previous request */}
+          {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
+             <Badge
+              variant="outline"
+              className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+            >
+              <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+              {requirement.applicantsCount} Applicant{requirement.applicantsCount !== 1 ? 's' : ''}
+            </Badge>
+          )}
         </div>
-        {/* Action buttons are removed from here based on prior instructions. */}
-        {/* Reopen button for past enquiries remains as it's a specific action on the card itself */}
-        {isPastEnquiry && onReopen && (
+         {/* Reopen button for past enquiries remains as it's a specific action on the card itself */}
+         {isPastEnquiry && onReopen && (
             <Button
                 variant="outline"
                 size="xs"
                 onClick={(e) => {
-                    e.stopPropagation(); // Prevent any potential parent click if this button was inside a Link
+                    e.stopPropagation(); 
                     onReopen(requirement.id);
                 }}
                 className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
@@ -110,5 +130,8 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
     </div>
   );
 
-  return cardContent; // The card is no longer wrapped in a Link
+  // If the card should not be clickable (for 'open' or 'matched' status anymore)
+  // we directly return cardContent. If it *was* meant to be a Link wrapper for these,
+  // that logic has been removed as per the request to make the card itself not clickable.
+  return cardContent;
 }
