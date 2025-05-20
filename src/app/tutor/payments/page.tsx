@@ -1,9 +1,10 @@
-
+// src/app/tutor/payments/page.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DollarSign, TrendingUp, Coins, FileText, PlusCircle, ListFilter, CheckCircle2, Clock as ClockIcon, XCircle, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { MOCK_TUTOR_PAYMENTS } from "@/lib/mock-data";
@@ -88,7 +89,6 @@ export default function TutorPaymentsPage() {
   };
 
   if (isCheckingAuth || !tutorUser || tutorUser.role !== 'tutor') {
-    // Placeholder for loading or redirect if not authorized
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading or access denied...</div>;
   }
 
@@ -96,16 +96,21 @@ export default function TutorPaymentsPage() {
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-0 flex flex-row items-center justify-between">
-            <div className="flex items-center">
-              <DollarSign className="w-5 h-5 mr-2.5 text-primary"/>
-              <CardTitle className="text-xl font-semibold text-primary">
-                Manage Payments
-              </CardTitle>
+          <CardHeader className="p-0 mb-0 flex flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-grow">
+                <div className="flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2.5 text-primary"/>
+                    <CardTitle className="text-xl font-semibold text-primary">
+                        Manage Payments
+                    </CardTitle>
+                </div>
+                 <CardDescription className="text-xs text-muted-foreground mt-1 ml-[calc(1.25rem+0.625rem)] sm:ml-0 sm:mt-0.5">
+                    Track your earnings and manage payment statuses.
+                </CardDescription>
             </div>
             <Button
               size="sm"
-              className="text-xs py-2 md:px-3 px-2 flex items-center transform transition-transform hover:scale-105 active:scale-95 shadow-sm"
+              className="text-xs py-2 flex items-center transform transition-transform hover:scale-105 active:scale-95 shadow-sm md:px-3 px-2"
               onClick={() => toast({ title: "Feature Coming Soon", description: "Ability to manually add payments will be added soon."})}
             >
               <PlusCircle className="h-4 w-4 md:mr-1.5" />
@@ -138,7 +143,6 @@ export default function TutorPaymentsPage() {
           </CardContent>
         </Card>
 
-        {/* Filter Dropdown - Moved here */}
         <div className="flex justify-end mb-4 sm:mb-6">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
