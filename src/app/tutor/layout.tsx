@@ -1,4 +1,4 @@
-
+// src/app/tutor/layout.tsx
 "use client";
 
 import type { ReactNode } from "react";
@@ -22,10 +22,9 @@ import {
   LogOut,
   Menu as MenuIcon,
   Bell,
-  PanelLeft,
   DollarSign,
   MessageSquareQuote,
-  ShoppingBag, // Added ShoppingBag
+  ListChecks, // Added for Transactions
 } from "lucide-react";
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
@@ -35,13 +34,14 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const isMobile = useIsMobile();
   const [hasMounted, setHasMounted] = useState(false);
 
+  // State for sidebar collapse (desktop) and mobile nav open
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
     if (!isMobile) {
-      setIsMobileNavOpen(false);
+      setIsMobileNavOpen(false); // Close mobile nav if screen becomes desktop
     }
   }, [isMobile]);
 
@@ -56,23 +56,8 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
       setIsMobileNavOpen(prev => !prev);
     }
   };
-
-  const tutorNavItems = [
-    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
-    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote, disabled: false },
-    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
-    { href: "/tutor/leads", label: "Leads", icon: ShoppingBag, disabled: false }, // New Leads item
-    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
-  ];
-
-  const accountSettingsNavItems = [
-    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
-    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
-  ];
-  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
-
-  const headerHeight = "4rem"; 
+  
+  const headerHeight = "4rem"; // For h-16 or p-4 header
 
   useEffect(() => {
     if (hasMounted) {
@@ -85,39 +70,61 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     };
   }, [hasMounted]);
 
+
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
+  
+  useEffect(() => {
+    if (hasMounted) {
+      if (!isAuthenticated) {
+        router.replace("/");
+      } else if (user?.role !== 'tutor') {
+        router.replace("/");
+      }
+    }
+  }, [hasMounted, isAuthenticated, user, router]);
 
-  if (hasMounted && !isAuthenticated) {
-    if (typeof window !== 'undefined') router.replace("/");
+
+  if (hasMounted && (!isAuthenticated || user?.role !== 'tutor')) {
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
-  if (hasMounted && isAuthenticated && user?.role !== 'tutor') {
-     if (typeof window !== 'undefined') router.replace("/");
-    return <div className="flex h-screen items-center justify-center">Access Denied. Redirecting...</div>;
-  }
-   if (!user && hasMounted) {
-    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
+
+   if (!user && hasMounted) { // Ensure user object is available
+    return <div className="flex h-screen items-center justify-center">User data not available. Please try logging in again.</div>;
   }
 
-  // No paddingTopForContentArea variable anymore for the main flex container
+  const tutorNavItems = [
+    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
+    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: MessageSquareQuote, disabled: false },
+    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
+    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
+    { href: "/tutor/transactions", label: "Transactions", icon: ListChecks, disabled: false }, // New Transactions item
+  ];
+
+  const accountSettingsNavItems = [
+    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
+    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
+  ];
+  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+
+  const paddingTopForContentArea = hasMounted ? "pt-[var(--header-height)]" : "pt-0";
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* <VerificationBanner /> Removed as per user request */}
-
-      {/* Integrated Header - Sticky */}
+      {/* Integrated Header - Sticky and within SidebarProvider */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // No var(--verification-banner-height) as it's removed
+            "sticky top-0 z-30", // No var(--verification-banner-height)
             `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
-             {/* Unified Trigger */}
+            {/* Unified Trigger for both mobile (opens sheet) and desktop (collapses navbar) */}
             <Button
               variant="ghost"
               size="icon"
@@ -144,26 +151,24 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* User Avatar and Name Removed as per request */}
           </div>
         </header>
       )}
 
       {/* This div contains the sidebar and the main page content. */}
-      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed top padding from here */}
+      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed paddingTopForContentArea from here */}
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
           toggleMobileNav={toggleMobileNav}
           isNavbarCollapsed={isNavbarCollapsed}
-          toggleNavbarCollapsed={toggleNavbarCollapsed}
+          toggleNavbarCollapsed={toggleNavbarCollapsed} // Pass this down
           user={user}
           tutorNavItems={tutorNavItems}
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={logoutNavItem}
         />
-        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary", hasMounted ? "pt-[var(--header-height)]" : "pt-0")}>
-          {/* The main content of each page will have its own padding and max-width */}
+        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary", paddingTopForContentArea)}> {/* Added paddingTopForContentArea here */}
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
             {children}
           </div>
