@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -17,12 +18,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle as DialogTitleComponent, DialogDescription as DialogDescriptionComponent, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Input } from "@/components/ui/input"; // Removed SearchIcon import as it's not directly used
+import { Input } from "@/components/ui/input";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 
 
 const allEnquiryStatuses = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
@@ -65,22 +68,25 @@ export default function AllEnquiriesPage() {
 
   const uniqueSubjectsForFilter = useMemo(() => {
     const subjects = new Set(allOpenRequirements.flatMap(t => Array.isArray(t.subject) ? t.subject : [t.subject]).filter(Boolean));
-    return [{value: "All", label: "All Subjects"}, ...Array.from(subjects).map(s => ({ value: s, label: s }))];
+    return Array.from(subjects).map(s => ({ value: s, label: s }));
   }, [allOpenRequirements]);
-
+  
   const uniqueGradeLevelsForFilter = useMemo(() => {
-    const grades = new Set(allOpenRequirements.map(t => t.gradeLevel).filter(Boolean));
-    return [{ value: "All", label: "All Grade Levels" }, ...Array.from(grades).map(g => ({ value: String(g), label: String(g) }))];
+    const rawGrades = allOpenRequirements.map(t => t.gradeLevel).filter(Boolean);
+    const uniqueGradeStrings = Array.from(new Set(rawGrades.map(g => String(g).trim())));
+    return [{ value: "All", label: "All Grade Levels" }, ...uniqueGradeStrings.map(g => ({ value: g, label: g }))];
   }, [allOpenRequirements]);
-
+  
   const uniqueBoardsForFilter = useMemo(() => {
-    const boards = new Set(allOpenRequirements.map(t => t.board).filter(Boolean) as string[]);
-    return [{ value: "All", label: "All Boards" }, ...Array.from(boards).map(b => ({ value: String(b), label: String(b) }))];
+    const rawBoards = allOpenRequirements.map(t => t.board).filter(Boolean) as string[];
+    const uniqueBoardStrings = Array.from(new Set(rawBoards.map(b => String(b).trim())));
+    return [{ value: "All", label: "All Boards" }, ...uniqueBoardStrings.map(b => ({ value: b, label: b }))];
   }, [allOpenRequirements]);
   
   const uniqueLocationsForFilter = useMemo(() => {
-    const locations = new Set(allOpenRequirements.map(t => t.location).filter(Boolean) as string[]);
-    return [{ value: "All", label: "All Locations" }, ...Array.from(locations).map(l => ({ value: String(l), label: String(l) }))];
+    const rawLocations = allOpenRequirements.map(t => t.location).filter(Boolean) as string[];
+    const uniqueLocationStrings = Array.from(new Set(rawLocations.map(l => String(l).trim())));
+    return [{ value: "All", label: "All Locations" }, ...uniqueLocationStrings.map(l => ({ value: l, label: l }))];
   }, [allOpenRequirements]);
 
   const teachingModeOptions = [
@@ -215,20 +221,20 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-3 flex flex-row items-center justify-between gap-3">
+          <CardHeader className="p-0 mb-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div className="flex-grow min-w-0">
-              <CardTitle className="text-xl font-semibold text-primary flex items-center">
+              <CardTitle className="text-lg sm:text-xl font-semibold text-primary flex items-center break-words">
                 <Briefcase className="w-5 sm:w-6 h-5 sm:h-6 mr-2.5" />
                 Manage Enquiries
               </CardTitle>
-               <CardDescription className="text-xs text-foreground/70 mt-1">
+               <CardDescription className="text-sm text-foreground/70 mt-1">
                 Review and apply to tuition requirements posted by parents.
               </CardDescription>
             </div>
              <Dialog open={isFilterDialogOpen} onOpenChange={(isOpen) => {
-                if (!isOpen) { // Reset temp filters if dialog is closed without applying
+                if (!isOpen) { 
                   setTempSubjectFilter([...appliedSubjectFilter]);
                   setTempGradeFilter(appliedGradeFilter);
                   setTempBoardFilter(appliedBoardFilter);
@@ -242,7 +248,7 @@ export default function AllEnquiriesPage() {
                         variant="default"
                         size="sm" 
                         className={cn(
-                            "py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
+                            "py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
                             "text-xs", 
                             filtersApplied && "ring-2 ring-offset-2 ring-primary/70"
                         )}
@@ -253,15 +259,15 @@ export default function AllEnquiriesPage() {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden">
                   <DialogHeader className="p-6 pb-4 border-b">
-                    <DialogTitle className="text-lg font-semibold text-primary flex items-center">
+                    <DialogTitleComponent className="text-lg font-semibold text-primary flex items-center">
                       <LucideFilterIcon className="mr-2 h-5 w-5" /> Filter Enquiries
-                    </DialogTitle>
-                    <DialogDescription>
+                    </DialogTitleComponent>
+                    <DialogDescriptionComponent>
                       Refine your search for tuition opportunities.
-                    </DialogDescription>
+                    </DialogDescriptionComponent>
                   </DialogHeader>
                   <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                    {/* Subject Filter */}
+                    {/* Form fields for filters */}
                     <div className="space-y-1.5">
                         <Label htmlFor="filter-subject-enq" className="text-xs font-medium text-muted-foreground flex items-center"><BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Subject(s)</Label>
                         <MultiSelectCommand
@@ -272,7 +278,6 @@ export default function AllEnquiriesPage() {
                             className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-auto min-h-9 text-xs"
                         />
                     </div>
-                     {/* Grade Level Filter */}
                     <div className="space-y-1.5">
                       <Label htmlFor="filter-grade-enq" className="text-xs font-medium text-muted-foreground flex items-center"><UsersIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Grade Level</Label>
                       <Select value={tempGradeFilter} onValueChange={setTempGradeFilter}>
@@ -284,7 +289,6 @@ export default function AllEnquiriesPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    {/* Board Filter */}
                     <div className="space-y-1.5">
                       <Label htmlFor="filter-board-enq" className="text-xs font-medium text-muted-foreground flex items-center"><Briefcase className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Board</Label>
                        <Select value={tempBoardFilter} onValueChange={setTempBoardFilter}>
@@ -296,7 +300,6 @@ export default function AllEnquiriesPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                     {/* Location Filter */}
                     <div className="space-y-1.5">
                         <Label htmlFor="filter-location-enq" className="text-xs font-medium text-muted-foreground flex items-center"><UsersIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Location</Label>
                         <Select value={tempLocationFilter} onValueChange={setTempLocationFilter}>
@@ -308,7 +311,6 @@ export default function AllEnquiriesPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    {/* Teaching Mode Filter */}
                     <div className="space-y-1.5">
                       <Label className="text-xs font-medium text-muted-foreground flex items-center"><LucideFilterIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode</Label>
                       <div className="grid grid-cols-2 gap-2 pt-1">
@@ -372,10 +374,11 @@ export default function AllEnquiriesPage() {
           </div>
         </div>
 
-        <div className="mt-0"> {/* Reduced margin top for the list */}
+        <div className="mt-0"> 
           {renderEnquiryList(filteredRequirements)}
         </div>
       </div>
     </main>
   );
 }
+
