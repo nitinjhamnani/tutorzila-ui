@@ -26,7 +26,6 @@ import {
   Bell,
   SearchCheck,
   MessageSquare,
-  PanelLeft
 } from "lucide-react";
 
 export default function ParentSpecificLayout({ children }: { children: ReactNode }) {
@@ -37,26 +36,22 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
 
   const [hasMounted, setHasMounted] = useState(false);
   
-  // For mobile off-canvas
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const toggleMobileNav = () => setIsMobileNavOpen(prev => !prev);
 
-  // For desktop collapse
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
   const toggleNavbarCollapsed = () => setIsNavbarCollapsed(prev => !prev);
 
   useEffect(() => {
     setHasMounted(true);
-    // Initialize desktop sidebar state based on screen size
     if (!isMobile) {
-      setIsNavbarCollapsed(false); // Default to expanded on desktop
+      setIsNavbarCollapsed(false); 
     }
   }, [isMobile]);
 
-
   const parentNavItems = [
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/parent/my-requirements", label: "My Enquiries", icon: ListChecks },
+    { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
     { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck }, 
     { href: "/parent/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/parent/messages", label: "Messages", icon: MessageSquare, disabled: true },
@@ -72,7 +67,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
 
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const headerHeight = "4rem"; // For h-16 or p-4 header
+  const headerHeight = "4rem"; 
 
   useEffect(() => {
     if (hasMounted) {
@@ -83,7 +78,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
     };
-  }, [hasMounted]);
+  }, [hasMounted, headerHeight]); // Added headerHeight to dependency array
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
@@ -106,7 +101,6 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary">
-      {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
@@ -123,7 +117,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               className="text-gray-600 hover:text-primary"
               aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
             >
-              {isMobile ? <MenuIcon className="h-6 w-6" /> : <PanelLeft className="h-5 w-5" />}
+              {isMobile ? <MenuIcon className="h-6 w-6" /> : <MenuIcon className="h-5 w-5" />}
             </Button>
             <Link href="/parent/dashboard">
               <Logo className="h-8 w-auto" />
@@ -181,14 +175,12 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         <main
           className={cn(
             "flex-1 flex flex-col overflow-y-auto bg-secondary",
-            hasMounted ? "pt-[var(--header-height)]" : "pt-0" 
+             // No top padding here, individual pages manage padding if needed
           )}
         >
-          <div className="flex-1">
-            <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full px-4 md:px-6 py-6 md:py-8">
+            <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full"> {/* Removed padding from here, pages will add it */}
               {children}
             </div>
-          </div>
         </main>
       </div>
        {isMobile && isMobileNavOpen && (
