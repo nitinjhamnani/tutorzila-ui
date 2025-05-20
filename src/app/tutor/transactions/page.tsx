@@ -1,8 +1,8 @@
-// src/app/tutor/transactions/page.tsx
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ListChecks, ArrowUpCircle, ArrowDownCircle } from "lucide-react"; 
+import { ListChecks, ArrowUpCircle, ArrowDownCircle, Coins } from "lucide-react"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
@@ -46,7 +46,6 @@ export default function TutorTransactionsPage() {
     return transactions.map(txn => ({
       ...txn,
       formattedDate: format(new Date(txn.date), "MMM d, yyyy"),
-      formattedAmount: `₹${txn.amount.toLocaleString()}`,
     }));
   }, [transactions]);
 
@@ -101,7 +100,15 @@ export default function TutorTransactionsPage() {
                         {txn.type}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-xs text-foreground">{txn.mode}</TableCell>
-                      <TableCell className="px-4 py-3 text-xs text-foreground text-right">{txn.formattedAmount}</TableCell>
+                      <TableCell className="px-4 py-3 text-xs text-foreground text-right">
+                        {txn.mode === "Wallet" && txn.type === "Debit" ? (
+                          <span className="flex items-center justify-end">
+                            <Coins className="w-3.5 h-3.5 mr-1 inline-block text-yellow-600"/> {txn.amount}
+                          </span>
+                        ) : (
+                          `₹${txn.amount.toLocaleString()}`
+                        )}
+                      </TableCell>
                       <TableCell className="px-4 py-3 text-xs text-foreground">{txn.formattedDate}</TableCell>
                       <TableCell className="px-4 py-3 text-xs text-foreground">{txn.summary}</TableCell>
                     </TableRow>
