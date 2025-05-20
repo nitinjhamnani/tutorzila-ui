@@ -128,4 +128,6 @@ export interface TutorLead {
   status?: "New" | "Contacted" | "Interested" | "Not Interested" | "Converted" | "Archived"; // Optional: for future filtering
   enquirySubject?: string; // Optional: subject they were interested in
   enquiryGrade?: string; // Optional: grade they were interested in
+  leadsConsumed?: number; // Number of leads this contact cost
 }
+

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarDays, Mail, Phone, Send, MessageSquareText, User } from "lucide-react";
+import { CalendarDays, Mail, Phone, Send, MessageSquareText, User, Coins } from "lucide-react"; // Added Coins
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -54,7 +54,6 @@ export function TutorLeadCard({ lead }: TutorLeadCardProps) {
               Contacted On: {format(contactedDate, "PP")}
             </CardDescription>
           </div>
-          {/* Placeholder for any top-right action if needed in future, like status update */}
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -63,14 +62,26 @@ export function TutorLeadCard({ lead }: TutorLeadCardProps) {
         {lead.enquirySubject && <InfoItem icon={User} label="Regarding:" value={`${lead.enquirySubject} ${lead.enquiryGrade ? `(${lead.enquiryGrade})` : '' }`} />}
       </CardContent>
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
-        <Badge
-            className={cn(
-                "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+        <div className="flex items-center space-x-2">
+            <Badge
+                className={cn(
+                    "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                )}
+            >
+                <MessageSquareText className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+                {lead.messagesCount} Message{lead.messagesCount !== 1 ? 's' : ''}
+            </Badge>
+            {typeof lead.leadsConsumed === 'number' && (
+                 <Badge
+                    className={cn(
+                        "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                    )}
+                >
+                    <Coins className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+                    Leads: {lead.leadsConsumed}
+                </Badge>
             )}
-        >
-            <MessageSquareText className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-            {lead.messagesCount} Message{lead.messagesCount !== 1 ? 's' : ''}
-        </Badge>
+        </div>
         <Button
           size="sm"
           className="text-xs py-1.5 px-3 h-auto bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
@@ -101,3 +112,4 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+

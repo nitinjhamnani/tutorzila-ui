@@ -11,7 +11,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Physics", "Mathematics", "Chemistry"],
     grade: "Doctorate Level",
     experience: "10+ years",
-    hourlyRate: "1000",
+    hourlyRate: "1000", // Changed from 5000
     bio: "PhD in Physics with a passion for demystifying complex scientific concepts for students of all levels. Specializes in advanced calculus and quantum mechanics. Believes in interactive learning and problem-solving approaches. Available for online sessions globally.",
     teachingMode: ["Online"],
     status: "Active",
@@ -37,7 +37,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["English Literature", "History", "Creative Writing"],
     grade: "Master's Level",
     experience: "5-7 years",
-    hourlyRate: "950",
+    hourlyRate: "950", // Changed from 4000
     bio: "MA in English Literature. Dedicated to fostering critical thinking and a love for the humanities. Experienced in preparing students for university entrance exams and essay writing. Enjoys incorporating classic and contemporary texts.",
     teachingMode: ["Offline (In-person)"],
     location: "Central City Library",
@@ -63,7 +63,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Computer Science", "Mathematics", "Web Development"],
     grade: "University Level",
     experience: "3-5 years",
-    hourlyRate: "900",
+    hourlyRate: "900", // Changed from 4500
     bio: "Software engineer and CS graduate, specializing in Python, Java, and web technologies (React, Node.js). Passionate about mentoring aspiring developers and making coding accessible. Practical, project-based teaching style.",
     teachingMode: ["Online", "Offline (In-person)"],
     location: "Tech Park Co-working",
@@ -89,7 +89,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Biology", "Chemistry"],
     grade: "High School & College",
     experience: "7+ years",
-    hourlyRate: "1000",
+    hourlyRate: "1000", // Changed from 4800
     bio: "Former research scientist with extensive experience in tutoring high school and college biology and chemistry. Focuses on building strong foundational knowledge and lab skills. Can assist with AP and IB curricula.",
     teachingMode: ["Online"],
     status: "Inactive",
@@ -115,7 +115,7 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     subjects: ["Spanish", "French"],
     grade: "All Levels",
     experience: "3-5 years",
-    hourlyRate: "800",
+    hourlyRate: "800", // Changed from 3500
     bio: "Native Spanish speaker, fluent in French. Passionate about language learning and cultural exchange. Offers conversational practice, grammar instruction, and exam preparation (DELE, DELF). Uses immersive techniques.",
     teachingMode: ["Offline (In-person)"],
     location: "Student's Home",
@@ -345,6 +345,8 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     teachingMode: ["Online"],
     applicantsCount: 3,
     mockIsRecommended: true,
+    mockIsAppliedByCurrentUser: false,
+    mockIsShortlistedByCurrentUser: true,
   },
   {
     id: "current2",
@@ -363,6 +365,8 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     teachingMode: ["Offline (In-person)"],
     applicantsCount: 7,
     mockIsAppliedByCurrentUser: true,
+    mockIsRecommended: false,
+    mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "past1",
@@ -415,6 +419,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     teachingMode: ["Online"],
     applicantsCount: 1,
     mockIsShortlistedByCurrentUser: true,
+    mockIsRecommended: true,
   },
   {
     id: "current4-languages",
@@ -468,7 +473,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     applicantsCount: 3,
     additionalNotes: "Looking for experienced tutors only.",
     mockIsRecommended: true,
-    mockIsAppliedByCurrentUser: true, // Bob applied for this
+    mockIsAppliedByCurrentUser: true, 
   },
    {
     id: "alice_open_1",
@@ -616,6 +621,7 @@ export const MOCK_TUTOR_LEADS: TutorLead[] = [
     status: "Contacted",
     enquirySubject: "History",
     enquiryGrade: "Grade 10",
+    leadsConsumed: 1,
   },
   {
     id: "lead2",
@@ -630,6 +636,7 @@ export const MOCK_TUTOR_LEADS: TutorLead[] = [
     status: "New",
     enquirySubject: "Mathematics",
     enquiryGrade: "Grade 7",
+    leadsConsumed: 2,
   },
   {
     id: "lead3",
@@ -644,6 +651,7 @@ export const MOCK_TUTOR_LEADS: TutorLead[] = [
     status: "Interested",
     enquirySubject: "English Literature",
     enquiryGrade: "Grade 9",
+    leadsConsumed: 1,
   },
   {
     id: "lead4",
@@ -658,5 +666,7 @@ export const MOCK_TUTOR_LEADS: TutorLead[] = [
     status: "New",
     enquirySubject: "General Science",
     enquiryGrade: "Grade 6",
+    leadsConsumed: 0, // Example of 0 leads consumed
   },
 ];
+
