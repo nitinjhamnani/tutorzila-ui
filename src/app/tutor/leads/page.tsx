@@ -3,10 +3,11 @@
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, PlusCircle } from "lucide-react";
+import { ShoppingBag, PlusCircle, Crown, Coins, TrendingUp, Clock } from "lucide-react"; // Added Crown, Coins, TrendingUp, Clock
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { cn } from "@/lib/utils";
 
 export default function TutorLeadsPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -25,18 +26,29 @@ export default function TutorLeadsPage() {
     }
   }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
+  const mockLeadBalance = 25; // Example mock data
+  const mockPlanName = "Premium Plan";
+  const mockPlanIcon = Crown;
+
+  const summaryStats = useMemo(() => {
+    // In a real app, these would come from API calls or calculated data
+    return {
+      currentPlan: mockPlanName,
+      leadBalance: mockLeadBalance,
+    };
+  }, [mockPlanName, mockLeadBalance]);
+
+
   if (!hasMounted || isCheckingAuth || !user) {
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
   }
-
-  const mockLeadBalance = 25; // Example mock data
 
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Card className="bg-card rounded-xl shadow-lg border-0 mb-6">
           <CardHeader className="p-4 sm:p-5 border-b border-border/30">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-full text-primary">
                   <ShoppingBag className="w-5 h-5" />
@@ -46,19 +58,41 @@ export default function TutorLeadsPage() {
                     Lead Management
                   </CardTitle>
                   <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                    View your lead balance and purchase more leads.
+                    View your lead balance, current plan, and purchase more leads.
                   </CardDescription>
                 </div>
               </div>
-              <Button variant="default" size="sm" className="text-xs">
-                <PlusCircle className="w-4 h-4 mr-1.5 opacity-90" />
-                Buy More Leads
+              <Button variant="default" size="sm" className="text-xs sm:text-sm py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto">
+                <PlusCircle className="w-4 h-4 opacity-90 md:mr-1.5" />
+                <span className="hidden md:inline">Buy More Leads</span>
               </Button>
             </div>
           </CardHeader>
           <CardContent className="p-4 sm:p-5">
-            <div className="text-sm text-foreground">
-              Current Lead Balance: <span className="font-bold text-primary">{mockLeadBalance}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Current Plan Card */}
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <mockPlanIcon className="w-5 h-5 mr-3 text-yellow-500" /> {/* Using mockPlanIcon */}
+                  <div>
+                    <p className="text-xs text-muted-foreground">Current Plan</p>
+                    <p className="text-xl font-semibold text-yellow-600">{summaryStats.currentPlan}</p>
+                  </div>
+                </div>
+                {/* Optional: Add an icon or element on the right if needed */}
+              </div>
+
+              {/* Lead Balance Card */}
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <Coins className="w-5 h-5 mr-3 text-green-600" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Lead Balance</p>
+                    <p className="text-xl font-semibold text-green-600">{summaryStats.leadBalance}</p>
+                  </div>
+                </div>
+                 {/* Optional: Add an icon or element on the right if needed */}
+              </div>
             </div>
           </CardContent>
         </Card>
