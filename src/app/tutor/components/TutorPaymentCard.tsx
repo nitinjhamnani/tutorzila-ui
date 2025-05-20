@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, DollarSign as DollarSignIcon, Clock, CalendarDays, CheckCircle, XCircle, Info, TrendingUp, FileText, Coins, CheckCircle2 } from "lucide-react";
+import { User, DollarSign as DollarSignIcon, Clock, CalendarDays, CheckCircle as CheckCircleIcon, XCircle, Info, TrendingUp, FileText, Coins, CheckCircle2, BookOpen, Bell } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -63,36 +63,34 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
   };
 
   return (
-    <Card className="bg-card rounded-xl shadow-lg border border-border/30 w-full overflow-hidden flex flex-col h-full">
-      <CardHeader className="bg-muted/30 p-3 sm:p-4 border-b border-border/30">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm border">
-              <AvatarImage src={payment.studentAvatarSeed ? `https://picsum.photos/seed/${payment.studentAvatarSeed}/128` : `https://avatar.vercel.sh/${payment.studentName}.png`} alt={payment.studentName} />
-              <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
-                {studentInitials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-grow min-w-0">
-              <CardTitle className="text-sm sm:text-base font-semibold text-primary line-clamp-1" title={`Payment Due: ₹${payment.amount}`}>
-                Payment Due: ₹{payment.amount.toLocaleString()}
-              </CardTitle>
-              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
-                <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 text-muted-foreground/80" />
-                With {payment.studentName}
-              </CardDescription>
-            </div>
+    <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
+      <CardHeader className="p-0 pb-3 sm:pb-4 relative">
+        <div className="flex items-start space-x-3">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm border">
+             <AvatarImage src={payment.studentAvatarSeed ? `https://picsum.photos/seed/${payment.studentAvatarSeed}/128` : `https://avatar.vercel.sh/${payment.studentName}.png`} alt={payment.studentName} />
+            <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
+              {studentInitials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-grow min-w-0">
+            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+              Payment Due: ₹{payment.amount.toLocaleString()}
+            </CardTitle>
+            <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
+              <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
+              With {payment.studentName}
+            </CardDescription>
           </div>
-          <Badge
+           <Badge
             variant="outline"
-            className={cn("text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full", statusBadgeClasses())}
+            className={cn("text-[10px] py-0.5 px-1.5 border font-medium whitespace-nowrap rounded-full", statusBadgeClasses())}
           >
             <StatusIcon />
             {payment.status}
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="p-3 sm:p-4 space-y-1.5 sm:space-y-2 text-xs flex-grow">
+      <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
         {payment.subject && <InfoItem icon={BookOpen} label="Subject:" value={payment.subject} />}
         {payment.hourlyRate && <InfoItem icon={DollarSignIcon} label="Hourly Rate:" value={`₹${payment.hourlyRate}/hr`} />}
         {payment.totalHours !== undefined && payment.totalSessions !== undefined && (
@@ -100,17 +98,17 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
         )}
         <InfoItem icon={CalendarDays} label="Period:" value={`${format(new Date(payment.fromDate), "PP")} - ${format(new Date(payment.toDate), "PP")}`} />
         {payment.status === "Paid" && payment.paymentDate && (
-          <InfoItem icon={CheckCircle} label="Paid On:" value={format(new Date(payment.paymentDate), "PP")} />
+          <InfoItem icon={CheckCircleIcon} label="Paid On:" value={format(new Date(payment.paymentDate), "PP")} />
         )}
       </CardContent>
-      <CardFooter className="bg-muted/30 p-3 sm:p-4 border-t border-border/30 flex justify-end items-center gap-2">
+      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-end items-center gap-2">
         {payment.status === "Pending" && (
           <Button
             size="sm"
             className="text-xs py-1.5 px-3 h-auto bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             onClick={handleMarkPaid}
           >
-            <CheckCircle className="w-3 h-3 mr-1.5" /> Mark Paid
+            <CheckCircleIcon className="w-3 h-3 mr-1.5" /> Mark Paid
           </Button>
         )}
          {payment.status === "Overdue" && (
@@ -118,13 +116,14 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
             size="sm"
             variant="destructive"
             className="text-xs py-1.5 px-3 h-auto transform transition-transform hover:scale-105 active:scale-95"
-            onClick={() => console.log("Send Reminder for", payment.id)}
+            onClick={() => toast({ title: "Reminder Sent (Mock)", description: `Payment reminder sent to ${payment.studentName}.`})}
           >
             <Bell className="w-3 h-3 mr-1.5" /> Send Reminder
           </Button>
         )}
         {payment.status === "Paid" && (
-           <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto cursor-default">
+           <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto cursor-default bg-green-100 text-green-700 border-green-300 hover:bg-green-100">
+            <CheckCircle2 className="w-3 h-3 mr-1.5"/>
             Payment Cleared
           </Button>
         )}
@@ -137,22 +136,17 @@ interface InfoItemProps {
   icon: React.ElementType;
   label: string;
   value: string;
+  className?: string;
 }
 
-function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
-  return (
-    <div className="flex items-start text-xs">
-      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80 shrink-0 mt-[1px]" />
-      <strong className="text-foreground/80 font-medium whitespace-nowrap">{label}</strong>&nbsp;
-      <span className="text-muted-foreground break-words">{value}</span>
+function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
+ return (
+    <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
+      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px]" />
+      <div className="min-w-0 flex-1">
+        <strong className="text-muted-foreground font-medium">{label}</strong>&nbsp;
+        <span className="text-foreground/90 break-words">{value}</span>
+      </div>
     </div>
   );
 }
-
-// Additional icons if not already declared
-const Bell: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-);
-const BookOpen: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-);
