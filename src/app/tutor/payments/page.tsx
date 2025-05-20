@@ -31,9 +31,12 @@ export default function TutorPaymentsPage() {
                   </CardDescription>
                 </div>
               </div>
-              <Button size="sm" className="transform transition-transform hover:scale-105 active:scale-95 shadow-sm text-xs py-2 px-3">
-                <PlusCircle className="mr-1.5 h-4 w-4" />
-                Collect Payment
+              <Button 
+                size="sm" 
+                className="transform transition-transform hover:scale-105 active:scale-95 shadow-sm text-xs py-2 md:px-3 px-2 flex items-center"
+              >
+                <PlusCircle className="h-4 w-4 md:mr-1.5" />
+                <span className="hidden md:inline">Collect Payment</span>
               </Button>
             </CardHeader>
             <CardContent className="p-5">
