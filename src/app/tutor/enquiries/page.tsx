@@ -4,9 +4,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { TuitionRequirement, TutorProfile } from "@/types";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon } from "lucide-react";
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger as FormSelectTrigger, 
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Input } from "@/components/ui/input"; // Keep this for the search input
+import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 
@@ -222,17 +222,17 @@ export default function AllEnquiriesPage() {
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-            <CardHeader className="p-0 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <CardHeader className="p-0 mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex-grow min-w-0">
                     <CardTitle className="text-xl font-semibold text-primary flex items-center">
                         <Briefcase className="w-5 h-5 mr-2.5" />
                         Manage Enquiries
                     </CardTitle>
-                    <CardDescription className="text-sm text-foreground/70 mt-1">
+                     <CardDescription className="text-sm text-foreground/70 mt-1">
                         Review and apply to tuition requirements posted by parents.
                     </CardDescription>
                 </div>
-                {/* Filter Icon Button */}
+                 {/* Filter Icon Button */}
                 <Dialog open={isFilterDialogOpen} onOpenChange={(isOpen) => {
                     if (!isOpen) { 
                       setTempSubjectFilter([...appliedSubjectFilter]);
@@ -246,10 +246,10 @@ export default function AllEnquiriesPage() {
                     <DialogTrigger asChild>
                         <Button
                             variant="default"
-                            size="sm"
+                            size="sm" 
                             className={cn(
                                 "py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                                "text-xs", // Explicitly set smaller font size
+                                "text-xs",
                                 filtersApplied && "ring-2 ring-offset-2 ring-primary/70"
                               )}
                             title="Filter Enquiries"
@@ -345,11 +345,10 @@ export default function AllEnquiriesPage() {
                 <DropdownMenuTrigger asChild>
                 <Button
                     variant="default"
-                    size="sm"
+                    size="sm" 
                     className={cn(
                         "py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                        "text-xs sm:text-sm" // Ensured text-xs base
-                        // removed rounded-lg to allow size="sm" (rounded-[5px]) to take effect
+                        "text-xs sm:text-sm"
                     )}
                 >
                     <span className="text-primary-foreground">
@@ -386,3 +385,4 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
+
