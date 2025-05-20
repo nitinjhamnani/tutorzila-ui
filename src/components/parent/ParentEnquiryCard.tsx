@@ -4,18 +4,18 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Eye, Send, Trash2 } from "lucide-react"; // Added Trash2
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Clock, GraduationCap, Building, RadioTower, MapPin, Edit3, Archive, Eye, Users as UsersIcon } from "lucide-react";
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
   onEdit?: (id: string) => void;
-  onDelete?: (requirement: TuitionRequirement) => void;
-  onClose?: (requirement: TuitionRequirement) => void;
+  // onDelete?: (requirement: TuitionRequirement) => void; // Removed
+  // onClose?: (requirement: TuitionRequirement) => void; // Removed
   onReopen?: (id: string) => void;
 }
 
@@ -40,7 +40,8 @@ const InfoItem = ({ icon: Icon, label, value, className }: { icon?: React.Elemen
   );
 };
 
-export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onReopen }: ParentEnquiryCardProps) {
+
+export function ParentEnquiryCard({ requirement, onEdit, onReopen }: ParentEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const parentInitials = getInitials(requirement.parentName);
@@ -56,7 +57,6 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground border-2 border-card">
-            {/* Removed AvatarImage to only show Fallback */}
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
@@ -70,7 +70,7 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
             </CardDescription>
           </div>
           {/* Edit button for 'open' or 'matched' enquiries */}
-           {(requirement.status === 'open' || requirement.status === 'matched') && onEdit && (
+           {(!isPastEnquiry && onEdit) && (
             <Button
               variant="default"
               size="icon"
@@ -100,17 +100,9 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
         )}
       </CardContent>
 
-      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
+      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
         <div className="flex-grow min-w-0">
-            {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
-                 <Badge
-                  variant="outline"
-                  className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
-                >
-                  <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-                  {requirement.applicantsCount} Applicant{requirement.applicantsCount !== 1 ? 's' : ''}
-                </Badge>
-            )}
+          {/* ApplicantsCount badge removed */}
         </div>
         <div className="flex items-center gap-2">
           {isPastEnquiry && onReopen && (
@@ -126,37 +118,11 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               <Archive className="mr-1.5 h-3 w-3" /> Reopen
             </Button>
           )}
-           {onDelete && (requirement.status === 'open' || requirement.status === 'matched') && (
-             <Button
-                variant="destructiveOutline"
-                size="xs"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(requirement);
-                }}
-                className="text-xs py-1.5 px-2.5 h-auto"
-                >
-                <Trash2 className="mr-1.5 h-3 w-3" /> Delete
-            </Button>
-          )}
-           {!isPastEnquiry && onClose && (
-             <Button
-                variant="outline"
-                size="xs"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onClose(requirement);
-                }}
-                className="text-xs py-1.5 px-2.5 h-auto border-orange-500 text-orange-600 hover:bg-orange-500/10 hover:text-orange-700"
-                >
-                <Archive className="mr-1.5 h-3 w-3" /> Close
-            </Button>
-          )}
           <Button
             asChild
             size="sm"
             className={cn(
-              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
+              "text-xs py-1.5 px-3 h-auto",
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             )}
           >
@@ -170,3 +136,4 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
     </Card>
   );
 }
+
