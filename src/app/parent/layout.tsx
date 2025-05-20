@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ParentSidebar } from "@/components/parent/ParentSidebar";
+import { ParentSidebar } from "@/components/parent/ParentSidebar"; 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
@@ -42,21 +42,14 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     setHasMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (hasMounted && !isCheckingAuth) {
-      if (!isAuthenticated || user?.role !== 'parent') {
-        router.replace("/");
-      }
-    }
-  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
-  
   const toggleNavbarCollapsed = () => setIsNavbarCollapsed(prev => !prev);
   const toggleMobileNav = () => setIsMobileNavOpen(prev => !prev);
 
+  // Navigation items for ParentSidebar
   const parentNavItems = [
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/parent/my-requirements", label: "My Enquiries", icon: ListChecks },
-    { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck }, // Public page
+    { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck }, 
     { href: "/parent/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/parent/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
@@ -70,7 +63,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   ];
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
-  const headerHeight = "4rem"; // Assuming h-16 or p-4 header
+  const headerHeight = "4rem"; 
 
   useEffect(() => {
     if (hasMounted) {
@@ -83,11 +76,23 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     };
   }, [hasMounted]);
 
-  if (isCheckingAuth || (hasMounted && !isAuthenticated) || (hasMounted && user?.role !== 'parent')) {
+  useEffect(() => {
+    if (hasMounted && !isCheckingAuth) {
+      if (!isAuthenticated || user?.role !== 'parent') {
+        router.replace("/");
+      }
+    }
+  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
+
+  if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Parent Area...</div>;
   }
+  
+  if (hasMounted && (!isAuthenticated || (user && user.role !== 'parent'))) {
+    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
+  }
   if (!user && hasMounted) {
-    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
+     return <div className="flex h-screen items-center justify-center">User data not available. Redirecting...</div>;
   }
 
   return (
@@ -97,7 +102,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // No var(--verification-banner-height) as it's removed
+            "sticky top-0 z-30", 
             `h-[${headerHeight}]`
           )}
         >
@@ -136,28 +141,21 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
                     {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                {/* <span className="text-xs font-medium text-muted-foreground hidden md:inline">{user.name}</span> */}
+                 <span className="text-xs font-medium text-muted-foreground hidden md:inline">{user.name}</span>
               </div>
             )}
-             <Button
-                variant="outline"
-                size="sm"
-                onClick={logoutNavItem.onClick}
-                className="text-xs h-8 border-destructive text-destructive hover:bg-destructive/10"
-              >
-                <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
-              </Button>
           </div>
         </header>
       )}
 
       {/* This div contains the sidebar and the main page content. */}
-      <div className={cn("flex flex-1 overflow-hidden", hasMounted ? "pt-[var(--header-height)]" : "pt-0")}>
+      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed paddingTopForContentArea */}
         <ParentSidebar
           isMobile={isMobile}
-          isNavbarOpen={isMobileNavOpen}
+          isMobileNavOpen={isMobileNavOpen}
+          toggleMobileNav={toggleMobileNav}
           isNavbarCollapsed={isNavbarCollapsed}
-          toggleNav={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
+          toggleNavbarCollapsed={toggleNavbarCollapsed} // Pass this for desktop collapse
           user={user}
           navItems={parentNavItems}
           accountNavItems={accountSettingsNavItems}
@@ -165,12 +163,12 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         />
         <main
           className={cn(
-            "flex-1 flex flex-col overflow-y-auto bg-secondary transition-all duration-300 ease-in-out",
-            !isMobile && (isNavbarCollapsed ? "md:ml-20" : "md:ml-60")
+            "flex-1 flex flex-col overflow-y-auto bg-secondary",
+            // This padding is now applied here to push content below the sticky header
+            hasMounted ? "pt-[var(--header-height)]" : "pt-0" 
           )}
         >
-          {/* Removed explicit top padding from main, it's handled by the parent div */}
-          <div className="flex-1 p-4 sm:p-6 md:p-8"> {/* Standard padding for content within main */}
+          <div className="flex-1"> {/* Added flex-1 here for content to take up space */}
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
               {children}
             </div>
@@ -187,3 +185,4 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     </div>
   );
 }
+
