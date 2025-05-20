@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Clock, Eye, RadioTower, Edit3, Trash2, Archive, Building } from "lucide-react";
+import { GraduationCap, Clock, Eye, RadioTower, Edit3, Trash2, Archive, Building, MapPin, Users as UsersIcon } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -14,13 +14,13 @@ import { Badge } from "@/components/ui/badge";
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
   onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-  onClose: (id: string) => void;
+  onDelete: (requirement: TuitionRequirement) => void; // Pass full requirement for delete dialog
+  onClose: (requirement: TuitionRequirement) => void; // Pass full requirement for close dialog
   onReopen: (id: string) => void;
 }
 
 const getInitials = (name?: string): string => {
-  if (!name || name.trim() === "") return "??";
+  if (!name || name.trim() === "") return "P"; // Default to 'P' for Parent if name is missing
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) {
     return parts[0].substring(0, 2).toUpperCase();
@@ -28,76 +28,117 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
+// Helper component for info items with icons (can be moved to a shared utils if used elsewhere)
+const InfoItem = ({ icon: Icon, label, value, className }: { icon?: React.ElementType; label?: string; value?: string | string[]; className?: string }) => {
+  if (!value || (Array.isArray(value) && value.length === 0)) return null;
+  const displayText = Array.isArray(value) ? value.join(", ") : value;
+  return (
+    <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
+      {Icon && <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px]" />}
+      {label && <strong className="text-muted-foreground font-medium whitespace-nowrap">{label}:&nbsp;</strong>}
+      <span className="text-foreground/90 break-words">{displayText}</span>
+    </div>
+  );
+};
+
+
 export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onReopen }: ParentEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const parentInitials = getInitials(requirement.parentName);
   const isPastEnquiry = requirement.status === 'closed';
 
+  const statusBadgeVariant = () => {
+    switch (requirement.status) {
+      case 'open': return 'bg-blue-100 text-blue-700 border-blue-500/50';
+      case 'matched': return 'bg-green-100 text-green-700 border-green-500/50';
+      case 'closed': return 'bg-gray-100 text-gray-600 border-gray-400/50';
+      default: return 'outline';
+    }
+  };
+
   return (
     <Card
       className={cn(
-        "border border-border/50 rounded-lg shadow-sm hover:bg-muted/30 transition-colors duration-200 w-full overflow-hidden",
-        isPastEnquiry ? "opacity-70 bg-muted/50" : "bg-card"
+        "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
+        isPastEnquiry && "opacity-75 bg-muted/30" // Mute past enquiries slightly differently
       )}
     >
-      <div className="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 justify-between gap-3">
-        <Link href={`/parent/my-enquiries/${requirement.id}`} className="flex items-center space-x-3 flex-grow min-w-0 w-full sm:w-auto cursor-pointer overflow-hidden">
+      <CardHeader className="p-0 pb-3 sm:pb-4 relative">
+        <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
               {parentInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0 space-y-1 overflow-hidden">
-            <p className="text-sm font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+          <div className="flex-grow min-w-0 space-y-0.5">
+            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
               {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-            </p>
-            <div className="text-[10px] sm:text-[11px] text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 items-center">
-              {requirement.gradeLevel && <span className="flex items-center"><GraduationCap className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.gradeLevel}</span>}
-              {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-                <span className="flex items-center"><RadioTower className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.teachingMode.join(', ')}</span>
-              )}
-              {requirement.board && (
-                <span className="flex items-center"><Building className="w-3 h-3 inline mr-1 text-primary/70" /> {requirement.board}</span>
-              )}
-              <span className="flex items-center"><Clock className="w-3 h-3 inline mr-1 text-primary/70" /> {timeAgo}</span>
-              <Badge
-                variant={requirement.status === 'open' ? 'secondary' : requirement.status === 'matched' ? 'default' : 'outline'}
-                className={cn(
-                    "text-[9px] py-0.5 px-1.5 border font-medium",
-                    requirement.status === 'open' && "bg-blue-100 text-blue-700 border-blue-500/50",
-                    requirement.status === 'matched' && "bg-green-100 text-green-700 border-green-500/50",
-                    requirement.status === 'closed' && "bg-gray-100 text-gray-600 border-gray-400/50",
-                )}
-              >
-                {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-              </Badge>
-            </div>
+            </CardTitle>
+            <CardDescription className="text-[11px] sm:text-xs text-muted-foreground flex items-center">
+              <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" /> Posted {timeAgo}
+            </CardDescription>
           </div>
-        </Link>
-        <div className="flex space-x-1.5 shrink-0 mt-2 sm:mt-0 sm:ml-2 w-full sm:w-auto justify-end min-w-[calc(3*1.75rem+2*0.375rem)]">
+        </div>
+         <Badge
+            variant="outline"
+            className={cn(
+                "absolute top-0 right-0 text-[9px] py-0.5 px-2 border font-medium whitespace-nowrap",
+                statusBadgeVariant()
+            )}
+          >
+            {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+          </Badge>
+      </CardHeader>
+
+      <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
+        <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
+        {requirement.board && (
+          <InfoItem icon={Building} label="Board" value={requirement.board} />
+        )}
+        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+            <InfoItem icon={RadioTower} label="Mode" value={requirement.teachingMode.join(', ')} />
+        )}
+        {requirement.location && (
+            <InfoItem icon={MapPin} label="Location" value={requirement.location} />
+        )}
+      </CardContent>
+
+      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+        <div className="flex-grow min-w-0">
+            {/* Placeholder for any left-aligned footer content like applicant count for parent */}
+            {requirement.status === 'open' && requirement.applicantsCount !== undefined && (
+                <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full">
+                    <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Applicant{requirement.applicantsCount !== 1 ? 's' : ''}
+                </Badge>
+            )}
+        </div>
+        <div className="flex space-x-1.5 shrink-0 w-full sm:w-auto justify-end">
             {!isPastEnquiry && (
               <>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-primary/50 text-primary hover:bg-primary/10" title="Edit Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(requirement.id); }}>
+                <Button variant="outline" size="icon" className="h-7 w-7 border-primary/50 text-primary hover:bg-primary/10" title="Edit Enquiry" onClick={() => onEdit(requirement.id)}>
                   <Edit3 className="h-3.5 w-3.5" />
                 </Button>
-                <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(requirement.id); }}>
+                <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={() => onDelete(requirement)}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500 text-orange-600 hover:bg-orange-500/10" title="Close Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(requirement.id); }}>
+                <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500/70 text-orange-600 hover:bg-orange-500/10" title="Close Enquiry" onClick={() => onClose(requirement)}>
                   <Archive className="h-3.5 w-3.5" />
                 </Button>
               </>
             )}
-            {isPastEnquiry && onReopen && (
-              <Button variant="outline" size="icon" className="h-7 w-7 border-green-500 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onReopen(requirement.id); }}>
-                <Archive className="h-3.5 w-3.5" />
-              </Button>
+            {isPastEnquiry && (
+              <>
+                <Button variant="outline" size="icon" className="h-7 w-7 border-green-500/70 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={() => onReopen(requirement.id)}>
+                  <Archive className="h-3.5 w-3.5" /> {/* Using Archive for Reopen as well, could change if a 'reopen' icon is preferred */}
+                </Button>
+                 <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={() => onDelete(requirement)}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
             )}
         </div>
-      </div>
+      </CardFooter>
     </Card>
   );
 }
-
-    
