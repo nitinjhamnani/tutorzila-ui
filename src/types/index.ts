@@ -38,7 +38,7 @@ export interface TuitionRequirement {
 
 export interface TutorProfile extends User {
   subjects: string[];
-  grade?: string; 
+  grade?: string;
   experience: string;
   hourlyRate?: string;
   bio?: string;
@@ -66,14 +66,14 @@ export interface DemoSession {
   id: string;
   tutorId?: string;
   tutorName?: string;
-  tutorAvatarSeed?: string; 
+  tutorAvatarSeed?: string;
   studentName: string;
   subject: string;
   gradeLevel: string;
   board: string;
   date: string; // ISO string
-  startTime: string; // e.g., "04:00 PM"
-  endTime: string;   // e.g., "04:30 PM"
+  startTime: string;
+  endTime: string;
   status: "Scheduled" | "Completed" | "Cancelled" | "Requested";
   joinLink?: string;
   mode?: "Online" | "Offline (In-person)";
@@ -86,17 +86,17 @@ export interface MyClass {
   subject: string;
   tutorId?: string;
   tutorName: string;
-  tutorAvatarSeed?: string; 
+  tutorAvatarSeed?: string;
   studentName: string;
   mode: "Online" | "Offline (In-person)";
   schedule: {
     days: string[];
-    time: string; 
+    time: string;
   };
   status: "Ongoing" | "Upcoming" | "Past" | "Cancelled";
-  startDate?: string; 
-  endDate?: string; 
-  nextSession?: string; 
+  startDate?: string;
+  endDate?: string;
+  nextSession?: string;
 }
 
 export interface TutorPayment {
@@ -113,4 +113,19 @@ export interface TutorPayment {
   toDate: string; // ISO string
   status: "Pending" | "Paid" | "Overdue";
   paymentDate?: string; // ISO string, for when it was paid
+}
+
+export interface TutorLead {
+  id: string;
+  tutorId: string; // To associate with a tutor
+  parentName: string;
+  parentAvatarSeed?: string;
+  email: string;
+  phone: string;
+  contactedOn: string; // ISO date string
+  messagesCount: number;
+  lastMessageSnippet?: string; // Optional: for a preview
+  status?: "New" | "Contacted" | "Interested" | "Not Interested" | "Converted" | "Archived"; // Optional: for future filtering
+  enquirySubject?: string; // Optional: subject they were interested in
+  enquiryGrade?: string; // Optional: grade they were interested in
 }

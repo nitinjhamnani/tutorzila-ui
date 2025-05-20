@@ -1,5 +1,5 @@
 
-import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass, TutorPayment } from "@/types";
+import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass, TutorPayment, TutorLead } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   {
@@ -487,6 +487,8 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     teachingMode: ["Online"],
     applicantsCount: 0,
     mockIsAppliedByCurrentUser: false,
+    mockIsRecommended: false,
+    mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "alice_matched_1",
@@ -505,6 +507,8 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     teachingMode: ["Offline (In-person)"],
     applicantsCount: 4,
     mockIsShortlistedByCurrentUser: true,
+    mockIsRecommended: false,
+    mockIsAppliedByCurrentUser: false,
   },
   {
     id: "alice_closed_1",
@@ -521,7 +525,10 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     additionalNotes: "Successfully completed a 3-month Python basics course with Tutor Mike. Requirement closed.",
     board: "CBSE",
     teachingMode: ["Online"],
-    applicantsCount: 2
+    applicantsCount: 2,
+    mockIsRecommended: false,
+    mockIsAppliedByCurrentUser: false,
+    mockIsShortlistedByCurrentUser: false,
   }
 ];
 
@@ -592,5 +599,64 @@ export const MOCK_TUTOR_PAYMENTS: TutorPayment[] = [
     fromDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(), // This month
     toDate: new Date(new Date().getFullYear(), new Date().getMonth(), 15).toISOString(),
     status: "Pending",
+  },
+];
+
+export const MOCK_TUTOR_LEADS: TutorLead[] = [
+  {
+    id: "lead1",
+    tutorId: "t2", // John Adebayo
+    parentName: "Ananya Sharma",
+    parentAvatarSeed: "ananya",
+    email: "ananya.sharma@example.com",
+    phone: "+919876543210",
+    contactedOn: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+    messagesCount: 5,
+    lastMessageSnippet: "Yes, I'm interested in discussing history tuitions...",
+    status: "Contacted",
+    enquirySubject: "History",
+    enquiryGrade: "Grade 10",
+  },
+  {
+    id: "lead2",
+    tutorId: "t6", // Mock Tutor General
+    parentName: "Rajesh Kumar",
+    parentAvatarSeed: "rajesh",
+    email: "rajesh.kumar@example.com",
+    phone: "+919988776655",
+    contactedOn: new Date(Date.now() - 86400000 * 1).toISOString(), // 1 day ago
+    messagesCount: 2,
+    lastMessageSnippet: "Can you teach Grade 7 Math?",
+    status: "New",
+    enquirySubject: "Mathematics",
+    enquiryGrade: "Grade 7",
+  },
+  {
+    id: "lead3",
+    tutorId: "t2", // John Adebayo
+    parentName: "Priya Singh", // From demo sessions
+    parentAvatarSeed: "priyasingh",
+    email: "priya.s@example.com",
+    phone: "+919123456789",
+    contactedOn: new Date(Date.now() - 86400000 * 7).toISOString(), // 7 days ago
+    messagesCount: 12,
+    lastMessageSnippet: "Thank you for the demo! We'll be in touch.",
+    status: "Interested",
+    enquirySubject: "English Literature",
+    enquiryGrade: "Grade 9",
+  },
+  {
+    id: "lead4",
+    tutorId: "t6", // Mock Tutor General
+    parentName: "Amit Patel",
+    parentAvatarSeed: "amitpatel",
+    email: "amit.p@example.com",
+    phone: "+919777777777",
+    contactedOn: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+    messagesCount: 1,
+    lastMessageSnippet: "Sent initial inquiry.",
+    status: "New",
+    enquirySubject: "General Science",
+    enquiryGrade: "Grade 6",
   },
 ];
