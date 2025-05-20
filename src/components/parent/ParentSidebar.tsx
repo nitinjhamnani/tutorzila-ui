@@ -8,9 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types";
-import { LogOut, PanelLeft, Menu as MenuIcon } from "lucide-react";
+import { PanelLeft, Menu as MenuIcon, LogOut } from "lucide-react";
 
-// Define the structure for navigation items
 interface NavItem {
   href: string;
   label: string;
@@ -29,7 +28,7 @@ interface ParentSidebarProps {
   isMobileNavOpen: boolean;
   toggleMobileNav: () => void;
   isNavbarCollapsed: boolean;
-  toggleNavbarCollapsed?: () => void; // For desktop collapse
+  toggleNavbarCollapsed?: () => void;
   user: User | null;
   navItems: NavItem[];
   accountNavItems: NavItem[];
@@ -42,24 +41,25 @@ export function ParentSidebar(props: ParentSidebarProps) {
   return (
     <nav
       className={cn(
-        "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out", // Base common classes
+        "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out",
         props.isMobile
-          ? cn( // Mobile specific positioning & sizing
+          ? cn(
               "fixed inset-y-0 left-0 z-40 w-60 transform",
-              `top-[var(--header-height,0px)] h-[calc(100vh_-_var(--header-height,0px))]`, // Positioned below header
+              `top-[var(--header-height,0px)] h-[calc(100vh_-_var(--header-height,0px))]`,
               props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
             )
-          : cn( // Desktop specific positioning & sizing
-              "relative hidden md:flex md:flex-col h-full", // Ensure h-full for desktop
+          : cn(
+              "relative md:flex md:flex-col", // Removed h-full
               props.isNavbarCollapsed ? "w-20" : "w-60"
-            )
+            ),
+        props.isMobile ? "md:hidden" : "hidden md:flex"
       )}
       aria-label="Parent Navigation"
     >
-      {/* Navbar Header/Logo Section - Desktop specific collapse trigger removed from here */}
+      {/* Navbar Header/Logo Section */}
       <div
         className={cn(
-          "h-16 flex items-center border-b border-border shrink-0 px-3", // Reduced padding for collapsed view
+          "h-16 flex items-center border-b border-border shrink-0 px-3",
           !props.isMobile && props.isNavbarCollapsed && "justify-center"
         )}
       >
@@ -68,7 +68,6 @@ export function ParentSidebar(props: ParentSidebarProps) {
             <Logo className="h-8 w-auto" />
           </Link>
         )}
-        {/* Desktop collapse trigger moved to header in layout */}
       </div>
 
       {/* Navigation Links */}
@@ -90,7 +89,7 @@ export function ParentSidebar(props: ParentSidebarProps) {
               )}
               title={!props.isMobile && props.isNavbarCollapsed ? item.label : undefined}
             >
-              <item.icon className={cn("h-5 w-5 shrink-0", (!props.isMobile && props.isNavbarCollapsed) ? "mr-0" : "mr-3")} />
+              <item.icon className={cn("h-5 w-5 shrink-0", (!props.isMobile && props.isNavbarCollapsed) ? "mr-0" : "mr-3", isActive && "text-primary-foreground")} />
               {(!props.isMobile && !props.isNavbarCollapsed || props.isMobile) && <span>{item.label}</span>}
             </Link>
           );
@@ -99,7 +98,6 @@ export function ParentSidebar(props: ParentSidebarProps) {
 
       {/* User/Account Section */}
       <div className="mt-auto p-3 border-t border-border shrink-0">
-        {/* User Avatar and Name - Hidden when collapsed on desktop */}
         {!props.isMobile && !props.isNavbarCollapsed && props.user && (
           <div className="flex items-center gap-2 mb-3 px-2.5">
             <Avatar className="h-8 w-8 shrink-0">
@@ -131,7 +129,7 @@ export function ParentSidebar(props: ParentSidebarProps) {
               )}
               title={!props.isMobile && props.isNavbarCollapsed ? item.label : undefined}
             >
-              <item.icon className={cn("h-5 w-5 shrink-0", (!props.isMobile && props.isNavbarCollapsed) ? "mr-0" : "mr-3")} />
+              <item.icon className={cn("h-5 w-5 shrink-0", (!props.isMobile && props.isNavbarCollapsed) ? "mr-0" : "mr-3", isActive && "text-primary-foreground")} />
               {(!props.isMobile && !props.isNavbarCollapsed || props.isMobile) && <span>{item.label}</span>}
             </Link>
           );
