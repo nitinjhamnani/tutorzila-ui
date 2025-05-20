@@ -2,12 +2,13 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ListChecks, ArrowUpCircle, ArrowDownCircle, Coins } from "lucide-react"; 
+import { ListChecks, ArrowUpCircle, ArrowDownCircle, Coins, CheckCircle2, XCircle } from "lucide-react"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import type { TutorTransaction, TutorProfile } from "@/types";
 import { MOCK_TUTOR_TRANSACTIONS } from "@/lib/mock-data";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -49,6 +50,30 @@ export default function TutorTransactionsPage() {
     }));
   }, [transactions]);
 
+  const getStatusBadgeClasses = (status?: "Success" | "Failed" | "Pending") => {
+    switch (status) {
+      case "Success":
+        return "bg-green-100 text-green-700 border-green-500/50";
+      case "Failed":
+        return "bg-red-100 text-red-700 border-red-500/50";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-700 border-yellow-500/50";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-500/50";
+    }
+  };
+
+  const StatusIcon = ({ status }: { status?: "Success" | "Failed" | "Pending" }) => {
+    const iconClasses = "w-3 h-3 mr-1";
+    switch (status) {
+      case "Success": return <CheckCircle2 className={cn(iconClasses, "text-green-700")} />;
+      case "Failed": return <XCircle className={cn(iconClasses, "text-red-700")} />;
+      case "Pending": return <Coins className={cn(iconClasses, "text-yellow-700")} />; // Using Coins for Pending as an example
+      default: return null;
+    }
+  };
+
+
   if (!hasMounted || isCheckingAuth || !user) {
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
   }
@@ -69,7 +94,6 @@ export default function TutorTransactionsPage() {
                 View your leads credits/debits and fee credits.
               </CardDescription>
             </div>
-            {/* Placeholder for any header actions like "Download Statement" */}
           </CardHeader>
         </Card>
 
@@ -86,6 +110,7 @@ export default function TutorTransactionsPage() {
                     <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Amount</TableHead>
                     <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Date</TableHead>
                     <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Summary</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -111,6 +136,12 @@ export default function TutorTransactionsPage() {
                       </TableCell>
                       <TableCell className="px-4 py-3 text-xs text-foreground">{txn.formattedDate}</TableCell>
                       <TableCell className="px-4 py-3 text-xs text-foreground">{txn.summary}</TableCell>
+                       <TableCell className="px-4 py-3 text-xs">
+                        <Badge variant="outline" className={cn("py-0.5 px-2 text-[10px] font-medium", getStatusBadgeClasses(txn.status))}>
+                          <StatusIcon status={txn.status} />
+                          {txn.status || "N/A"}
+                        </Badge>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

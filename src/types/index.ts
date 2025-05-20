@@ -139,4 +139,5 @@ export interface TutorTransaction {
   amount: number;
   date: string; // ISO date string
   summary: string;
+  status?: "Success" | "Failed" | "Pending";
 }

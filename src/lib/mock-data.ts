@@ -671,9 +671,19 @@ export const MOCK_TUTOR_LEADS: TutorLead[] = [
 ];
 
 export const MOCK_TUTOR_TRANSACTIONS: TutorTransaction[] = [
-  { id: "txn1", tutorId: "t2", type: "Credit", mode: "Wallet", amount: 500, date: new Date(Date.now() - 86400000 * 2).toISOString(), summary: "Lead purchase credits" },
-  { id: "txn2", tutorId: "t2", type: "Debit", mode: "Wallet", amount: 5, date: new Date(Date.now() - 86400000 * 1).toISOString(), summary: "Lead consumed for Ananya Sharma" },
-  { id: "txn3", tutorId: "t6", type: "Credit", mode: "Online", amount: 2000, date: new Date(Date.now() - 86400000 * 5).toISOString(), summary: "Payment received from Sunita Patil" },
-  { id: "txn4", tutorId: "t6", type: "Debit", mode: "Wallet", amount: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), summary: "Lead consumed for Rajesh Kumar" },
-  { id: "txn5", tutorId: "t2", type: "Credit", mode: "Cash", amount: 3800, date: new Date().toISOString(), summary: "Payment collected from Arjun Menon" },
+  { id: "txn1", tutorId: "t2", type: "Credit", mode: "Wallet", amount: 500, date: new Date(Date.now() - 86400000 * 2).toISOString(), summary: "Lead purchase credits", status: "Success" },
+  { id: "txn2", tutorId: "t2", type: "Debit", mode: "Wallet", amount: 5, date: new Date(Date.now() - 86400000 * 1).toISOString(), summary: "Lead consumed for Ananya Sharma", status: "Success" },
+  { id: "txn3", tutorId: "t6", type: "Credit", mode: "Online", amount: 2000, date: new Date(Date.now() - 86400000 * 5).toISOString(), summary: "Payment received from Sunita Patil", status: "Success" },
+  { id: "txn4", tutorId: "t6", type: "Debit", mode: "Wallet", amount: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), summary: "Lead consumed for Rajesh Kumar", status: "Success" },
+  { id: "txn5", tutorId: "t2", type: "Credit", mode: "Cash", amount: 3800, date: new Date().toISOString(), summary: "Payment collected from Arjun Menon", status: "Pending" },
+  { id: "txn6", tutorId: "t1", type: "Credit", mode: "Online", amount: 5000, date: new Date(Date.now() - 86400000 * 10).toISOString(), summary: "Fee credit for Physics batch", status: "Success" },
+  { id: "txn7", tutorId: "t1", type: "Debit", mode: "System", amount: 100, date: new Date(Date.now() - 86400000 * 9).toISOString(), summary: "Platform service fee", status: "Success" },
+  { id: "txn8", tutorId: "t3", type: "Credit", mode: "Wallet", amount: 1000, date: new Date(Date.now() - 86400000 * 7).toISOString(), summary: "Top-up for leads", status: "Success" },
+  { id: "txn9", tutorId: "t3", type: "Debit", mode: "Wallet", amount: 3, date: new Date(Date.now() - 86400000 * 6).toISOString(), summary: "Lead consumed for CS project", status: "Failed" },
 ];
+
+// Old MOCK_REQUIREMENTS - to be removed or merged if needed
+// export const MOCK_REQUIREMENTS: TuitionRequirement[] = [
+//   { id: "1", parentId: "p1", parentName: "Alice Smith", subject: ["Mathematics"], gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"] },
+//   { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: ["Physics"], gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"] },
+// ];
