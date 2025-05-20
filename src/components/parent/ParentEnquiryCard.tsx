@@ -9,14 +9,14 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"; // Keep Badge import if used elsewhere or for consistency, but will remove its usage in header/footer.
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
-  onEdit: (id: string) => void;
-  onDelete: (requirement: TuitionRequirement) => void;
-  onClose: (requirement: TuitionRequirement) => void;
-  onReopen: (id: string) => void;
+  onEdit?: (id: string) => void; // Made optional as actions are removed
+  onDelete?: (requirement: TuitionRequirement) => void; // Made optional
+  onClose?: (requirement: TuitionRequirement) => void; // Made optional
+  onReopen?: (id: string) => void; // Made optional
 }
 
 const getInitials = (name?: string): string => {
@@ -46,23 +46,16 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
   const parentInitials = getInitials(requirement.parentName);
   const isPastEnquiry = requirement.status === 'closed';
 
-  const statusBadgeVariant = () => {
-    switch (requirement.status) {
-      case 'open': return 'bg-blue-100 text-blue-700 border-blue-500/50';
-      case 'matched': return 'bg-green-100 text-green-700 border-green-500/50';
-      case 'closed': return 'bg-gray-100 text-gray-600 border-gray-400/50';
-      default: return 'outline';
-    }
-  };
+  // Status badge logic removed from here as the badge itself is removed from header.
 
-  return (
-    <Card
+  const cardContent = (
+    <div
       className={cn(
-        "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
-        isPastEnquiry && "opacity-75 bg-muted/30"
+        "bg-card rounded-lg shadow-sm w-full overflow-hidden border border-border/50",
+        isPastEnquiry && "opacity-70 bg-muted/30"
       )}
     >
-      <CardHeader className="p-0 pb-3 sm:pb-4 relative">
+      <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
@@ -77,19 +70,11 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
+          {/* Status Badge Removed from here */}
         </div>
-         <Badge
-            variant="outline"
-            className={cn(
-                "absolute top-0 right-0 text-[9px] py-0.5 px-2 border font-medium whitespace-nowrap",
-                statusBadgeVariant()
-            )}
-          >
-            {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-          </Badge>
       </CardHeader>
 
-      <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
+      <CardContent className="p-4 pt-2 sm:p-5 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
         <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
         {requirement.board && (
           <InfoItem icon={Building} label="Board" value={requirement.board} />
@@ -102,16 +87,28 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
         )}
       </CardContent>
 
-      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+      <CardFooter className="p-4 pt-3 sm:p-5 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex-grow min-w-0">
-            {requirement.status === 'open' && requirement.applicantsCount !== undefined && (
-                <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full">
-                    <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Applicant{requirement.applicantsCount !== 1 ? 's' : ''}
-                </Badge>
-            )}
+          {/* Applicants Count Badge Removed */}
         </div>
-        {/* Action buttons are removed from here */}
+        {/* Action Buttons were already removed */}
       </CardFooter>
-    </Card>
+    </div>
   );
+
+  // If onEdit is defined, wrap the card content with a button or link for edit functionality
+  if (onEdit) {
+    return (
+      <button
+        onClick={() => onEdit(requirement.id)}
+        className="block w-full text-left hover:bg-muted/20 rounded-lg transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        aria-label={`View or edit enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}`}
+      >
+        {cardContent}
+      </button>
+    );
+  }
+
+  // Otherwise, just return the card content (e.g., if no actions are needed or handled differently)
+  return cardContent;
 }
