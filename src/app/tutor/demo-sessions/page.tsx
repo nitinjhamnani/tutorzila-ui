@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   ListFilter,
   PlusCircle,
@@ -15,8 +15,10 @@ import {
   CheckCircle,
   Clock as ClockIcon,
   ChevronDown,
-  CalendarDays, // Added CalendarDays
-  XCircle, // Ensured XCircle is imported
+  CalendarDays,
+  XCircle,
+  Search, // Added Search
+  User as UserIcon, // Added UserIcon as an alias for User
 } from "lucide-react";
 import { TutorDemoCard } from "@/app/tutor/components/TutorDemoCard";
 import type { DemoSession, TutorProfile } from "@/types";
@@ -35,11 +37,11 @@ import {
 } from "@/components/ui/dialog";
 import {
   Select,
-  SelectContent as FormSelectContent,
-  SelectItem as FormSelectItem,
+  SelectContent,
+  SelectItem,
   SelectTrigger as FormSelectTrigger,
   SelectValue as FormSelectValue,
-} from "@/components/ui/select"; // Renamed specific SelectItem to FormSelectItem for clarity
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
@@ -80,22 +82,19 @@ export default function TutorDemoSessionsPage() {
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] =
     useState<DemoStatusCategory>("Scheduled");
 
-  // States for detailed filter dialog
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempDemoSubjectFilter, setTempDemoSubjectFilter] = useState("All");
   const [tempDemoStudentFilter, setTempDemoStudentFilter] = useState("All");
 
   useEffect(() => {
-    if (!isCheckingAuth) {
-      if (!isAuthenticated || !tutorUser || tutorUser.role !== "tutor") {
-        router.replace("/");
-      } else {
-        const tutorDemos = MOCK_DEMO_SESSIONS.filter(
-          (demo) =>
-            demo.tutorId === tutorUser.id || demo.tutorName === tutorUser.name
-        );
-        setAllTutorDemos(tutorDemos);
-      }
+    if (!isCheckingAuth && (!isAuthenticated || !tutorUser || tutorUser.role !== "tutor")) {
+      router.replace("/");
+    } else if (tutorUser) {
+      const tutorDemos = MOCK_DEMO_SESSIONS.filter(
+        (demo) =>
+          demo.tutorId === tutorUser.id || demo.tutorName === tutorUser.name
+      );
+      setAllTutorDemos(tutorDemos);
     }
   }, [isCheckingAuth, isAuthenticated, tutorUser, router]);
 
@@ -109,68 +108,18 @@ export default function TutorDemoSessionsPage() {
   );
 
   const categoryCounts = useMemo(() => {
+    const filterByDetails = (demo: DemoSession) => {
+      const subjectMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
+      const studentMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
+      return subjectMatch && studentMatch;
+    };
+
     return {
-      "All Demos": allTutorDemos.filter((demo) => {
-        const detailedSubjectFilterMatch =
-          tempDemoSubjectFilter === "All" ||
-          demo.subject === tempDemoSubjectFilter;
-        const detailedStudentFilterMatch =
-          tempDemoStudentFilter === "All" ||
-          demo.studentName === tempDemoStudentFilter;
-        return detailedSubjectFilterMatch && detailedStudentFilterMatch;
-      }).length,
-      Scheduled: allTutorDemos.filter((demo) => {
-        const detailedSubjectFilterMatch =
-          tempDemoSubjectFilter === "All" ||
-          demo.subject === tempDemoSubjectFilter;
-        const detailedStudentFilterMatch =
-          tempDemoStudentFilter === "All" ||
-          demo.studentName === tempDemoStudentFilter;
-        return (
-          demo.status === "Scheduled" &&
-          detailedSubjectFilterMatch &&
-          detailedStudentFilterMatch
-        );
-      }).length,
-      Requested: allTutorDemos.filter((demo) => {
-        const detailedSubjectFilterMatch =
-          tempDemoSubjectFilter === "All" ||
-          demo.subject === tempDemoSubjectFilter;
-        const detailedStudentFilterMatch =
-          tempDemoStudentFilter === "All" ||
-          demo.studentName === tempDemoStudentFilter;
-        return (
-          demo.status === "Requested" &&
-          detailedSubjectFilterMatch &&
-          detailedStudentFilterMatch
-        );
-      }).length,
-      Completed: allTutorDemos.filter((demo) => {
-        const detailedSubjectFilterMatch =
-          tempDemoSubjectFilter === "All" ||
-          demo.subject === tempDemoSubjectFilter;
-        const detailedStudentFilterMatch =
-          tempDemoStudentFilter === "All" ||
-          demo.studentName === tempDemoStudentFilter;
-        return (
-          demo.status === "Completed" &&
-          detailedSubjectFilterMatch &&
-          detailedStudentFilterMatch
-        );
-      }).length,
-      Cancelled: allTutorDemos.filter((demo) => {
-        const detailedSubjectFilterMatch =
-          tempDemoSubjectFilter === "All" ||
-          demo.subject === tempDemoSubjectFilter;
-        const detailedStudentFilterMatch =
-          tempDemoStudentFilter === "All" ||
-          demo.studentName === tempDemoStudentFilter;
-        return (
-          demo.status === "Cancelled" &&
-          detailedSubjectFilterMatch &&
-          detailedStudentFilterMatch
-        );
-      }).length,
+      "All Demos": allTutorDemos.filter(filterByDetails).length,
+      Scheduled: allTutorDemos.filter(demo => demo.status === "Scheduled" && filterByDetails(demo)).length,
+      Requested: allTutorDemos.filter(demo => demo.status === "Requested" && filterByDetails(demo)).length,
+      Completed: allTutorDemos.filter(demo => demo.status === "Completed" && filterByDetails(demo)).length,
+      Cancelled: allTutorDemos.filter(demo => demo.status === "Cancelled" && filterByDetails(demo)).length,
     };
   }, [allTutorDemos, tempDemoSubjectFilter, tempDemoStudentFilter]);
 
@@ -180,36 +129,11 @@ export default function TutorDemoSessionsPage() {
     icon: React.ElementType;
     count: number;
   }[] = [
-    {
-      label: "All Demos",
-      value: "All Demos",
-      icon: ListFilter,
-      count: categoryCounts["All Demos"],
-    },
-    {
-      label: "Scheduled",
-      value: "Scheduled",
-      icon: ClockIcon,
-      count: categoryCounts.Scheduled,
-    },
-    {
-      label: "Requested",
-      value: "Requested",
-      icon: MessageSquareQuote,
-      count: categoryCounts.Requested,
-    },
-    {
-      label: "Completed",
-      value: "Completed",
-      icon: CheckCircle,
-      count: categoryCounts.Completed,
-    },
-    {
-      label: "Cancelled",
-      value: "Cancelled",
-      icon: XCircle,
-      count: categoryCounts.Cancelled,
-    },
+    { label: "All Demos", value: "All Demos", icon: CalendarDays, count: categoryCounts["All Demos"] },
+    { label: "Scheduled", value: "Scheduled", icon: ClockIcon, count: categoryCounts.Scheduled },
+    { label: "Requested", value: "Requested", icon: MessageSquareQuote, count: categoryCounts.Requested },
+    { label: "Completed", value: "Completed", icon: CheckCircle, count: categoryCounts.Completed },
+    { label: "Cancelled", value: "Cancelled", icon: XCircle, count: categoryCounts.Cancelled },
   ];
 
   const selectedCategoryLabel = useMemo(() => {
@@ -222,18 +146,11 @@ export default function TutorDemoSessionsPage() {
 
   const filteredDemos = useMemo(() => {
     return allTutorDemos.filter((demo) => {
-      const detailedSubjectFilterMatch =
-        tempDemoSubjectFilter === "All" ||
-        demo.subject === tempDemoSubjectFilter;
-      const detailedStudentFilterMatch =
-        tempDemoStudentFilter === "All" ||
-        demo.studentName === tempDemoStudentFilter;
-      const matchesDetailedFilters =
-        detailedSubjectFilterMatch && detailedStudentFilterMatch;
+      const detailedSubjectFilterMatch = tempDemoSubjectFilter === "All" || demo.subject === tempDemoSubjectFilter;
+      const detailedStudentFilterMatch = tempDemoStudentFilter === "All" || demo.studentName === tempDemoStudentFilter;
+      const matchesDetailedFilters = detailedSubjectFilterMatch && detailedStudentFilterMatch;
 
-      const matchesCategory =
-        activeDemoCategoryFilter === "All Demos" ||
-        demo.status === activeDemoCategoryFilter;
+      const matchesCategory = activeDemoCategoryFilter === "All Demos" || demo.status === activeDemoCategoryFilter;
 
       return matchesDetailedFilters && matchesCategory;
     });
@@ -269,13 +186,11 @@ export default function TutorDemoSessionsPage() {
 
   const handleApplyDetailedFilters = () => {
     setIsFilterDialogOpen(false);
-    // The main filter states are already bound to temp states for this page structure
   };
 
   const handleClearDetailedFilters = () => {
     setTempDemoSubjectFilter("All");
     setTempDemoStudentFilter("All");
-    // Do not reset activeDemoCategoryFilter here, as it's controlled by the dropdown
     setIsFilterDialogOpen(false);
   };
 
@@ -293,14 +208,14 @@ export default function TutorDemoSessionsPage() {
             </p>
             <Button
               onClick={() => {
-                setActiveDemoCategoryFilter("All Demos"); // Reset category filter too
+                setActiveDemoCategoryFilter("All Demos");
                 handleClearDetailedFilters();
               }}
               variant="outline"
               className="mt-6 text-sm py-2 px-5"
             >
               <XIcon className="w-3.5 h-3.5 mr-1.5" />
-              Clear Filters
+              Clear Filters & Search
             </Button>
           </CardContent>
         </Card>
@@ -332,17 +247,21 @@ export default function TutorDemoSessionsPage() {
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-0 flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center">
-              <CalendarDays className="w-5 h-5 mr-2.5 text-primary" />
-              <CardTitle className="text-xl font-semibold text-primary">
-                Manage Demo Sessions
-              </CardTitle>
+          <CardHeader className="p-0 mb-0 flex flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-grow">
+              <div className="flex items-center">
+                <CalendarDays className="w-5 h-5 mr-2.5 text-primary"/>
+                <CardTitle className="text-xl font-semibold text-primary">
+                  Manage Demo Sessions
+                </CardTitle>
+              </div>
+              <CardDescription className="text-xs text-muted-foreground mt-1 ml-[calc(1.25rem+0.625rem)] sm:ml-0 sm:mt-0.5">
+                View, schedule, and update your demo class details.
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="p-0 mt-4">
-            <div className="px-0 sm:px-0 pb-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
                   <div className="flex items-center">
                     <CalendarDays className="w-5 h-5 mr-3 text-primary" />
@@ -355,20 +274,14 @@ export default function TutorDemoSessionsPage() {
                       </p>
                     </div>
                   </div>
-                  {/* Optional: Trend icon if needed */}
                 </div>
-                {/* Placeholder for another stat if needed */}
-              </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 sm:justify-end items-center px-0 sm:px-0">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-end items-center">
               <Button
                 variant="default"
                 size="sm"
                 className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={() =>
-                  console.log("Schedule Demo Clicked - Placeholder")
-                }
+                onClick={() => console.log("Schedule Demo Clicked - Placeholder")}
               >
                 <PlusCircle className="w-4 h-4 opacity-90" />
                 Schedule Demo
@@ -381,11 +294,7 @@ export default function TutorDemoSessionsPage() {
                       className="w-full sm:w-auto text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-11 bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       <span className="text-primary-foreground">
-                        {selectedCategoryLabel} (
-                        {filterCategoriesForDropdown.find(
-                          (cat) => cat.value === activeDemoCategoryFilter
-                        )?.count || 0}
-                        )
+                         {selectedCategoryLabel} ({filterCategoriesForDropdown.find(cat => cat.value === activeDemoCategoryFilter)?.count || 0})
                       </span>
                       <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
                     </Button>
@@ -396,13 +305,10 @@ export default function TutorDemoSessionsPage() {
                     {filterCategoriesForDropdown.map((category) => (
                       <DropdownMenuItem
                         key={category.value}
-                        onClick={() =>
-                          setActiveDemoCategoryFilter(category.value)
-                        }
+                        onClick={() => setActiveDemoCategoryFilter(category.value)}
                         className={cn(
                           "text-sm",
-                          activeDemoCategoryFilter === category.value &&
-                            "bg-primary text-primary-foreground"
+                          activeDemoCategoryFilter === category.value && "bg-primary text-primary-foreground"
                         )}
                       >
                         <category.icon className="mr-2 h-4 w-4" />
