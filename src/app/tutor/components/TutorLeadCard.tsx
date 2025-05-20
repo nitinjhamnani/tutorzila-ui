@@ -11,28 +11,11 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input"; // Input might be better than Textarea for single line
+import { MessageModal, type Message } from "@/components/modals/MessageModal";
+
 
 interface TutorLeadCardProps {
   lead: TutorLead;
-}
-
-interface Message {
-  id: string;
-  sender: "You" | "Parent";
-  text: string;
-  timestamp: Date;
 }
 
 const getInitials = (name?: string): string => {
@@ -51,52 +34,48 @@ export function TutorLeadCard({ lead }: TutorLeadCardProps) {
 
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const [messageHistory, setMessageHistory] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
   const [messagesCount, setMessagesCount] = useState(lead.messagesCount);
 
   useEffect(() => {
     // Mock fetching initial messages for this lead
     const initialMessages: Message[] = [
-      { id: "msg1", sender: "Parent", text: `Hi, I'm interested in ${lead.enquirySubject || 'your tutoring services'} for ${lead.enquiryGrade || 'my child'}.`, timestamp: new Date(Date.now() - 3600000 * 2) },
+      { id: "msg1", sender: lead.parentName, text: `Hi, I'm interested in ${lead.enquirySubject || 'your tutoring services'} for ${lead.enquiryGrade || 'my child'}.`, timestamp: new Date(Date.now() - 3600000 * 2) },
       { id: "msg2", sender: "You", text: `Hello ${lead.parentName}! Thanks for reaching out. How can I help you today?`, timestamp: new Date(Date.now() - 3600000 * 1.5) },
     ];
     if (lead.lastMessageSnippet && lead.messagesCount > 2) {
-         initialMessages.push({id: "msg_last_parent", sender: "Parent", text: lead.lastMessageSnippet, timestamp: new Date(Date.now() - 3600000 * 1)});
+         initialMessages.push({id: "msg_last_parent", sender: lead.parentName, text: lead.lastMessageSnippet, timestamp: new Date(Date.now() - 3600000 * 1)});
     }
     setMessageHistory(initialMessages);
     setMessagesCount(lead.messagesCount);
   }, [lead]);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim() === "") return;
-
+  const handleSendMessage = (messageText: string) => {
     const myMessage: Message = {
       id: `msg${messageHistory.length + 1}`,
       sender: "You",
-      text: newMessage,
+      text: messageText,
       timestamp: new Date(),
     };
     const updatedHistory = [...messageHistory, myMessage];
     setMessageHistory(updatedHistory);
-    setNewMessage("");
     setMessagesCount(prev => prev + 1);
 
     // Mock parent reply
     setTimeout(() => {
       const parentReply: Message = {
         id: `msg${updatedHistory.length + 1}`,
-        sender: "Parent",
+        sender: lead.parentName,
         text: "Thanks for your message! I'll get back to you soon.",
         timestamp: new Date(),
       };
       setMessageHistory(prev => [...prev, parentReply]);
-      setMessagesCount(prev => prev + 1);
+      setMessagesCount(prev => prev + 1); // Increment again for parent's reply
     }, 1500);
   };
 
 
   return (
-    <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+    <>
       <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
@@ -142,75 +121,25 @@ export function TutorLeadCard({ lead }: TutorLeadCardProps) {
                   </Badge>
               )}
           </div>
-          <DialogTrigger asChild>
             <Button
               size="sm"
               className="text-xs py-1.5 px-3 h-auto bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
+              onClick={() => setIsMessageDialogOpen(true)}
             >
               <Send className="w-3 h-3 mr-1.5" /> Message Now
             </Button>
-          </DialogTrigger>
         </CardFooter>
       </Card>
 
-      <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl flex flex-col h-[70vh] sm:h-[600px]">
-        <DialogHeader className="p-4 border-b">
-          <DialogTitle className="text-lg font-semibold text-primary">Chat with {lead.parentName}</DialogTitle>
-          {lead.enquirySubject && (
-            <DialogDescription className="text-sm text-muted-foreground">
-              Regarding: {lead.enquirySubject} {lead.enquiryGrade ? `(${lead.enquiryGrade})` : ''}
-            </DialogDescription>
-          )}
-        </DialogHeader>
-        
-        <ScrollArea className="flex-grow p-4 space-y-3">
-          {messageHistory.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn(
-                "flex w-full max-w-[85%] sm:max-w-[75%] flex-col gap-1",
-                msg.sender === "You" ? "ml-auto items-end" : "items-start"
-              )}
-            >
-              <div
-                className={cn(
-                  "rounded-lg px-3 py-2 text-sm shadow",
-                  msg.sender === "You"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                )}
-              >
-                {msg.text}
-              </div>
-              <span className="text-[10px] text-muted-foreground px-1">
-                {format(msg.timestamp, "p, MMM d")}
-              </span>
-            </div>
-          ))}
-        </ScrollArea>
-        
-        <DialogFooter className="p-4 border-t bg-card">
-          <div className="flex items-center w-full space-x-2">
-            <Textarea
-              placeholder="Type your message..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              className="min-h-[40px] max-h-[100px] flex-1 text-sm resize-none bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
-            />
-            <Button type="button" size="icon" onClick={handleSendMessage} disabled={!newMessage.trim()} className="h-10 w-10 shrink-0">
-              <Send className="h-4 w-4" />
-              <span className="sr-only">Send</span>
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <MessageModal
+        isOpen={isMessageDialogOpen}
+        onOpenChange={setIsMessageDialogOpen}
+        leadName={lead.parentName}
+        enquirySubject={lead.enquirySubject}
+        initialMessages={messageHistory}
+        onSendMessage={handleSendMessage}
+      />
+    </>
   );
 }
 
@@ -233,4 +162,3 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
   );
 }
 
-    
