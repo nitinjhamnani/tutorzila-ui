@@ -14,13 +14,13 @@ import { Badge } from "@/components/ui/badge";
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
   onEdit: (id: string) => void;
-  onDelete: (requirement: TuitionRequirement) => void; // Pass full requirement for delete dialog
-  onClose: (requirement: TuitionRequirement) => void; // Pass full requirement for close dialog
+  onDelete: (requirement: TuitionRequirement) => void;
+  onClose: (requirement: TuitionRequirement) => void;
   onReopen: (id: string) => void;
 }
 
 const getInitials = (name?: string): string => {
-  if (!name || name.trim() === "") return "P"; // Default to 'P' for Parent if name is missing
+  if (!name || name.trim() === "") return "P";
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) {
     return parts[0].substring(0, 2).toUpperCase();
@@ -28,7 +28,6 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
-// Helper component for info items with icons (can be moved to a shared utils if used elsewhere)
 const InfoItem = ({ icon: Icon, label, value, className }: { icon?: React.ElementType; label?: string; value?: string | string[]; className?: string }) => {
   if (!value || (Array.isArray(value) && value.length === 0)) return null;
   const displayText = Array.isArray(value) ? value.join(", ") : value;
@@ -40,7 +39,6 @@ const InfoItem = ({ icon: Icon, label, value, className }: { icon?: React.Elemen
     </div>
   );
 };
-
 
 export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onReopen }: ParentEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
@@ -61,7 +59,7 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
     <Card
       className={cn(
         "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
-        isPastEnquiry && "opacity-75 bg-muted/30" // Mute past enquiries slightly differently
+        isPastEnquiry && "opacity-75 bg-muted/30"
       )}
     >
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
@@ -106,38 +104,13 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
 
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex-grow min-w-0">
-            {/* Placeholder for any left-aligned footer content like applicant count for parent */}
             {requirement.status === 'open' && requirement.applicantsCount !== undefined && (
                 <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full">
                     <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Applicant{requirement.applicantsCount !== 1 ? 's' : ''}
                 </Badge>
             )}
         </div>
-        <div className="flex space-x-1.5 shrink-0 w-full sm:w-auto justify-end">
-            {!isPastEnquiry && (
-              <>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-primary/50 text-primary hover:bg-primary/10" title="Edit Enquiry" onClick={() => onEdit(requirement.id)}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={() => onDelete(requirement)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-orange-500/70 text-orange-600 hover:bg-orange-500/10" title="Close Enquiry" onClick={() => onClose(requirement)}>
-                  <Archive className="h-3.5 w-3.5" />
-                </Button>
-              </>
-            )}
-            {isPastEnquiry && (
-              <>
-                <Button variant="outline" size="icon" className="h-7 w-7 border-green-500/70 text-green-600 hover:bg-green-500/10" title="Reopen Enquiry" onClick={() => onReopen(requirement.id)}>
-                  <Archive className="h-3.5 w-3.5" /> {/* Using Archive for Reopen as well, could change if a 'reopen' icon is preferred */}
-                </Button>
-                 <Button variant="destructiveOutline" size="icon" className="h-7 w-7" title="Delete Enquiry" onClick={() => onDelete(requirement)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </>
-            )}
-        </div>
+        {/* Action buttons are removed from here */}
       </CardFooter>
     </Card>
   );
