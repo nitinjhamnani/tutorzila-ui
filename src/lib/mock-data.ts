@@ -1,5 +1,5 @@
 
-import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass } from "@/types";
+import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass, TutorPayment } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   {
@@ -171,7 +171,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
 export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   {
     id: "demo1",
-    tutorId: "t1",
+    tutorId: "t1", // Dr. Emily Carter
     tutorName: "Dr. Emily Carter",
     tutorAvatarSeed: "emilycarter",
     studentName: "Rohan Sharma (Son)",
@@ -188,7 +188,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo2",
-    tutorId: "t2",
+    tutorId: "t2", // John Adebayo
     tutorName: "John Adebayo",
     tutorAvatarSeed: "johnadebayo",
     studentName: "Priya Singh (Daughter)",
@@ -204,7 +204,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo3",
-    tutorId: "t3",
+    tutorId: "t3", // Sophia Chen
     tutorName: "Sophia Chen",
     tutorAvatarSeed: "sophiachen",
     studentName: "Rohan Sharma (Son)",
@@ -219,7 +219,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo4",
-    tutorId: "t1",
+    tutorId: "t1", // Dr. Emily Carter
     tutorName: "Dr. Emily Carter",
     tutorAvatarSeed: "emilycarter",
     studentName: "Priya Singh (Daughter)",
@@ -235,7 +235,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo5",
-    tutorId: "t2",
+    tutorId: "t2", // John Adebayo
     tutorName: "John Adebayo",
     tutorAvatarSeed: "johnadebayo",
     studentName: "Rohan Sharma (Son)",
@@ -250,7 +250,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo6_mock_tutor",
-    tutorId: "t6",
+    tutorId: "t6", // Mock Tutor General
     tutorName: "Mock Tutor General",
     tutorAvatarSeed: "mocktutor",
     studentName: "Aarav Gupta (Son)",
@@ -266,7 +266,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
    {
     id: "demo7_john_upcoming",
-    tutorId: "t2",
+    tutorId: "t2", // John Adebayo
     tutorName: "John Adebayo",
     tutorAvatarSeed: "johnadebayo",
     studentName: "Meera Iyer",
@@ -282,7 +282,7 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
   },
   {
     id: "demo8_emily_requested",
-    tutorId: "t1",
+    tutorId: "t1", // Dr. Emily Carter
     tutorName: "Dr. Emily Carter",
     tutorAvatarSeed: "emilycarter",
     studentName: "Kevin D'Souza",
@@ -294,19 +294,36 @@ export const MOCK_DEMO_SESSIONS: DemoSession[] = [
     endTime: "02:45 PM",
     status: "Requested",
     mode: "Online",
-  }
+  },
+  {
+    id: "demo9_mock_tutor_today",
+    tutorId: "t6", // Mock Tutor General
+    tutorName: "Mock Tutor General",
+    tutorAvatarSeed: "mocktutor",
+    studentName: "Zara Khan",
+    subject: "Mathematics",
+    gradeLevel: "Grade 6",
+    board: "State Board",
+    date: new Date().toISOString(), // Today
+    startTime: "05:30 PM",
+    endTime: "06:00 PM",
+    status: "Scheduled",
+    joinLink: "#",
+    mode: "Online",
+  },
 ];
 
 export const MOCK_CLASSES: MyClass[] = [
-  { id: "c1", subject: "Advanced Algebra", tutorName: "Dr. Emily Carter", tutorId: "t1", tutorAvatarSeed: "emilycarter", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Mon", "Wed"], time: "6:00 PM - 7:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 2).toISOString() },
-  { id: "c2", subject: "Shakespearean Sonnets", tutorName: "John Adebayo", tutorId: "t2", tutorAvatarSeed: "johnadebayo", studentName: "Priya M.", mode: "Offline (In-person)", schedule: { days: ["Sat"], time: "10:00 AM - 12:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 4).toISOString() },
-  { id: "c3", subject: "Introduction to Python", tutorName: "Sophia Chen", tutorId: "t3", tutorAvatarSeed: "sophiachen", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Tues", "Thurs"], time: "7:00 PM - 8:00 PM" }, status: "Upcoming", startDate: new Date(Date.now() + 86400000 * 7).toISOString() },
-  { id: "c4", subject: "Organic Chemistry Basics", tutorName: "Dr. Emily Carter", tutorId: "t1", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Fri"], time: "5:00 PM - 6:30 PM" }, status: "Upcoming", startDate: new Date(Date.now() + 86400000 * 10).toISOString() },
-  { id: "c5", subject: "World History: Ancient Civilizations", tutorName: "John Adebayo", tutorId: "t2", tutorAvatarSeed: "johnadebayo", studentName: "Rohan S.", mode: "Offline (In-person)", schedule: { days: ["Sun"], time: "2:00 PM - 4:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 15).toISOString() },
-  { id: "c6", subject: "Web Development Fundamentals", tutorName: "Sophia Chen", tutorId: "t3", tutorAvatarSeed: "sophiachen", studentName: "Priya M.", mode: "Online", schedule: { days: ["Wed"], time: "6:30 PM - 8:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 30).toISOString() },
-  { id: "c7", subject: "Calculus I", tutorName: "Dr. Emily Carter", tutorId: "t1", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Mon"], time: "4:00 PM - 5:00 PM" }, status: "Cancelled" },
-  { id: "c8_mock_tutor_upcoming", subject: "Mathematics Basics", tutorName: "Mock Tutor General", tutorId: "t6", tutorAvatarSeed: "mocktutor", studentName: "Vikram Rao", mode: "Online", schedule: { days: ["Fri"], time: "5:00 PM - 6:00 PM" }, status: "Upcoming", startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString() },
-  { id: "c9_mock_tutor_ongoing", subject: "Introduction to Science", tutorName: "Mock Tutor General", tutorId: "t6", tutorAvatarSeed: "mocktutor", studentName: "Sunita Patil", mode: "Online", schedule: { days: ["Wed"], time: "4:30 PM - 5:30 PM" }, status: "Ongoing", nextSession: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString() },
+  { id: "c1", subject: "Advanced Algebra", tutorId: "t1", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Mon", "Wed"], time: "6:00 PM - 7:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 2).toISOString() },
+  { id: "c2", subject: "Shakespearean Sonnets", tutorId: "t2", tutorName: "John Adebayo", tutorAvatarSeed: "johnadebayo", studentName: "Priya M.", mode: "Offline (In-person)", schedule: { days: ["Sat"], time: "10:00 AM - 12:00 PM" }, status: "Ongoing", nextSession: new Date(Date.now() + 86400000 * 4).toISOString() },
+  { id: "c3", subject: "Introduction to Python", tutorId: "t3", tutorName: "Sophia Chen", tutorAvatarSeed: "sophiachen", studentName: "Rohan S.", mode: "Online", schedule: { days: ["Tues", "Thurs"], time: "7:00 PM - 8:00 PM" }, status: "Upcoming", startDate: new Date(Date.now() + 86400000 * 7).toISOString() },
+  { id: "c4", subject: "Organic Chemistry Basics", tutorId: "t1", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Fri"], time: "5:00 PM - 6:30 PM" }, status: "Upcoming", startDate: new Date(Date.now() + 86400000 * 10).toISOString() },
+  { id: "c5", subject: "World History: Ancient Civilizations", tutorId: "t2", tutorName: "John Adebayo", tutorAvatarSeed: "johnadebayo", studentName: "Rohan S.", mode: "Offline (In-person)", schedule: { days: ["Sun"], time: "2:00 PM - 4:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 15).toISOString() },
+  { id: "c6", subject: "Web Development Fundamentals", tutorId: "t3", tutorName: "Sophia Chen", tutorAvatarSeed: "sophiachen", studentName: "Priya M.", mode: "Online", schedule: { days: ["Wed"], time: "6:30 PM - 8:00 PM" }, status: "Past", endDate: new Date(Date.now() - 86400000 * 30).toISOString() },
+  { id: "c7", subject: "Calculus I", tutorId: "t1", tutorName: "Dr. Emily Carter", tutorAvatarSeed: "emilycarter", studentName: "Aisha K.", mode: "Online", schedule: { days: ["Mon"], time: "4:00 PM - 5:00 PM" }, status: "Cancelled" },
+  { id: "c8_mock_tutor_upcoming", subject: "Mathematics Basics", tutorId: "t6", tutorName: "Mock Tutor General", tutorAvatarSeed: "mocktutor", studentName: "Vikram Rao", mode: "Online", schedule: { days: ["Fri"], time: "5:00 PM - 6:00 PM" }, status: "Upcoming", startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString() }, // 2 days from now
+  { id: "c9_mock_tutor_ongoing", subject: "Introduction to Science", tutorId: "t6", tutorName: "Mock Tutor General", tutorAvatarSeed: "mocktutor", studentName: "Sunita Patil", mode: "Online", schedule: { days: ["Wed"], time: "4:30 PM - 5:30 PM" }, status: "Ongoing", nextSession: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString() }, // Tomorrow
+  { id: "c10_john_adebayo_upcoming", subject: "Historical Essay Writing", tutorId: "t2", tutorName: "John Adebayo", tutorAvatarSeed: "johnadebayo", studentName: "Arjun Menon", mode: "Offline (In-person)", schedule: { days: ["Mon"], time: "03:00 PM - 04:30 PM" }, status: "Upcoming", startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString() }, // 5 days from now
 ];
 
 
@@ -414,7 +431,8 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     additionalNotes: "Emphasis on practical communication skills.",
     board: "Other",
     teachingMode: ["Offline (In-person)"],
-    applicantsCount: 0
+    applicantsCount: 0,
+    mockIsRecommended: true,
   },
   {
     id: "past3-hybrid",
@@ -450,6 +468,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     applicantsCount: 3,
     additionalNotes: "Looking for experienced tutors only.",
     mockIsRecommended: true,
+    mockIsAppliedByCurrentUser: true, // Bob applied for this
   },
    {
     id: "alice_open_1",
@@ -467,7 +486,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "CBSE",
     teachingMode: ["Online"],
     applicantsCount: 0,
-    mockIsAppliedByCurrentUser: true,
+    mockIsAppliedByCurrentUser: false,
   },
   {
     id: "alice_matched_1",
@@ -484,7 +503,8 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     additionalNotes: "Tutor Clara B. selected. Demos completed.",
     board: "IGCSE",
     teachingMode: ["Offline (In-person)"],
-    applicantsCount: 4
+    applicantsCount: 4,
+    mockIsShortlistedByCurrentUser: true,
   },
   {
     id: "alice_closed_1",
@@ -505,4 +525,72 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   }
 ];
 
-    
+export const MOCK_TUTOR_PAYMENTS: TutorPayment[] = [
+  {
+    id: "pay1",
+    tutorId: "t2", // John Adebayo
+    studentName: "Priya M.",
+    subject: "English Literature",
+    amount: 7600, // 8 sessions * 950/hr (assuming 1 hr/session for simplicity)
+    hourlyRate: 950,
+    totalHours: 8,
+    totalSessions: 8,
+    fromDate: new Date(2025, 3, 1).toISOString(), // April 1, 2025
+    toDate: new Date(2025, 3, 30).toISOString(),   // April 30, 2025
+    status: "Pending",
+  },
+  {
+    id: "pay2",
+    tutorId: "t1", // Dr. Emily Carter
+    studentName: "Rohan S.",
+    subject: "Advanced Algebra",
+    amount: 8000, // 8 sessions * 1000/hr
+    hourlyRate: 1000,
+    totalHours: 8,
+    totalSessions: 8,
+    fromDate: new Date(2025, 3, 1).toISOString(), // April 1, 2025
+    toDate: new Date(2025, 3, 30).toISOString(),   // April 30, 2025
+    status: "Paid",
+    paymentDate: new Date(2025, 4, 2).toISOString(), // May 2, 2025
+  },
+  {
+    id: "pay3",
+    tutorId: "t6", // Mock Tutor General
+    studentName: "Sunita Patil",
+    subject: "Introduction to Science",
+    amount: 3000, // 4 sessions * 750/hr
+    hourlyRate: 750,
+    totalHours: 4,
+    totalSessions: 4,
+    fromDate: new Date(2025, 4, 1).toISOString(), // May 1, 2025
+    toDate: new Date(2025, 4, 31).toISOString(),   // May 31, 2025
+    status: "Pending",
+  },
+   {
+    id: "pay4",
+    tutorId: "t2", // John Adebayo
+    studentName: "Arjun Menon",
+    subject: "Historical Essay Writing",
+    amount: 3800, // 4 sessions * 1.5hr * 950/hr (assuming 1.5 hr/session)
+    hourlyRate: 950,
+    totalHours: 6, // 4 * 1.5
+    totalSessions: 4,
+    fromDate: new Date(new Date().getFullYear(), new Date().getMonth() -1, 1).toISOString(), // Last month
+    toDate: new Date(new Date().getFullYear(), new Date().getMonth() -1, 28).toISOString(),
+    status: "Paid",
+    paymentDate: new Date(new Date().getFullYear(), new Date().getMonth(), 2).toISOString(), // Paid 2nd of this month
+  },
+  {
+    id: "pay5",
+    tutorId: "t6", // Mock Tutor General
+    studentName: "Vikram Rao",
+    subject: "Mathematics Basics",
+    amount: 1500, // 2 sessions * 750/hr
+    hourlyRate: 750,
+    totalHours: 2,
+    totalSessions: 2,
+    fromDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(), // This month
+    toDate: new Date(new Date().getFullYear(), new Date().getMonth(), 15).toISOString(),
+    status: "Pending",
+  },
+];

@@ -23,7 +23,7 @@ export interface TuitionRequirement {
   gradeLevel: string;
   scheduleDetails: string;
   preferredDays?: string[];
-  preferredTimeSlots?: string[]; // Changed from preferredTime
+  preferredTimeSlots?: string[];
   location?: string;
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
@@ -31,11 +31,14 @@ export interface TuitionRequirement {
   board?: string;
   teachingMode?: string[];
   applicantsCount?: number;
+  mockIsRecommended?: boolean;
+  mockIsAppliedByCurrentUser?: boolean;
+  mockIsShortlistedByCurrentUser?: boolean;
 }
 
 export interface TutorProfile extends User {
   subjects: string[];
-  grade?: string; // This might be redundant if gradeLevelsTaught is comprehensive
+  grade?: string; 
   experience: string;
   hourlyRate?: string;
   bio?: string;
@@ -69,8 +72,8 @@ export interface DemoSession {
   gradeLevel: string;
   board: string;
   date: string; // ISO string
-  startTime: string; // e.g., "4:00 PM"
-  endTime: string;   // e.g., "4:30 PM"
+  startTime: string; // e.g., "04:00 PM"
+  endTime: string;   // e.g., "04:30 PM"
   status: "Scheduled" | "Completed" | "Cancelled" | "Requested";
   joinLink?: string;
   mode?: "Online" | "Offline (In-person)";
@@ -81,18 +84,33 @@ export interface DemoSession {
 export interface MyClass {
   id: string;
   subject: string;
+  tutorId?: string;
   tutorName: string;
-  tutorAvatarSeed: string; // For mock avatar
+  tutorAvatarSeed?: string; 
   studentName: string;
   mode: "Online" | "Offline (In-person)";
   schedule: {
     days: string[];
-    time: string; // e.g., "5:00 PM - 6:00 PM"
+    time: string; 
   };
   status: "Ongoing" | "Upcoming" | "Past" | "Cancelled";
-  startDate?: string; // ISO date string
-  endDate?: string; // ISO date string
-  nextSession?: string; // ISO date string (for upcoming/ongoing)
+  startDate?: string; 
+  endDate?: string; 
+  nextSession?: string; 
 }
 
-    
+export interface TutorPayment {
+  id: string;
+  tutorId: string;
+  studentName: string;
+  studentAvatarSeed?: string;
+  subject?: string; // Optional, payment might be for a period
+  amount: number;
+  hourlyRate?: number;
+  totalHours?: number;
+  totalSessions?: number;
+  fromDate: string; // ISO string
+  toDate: string; // ISO string
+  status: "Pending" | "Paid" | "Overdue";
+  paymentDate?: string; // ISO string, for when it was paid
+}
