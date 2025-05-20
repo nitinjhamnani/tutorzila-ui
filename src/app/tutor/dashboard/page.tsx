@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useEffect, useState, useRef, type ChangeEvent } from "react";
+import { useEffect, useState, useRef, type ChangeEvent, type ElementType } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -8,13 +9,13 @@ import type { User, TutorProfile, DemoSession, MyClass } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { MOCK_DEMO_SESSIONS, MOCK_CLASSES } from "@/lib/mock-data";
+import { MOCK_DEMO_SESSIONS, MOCK_CLASSES } from "@/lib/mock-data"; // Assuming MOCK_CLASSES is now exported
 import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
-import { useIsMobile } from "@/hooks/use-mobile";
-// import { SidebarTrigger } from "@/components/ui/sidebar"; // Not needed if header is in layout
+import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
+
 import {
   LayoutDashboard,
   Briefcase,
@@ -24,42 +25,60 @@ import {
   Settings as SettingsIcon,
   Presentation,
   RadioTower,
-  Clock as ClockIcon,
-  DollarSign,
   Eye,
   ArrowUp,
   ArrowDown,
   Percent,
   Star,
   CheckCircle2,
-  User as UserIcon,
-  MessageSquare,
+  DollarSign,
+  Send,
+  ArrowRight,
   ShoppingBag,
   HardDrive,
-  ArrowRight,
+  MessageSquare,
+  Clock as ClockIcon,
+  BookOpen as BookOpenIcon,
+  Globe as GlobeIcon,
+  FileText,
+  Palette,
+  Link as LinkIcon,
+  UploadCloud,
+  Ruler,
+  FilterIcon as LucideFilterIcon,
+  ListFilter,
+  Users as UsersIcon, // Correct alias for Users
+  BarChart2,
+  Image as LucideImage,
   Camera,
-  Menu as MenuIcon,
   Info,
   Bell,
-  ClipboardEdit // Added for "Edit Tutoring Details"
+  Menu as MenuIcon,
+  PanelLeft,
+  ClipboardEdit,
+  PlusCircle,
+  Users, // Import Users directly
 } from "lucide-react";
-import Image from "next/image"; // For Next.js Image component if used for logo
 
+
+// Helper component for Quick Action Cards
 interface QuickActionCardProps {
   title: string;
   description: string;
-  IconEl: React.ElementType;
+  IconEl: ElementType;
   href: string;
   disabled?: boolean;
   buttonText?: string;
+  iconBg?: string;
+  iconTextColor?: string;
 }
 
-function QuickActionCard({ title, description, IconEl, href, disabled, buttonText }: QuickActionCardProps) {
+function QuickActionCard({ title, description, IconEl, href, disabled, buttonText, iconBg = "bg-primary/10", iconTextColor = "text-primary" }: QuickActionCardProps) {
   const content = (
     <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
       <div>
-        <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-lg text-primary mb-3">
-          <IconEl className="w-5 h-5" />
+        <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg mb-3", iconBg)}>
+          <IconEl className={cn("w-5 h-5", iconTextColor)} />
         </div>
         <h3 className="font-medium text-foreground text-sm mb-1">{title}</h3>
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
@@ -84,20 +103,24 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
 
 
 export default function TutorDashboardPage() {
-  const { user, isAuthenticated, isCheckingAuth, logout } = useAuthMock();
+  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [upcomingSessions, setUpcomingSessions] = useState<Array<{ type: 'demo' | 'class'; data: DemoSession | MyClass; sortDate: Date }>>([]);
+  const [selectedDemoForModal, setSelectedDemoForModal] = useState<DemoSession | null>(null);
+  const [isManageDemoModalOpen, setIsManageDemoModalOpen] = useState(false);
+
   const [mockInsights, setMockInsights] = useState({
     leadBalance: 0,
     activeLeads: 0,
     demosCompleted: 0,
     profileViews: 0,
     applicationsSent: 0,
-    upcomingDemosCount: 0,
+    upcomingDemosCount: 0, // Renamed from upcomingDemos for clarity
   });
 
   useEffect(() => {
@@ -111,7 +134,7 @@ export default function TutorDashboardPage() {
   useEffect(() => {
     if (tutorUser) {
       let completedFields = 0;
-      const totalFields = 5;
+      const totalFields = 5; // Example total fields for profile completion
       if (tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh')) completedFields++;
       if (tutorUser.subjects && tutorUser.subjects.length > 0) completedFields++;
       if (tutorUser.bio && tutorUser.bio.trim() !== "") completedFields++;
@@ -119,33 +142,33 @@ export default function TutorDashboardPage() {
       if (tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== "") completedFields++;
       setCompletionPercentage(Math.round((completedFields / totalFields) * 100));
 
-      // Mock Insights Data (some parts depend on tutorUser, others can be random for demo)
-      const demos = MOCK_DEMO_SESSIONS.filter(d => d.tutorId === tutorUser.id || d.tutorName === tutorUser.name);
-      const classes = MOCK_CLASSES.filter(c => c.tutorId === tutorUser.id || c.tutorName === tutorUser.name);
-      
-      setMockInsights({
-        leadBalance: Math.floor(Math.random() * 30) + 10, // e.g. 10-39
-        activeLeads: Math.floor(Math.random() * 5) + 1,  // e.g. 1-5
-        demosCompleted: demos.filter(d => d.status === "Completed").length,
-        profileViews: Math.floor(Math.random() * 150) + 50, // e.g. 50-199
-        applicationsSent: Math.floor(Math.random() * 20) + 3, // e.g. 3-22
-        upcomingDemosCount: demos.filter(d => d.status === "Scheduled" && new Date(d.date) >= new Date()).length,
-      });
-
       // Combine and sort upcoming sessions
-      const upcomingDemos = demos
-        .filter(d => d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0,0,0,0)))
+      const demos = MOCK_DEMO_SESSIONS.filter(d => d.tutorId === tutorUser.id || d.tutorName === tutorUser.name);
+      const classes = MOCK_CLASSES.filter(c => c.tutorId === tutorUser.id || c.tutorName === tutorUser.name); // Assuming MOCK_CLASSES is available
+
+      const upcomingDemosFiltered = demos
+        .filter(d => d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0, 0, 0, 0)))
         .map(d => ({ type: 'demo' as const, data: d, sortDate: new Date(d.date) }));
 
-      const upcomingRegClasses = classes
-        .filter(c => (c.status === "Upcoming" && c.startDate && new Date(c.startDate) >= new Date(new Date().setHours(0,0,0,0))) || (c.status === "Ongoing" && c.nextSession && new Date(c.nextSession) >= new Date(new Date().setHours(0,0,0,0))))
+      const upcomingRegClassesFiltered = classes
+        .filter(c => (c.status === "Upcoming" && c.startDate && new Date(c.startDate) >= new Date(new Date().setHours(0, 0, 0, 0))) || (c.status === "Ongoing" && c.nextSession && new Date(c.nextSession) >= new Date(new Date().setHours(0, 0, 0, 0))))
         .map(c => ({ type: 'class' as const, data: c, sortDate: new Date(c.nextSession || c.startDate!) }));
-      
-      const combined = [...upcomingDemos, ...upcomingRegClasses].sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
+
+      const combined = [...upcomingDemosFiltered, ...upcomingRegClassesFiltered].sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
       setUpcomingSessions(combined);
 
+      // Set mock insights (some random, some derived)
+      setMockInsights({
+        leadBalance: Math.floor(Math.random() * 50) + 10,
+        activeLeads: Math.floor(Math.random() * 10) + 2,
+        demosCompleted: demos.filter(d => d.status === "Completed").length,
+        profileViews: Math.floor(Math.random() * 200) + 50,
+        applicationsSent: Math.floor(Math.random() * 30) + 5,
+        upcomingDemosCount: upcomingDemosFiltered.length,
+      });
     }
   }, [tutorUser, isCheckingAuth, isAuthenticated, router]);
+
 
   const handleAvatarUploadClick = () => {
     fileInputRef.current?.click();
@@ -155,14 +178,51 @@ export default function TutorDashboardPage() {
     const file = event.target.files?.[0];
     if (file) {
       toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
-      // Here you would normally upload the file and update user.avatar
     }
   };
+  
+  const handleManageDemo = (demo: DemoSession) => {
+    setSelectedDemoForModal(demo);
+    setIsManageDemoModalOpen(true);
+  };
+
+  const handleUpdateDemoSession = (updatedDemo: DemoSession) => {
+    setUpcomingSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.type === 'demo' && session.data.id === updatedDemo.id
+          ? { ...session, data: updatedDemo }
+          : session
+      )
+    );
+    // Also update MOCK_DEMO_SESSIONS for persistence in mock data if needed
+    const demoIndex = MOCK_DEMO_SESSIONS.findIndex(d => d.id === updatedDemo.id);
+    if (demoIndex > -1) {
+        MOCK_DEMO_SESSIONS[demoIndex] = updatedDemo;
+    }
+    toast({ title: "Demo Updated", description: `Demo with ${updatedDemo.studentName} updated.` });
+    setIsManageDemoModalOpen(false);
+  };
+
+  const handleCancelDemoSession = (sessionId: string) => {
+     setUpcomingSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.type === 'demo' && session.data.id === sessionId
+          ? { ...session, data: { ...session.data, status: "Cancelled" } }
+          : session
+      )
+    );
+    const demoIndex = MOCK_DEMO_SESSIONS.findIndex(d => d.id === sessionId);
+    if (demoIndex > -1) {
+        MOCK_DEMO_SESSIONS[demoIndex].status = "Cancelled";
+    }
+    toast({ title: "Demo Cancelled", variant: "destructive" });
+    setIsManageDemoModalOpen(false);
+  };
+
 
   if (isCheckingAuth || !tutorUser) {
     return <div className="flex min-h-screen items-center justify-center p-4 text-muted-foreground">Loading Tutor Dashboard...</div>;
   }
-
 
   const dashboardMetrics = [
     { title: "Lead Balance", value: String(mockInsights.leadBalance), IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary" },
@@ -174,14 +234,14 @@ export default function TutorDashboardPage() {
   ];
   
   const quickActions = [
-    { title: "My Enquiries", description: "View & respond to requests", IconEl: Briefcase, href: "/tutor/enquiries" },
-    { title: "My Classes", description: "Manage scheduled classes", IconEl: CalendarDays, href: "/tutor/classes" },
-    { title: "Edit Personal Details", description: "Update your personal info", IconEl: UserCog, href: "/tutor/edit-personal-details" },
-    { title: "Edit Tutoring Details", description: "Update your tutoring profile", IconEl: ClipboardEdit, href: "/tutor/edit-tutoring-details"},
-    { title: "My Payments", description: "View earnings & history", IconEl: DollarSign, href: "/tutor/payments" },
-    { title: "Demo Sessions", description: "Manage demo requests", IconEl: RadioTower, href: "/tutor/demo-sessions" },
-    { title: "View Public Profile", description: "See how your profile looks", IconEl: Eye, href: `/tutors/${tutorUser.id}`, disabled: !tutorUser.id },
-    { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true },
+    { title: "My Enquiries", description: "View & respond to tuition requests", IconEl: Briefcase, href: "/tutor/enquiries", buttonText: "View Enquiries" },
+    { title: "My Classes", description: "Manage your scheduled classes", IconEl: CalendarDays, href: "/tutor/classes", buttonText: "Manage Classes" },
+    { title: "Edit Profile", description: "Update your personal & tutoring info", IconEl: UserCog, href: "/tutor/edit-personal-details", buttonText: "Update Profile" },
+    { title: "My Payments", description: "Track your earnings and payment status", IconEl: DollarSign, href: "/tutor/payments", buttonText: "View Payments" },
+    { title: "Demo Sessions", description: "Manage all your demo class activities", IconEl: Presentation, href: "/tutor/demo-sessions", buttonText: "Manage Demos"},
+    { title: "View Public Profile", description: "See how your profile looks to parents", IconEl: Eye, href: `/tutors/${tutorUser.id}`, disabled: !tutorUser.id, buttonText: "View Profile" },
+    { title: "Support Center", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
+    { title: "Account Settings", description: "Adjust your account preferences", IconEl: SettingsIcon, href: "/tutor/settings", disabled: true, buttonText: "Go to Settings" },
   ];
 
 
@@ -262,7 +322,7 @@ export default function TutorDashboardPage() {
                 {/* Dashboard Metrics */}
                 <div className="mb-6 md:mb-8">
                     <h2 className="text-base sm:text-lg font-semibold text-foreground mb-4">My Insights</h2>
-                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4">
                         {dashboardMetrics.map((metric, index) => (
                             <div key={index} className="bg-card rounded-xl shadow-lg p-4 border-0 text-center">
                                 <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0 mb-2 mx-auto", metric.iconBg, metric.iconColor)}>
@@ -279,18 +339,17 @@ export default function TutorDashboardPage() {
                 <div className="mb-6 md:mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-base sm:text-lg font-semibold text-foreground">Upcoming Sessions</h2>
-                        <Button variant="link" size="sm" className="text-xs text-primary p-0 h-auto" asChild>
-                            <Link href="/tutor/demo-sessions">View All Demos</Link>
+                         <Button variant="link" size="sm" className="text-xs text-primary p-0 h-auto" asChild>
+                           <Link href="/tutor/demo-sessions">View All Demos</Link>
                         </Button>
                     </div>
                     {upcomingSessions.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                            {upcomingSessions.slice(0, 3).map((session, index) => ( // Display max 3 for dashboard
+                            {upcomingSessions.slice(0, 3).map((session) => (
                                 <UpcomingSessionCard 
-                                    key={`${session.type}-${session.data.id}-${index}`} 
+                                    key={`${session.type}-${session.data.id}`} 
                                     sessionDetails={session}
-                                    onUpdateSession={() => { /* Placeholder or actual update logic */}}
-                                    onCancelSession={() => { /* Placeholder or actual cancel logic */}}
+                                    onManageDemo={session.type === 'demo' ? () => handleManageDemo(session.data as DemoSession) : undefined}
                                 />
                             ))}
                         </div>
@@ -315,5 +374,5 @@ export default function TutorDashboardPage() {
                 </div>
             </div>
         </main>
-    );
+      )
 }
