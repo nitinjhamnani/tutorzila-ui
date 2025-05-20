@@ -3,12 +3,12 @@
 
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button"; // Added Button import
-import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Users } from "lucide-react"; // Added Edit3
+import { Button } from "@/components/ui/button";
+import { GraduationCap, Clock, RadioTower, Building, MapPin, Users as UsersIcon, Archive, Edit3, Users, Eye } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-// Link import is removed as the card itself will not be a link
+import Link from "next/link"; // Keep Link import for Edit button
 import { Badge } from "@/components/ui/badge";
 
 interface ParentEnquiryCardProps {
@@ -28,7 +28,6 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
-// Helper component for info items with icons
 const InfoItem = ({ icon: Icon, label, value, className }: { icon?: React.ElementType; label?: string; value?: string | string[]; className?: string }) => {
   if (!value || (Array.isArray(value) && value.length === 0)) return null;
   const displayText = Array.isArray(value) ? value.join(", ") : value;
@@ -54,7 +53,7 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
         isPastEnquiry && "opacity-70 bg-muted/30"
       )}
     >
-      <CardHeader className="p-0 pb-3 sm:pb-4 relative"> {/* Ensure relative positioning for the button */}
+      <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
@@ -72,16 +71,15 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
           {/* Edit Button - styled like TutorDemoCard's settings button */}
           {!isPastEnquiry && onEdit && (
             <Button
+              asChild
               variant="default"
               size="icon"
               className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
               title="Edit Enquiry"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering link if card was clickable
-                onEdit(requirement.id);
-              }}
             >
-              <Edit3 className="h-4 w-4" />
+              <Link href={`/parent/my-enquiries/edit/${requirement.id}`}>
+                <Edit3 className="h-4 w-4" />
+              </Link>
             </Button>
           )}
         </div>
@@ -102,23 +100,14 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
 
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
         <div className="flex-grow min-w-0">
-          {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
-             <Badge
-              variant="outline"
-              className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
-            >
-              <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-              {requirement.applicantsCount} Applicant{requirement.applicantsCount !== 1 ? 's' : ''}
-            </Badge>
-          )}
+          {/* Applicants count badge removed */}
         </div>
-         {/* Reopen button for past enquiries remains as it's a specific action on the card itself */}
          {isPastEnquiry && onReopen && (
             <Button
                 variant="outline"
                 size="xs"
                 onClick={(e) => {
-                    e.stopPropagation(); 
+                    e.stopPropagation();
                     onReopen(requirement.id);
                 }}
                 className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
@@ -130,8 +119,5 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
     </div>
   );
 
-  // If the card should not be clickable (for 'open' or 'matched' status anymore)
-  // we directly return cardContent. If it *was* meant to be a Link wrapper for these,
-  // that logic has been removed as per the request to make the card itself not clickable.
   return cardContent;
 }
