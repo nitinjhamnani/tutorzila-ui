@@ -5,28 +5,29 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-// Removed VerificationBanner import as it was deleted
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Logo } from "@/components/shared/Logo";
+import { cn } from "@/lib/utils";
+import type { User, TutorProfile } from "@/types";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   LayoutDashboard,
   Briefcase,
   CalendarDays,
   School,
   UserCircle,
-  Settings as SettingsIcon, // Alias for clarity
+  Settings as SettingsIcon,
   LogOut,
-  Menu as MenuIcon, // Alias for clarity
+  Menu as MenuIcon,
   Bell,
   PanelLeft,
-  DollarSign,
-  MessageSquareQuote,
+  ShoppingBag,
   ListChecks,
+  DollarSign,
+  MessageSquareQuote
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuthMock } from "@/hooks/use-auth-mock";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Logo } from "@/components/shared/Logo";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
@@ -34,29 +35,34 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const isMobile = useIsMobile();
-  const [hasMounted, setHasMounted] = useState(false);
 
-  // State for custom vertical navbar
+  const [hasMounted, setHasMounted] = useState(false);
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-
-  const toggleNavbarCollapsed = () => setIsNavbarCollapsed(prev => !prev);
-  const toggleMobileNav = () => setIsMobileNavOpen(prev => !prev);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
-  
-  // Moved all hooks to the top
-  useEffect(() => {
-    if (hasMounted && !isCheckingAuth) {
-      if (!isAuthenticated) {
-        router.replace("/");
-      } else if (user?.role !== 'tutor') {
-        router.replace("/"); // Or a more appropriate page like /access-denied
-      }
-    }
-  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
+
+  const toggleNavbarCollapsed = () => setIsNavbarCollapsed(prev => !prev);
+  const toggleMobileNav = () => setIsMobileNavOpen(prev => !prev);
+
+  const tutorNavItems = [
+    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
+    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
+    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays, disabled: false },
+    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
+    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
+    { href: "/tutor/leads", label: "Leads", icon: ShoppingBag, disabled: false },
+    { href: "/tutor/transactions", label: "Transactions", icon: ListChecks, disabled: false },
+  ];
+
+  const accountSettingsNavItems = [
+    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
+    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
+  ];
+
+  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
 
   const headerHeight = "4rem"; // For h-16 or p-4 header
 
@@ -71,61 +77,53 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     };
   }, [hasMounted]);
 
+  useEffect(() => {
+    if (hasMounted && !isCheckingAuth) {
+      if (!isAuthenticated) {
+        router.replace("/");
+      } else if (user?.role !== 'tutor') {
+        router.replace("/");
+      }
+    }
+  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
-  const tutorNavItems = [
-    { href: "/tutor/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
-    { href: "/tutor/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
-    { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays, disabled: false },
-    { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
-    { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
-    { href: "/tutor/leads", label: "Leads", icon: MessageSquareQuote, disabled: false },
-    { href: "/tutor/transactions", label: "Transactions", icon: ListChecks, disabled: true },
-  ];
-
-  const accountSettingsNavItems = [
-    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
-    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
-  ];
-  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
-  
   if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
 
   if (hasMounted && (!isAuthenticated || user?.role !== 'tutor')) {
-    // This return is for the case where redirection hasn't happened yet or for safeguarding
+    // This return handles the case where auth status changes after mount, leading to redirection.
+    // The useEffect above handles the initial redirection.
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
-   if (!user && hasMounted) {
-    return <div className="flex h-screen items-center justify-center">User data not available.</div>;
+
+   if (!user && hasMounted) { // Should ideally be caught by !isAuthenticated, but as a safeguard
+    return <div className="flex h-screen items-center justify-center">User data not available. Redirecting...</div>;
   }
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* <VerificationBanner /> Removed as per user request */}
-
       {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // Removed var(--verification-banner-height,0px)
+            "sticky top-0 z-30", // Sticks to the very top as banner is removed
             `h-[${headerHeight}]`
           )}
         >
           <div className="flex items-center gap-2">
-            {/* Mobile Nav Open Trigger */}
-            {isMobile && (
-                <Button variant="ghost" size="icon" onClick={toggleMobileNav} className="text-gray-600 hover:text-primary md:hidden">
-                    <MenuIcon className="h-6 w-6" />
-                </Button>
-            )}
-            {/* Desktop Nav Collapse Trigger */}
-            {!isMobile && (
-                <Button variant="ghost" size="icon" onClick={toggleNavbarCollapsed} className="text-gray-600 hover:text-primary hidden md:flex">
-                    <PanelLeft className="h-5 w-5" />
-                </Button>
-            )}
+            {/* Combined Mobile Nav Open and Desktop Collapse Trigger */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
+              className="text-gray-600 hover:text-primary"
+              aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
+            >
+              {isMobile ? <MenuIcon className="h-6 w-6" /> : <PanelLeft className="h-5 w-5" />}
+            </Button>
             <Link href="/tutor/dashboard">
               <Logo className="h-8 w-auto" />
             </Link>
@@ -143,13 +141,22 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* User Avatar and Logout removed from header as per last instruction */}
+            {/* User Avatar and Name removed from here as per previous request */}
+            {/* Logout Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={logoutNavItem.onClick}
+              className="text-xs h-8 border-destructive text-destructive hover:bg-destructive/10"
+            >
+              <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
+            </Button>
           </div>
         </header>
       )}
 
       {/* This div contains the sidebar and the main page content. */}
-      <div className={cn("flex flex-1 overflow-hidden")}> {/* NO TOP PADDING HERE */}
+      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed top padding */}
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}
@@ -161,9 +168,11 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={logoutNavItem}
         />
-        <main className={cn("flex-1 flex flex-col overflow-y-auto bg-secondary")}> {/* NO TOP PADDING HERE */}
-          {/* The children (page content) will manage their own padding to clear the header if needed */}
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full h-full">
+        <main className={cn(
+            "flex-1 flex flex-col overflow-y-auto bg-secondary",
+            hasMounted ? "pt-[var(--header-height)]" : "pt-0" // Main content still needs to clear sticky header
+        )}>
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8">
             {children}
           </div>
         </main>
@@ -171,3 +180,5 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     </div>
   );
 }
+
+    
