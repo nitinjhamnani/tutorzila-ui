@@ -28,7 +28,6 @@ export default function TutorLeadsPage() {
 
   const mockLeadBalance = 25; 
   const mockPlanName = "Premium Plan";
-  // const mockPlanIcon = Crown; // No longer needed as we use Crown directly
 
   const summaryStats = useMemo(() => {
     return {
@@ -45,22 +44,20 @@ export default function TutorLeadsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <Card className="bg-card rounded-xl shadow-lg border-0 mb-6">
-          <CardHeader className="p-4 sm:p-5 border-b border-border/30">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-full text-primary">
-                  <ShoppingBag className="w-5 h-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg sm:text-xl font-semibold text-primary">
-                    Lead Management
-                  </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                    View your lead balance, current plan, and purchase more leads.
-                  </CardDescription>
-                </div>
+        <Card className="bg-card rounded-none shadow-lg border-0 p-4 sm:p-5 mb-6">
+          <CardHeader className="p-0 mb-3 flex flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-grow">
+              <div className="flex items-center">
+                <ShoppingBag className="w-5 h-5 mr-2.5 text-primary"/>
+                <CardTitle className="text-xl font-semibold text-primary">
+                  Lead Management
+                </CardTitle>
               </div>
+              <CardDescription className="text-xs text-muted-foreground mt-1 ml-[calc(1.25rem+0.625rem)] sm:ml-0 sm:mt-0.5">
+                View your lead balance, current plan, and purchase more leads.
+              </CardDescription>
+            </div>
+            <div className="shrink-0">
               <Button 
                 variant="default" 
                 size="sm" 
@@ -71,12 +68,12 @@ export default function TutorLeadsPage() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-4 sm:p-5">
+          <CardContent className="p-0 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Current Plan Card */}
               <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
                 <div className="flex items-center">
-                  <Crown className="w-5 h-5 mr-3 text-yellow-500" /> {/* Changed from mockPlanIcon to Crown */}
+                  <Crown className="w-5 h-5 mr-3 text-yellow-500" />
                   <div>
                     <p className="text-xs text-muted-foreground">Current Plan</p>
                     <p className="text-xl font-semibold text-yellow-600">{summaryStats.currentPlan}</p>
@@ -98,13 +95,16 @@ export default function TutorLeadsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card rounded-xl shadow-lg border-0">
-          <CardHeader className="p-4 sm:p-5">
-            <CardTitle className="text-base sm:text-lg font-semibold text-primary">
-              Purchased Leads History
-            </CardTitle>
+        <Card className="bg-card rounded-none shadow-lg border-0 p-4 sm:p-5">
+          <CardHeader className="p-0 mb-3">
+            <div className="flex items-center">
+               <TrendingUp className="w-5 h-5 mr-2.5 text-primary"/>
+                <CardTitle className="text-xl font-semibold text-primary">
+                    Purchased Leads History
+                </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="p-4 sm:p-5 text-center">
+          <CardContent className="p-0 mt-4 text-center">
             <ShoppingBag className="w-12 h-12 text-primary/30 mx-auto mb-4" />
             <p className="text-sm font-medium text-foreground/70 mb-1">
               Feature Coming Soon!
@@ -118,4 +118,3 @@ export default function TutorLeadsPage() {
     </main>
   );
 }
-
