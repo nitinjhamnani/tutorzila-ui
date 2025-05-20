@@ -1,5 +1,4 @@
 
-// src/app/tutor/enquiries/page.tsx
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -10,7 +9,6 @@ import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirement
 import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -20,18 +18,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle as DialogTitleComponent, DialogDescription as DialogDescriptionComponent, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Input } from "@/components/ui/input";
 
+
 const allEnquiryStatuses = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
 type EnquiryStatusCategory = (typeof allEnquiryStatuses)[number];
 
 const allSubjectsList = [...new Set(MOCK_ALL_PARENT_REQUIREMENTS.flatMap(t => Array.isArray(t.subject) ? t.subject : [t.subject]))].filter(Boolean);
-const allGradeLevelsList = ["All", ...new Set(MOCK_ALL_PARENT_REQUIREMENTS.map(t => t.gradeLevel))].filter(Boolean);
+const allGradeLevelsList = ["All", ...new Set(MOCK_ALL_PARENT_REQUIREMENTS.map(t => t.gradeLevel))].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i);
 const allBoardsList = ["All", ...new Set(MOCK_ALL_PARENT_REQUIREMENTS.map(t => t.board).filter(Boolean) as string[])];
 const allLocationsList = ["All", ...new Set(MOCK_ALL_PARENT_REQUIREMENTS.map(t => t.location).filter(Boolean) as string[])];
 const allTeachingModesList = ["All", "Online", "Offline (In-person)"];
@@ -197,10 +196,10 @@ export default function AllEnquiriesPage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-7xl mx-auto w-full py-6 md:py-8"> {/* Removed page-level px, relying on TutorLayout */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         {/* Top Card: Manage Enquiries with Filter Button */}
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 flex flex-row items-start sm:items-center justify-between gap-3">
+          <CardHeader className="p-0 mb-3 flex flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5" />
@@ -210,120 +209,132 @@ export default function AllEnquiriesPage() {
                 Review and apply to tuition requirements posted by parents.
               </CardDescription>
             </div>
-            <Dialog open={isFilterDialogOpen} onOpenChange={(isOpen) => {
-              if (!isOpen) {
-                setTempSubjectFilter([...appliedSubjectFilter]);
-                setTempGradeFilter(appliedGradeFilter);
-                setTempBoardFilter(appliedBoardFilter);
-                setTempLocationFilter(appliedLocationFilter);
-                setTempTeachingModeFilter([...appliedTeachingModeFilter]);
-              }
-              setIsFilterDialogOpen(isOpen);
-            }}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="default"
-                  size="icon"
-                  className={cn(
-                    "h-9 w-9 shrink-0",
-                    "transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center gap-1.5",
-                    filtersApplied ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary text-primary-foreground hover:bg-primary/90 border-primary"
-                  )}
-                >
-                  <LucideFilterIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline text-sm">Filter</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden">
-                <DialogHeader className="p-6 pb-4 border-b">
-                  <DialogTitle className="text-lg font-semibold text-primary flex items-center">
-                    <LucideFilterIcon className="mr-2 h-5 w-5" /> Filter Enquiries
-                  </DialogTitle>
-                  <DialogDescription>
-                    Refine your search for tuition opportunities.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                  {/* Form fields for filters */}
-                  <div className="space-y-1.5">
-                    <Label htmlFor="filter-subject-enq" className="text-xs font-medium text-muted-foreground flex items-center"><BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Subject(s)</Label>
-                    <Input // Placeholder for multi-select for now
-                      id="filter-subject-enq"
-                      placeholder="Subject filter coming soon"
-                      disabled
-                      className="text-xs h-9"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="filter-grade-enq" className="text-xs font-medium text-muted-foreground flex items-center"><UsersIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Grade Level</Label>
-                    <FormSelectTrigger id="filter-grade-enq" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
-                      <FormSelectValue placeholder="All Grades" />
-                    </FormSelectTrigger>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="filter-board-enq" className="text-xs font-medium text-muted-foreground flex items-center"><Briefcase className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Board</Label>
-                    <FormSelectTrigger id="filter-board-enq" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
-                      <FormSelectValue placeholder="All Boards" />
-                    </FormSelectTrigger>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground flex items-center"><LucideFilterIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode</Label>
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      {allTeachingModesList.filter(m => m !== "All").map(mode => (
-                        <div key={mode} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`mode-enq-${mode}`}
-                          />
-                          <Label htmlFor={`mode-enq-${mode}`} className="text-xs font-normal text-foreground cursor-pointer">{mode}</Label>
-                        </div>
-                      ))}
+            <div className="flex items-center gap-3">
+              <Dialog open={isFilterDialogOpen} onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                  setTempSubjectFilter([...appliedSubjectFilter]);
+                  setTempGradeFilter(appliedGradeFilter);
+                  setTempBoardFilter(appliedBoardFilter);
+                  setTempLocationFilter(appliedLocationFilter);
+                  setTempTeachingModeFilter([...appliedTeachingModeFilter]);
+                }
+                setIsFilterDialogOpen(isOpen);
+              }}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="default"
+                    size="sm" 
+                    className={cn(
+                      "py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
+                      "text-xs", 
+                      filtersApplied && "ring-2 ring-offset-2 ring-primary/70"
+                    )}
+                  >
+                    <LucideFilterIcon className="w-4 h-4 opacity-90 md:mr-1.5" />
+                    <span className="hidden md:inline">Filter</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden">
+                  <DialogHeader className="p-6 pb-4 border-b">
+                    <DialogTitleComponent className="text-lg font-semibold text-primary flex items-center">
+                      <LucideFilterIcon className="mr-2 h-5 w-5" /> Filter Enquiries
+                    </DialogTitleComponent>
+                    <DialogDescriptionComponent>
+                      Refine your search for tuition opportunities.
+                    </DialogDescriptionComponent>
+                  </DialogHeader>
+                  <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="filter-subject-enq" className="text-xs font-medium text-muted-foreground flex items-center"><BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Subject(s)</Label>
+                        <Input 
+                            id="filter-subject-enq"
+                            placeholder="Subject filter coming soon"
+                            disabled
+                            className="text-xs h-9"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="filter-grade-enq" className="text-xs font-medium text-muted-foreground flex items-center"><UsersIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Grade Level</Label>
+                      <Select value={tempGradeFilter} onValueChange={setTempGradeFilter}>
+                        <FormSelectTrigger id="filter-grade-enq" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
+                          <FormSelectValue placeholder="All Grades" />
+                        </FormSelectTrigger>
+                        <SelectContent>
+                          {allGradeLevelsList.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="filter-board-enq" className="text-xs font-medium text-muted-foreground flex items-center"><Briefcase className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Board</Label>
+                      <Select value={tempBoardFilter} onValueChange={setTempBoardFilter}>
+                        <FormSelectTrigger id="filter-board-enq" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm hover:shadow-md rounded-lg">
+                          <FormSelectValue placeholder="All Boards" />
+                        </FormSelectTrigger>
+                        <SelectContent>
+                          {allBoardsList.map(opt => <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground flex items-center"><LucideFilterIcon className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode</Label>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        {allTeachingModesList.filter(m => m !== "All").map(mode => (
+                          <div key={mode} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`mode-enq-${mode}`}
+                              checked={tempTeachingModeFilter.includes(mode)}
+                              onCheckedChange={(checked) => handleTeachingModeCheckboxChange(mode, !!checked)}
+                            />
+                            <Label htmlFor={`mode-enq-${mode}`} className="text-xs font-normal text-foreground cursor-pointer">{mode}</Label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <DialogFooter className="p-6 pt-4 border-t gap-2 sm:justify-between">
-                  <Button variant="ghost" onClick={handleClearFilters} className="text-xs text-muted-foreground hover:text-destructive">
-                    <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear All
-                  </Button>
-                  <Button onClick={handleApplyFilters} className="text-xs">Apply Filters</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                  <DialogFooter className="p-6 pt-4 border-t gap-2 sm:justify-between">
+                    <Button variant="ghost" onClick={handleClearFilters} className="text-xs text-muted-foreground hover:text-destructive">
+                      <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear All
+                    </Button>
+                    <Button onClick={handleApplyFilters} className="text-xs">Apply Filters</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardHeader>
-          {/* Removed CardContent that previously held search input */}
         </Card>
-
-        {/* Filter by Category Dropdown */}
+        
         <div className="flex justify-end mb-4 sm:mb-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="default"
-                className="text-xs sm:text-sm py-2 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <span className="text-primary-foreground">
-                  {selectedCategoryLabel} ({filterCategoriesForDropdown.find(cat => cat.value === activeFilterCategory)?.count || 0})
-                </span>
-                <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[220px]">
-              <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {filterCategoriesForDropdown.map((category) => (
-                <DropdownMenuItem
-                  key={category.value}
-                  onClick={() => setActiveFilterCategory(category.value)}
-                  className={cn(
-                    "text-sm",
-                    activeFilterCategory === category.value && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
-                  )}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                <Button
+                    variant="default"
+                    size="sm"
+                    className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <category.icon className="mr-2 h-4 w-4" />
-                  {category.label} ({category.count})
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    <span className="text-primary-foreground">
+                    {selectedCategoryLabel} ({filterCategoriesForDropdown.find(cat => cat.value === activeFilterCategory)?.count || 0})
+                    </span>
+                    <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
+                </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[220px]">
+                <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {filterCategoriesForDropdown.map((category) => (
+                    <DropdownMenuItem
+                    key={category.value}
+                    onClick={() => setActiveFilterCategory(category.value)}
+                    className={cn(
+                        "text-sm",
+                        activeFilterCategory === category.value && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
+                    )}
+                    >
+                    <category.icon className="mr-2 h-4 w-4" />
+                    {category.label} ({category.count})
+                    </DropdownMenuItem>
+                ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
 
         <div className="mt-6">

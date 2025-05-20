@@ -1,3 +1,4 @@
+
 // src/app/tutor/payments/page.tsx
 "use client";
 
@@ -96,8 +97,8 @@ export default function TutorPaymentsPage() {
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-0 flex flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex-grow">
+          <CardHeader className="p-0 mb-3 flex flex-row items-start sm:items-center justify-between gap-3">
+            <div>
                 <div className="flex items-center">
                     <DollarSign className="w-5 h-5 mr-2.5 text-primary"/>
                     <CardTitle className="text-xl font-semibold text-primary">
@@ -109,13 +110,17 @@ export default function TutorPaymentsPage() {
                 </CardDescription>
             </div>
             <Button
-              size="sm"
-              className="text-xs py-2 flex items-center transform transition-transform hover:scale-105 active:scale-95 shadow-sm md:px-3 px-2"
-              onClick={() => toast({ title: "Feature Coming Soon", description: "Ability to manually add payments will be added soon."})}
-            >
-              <PlusCircle className="h-4 w-4 md:mr-1.5" />
-              <span className="hidden md:inline">Collect Payment</span>
-            </Button>
+                variant="default"
+                size="sm"
+                className={cn(
+                    "py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
+                    "text-xs" // Explicitly set smaller font size
+                )}
+                onClick={() => toast({ title: "Feature Coming Soon", description: "Ability to manually add payments will be added soon."})}
+              >
+                <PlusCircle className="w-4 h-4 opacity-90 md:mr-1.5" />
+                <span className="hidden md:inline">Collect Payment</span>
+              </Button>
           </CardHeader>
           <CardContent className="p-0 mt-4">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -148,7 +153,8 @@ export default function TutorPaymentsPage() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="default"
-                className="text-xs sm:text-sm py-2 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
+                size="sm"
+                className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <span className="text-primary-foreground">
                   {selectedCategoryLabel} ({paymentStatusCategoriesForDropdown.find(cat => cat.value === activePaymentCategoryFilter)?.count || 0})
