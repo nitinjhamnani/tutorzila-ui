@@ -131,3 +131,12 @@ export interface TutorLead {
   leadsConsumed?: number; // Number of leads this contact cost
 }
 
+export interface TutorTransaction {
+  id: string;
+  tutorId: string;
+  type: "Credit" | "Debit";
+  mode: "Cash" | "Online" | "Wallet" | "System"; // System for automated like lead consumption
+  amount: number;
+  date: string; // ISO date string
+  summary: string;
+}

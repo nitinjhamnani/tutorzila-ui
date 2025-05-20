@@ -2,15 +2,30 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ListChecks, Construction } from "lucide-react"; // Added Construction
+import { ListChecks, ArrowUpCircle, ArrowDownCircle } from "lucide-react"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import type { TutorTransaction, TutorProfile } from "@/types";
+import { MOCK_TUTOR_TRANSACTIONS } from "@/lib/mock-data";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function TutorTransactionsPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const [hasMounted, setHasMounted] = useState(false);
+  const [transactions, setTransactions] = useState<TutorTransaction[]>([]);
+  const tutorUser = user as TutorProfile | null;
 
   useEffect(() => {
     setHasMounted(true);
@@ -18,41 +33,90 @@ export default function TutorTransactionsPage() {
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
-      if (!isAuthenticated || user?.role !== 'tutor') {
+      if (!isAuthenticated || !tutorUser || tutorUser.role !== 'tutor') {
         router.replace("/");
+      } else {
+        const tutorTransactions = MOCK_TUTOR_TRANSACTIONS.filter(txn => txn.tutorId === tutorUser.id);
+        setTransactions(tutorTransactions);
       }
     }
-  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
+  }, [hasMounted, isAuthenticated, isCheckingAuth, tutorUser, router]);
 
-  if (isCheckingAuth || !hasMounted || (hasMounted && (!isAuthenticated || user?.role !== 'tutor'))) {
-    return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading or redirecting...</div>;
+  const formattedTransactions = useMemo(() => {
+    return transactions.map(txn => ({
+      ...txn,
+      formattedDate: format(new Date(txn.date), "MMM d, yyyy"),
+      formattedAmount: `₹${txn.amount.toLocaleString()}`,
+    }));
+  }, [transactions]);
+
+  if (!hasMounted || isCheckingAuth || !user) {
+    return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
   }
   
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <Card className="bg-card border rounded-none shadow-lg p-4 sm:p-5 border-0 animate-in fade-in duration-500 ease-out">
-          <CardHeader className="p-0 pb-3 sm:pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-primary/10 rounded-full text-primary">
-                <ListChecks className="w-6 h-6" />
-              </div>
-              <div>
-                <CardTitle className="text-xl font-semibold text-primary tracking-tight">
+        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 border-0 mb-6 md:mb-8">
+          <CardHeader className="p-0 mb-0 flex flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-grow">
+              <div className="flex items-center">
+                <ListChecks className="w-5 h-5 mr-2.5 text-primary"/>
+                <CardTitle className="text-xl font-semibold text-primary">
                   Transaction History
                 </CardTitle>
-                <CardDescription className="text-sm text-foreground/70 mt-1">
-                  View your leads credits/debits and fee credits.
-                </CardDescription>
               </div>
+              <CardDescription className="text-xs text-muted-foreground mt-1 ml-[calc(1.25rem+0.625rem)] sm:ml-0 sm:mt-0.5">
+                View your leads credits/debits and fee credits.
+              </CardDescription>
             </div>
+            {/* Placeholder for any header actions like "Download Statement" */}
           </CardHeader>
-          <CardContent className="p-0 pt-4 text-center">
-            <Construction className="w-16 h-16 text-primary/30 mx-auto mb-5" />
-            <p className="text-xl font-semibold text-foreground/70 mb-1.5">Feature Coming Soon!</p>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              This section will display a detailed history of all your financial transactions, including lead purchases, fee credits, and any debits.
-            </p>
+        </Card>
+
+        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+          <CardContent className="p-0">
+            {formattedTransactions.length > 0 ? (
+              <Table>
+                <TableCaption className="py-4 text-xs">A list of your recent transactions.</TableCaption>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground w-[120px]">Transaction ID</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Type</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Mode</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Amount</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Date</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Summary</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {formattedTransactions.map((txn) => (
+                    <TableRow key={txn.id} className="hover:bg-muted/20">
+                      <TableCell className="px-4 py-3 text-xs font-medium text-foreground">{txn.id}</TableCell>
+                      <TableCell className={cn(
+                        "px-4 py-3 text-xs font-semibold flex items-center",
+                        txn.type === "Credit" ? "text-green-600" : "text-red-600"
+                      )}>
+                        {txn.type === "Credit" ? <ArrowUpCircle className="w-3.5 h-3.5 mr-1.5"/> : <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5"/>}
+                        {txn.type}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-xs text-foreground">{txn.mode}</TableCell>
+                      <TableCell className="px-4 py-3 text-xs text-foreground text-right">{txn.formattedAmount}</TableCell>
+                      <TableCell className="px-4 py-3 text-xs text-foreground">{txn.formattedDate}</TableCell>
+                      <TableCell className="px-4 py-3 text-xs text-foreground">{txn.summary}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-16">
+                <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+                <p className="text-md font-semibold text-foreground/70 mb-2">No Transactions Found</p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                  You don't have any transactions yet.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

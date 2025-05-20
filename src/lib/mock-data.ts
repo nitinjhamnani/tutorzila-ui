@@ -1,5 +1,5 @@
 
-import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass, TutorPayment, TutorLead } from "@/types";
+import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass, TutorPayment, TutorLead, TutorTransaction } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   {
@@ -670,3 +670,10 @@ export const MOCK_TUTOR_LEADS: TutorLead[] = [
   },
 ];
 
+export const MOCK_TUTOR_TRANSACTIONS: TutorTransaction[] = [
+  { id: "txn1", tutorId: "t2", type: "Credit", mode: "Wallet", amount: 500, date: new Date(Date.now() - 86400000 * 2).toISOString(), summary: "Lead purchase credits" },
+  { id: "txn2", tutorId: "t2", type: "Debit", mode: "System", amount: 5, date: new Date(Date.now() - 86400000 * 1).toISOString(), summary: "Lead consumed for Ananya Sharma" },
+  { id: "txn3", tutorId: "t6", type: "Credit", mode: "Online", amount: 2000, date: new Date(Date.now() - 86400000 * 5).toISOString(), summary: "Payment received from Sunita Patil" },
+  { id: "txn4", tutorId: "t6", type: "Debit", mode: "System", amount: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), summary: "Lead consumed for Rajesh Kumar" },
+  { id: "txn5", tutorId: "t2", type: "Credit", mode: "Cash", amount: 3800, date: new Date().toISOString(), summary: "Payment collected from Arjun Menon" },
+];
