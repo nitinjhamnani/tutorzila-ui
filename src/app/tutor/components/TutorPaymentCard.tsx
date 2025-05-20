@@ -31,21 +31,9 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
   const { toast } = useToast();
   const studentInitials = getInitials(payment.studentName);
 
-  const statusBadgeClasses = () => {
-    switch (payment.status) {
-      case "Pending":
-        return "bg-orange-100 text-orange-700 border-orange-500/50 hover:bg-orange-200";
-      case "Paid":
-        return "bg-green-100 text-green-700 border-green-500/50 hover:bg-green-200";
-      case "Overdue":
-        return "bg-red-100 text-red-700 border-red-500/50 hover:bg-red-200";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-500/50 hover:bg-gray-200";
-    }
-  };
-
+  // This function determines the icon based on status, its color will be set by the badge's text color
   const StatusIcon = () => {
-    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
+    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80"; // Consistent muted icon color
     switch (payment.status) {
       case "Pending": return <Clock className={iconClasses} />;
       case "Paid": return <CheckCircle2 className={iconClasses} />;
@@ -81,13 +69,7 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
               With {payment.studentName}
             </CardDescription>
           </div>
-           <Badge
-            variant="outline"
-            className={cn("text-[10px] py-0.5 px-1.5 border font-medium whitespace-nowrap rounded-full", statusBadgeClasses())}
-          >
-            <StatusIcon />
-            {payment.status}
-          </Badge>
+          {/* Status badge removed from header */}
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
@@ -101,32 +83,44 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
           <InfoItem icon={CheckCircleIcon} label="Paid On:" value={format(new Date(payment.paymentDate), "PP")} />
         )}
       </CardContent>
-      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-end items-center gap-2">
-        {payment.status === "Pending" && (
-          <Button
-            size="sm"
-            className="text-xs py-1.5 px-3 h-auto bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
-            onClick={handleMarkPaid}
+      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
+        <div>
+          <Badge
+            className={cn(
+                "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+            )}
           >
-            <CheckCircleIcon className="w-3 h-3 mr-1.5" /> Mark Paid
-          </Button>
-        )}
-         {payment.status === "Overdue" && (
-          <Button
-            size="sm"
-            variant="destructive"
-            className="text-xs py-1.5 px-3 h-auto transform transition-transform hover:scale-105 active:scale-95"
-            onClick={() => toast({ title: "Reminder Sent (Mock)", description: `Payment reminder sent to ${payment.studentName}.`})}
-          >
-            <Bell className="w-3 h-3 mr-1.5" /> Send Reminder
-          </Button>
-        )}
-        {payment.status === "Paid" && (
-           <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto cursor-default bg-green-100 text-green-700 border-green-300 hover:bg-green-100">
-            <CheckCircle2 className="w-3 h-3 mr-1.5"/>
-            Payment Cleared
-          </Button>
-        )}
+            <StatusIcon />
+            {payment.status}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          {payment.status === "Pending" && (
+            <Button
+              size="sm"
+              className="text-xs py-1.5 px-3 h-auto bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
+              onClick={handleMarkPaid}
+            >
+              <CheckCircleIcon className="w-3 h-3 mr-1.5" /> Mark Paid
+            </Button>
+          )}
+          {payment.status === "Overdue" && (
+            <Button
+              size="sm"
+              variant="destructive"
+              className="text-xs py-1.5 px-3 h-auto transform transition-transform hover:scale-105 active:scale-95"
+              onClick={() => toast({ title: "Reminder Sent (Mock)", description: `Payment reminder sent to ${payment.studentName}.`})}
+            >
+              <Bell className="w-3 h-3 mr-1.5" /> Send Reminder
+            </Button>
+          )}
+          {payment.status === "Paid" && (
+            <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto cursor-default bg-green-100 text-green-700 border-green-300 hover:bg-green-100">
+              <CheckCircle2 className="w-3 h-3 mr-1.5"/>
+              Payment Cleared
+            </Button>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );
@@ -150,3 +144,4 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+
