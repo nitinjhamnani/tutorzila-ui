@@ -3,7 +3,7 @@
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, PlusCircle, Crown, Coins, TrendingUp, Clock } from "lucide-react"; // Added Crown, Coins, TrendingUp, Clock
+import { ShoppingBag, PlusCircle, Crown, Coins, TrendingUp, Clock } from "lucide-react"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
@@ -26,12 +26,11 @@ export default function TutorLeadsPage() {
     }
   }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
-  const mockLeadBalance = 25; // Example mock data
+  const mockLeadBalance = 25; 
   const mockPlanName = "Premium Plan";
-  const mockPlanIcon = Crown;
+  // const mockPlanIcon = Crown; // No longer needed as we use Crown directly
 
   const summaryStats = useMemo(() => {
-    // In a real app, these would come from API calls or calculated data
     return {
       currentPlan: mockPlanName,
       leadBalance: mockLeadBalance,
@@ -62,7 +61,11 @@ export default function TutorLeadsPage() {
                   </CardDescription>
                 </div>
               </div>
-              <Button variant="default" size="sm" className="text-xs sm:text-sm py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="text-xs sm:text-sm py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+              >
                 <PlusCircle className="w-4 h-4 opacity-90 md:mr-1.5" />
                 <span className="hidden md:inline">Buy More Leads</span>
               </Button>
@@ -73,13 +76,12 @@ export default function TutorLeadsPage() {
               {/* Current Plan Card */}
               <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg shadow-sm">
                 <div className="flex items-center">
-                  <mockPlanIcon className="w-5 h-5 mr-3 text-yellow-500" /> {/* Using mockPlanIcon */}
+                  <Crown className="w-5 h-5 mr-3 text-yellow-500" /> {/* Changed from mockPlanIcon to Crown */}
                   <div>
                     <p className="text-xs text-muted-foreground">Current Plan</p>
                     <p className="text-xl font-semibold text-yellow-600">{summaryStats.currentPlan}</p>
                   </div>
                 </div>
-                {/* Optional: Add an icon or element on the right if needed */}
               </div>
 
               {/* Lead Balance Card */}
@@ -91,7 +93,6 @@ export default function TutorLeadsPage() {
                     <p className="text-xl font-semibold text-green-600">{summaryStats.leadBalance}</p>
                   </div>
                 </div>
-                 {/* Optional: Add an icon or element on the right if needed */}
               </div>
             </div>
           </CardContent>
@@ -117,3 +118,4 @@ export default function TutorLeadsPage() {
     </main>
   );
 }
+
