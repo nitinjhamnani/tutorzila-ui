@@ -22,19 +22,17 @@ export default function DashboardRedirectPage() {
 
     if (user) {
       if (user.role === "parent") {
-        router.replace("/dashboard/parent");
+        router.replace("/parent/dashboard"); // Updated parent redirect
       } else if (user.role === "admin") {
         router.replace("/dashboard/admin");
       } 
-      // Tutor redirection is handled by useAuthMock directly to /tutor/dashboard
+      // Tutor redirection is now handled by useAuthMock directly to /tutor/dashboard
       else if (user.role !== "tutor") { 
-        // Fallback if role is unknown or not handled (and not tutor), redirect to homepage
         router.replace("/");
       }
     }
   }, [user, isAuthenticated, isCheckingAuth, router]);
 
-  // Display a loading state while redirecting or checking auth
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-var(--header-height)-var(--footer-height,0px))] p-4">
       <Skeleton className="h-12 w-1/2 mb-4 rounded-md" />
@@ -49,4 +47,3 @@ export default function DashboardRedirectPage() {
     </div>
   );
 }
-
