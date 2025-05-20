@@ -5,7 +5,7 @@ import type { TutorPayment } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // Removed AvatarImage
 import { User, DollarSign as DollarSignIcon, Clock, CalendarDays, CheckCircle as CheckCircleIcon, XCircle, Info, TrendingUp, FileText, Coins, CheckCircle2, BookOpen, Bell, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -62,9 +62,9 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
     <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm border">
-             <AvatarImage src={payment.studentAvatarSeed ? `https://picsum.photos/seed/${payment.studentAvatarSeed}/128` : `https://avatar.vercel.sh/${payment.studentName}.png`} alt={payment.studentName} />
-            <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm border bg-primary text-primary-foreground">
+            {/* Removed AvatarImage to only show Fallback */}
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-xs">
               {studentInitials}
             </AvatarFallback>
           </Avatar>
@@ -82,7 +82,8 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
               variant="default"
               size="icon"
               className={cn(
-                "absolute top-0 right-0 h-7 w-7 text-primary-foreground bg-primary hover:bg-primary/90",
+                "absolute top-0 right-0 h-7 w-7",
+                "bg-primary text-primary-foreground hover:bg-primary/90" 
               )}
               onClick={handleUpdatePayment}
               title="Update Payment Details"
@@ -106,12 +107,12 @@ export function TutorPaymentCard({ payment, onMarkPaid }: TutorPaymentCardProps)
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
         <div className="flex items-center space-x-2">
             <Badge
-            className={cn(
-                "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
-            )}
+                className={cn(
+                    "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                )}
             >
-            <StatusIcon />
-            {payment.status}
+                <StatusIcon />
+                {payment.status}
             </Badge>
         </div>
         <div className="flex items-center gap-2">
@@ -164,4 +165,3 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
-
