@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"; // Import ScrollBar
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -30,7 +30,7 @@ interface MessageModalProps {
   leadName: string;
   enquirySubject?: string;
   initialMessages: Message[];
-  onSendMessage: (messageText: string) => void; // Callback to handle sending message
+  onSendMessage: (messageText: string) => void;
 }
 
 export function MessageModal({
@@ -42,17 +42,16 @@ export function MessageModal({
   onSendMessage,
 }: MessageModalProps) {
   const [newMessage, setNewMessage] = useState("");
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null); // Ref for the viewport
 
   useEffect(() => {
-    if (isOpen && scrollAreaRef.current) {
-      // Slight delay to allow DOM to update before scrolling
+    if (isOpen && viewportRef.current) {
+      // Scroll to bottom when new messages are added or modal opens
       setTimeout(() => {
-        const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-        if (viewport) {
-          viewport.scrollTop = viewport.scrollHeight;
+        if (viewportRef.current) {
+          viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
         }
-      }, 100);
+      }, 50); // Small delay to ensure DOM update
     }
   }, [initialMessages, isOpen]);
 
@@ -73,33 +72,39 @@ export function MessageModal({
             </DialogDescription>
           )}
         </DialogHeader>
-        
-        <ScrollArea className="flex-grow p-4 space-y-3" ref={scrollAreaRef}>
-          {initialMessages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn(
-                "flex w-full max-w-[85%] sm:max-w-[75%] flex-col gap-1",
-                msg.sender === "You" ? "ml-auto items-end" : "items-start"
-              )}
-            >
+
+        <ScrollArea
+          className="flex-grow" // Removed p-4 from here
+          viewportRef={viewportRef} // Pass the ref to ScrollArea's viewportRef prop
+        >
+          <div className="p-4 space-y-3"> {/* Inner div for padding message content */}
+            {initialMessages.map((msg) => (
               <div
+                key={msg.id}
                 className={cn(
-                  "rounded-lg px-3 py-2 text-sm shadow",
-                  msg.sender === "You"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
+                  "flex w-full max-w-[85%] sm:max-w-[75%] flex-col gap-1",
+                  msg.sender === "You" ? "ml-auto items-end" : "items-start"
                 )}
               >
-                {msg.text}
+                <div
+                  className={cn(
+                    "rounded-lg px-3 py-2 text-sm shadow",
+                    msg.sender === "You"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-foreground"
+                  )}
+                >
+                  {msg.text}
+                </div>
+                <span className="text-[10px] text-muted-foreground px-1">
+                  {format(new Date(msg.timestamp), "p, MMM d")}
+                </span>
               </div>
-              <span className="text-[10px] text-muted-foreground px-1">
-                {format(msg.timestamp, "p, MMM d")}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" /> {/* Explicitly add ScrollBar */}
         </ScrollArea>
-        
+
         <DialogFooter className="p-4 border-t bg-card">
           <div className="flex items-center w-full space-x-2">
             <Textarea
