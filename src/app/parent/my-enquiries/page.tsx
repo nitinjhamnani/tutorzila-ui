@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -47,7 +48,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { TuitionRequirementCard } from "@/components/tuitions/TuitionRequirementCard";
-import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
+// import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton"; // Removed import
 import type { User, TuitionRequirement } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
@@ -147,7 +148,6 @@ export default function ParentMyEnquiriesPage() {
 
   const handleConfirmDelete = () => {
     if (!selectedRequirementForAction) return;
-    // Mock delete: filter out from local state
     setAllRequirements((prev) =>
       prev.filter((req) => req.id !== selectedRequirementForAction.id)
     );
@@ -174,7 +174,6 @@ export default function ParentMyEnquiriesPage() {
     if (closeEnquiryStep === 1) {
       setCloseEnquiryStep(2);
     } else if (closeEnquiryStep === 2) {
-      // Mock closing the enquiry
       setAllRequirements((prev) =>
         prev.map((req) =>
           req.id === selectedRequirementForAction.id
@@ -211,7 +210,7 @@ export default function ParentMyEnquiriesPage() {
     );
     toast({
       title: "Enquiry Reopened",
-      description: "The enquiry is now active again.",
+      description: "The enquiry is now active again. You can edit it if needed.",
     });
     router.push(`/parent/my-enquiries/edit/${id}`);
   };
@@ -240,7 +239,6 @@ export default function ParentMyEnquiriesPage() {
                 Manage your posted tuition requirements and track their status.
               </CardDescription>
             </div>
-            {/* Filter by Category Dropdown */}
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -248,7 +246,7 @@ export default function ParentMyEnquiriesPage() {
                   size="sm"
                   className={cn(
                     "text-xs py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                    "rounded-[5px]" // Explicitly less rounded corners
+                    "rounded-[5px]" 
                   )}
                 >
                   <LucideFilterIcon className="w-3.5 h-3.5 mr-1 text-primary-foreground/80" />
@@ -312,7 +310,7 @@ export default function ParentMyEnquiriesPage() {
 
         <div className="mt-6 space-y-4">
           {filteredRequirements.length > 0 ? (
-            filteredRequirements.map((req, index) => (
+            filteredRequirements.map((req) => (
               <TuitionRequirementCard
                 key={req.id}
                 requirement={req}
@@ -334,7 +332,7 @@ export default function ParentMyEnquiriesPage() {
                 <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                   There are no enquiries matching "{activeFilterCategory}". Try a different filter or post a new requirement.
                 </p>
-                 <FloatingPostRequirementButton className="static mt-6 transform-none" />
+                 {/* Removed FloatingPostRequirementButton from here as well since it's removed globally */}
               </CardContent>
             </Card>
           )}
@@ -417,7 +415,7 @@ export default function ParentMyEnquiriesPage() {
             </DialogContent>
           </Dialog>
         )}
-        <FloatingPostRequirementButton />
+        {/* <FloatingPostRequirementButton /> Removed as requested */}
       </div>
     </main>
   );
