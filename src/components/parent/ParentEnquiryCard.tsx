@@ -18,10 +18,11 @@ import {
   Building,
   RadioTower,
   MapPin,
-  Settings as SettingsIcon, // Changed from Edit3
+  Settings as SettingsIcon, // Renamed to avoid conflict
   Eye,
-  Users as UsersIcon,
+  Users as UsersIcon, // Aliased
   Archive,
+  Edit3,
 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import Link from "next/link";
@@ -30,10 +31,8 @@ import { Badge } from "@/components/ui/badge";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
-  // onEdit?: (requirement: TuitionRequirement) => void; // Removed onEdit prop
-  onDelete?: (requirement: TuitionRequirement) => void;
-  onClose?: (requirement: TuitionRequirement) => void;
-  onReopen?: (id: string) => void;
+  onEdit: (requirement: TuitionRequirement) => void;
+  onReopen: (id: string) => void;
 }
 
 const getInitials = (name?: string): string => {
@@ -78,9 +77,7 @@ const InfoItem = ({
 
 export function ParentEnquiryCard({
   requirement,
-  // onEdit, // Removed
-  onDelete,
-  onClose,
+  onEdit,
   onReopen,
 }: ParentEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
@@ -97,7 +94,7 @@ export function ParentEnquiryCard({
       >
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground border-2 border-card">
+            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
                 {parentInitials}
               </AvatarFallback>
@@ -113,20 +110,30 @@ export function ParentEnquiryCard({
                 Posted {timeAgo}
               </CardDescription>
             </div>
-            {/* Replaced Edit button with Settings icon linking to detail page */}
             {(requirement.status === 'open' || requirement.status === 'matched') && (
-              <Link href={`/parent/my-enquiries/${requirement.id}`} passHref legacyBehavior>
+                 <Button
+                    variant="default"
+                    size="icon"
+                    className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
+                    title="Edit Enquiry"
+                    onClick={() => onEdit(requirement)}
+                  >
+                    <Edit3 className="h-4 w-4" />
+                  </Button>
+            )}
+             {/* Settings icon linking to detailed view if needed */}
+             <Link href={`/parent/my-enquiries/${requirement.id}`} passHref legacyBehavior>
                 <Button
                   asChild
-                  variant="default"
+                  variant="ghost" 
                   size="icon"
                   className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
-                  title="View & Manage Enquiry"
+                  title="View Enquiry Details & Timeline"
+                  // Removed onClick from here as Link handles navigation
                 >
                   <a><SettingsIcon className="h-4 w-4" /></a>
                 </Button>
               </Link>
-            )}
           </div>
         </CardHeader>
 
@@ -148,18 +155,18 @@ export function ParentEnquiryCard({
         </CardContent>
 
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
-          <div>
-            {requirement.applicantsCount !== undefined && (
-                <Badge
-                    variant="outline"
-                    className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
-                >
-                    <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-                    {requirement.applicantsCount} Applicant
-                    {requirement.applicantsCount === 1 ? "" : "s"}
-                </Badge>
-             )}
-          </div>
+            <div className="flex-shrink-0">
+                {requirement.applicantsCount !== undefined && (
+                    <Badge
+                        variant="outline"
+                        className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                    >
+                        <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+                        {requirement.applicantsCount} Applicant
+                        {requirement.applicantsCount === 1 ? "" : "s"}
+                    </Badge>
+                )}
+            </div>
            <div className="flex items-center gap-2">
             {isPastEnquiry && onReopen && (
               <Button
@@ -167,14 +174,14 @@ export function ParentEnquiryCard({
                 size="xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (onReopen) onReopen(requirement.id);
+                  onReopen(requirement.id);
                 }}
                 className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
               >
                 <Archive className="mr-1.5 h-3 w-3" /> Reopen
               </Button>
             )}
-             <Button
+            <Button
                 asChild
                 size="sm"
                 className={cn(
@@ -182,9 +189,9 @@ export function ParentEnquiryCard({
                 "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
                 )}
             >
-                <Link href={`/parent/my-enquiries/${requirement.id}`}>
-                  <Eye className="w-3 h-3 mr-1.5" />
-                  View Now
+                <Link href={`/parent/my-tutors/${requirement.id}`}>
+                  <UsersIcon className="w-3 h-3 mr-1.5" />
+                  View Tutors
                 </Link>
             </Button>
           </div>
