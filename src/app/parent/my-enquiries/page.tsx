@@ -2,8 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter }
-from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Card,
@@ -11,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +25,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogDescription as DialogDesc, // Alias to avoid conflict
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -40,14 +38,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Badge } from "@/components/ui/badge";
-import { ParentEnquiryCard } from "@/components/parent/ParentEnquiryCard"; // Changed import
+import { ParentEnquiryCard } from "@/components/parent/ParentEnquiryCard";
 import type { User, TuitionRequirement } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
@@ -66,18 +61,11 @@ import {
   Eye,
   UserCheck,
   Users,
-  BookOpen,
-  GraduationCap,
-  MapPin,
-  RadioTower,
-  ClipboardList,
-  Info,
-  DollarSign,
   Briefcase,
-  Settings,
   Send,
   PlusCircle,
 } from "lucide-react";
+import { ParentEnquiryModal } from "@/components/modals/ParentEnquiryModal"; // Import the new modal
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
 
@@ -99,12 +87,17 @@ export default function ParentMyEnquiriesPage() {
 
   const [allRequirements, setAllRequirements] = useState<TuitionRequirement[]>([]);
   const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>("Open");
+  
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeEnquiryStep, setCloseEnquiryStep] = useState(1);
   const [foundTutorName, setFoundTutorName] = useState("");
   const [startClassesConfirmation, setStartClassesConfirmation] = useState< "yes" | "no" | "">("");
   const [selectedRequirementForAction, setSelectedRequirementForAction] = useState<TuitionRequirement | null>(null);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEnquiryForEdit, setSelectedEnquiryForEdit] = useState<TuitionRequirement | null>(null);
+
 
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== "parent")) {
@@ -136,9 +129,26 @@ export default function ParentMyEnquiriesPage() {
     );
   }, [allRequirements, activeFilterCategory]);
 
-  const handleEdit = (id: string) => {
-    router.push(`/parent/my-enquiries/edit/${id}`);
+  const handleOpenEditModal = (requirement: TuitionRequirement) => {
+    setSelectedEnquiryForEdit(requirement);
+    setIsEditModalOpen(true);
   };
+
+  const handleUpdateEnquiryInList = (updatedData: Partial<TuitionRequirement>) => {
+    if (!selectedEnquiryForEdit) return;
+    setAllRequirements(prevReqs => 
+      prevReqs.map(req => 
+        req.id === selectedEnquiryForEdit.id ? { ...req, ...updatedData } : req
+      )
+    );
+    toast({
+      title: "Enquiry Updated",
+      description: `Requirement for "${Array.isArray(updatedData.subject) ? updatedData.subject.join(', ') : updatedData.subject}" has been updated.`,
+    });
+    setIsEditModalOpen(false);
+    setSelectedEnquiryForEdit(null);
+  };
+
 
   const handleOpenDeleteConfirm = (requirement: TuitionRequirement) => {
     setSelectedRequirementForAction(requirement);
@@ -204,10 +214,15 @@ export default function ParentMyEnquiriesPage() {
   };
 
   const handleReopen = (id: string) => {
-    setAllRequirements((prev) =>
-      prev.map((req) => (req.id === id ? { ...req, status: "open" } : req))
-    );
-    router.push(`/parent/my-enquiries/edit/${id}`);
+    const reqToReopen = allRequirements.find(req => req.id === id);
+    if (reqToReopen) {
+      setAllRequirements(prev => prev.map(r => 
+        r.id === id ? { ...r, status: "open" } : r
+      ));
+      // Instead of navigating here, the edit modal will be opened.
+      // router.push(`/parent/my-enquiries/edit/${id}`);
+      handleOpenEditModal({ ...reqToReopen, status: "open" }); // Open edit modal after setting status to open
+    }
   };
   
   const selectedCategoryData = enquiryStatusCategories.find(cat => cat.value === activeFilterCategory);
@@ -240,8 +255,7 @@ export default function ParentMyEnquiriesPage() {
                   variant="default"
                   size="sm"
                   className={cn(
-                    "text-xs py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                    "rounded-[5px]" 
+                    "text-xs py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto rounded-[5px]"
                   )}
                 >
                   <LucideFilterIcon className="w-3.5 h-3.5 mr-1 text-primary-foreground/80" />
@@ -303,13 +317,13 @@ export default function ParentMyEnquiriesPage() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 grid grid-cols-1 gap-4">
           {filteredRequirements.length > 0 ? (
             filteredRequirements.map((req) => (
               <ParentEnquiryCard
                 key={req.id}
                 requirement={req}
-                onEdit={() => handleEdit(req.id)}
+                onEdit={() => handleOpenEditModal(req)}
                 onDelete={() => handleOpenDeleteConfirm(req)}
                 onClose={() => handleOpenCloseEnquiryModal(req)}
                 onReopen={() => handleReopen(req.id)}
@@ -358,9 +372,9 @@ export default function ParentMyEnquiriesPage() {
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Close Enquiry: {Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}</DialogTitle>
-                <DialogDescription>
+                <DialogDesc>
                   Please provide some details before closing this requirement.
-                </DialogDescription>
+                </DialogDesc>
               </DialogHeader>
               {closeEnquiryStep === 1 && (
                 <div className="py-4 space-y-4">
@@ -405,9 +419,14 @@ export default function ParentMyEnquiriesPage() {
             </DialogContent>
           </Dialog>
         )}
+
+        <ParentEnquiryModal 
+            isOpen={isEditModalOpen}
+            onOpenChange={setIsEditModalOpen}
+            enquiryData={selectedEnquiryForEdit}
+            onUpdateEnquiry={handleUpdateEnquiryInList}
+        />
       </div>
     </main>
   );
 }
-
-    
