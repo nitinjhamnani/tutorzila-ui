@@ -25,7 +25,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription as DialogDesc, // Alias to avoid conflict
+  DialogDescription as DialogDesc, 
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -65,7 +65,7 @@ import {
   Send,
   PlusCircle,
 } from "lucide-react";
-import { ParentEnquiryModal } from "@/components/modals/ParentEnquiryModal"; // Import the new modal
+import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
 
@@ -219,9 +219,7 @@ export default function ParentMyEnquiriesPage() {
       setAllRequirements(prev => prev.map(r => 
         r.id === id ? { ...r, status: "open" } : r
       ));
-      // Instead of navigating here, the edit modal will be opened.
-      // router.push(`/parent/my-enquiries/edit/${id}`);
-      handleOpenEditModal({ ...reqToReopen, status: "open" }); // Open edit modal after setting status to open
+      handleOpenEditModal({ ...reqToReopen, status: "open" }); 
     }
   };
   
@@ -324,9 +322,6 @@ export default function ParentMyEnquiriesPage() {
                 key={req.id}
                 requirement={req}
                 onEdit={() => handleOpenEditModal(req)}
-                onDelete={() => handleOpenDeleteConfirm(req)}
-                onClose={() => handleOpenCloseEnquiryModal(req)}
-                onReopen={() => handleReopen(req.id)}
               />
             ))
           ) : (
