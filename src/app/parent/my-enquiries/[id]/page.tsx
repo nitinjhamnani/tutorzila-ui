@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import type { TuitionRequirement, TutorProfile, User } from "@/types";
+import type { TuitionRequirement, TutorProfile } from "@/types";
 import { MOCK_ALL_PARENT_REQUIREMENTS, MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
@@ -12,8 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
-import { TutorProfileCard } from "@/components/tutors/TutorProfileCard"; // For applied tutors
+import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
 import {
   User,
   BookOpen,
@@ -56,7 +56,7 @@ import {
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 
-// Helper for Enquiry Info Item
+// Helper for Enquiry Info Item (copied from old EnquiryDetails if not available globally)
 const EnquiryInfoItem = ({
   icon: Icon,
   label,
@@ -97,11 +97,12 @@ export default function ParentEnquiryDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
 
-  // State for Close Enquiry Dialog
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeEnquiryStep, setCloseEnquiryStep] = useState(1);
   const [foundTutorName, setFoundTutorName] = useState("");
   const [startClassesConfirmation, setStartClassesConfirmation] = useState<"yes" | "no" | "">("");
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -146,7 +147,6 @@ export default function ParentEnquiryDetailsPage() {
     if (closeEnquiryStep === 1) {
       setCloseEnquiryStep(2);
     } else if (closeEnquiryStep === 2) {
-      // Mock update logic
       const updatedRequirement = {
         ...requirement,
         status: "closed" as const,
@@ -160,29 +160,42 @@ export default function ParentEnquiryDetailsPage() {
             : ""
         }`,
       };
-      // In a real app, update this in your backend/state management
       const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
       if (reqIndex > -1) MOCK_ALL_PARENT_REQUIREMENTS[reqIndex] = updatedRequirement;
       
-      setRequirement(updatedRequirement); // Update local state for immediate UI feedback
+      setRequirement(updatedRequirement);
 
       toast({
         title: "Enquiry Closed",
         description: `Requirement for "${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}" has been marked as closed.`,
       });
       setIsCloseEnquiryModalOpen(false);
-      // router.push("/parent/my-enquiries"); // Optional: redirect after closing
+      router.push("/parent/my-enquiries"); 
     }
+  };
+
+  const handleUpdateEnquiry = (updatedData: Partial<TuitionRequirement>) => {
+    if (!requirement) return;
+    const newRequirementState = { ...requirement, ...updatedData };
+    setRequirement(newRequirementState);
+    
+    const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
+    if (reqIndex > -1) {
+      MOCK_ALL_PARENT_REQUIREMENTS[reqIndex] = {
+        ...MOCK_ALL_PARENT_REQUIREMENTS[reqIndex],
+        ...updatedData,
+      };
+    }
+    toast({ title: "Enquiry Updated", description: "Your requirement details have been saved." });
+    setIsEditModalOpen(false);
   };
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
   const timeAgo = requirement?.postedAt ? formatDistanceToNow(postedDate, { addSuffix: true }) : "";
   const formattedPostedDate = requirement?.postedAt ? format(postedDate, "MMMM d, yyyy 'at' h:mm a") : "";
 
-  // Mock applied tutors - in a real app, this would come from backend
   const mockAppliedTutors = useMemo(() => {
     if (!requirement) return [];
-    // Simulate some tutors applying
     return MOCK_TUTOR_PROFILES.slice(0, Math.floor(Math.random() * 3) + 1); 
   }, [requirement]);
 
@@ -191,8 +204,8 @@ export default function ParentEnquiryDetailsPage() {
     return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-          <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "My Enquiries", href: "/parent/my-enquiries" }, { label: "Loading..." }]} />
-          <div className="space-y-6">
+          {/* Breadcrumb removed */}
+          <div className="space-y-6 mt-6">
             <Skeleton className="h-[200px] w-full rounded-xl" />
             <Skeleton className="h-[300px] w-full rounded-xl" />
           </div>
@@ -205,7 +218,7 @@ export default function ParentEnquiryDetailsPage() {
     return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-          <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "My Enquiries", href: "/parent/my-enquiries" }, { label: "Error" }]} />
+          {/* Breadcrumb removed */}
           <Card className="w-full max-w-md text-center">
             <CardHeader>
               <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit">
@@ -227,16 +240,15 @@ export default function ParentEnquiryDetailsPage() {
     );
   }
 
-  if (!requirement) return null; // Should be caught by error state
+  if (!requirement) return null;
 
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "My Enquiries", href: "/parent/my-enquiries" }, { label: "Enquiry Details" }]} />
+        {/* Breadcrumb removed */}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           <div className="lg:col-span-2 space-y-6">
-            {/* Enquiry Details Card */}
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
               <CardHeader className="bg-muted/30 p-4 md:p-5 border-b">
                 <div className="flex items-center justify-between">
@@ -313,14 +325,13 @@ export default function ParentEnquiryDetailsPage() {
               </CardContent>
                {(requirement.status === 'open' || requirement.status === 'matched') && (
                 <CardFooter className="p-4 md:p-5 border-t flex-wrap justify-end gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href={`/parent/my-enquiries/edit/${requirement.id}`}>
-                            <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
-                        </Link>
+                    <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
+                        <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                     </Button>
                     <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
                       <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
                     </Button>
+                    {/* Delete button can be added here if needed */}
                 </CardFooter>
                )}
             </Card>
@@ -351,7 +362,6 @@ export default function ParentEnquiryDetailsPage() {
         </div>
       </div>
 
-      {/* Close Enquiry Dialog */}
       {requirement && (
         <Dialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
             <DialogContent className="sm:max-w-md">
@@ -403,6 +413,15 @@ export default function ParentEnquiryDetailsPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+      )}
+      
+      {requirement && (
+        <ParentEnquiryModal
+          isOpen={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          enquiryData={requirement}
+          onUpdateEnquiry={handleUpdateEnquiry}
+        />
       )}
     </main>
   );
