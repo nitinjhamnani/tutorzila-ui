@@ -20,10 +20,8 @@ import {
   MapPin,
   Edit3,
   Eye,
-  Users as UsersIcon, // Renamed to avoid conflict if Users is imported from somewhere else
+  Users as UsersIcon, 
   Archive,
-  // Trash2, // Removed as per previous request
-  // XCircle, // Removed as per previous request
 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import Link from "next/link";
@@ -34,8 +32,6 @@ interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
   onEdit?: (requirement: TuitionRequirement) => void;
   onReopen?: (id: string) => void;
-  // onDelete?: (id: string) => void; // Removed
-  // onClose?: (requirement: TuitionRequirement) => void; // Removed
 }
 
 const getInitials = (name?: string): string => {
@@ -90,108 +86,106 @@ export function ParentEnquiryCard({
   const isPastEnquiry = requirement.status === "closed";
 
   return (
-    <Card
-      className={cn(
-        "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
-        isPastEnquiry && "opacity-70 bg-muted/30"
-      )}
-    >
-      <CardHeader className="p-0 pb-3 sm:pb-4 relative">
-        <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground border-2 border-card">
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
-              {parentInitials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-grow min-w-0 space-y-0.5">
-            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
-              {Array.isArray(requirement.subject)
-                ? requirement.subject.join(", ")
-                : requirement.subject}
-            </CardTitle>
-            <CardDescription className="text-[11px] sm:text-xs text-muted-foreground flex items-center">
-              <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" />{" "}
-              Posted {timeAgo}
-            </CardDescription>
-          </div>
-          {!isPastEnquiry && onEdit && (
-            <Button
-              variant="default"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onEdit) onEdit(requirement);
-              }}
-              className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
-              title="Edit Enquiry"
-            >
-              <Edit3 className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-
-      <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
-        <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
-        {requirement.board && (
-          <InfoItem icon={Building} label="Board" value={requirement.board} />
+      <Card
+        className={cn(
+          "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
+          isPastEnquiry && "opacity-70 bg-muted/30"
         )}
-        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-          <InfoItem
-            icon={RadioTower}
-            label="Mode"
-            value={requirement.teachingMode.join(", ")}
-          />
-        )}
-        {requirement.location && (
-          <InfoItem icon={MapPin} label="Location" value={requirement.location} />
-        )}
-      </CardContent>
-
-      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
-        <div> {/* Wrapper for left-aligned badge */}
-          {requirement.applicantsCount !== undefined && (
-            <Badge
-              variant="outline"
-              className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
-            >
-              <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-              {requirement.applicantsCount} Applicant
-              {requirement.applicantsCount === 1 ? "" : "s"}
-            </Badge>
-          )}
-        </div>
-        
-        <div className="flex items-center gap-2"> {/* Wrapper for right-aligned buttons */}
-          {isPastEnquiry && onReopen && (
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onReopen) onReopen(requirement.id);
-              }}
-              className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
-            >
-              <Archive className="mr-1.5 h-3 w-3" /> Reopen
-            </Button>
-          )}
-          <Button
-            asChild
-            size="sm"
-            className={cn(
-              "text-xs py-1.5 px-3 h-auto",
-              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
+      >
+        <CardHeader className="p-0 pb-3 sm:pb-4 relative">
+          <div className="flex items-start space-x-3">
+            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground border-2 border-card">
+              <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
+                {parentInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-grow min-w-0 space-y-0.5">
+              <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+                {Array.isArray(requirement.subject)
+                  ? requirement.subject.join(", ")
+                  : requirement.subject}
+              </CardTitle>
+              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground flex items-center">
+                <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" />{" "}
+                Posted {timeAgo}
+              </CardDescription>
+            </div>
+             {(!isPastEnquiry && onEdit) && (
+                <Button
+                variant="default"
+                size="icon"
+                onClick={(e) => {
+                    e.stopPropagation(); // Prevent link navigation if card is wrapped in Link
+                    if (onEdit) onEdit(requirement);
+                }}
+                className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
+                title="Edit Enquiry"
+                >
+                <Edit3 className="h-4 w-4" />
+                </Button>
             )}
-          >
-            <Link href={`/parent/my-enquiries/${requirement.id}`}>
-              <Eye className="w-3 h-3 mr-1.5" />
-              View Now
-            </Link>
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
+          <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
+          {requirement.board && (
+            <InfoItem icon={Building} label="Board" value={requirement.board} />
+          )}
+          {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+            <InfoItem
+              icon={RadioTower}
+              label="Mode"
+              value={requirement.teachingMode.join(", ")}
+            />
+          )}
+          {requirement.location && (
+            <InfoItem icon={MapPin} label="Location" value={requirement.location} />
+          )}
+        </CardContent>
+
+        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
+          <div>
+             {requirement.applicantsCount !== undefined && (
+                <Badge
+                    variant="outline"
+                    className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                >
+                    <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+                    {requirement.applicantsCount} Applicant
+                    {requirement.applicantsCount === 1 ? "" : "s"}
+                </Badge>
+             )}
+          </div>
+          <div className="flex items-center gap-2">
+            {isPastEnquiry && onReopen && (
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onReopen) onReopen(requirement.id);
+                }}
+                className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
+              >
+                <Archive className="mr-1.5 h-3 w-3" /> Reopen
+              </Button>
+            )}
+             <Button
+                asChild
+                size="sm"
+                className={cn(
+                "text-xs py-1.5 px-3 h-auto",
+                "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
+                )}
+            >
+                <Link href={`/parent/my-enquiries/${requirement.id}`}>
+                  <Eye className="w-3 h-3 mr-1.5" />
+                  View Now
+                </Link>
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
   );
 }
-
