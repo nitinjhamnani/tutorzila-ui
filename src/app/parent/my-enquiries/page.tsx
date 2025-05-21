@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Keep for potential navigation in actions
 import Link from "next/link";
 import {
   Card,
@@ -25,7 +25,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription as DialogDesc, 
+  DialogDescription as DialogDesc,
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -59,11 +59,16 @@ import {
   Trash2,
   Edit3,
   Eye,
-  UserCheck,
-  Users,
+  Users as UsersIcon,
   Briefcase,
   Send,
   PlusCircle,
+  BookOpen,
+  GraduationCap,
+  Building,
+  RadioTower,
+  MapPin,
+  Info,
 } from "lucide-react";
 import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
 
@@ -76,7 +81,7 @@ const enquiryStatusCategories: {
 }[] = [
   { label: "All Enquiries", value: "All", icon: ListChecks },
   { label: "Open", value: "Open", icon: Eye },
-  { label: "Matched", value: "Matched", icon: UserCheck },
+  { label: "Matched", value: "Matched", icon: UsersIcon },
   { label: "Closed", value: "Closed", icon: Archive },
 ];
 
@@ -97,7 +102,6 @@ export default function ParentMyEnquiriesPage() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEnquiryForEdit, setSelectedEnquiryForEdit] = useState<TuitionRequirement | null>(null);
-
 
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== "parent")) {
@@ -129,7 +133,7 @@ export default function ParentMyEnquiriesPage() {
     );
   }, [allRequirements, activeFilterCategory]);
 
-  const handleOpenEditModal = (requirement: TuitionRequirement) => {
+  const handleEdit = (requirement: TuitionRequirement) => {
     setSelectedEnquiryForEdit(requirement);
     setIsEditModalOpen(true);
   };
@@ -189,13 +193,13 @@ export default function ParentMyEnquiriesPage() {
             ? {
                 ...req,
                 status: "closed",
-                additionalNotes: `${req.additionalNotes || ""}\nUpdate: Requirement closed. ${
+                additionalNotes: `${req.additionalNotes || ""}\nUpdate: Requirement closed on ${new Date().toLocaleDateString()}. ${
                   foundTutorName
                     ? `Tutor found: ${foundTutorName}.`
                     : "No tutor specified."
                 } ${
                   startClassesConfirmation === "yes"
-                    ? "Classes started."
+                    ? "Classes expected to start."
                     : startClassesConfirmation === "no"
                     ? "Decided not to start classes."
                     : ""
@@ -219,7 +223,7 @@ export default function ParentMyEnquiriesPage() {
       setAllRequirements(prev => prev.map(r => 
         r.id === id ? { ...r, status: "open" } : r
       ));
-      handleOpenEditModal({ ...reqToReopen, status: "open" }); 
+      router.push(`/parent/my-enquiries/edit/${id}`);
     }
   };
   
@@ -236,6 +240,7 @@ export default function ParentMyEnquiriesPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+        {/* No BreadcrumbHeader here */}
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div className="flex-grow min-w-0">
@@ -321,7 +326,10 @@ export default function ParentMyEnquiriesPage() {
               <ParentEnquiryCard
                 key={req.id}
                 requirement={req}
-                onEdit={() => handleOpenEditModal(req)}
+                onEdit={handleEdit}
+                onDelete={() => handleOpenDeleteConfirm(req)}
+                onClose={() => handleOpenCloseEnquiryModal(req)}
+                onReopen={() => handleReopen(req.id)}
               />
             ))
           ) : (
@@ -425,3 +433,4 @@ export default function ParentMyEnquiriesPage() {
     </main>
   );
 }
+

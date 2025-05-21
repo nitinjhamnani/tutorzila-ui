@@ -22,6 +22,7 @@ import {
   Eye,
   Users as UsersIcon, 
   Archive,
+  Info,
 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import Link from "next/link";
@@ -30,7 +31,9 @@ import { Badge } from "@/components/ui/badge";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
-  onEdit?: (requirement: TuitionRequirement) => void;
+  onEdit?: (requirement: TuitionRequirement) => void; // Changed from id: string to requirement: TuitionRequirement
+  onDelete?: (requirement: TuitionRequirement) => void;
+  onClose?: (requirement: TuitionRequirement) => void;
   onReopen?: (id: string) => void;
 }
 
@@ -78,6 +81,8 @@ const InfoItem = ({
 export function ParentEnquiryCard({
   requirement,
   onEdit,
+  onDelete,
+  onClose,
   onReopen,
 }: ParentEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
@@ -115,8 +120,8 @@ export function ParentEnquiryCard({
                 variant="default"
                 size="icon"
                 onClick={(e) => {
-                    e.stopPropagation(); // Prevent link navigation if card is wrapped in Link
-                    if (onEdit) onEdit(requirement);
+                    e.stopPropagation(); 
+                    if (onEdit) onEdit(requirement); // Pass the full requirement
                 }}
                 className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
                 title="Edit Enquiry"
