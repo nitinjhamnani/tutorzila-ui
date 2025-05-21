@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -27,6 +28,7 @@ import {
   DialogDescription as DialogDesc,
   DialogFooter,
   DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -58,17 +60,10 @@ import {
   Trash2,
   Edit3,
   Users as UsersIcon,
-  Briefcase,
-  Send,
-  PlusCircle,
-  BookOpen,
-  GraduationCap,
-  Building,
-  RadioTower,
-  MapPin,
-  Info,
+  PlusCircle, // Added PlusCircle
 } from "lucide-react";
 import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
+import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; // Added import
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
 
@@ -100,15 +95,19 @@ export default function ParentMyEnquiriesPage() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEnquiryForEdit, setSelectedEnquiryForEdit] = useState<TuitionRequirement | null>(null);
+  const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
+
 
   useEffect(() => {
-    if (!isCheckingAuth && (!isAuthenticated || user?.role !== "parent")) {
-      router.replace("/");
-    } else if (user) {
-      const parentRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(
-        (req) => req.parentId === user.id
-      );
-      setAllRequirements(parentRequirements);
+    if (!isCheckingAuth) {
+      if (!isAuthenticated || user?.role !== "parent") {
+        router.replace("/");
+      } else if (user) {
+        const parentRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(
+          (req) => req.parentId === user.id
+        );
+        setAllRequirements(parentRequirements);
+      }
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
 
@@ -145,7 +144,7 @@ export default function ParentMyEnquiriesPage() {
         req.id === selectedEnquiryForEdit.id ? updatedRequirement : req
       )
     );
-    // Update MOCK_ALL_PARENT_REQUIREMENTS as well
+    
     const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedEnquiryForEdit.id);
     if (mockIndex > -1) {
       MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
@@ -170,7 +169,7 @@ export default function ParentMyEnquiriesPage() {
     setAllRequirements((prev) =>
       prev.filter((req) => req.id !== selectedRequirementForAction.id)
     );
-    // Also remove from MOCK_ALL_PARENT_REQUIREMENTS
+    
     const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedRequirementForAction.id);
     if (mockIndex > -1) {
       MOCK_ALL_PARENT_REQUIREMENTS.splice(mockIndex, 1);
@@ -218,7 +217,7 @@ export default function ParentMyEnquiriesPage() {
           req.id === selectedRequirementForAction.id ? updatedRequirement : req
         )
       );
-      // Also update MOCK_ALL_PARENT_REQUIREMENTS
+      
       const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedRequirementForAction.id);
       if (mockIndex > -1) {
         MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
@@ -235,14 +234,13 @@ export default function ParentMyEnquiriesPage() {
   const handleReopen = (id: string) => {
     const reqToReopen = allRequirements.find(req => req.id === id);
     if (reqToReopen) {
-      const updatedRequirement = { ...reqToReopen, status: "open" as const };
       setAllRequirements(prev => prev.map(r => 
-        r.id === id ? updatedRequirement : r
+        r.id === id ? { ...r, status: "open" as const } : r
       ));
-      // Also update MOCK_ALL_PARENT_REQUIREMENTS
+      
       const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === id);
       if (mockIndex > -1) {
-        MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
+        MOCK_ALL_PARENT_REQUIREMENTS[mockIndex].status = "open";
       }
       router.push(`/parent/my-enquiries/edit/${id}`);
     }
@@ -272,13 +270,29 @@ export default function ParentMyEnquiriesPage() {
                 Manage your posted tuition requirements and track their status.
               </CardDescription>
             </div>
-            {/* Filter dropdown removed from here */}
+            <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
+              <DialogTrigger asChild>
+                 <Button
+                    variant="default"
+                    size="sm"
+                    className={cn(
+                        "text-xs sm:text-sm py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                    )}
+                  >
+                    <PlusCircle className="w-4 h-4 opacity-90 md:mr-1.5" />
+                    <span className="hidden md:inline">Create Enquiry</span>
+                  </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
+                <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
+              </DialogContent>
+            </Dialog>
           </CardHeader>
           <CardContent className="p-0 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg shadow-sm">
                 <div className="flex items-center">
-                  <Briefcase className="w-5 h-5 mr-3 text-primary" />
+                  <ListChecks className="w-5 h-5 mr-3 text-primary" />
                   <div>
                     <p className="text-xs text-muted-foreground">Total Enquiries</p>
                     <p className="text-xl font-semibold text-primary">{categoryCounts.All}</p>
@@ -453,7 +467,10 @@ export default function ParentMyEnquiriesPage() {
             enquiryData={selectedEnquiryForEdit}
             onUpdateEnquiry={handleUpdateEnquiryInList}
         />
+        {/* Removed FloatingPostRequirementButton from here */}
       </div>
     </main>
   );
 }
+
+    
