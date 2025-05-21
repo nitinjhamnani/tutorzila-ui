@@ -12,13 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
+// Removed TutorProfileCard import as it's no longer used on this page
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription as DialogDesc,
+  DialogDescription as DialogDesc, // Renamed to avoid conflict
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -56,7 +56,6 @@ import {
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 
-// Helper for Enquiry Info Item (copied from old EnquiryDetails if not available globally)
 const EnquiryInfoItem = ({
   icon: Icon,
   label,
@@ -102,7 +101,7 @@ export default function ParentEnquiryDetailsPage() {
   const [foundTutorName, setFoundTutorName] = useState("");
   const [startClassesConfirmation, setStartClassesConfirmation] = useState<"yes" | "no" | "">("");
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // For the edit modal
 
   useEffect(() => {
     setIsClient(true);
@@ -170,6 +169,7 @@ export default function ParentEnquiryDetailsPage() {
         description: `Requirement for "${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}" has been marked as closed.`,
       });
       setIsCloseEnquiryModalOpen(false);
+      // Consider navigating back or just updating UI
       router.push("/parent/my-enquiries"); 
     }
   };
@@ -179,11 +179,12 @@ export default function ParentEnquiryDetailsPage() {
     const newRequirementState = { ...requirement, ...updatedData };
     setRequirement(newRequirementState);
     
+    // Update the mock data source
     const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
     if (reqIndex > -1) {
       MOCK_ALL_PARENT_REQUIREMENTS[reqIndex] = {
         ...MOCK_ALL_PARENT_REQUIREMENTS[reqIndex],
-        ...updatedData,
+        ...newRequirementState, // Ensure all fields from newRequirementState are applied
       };
     }
     toast({ title: "Enquiry Updated", description: "Your requirement details have been saved." });
@@ -194,17 +195,10 @@ export default function ParentEnquiryDetailsPage() {
   const timeAgo = requirement?.postedAt ? formatDistanceToNow(postedDate, { addSuffix: true }) : "";
   const formattedPostedDate = requirement?.postedAt ? format(postedDate, "MMMM d, yyyy 'at' h:mm a") : "";
 
-  const mockAppliedTutors = useMemo(() => {
-    if (!requirement) return [];
-    return MOCK_TUTOR_PROFILES.slice(0, Math.floor(Math.random() * 3) + 1); 
-  }, [requirement]);
-
-
   if (!isClient || loading || isCheckingAuth) {
     return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-          {/* Breadcrumb removed */}
           <div className="space-y-6 mt-6">
             <Skeleton className="h-[200px] w-full rounded-xl" />
             <Skeleton className="h-[300px] w-full rounded-xl" />
@@ -218,7 +212,6 @@ export default function ParentEnquiryDetailsPage() {
     return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-          {/* Breadcrumb removed */}
           <Card className="w-full max-w-md text-center">
             <CardHeader>
               <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit">
@@ -245,10 +238,10 @@ export default function ParentEnquiryDetailsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* Breadcrumb removed */}
+        {/* No BreadcrumbHeader here */}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-6"> {/* Changed lg:col-span-2 to lg:col-span-3 */}
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
               <CardHeader className="bg-muted/30 p-4 md:p-5 border-b">
                 <div className="flex items-center justify-between">
@@ -331,12 +324,13 @@ export default function ParentEnquiryDetailsPage() {
                     <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
                       <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
                     </Button>
-                    {/* Delete button can be added here if needed */}
                 </CardFooter>
                )}
             </Card>
           </div>
 
+          {/* Removed Applied Tutors Section */}
+          {/* 
           <aside className="lg:col-span-1 space-y-6">
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
               <CardHeader className="p-4 md:p-5 border-b">
@@ -358,7 +352,8 @@ export default function ParentEnquiryDetailsPage() {
                 )}
               </CardContent>
             </Card>
-          </aside>
+          </aside> 
+          */}
         </div>
       </div>
 
@@ -426,3 +421,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
