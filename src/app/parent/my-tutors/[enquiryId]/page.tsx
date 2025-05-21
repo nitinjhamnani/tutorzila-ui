@@ -13,9 +13,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UserX, Users as UsersIcon, ArrowLeft } from "lucide-react";
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
-import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
+// Removed BreadcrumbHeader import
+// import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 
-export default function AppliedTutorsForEnquiryPage() {
+// Component name can be more specific if needed, e.g., AppliedTutorsForEnquiryPage
+export default function AppliedTutorsPage() {
   const params = useParams();
   const router = useRouter();
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -41,6 +43,7 @@ export default function AppliedTutorsForEnquiryPage() {
 
     setLoading(true);
     setError(null);
+    // Simulate API call
     setTimeout(() => {
       const foundEnquiry = MOCK_ALL_PARENT_REQUIREMENTS.find(
         (req) => req.id === enquiryId && req.parentId === user?.id
@@ -48,6 +51,7 @@ export default function AppliedTutorsForEnquiryPage() {
 
       if (foundEnquiry) {
         setEnquiry(foundEnquiry);
+        // Fetch applied tutors based on appliedTutorIds
         if (foundEnquiry.appliedTutorIds && foundEnquiry.appliedTutorIds.length > 0) {
           const tutors = MOCK_TUTOR_PROFILES.filter(tutor => 
             foundEnquiry.appliedTutorIds!.includes(tutor.id)
@@ -62,7 +66,7 @@ export default function AppliedTutorsForEnquiryPage() {
         setAppliedTutors([]);
       }
       setLoading(false);
-    }, 300);
+    }, 300); // Simulate network delay
   }, [enquiryId, hasMounted, isCheckingAuth, isAuthenticated, user, router]);
 
   const pageTitle = useMemo(() => {
@@ -77,7 +81,7 @@ export default function AppliedTutorsForEnquiryPage() {
     return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-          <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "My Enquiries", href: "/parent/my-enquiries" }, { label: "Loading Applied Tutors..." }]} />
+          {/* Removed BreadcrumbHeader */}
           <div className="mt-6 space-y-4">
             <Skeleton className="h-32 w-full rounded-lg" />
             <Skeleton className="h-48 w-full rounded-lg" />
@@ -92,7 +96,7 @@ export default function AppliedTutorsForEnquiryPage() {
     return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-          <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "My Enquiries", href: "/parent/my-enquiries" }, { label: "Error" }]} />
+          {/* Removed BreadcrumbHeader */}
           <Card className="w-full max-w-md text-center mt-6">
             <CardHeader>
               <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit">
@@ -118,7 +122,7 @@ export default function AppliedTutorsForEnquiryPage() {
      return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-          <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "My Enquiries", href: "/parent/my-enquiries" }, { label: "Enquiry Not Found" }]} />
+          {/* Removed BreadcrumbHeader */}
            <Card className="w-full max-w-md text-center mt-6">
             <CardHeader>
               <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit">
@@ -143,13 +147,7 @@ export default function AppliedTutorsForEnquiryPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <BreadcrumbHeader 
-          segments={[
-            { label: "Dashboard", href: "/parent/dashboard" }, 
-            { label: "My Enquiries", href: "/parent/my-enquiries" }, 
-            { label: `Applied Tutors for "${Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}"` }
-          ]} 
-        />
+        {/* Removed BreadcrumbHeader */}
 
         <Card className="mt-6 bg-card rounded-xl shadow-lg border-0">
           <CardHeader className="border-b">
@@ -161,7 +159,7 @@ export default function AppliedTutorsForEnquiryPage() {
           </CardHeader>
           <CardContent className="p-4 md:p-5">
             {appliedTutors.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4"> {/* Changed to single column list */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                 {appliedTutors.map((tutor) => (
                   <TutorProfileCard key={tutor.id} tutor={tutor} />
                 ))}
