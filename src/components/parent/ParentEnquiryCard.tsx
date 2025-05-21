@@ -4,18 +4,16 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Clock, GraduationCap, Building, RadioTower, MapPin, Edit3, Archive, Eye, Users as UsersIcon, Trash2, XCircle as CloseIcon } from "lucide-react";
+import { Clock, GraduationCap, Building, RadioTower, MapPin, Edit3, Archive, Eye, Users as UsersIcon } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge"; // Added Badge import
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
-  onEdit?: (requirement: TuitionRequirement) => void; // Changed to pass full requirement
-  onDelete?: (requirement: TuitionRequirement) => void;
-  onClose?: (requirement: TuitionRequirement) => void;
+  onEdit?: (requirement: TuitionRequirement) => void;
   onReopen?: (id: string) => void;
 }
 
@@ -40,8 +38,7 @@ const InfoItem = ({ icon: Icon, label, value, className }: { icon?: React.Elemen
   );
 };
 
-
-export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onReopen }: ParentEnquiryCardProps) {
+export function ParentEnquiryCard({ requirement, onEdit, onReopen }: ParentEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const parentInitials = getInitials(requirement.parentName);
@@ -64,7 +61,7 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
     const iconClasses = "w-2.5 h-2.5 mr-1";
     switch (requirement.status) {
       case "open": return <Eye className={cn(iconClasses, "text-green-700")} />;
-      case "matched": return <UserCheck className={cn(iconClasses, "text-blue-700")} />;
+      case "matched": return <UsersIcon className={cn(iconClasses, "text-blue-700")} />;
       case "closed": return <Archive className={cn(iconClasses, "text-gray-700")} />;
       default: return null;
     }
@@ -98,7 +95,7 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
-                onEdit(requirement);
+                if(onEdit) onEdit(requirement);
               }}
               className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
               title="Edit Enquiry"
@@ -122,26 +119,30 @@ export function ParentEnquiryCard({ requirement, onEdit, onDelete, onClose, onRe
         )}
       </CardContent>
 
-      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+      <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
         <div className="flex-grow min-w-0">
-            {requirement.applicantsCount !== undefined && requirement.status !== 'closed' && (
-                <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full">
-                    <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Applicant{requirement.applicantsCount === 1 ? "" : "s"}
+            {requirement.applicantsCount !== undefined && (
+                <Badge 
+                    variant="outline" 
+                    className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                >
+                    <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> 
+                    {requirement.applicantsCount} Applicant{requirement.applicantsCount === 1 ? "" : "s"}
                 </Badge>
             )}
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          {isPastEnquiry && onReopen && (
-            <Button
+        <div className="flex items-center gap-2">
+           {isPastEnquiry && onReopen && (
+             <Button
               variant="outline"
               size="xs"
-              onClick={(e) => { e.stopPropagation(); onReopen(requirement.id); }}
+              onClick={(e) => { e.stopPropagation(); if(onReopen) onReopen(requirement.id); }}
               className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
             >
               <Archive className="mr-1.5 h-3 w-3" /> Reopen
             </Button>
-          )}
-           <Button
+           )}
+          <Button
             asChild
             size="sm"
             className={cn(
