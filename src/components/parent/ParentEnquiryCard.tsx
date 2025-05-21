@@ -18,11 +18,10 @@ import {
   Building,
   RadioTower,
   MapPin,
-  Edit3,
+  Settings as SettingsIcon, // Changed from Edit3
   Eye,
-  Users as UsersIcon, 
+  Users as UsersIcon,
   Archive,
-  Info,
 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import Link from "next/link";
@@ -31,7 +30,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
-  onEdit?: (requirement: TuitionRequirement) => void; // Changed from id: string to requirement: TuitionRequirement
+  // onEdit?: (requirement: TuitionRequirement) => void; // Removed onEdit prop
   onDelete?: (requirement: TuitionRequirement) => void;
   onClose?: (requirement: TuitionRequirement) => void;
   onReopen?: (id: string) => void;
@@ -49,7 +48,6 @@ const getInitials = (name?: string): string => {
   ).toUpperCase();
 };
 
-// Helper component for info items with icons
 const InfoItem = ({
   icon: Icon,
   label,
@@ -80,7 +78,7 @@ const InfoItem = ({
 
 export function ParentEnquiryCard({
   requirement,
-  onEdit,
+  // onEdit, // Removed
   onDelete,
   onClose,
   onReopen,
@@ -115,19 +113,19 @@ export function ParentEnquiryCard({
                 Posted {timeAgo}
               </CardDescription>
             </div>
-             {(!isPastEnquiry && onEdit) && (
+            {/* Replaced Edit button with Settings icon linking to detail page */}
+            {(requirement.status === 'open' || requirement.status === 'matched') && (
+              <Link href={`/parent/my-enquiries/${requirement.id}`} passHref legacyBehavior>
                 <Button
-                variant="default"
-                size="icon"
-                onClick={(e) => {
-                    e.stopPropagation(); 
-                    if (onEdit) onEdit(requirement); // Pass the full requirement
-                }}
-                className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
-                title="Edit Enquiry"
+                  asChild
+                  variant="default"
+                  size="icon"
+                  className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
+                  title="View & Manage Enquiry"
                 >
-                <Edit3 className="h-4 w-4" />
+                  <a><SettingsIcon className="h-4 w-4" /></a>
                 </Button>
+              </Link>
             )}
           </div>
         </CardHeader>
@@ -151,7 +149,7 @@ export function ParentEnquiryCard({
 
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
           <div>
-             {requirement.applicantsCount !== undefined && (
+            {requirement.applicantsCount !== undefined && (
                 <Badge
                     variant="outline"
                     className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
@@ -162,7 +160,7 @@ export function ParentEnquiryCard({
                 </Badge>
              )}
           </div>
-          <div className="flex items-center gap-2">
+           <div className="flex items-center gap-2">
             {isPastEnquiry && onReopen && (
               <Button
                 variant="outline"

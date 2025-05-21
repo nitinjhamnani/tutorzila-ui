@@ -25,7 +25,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription as DialogDesc,
+  DialogDescription as DialogDesc, // Renamed to avoid conflict
   DialogFooter,
   DialogClose,
   DialogTrigger,
@@ -60,10 +60,10 @@ import {
   Trash2,
   Edit3,
   Users as UsersIcon,
-  PlusCircle, // Added PlusCircle
+  PlusCircle,
 } from "lucide-react";
-import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
-import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; // Added import
+// import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal"; // Removed this import
+import { PostRequirementModal } from "@/components/modals/PostRequirementModal";
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
 
@@ -93,8 +93,9 @@ export default function ParentMyEnquiriesPage() {
   const [startClassesConfirmation, setStartClassesConfirmation] = useState< "yes" | "no" | "">("");
   const [selectedRequirementForAction, setSelectedRequirementForAction] = useState<TuitionRequirement | null>(null);
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedEnquiryForEdit, setSelectedEnquiryForEdit] = useState<TuitionRequirement | null>(null);
+  // Removed state related to direct edit modal from this page
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  // const [selectedEnquiryForEdit, setSelectedEnquiryForEdit] = useState<TuitionRequirement | null>(null);
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
 
 
@@ -130,33 +131,14 @@ export default function ParentMyEnquiriesPage() {
     );
   }, [allRequirements, activeFilterCategory]);
 
-  const handleEdit = (requirement: TuitionRequirement) => {
-    setSelectedEnquiryForEdit(requirement);
-    setIsEditModalOpen(true);
-  };
+  // handleEdit function is removed as editing is now via detail page
+  // const handleEdit = (requirement: TuitionRequirement) => {
+  //   setSelectedEnquiryForEdit(requirement);
+  //   setIsEditModalOpen(true);
+  // };
 
-  const handleUpdateEnquiryInList = (updatedData: Partial<TuitionRequirement>) => {
-    if (!selectedEnquiryForEdit) return;
-    
-    const updatedRequirement = { ...selectedEnquiryForEdit, ...updatedData };
-    setAllRequirements(prevReqs => 
-      prevReqs.map(req => 
-        req.id === selectedEnquiryForEdit.id ? updatedRequirement : req
-      )
-    );
-    
-    const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedEnquiryForEdit.id);
-    if (mockIndex > -1) {
-      MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
-    }
-
-    toast({
-      title: "Enquiry Updated",
-      description: `Requirement for "${Array.isArray(updatedData.subject) ? updatedData.subject.join(', ') : updatedData.subject}" has been updated.`,
-    });
-    setIsEditModalOpen(false);
-    setSelectedEnquiryForEdit(null);
-  };
+  // handleUpdateEnquiryInList function is removed
+  // const handleUpdateEnquiryInList = (updatedData: Partial<TuitionRequirement>) => { ... };
 
 
   const handleOpenDeleteConfirm = (requirement: TuitionRequirement) => {
@@ -242,7 +224,7 @@ export default function ParentMyEnquiriesPage() {
       if (mockIndex > -1) {
         MOCK_ALL_PARENT_REQUIREMENTS[mockIndex].status = "open";
       }
-      router.push(`/parent/my-enquiries/edit/${id}`);
+      router.push(`/parent/my-enquiries/edit/${id}`); // Navigate to specific edit page
     }
   };
   
@@ -259,6 +241,7 @@ export default function ParentMyEnquiriesPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+        {/* BreadcrumbHeader removed */}
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-3 flex flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex-grow min-w-0">
@@ -284,7 +267,7 @@ export default function ParentMyEnquiriesPage() {
                   </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
-                <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
+                <PostRequirementModal onSuccess={() => { setIsPostRequirementModalOpen(false); /* TODO: Refresh list */ }} />
               </DialogContent>
             </Dialog>
           </CardHeader>
@@ -364,7 +347,7 @@ export default function ParentMyEnquiriesPage() {
               <ParentEnquiryCard
                 key={req.id}
                 requirement={req}
-                onEdit={handleEdit}
+                // onEdit is removed as editing is now via detail page's modal
                 onDelete={() => handleOpenDeleteConfirm(req)}
                 onClose={() => handleOpenCloseEnquiryModal(req)}
                 onReopen={() => handleReopen(req.id)}
@@ -460,17 +443,8 @@ export default function ParentMyEnquiriesPage() {
             </DialogContent>
           </Dialog>
         )}
-
-        <ParentEnquiryModal 
-            isOpen={isEditModalOpen}
-            onOpenChange={setIsEditModalOpen}
-            enquiryData={selectedEnquiryForEdit}
-            onUpdateEnquiry={handleUpdateEnquiryInList}
-        />
-        {/* Removed FloatingPostRequirementButton from here */}
+        {/* ParentEnquiryModal import and usage removed as editing is now from detail page */}
       </div>
     </main>
   );
 }
-
-    
