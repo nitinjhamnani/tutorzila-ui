@@ -330,7 +330,7 @@ export const MOCK_CLASSES: MyClass[] = [
 export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   {
     id: "current1",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["Mathematics", "Algebra"],
     gradeLevel: "Grade 6",
@@ -344,13 +344,14 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "CBSE",
     teachingMode: ["Online"],
     applicantsCount: 3,
+    appliedTutorIds: ["t1", "t3", "t5"], // Added applied tutors
     mockIsRecommended: true,
     mockIsAppliedByCurrentUser: false,
     mockIsShortlistedByCurrentUser: true,
   },
   {
     id: "current2",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["Science", "Physics"],
     gradeLevel: "Grade 8",
@@ -364,13 +365,14 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "ICSE",
     teachingMode: ["Offline (In-person)"],
     applicantsCount: 7,
+    appliedTutorIds: ["t2", "t4"], // Added applied tutors
     mockIsAppliedByCurrentUser: true,
     mockIsRecommended: false,
     mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "past1",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["English", "Grammar"],
     gradeLevel: "Grade 5",
@@ -383,11 +385,12 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     additionalNotes: "Found a tutor (Mr. Ramesh Kumar) but decided not to start classes at this time due to schedule conflicts. Requirement closed.",
     board: "State Board",
     teachingMode: ["Offline (In-person)"],
-    applicantsCount: 5
+    applicantsCount: 5,
+    appliedTutorIds: ["t5"],
   },
   {
     id: "past2",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["Hindi"],
     gradeLevel: "Grade 4",
@@ -404,7 +407,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "current3-multisubject",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["Physics", "Chemistry", "Biology"],
     gradeLevel: "Grade 10",
@@ -418,12 +421,13 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "CBSE",
     teachingMode: ["Online"],
     applicantsCount: 1,
+    appliedTutorIds: ["t1"],
     mockIsShortlistedByCurrentUser: true,
     mockIsRecommended: true,
   },
   {
     id: "current4-languages",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["French", "German"],
     gradeLevel: "Adult Learner",
@@ -441,7 +445,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "past3-hybrid",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["Computer Science", "Mathematics"],
     gradeLevel: "Grade 12",
@@ -454,11 +458,12 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     additionalNotes: "Classes completed successfully with Tutor XYZ. Student scored well. Requirement closed.",
     board: "IB",
     teachingMode: ["Online", "Offline (In-person)"],
-    applicantsCount: 6
+    applicantsCount: 6,
+    appliedTutorIds: ["t3"],
   },
   {
     id: "other1", 
-    parentId: "p2",
+    parentId: "p2", // Bob Johnson
     parentName: "Bob Johnson",
     subject: ["Physics", "Chemistry"],
     gradeLevel: "Grade 11-12",
@@ -472,12 +477,13 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     teachingMode: ["Offline (In-person)"],
     applicantsCount: 3,
     additionalNotes: "Looking for experienced tutors only.",
+    appliedTutorIds: ["t1", "t4"],
     mockIsRecommended: true,
     mockIsAppliedByCurrentUser: true, 
   },
    {
     id: "alice_open_1",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["History", "Geography"],
     gradeLevel: "Grade 7",
@@ -491,13 +497,14 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "CBSE",
     teachingMode: ["Online"],
     applicantsCount: 0,
+    appliedTutorIds: [],
     mockIsAppliedByCurrentUser: false,
     mockIsRecommended: false,
     mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "alice_matched_1",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["Art", "Music (Piano)"],
     gradeLevel: "Grade 3",
@@ -511,13 +518,14 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "IGCSE",
     teachingMode: ["Offline (In-person)"],
     applicantsCount: 4,
+    appliedTutorIds: ["t5"],
     mockIsShortlistedByCurrentUser: true,
     mockIsRecommended: false,
     mockIsAppliedByCurrentUser: false,
   },
   {
     id: "alice_closed_1",
-    parentId: "p1",
+    parentId: "p1", // Alice Smith
     parentName: "Alice Smith",
     subject: ["Coding (Python)"],
     gradeLevel: "Grade 9",
@@ -531,6 +539,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "CBSE",
     teachingMode: ["Online"],
     applicantsCount: 2,
+    appliedTutorIds: ["t3"],
     mockIsRecommended: false,
     mockIsAppliedByCurrentUser: false,
     mockIsShortlistedByCurrentUser: false,
@@ -681,9 +690,3 @@ export const MOCK_TUTOR_TRANSACTIONS: TutorTransaction[] = [
   { id: "txn8", tutorId: "t3", type: "Credit", mode: "Wallet", amount: 1000, date: new Date(Date.now() - 86400000 * 7).toISOString(), summary: "Top-up for leads", status: "Success" },
   { id: "txn9", tutorId: "t3", type: "Debit", mode: "Wallet", amount: 3, date: new Date(Date.now() - 86400000 * 6).toISOString(), summary: "Lead consumed for CS project", status: "Failed" },
 ];
-
-// Old MOCK_REQUIREMENTS - to be removed or merged if needed
-// export const MOCK_REQUIREMENTS: TuitionRequirement[] = [
-//   { id: "1", parentId: "p1", parentName: "Alice Smith", subject: ["Mathematics"], gradeLevel: "Grade 9-10", scheduleDetails: "Mon, Wed, Fri 5-7 PM", location: "Online", status: "open", postedAt: new Date(Date.now() - 86400000 * 2).toISOString(), additionalNotes: "Needs help with algebra and geometry.", board: "CBSE", teachingMode: ["Online"] },
-//   { id: "2", parentId: "p2", parentName: "Bob Johnson", subject: ["Physics"], gradeLevel: "Grade 11-12", scheduleDetails: "Weekends, 4 hours total", location: "Student's Home", status: "open", postedAt: new Date(Date.now() - 86400000 * 5).toISOString(), board: "ICSE", teachingMode: ["Offline (In-person)"] },
-// ];
