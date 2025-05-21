@@ -1,8 +1,7 @@
-
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation"; // Keep for potential navigation in actions
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Card,
@@ -50,15 +49,14 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
   ListChecks,
-  FilterIcon as LucideFilterIcon,
   ChevronDown,
   Clock,
   CheckCircle,
   XCircle,
   Archive,
+  Eye,
   Trash2,
   Edit3,
-  Eye,
   Users as UsersIcon,
   Briefcase,
   Send,
@@ -140,11 +138,19 @@ export default function ParentMyEnquiriesPage() {
 
   const handleUpdateEnquiryInList = (updatedData: Partial<TuitionRequirement>) => {
     if (!selectedEnquiryForEdit) return;
+    
+    const updatedRequirement = { ...selectedEnquiryForEdit, ...updatedData };
     setAllRequirements(prevReqs => 
       prevReqs.map(req => 
-        req.id === selectedEnquiryForEdit.id ? { ...req, ...updatedData } : req
+        req.id === selectedEnquiryForEdit.id ? updatedRequirement : req
       )
     );
+    // Update MOCK_ALL_PARENT_REQUIREMENTS as well
+    const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedEnquiryForEdit.id);
+    if (mockIndex > -1) {
+      MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
+    }
+
     toast({
       title: "Enquiry Updated",
       description: `Requirement for "${Array.isArray(updatedData.subject) ? updatedData.subject.join(', ') : updatedData.subject}" has been updated.`,
@@ -164,6 +170,11 @@ export default function ParentMyEnquiriesPage() {
     setAllRequirements((prev) =>
       prev.filter((req) => req.id !== selectedRequirementForAction.id)
     );
+    // Also remove from MOCK_ALL_PARENT_REQUIREMENTS
+    const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedRequirementForAction.id);
+    if (mockIndex > -1) {
+      MOCK_ALL_PARENT_REQUIREMENTS.splice(mockIndex, 1);
+    }
     toast({
       title: "Enquiry Deleted",
       description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" has been deleted.`,
@@ -187,27 +198,31 @@ export default function ParentMyEnquiriesPage() {
     if (closeEnquiryStep === 1) {
       setCloseEnquiryStep(2);
     } else if (closeEnquiryStep === 2) {
+      const updatedRequirement = {
+        ...selectedRequirementForAction,
+        status: "closed" as const,
+        additionalNotes: `${selectedRequirementForAction.additionalNotes || ""}\nUpdate: Requirement closed on ${new Date().toLocaleDateString()}. ${
+          foundTutorName
+            ? `Tutor found: ${foundTutorName}.`
+            : "No tutor specified."
+        } ${
+          startClassesConfirmation === "yes"
+            ? "Classes expected to start."
+            : startClassesConfirmation === "no"
+            ? "Decided not to start classes."
+            : ""
+        }`,
+      };
       setAllRequirements((prev) =>
         prev.map((req) =>
-          req.id === selectedRequirementForAction.id
-            ? {
-                ...req,
-                status: "closed",
-                additionalNotes: `${req.additionalNotes || ""}\nUpdate: Requirement closed on ${new Date().toLocaleDateString()}. ${
-                  foundTutorName
-                    ? `Tutor found: ${foundTutorName}.`
-                    : "No tutor specified."
-                } ${
-                  startClassesConfirmation === "yes"
-                    ? "Classes expected to start."
-                    : startClassesConfirmation === "no"
-                    ? "Decided not to start classes."
-                    : ""
-                }`,
-              }
-            : req
+          req.id === selectedRequirementForAction.id ? updatedRequirement : req
         )
       );
+      // Also update MOCK_ALL_PARENT_REQUIREMENTS
+      const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedRequirementForAction.id);
+      if (mockIndex > -1) {
+        MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
+      }
       toast({
         title: "Enquiry Closed",
         description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" has been marked as closed.`,
@@ -220,9 +235,15 @@ export default function ParentMyEnquiriesPage() {
   const handleReopen = (id: string) => {
     const reqToReopen = allRequirements.find(req => req.id === id);
     if (reqToReopen) {
+      const updatedRequirement = { ...reqToReopen, status: "open" as const };
       setAllRequirements(prev => prev.map(r => 
-        r.id === id ? { ...r, status: "open" } : r
+        r.id === id ? updatedRequirement : r
       ));
+      // Also update MOCK_ALL_PARENT_REQUIREMENTS
+      const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === id);
+      if (mockIndex > -1) {
+        MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
+      }
       router.push(`/parent/my-enquiries/edit/${id}`);
     }
   };
@@ -240,9 +261,8 @@ export default function ParentMyEnquiriesPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* No BreadcrumbHeader here */}
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <CardHeader className="p-0 mb-3 flex flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex-grow min-w-0">
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <ListChecks className="w-5 h-5 mr-2.5" />
@@ -252,40 +272,7 @@ export default function ParentMyEnquiriesPage() {
                 Manage your posted tuition requirements and track their status.
               </CardDescription>
             </div>
-             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="default"
-                  size="sm"
-                  className={cn(
-                    "text-xs py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto rounded-[5px]"
-                  )}
-                >
-                  <LucideFilterIcon className="w-3.5 h-3.5 mr-1 text-primary-foreground/80" />
-                  <span className="text-primary-foreground">
-                    {selectedCategoryData?.label || "Filter"} ({selectedCategoryData ? categoryCounts[selectedCategoryData.value] : 'N/A'})
-                  </span>
-                  <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[220px]">
-                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {enquiryStatusCategories.map((category) => (
-                  <DropdownMenuItem
-                    key={category.value}
-                    onClick={() => setActiveFilterCategory(category.value)}
-                    className={cn(
-                      "text-sm",
-                      activeFilterCategory === category.value && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
-                    )}
-                  >
-                    <category.icon className="mr-2 h-4 w-4" />
-                    {category.label} ({categoryCounts[category.value]})
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Filter dropdown removed from here */}
           </CardHeader>
           <CardContent className="p-0 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -319,6 +306,43 @@ export default function ParentMyEnquiriesPage() {
             </div>
           </CardContent>
         </Card>
+
+        <div className="flex justify-end mb-4 sm:mb-6">
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button
+                variant="default"
+                size="sm" 
+                className={cn(
+                    "py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
+                    "text-xs sm:text-sm rounded-[5px]"
+                )}
+                >
+                <span className="text-primary-foreground">
+                    {selectedCategoryData?.label || "Filter"} ({selectedCategoryData ? categoryCounts[selectedCategoryData.value] : 'N/A'})
+                </span>
+                <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[220px]">
+                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {enquiryStatusCategories.map((category) => (
+                <DropdownMenuItem
+                    key={category.value}
+                    onClick={() => setActiveFilterCategory(category.value)}
+                    className={cn(
+                    "text-sm",
+                    activeFilterCategory === category.value && "bg-primary text-primary-foreground hover:bg-primary focus:bg-primary hover:text-primary-foreground focus:text-primary-foreground"
+                    )}
+                >
+                    <category.icon className="mr-2 h-4 w-4" />
+                    {category.label} ({categoryCounts[category.value]})
+                </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4">
           {filteredRequirements.length > 0 ? (
@@ -433,4 +457,3 @@ export default function ParentMyEnquiriesPage() {
     </main>
   );
 }
-
