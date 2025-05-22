@@ -13,13 +13,14 @@ import Link from "next/link";
 import bannerImage from '@/assets/images/banner-9.png'; 
 import hireTutorImage from '@/assets/images/banner-8.png';
 import becomeTutorImage from '@/assets/images/banner-11.png';
-import type { TutorProfile, Testimonial } from "@/types";
+import type { TutorProfile, Testimonial, User } from "@/types"; // Added User
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import { useState } from "react"; 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
+import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 
 
 const howItWorksSteps = [
@@ -81,9 +82,11 @@ const popularSubjects = [
 
 
 export default function HomePage() {
+  const { user, isAuthenticated } = useAuthMock(); // Get auth state
   const sectionPadding = "py-10 md:py-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
+  const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
 
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
@@ -237,7 +240,7 @@ export default function HomePage() {
                 {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
                   <CarouselItem key={tutor.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/3 xl:basis-1/3 pl-3.5 md:pl-4.5">
                     <div className="p-1.5 h-full">
-                      <TutorProfileCard tutor={tutor} />
+                      <TutorProfileCard tutor={tutor} parentContextBaseUrl={parentContextBaseUrl} />
                     </div>
                   </CarouselItem>
                 ))}
@@ -355,6 +358,7 @@ export default function HomePage() {
 }
 
     
+
 
 
 

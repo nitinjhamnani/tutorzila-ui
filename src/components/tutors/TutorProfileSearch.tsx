@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import type { TutorProfile } from "@/types";
+import type { TutorProfile, User } from "@/types"; // Added User
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 
 
 const allSubjectsList: MultiSelectOption[] = [...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter(Boolean).map(s => ({value: s, label: s}));
@@ -46,9 +48,10 @@ const boardsList: { value: string, label: string }[] = [
 
 
 export function TutorProfileSearch() {
-  const [subjectFilter, setSubjectFilter] = useState<string[]>([]); // Changed for multi-select
+  const { user, isAuthenticated } = useAuthMock(); // Get auth state
+  const [subjectFilter, setSubjectFilter] = useState<string[]>([]); 
   const [gradeFilter, setGradeFilter] = useState("All");
-  const [boardFilter, setBoardFilter] = useState("All"); // New state for board filter
+  const [boardFilter, setBoardFilter] = useState("All"); 
   const [modeFilter, setModeFilter] = useState("All");
   const [locationSearchTerm, setLocationSearchTerm] = useState("");
   const [feeRange, setFeeRange] = useState<[number, number]>([200, 2000]);
@@ -103,6 +106,9 @@ export function TutorProfileSearch() {
     setFeeRange([200, 2000]);
   };
 
+  const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
+
+
   const renderTutorList = (profiles: TutorProfile[]) => {
     if (profiles.length > 0) {
       return (
@@ -113,7 +119,7 @@ export function TutorProfileSearch() {
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
-              <TutorProfileCard tutor={tutor} />
+              <TutorProfileCard tutor={tutor} parentContextBaseUrl={parentContextBaseUrl} />
             </div>
           ))}
         </div>
@@ -125,7 +131,7 @@ export function TutorProfileSearch() {
           <ListFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" />
           <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Tutors Found</p>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            There are no tutors matching your current filters. Try adjusting your search or check back later.
+             Try adjusting your search filters or check back later for new opportunities.
           </p>
            <Button onClick={resetFilters} variant="outline" className="mt-6 text-sm py-2 px-5">
             <XIcon className="w-3.5 h-3.5 mr-1.5" />

@@ -8,10 +8,11 @@ import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase, Shield
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react"; // Added useState and useEffect
+import { useState, useEffect } from "react"; 
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
+  parentContextBaseUrl?: string; // New optional prop
 }
 
 // Helper component for info items with icons
@@ -26,33 +27,40 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
   );
 };
 
-export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
+export function TutorProfileCard({ tutor, parentContextBaseUrl }: TutorProfileCardProps) {
   const rating = tutor.rating || 0;
   const [mockReviewCount, setMockReviewCount] = useState<number | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Generate mockReviewCount only on the client-side
-    setMockReviewCount(Math.floor(Math.random() * 50) + 5);
+    setIsClient(true); // Component has mounted
   }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      setMockReviewCount(Math.floor(Math.random() * 50) + 5);
+    }
+  }, [isClient]);
 
 
   const TeachingModeIcon =
-    Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && tutor.teachingMode.includes("In-person")
-      ? Laptop // Hybrid
+    Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
+      ? Laptop 
       : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
       ? Laptop
       : Array.isArray(tutor.teachingMode) && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
       ? Users
-      : Laptop; // Default
+      : Laptop; 
 
   const teachingModeText =
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0
       ? tutor.teachingMode.map(mode => mode.replace(" (In-person)", "").replace("Offline", "In-person")).join(' & ')
       : "Not Specified";
       
+  const linkHref = `${parentContextBaseUrl || '/tutors/'}${tutor.id}`;
 
   return (
-    <Link href={`/tutors/${tutor.id}`} passHref legacyBehavior>
+    <Link href={linkHref} passHref legacyBehavior>
       <a className="block group cursor-pointer h-full">
         <Card className={cn(
           "w-full h-full",
@@ -88,7 +96,7 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
           </CardHeader>
 
           <CardContent className="p-0 space-y-2.5 flex-grow">
-            <InfoItem icon={BookOpen} text={tutor.subjects} />
+            <InfoItem icon={BookOpen} text={Array.isArray(tutor.subjects) ? tutor.subjects.join(', ') : tutor.subjects} />
             {tutor.grade && <InfoItem icon={GraduationCap} text={tutor.grade} />}
             {tutor.boardsTaught && tutor.boardsTaught.length > 0 && (
               <InfoItem icon={ShieldCheck} text={tutor.boardsTaught.join(', ')} />
@@ -109,3 +117,4 @@ export function TutorProfileCard({ tutor }: TutorProfileCardProps) {
     </Link>
   );
 }
+
