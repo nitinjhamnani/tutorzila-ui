@@ -2,7 +2,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image"; 
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import type { TutorProfile, Testimonial } from "@/types";
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
@@ -15,9 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ShadDialogTitle, DialogDescription as ShadDialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-// Input and Textarea are not directly used in the main component body after last changes, but kept for the contact modal
-import { Input } from "@/components/ui/input"; 
-import { Textarea } from "@/components/ui/textarea"; 
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 import {
@@ -37,8 +36,8 @@ import {
   Music,
   Calculator,
   Lightbulb,
-  Mail,
-  Phone,
+  // Mail, // No longer directly used on this page
+  // Phone, // No longer directly used on this page
   MapPin,
   DollarSign,
   Laptop,
@@ -47,11 +46,11 @@ import {
   Quote,
   UserX,
   CalendarClock,
-  Clock as ClockIcon, 
+  Clock as ClockIcon,
   CalendarDays,
   Share2,
-  Copy,
-  MessageSquareQuote
+  // Copy, // No longer directly used on this page
+  // MessageSquareQuote // No longer directly used for Contact Tutor button
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
@@ -112,8 +111,9 @@ export default function ParentTutorProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
 
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [selectedTutorForContact, setSelectedTutorForContact] = useState<TutorProfile | null>(null);
+  // State for Contact Tutor Dialog removed
+  // const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  // const [selectedTutorForContact, setSelectedTutorForContact] = useState<TutorProfile | null>(null);
 
 
   useEffect(() => {
@@ -124,10 +124,10 @@ export default function ParentTutorProfilePage() {
     if (!hasMounted || isCheckingAuth) return;
 
     if (!isAuthenticated || user?.role !== 'parent') {
-      router.replace("/"); 
+      router.replace("/");
       return;
     }
-    
+
     if (idFromParams) {
       setLoading(true);
       setError(null);
@@ -165,29 +165,13 @@ export default function ParentTutorProfilePage() {
       toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link. Please try again." });
     }
   };
-  
-  const handleCopyDetail = (text: string | undefined, fieldName: string) => {
-    if (!text) {
-      toast({ variant: "destructive", title: "Not Available", description: `${fieldName} is not available for this tutor.` });
-      return;
-    }
-    navigator.clipboard.writeText(text).then(() => {
-      toast({ title: `${fieldName} Copied!`, description: `${text} copied to clipboard.` });
-    }).catch(err => {
-      toast({ variant: "destructive", title: "Copy Failed" });
-    });
-  };
 
-  const handleContactTutorClick = (t: TutorProfile) => {
-    setSelectedTutorForContact(t);
-    setIsContactModalOpen(true);
-  };
+  // handleCopyDetail and handleContactTutorClick functions removed
 
   if (isCheckingAuth || !hasMounted || loading) {
     return (
       <main className="flex-grow">
-        <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8"> 
-            {/* BreadcrumbHeader removed */}
+        <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8">
             <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
             <div className="lg:col-span-1 space-y-6">
                 <Skeleton className="h-[350px] w-full rounded-xl" />
@@ -201,9 +185,8 @@ export default function ParentTutorProfilePage() {
       </main>
     );
   }
-  
+
   if (!isAuthenticated || user?.role !== 'parent') {
-    // This should be caught by the useEffect redirect, but as a fallback:
     return <main className="flex-grow"><div className="flex h-screen items-center justify-center text-muted-foreground">Redirecting...</div></main>;
   }
 
@@ -211,10 +194,9 @@ export default function ParentTutorProfilePage() {
   if (error) {
     return (
       <main className="flex-grow">
-        <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]"> {/* Added var(--footer-height,0px) and 5rem for additional clearance */}
-            {/* BreadcrumbHeader removed */}
+        <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]">
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
-            <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
+            <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" />
             <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
             <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
@@ -228,9 +210,8 @@ export default function ParentTutorProfilePage() {
      return (
        <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]">
-            {/* BreadcrumbHeader removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
-            <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
+            <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" />
             <AlertTitle className="text-xl font-semibold">Tutor Not Found</AlertTitle>
             <AlertDescription>The requested tutor profile could not be found.</AlertDescription>
             <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
@@ -242,7 +223,7 @@ export default function ParentTutorProfilePage() {
 
   const rating = tutor.rating || 0;
   const teachingModeText = Array.isArray(tutor.teachingMode) ? tutor.teachingMode.join(' & ') : tutor.teachingMode;
-  const TeachingModeIcon = 
+  const TeachingModeIcon =
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
       ? Laptop
       : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
@@ -254,10 +235,8 @@ export default function ParentTutorProfilePage() {
 
   return (
     <main className="flex-grow">
-      {/* Ensure horizontal padding is on this wrapper div */}
-      <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out pb-20 md:pb-24 px-4 sm:px-6 md:px-8"> 
-        {/* BreadcrumbHeader removed */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-4"> {/* Added mt-4 for spacing if breadcrumb was there */}
+      <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out pb-20 md:pb-24 px-4 sm:px-6 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-4">
           <aside className="lg:col-span-1 space-y-6">
             <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
               <CardContent className="pt-6 text-center">
@@ -269,12 +248,12 @@ export default function ParentTutorProfilePage() {
                 </Avatar>
                 <h1 className="text-lg font-semibold text-foreground tracking-tight mt-4">{tutor.name}</h1>
                 <p className="text-xs text-muted-foreground mt-1">{tutor.role === "tutor" ? "Professional Tutor" : tutor.role}</p>
-                
+
                 <div className="flex items-center justify-center mt-2.5">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Star
                       key={index}
-                      className={`w-3 h-3 ${index < Math.floor(rating) ? "fill-primary text-primary" : "text-muted-foreground/40"}`} 
+                      className={`w-3 h-3 ${index < Math.floor(rating) ? "fill-primary text-primary" : "text-muted-foreground/40"}`}
                     />
                   ))}
                   <span className="ml-1.5 text-[10px] text-muted-foreground">({rating.toFixed(1)} stars)</span>
@@ -294,13 +273,7 @@ export default function ParentTutorProfilePage() {
                  >
                     <CalendarDays className="mr-2 h-4 w-4" /> Schedule Demo
                  </Button>
-                 <Button
-                    variant="outline"
-                    className="w-full text-sm py-2.5"
-                    onClick={() => handleContactTutorClick(tutor)}
-                 >
-                    <MessageSquareQuote className="mr-2 h-4 w-4" /> Contact Tutor
-                 </Button>
+                 {/* Contact Tutor Button removed */}
                  <Button
                     variant="outline"
                     className="w-full text-sm py-2.5"
@@ -330,7 +303,7 @@ export default function ParentTutorProfilePage() {
                   <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs"> 
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs">
                 <InfoSection icon={BookOpen} title="Subjects Taught">
                   <div className="flex flex-wrap gap-1.5 mt-0.5">
                     {(Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects]).map((subject) => {
@@ -344,18 +317,18 @@ export default function ParentTutorProfilePage() {
                     })}
                   </div>
                 </InfoSection>
-                {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} />}
-                {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} />}
-                {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} />}
+                {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} className="text-xs" />}
+                {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} className="text-xs" />}
+                {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} className="text-xs" />}
                 {tutor.teachingMode && (
-                  <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} />
+                  <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} className="text-xs" />
                 )}
-                 {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} />}
-                 {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} />}
-                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} />}
+                 {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-xs" />}
+                 {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-xs" />}
+                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
               </CardContent>
             </Card>
-            
+
              <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
                <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold text-primary flex items-center">
@@ -363,7 +336,7 @@ export default function ParentTutorProfilePage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").slice(0,2).map((review, index) => ( 
+                  {MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").slice(0,2).map((review, index) => (
                       <React.Fragment key={review.id}>
                           <div className="p-0 bg-transparent">
                               <div className="flex items-start justify-between mb-1">
@@ -399,54 +372,8 @@ export default function ParentTutorProfilePage() {
         </div>
       </div>
 
-      {selectedTutorForContact && (
-        <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
-            <DialogContent className="sm:max-w-md bg-card">
-            <DialogHeader>
-                <ShadDialogTitle className="flex items-center text-lg text-primary">
-                <MessageSquareQuote className="mr-2 h-5 w-5" /> Contact {selectedTutorForContact?.name || 'Tutor'}
-                </ShadDialogTitle>
-                <ShadDialogDescription>
-                You can reach out to {selectedTutorForContact?.name || 'this tutor'} using the details below.
-                </ShadDialogDescription>
-            </DialogHeader>
-            <div className="space-y-3 py-4">
-                <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
-                <div className="flex items-center">
-                    <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
-                    <span className="text-sm text-foreground">{selectedTutorForContact?.email || 'Not available'}</span>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.email, "Email")} className="h-8 w-8 text-muted-foreground hover:text-primary">
-                    <Copy className="h-4 w-4" />
-                </Button>
-                </div>
-                {selectedTutorForContact?.phone && (
-                <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
-                    <div className="flex items-center">
-                    <Phone className="w-4 h-4 mr-3 text-muted-foreground" />
-                    <span className="text-sm text-foreground">{selectedTutorForContact.phone}</span>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.phone, "Phone Number")} className="h-8 w-8 text-muted-foreground hover:text-primary">
-                    <Copy className="h-4 w-4" />
-                    </Button>
-                </div>
-                )}
-                {!selectedTutorForContact?.phone && (
-                    <div className="p-3 border rounded-md bg-background/50">
-                        <p className="text-sm text-muted-foreground text-center">Phone number not provided by tutor.</p>
-                    </div>
-                )}
-            </div>
-            <DialogFooter>
-                <DialogClose asChild>
-                <Button type="button" variant="outline">Close</Button>
-                </DialogClose>
-            </DialogFooter>
-            </DialogContent>
-        </Dialog>
-      )}
+      {/* Contact Tutor Dialog Removed */}
     </main>
   );
 }
-
     
