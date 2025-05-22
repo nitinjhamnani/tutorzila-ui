@@ -1,4 +1,4 @@
-// src/app/parent/tutors/[id]/page.tsx
+
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription as ShadDialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -116,31 +116,29 @@ export default function ParentTutorProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (!isClient || isCheckingAuth) return;
+    if (!isClient || isCheckingAuth || !id) return;
 
     if (!isAuthenticated || user?.role !== 'parent') {
-      router.replace("/"); // Redirect if not authenticated parent
+      router.replace("/"); 
       return;
     }
 
-    if (id) {
-      setLoading(true);
-      setError(null);
-      setTimeout(() => {
-        const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === id);
-        if (foundTutor) {
-          setTutor(foundTutor);
-        } else {
-          setError("Tutor profile not found.");
-        }
-        setLoading(false);
-      }, 300);
-    }
+    setLoading(true);
+    setError(null);
+    setTimeout(() => {
+      const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === id);
+      if (foundTutor) {
+        setTutor(foundTutor);
+      } else {
+        setError("Tutor profile not found.");
+      }
+      setLoading(false);
+    }, 300);
   }, [id, isClient, isCheckingAuth, isAuthenticated, user, router]);
 
   const handleShareProfile = async () => {
-    if (!tutor || !isClient) return;
-    const profileUrl = `${window.location.origin}/tutors/${tutor.id}`;
+    if (!tutor || typeof window === 'undefined') return;
+    const profileUrl = `${window.location.origin}/tutors/${tutor.id}`; // Public profile link
     try {
       await navigator.clipboard.writeText(profileUrl);
       toast({ title: "Profile Link Copied!", description: "Tutor's public profile link copied to clipboard." });
@@ -161,11 +159,20 @@ export default function ParentTutorProfilePage() {
     });
   };
 
+  const handleScheduleDemo = (tutorId: string, tutorName: string) => {
+    console.log("Schedule Demo Clicked for tutor ID:", tutorId, "Name:", tutorName);
+    toast({
+      title: "Schedule Demo (Coming Soon)",
+      description: `Functionality to schedule a demo with ${tutorName} will be implemented here.`,
+    });
+    // Here, you would typically open a modal or navigate to a scheduling page
+  };
+
 
   if (isCheckingAuth || loading || !isClient) {
     return (
       <div className="max-w-6xl mx-auto py-6 md:py-10">
-        <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutor Profile" }]} />
+        <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Find Tutors", href:"/search-tuitions" }, { label: "Loading Profile..." }]} />
         <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
           <div className="lg:col-span-1 space-y-6">
             <Skeleton className="h-[350px] w-full rounded-xl" />
@@ -182,17 +189,18 @@ export default function ParentTutorProfilePage() {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-         <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutor Profile" }]} />
+         <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Error" }]} />
         <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
           <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
           <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+          <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
         </Alert>
       </div>
     );
   }
 
-  if (!tutor) return null;
+  if (!tutor) return null; // Should be caught by error state usually
 
   const rating = tutor.rating || 0;
   const teachingModeText = Array.isArray(tutor.teachingMode) ? tutor.teachingMode.join(' & ') : tutor.teachingMode;
@@ -208,7 +216,7 @@ export default function ParentTutorProfilePage() {
 
   return (
     <>
-      <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutor Profile" }]} />
+      <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors", href: "/search-tuitions" }, { label: tutor.name }]} />
       <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out mt-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           <aside className="lg:col-span-1 space-y-6">
@@ -243,7 +251,7 @@ export default function ParentTutorProfilePage() {
                  <Button
                     variant="default"
                     className="w-full text-sm py-2.5"
-                    onClick={() => console.log("Schedule Demo Clicked for tutor:", tutor.id)}
+                    onClick={() => handleScheduleDemo(tutor.id, tutor.name)}
                  >
                     <CalendarDays className="mr-2 h-4 w-4" /> Schedule Demo
                  </Button>
@@ -286,7 +294,7 @@ export default function ParentTutorProfilePage() {
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
                 <InfoSection icon={BookOpen} title="Subjects Taught">
                   <div className="flex flex-wrap gap-1.5 mt-0.5">
-                    {tutor.subjects.map((subject) => {
+                    {(Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects]).map((subject) => {
                       const IconComponent = subjectIcons[subject] || subjectIcons.Default;
                       return (
                         <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[11px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
@@ -316,30 +324,32 @@ export default function ParentTutorProfilePage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").slice(0,2).map((review, index) => ( // Filter for parent reviews
-                      <div key={review.id} className="p-0">
-                          <div className="flex items-start justify-between mb-1">
-                             <div className="flex items-center">
-                                  <Avatar className="h-8 w-8 mr-2.5 border-primary/20 border">
-                                      <AvatarImage src={`https://avatar.vercel.sh/${review.reviewer.replace(/\s+/g, '')}.png?s=32`} alt={review.reviewer} />
-                                      <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                          {review.reviewer.split(' ').map(n => n[0]).join('').toUpperCase()}
-                                      </AvatarFallback>
-                                  </Avatar>
-                                  <div>
-                                      <p className="text-xs font-semibold text-foreground">{review.reviewer}</p>
-                                      <p className="text-[10px] text-muted-foreground flex items-center"><CalendarClock size={10} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
+                  {MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").slice(0,2).map((review, index) => ( 
+                      <React.Fragment key={review.id}>
+                          <div className="p-0 bg-transparent">
+                              <div className="flex items-start justify-between mb-1">
+                                 <div className="flex items-center">
+                                      <Avatar className="h-8 w-8 mr-2.5 border-primary/20 border">
+                                          <AvatarImage src={`https://avatar.vercel.sh/${review.reviewer.replace(/\s+/g, '')}.png?s=32`} alt={review.reviewer} />
+                                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                                              {review.reviewer.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                          </AvatarFallback>
+                                      </Avatar>
+                                      <div>
+                                          <p className="text-xs font-semibold text-foreground">{review.reviewer}</p>
+                                          <p className="text-[10px] text-muted-foreground flex items-center"><CalendarClock size={10} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
+                                      </div>
+                                  </div>
+                                  <div className="flex items-center space-x-0.5 mt-0.5">
+                                      {Array.from({ length: 5 }).map((_, i) => (
+                                          <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`}/>
+                                      ))}
                                   </div>
                               </div>
-                              <div className="flex items-center space-x-0.5 mt-0.5">
-                                  {Array.from({ length: 5 }).map((_, i) => (
-                                      <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`}/>
-                                  ))}
-                              </div>
+                              <p className="text-[13px] text-foreground/80 leading-normal pl-10">{review.comment}</p>
                           </div>
-                          <p className="text-[13px] text-foreground/80 leading-normal pl-10">{review.comment}</p>
                           {index < MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").slice(0,2).length - 1 && <Separator className="my-3" />}
-                      </div>
+                      </React.Fragment>
                   )) }
                   {MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").length === 0 && (
                       <p className="text-xs text-muted-foreground text-center py-3">No reviews yet for {tutor.name}.</p>
@@ -356,9 +366,9 @@ export default function ParentTutorProfilePage() {
             <DialogTitle className="flex items-center text-lg text-primary">
               <MessageSquareQuote className="mr-2 h-5 w-5" /> Contact {tutor.name}
             </DialogTitle>
-            <DialogDescription>
+            <ShadDialogDescription>
               You can reach out to {tutor.name} using the details below.
-            </DialogDescription>
+            </ShadDialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
             <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
@@ -397,3 +407,4 @@ export default function ParentTutorProfilePage() {
     </>
   );
 }
+
