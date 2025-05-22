@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { TutorProfile, Testimonial } from "@/types";
-import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
+import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data"; // Ensure MOCK_TESTIMONIALS is exported if used for reviews
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription as ShadDialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle as ShadDialogTitle, DialogDescription as ShadDialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -47,7 +46,7 @@ import {
   Quote,
   UserX,
   CalendarClock,
-  Clock,
+  Clock as ClockIcon, // Renamed to avoid conflict if 'Clock' is used elsewhere as a var
   CalendarDays,
   Share2,
   Copy,
@@ -79,19 +78,20 @@ const subjectIcons: { [key: string]: React.ElementType } = {
 interface InfoSectionProps {
     icon: React.ElementType;
     title: string;
-    content?: string;
+    content?: string | string[];
     children?: React.ReactNode;
     className?: string;
 }
 
 function InfoSection({ icon: Icon, title, content, children, className }: InfoSectionProps) {
+    const displayText = Array.isArray(content) ? content.join(', ') : content;
     return (
         <div className="space-y-0.5">
             <div className="flex items-center text-xs font-medium text-foreground/90">
                 <Icon className="w-3 h-3 mr-1.5 text-primary/80"/>
                 {title}
             </div>
-            {content && <p className={cn("text-xs text-foreground/70 pl-[18px]", className)}>{content}</p>}
+            {displayText && <p className={cn("text-xs text-foreground/70 pl-[18px]", className)}>{displayText}</p>}
             {children && <div className={cn("text-xs pl-[18px]", className)}>{children}</div>}
         </div>
     )
@@ -103,38 +103,53 @@ export default function ParentTutorProfilePage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const { toast } = useToast();
 
-  const id = params.id as string;
+  const idFromParams = params.id as string;
 
   const [tutor, setTutor] = useState<TutorProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedTutorForContact, setSelectedTutorForContact] = useState<TutorProfile | null>(null);
+
 
   useEffect(() => {
-    setIsClient(true);
+    setHasMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!isClient || isCheckingAuth || !id) return;
-
-    if (!isAuthenticated || user?.role !== 'parent') {
-      router.replace("/"); 
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === id);
-      if (foundTutor) {
-        setTutor(foundTutor);
-      } else {
-        setError("Tutor profile not found.");
+    if (hasMounted && !isCheckingAuth) {
+      if (!isAuthenticated || user?.role !== 'parent') {
+        router.replace("/"); // Redirect non-parents or unauthenticated users
       }
-      setLoading(false);
-    }, 300);
-  }, [id, isClient, isCheckingAuth, isAuthenticated, user, router]);
+    }
+  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
+
+  useEffect(() => {
+    if (idFromParams && hasMounted && isAuthenticated && user?.role === 'parent') {
+      setLoading(true);
+      setError(null);
+      // Simulate API call
+      setTimeout(() => {
+        const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === idFromParams);
+        if (foundTutor) {
+          setTutor(foundTutor);
+        } else {
+          setError("Tutor profile not found.");
+        }
+        setLoading(false);
+      }, 300);
+    }
+  }, [idFromParams, hasMounted, isAuthenticated, user]);
+
+
+  const handleScheduleDemo = (tutorId: string, tutorName: string) => {
+    console.log("Schedule Demo Clicked for tutor ID:", tutorId, "Name:", tutorName);
+    toast({
+      title: "Schedule Demo (Coming Soon)",
+      description: `Functionality to schedule a demo with ${tutorName} will be implemented here.`,
+    });
+  };
 
   const handleShareProfile = async () => {
     if (!tutor || typeof window === 'undefined') return;
@@ -159,20 +174,15 @@ export default function ParentTutorProfilePage() {
     });
   };
 
-  const handleScheduleDemo = (tutorId: string, tutorName: string) => {
-    console.log("Schedule Demo Clicked for tutor ID:", tutorId, "Name:", tutorName);
-    toast({
-      title: "Schedule Demo (Coming Soon)",
-      description: `Functionality to schedule a demo with ${tutorName} will be implemented here.`,
-    });
-    // Here, you would typically open a modal or navigate to a scheduling page
+  const handleContactTutorClick = (t: TutorProfile) => {
+    setSelectedTutorForContact(t);
+    setIsContactModalOpen(true);
   };
 
-
-  if (isCheckingAuth || loading || !isClient) {
+  if (isCheckingAuth || !hasMounted || loading) {
     return (
       <div className="max-w-6xl mx-auto py-6 md:py-10">
-        <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Find Tutors", href:"/search-tuitions" }, { label: "Loading Profile..." }]} />
+        <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Loading Profile..." }]} />
         <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
           <div className="lg:col-span-1 space-y-6">
             <Skeleton className="h-[350px] w-full rounded-xl" />
@@ -185,6 +195,11 @@ export default function ParentTutorProfilePage() {
       </div>
     );
   }
+  
+  if (!isAuthenticated || user?.role !== 'parent') {
+    return <div className="flex h-screen items-center justify-center text-muted-foreground">Redirecting...</div>;
+  }
+
 
   if (error) {
     return (
@@ -200,7 +215,19 @@ export default function ParentTutorProfilePage() {
     );
   }
 
-  if (!tutor) return null; // Should be caught by error state usually
+  if (!tutor) {
+    return (
+       <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
+         <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Not Found" }]} />
+         <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
+          <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
+          <AlertTitle className="text-xl font-semibold">Tutor Not Found</AlertTitle>
+          <AlertDescription>The requested tutor profile could not be found.</AlertDescription>
+           <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
+        </Alert>
+       </div>
+    );
+  }
 
   const rating = tutor.rating || 0;
   const teachingModeText = Array.isArray(tutor.teachingMode) ? tutor.teachingMode.join(' & ') : tutor.teachingMode;
@@ -258,7 +285,7 @@ export default function ParentTutorProfilePage() {
                  <Button
                     variant="outline"
                     className="w-full text-sm py-2.5"
-                    onClick={() => setIsContactModalOpen(true)}
+                    onClick={() => handleContactTutorClick(tutor)}
                  >
                     <MessageSquareQuote className="mr-2 h-4 w-4" /> Contact Tutor
                  </Button>
@@ -313,7 +340,7 @@ export default function ParentTutorProfilePage() {
                 )}
                  {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-xs" />}
                  {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-xs" />}
-                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={Clock} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
+                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
               </CardContent>
             </Card>
             
@@ -363,35 +390,35 @@ export default function ParentTutorProfilePage() {
       <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
         <DialogContent className="sm:max-w-md bg-card">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-lg text-primary">
-              <MessageSquareQuote className="mr-2 h-5 w-5" /> Contact {tutor.name}
-            </DialogTitle>
+            <ShadDialogTitle className="flex items-center text-lg text-primary">
+              <MessageSquareQuote className="mr-2 h-5 w-5" /> Contact {selectedTutorForContact?.name || 'Tutor'}
+            </ShadDialogTitle>
             <ShadDialogDescription>
-              You can reach out to {tutor.name} using the details below.
+              You can reach out to {selectedTutorForContact?.name || 'this tutor'} using the details below.
             </ShadDialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
             <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
               <div className="flex items-center">
                 <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
-                <span className="text-sm text-foreground">{tutor.email}</span>
+                <span className="text-sm text-foreground">{selectedTutorForContact?.email || 'Not available'}</span>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(tutor.email, "Email")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+              <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.email, "Email")} className="h-8 w-8 text-muted-foreground hover:text-primary">
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-            {tutor.phone && (
+            {selectedTutorForContact?.phone && (
               <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
                 <div className="flex items-center">
                   <Phone className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="text-sm text-foreground">{tutor.phone}</span>
+                  <span className="text-sm text-foreground">{selectedTutorForContact.phone}</span>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(tutor.phone, "Phone Number")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+                <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.phone, "Phone Number")} className="h-8 w-8 text-muted-foreground hover:text-primary">
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
             )}
-            {!tutor.phone && (
+            {!selectedTutorForContact?.phone && (
                  <div className="p-3 border rounded-md bg-background/50">
                      <p className="text-sm text-muted-foreground text-center">Phone number not provided by tutor.</p>
                  </div>
@@ -407,4 +434,3 @@ export default function ParentTutorProfilePage() {
     </>
   );
 }
-
