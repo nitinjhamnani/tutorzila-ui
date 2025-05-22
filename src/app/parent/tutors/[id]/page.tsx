@@ -3,7 +3,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import React, { useEffect, useState } from "react"; // Added React import
+import React, { useEffect, useState } from "react";
 import type { TutorProfile, Testimonial } from "@/types";
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -119,15 +119,14 @@ export default function ParentTutorProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (hasMounted && !isCheckingAuth) {
-      if (!isAuthenticated || user?.role !== 'parent') {
-        router.replace("/"); // Redirect non-parents or unauthenticated users
-      }
-    }
-  }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
+    if (!hasMounted || isCheckingAuth) return;
 
-  useEffect(() => {
-    if (idFromParams && hasMounted && isAuthenticated && user?.role === 'parent') {
+    if (!isAuthenticated || user?.role !== 'parent') {
+      router.replace("/"); // Redirect non-parents or unauthenticated users
+      return;
+    }
+    
+    if (idFromParams) {
       setLoading(true);
       setError(null);
       // Simulate API call
@@ -141,7 +140,7 @@ export default function ParentTutorProfilePage() {
         setLoading(false);
       }, 300);
     }
-  }, [idFromParams, hasMounted, isAuthenticated, user]);
+  }, [idFromParams, hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
 
   const handleScheduleDemo = (tutorId: string, tutorName: string) => {
@@ -182,54 +181,57 @@ export default function ParentTutorProfilePage() {
 
   if (isCheckingAuth || !hasMounted || loading) {
     return (
-      <div className="max-w-6xl mx-auto py-6 md:py-10">
-        <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Loading Profile..." }]} />
-        <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
-          <div className="lg:col-span-1 space-y-6">
-            <Skeleton className="h-[350px] w-full rounded-xl" />
-          </div>
-          <div className="lg:col-span-2 space-y-6">
-            <Skeleton className="h-[200px] w-full rounded-xl" />
-            <Skeleton className="h-[250px] w-full rounded-xl" />
-          </div>
+      <main className="flex-grow">
+        <div className="max-w-6xl mx-auto py-6 md:py-10">
+            <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Loading Profile..." }]} />
+            <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
+            <div className="lg:col-span-1 space-y-6">
+                <Skeleton className="h-[350px] w-full rounded-xl" />
+            </div>
+            <div className="lg:col-span-2 space-y-6">
+                <Skeleton className="h-[200px] w-full rounded-xl" />
+                <Skeleton className="h-[250px] w-full rounded-xl" />
+            </div>
+            </div>
         </div>
-      </div>
+      </main>
     );
   }
   
   if (!isAuthenticated || user?.role !== 'parent') {
-    // This check is redundant if the useEffect hook for auth redirection is working,
-    // but it's a good fallback.
-    return <div className="flex h-screen items-center justify-center text-muted-foreground">Redirecting...</div>;
+    return <main className="flex-grow"><div className="flex h-screen items-center justify-center text-muted-foreground">Redirecting...</div></main>;
   }
 
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-         <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Error" }]} />
-        <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
-          <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
-          <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-          <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
-        </Alert>
-      </div>
+      <main className="flex-grow">
+        <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
+            <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Error" }]} />
+            <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
+            <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
+            <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+            <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
+            </Alert>
+        </div>
+      </main>
     );
   }
 
   if (!tutor) {
-    // This case should ideally be covered by the error state if findTutor returns null
      return (
-       <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-         <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Not Found" }]} />
-         <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
-          <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
-          <AlertTitle className="text-xl font-semibold">Tutor Not Found</AlertTitle>
-          <AlertDescription>The requested tutor profile could not be found.</AlertDescription>
-           <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
-        </Alert>
-       </div>
+       <main className="flex-grow">
+        <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
+            <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Not Found" }]} />
+            <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
+            <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
+            <AlertTitle className="text-xl font-semibold">Tutor Not Found</AlertTitle>
+            <AlertDescription>The requested tutor profile could not be found.</AlertDescription>
+            <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
+            </Alert>
+        </div>
+       </main>
     );
   }
 
@@ -246,7 +248,7 @@ export default function ParentTutorProfilePage() {
 
 
   return (
-    <>
+    <main className="flex-grow">
       <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors", href: "/search-tuitions" }, { label: tutor.name }]} />
       <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out mt-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
@@ -361,13 +363,13 @@ export default function ParentTutorProfilePage() {
                               <div className="flex items-start justify-between mb-1">
                                  <div className="flex items-center">
                                       <Avatar className="h-8 w-8 mr-2.5 border-primary/20 border">
-                                          <AvatarImage src={`https://avatar.vercel.sh/${review.reviewer.replace(/\s+/g, '')}.png?s=32`} alt={review.reviewer} />
+                                          <AvatarImage src={`https://avatar.vercel.sh/${(review.name || "").replace(/\s+/g, '')}.png?s=32`} alt={review.name || 'Reviewer'} />
                                           <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                              {review.reviewer.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                              {(review.name || "R").split(' ').map(n => n[0]).join('').toUpperCase()}
                                           </AvatarFallback>
                                       </Avatar>
                                       <div>
-                                          <p className="text-xs font-semibold text-foreground">{review.reviewer}</p>
+                                          <p className="text-xs font-semibold text-foreground">{review.name}</p>
                                           <p className="text-[10px] text-muted-foreground flex items-center"><CalendarClock size={10} className="mr-1"/>{format(new Date(review.date), "PP")}</p>
                                       </div>
                                   </div>
@@ -391,50 +393,55 @@ export default function ParentTutorProfilePage() {
         </div>
       </div>
 
-      <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
-        <DialogContent className="sm:max-w-md bg-card">
-          <DialogHeader>
-            <ShadDialogTitle className="flex items-center text-lg text-primary">
-              <MessageSquareQuote className="mr-2 h-5 w-5" /> Contact {selectedTutorForContact?.name || 'Tutor'}
-            </ShadDialogTitle>
-            <ShadDialogDescription>
-              You can reach out to {selectedTutorForContact?.name || 'this tutor'} using the details below.
-            </ShadDialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-4">
-            <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
-              <div className="flex items-center">
-                <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
-                <span className="text-sm text-foreground">{selectedTutorForContact?.email || 'Not available'}</span>
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.email, "Email")} className="h-8 w-8 text-muted-foreground hover:text-primary">
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-            {selectedTutorForContact?.phone && (
-              <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
+      {selectedTutorForContact && (
+        <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
+            <DialogContent className="sm:max-w-md bg-card">
+            <DialogHeader>
+                <ShadDialogTitle className="flex items-center text-lg text-primary">
+                <MessageSquareQuote className="mr-2 h-5 w-5" /> Contact {selectedTutorForContact?.name || 'Tutor'}
+                </ShadDialogTitle>
+                <ShadDialogDescription>
+                You can reach out to {selectedTutorForContact?.name || 'this tutor'} using the details below.
+                </ShadDialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-4">
+                <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
                 <div className="flex items-center">
-                  <Phone className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="text-sm text-foreground">{selectedTutorForContact.phone}</span>
+                    <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
+                    <span className="text-sm text-foreground">{selectedTutorForContact?.email || 'Not available'}</span>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.phone, "Phone Number")} className="h-8 w-8 text-muted-foreground hover:text-primary">
-                  <Copy className="h-4 w-4" />
+                <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.email, "Email")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+                    <Copy className="h-4 w-4" />
                 </Button>
-              </div>
-            )}
-            {!selectedTutorForContact?.phone && (
-                 <div className="p-3 border rounded-md bg-background/50">
-                     <p className="text-sm text-muted-foreground text-center">Phone number not provided by tutor.</p>
-                 </div>
-            )}
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">Close</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+                </div>
+                {selectedTutorForContact?.phone && (
+                <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
+                    <div className="flex items-center">
+                    <Phone className="w-4 h-4 mr-3 text-muted-foreground" />
+                    <span className="text-sm text-foreground">{selectedTutorForContact.phone}</span>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(selectedTutorForContact?.phone, "Phone Number")} className="h-8 w-8 text-muted-foreground hover:text-primary">
+                    <Copy className="h-4 w-4" />
+                    </Button>
+                </div>
+                )}
+                {!selectedTutorForContact?.phone && (
+                    <div className="p-3 border rounded-md bg-background/50">
+                        <p className="text-sm text-muted-foreground text-center">Phone number not provided by tutor.</p>
+                    </div>
+                )}
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                <Button type="button" variant="outline">Close</Button>
+                </DialogClose>
+            </DialogFooter>
+            </DialogContent>
+        </Dialog>
+      )}
+    </main>
   );
 }
+
+
+    
