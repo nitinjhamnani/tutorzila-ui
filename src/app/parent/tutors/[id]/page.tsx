@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; // Added React import
 import type { TutorProfile, Testimonial } from "@/types";
-import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data"; // Ensure MOCK_TESTIMONIALS is exported if used for reviews
+import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +47,7 @@ import {
   Quote,
   UserX,
   CalendarClock,
-  Clock as ClockIcon, // Renamed to avoid conflict if 'Clock' is used elsewhere as a var
+  Clock as ClockIcon,
   CalendarDays,
   Share2,
   Copy,
@@ -197,6 +198,8 @@ export default function ParentTutorProfilePage() {
   }
   
   if (!isAuthenticated || user?.role !== 'parent') {
+    // This check is redundant if the useEffect hook for auth redirection is working,
+    // but it's a good fallback.
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Redirecting...</div>;
   }
 
@@ -216,7 +219,8 @@ export default function ParentTutorProfilePage() {
   }
 
   if (!tutor) {
-    return (
+    // This case should ideally be covered by the error state if findTutor returns null
+     return (
        <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
          <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Not Found" }]} />
          <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
