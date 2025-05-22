@@ -2,7 +2,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import Image from "next/image"; 
 import React, { useEffect, useState } from "react";
 import type { TutorProfile, Testimonial } from "@/types";
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
@@ -14,10 +14,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-// import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader"; // Removed import
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ShadDialogTitle, DialogDescription as ShadDialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+// Input and Textarea are not directly used in the main component body after last changes, but kept for the contact modal
+import { Input } from "@/components/ui/input"; 
+import { Textarea } from "@/components/ui/textarea"; 
 import { useToast } from "@/hooks/use-toast";
 
 import {
@@ -47,7 +47,7 @@ import {
   Quote,
   UserX,
   CalendarClock,
-  Clock as ClockIcon,
+  Clock as ClockIcon, 
   CalendarDays,
   Share2,
   Copy,
@@ -98,6 +98,7 @@ function InfoSection({ icon: Icon, title, content, children, className }: InfoSe
     )
 }
 
+
 export default function ParentTutorProfilePage() {
   const params = useParams();
   const router = useRouter();
@@ -110,6 +111,7 @@ export default function ParentTutorProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
+
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedTutorForContact, setSelectedTutorForContact] = useState<TutorProfile | null>(null);
 
@@ -138,6 +140,9 @@ export default function ParentTutorProfilePage() {
         }
         setLoading(false);
       }, 300);
+    } else {
+      setError("Tutor ID not provided.");
+      setLoading(false);
     }
   }, [idFromParams, hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
@@ -181,7 +186,7 @@ export default function ParentTutorProfilePage() {
   if (isCheckingAuth || !hasMounted || loading) {
     return (
       <main className="flex-grow">
-        <div className="max-w-6xl mx-auto py-6 md:py-10">
+        <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8"> 
             {/* BreadcrumbHeader removed */}
             <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
             <div className="lg:col-span-1 space-y-6">
@@ -198,6 +203,7 @@ export default function ParentTutorProfilePage() {
   }
   
   if (!isAuthenticated || user?.role !== 'parent') {
+    // This should be caught by the useEffect redirect, but as a fallback:
     return <main className="flex-grow"><div className="flex h-screen items-center justify-center text-muted-foreground">Redirecting...</div></main>;
   }
 
@@ -205,7 +211,7 @@ export default function ParentTutorProfilePage() {
   if (error) {
     return (
       <main className="flex-grow">
-        <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
+        <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]"> {/* Added var(--footer-height,0px) and 5rem for additional clearance */}
             {/* BreadcrumbHeader removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
@@ -221,7 +227,7 @@ export default function ParentTutorProfilePage() {
   if (!tutor) {
      return (
        <main className="flex-grow">
-        <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
+        <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]">
             {/* BreadcrumbHeader removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
@@ -248,9 +254,10 @@ export default function ParentTutorProfilePage() {
 
   return (
     <main className="flex-grow">
-      {/* BreadcrumbHeader removed */}
-      <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out mt-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      {/* Ensure horizontal padding is on this wrapper div */}
+      <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out pb-20 md:pb-24 px-4 sm:px-6 md:px-8"> 
+        {/* BreadcrumbHeader removed */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-4"> {/* Added mt-4 for spacing if breadcrumb was there */}
           <aside className="lg:col-span-1 space-y-6">
             <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
               <CardContent className="pt-6 text-center">
@@ -275,7 +282,7 @@ export default function ParentTutorProfilePage() {
 
                 {tutor.hourlyRate && (
                   <Badge variant="secondary" className="mt-3 text-[13px] py-1 px-3 border-primary/30 bg-primary/10 text-primary font-semibold">
-                    ₹{tutor.hourlyRate} / hr
+                     ₹{tutor.hourlyRate} / hr
                   </Badge>
                 )}
               </CardContent>
@@ -305,7 +312,7 @@ export default function ParentTutorProfilePage() {
             </Card>
           </aside>
 
-          <main className="lg:col-span-2 space-y-6">
+          <section className="lg:col-span-2 space-y-6">
              <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-semibold text-primary flex items-center">
@@ -323,7 +330,7 @@ export default function ParentTutorProfilePage() {
                   <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm"> {/* Reduced gap-y */}
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs"> 
                 <InfoSection icon={BookOpen} title="Subjects Taught">
                   <div className="flex flex-wrap gap-1.5 mt-0.5">
                     {(Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects]).map((subject) => {
@@ -337,15 +344,15 @@ export default function ParentTutorProfilePage() {
                     })}
                   </div>
                 </InfoSection>
-                {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} className="text-xs" />}
-                {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} className="text-xs" />}
-                {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} className="text-xs" />}
+                {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} />}
+                {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} />}
+                {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} />}
                 {tutor.teachingMode && (
-                  <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} className="text-xs" />
+                  <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} />
                 )}
-                 {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-xs" />}
-                 {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-xs" />}
-                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
+                 {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} />}
+                 {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} />}
+                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} />}
               </CardContent>
             </Card>
             
@@ -362,9 +369,9 @@ export default function ParentTutorProfilePage() {
                               <div className="flex items-start justify-between mb-1">
                                  <div className="flex items-center">
                                       <Avatar className="h-8 w-8 mr-2.5 border-primary/20 border">
-                                          <AvatarImage src={`https://avatar.vercel.sh/${(review.name || "").replace(/\s+/g, '')}.png?s=32`} alt={review.name || 'Reviewer'} />
+                                          <AvatarImage src={`https://avatar.vercel.sh/${review.name.replace(/\s+/g, '')}.png?s=32`} alt={review.name} />
                                           <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                              {(review.name || "R").split(' ').map(n => n[0]).join('').toUpperCase()}
+                                              {review.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                                           </AvatarFallback>
                                       </Avatar>
                                       <div>
@@ -388,7 +395,7 @@ export default function ParentTutorProfilePage() {
                   )}
                 </CardContent>
             </Card>
-          </main>
+          </section>
         </div>
       </div>
 
@@ -441,3 +448,5 @@ export default function ParentTutorProfilePage() {
     </main>
   );
 }
+
+    
