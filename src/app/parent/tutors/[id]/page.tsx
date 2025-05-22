@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -46,11 +47,12 @@ import {
   Quote,
   UserX,
   CalendarClock,
-  Clock as ClockIcon,
+  Clock as ClockIcon, // Renamed to avoid conflict
   CalendarDays,
   Share2,
   Copy,
   MessageSquareQuote,
+  User as UserProfileIcon, // Using User as UserProfileIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
@@ -126,7 +128,7 @@ export default function ParentTutorProfilePage() {
     if (!hasMounted || isCheckingAuth || !idFromParams) return;
 
     if (!isAuthenticated || parentUser?.role !== 'parent') {
-      router.replace("/"); // Or a more appropriate non-authenticated page
+      router.replace("/"); 
       return;
     }
 
@@ -137,7 +139,6 @@ export default function ParentTutorProfilePage() {
       if (foundTutor) {
         setTutor(foundTutor);
 
-        // Check if this tutor applied to any of the parent's enquiries
         const parentEnquiries = MOCK_ALL_PARENT_REQUIREMENTS.filter(
           (req) => req.parentId === parentUser.id
         );
@@ -147,10 +148,10 @@ export default function ParentTutorProfilePage() {
 
         if (relevantEnquiry) {
           setShowContactCard(true);
-          setCurrentEnquiryContext(Array.isArray(relevantEnquiry.subject) ? relevantEnquiry.subject.join(', ') : relevantEnquiry.subject);
-          // Initialize message history for this tutor-parent interaction
+          const subjectText = Array.isArray(relevantEnquiry.subject) ? relevantEnquiry.subject.join(', ') : relevantEnquiry.subject;
+          setCurrentEnquiryContext(subjectText);
           setMessageHistory([
-            { id: "msg1_tutor", sender: foundTutor.name, text: `Hello ${parentUser.name}, I saw your enquiry for ${Array.isArray(relevantEnquiry.subject) ? relevantEnquiry.subject.join(', ') : relevantEnquiry.subject} and I'm interested.`, timestamp: new Date(Date.now() - 3600000 * 3) },
+            { id: "msg1_tutor", sender: foundTutor.name, text: `Hello ${parentUser.name}, I saw your enquiry for ${subjectText} and I'm interested.`, timestamp: new Date(Date.now() - 3600000 * 3) },
             { id: "msg2_parent", sender: "You", text: `Hi ${foundTutor.name}, thanks for your interest! Could you tell me more about your experience?`, timestamp: new Date(Date.now() - 3600000 * 2) }
           ]);
         } else {
@@ -175,7 +176,7 @@ export default function ParentTutorProfilePage() {
 
   const handleShareProfile = async () => {
     if (!tutor || typeof window === 'undefined') return;
-    const profileUrl = `${window.location.origin}/tutors/${tutor.id}`; // Public profile link for sharing
+    const profileUrl = `${window.location.origin}/tutors/${tutor.id}`; 
     try {
       await navigator.clipboard.writeText(profileUrl);
       toast({ title: "Profile Link Copied!", description: "Tutor's public profile link copied to clipboard." });
@@ -201,14 +202,13 @@ export default function ParentTutorProfilePage() {
     if (!tutor || !parentUser) return;
     const myMessage: MessageType = {
       id: `msg${messageHistory.length + 1}`,
-      sender: "You",
+      sender: "You", // Parent is "You" in this context
       text: messageText,
       timestamp: new Date(),
     };
     const updatedHistory = [...messageHistory, myMessage];
     setMessageHistory(updatedHistory);
 
-    // Mock tutor reply
     setTimeout(() => {
       const tutorReply: MessageType = {
         id: `msg${updatedHistory.length + 1}`,
@@ -225,7 +225,6 @@ export default function ParentTutorProfilePage() {
     return (
       <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8">
-            {/* Breadcrumb removed */}
             <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
             <div className="lg:col-span-1 space-y-6">
                 <Skeleton className="h-[350px] w-full rounded-xl" />
@@ -241,7 +240,6 @@ export default function ParentTutorProfilePage() {
   }
 
   if (!isAuthenticated || parentUser?.role !== 'parent') {
-    // This state should ideally be caught by the useEffect redirect
     return <main className="flex-grow"><div className="flex h-screen items-center justify-center text-muted-foreground">Access Denied or Redirecting...</div></main>;
   }
 
@@ -250,7 +248,6 @@ export default function ParentTutorProfilePage() {
     return (
       <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]">
-            {/* Breadcrumb removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" />
             <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
@@ -266,7 +263,6 @@ export default function ParentTutorProfilePage() {
      return (
        <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]">
-            {/* Breadcrumb removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" />
             <AlertTitle className="text-xl font-semibold">Tutor Not Found</AlertTitle>
@@ -293,8 +289,7 @@ export default function ParentTutorProfilePage() {
   return (
     <main className="flex-grow">
       <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out py-6 md:py-10 px-4 sm:px-6 md:px-8">
-        {/* Breadcrumb removed */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-0"> {/* mt-0 because breadcrumb is gone */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-0">
           <aside className="lg:col-span-1 space-y-6">
             <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
               <CardContent className="pt-6 text-center">
@@ -340,52 +335,7 @@ export default function ParentTutorProfilePage() {
                   </Button>
               </div>
             </Card>
-          </aside>
-
-          <section className="lg:col-span-2 space-y-6">
-             <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base font-semibold text-primary flex items-center">
-                  <Sparkles className="w-3.5 h-3.5 mr-2"/> About Me
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base font-semibold text-primary flex items-center">
-                  <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
-                <InfoSection icon={BookOpen} title="Subjects Taught">
-                  <div className="flex flex-wrap gap-1.5 mt-0.5">
-                    {(Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects]).map((subject) => {
-                      const IconComponent = subjectIcons[subject] || subjectIcons.Default;
-                      return (
-                        <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[11px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
-                          <IconComponent className="w-2.5 h-2.5 mr-1"/>
-                          {subject}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                </InfoSection>
-                {tutor.grade && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.grade} className="text-xs" />}
-                {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} className="text-xs" />}
-                {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} className="text-xs" />}
-                {tutor.teachingMode && (
-                  <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} className="text-xs" />
-                )}
-                 {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-xs" />}
-                 {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-xs" />}
-                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
-              </CardContent>
-            </Card>
-
+            
             {showContactCard && (
               <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
                 <CardHeader className="pb-3">
@@ -393,7 +343,7 @@ export default function ParentTutorProfilePage() {
                     <MessageSquareQuote className="w-3.5 h-3.5 mr-2" /> Contact Information
                   </CardTitle>
                   <CardDescription className="text-xs text-muted-foreground">
-                    This tutor has applied to one of your requirements.
+                    This tutor has shown interest in your requirement for "{currentEnquiryContext}".
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -423,6 +373,51 @@ export default function ParentTutorProfilePage() {
                 </CardContent>
               </Card>
             )}
+          </aside>
+
+          <section className="lg:col-span-2 space-y-6">
+             <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold text-primary flex items-center">
+                  <UserProfileIcon className="w-3.5 h-3.5 mr-2"/> About Me {/* Changed from Sparkles */}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold text-primary flex items-center">
+                  <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
+                <InfoSection icon={BookOpen} title="Subjects Taught">
+                  <div className="flex flex-wrap gap-1.5 mt-0.5">
+                    {(Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects]).map((subject) => {
+                      const IconComponent = subjectIcons[subject] || subjectIcons.Default;
+                      return (
+                        <Badge key={subject} variant="outline" className="py-0.5 px-2 text-[11px] border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
+                          <IconComponent className="w-2.5 h-2.5 mr-1"/>
+                          {subject}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </InfoSection>
+                {tutor.gradeLevelsTaught && tutor.gradeLevelsTaught.length > 0 && <InfoSection icon={GraduationCap} title="Grade Levels" content={tutor.gradeLevelsTaught.join(', ')} className="text-xs" />}
+                {tutor.experience && <InfoSection icon={Award} title="Experience" content={tutor.experience} className="text-xs" />}
+                {tutor.qualifications && <InfoSection icon={Briefcase} title="Qualifications" content={Array.isArray(tutor.qualifications) ? tutor.qualifications.join(', ') : tutor.qualifications} className="text-xs" />}
+                {tutor.teachingMode && (
+                  <InfoSection icon={TeachingModeIcon} title="Teaching Mode" content={teachingModeText} className="text-xs" />
+                )}
+                 {tutor.location && <InfoSection icon={MapPin} title="Primary Location" content={tutor.location} className="text-xs" />}
+                 {tutor.preferredDays && tutor.preferredDays.length > 0 && <InfoSection icon={CalendarClock} title="Availability (Days)" content={tutor.preferredDays.join(', ')} className="text-xs" />}
+                 {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
+              </CardContent>
+            </Card>
 
              <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
                <CardHeader className="pb-3">
@@ -453,7 +448,7 @@ export default function ParentTutorProfilePage() {
                                       ))}
                                   </div>
                               </div>
-                              <p className={cn("text-xs text-foreground/80 leading-normal pl-10", "text-xs")}>{review.comment}</p> {/* Ensure text-xs from InfoSection */}
+                              <p className={cn("text-xs text-foreground/80 leading-normal pl-10", "text-xs")}>{review.comment}</p>
                           </div>
                           {index < MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").slice(0,2).length - 1 && <Separator className="my-3" />}
                       </React.Fragment>
@@ -479,4 +474,3 @@ export default function ParentTutorProfilePage() {
     </main>
   );
 }
-
