@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import type { TutorProfile, Testimonial } from "@/types";
-import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
+import React, { useEffect, useState, useMemo } from "react";
+import type { TutorProfile, Testimonial, TuitionRequirement, Message as MessageType } from "@/types";
+import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS, MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle as ShadDialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { MessageModal } from "@/components/modals/MessageModal";
 
 import {
   Briefcase,
@@ -36,8 +36,8 @@ import {
   Music,
   Calculator,
   Lightbulb,
-  // Mail, // No longer directly used on this page
-  // Phone, // No longer directly used on this page
+  Mail,
+  Phone,
   MapPin,
   DollarSign,
   Laptop,
@@ -49,11 +49,12 @@ import {
   Clock as ClockIcon,
   CalendarDays,
   Share2,
-  // Copy, // No longer directly used on this page
-  // MessageSquareQuote // No longer directly used for Contact Tutor button
+  Copy,
+  MessageSquareQuote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
+// Removed FloatingPostRequirementButton as it's not typically needed on a detail page within a dashboard
 
 const subjectIcons: { [key: string]: React.ElementType } = {
   Mathematics: Calculator,
@@ -101,7 +102,7 @@ function InfoSection({ icon: Icon, title, content, children, className }: InfoSe
 export default function ParentTutorProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user: parentUser, isAuthenticated, isCheckingAuth } = useAuthMock();
   const { toast } = useToast();
 
   const idFromParams = params.id as string;
@@ -111,9 +112,10 @@ export default function ParentTutorProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
 
-  // State for Contact Tutor Dialog removed
-  // const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  // const [selectedTutorForContact, setSelectedTutorForContact] = useState<TutorProfile | null>(null);
+  const [showContactCard, setShowContactCard] = useState(false);
+  const [currentEnquiryContext, setCurrentEnquiryContext] = useState<string | undefined>(undefined);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [messageHistory, setMessageHistory] = useState<MessageType[]>([]);
 
 
   useEffect(() => {
@@ -121,30 +123,46 @@ export default function ParentTutorProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (!hasMounted || isCheckingAuth) return;
+    if (!hasMounted || isCheckingAuth || !idFromParams) return;
 
-    if (!isAuthenticated || user?.role !== 'parent') {
-      router.replace("/");
+    if (!isAuthenticated || parentUser?.role !== 'parent') {
+      router.replace("/"); // Or a more appropriate non-authenticated page
       return;
     }
 
-    if (idFromParams) {
-      setLoading(true);
-      setError(null);
-      setTimeout(() => {
-        const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === idFromParams);
-        if (foundTutor) {
-          setTutor(foundTutor);
+    setLoading(true);
+    setError(null);
+    setTimeout(() => {
+      const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === idFromParams);
+      if (foundTutor) {
+        setTutor(foundTutor);
+
+        // Check if this tutor applied to any of the parent's enquiries
+        const parentEnquiries = MOCK_ALL_PARENT_REQUIREMENTS.filter(
+          (req) => req.parentId === parentUser.id
+        );
+        const relevantEnquiry = parentEnquiries.find(
+          (enq) => enq.appliedTutorIds?.includes(foundTutor.id)
+        );
+
+        if (relevantEnquiry) {
+          setShowContactCard(true);
+          setCurrentEnquiryContext(Array.isArray(relevantEnquiry.subject) ? relevantEnquiry.subject.join(', ') : relevantEnquiry.subject);
+          // Initialize message history for this tutor-parent interaction
+          setMessageHistory([
+            { id: "msg1_tutor", sender: foundTutor.name, text: `Hello ${parentUser.name}, I saw your enquiry for ${Array.isArray(relevantEnquiry.subject) ? relevantEnquiry.subject.join(', ') : relevantEnquiry.subject} and I'm interested.`, timestamp: new Date(Date.now() - 3600000 * 3) },
+            { id: "msg2_parent", sender: "You", text: `Hi ${foundTutor.name}, thanks for your interest! Could you tell me more about your experience?`, timestamp: new Date(Date.now() - 3600000 * 2) }
+          ]);
         } else {
-          setError("Tutor profile not found.");
+          setShowContactCard(false);
         }
-        setLoading(false);
-      }, 300);
-    } else {
-      setError("Tutor ID not provided.");
+
+      } else {
+        setError("Tutor profile not found.");
+      }
       setLoading(false);
-    }
-  }, [idFromParams, hasMounted, isAuthenticated, isCheckingAuth, user, router]);
+    }, 300);
+  }, [idFromParams, hasMounted, isAuthenticated, isCheckingAuth, parentUser, router]);
 
 
   const handleScheduleDemo = (tutorId: string, tutorName: string) => {
@@ -157,7 +175,7 @@ export default function ParentTutorProfilePage() {
 
   const handleShareProfile = async () => {
     if (!tutor || typeof window === 'undefined') return;
-    const profileUrl = `${window.location.origin}/tutors/${tutor.id}`; // Public profile link
+    const profileUrl = `${window.location.origin}/tutors/${tutor.id}`; // Public profile link for sharing
     try {
       await navigator.clipboard.writeText(profileUrl);
       toast({ title: "Profile Link Copied!", description: "Tutor's public profile link copied to clipboard." });
@@ -165,13 +183,49 @@ export default function ParentTutorProfilePage() {
       toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link. Please try again." });
     }
   };
+  
+  const handleCopyDetail = async (textToCopy: string, fieldName: string) => {
+    if (!textToCopy) {
+        toast({ variant: "destructive", title: "Nothing to Copy", description: `${fieldName} is not available.` });
+        return;
+    }
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      toast({ title: `${fieldName} Copied!`, description: `${textToCopy} has been copied to clipboard.` });
+    } catch (err) {
+      toast({ variant: "destructive", title: "Copy Failed", description: `Could not copy ${fieldName.toLowerCase()}.` });
+    }
+  };
 
-  // handleCopyDetail and handleContactTutorClick functions removed
+  const handleSendMessage = (messageText: string) => {
+    if (!tutor || !parentUser) return;
+    const myMessage: MessageType = {
+      id: `msg${messageHistory.length + 1}`,
+      sender: "You",
+      text: messageText,
+      timestamp: new Date(),
+    };
+    const updatedHistory = [...messageHistory, myMessage];
+    setMessageHistory(updatedHistory);
+
+    // Mock tutor reply
+    setTimeout(() => {
+      const tutorReply: MessageType = {
+        id: `msg${updatedHistory.length + 1}`,
+        sender: tutor.name,
+        text: "Thanks for your message! I'll get back to you shortly.",
+        timestamp: new Date(),
+      };
+      setMessageHistory(prev => [...prev, tutorReply]);
+    }, 1500);
+  };
+
 
   if (isCheckingAuth || !hasMounted || loading) {
     return (
       <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8">
+            {/* Breadcrumb removed */}
             <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
             <div className="lg:col-span-1 space-y-6">
                 <Skeleton className="h-[350px] w-full rounded-xl" />
@@ -186,8 +240,9 @@ export default function ParentTutorProfilePage() {
     );
   }
 
-  if (!isAuthenticated || user?.role !== 'parent') {
-    return <main className="flex-grow"><div className="flex h-screen items-center justify-center text-muted-foreground">Redirecting...</div></main>;
+  if (!isAuthenticated || parentUser?.role !== 'parent') {
+    // This state should ideally be caught by the useEffect redirect
+    return <main className="flex-grow"><div className="flex h-screen items-center justify-center text-muted-foreground">Access Denied or Redirecting...</div></main>;
   }
 
 
@@ -195,6 +250,7 @@ export default function ParentTutorProfilePage() {
     return (
       <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]">
+            {/* Breadcrumb removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" />
             <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
@@ -210,6 +266,7 @@ export default function ParentTutorProfilePage() {
      return (
        <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_var(--footer-height,0px)_-_5rem)]">
+            {/* Breadcrumb removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" />
             <AlertTitle className="text-xl font-semibold">Tutor Not Found</AlertTitle>
@@ -235,8 +292,9 @@ export default function ParentTutorProfilePage() {
 
   return (
     <main className="flex-grow">
-      <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out pb-20 md:pb-24 px-4 sm:px-6 md:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-4">
+      <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out py-6 md:py-10 px-4 sm:px-6 md:px-8">
+        {/* Breadcrumb removed */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-0"> {/* mt-0 because breadcrumb is gone */}
           <aside className="lg:col-span-1 space-y-6">
             <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
               <CardContent className="pt-6 text-center">
@@ -273,7 +331,6 @@ export default function ParentTutorProfilePage() {
                  >
                     <CalendarDays className="mr-2 h-4 w-4" /> Schedule Demo
                  </Button>
-                 {/* Contact Tutor Button removed */}
                  <Button
                     variant="outline"
                     className="w-full text-sm py-2.5"
@@ -303,7 +360,7 @@ export default function ParentTutorProfilePage() {
                   <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs">
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
                 <InfoSection icon={BookOpen} title="Subjects Taught">
                   <div className="flex flex-wrap gap-1.5 mt-0.5">
                     {(Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects]).map((subject) => {
@@ -328,6 +385,44 @@ export default function ParentTutorProfilePage() {
                  {tutor.preferredTimeSlots && tutor.preferredTimeSlots.length > 0 && <InfoSection icon={ClockIcon} title="Availability (Time)" content={tutor.preferredTimeSlots.join(', ')} className="text-xs" />}
               </CardContent>
             </Card>
+
+            {showContactCard && (
+              <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold text-primary flex items-center">
+                    <MessageSquareQuote className="w-3.5 h-3.5 mr-2" /> Contact Information
+                  </CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground">
+                    This tutor has applied to one of your requirements.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between p-2.5 border rounded-md bg-background/50">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-xs text-foreground">{tutor.email}</span>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(tutor.email, "Email")} className="h-7 w-7 text-muted-foreground hover:text-primary">
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  {tutor.phone && (
+                    <div className="flex items-center justify-between p-2.5 border rounded-md bg-background/50">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-xs text-foreground">{tutor.phone}</span>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => handleCopyDetail(tutor.phone!, "Phone Number")} className="h-7 w-7 text-muted-foreground hover:text-primary">
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                  <Button className="w-full text-xs py-2" onClick={() => setIsMessageModalOpen(true)}>
+                    <MessageSquare className="mr-2 h-4 w-4" /> Message Tutor
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
              <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
                <CardHeader className="pb-3">
@@ -358,7 +453,7 @@ export default function ParentTutorProfilePage() {
                                       ))}
                                   </div>
                               </div>
-                              <p className="text-[13px] text-foreground/80 leading-normal pl-10">{review.comment}</p>
+                              <p className={cn("text-xs text-foreground/80 leading-normal pl-10", "text-xs")}>{review.comment}</p> {/* Ensure text-xs from InfoSection */}
                           </div>
                           {index < MOCK_TESTIMONIALS.filter(rev => rev.role === "Parent").slice(0,2).length - 1 && <Separator className="my-3" />}
                       </React.Fragment>
@@ -371,9 +466,17 @@ export default function ParentTutorProfilePage() {
           </section>
         </div>
       </div>
-
-      {/* Contact Tutor Dialog Removed */}
+      {tutor && parentUser && (
+        <MessageModal
+            isOpen={isMessageModalOpen}
+            onOpenChange={setIsMessageModalOpen}
+            leadName={tutor.name}
+            enquirySubject={currentEnquiryContext}
+            initialMessages={messageHistory}
+            onSendMessage={handleSendMessage}
+        />
+      )}
     </main>
   );
 }
-    
+
