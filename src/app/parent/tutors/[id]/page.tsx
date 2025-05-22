@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
+// import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader"; // Removed import
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ShadDialogTitle, DialogDescription as ShadDialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,14 +122,13 @@ export default function ParentTutorProfilePage() {
     if (!hasMounted || isCheckingAuth) return;
 
     if (!isAuthenticated || user?.role !== 'parent') {
-      router.replace("/"); // Redirect non-parents or unauthenticated users
+      router.replace("/"); 
       return;
     }
     
     if (idFromParams) {
       setLoading(true);
       setError(null);
-      // Simulate API call
       setTimeout(() => {
         const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === idFromParams);
         if (foundTutor) {
@@ -183,7 +182,7 @@ export default function ParentTutorProfilePage() {
     return (
       <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10">
-            <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Loading Profile..." }]} />
+            {/* BreadcrumbHeader removed */}
             <div className="grid lg:grid-cols-3 gap-6 md:gap-8 mt-4">
             <div className="lg:col-span-1 space-y-6">
                 <Skeleton className="h-[350px] w-full rounded-xl" />
@@ -207,7 +206,7 @@ export default function ParentTutorProfilePage() {
     return (
       <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-            <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Error" }]} />
+            {/* BreadcrumbHeader removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
             <AlertTitle className="text-xl font-semibold">Profile Not Found</AlertTitle>
@@ -223,7 +222,7 @@ export default function ParentTutorProfilePage() {
      return (
        <main className="flex-grow">
         <div className="max-w-6xl mx-auto py-6 md:py-10 flex flex-col items-center justify-center min-h-[calc(100vh_-_var(--header-height,0px)_-_100px)]">
-            <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors" }, { label: "Not Found" }]} />
+            {/* BreadcrumbHeader removed */}
             <Alert variant="destructive" className="max-w-md text-center shadow-lg rounded-xl mt-4">
             <UserX className="h-10 w-10 mx-auto mb-3 text-destructive" /> 
             <AlertTitle className="text-xl font-semibold">Tutor Not Found</AlertTitle>
@@ -249,7 +248,7 @@ export default function ParentTutorProfilePage() {
 
   return (
     <main className="flex-grow">
-      <BreadcrumbHeader segments={[{ label: "Dashboard", href: "/parent/dashboard" }, { label: "Tutors", href: "/search-tuitions" }, { label: tutor.name }]} />
+      {/* BreadcrumbHeader removed */}
       <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out mt-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           <aside className="lg:col-span-1 space-y-6">
@@ -324,7 +323,7 @@ export default function ParentTutorProfilePage() {
                   <Briefcase className="w-3.5 h-3.5 mr-2"/> Expertise & Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm"> {/* Reduced gap-y */}
                 <InfoSection icon={BookOpen} title="Subjects Taught">
                   <div className="flex flex-wrap gap-1.5 mt-0.5">
                     {(Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects]).map((subject) => {
@@ -442,6 +441,3 @@ export default function ParentTutorProfilePage() {
     </main>
   );
 }
-
-
-    
