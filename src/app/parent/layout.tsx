@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ParentSidebar } from "@/components/parent/ParentSidebar"; 
+import { ParentSidebar } from "@/components/parent/ParentSidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
@@ -24,8 +24,8 @@ import {
   LogOut,
   Menu as MenuIcon,
   Bell,
-  SearchCheck,
-  MessageSquare,
+  SearchCheck, // Added for Find Tutors
+  MessageSquare
 } from "lucide-react";
 
 export default function ParentSpecificLayout({ children }: { children: ReactNode }) {
@@ -35,24 +35,32 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   const isMobile = useIsMobile();
 
   const [hasMounted, setHasMounted] = useState(false);
-  
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const toggleMobileNav = () => setIsMobileNavOpen(prev => !prev);
-
-  const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
-  const toggleNavbarCollapsed = () => setIsNavbarCollapsed(prev => !prev);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(!isMobile); // For mobile off-canvas
+  const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false); // For desktop collapse
 
   useEffect(() => {
     setHasMounted(true);
-    if (!isMobile) {
-      setIsNavbarCollapsed(false); 
+    if (typeof window !== 'undefined') {
+      setIsNavbarOpen(!isMobile); // Set initial state based on current viewport
     }
   }, [isMobile]);
 
+  const toggleNavbarCollapsed = () => {
+    if (!isMobile) {
+      setIsNavbarCollapsed(prev => !prev);
+    }
+  };
+
+  const toggleMobileNav = () => {
+    if (isMobile) {
+      setIsNavbarOpen(prev => !prev);
+    }
+  };
+  
   const parentNavItems = [
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
-    { href: "/search-tuitions", label: "Find Tutors", icon: SearchCheck }, 
+    { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
     { href: "/parent/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
     { href: "/parent/messages", label: "Messages", icon: MessageSquare, disabled: true },
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
@@ -72,13 +80,11 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   useEffect(() => {
     if (hasMounted) {
       document.documentElement.style.setProperty('--header-height', headerHeight);
-    } else {
-      document.documentElement.style.setProperty('--header-height', '0px');
     }
     return () => {
       document.documentElement.style.setProperty('--header-height', '0px');
     };
-  }, [hasMounted, headerHeight]); // Added headerHeight to dependency array
+  }, [hasMounted]);
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
@@ -88,7 +94,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     }
   }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
-  if (isCheckingAuth || !hasMounted) {
+  if (isCheckingAuth && !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Parent Area...</div>;
   }
   
@@ -101,11 +107,12 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary">
+      {/* Integrated Header */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", 
+            "sticky top-0 z-30", // No longer depends on verification banner height
             `h-[${headerHeight}]`
           )}
         >
@@ -115,9 +122,9 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               size="icon"
               onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
               className="text-gray-600 hover:text-primary"
-              aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
+              aria-label={isMobile ? (isNavbarOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
             >
-              {isMobile ? <MenuIcon className="h-6 w-6" /> : <MenuIcon className="h-5 w-5" />}
+              <MenuIcon className="h-6 w-6" />
             </Button>
             <Link href="/parent/dashboard">
               <Logo className="h-8 w-auto" />
@@ -160,12 +167,12 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         </header>
       )}
 
-      <div className={cn("flex flex-1 overflow-hidden")}> 
+      <div className={cn("flex flex-1 overflow-hidden pt-[var(--header-height,0px)]")}> 
         <ParentSidebar
           isMobile={isMobile}
-          isMobileNavOpen={isMobileNavOpen}
+          isMobileNavOpen={isNavbarOpen} // Use isNavbarOpen for mobile
           toggleMobileNav={toggleMobileNav}
-          isNavbarCollapsed={isNavbarCollapsed}
+          isNavbarCollapsed={isNavbarCollapsed} // Use isNavbarCollapsed for desktop
           toggleNavbarCollapsed={toggleNavbarCollapsed}
           user={user}
           navItems={parentNavItems}
@@ -174,16 +181,16 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         />
         <main
           className={cn(
-            "flex-1 flex flex-col overflow-y-auto bg-secondary",
-             // No top padding here, individual pages manage padding if needed
+            "flex-1 flex flex-col overflow-y-auto bg-secondary"
           )}
         >
-            <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full"> {/* Removed padding from here, pages will add it */}
-              {children}
-            </div>
+          {/* Page content is rendered here. Individual pages will manage their internal padding */}
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+            {children}
+          </div>
         </main>
       </div>
-       {isMobile && isMobileNavOpen && (
+       {isMobile && isNavbarOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/30 md:hidden"
           onClick={toggleMobileNav}
