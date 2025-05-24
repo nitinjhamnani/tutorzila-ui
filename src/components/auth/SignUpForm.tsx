@@ -36,8 +36,6 @@ const signUpSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   countryCode: z.string().min(2, "Country code is required."),
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only.").optional().or(z.literal("")),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  confirmPassword: z.string(),
   role: z.enum(["parent", "tutor"], { required_error: "You must select a role (Parent or Tutor)." }),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
@@ -46,7 +44,7 @@ const signUpSchema = z.object({
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
-
+interface SignUpFormProps { onSwitchForm: (formType: 'signin' | 'signup') => void; }
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const MOCK_COUNTRY_CODES = [
@@ -57,10 +55,10 @@ const MOCK_COUNTRY_CODES = [
   { value: "+81", label: "JP (+81)" },
 ];
 
-export function SignUpForm() {
+export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
   const { signup } = useAuthMock();
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
+  const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined); // Renamed for clarity
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -69,8 +67,6 @@ export function SignUpForm() {
       email: "",
       countryCode: "+91",
       localPhoneNumber: "",
-      password: "",
-      confirmPassword: "",
       role: undefined, 
       acceptTerms: false,
     },
@@ -104,9 +100,9 @@ export function SignUpForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
-      <CardHeader className="flex flex-col items-center pt-8 pb-6">
-        <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
+    <Card className="w-full max-w-lg shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
+      <CardHeader className="p-0 pt-0 pb-0 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
+        <Link href="/" className="hover:opacity-90 transition-opacity inline-block">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
         </Link>
         <CardTitle className="text-center text-3xl font-bold tracking-tight">Create Your Account</CardTitle>
@@ -242,38 +238,6 @@ export function SignUpForm() {
             </FormItem>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-foreground">Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-foreground">Confirm Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             <FormField
@@ -322,9 +286,7 @@ export function SignUpForm() {
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
           <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            <Link href="/?signin=true" onClick={() => { /* Ensure modal logic is handled if coming from modal context */}}>
-             Sign In
-            </Link>
+            <button type="button" onClick={() => onSwitchForm('signin')}>Sign In</button>
           </Button>
         </p>
       </CardFooter>

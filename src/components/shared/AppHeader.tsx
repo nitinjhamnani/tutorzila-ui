@@ -17,12 +17,13 @@ import {
   DialogTitle, 
   DialogTrigger as ShadDialogTrigger, 
 } from "@/components/ui/dialog";
-import { Menu, LogIn, UserPlus, Search, HomeIcon } from "lucide-react"; // UserPlus might be removed if sign-up link is gone
+import { Menu, LogIn, Search, HomeIcon } from "lucide-react";
 import { Logo } from "./Logo";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"; // Added cn import
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SignInForm } from "@/components/auth/SignInForm";
+import AuthModal from "@/components/auth/AuthModal";
 
 // Mock authentication state (replace with actual auth context/hook)
 const useAuth = () => {
@@ -34,9 +35,8 @@ const useAuth = () => {
 export function AppHeader() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [signInModalOpen, setSignInModalOpen] = useState(false);
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // Keep for mobile sheet
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   useEffect(() => {
     // Handle scroll logic
     const handleScroll = () => {
@@ -52,7 +52,6 @@ export function AppHeader() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('signin') === 'true') {
-        setSignInModalOpen(true);
       }
     }
 
@@ -96,21 +95,10 @@ export function AppHeader() {
                 Logout
               </Button>
             ) : (
-              <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
-                <ShadDialogTrigger asChild>
-                  <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>Sign In</Button>
-                </ShadDialogTrigger>
-                <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                   <DialogHeader className="sr-only">
-                    <DialogTitle>Sign In to Tutorzila</DialogTitle>
-                  </DialogHeader>
-                  <SignInForm onSuccess={() => setSignInModalOpen(false)} />
-                </DialogContent>
-              </Dialog>
+              <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")} onClick={() => setIsAuthModalOpen(true)}>Sign In</Button>
             )}
           </div>
-
-          <div className="md:hidden">
+          <div className="md:hidden"> {/* This div was closing prematurely */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
@@ -128,7 +116,7 @@ export function AppHeader() {
                     </Link>
                   </SheetTitleComponent>
                 </SheetHeader>
-                <div className="flex flex-col space-y-2 p-4 overflow-y-auto flex-grow">
+                <div className="flex flex-col space-y-2 p-4 overflow-y-auto flex-grow visible">
                   <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false); }}>
                     <Link href="/search-tuitions">
                       <Search className="h-5 w-5 text-primary" /> Find Tutors
@@ -141,28 +129,15 @@ export function AppHeader() {
                       <LogIn className="h-5 w-5 text-primary" /> Logout
                     </Button>
                   ) : (
-                    <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
-                      setSignInModalOpen(isOpen);
-                      if (isOpen) setMobileMenuOpen(false);
-                    }}>
-                      <ShadDialogTrigger asChild>
-                      <Button variant="ghost" className={mobileButtonClass}>
-                        <LogIn className="h-5 w-5 text-primary" /> Sign In
-                      </Button>
-                    </ShadDialogTrigger>
-                      <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                        <DialogHeader className="sr-only">
-                          <DialogTitle>Sign In to Tutorzila</DialogTitle>
-                        </DialogHeader>
-                        <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
-                      </DialogContent>
-                    </Dialog>
+                    <Button variant="ghost" className={mobileButtonClass} onClick={() => { setIsAuthModalOpen(true); setMobileMenuOpen(false); }}>
+                      <LogIn className="h-5 w-5 text-primary" /> Sign In
+                    </Button>
                   )}
-                </div>
-
+                </div>                
+               
               </SheetContent>
             </Sheet>
-          </div>
+          </div>{isAuthModalOpen && (<AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />)}
         </div>
       </div>
     </header>

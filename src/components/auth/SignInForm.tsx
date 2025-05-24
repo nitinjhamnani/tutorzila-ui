@@ -44,13 +44,11 @@ const signInSchema = z.object({
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
-export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
+export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: () => void, onSwitchForm: (formType: 'signin' | 'signup') => void, onClose?: () => void }) {
   const { login } = useAuthMock();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // selectedRole state and related useEffect are removed as there's no UI to select role
-
-
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -88,16 +86,16 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <Card className="w-full max-w-lg shadow-lg rounded-lg bg-card border animate-in fade-in zoom-in-95 duration-500 ease-out">
-      <CardHeader className="flex flex-col items-center pt-8 pb-6 bg-card rounded-t-lg">
-        <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-6">
+      <CardHeader className="space-y-1.5 flex flex-col items-center bg-card rounded-t-lg p-0 pt-0 pb-0">
+        <Link href="/" className="hover:opacity-90 transition-opacity inline-block">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
         </Link>
         <CardTitle className="text-center text-3xl font-bold tracking-tight">Welcome Back!</CardTitle>
         <CardDescription className="text-center text-muted-foreground mt-2">Login to access your Tutorzila account.</CardDescription>
       </CardHeader>
-      <CardContent className="px-8 pb-8 bg-card">
+      <CardContent className="px-8 pb-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-6">
             <FormField
               control={form.control}
               name="email"
@@ -147,11 +145,9 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
         </Button>
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-            <Link href="/sign-up" onClick={() => { if(onSuccess) onSuccess();}}>
-             Sign Up
-            </Link>
-          </Button>
+            <Button variant="link" onClick={() => onSwitchForm('signup')} className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
+              Sign Up
+            </Button>
         </p>
       </CardFooter>
     </Card>
