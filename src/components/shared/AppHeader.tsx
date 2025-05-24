@@ -24,6 +24,13 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SignInForm } from "@/components/auth/SignInForm";
 
+// Mock authentication state (replace with actual auth context/hook)
+const useAuth = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Assume not authenticated initially
+  const logout = () => setIsAuthenticated(false);
+  return { isAuthenticated, logout, setIsAuthenticated };
+}
+
 export function AppHeader() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -31,6 +38,7 @@ export function AppHeader() {
   const [signInModalOpen, setSignInModalOpen] = useState(false);
 
   useEffect(() => {
+    // Handle scroll logic
     const handleScroll = () => {
       const bannerHeightString = typeof window !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--verification-banner-height').trim() : '0px';
       const bannerHeight = parseFloat(bannerHeightString) || 0;
@@ -40,6 +48,7 @@ export function AppHeader() {
     window.addEventListener("scroll", handleScroll);
     handleScroll(); 
 
+    // Handle sign-in modal opening from URL param
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('signin') === 'true') {
@@ -51,6 +60,9 @@ export function AppHeader() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Mock authentication state (replace with actual auth context/hook)
+  const { isAuthenticated, logout } = useAuth();
 
   const headerClasses = cn(
     "sticky z-50 w-full transition-all duration-300 ease-in-out",
@@ -72,23 +84,30 @@ export function AppHeader() {
           <Logo className="h-[var(--logo-height)] w-auto" />
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">          
+
           <div className="hidden md:flex items-center gap-3">
             <Button asChild variant="default" className={cn(signInButtonClass, "bg-transparent hover:bg-primary/10 text-primary border-primary border-2")}>
               <Link href="/search-tuitions">Find Tutors</Link>
             </Button>
-            <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
-              <ShadDialogTrigger asChild>
-                <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>Sign In</Button>
-              </ShadDialogTrigger>
-              <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                 <DialogHeader className="sr-only">
-                  <DialogTitle>Sign In to Tutorzila</DialogTitle>
-                </DialogHeader>
-                <SignInForm onSuccess={() => setSignInModalOpen(false)} />
-              </DialogContent>
-            </Dialog>
-            {/* Sign Up Button Removed */}
+            {isAuthenticated ? (
+              // Add authenticated menu items here (e.g., Dashboard, Profile, Logout)
+              <Button onClick={logout} className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>
+                Logout
+              </Button>
+            ) : (
+              <Dialog open={signInModalOpen} onOpenChange={setSignInModalOpen}>
+                <ShadDialogTrigger asChild>
+                  <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>Sign In</Button>
+                </ShadDialogTrigger>
+                <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
+                   <DialogHeader className="sr-only">
+                    <DialogTitle>Sign In to Tutorzila</DialogTitle>
+                  </DialogHeader>
+                  <SignInForm onSuccess={() => setSignInModalOpen(false)} />
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
 
           <div className="md:hidden">
@@ -102,7 +121,7 @@ export function AppHeader() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col pt-[var(--verification-banner-height,0px)]">
-                <SheetHeader className="p-4 border-b">
+                <SheetHeader className="p-4 border-b flex-shrink-0">
                   <SheetTitleComponent> 
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                       <Logo className="h-[calc(var(--logo-height)_/_1.5)] w-auto" />
@@ -116,24 +135,31 @@ export function AppHeader() {
                     </Link>
                   </Button>
 
-                  <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
-                    setSignInModalOpen(isOpen);
-                    if (isOpen) setMobileMenuOpen(false); 
-                  }}>
-                    <ShadDialogTrigger asChild>
+                  {isAuthenticated ? (
+                     // Add authenticated mobile menu items here (e.g., Dashboard, Profile, Logout)
+                    <Button variant="ghost" className={mobileButtonClass} onClick={() => { logout(); setMobileMenuOpen(false); }}>
+                      <LogIn className="h-5 w-5 text-primary" /> Logout
+                    </Button>
+                  ) : (
+                    <Dialog open={signInModalOpen} onOpenChange={(isOpen) => {
+                      setSignInModalOpen(isOpen);
+                      if (isOpen) setMobileMenuOpen(false);
+                    }}>
+                      <ShadDialogTrigger asChild>
                       <Button variant="ghost" className={mobileButtonClass}>
                         <LogIn className="h-5 w-5 text-primary" /> Sign In
                       </Button>
                     </ShadDialogTrigger>
-                    <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
-                      <DialogHeader className="sr-only">
-                        <DialogTitle>Sign In to Tutorzila</DialogTitle>
-                      </DialogHeader>
-                      <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
-                    </DialogContent>
-                  </Dialog>
-                  {/* Sign Up Button Removed from Mobile Menu */}
+                      <DialogContent className="sm:max-w-md p-0 bg-card rounded-lg overflow-hidden">
+                        <DialogHeader className="sr-only">
+                          <DialogTitle>Sign In to Tutorzila</DialogTitle>
+                        </DialogHeader>
+                        <SignInForm onSuccess={() => { setSignInModalOpen(false); setMobileMenuOpen(false); }} />
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </div>
+
               </SheetContent>
             </Sheet>
           </div>

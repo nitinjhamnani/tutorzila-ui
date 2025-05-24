@@ -57,7 +57,10 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     }
   };
   
-  const parentNavItems = [
+  const handleLogout = () => {
+    logout();
+    router.push('/'); // Redirect to home page after logout
+  };  const parentNavItems = [
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
@@ -73,7 +76,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     { href: "/parent/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
 
-  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: handleLogout };
 
   const headerHeight = "4rem"; 
 
@@ -167,7 +170,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         </header>
       )}
 
-      <div className={cn("flex flex-1 overflow-hidden pt-[var(--header-height,0px)]")}> 
+      <div className={cn("flex flex-1 overflow-hidden")}> 
         <ParentSidebar
           isMobile={isMobile}
           isMobileNavOpen={isNavbarOpen} // Use isNavbarOpen for mobile

@@ -62,7 +62,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
 
-  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: logout };
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   const headerHeight = "4rem"; // For h-16 or p-4 header
 
@@ -146,7 +149,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
             <Button
               variant="outline"
               size="sm"
-              onClick={logoutNavItem.onClick}
+              onClick={handleLogout}
               className="text-xs h-8 border-destructive text-destructive hover:bg-destructive/10"
             >
               <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
@@ -166,7 +169,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           user={user}
           tutorNavItems={tutorNavItems}
           accountSettingsNavItems={accountSettingsNavItems}
-          logoutNavItem={logoutNavItem}
+          logoutNavItem={{ label: "Log Out", icon: LogOut, onClick: handleLogout }}
         />
         <main className={cn(
             "flex-1 flex flex-col overflow-y-auto bg-secondary",
