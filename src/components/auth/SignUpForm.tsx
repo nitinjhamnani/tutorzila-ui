@@ -34,8 +34,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const signUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
-  countryCode: z.string().min(2, "Country code is required."),
-  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only.").optional().or(z.literal("")),
+  countryCode: z.string().min(1, { message: "Country code is required." }), // Made countryCode mandatory and min length 1
+  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."), // Made localPhoneNumber mandatory
+  password: z.string().min(8, { message: "Password must be at least 8 characters." }),
+  confirmPassword: z.string().min(8, { message: "Password must be at least 8 characters." }),
   role: z.enum(["parent", "tutor"], { required_error: "You must select a role (Parent or Tutor)." }),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
@@ -45,6 +47,7 @@ const signUpSchema = z.object({
   path: ["confirmPassword"],
 });
 interface SignUpFormProps { onSwitchForm: (formType: 'signin' | 'signup') => void; }
+
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const MOCK_COUNTRY_CODES = [
@@ -65,8 +68,8 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
     defaultValues: {
       name: "",
       email: "",
-      countryCode: "+91",
-      localPhoneNumber: "",
+ countryCode: "+91",
+      localPhoneNumber: "", // Keep as empty string to show validation on empty submission
       role: undefined, 
       acceptTerms: false,
     },
@@ -156,9 +159,9 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
                          <span className={cn("font-medium text-sm", field.value === 'tutor' ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary-foreground')}>I am Tutor</span>
                       </Label>
                     </FormItem>
-                  </RadioGroup>
-                  <FormMessage />
-                </FormItem>
+ </RadioGroup>
+                  <FormMessage className="tz-error-message" />
+ </FormItem>
               )}
             />
 
@@ -174,7 +177,7 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
                       <Input placeholder="John Doe" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                     </div>
                   </FormControl>
-                  <FormMessage />
+ <FormMessage className="tz-error-message" />
                 </FormItem>
               )}
             />
@@ -190,13 +193,13 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
                       <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                     </div>
                   </FormControl>
-                  <FormMessage />
+ <FormMessage className="tz-error-message" />
                 </FormItem>
               )}
             />
             
             <FormItem>
-              <FormLabel className="text-foreground">Phone Number (Optional)</FormLabel>
+              <FormLabel className="text-foreground">Phone Number</FormLabel> {/* Updated label */}
               <div className="flex gap-2">
                 <FormField
                   control={form.control}
@@ -214,7 +217,7 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
                             <SelectItem key={code.value} value={code.value} className="text-sm">{code.label}</SelectItem>
                           ))}
                         </SelectContent>
-                      </Select>
+ </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -230,7 +233,7 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
                           <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                         </div>
                       </FormControl>
-                      <FormMessage />
+ <FormMessage className="tz-error-message" />
                     </FormItem>
                   )}
                 />
@@ -270,7 +273,7 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
                       </Link>
                       .
                     </FormDescription>
-                    <FormMessage />
+ <FormMessage className="tz-error-message" />
                   </div>
                 </FormItem>
               )}

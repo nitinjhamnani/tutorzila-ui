@@ -271,3 +271,9 @@ html, body {
 .font-semibold {
   font-weight: 600 !important;
 }
+
+.tz-error-message {
+  color: hsl(var(--primary)) !important;
+  font-size: 0.875rem !important; /* text-sm */
+  font-weight: 500 !important; /* font-medium */
+}

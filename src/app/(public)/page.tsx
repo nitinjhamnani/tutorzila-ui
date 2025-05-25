@@ -153,12 +153,14 @@ export default function HomePage() {
                 {popularSubjects.map((subject, index) => (
                   <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 pl-3 md:pl-4">
                     <div className="p-1.5">
-                      <Card className="group bg-card hover:shadow-xl transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-md border hover:border-primary/50 w-[130px] h-[130px] md:w-[140px] md:h-[140px] mx-auto transform hover:scale-105">
-                        <CardContent className="p-0 flex flex-col items-center justify-center gap-2 md:gap-1.5">
-                          <subject.icon className="w-8 h-8 md:w-9 md:h-9 text-primary transition-transform duration-300 group-hover:scale-110" />
-                          <p className="text-sm md:text-[13.5px] font-medium text-foreground group-hover:text-primary transition-colors truncate w-full px-1.5">{subject.name}</p>
-                        </CardContent>
-                      </Card>
+                      <Link href={`/search-tuitions?subject=${encodeURIComponent(subject.name)}`}>
+                        <Card className="group bg-card hover:shadow-xl transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-md border hover:border-primary/50 w-[130px] h-[130px] md:w-[140px] md:h-[140px] mx-auto transform hover:scale-105 cursor-pointer">
+                          <CardContent className="p-0 flex flex-col items-center justify-center gap-2 md:gap-1.5">
+                            <subject.icon className="w-8 h-8 md:w-9 md:h-9 text-primary transition-transform duration-300 group-hover:scale-110" />
+                            <p className="text-sm md:text-[13.5px] font-medium text-foreground group-hover:text-primary transition-colors truncate w-full px-1.5">{subject.name}</p>
+                          </CardContent>
+                        </Card>
+                      </Link>
                     </div>
                   </CarouselItem>
                 ))}

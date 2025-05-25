@@ -34,6 +34,13 @@ import {
   DialogClose
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Search,
   FilterIcon as LucideFilterIcon,
   XIcon,
@@ -55,6 +62,7 @@ const teachingModeOptions: { id: string; label: string }[] = [
   { id: "Offline (In-person)", label: "Offline (In-person)" },
 ];
 
+type TutorFilterCategory = "Recommended" | "Applied" | "Shortlisted";
 
 export default function ParentFindTutorPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -63,6 +71,7 @@ export default function ParentFindTutorPage() {
 
   const [allTutors, setAllTutors] = useState<TutorProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState<TutorFilterCategory>("Recommended");
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   // Temporary filter states for the dialog
@@ -163,7 +172,7 @@ export default function ParentFindTutorPage() {
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
   }
 
-  return (
+ return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
@@ -179,6 +188,7 @@ export default function ParentFindTutorPage() {
             </div>
             <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
               <DialogTrigger asChild>
+                {/* This is the main filter dialog button */}
                 <Button
                   variant="default"
                   size="sm"
@@ -305,14 +315,44 @@ export default function ParentFindTutorPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search by tutor name, subject..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-3 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm rounded-lg w-full"
+                placeholder="Search by tutor name, subject..." // Placeholder text
+                value={searchTerm} // Bind value
+                onChange={(e) => setSearchTerm(e.target.value)} // Handle changes
+                className="pl-10 pr-4 py-3 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm rounded-lg w-full" // Styling
               />
             </div>
           </CardContent>
         </Card>
+
+ {/* Filter Category Dropdown - Moved outside the Card */}
+ <div className="flex justify-end mb-4 sm:mb-6 -mt-2"> {/* Adjust spacing as needed */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="default" // Use default variant
+                size="sm"
+                className={cn(
+                  "py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
+                  "text-xs sm:text-sm rounded-[5px] w-full sm:w-auto" // Adjust width and rounding
+                )}
+              >
+                <span className="text-primary-foreground">{activeCategory}</span> {/* Keep text white */}
+                <ListFilter className="ml-2 h-4 w-4 opacity-70 text-primary-foreground" /> {/* Use ListFilter and primary-foreground color */}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]"> {/* Adjust width and alignment */}
+              <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
+                    {(["Recommended", "Applied", "Shortlisted"] as TutorFilterCategory[]).map((category) => (
+                <DropdownMenuItem key={category} onClick={() => {
+                      setActiveCategory(category);
+                      console.log("Selected Category:", category);
+                    }} className={cn("text-xs cursor-pointer", activeCategory === category && "bg-primary text-primary-foreground hover:bg-primary focus:bg-primary hover:text-primary-foreground focus:text-primary-foreground")}> {/* Apply active styling */}
+                  {category}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+ </div>
 
         {filteredTutors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">

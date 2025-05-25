@@ -108,7 +108,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: (
                       <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="tz-error-message" />
                 </FormItem>
               )}
             />
@@ -124,7 +124,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: (
                       <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="tz-error-message" />
                 </FormItem>
               )}
             />
