@@ -16,8 +16,8 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger as FormSelectTrigger, // Renamed to avoid conflict
-  SelectValue as FormSelectValue,   // Renamed to avoid conflict
+  SelectTrigger as FormSelectTrigger,
+  SelectValue as FormSelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
@@ -27,8 +27,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogDescription,
+  DialogTitle, 
+  DialogDescription, 
   DialogFooter,
   DialogTrigger,
   DialogClose
@@ -36,10 +36,12 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScheduleDemoRequestModal } from "@/components/modals/ScheduleDemoRequestModal";
 import {
   Search,
   FilterIcon as LucideFilterIcon,
@@ -50,9 +52,15 @@ import {
   RadioTower,
   MapPin,
   DollarSign,
-  ListFilter
+  ListFilter,
+  CalendarDays,
+  MessageSquareQuote,
+  Star as StarIcon, 
+  Bookmark as BookmarkIcon, 
+  ChevronDown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const allSubjectsList: MultiSelectOption[] = [...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.subjects) ? t.subjects : [t.subjects]).filter(Boolean))].map(s => ({ value: String(s), label: String(s) }));
 const allGradeLevelsList: { value: string; label: string }[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])).filter(Boolean))].map(g => ({ value: String(g), label: String(g) }));
@@ -62,7 +70,14 @@ const teachingModeOptions: { id: string; label: string }[] = [
   { id: "Offline (In-person)", label: "Offline (In-person)" },
 ];
 
-type TutorFilterCategory = "Recommended" | "Applied" | "Shortlisted";
+const tutorStatusCategories = [
+  { label: "All Tutors", value: "All Tutors", icon: ListFilter },
+  { label: "Recommended", value: "Recommended", icon: StarIcon },
+  { label: "Demo Requested", value: "Demo Requested", icon: MessageSquareQuote },
+  { label: "Shortlisted", value: "Shortlisted", icon: BookmarkIcon },
+] as const;
+type TutorStatusCategory = typeof tutorStatusCategories[number]['value'];
+
 
 export default function ParentFindTutorPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -70,109 +85,142 @@ export default function ParentFindTutorPage() {
   const { toast } = useToast();
 
   const [allTutors, setAllTutors] = useState<TutorProfile[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState<TutorFilterCategory>("Recommended");
+
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [selectedTutorForDemo, setSelectedTutorForDemo] = useState<TutorProfile | null>(null);
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  // Temporary filter states for the dialog
   const [tempSubjectFilter, setTempSubjectFilter] = useState<string[]>([]);
   const [tempGradeFilter, setTempGradeFilter] = useState("All");
   const [tempBoardFilter, setTempBoardFilter] = useState("All");
   const [tempTeachingModeFilter, setTempTeachingModeFilter] = useState<string[]>([]);
-  const [tempLocationFilter, setTempLocationFilter] = useState("");
   const [tempFeeRange, setTempFeeRange] = useState<[number, number]>([200, 2000]);
 
-  // Applied filter states
   const [appliedSubjectFilter, setAppliedSubjectFilter] = useState<string[]>([]);
   const [appliedGradeFilter, setAppliedGradeFilter] = useState("All");
   const [appliedBoardFilter, setAppliedBoardFilter] = useState("All");
   const [appliedTeachingModeFilter, setAppliedTeachingModeFilter] = useState<string[]>([]);
-  const [appliedLocationFilter, setAppliedLocationFilter] = useState("");
   const [appliedFeeRange, setAppliedFeeRange] = useState<[number, number]>([200, 2000]);
+
+  const [activeStatusFilter, setActiveStatusFilter] = useState<TutorStatusCategory>("All Tutors");
 
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'parent')) {
-      router.replace("/");
+      // router.replace("/"); // Intentionally keeping this commented as per existing file state
     } else if (isAuthenticated && user?.role === 'parent') {
-      setAllTutors(MOCK_TUTOR_PROFILES); // Load mock tutors
+      const tutorsWithMockStatus = MOCK_TUTOR_PROFILES.map((tutor, index) => ({
+        ...tutor,
+        mockIsRecommendedBySystem: index % 3 === 0, 
+        mockIsDemoRequestedByCurrentUser: index % 4 === 0, 
+        mockIsShortlistedByCurrentUser: index % 5 === 0, 
+      }));
+      setAllTutors(tutorsWithMockStatus);
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
 
-  const handleApplyFilters = () => {
+  const handleApplyDetailedFilters = () => {
     setAppliedSubjectFilter([...tempSubjectFilter]);
     setAppliedGradeFilter(tempGradeFilter);
     setAppliedBoardFilter(tempBoardFilter);
     setAppliedTeachingModeFilter([...tempTeachingModeFilter]);
-    setAppliedLocationFilter(tempLocationFilter);
     setAppliedFeeRange([...tempFeeRange]);
     setIsFilterDialogOpen(false);
     toast({ title: "Filters Applied", description: "Tutor list has been updated." });
   };
 
-  const handleClearFilters = () => {
-    setSearchTerm("");
+  const handleClearDetailedFilters = () => {
     setTempSubjectFilter([]);
     setTempGradeFilter("All");
     setTempBoardFilter("All");
     setTempTeachingModeFilter([]);
-    setTempLocationFilter("");
     setTempFeeRange([200, 2000]);
-    // Also apply these to the active filters
     setAppliedSubjectFilter([]);
     setAppliedGradeFilter("All");
     setAppliedBoardFilter("All");
     setAppliedTeachingModeFilter([]);
-    setAppliedLocationFilter("");
     setAppliedFeeRange([200, 2000]);
     setIsFilterDialogOpen(false);
     toast({ title: "Filters Cleared", description: "Showing all available tutors." });
   };
 
-  const filtersApplied = useMemo(() => {
+  const detailedFiltersApplied = useMemo(() => {
     return (
-      searchTerm !== "" ||
       appliedSubjectFilter.length > 0 ||
       appliedGradeFilter !== "All" ||
       appliedBoardFilter !== "All" ||
       appliedTeachingModeFilter.length > 0 ||
-      appliedLocationFilter !== "" ||
       appliedFeeRange[0] !== 200 ||
       appliedFeeRange[1] !== 2000
     );
-  }, [searchTerm, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedLocationFilter, appliedFeeRange]);
+  }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedFeeRange]);
 
-  const filteredTutors = useMemo(() => {
+  const tutorsFilteredByDialog = useMemo(() => {
     return allTutors.filter((tutor) => {
-      const searchTermLower = searchTerm.toLowerCase();
-      const matchesSearch =
-        searchTerm === "" ||
-        tutor.name.toLowerCase().includes(searchTermLower) ||
-        (Array.isArray(tutor.subjects) && tutor.subjects.some(s => String(s).toLowerCase().includes(searchTermLower))) ||
-        (tutor.location && tutor.location.toLowerCase().includes(searchTermLower));
-
       const matchesSubject = appliedSubjectFilter.length === 0 || (Array.isArray(tutor.subjects) && tutor.subjects.some(sub => appliedSubjectFilter.includes(String(sub))));
       const matchesGrade = appliedGradeFilter === "All" || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(appliedGradeFilter)) || (tutor.grade === appliedGradeFilter);
       const matchesBoard = appliedBoardFilter === "All" || (Array.isArray(tutor.boardsTaught) && tutor.boardsTaught.includes(appliedBoardFilter));
-      
+
       let matchesMode = true;
       if (appliedTeachingModeFilter.length > 0) {
         matchesMode = appliedTeachingModeFilter.some(mode => tutor.teachingMode?.includes(mode));
       }
 
-      const matchesLocation = appliedLocationFilter === "" || (tutor.location && tutor.location.toLowerCase().includes(appliedLocationFilter.toLowerCase()));
-      
       const tutorRate = parseFloat(tutor.hourlyRate || "0");
       const matchesFee = tutorRate >= appliedFeeRange[0] && tutorRate <= appliedFeeRange[1];
 
-      return matchesSearch && matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocation && matchesFee;
+      return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesFee;
     });
-  }, [allTutors, searchTerm, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedLocationFilter, appliedFeeRange]);
+  }, [allTutors, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedFeeRange]);
+
+  const statusCategoryCounts = useMemo(() => {
+    return {
+      "All Tutors": tutorsFilteredByDialog.length,
+      "Recommended": tutorsFilteredByDialog.filter(t => t.mockIsRecommendedBySystem).length,
+      "Demo Requested": tutorsFilteredByDialog.filter(t => t.mockIsDemoRequestedByCurrentUser).length,
+      "Shortlisted": tutorsFilteredByDialog.filter(t => t.mockIsShortlistedByCurrentUser).length,
+    };
+  }, [tutorsFilteredByDialog]);
+
+  const filteredTutors = useMemo(() => {
+    if (activeStatusFilter === "All Tutors") return tutorsFilteredByDialog;
+    return tutorsFilteredByDialog.filter(tutor => {
+      if (activeStatusFilter === "Recommended") return tutor.mockIsRecommendedBySystem;
+      if (activeStatusFilter === "Demo Requested") return tutor.mockIsDemoRequestedByCurrentUser;
+      if (activeStatusFilter === "Shortlisted") return tutor.mockIsShortlistedByCurrentUser;
+      return true;
+    });
+  }, [tutorsFilteredByDialog, activeStatusFilter]);
+
+
+  const handleScheduleDemoClick = (tutorToSchedule: TutorProfile) => {
+    setSelectedTutorForDemo(tutorToSchedule);
+    setIsDemoModalOpen(true);
+  };
+
+  const handleDemoRequestSuccess = () => {
+    setIsDemoModalOpen(false);
+    setSelectedTutorForDemo(null);
+    if (selectedTutorForDemo) {
+      setAllTutors(prevTutors => prevTutors.map(t => 
+        t.id === selectedTutorForDemo.id ? { ...t, mockIsDemoRequestedByCurrentUser: true } : t
+      ));
+    }
+    toast({
+      title: "Demo Request Sent!",
+      description: "The tutor will be notified of your demo request.",
+    });
+  };
 
   if (isCheckingAuth || !user) {
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
   }
+  
+  const parentContextBaseUrl: string | undefined = 
+    isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
 
- return (
+  const selectedCategoryData = tutorStatusCategories.find(cat => cat.value === activeStatusFilter);
+
+  return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
@@ -188,13 +236,12 @@ export default function ParentFindTutorPage() {
             </div>
             <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
               <DialogTrigger asChild>
-                {/* This is the main filter dialog button */}
                 <Button
                   variant="default"
                   size="sm"
                   className={cn(
                     "text-xs py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                    filtersApplied && "ring-2 ring-offset-2 ring-primary/70"
+                    detailedFiltersApplied && "ring-2 ring-offset-2 ring-primary/70"
                   )}
                 >
                   <LucideFilterIcon className="w-4 h-4 opacity-90 md:mr-1.5" />
@@ -210,158 +257,146 @@ export default function ParentFindTutorPage() {
                     Refine your search for tutors based on your preferences.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="filter-subject" className="text-xs font-medium text-muted-foreground flex items-center">
-                      <BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Subject(s)
-                    </Label>
-                    <MultiSelectCommand
-                      options={allSubjectsList}
-                      selectedValues={tempSubjectFilter}
-                      onValueChange={setTempSubjectFilter}
-                      placeholder="Select subjects..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <ScrollArea className="max-h-[60vh]">
+                  <div className="p-6 space-y-4">
                     <div className="space-y-1.5">
-                      <Label htmlFor="filter-grade" className="text-xs font-medium text-muted-foreground flex items-center">
-                        <GraduationCap className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Grade Level
+                      <Label htmlFor="filter-subject" className="text-xs font-medium text-muted-foreground flex items-center">
+                        <BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Subject(s)
                       </Label>
-                      <Select value={tempGradeFilter} onValueChange={setTempGradeFilter}>
-                        <FormSelectTrigger id="filter-grade" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg">
-                          <FormSelectValue placeholder="All Grade Levels" />
-                        </FormSelectTrigger>
-                        <SelectContent>
-                          {allGradeLevelsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <MultiSelectCommand
+                        options={allSubjectsList}
+                        selectedValues={tempSubjectFilter}
+                        onValueChange={setTempSubjectFilter}
+                        placeholder="Select subjects..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="filter-grade" className="text-xs font-medium text-muted-foreground flex items-center">
+                          <GraduationCap className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Grade Level
+                        </Label>
+                        <Select value={tempGradeFilter} onValueChange={setTempGradeFilter}>
+                          <FormSelectTrigger id="filter-grade" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg">
+                            <FormSelectValue placeholder="All Grade Levels" />
+                          </FormSelectTrigger>
+                          <SelectContent>
+                            {allGradeLevelsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="filter-board" className="text-xs font-medium text-muted-foreground flex items-center">
+                          <ShieldCheck className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Board
+                        </Label>
+                        <Select value={tempBoardFilter} onValueChange={setTempBoardFilter}>
+                          <FormSelectTrigger id="filter-board" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg">
+                            <FormSelectValue placeholder="All Boards" />
+                          </FormSelectTrigger>
+                          <SelectContent>
+                            {allBoardsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="filter-board" className="text-xs font-medium text-muted-foreground flex items-center">
-                        <ShieldCheck className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Board
+                      <Label className="text-xs font-medium text-muted-foreground flex items-center">
+                        <RadioTower className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode
                       </Label>
-                      <Select value={tempBoardFilter} onValueChange={setTempBoardFilter}>
-                        <FormSelectTrigger id="filter-board" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg">
-                          <FormSelectValue placeholder="All Boards" />
-                        </FormSelectTrigger>
-                        <SelectContent>
-                          {allBoardsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        {teachingModeOptions.map(mode => (
+                          <div key={mode.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`mode-filter-${mode.id}`}
+                              checked={tempTeachingModeFilter.includes(mode.id)}
+                              onCheckedChange={(checked) => {
+                                setTempTeachingModeFilter(prev =>
+                                  checked ? [...prev, mode.id] : prev.filter(s => s !== mode.id)
+                                );
+                              }}
+                            />
+                            <Label htmlFor={`mode-filter-${mode.id}`} className="text-xs font-normal text-foreground cursor-pointer">{mode.label}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2.5 pt-1">
+                      <Label className="text-xs font-medium text-muted-foreground flex items-center">
+                        <DollarSign className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Hourly Fee Range (₹)
+                      </Label>
+                      <div className="text-xs text-foreground/80 font-medium text-center pb-1">
+                        ₹{tempFeeRange[0]} – ₹{tempFeeRange[1]}
+                      </div>
+                      <Slider
+                        min={200}
+                        max={2000}
+                        step={50}
+                        value={tempFeeRange}
+                        onValueChange={(value: number[]) => setTempFeeRange(value as [number, number])}
+                        className="w-full"
+                      />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground flex items-center">
-                      <RadioTower className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode
-                    </Label>
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      {teachingModeOptions.map(mode => (
-                        <div key={mode.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`mode-filter-${mode.id}`}
-                            checked={tempTeachingModeFilter.includes(mode.id)}
-                            onCheckedChange={(checked) => {
-                              setTempTeachingModeFilter(prev =>
-                                checked ? [...prev, mode.id] : prev.filter(s => s !== mode.id)
-                              );
-                            }}
-                          />
-                          <Label htmlFor={`mode-filter-${mode.id}`} className="text-xs font-normal text-foreground cursor-pointer">{mode.label}</Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="filter-location" className="text-xs font-medium text-muted-foreground flex items-center">
-                      <MapPin className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Location
-                    </Label>
-                    <Input
-                      id="filter-location"
-                      placeholder="Enter city, area, or 'Online'"
-                      value={tempLocationFilter}
-                      onChange={(e) => setTempLocationFilter(e.target.value)}
-                      className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg"
-                    />
-                  </div>
-                  <div className="space-y-2.5 pt-1">
-                    <Label className="text-xs font-medium text-muted-foreground flex items-center">
-                      <DollarSign className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Hourly Fee Range (₹)
-                    </Label>
-                    <div className="text-xs text-foreground/80 font-medium text-center pb-1">
-                      ₹{tempFeeRange[0]} – ₹{tempFeeRange[1]}
-                    </div>
-                    <Slider
-                      min={200}
-                      max={2000}
-                      step={50}
-                      value={tempFeeRange}
-                      onValueChange={(value: number[]) => setTempFeeRange(value as [number, number])}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
+                </ScrollArea>
                 <DialogFooter className="p-6 pt-4 border-t gap-2 sm:justify-between">
-                  <Button variant="ghost" onClick={handleClearFilters} className="text-xs text-muted-foreground hover:text-destructive">
+                  <Button variant="ghost" onClick={handleClearDetailedFilters} className="text-xs text-muted-foreground hover:text-destructive">
                     <XIcon className="mr-1.5 h-3.5 w-3.5" /> Clear All
                   </Button>
-                  <Button onClick={handleApplyFilters} className="text-xs bg-primary text-primary-foreground hover:bg-primary/90">Apply Filters</Button>
+                  <Button onClick={handleApplyDetailedFilters} className="text-xs bg-primary text-primary-foreground hover:bg-primary/90">Apply Filters</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </CardHeader>
           <CardContent className="p-0 mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search by tutor name, subject..." // Placeholder text
-                value={searchTerm} // Bind value
-                onChange={(e) => setSearchTerm(e.target.value)} // Handle changes
-                className="pl-10 pr-4 py-3 text-sm bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm rounded-lg w-full" // Styling
-              />
-            </div>
           </CardContent>
         </Card>
 
- {/* Filter Category Dropdown - Moved outside the Card */}
- <div className="flex justify-end mb-4 sm:mb-6 -mt-2"> {/* Adjust spacing as needed */}
+        <div className="flex justify-end mb-4 sm:mb-6">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="default" // Use default variant
+                variant="default"
                 size="sm"
-                className={cn(
-                  "py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
-                  "text-xs sm:text-sm rounded-[5px] w-full sm:w-auto" // Adjust width and rounding
-                )}
+                className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                <span className="text-primary-foreground">{activeCategory}</span> {/* Keep text white */}
-                <ListFilter className="ml-2 h-4 w-4 opacity-70 text-primary-foreground" /> {/* Use ListFilter and primary-foreground color */}
+                <span>
+                  {selectedCategoryData?.label || "Filter"} ({selectedCategoryData ? statusCategoryCounts[selectedCategoryData.value] : 'N/A'})
+                </span>
+                <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]"> {/* Adjust width and alignment */}
-              <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
-                    {(["Recommended", "Applied", "Shortlisted"] as TutorFilterCategory[]).map((category) => (
-                <DropdownMenuItem key={category} onClick={() => {
-                      setActiveCategory(category);
-                      console.log("Selected Category:", category);
-                    }} className={cn("text-xs cursor-pointer", activeCategory === category && "bg-primary text-primary-foreground hover:bg-primary focus:bg-primary hover:text-primary-foreground focus:text-primary-foreground")}> {/* Apply active styling */}
-                  {category}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
- </div>
+            <DropdownMenuContent align="end" className="w-[220px]">
+              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {tutorStatusCategories.map((category) => (
+                <DropdownMenuItem
+                  key={category.value}
+                  onClick={() => setActiveStatusFilter(category.value)}
+                  className={cn(
+                    "text-sm",
+                    activeStatusFilter === category.value && "bg-primary text-primary-foreground"
+                  )}
+                >
+                  <category.icon className="mr-2 h-4 w-4" />
+                  {category.label} ({statusCategoryCounts[category.value]})
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {filteredTutors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
             {filteredTutors.map((tutor) => (
-              <TutorProfileCard
-                key={tutor.id}
-                tutor={tutor}
-                parentContextBaseUrl="/parent/tutors" // Ensure links go to parent-specific tutor detail page
-              />
+              <div key={tutor.id} className="relative group">
+                <TutorProfileCard
+                  tutor={tutor}
+                  parentContextBaseUrl={parentContextBaseUrl}
+                  hideRating={false} 
+                  showFullName={true} 
+                  showShortlistButton={true}
+                />
+              </div>
             ))}
           </div>
         ) : (
@@ -372,8 +407,8 @@ export default function ParentFindTutorPage() {
               <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                 Try adjusting your search or filter criteria.
               </p>
-              {filtersApplied && (
-                <Button onClick={handleClearFilters} variant="outline" className="mt-6 text-sm py-2 px-5">
+              {(detailedFiltersApplied || activeStatusFilter !== "All Tutors") && (
+                <Button onClick={() => { handleClearDetailedFilters(); setActiveStatusFilter("All Tutors"); }} variant="outline" className="mt-6 text-sm py-2 px-5">
                   <XIcon className="w-3.5 h-3.5 mr-1.5" /> Clear All Filters
                 </Button>
               )}
@@ -381,7 +416,34 @@ export default function ParentFindTutorPage() {
           </Card>
         )}
       </div>
+      {selectedTutorForDemo && user && (
+        <Dialog open={isDemoModalOpen} onOpenChange={setIsDemoModalOpen}>
+          <DialogContent className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-full text-primary">
+                        <MessageSquareQuote className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <DialogTitle className="text-lg font-semibold text-foreground">
+                        Request a Demo with {selectedTutorForDemo.name}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-muted-foreground mt-0.5">
+                        Fill in your preferred details for the demo session.
+                        </DialogDescription>
+                    </div>
+                </div>
+            </DialogHeader>
+            <ScheduleDemoRequestModal
+              tutor={selectedTutorForDemo}
+              parentUser={user}
+              onSuccess={handleDemoRequestSuccess}
+              enquiryContext={undefined} 
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </main>
   );
 }
-
+    

@@ -1,5 +1,5 @@
 
-import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass, TutorPayment, TutorLead, TutorTransaction } from "@/types";
+import type { TutorProfile, Testimonial, DemoSession, TuitionRequirement, MyClass, TutorPayment, ParentPayment, TutorLead, TutorTransaction, ConversationSummary } from "@/types";
 
 export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
   {
@@ -27,6 +27,9 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     preferredTimeSlots: ["1600-1800", "1800-2000"],
     location: "Online",
     rating: 4.8,
+    mockIsRecommendedBySystem: true,
+    mockIsDemoRequestedByCurrentUser: false,
+    mockIsShortlistedByCurrentUser: true,
   },
   {
     id: "t2",
@@ -53,6 +56,9 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     preferredDays: ["Tuesday", "Thursday", "Saturday"],
     preferredTimeSlots: ["1000-1200", "1400-1600"],
     rating: 4.5,
+    mockIsRecommendedBySystem: false,
+    mockIsDemoRequestedByCurrentUser: true,
+    mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "t3",
@@ -79,6 +85,9 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     preferredDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
     preferredTimeSlots: ["1800-2000", "2000-2200"],
     rating: 4.9,
+    mockIsRecommendedBySystem: true,
+    mockIsDemoRequestedByCurrentUser: true,
+    mockIsShortlistedByCurrentUser: true,
   },
   {
     id: "t4",
@@ -105,6 +114,9 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     preferredTimeSlots: ["0800-1000", "1000-1200", "1200-1400"],
     location: "Online",
     rating: 4.7,
+    mockIsRecommendedBySystem: false,
+    mockIsDemoRequestedByCurrentUser: false,
+    mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "t5",
@@ -131,6 +143,9 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     preferredDays: ["Flexible"],
     preferredTimeSlots: ["Flexible"],
     rating: 4.6,
+    mockIsRecommendedBySystem: true,
+    mockIsDemoRequestedByCurrentUser: false,
+    mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "t6",
@@ -157,6 +172,9 @@ export const MOCK_TUTOR_PROFILES: TutorProfile[] = [
     preferredDays: ["Tuesday", "Thursday", "Saturday"],
     preferredTimeSlots: ["1600-1800", "1000-1200"],
     rating: 4.2,
+    mockIsRecommendedBySystem: false,
+    mockIsDemoRequestedByCurrentUser: false,
+    mockIsShortlistedByCurrentUser: true,
   }
 ];
 
@@ -330,7 +348,7 @@ export const MOCK_CLASSES: MyClass[] = [
 export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   {
     id: "current1",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["Mathematics", "Algebra"],
     gradeLevel: "Grade 6",
@@ -344,14 +362,14 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "CBSE",
     teachingMode: ["Online"],
     applicantsCount: 3,
-    appliedTutorIds: ["t1", "t3", "t5"], // Added applied tutors
+    appliedTutorIds: ["t1", "t3", "t5"], 
     mockIsRecommended: true,
     mockIsAppliedByCurrentUser: false,
     mockIsShortlistedByCurrentUser: true,
   },
   {
     id: "current2",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["Science", "Physics"],
     gradeLevel: "Grade 8",
@@ -365,14 +383,14 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
     board: "ICSE",
     teachingMode: ["Offline (In-person)"],
     applicantsCount: 7,
-    appliedTutorIds: ["t2", "t4"], // Added applied tutors
+    appliedTutorIds: ["t2", "t4"], 
     mockIsAppliedByCurrentUser: true,
     mockIsRecommended: false,
     mockIsShortlistedByCurrentUser: false,
   },
   {
     id: "past1",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["English", "Grammar"],
     gradeLevel: "Grade 5",
@@ -390,7 +408,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "past2",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["Hindi"],
     gradeLevel: "Grade 4",
@@ -407,7 +425,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "current3-multisubject",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["Physics", "Chemistry", "Biology"],
     gradeLevel: "Grade 10",
@@ -427,7 +445,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "current4-languages",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["French", "German"],
     gradeLevel: "Adult Learner",
@@ -445,7 +463,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "past3-hybrid",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["Computer Science", "Mathematics"],
     gradeLevel: "Grade 12",
@@ -463,7 +481,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "other1", 
-    parentId: "p2", // Bob Johnson
+    parentId: "p2", 
     parentName: "Bob Johnson",
     subject: ["Physics", "Chemistry"],
     gradeLevel: "Grade 11-12",
@@ -483,7 +501,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
    {
     id: "alice_open_1",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["History", "Geography"],
     gradeLevel: "Grade 7",
@@ -504,7 +522,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "alice_matched_1",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["Art", "Music (Piano)"],
     gradeLevel: "Grade 3",
@@ -525,7 +543,7 @@ export const MOCK_ALL_PARENT_REQUIREMENTS: TuitionRequirement[] = [
   },
   {
     id: "alice_closed_1",
-    parentId: "p1", // Alice Smith
+    parentId: "p1", 
     parentName: "Alice Smith",
     subject: ["Coding (Python)"],
     gradeLevel: "Grade 9",
@@ -616,6 +634,78 @@ export const MOCK_TUTOR_PAYMENTS: TutorPayment[] = [
   },
 ];
 
+export const MOCK_PARENT_PAYMENTS: ParentPayment[] = [
+  {
+    id: "ppay1",
+    parentId: "p1",
+    tutorId: "t1",
+    tutorName: "Dr. Emily Carter",
+    tutorAvatarSeed: "emilycarter",
+    subject: "Physics",
+    amount: 8000,
+    dueDate: new Date(Date.now() + 86400000 * 5).toISOString(), // Due in 5 days
+    status: "Due",
+    invoiceId: "INV-2024-001",
+    description: "Monthly fee for Grade 11 Physics (May 2024)",
+  },
+  {
+    id: "ppay2",
+    parentId: "p1",
+    tutorId: "t2",
+    tutorName: "John Adebayo",
+    tutorAvatarSeed: "johnadebayo",
+    subject: "English Literature",
+    amount: 6500,
+    dueDate: new Date(Date.now() - 86400000 * 2).toISOString(), // Overdue by 2 days
+    paidDate: undefined,
+    status: "Overdue",
+    invoiceId: "INV-2024-002",
+    description: "April 2024 English sessions",
+  },
+  {
+    id: "ppay3",
+    parentId: "p2",
+    tutorId: "t3",
+    tutorName: "Sophia Chen",
+    tutorAvatarSeed: "sophiachen",
+    subject: "Computer Science",
+    amount: 7200,
+    dueDate: new Date(Date.now() - 86400000 * 10).toISOString(), // Paid 10 days ago
+    paidDate: new Date(Date.now() - 86400000 * 10).toISOString(),
+    status: "Paid",
+    invoiceId: "INV-2024-003",
+    description: "CS Bootcamp - Installment 1",
+  },
+  {
+    id: "ppay4",
+    parentId: "p1",
+    tutorId: "t1",
+    tutorName: "Dr. Emily Carter",
+    tutorAvatarSeed: "emilycarter",
+    subject: "Mathematics",
+    amount: 8000,
+    dueDate: new Date(Date.now() + 86400000 * 20).toISOString(), // Upcoming in 20 days
+    status: "Upcoming",
+    invoiceId: "INV-2024-004",
+    description: "June 2024 Advance Math Tutoring",
+  },
+  {
+    id: "ppay5",
+    parentId: "p2",
+    tutorId: "t6",
+    tutorName: "Mock Tutor General",
+    tutorAvatarSeed: "mocktutor",
+    subject: "General Science",
+    amount: 3500,
+    dueDate: new Date(Date.now() - 86400000 * 30).toISOString(), // Paid a month ago
+    paidDate: new Date(Date.now() - 86400000 * 30).toISOString(),
+    status: "Paid",
+    // invoiceId: "INV-2024-005", // Removed for testing "Generate Invoice"
+    description: "March 2024 Science sessions",
+  },
+];
+
+
 export const MOCK_TUTOR_LEADS: TutorLead[] = [
   {
     id: "lead1",
@@ -690,3 +780,54 @@ export const MOCK_TUTOR_TRANSACTIONS: TutorTransaction[] = [
   { id: "txn8", tutorId: "t3", type: "Credit", mode: "Wallet", amount: 1000, date: new Date(Date.now() - 86400000 * 7).toISOString(), summary: "Top-up for leads", status: "Success" },
   { id: "txn9", tutorId: "t3", type: "Debit", mode: "Wallet", amount: 3, date: new Date(Date.now() - 86400000 * 6).toISOString(), summary: "Lead consumed for CS project", status: "Failed" },
 ];
+
+export const MOCK_PARENT_CONVERSATIONS: ConversationSummary[] = [
+  {
+    id: "conv1",
+    tutorId: "t1", // Dr. Emily Carter
+    tutorName: "Dr. Emily Carter",
+    tutorAvatarSeed: "emilycarter",
+    lastMessage: "Yes, I'm available for a demo next Tuesday at 4 PM. Does that work for you?",
+    lastMessageTimestamp: new Date(Date.now() - 3600000 * 2).toISOString(), 
+    unreadCount: 1,
+    status: "Online",
+    enquirySubject: "Physics", // Matches enquiry 'current1' subject (Physics is one of them)
+    enquiryId: "current1", // Explicitly linking to the enquiry
+  },
+  {
+    id: "conv2",
+    tutorId: "t2", // John Adebayo
+    tutorName: "John Adebayo",
+    tutorAvatarSeed: "johnadebayo",
+    lastMessage: "Great! Looking forward to discussing your child's needs for English Literature.",
+    lastMessageTimestamp: new Date(Date.now() - 86400000 * 1).toISOString(), 
+    unreadCount: 0,
+    status: "Offline",
+    enquirySubject: "English Literature", // Assuming there's an enquiry for this not in current MOCK_ALL_PARENT_REQUIREMENTS for parent 'p1' or 'p2'
+  },
+  {
+    id: "conv3",
+    tutorId: "t3", // Sophia Chen
+    tutorName: "Sophia Chen",
+    tutorAvatarSeed: "sophiachen",
+    lastMessage: "I've received your request for the CS demo. I'll confirm my availability shortly.",
+    lastMessageTimestamp: new Date(Date.now() - 3600000 * 5).toISOString(), 
+    unreadCount: 0,
+    status: "Away",
+    enquirySubject: "Computer Science", // Could link to 'past3-hybrid'
+    enquiryId: "past3-hybrid",
+  },
+  {
+    id: "conv4",
+    tutorId: "t6", // Mock Tutor General
+    tutorName: "Mock Tutor General",
+    tutorAvatarSeed: "mocktutor",
+    lastMessage: "Sure, I can help with Grade 7 Math. What topics are you focusing on?",
+    lastMessageTimestamp: new Date(Date.now() - 86400000 * 0.5).toISOString(), 
+    unreadCount: 3,
+    status: "Online",
+    enquirySubject: "Grade 7 Math", // A generic subject
+  },
+];
+
+export const mockTutors = MOCK_TUTOR_PROFILES;

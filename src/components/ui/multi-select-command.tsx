@@ -18,8 +18,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
-import { Check, XCircle } from "lucide-react";
+// Badge and XCircle are no longer used for display in trigger
+import { Check } from "lucide-react"; 
 
 export interface Option {
   value: string;
@@ -51,13 +51,22 @@ export function MultiSelectCommand({
     onValueChange(newSelectedValues);
   };
 
-  const handleRemove = (valueToRemove: string) => {
-    onValueChange(selectedValues.filter((value) => value !== valueToRemove));
-  };
-
   const filteredOptions = options.filter(option => 
     option.label.toLowerCase().includes(inputValue.toLowerCase())
   );
+
+  const displayValue = React.useMemo(() => {
+    if (selectedValues.length === 0) {
+      return <span className="text-muted-foreground">{placeholder}</span>;
+    }
+    return (
+      <span className="text-sm text-popover-foreground">
+        {selectedValues
+          .map((value) => options.find((opt) => opt.value === value)?.label || value)
+          .join(", ")}
+      </span>
+    );
+  }, [selectedValues, options, placeholder]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -72,27 +81,7 @@ export function MultiSelectCommand({
           )}
           onClick={() => setOpen(!open)}
         >
-          <div className="flex gap-1 flex-wrap">
-            {selectedValues.length > 0
-              ? selectedValues.map((value) => {
-                  const option = options.find((opt) => opt.value === value);
-                  return (
-                    <Badge
-                      variant="secondary"
-                      key={value}
-                      className="mr-1 mb-1"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent popover from closing
-                        handleRemove(value);
-                      }}
-                    >
-                      {option ? option.label : value}
-                      <XCircle className="ml-1 h-3 w-3 cursor-pointer" />
-                    </Badge>
-                  );
-                })
-              : placeholder}
-          </div>
+          <span className="truncate flex-1">{displayValue}</span>
            <ChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />
         </Button>
       </PopoverTrigger>
@@ -109,10 +98,10 @@ export function MultiSelectCommand({
               {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.value}
-                  onSelect={() => {
+                  value={option.value} 
+                  onSelect={() => { 
                     handleSelect(option.value);
-                    setInputValue(""); // Optionally clear input on select
+                    // setInputValue(""); // Optionally clear input on select if desired
                   }}
                 >
                   <Check
@@ -134,9 +123,11 @@ export function MultiSelectCommand({
   );
 }
 
-// Helper icon, can be replaced or removed if not desired
+// Helper icon
 const ChevronDown = (props: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
     <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clipRule="evenodd" />
   </svg>
 );
+
+    

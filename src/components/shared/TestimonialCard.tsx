@@ -14,8 +14,10 @@ interface TestimonialCardProps {
 
 export function TestimonialCard({ testimonial }: TestimonialCardProps) {
   const [formattedDate, setFormattedDate] = useState<string | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    setHasMounted(true); // Component has mounted on the client
     // Ensure date formatting happens only on the client side after hydration
     const testimonialDate = new Date(testimonial.date);
     setFormattedDate(format(testimonialDate, "MMM d, yyyy"));
@@ -34,7 +36,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           <div>
             <CardTitle className="text-md font-semibold text-foreground">{testimonial.name}</CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {testimonial.role} &bull; {formattedDate || "Loading date..."}
+              {testimonial.role} &bull; {hasMounted && formattedDate ? formattedDate : "Loading date..."}
             </p>
           </div>
         </div>

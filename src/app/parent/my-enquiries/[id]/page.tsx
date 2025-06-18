@@ -318,6 +318,14 @@ export default function ParentEnquiryDetailsPage() {
               </CardContent>
                {(requirement.status === 'open' || requirement.status === 'matched') && (
                 <CardFooter className="p-4 md:p-5 border-t flex-wrap justify-end gap-2">
+                    {(requirement.applicantsCount ?? 0) > 0 && (
+                      <Button asChild variant="default" size="sm">
+                        <Link href={`/parent/my-tutors/${requirement.id}`}>
+                          <UsersIcon className="mr-1.5 h-3.5 w-3.5" />
+                          View Applied Tutors ({requirement.applicantsCount})
+                        </Link>
+                      </Button>
+                    )}
                     <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
                         <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                     </Button>
@@ -328,32 +336,6 @@ export default function ParentEnquiryDetailsPage() {
                )}
             </Card>
           </div>
-
-          {/* Removed Applied Tutors Section */}
-          {/* 
-          <aside className="lg:col-span-1 space-y-6">
-            <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-              <CardHeader className="p-4 md:p-5 border-b">
-                <CardTitle className="text-base font-semibold text-primary flex items-center">
-                  <UsersIcon className="w-4 h-4 mr-2" />
-                  Applied Tutors ({mockAppliedTutors.length})
-                </CardTitle>
-                 <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                    Review profiles of tutors interested in this enquiry.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 md:p-5 space-y-3">
-                {mockAppliedTutors.length > 0 ? (
-                  mockAppliedTutors.map(tutor => (
-                    <TutorProfileCard key={tutor.id} tutor={tutor} />
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">No tutors have applied yet.</p>
-                )}
-              </CardContent>
-            </Card>
-          </aside> 
-          */}
         </div>
       </div>
 

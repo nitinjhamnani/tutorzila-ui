@@ -209,11 +209,10 @@ export default function ParentDashboardPage() {
   ];
   
   const parentQuickActions: QuickActionCardProps[] = [
-    { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-requirements", buttonText: "Manage Enquiries" },
-    { title: "Find Tutors", description: "Search for qualified tutors.", IconEl: SearchCheck, href: "/search-tuitions", buttonText: "Search Now" },
-    { title: "My Classes", description: "Track your booked & ongoing classes.", IconEl: CalendarDays, href: "/parent/my-classes", buttonText: "View Classes", disabled: false },
+    { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-enquiries", buttonText: "Manage Enquiries" },
+    { title: "Find Tutors", description: "Search for qualified tutors.", IconEl: SearchCheck, href: "/parent/find-tutor", buttonText: "Search Now" },
+    { title: "Messages", description: "Chat with tutors and support.", IconEl: MessageSquare, href: "/parent/messages", buttonText: "View Messages", disabled: false },
     { title: "Demo Sessions", description: "Manage demo class requests & schedules.", IconEl: MessageSquareQuote, href: "/parent/demo-sessions", buttonText: "Manage Demos", disabled: false },
-    { title: "Student Profiles", description: "Manage your children's profiles.", IconEl: School, href: "/parent/manage-students", buttonText: "View Profiles", disabled: false },
     { title: "My Payments", description: "View your payment history.", IconEl: DollarSign, href: "/parent/payments", buttonText: "View Payments", disabled: false },
     { title: "My Account", description: "Update your profile settings.", IconEl: UserCog, href: "/parent/my-account", buttonText: "Go to Account" },
     { title: "Support", description: "Get help or report issues.", IconEl: LifeBuoy, href: "#", buttonText: "Get Support", disabled: true },
@@ -276,15 +275,6 @@ export default function ParentDashboardPage() {
           </div>
         </div>
 
-        {/* Demo Sessions Summary Card */}
-        <div className="mb-6 md:mb-8">
-          <Card className="bg-card rounded-xl shadow-lg p-6 md:p-8 border-0">
-            <CardHeader className="p-0 pb-3">
-              <CardTitle className="text-lg font-semibold text-foreground">Manage Demo Sessions</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 text-sm text-muted-foreground">View, schedule, and update your demo class details.</CardContent>
-          </Card>
-        </div>
         {/* Parent Insights Section */}
         <div className="mb-6 md:mb-8">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">My Summary</h2>
@@ -339,5 +329,3 @@ export default function ParentDashboardPage() {
     </main>
   );
 }
-
-    

@@ -24,7 +24,7 @@ import {
   LogOut,
   Menu as MenuIcon,
   Bell,
-  SearchCheck, // Added for Find Tutors
+  SearchCheck, 
   MessageSquare
 } from "lucide-react";
 
@@ -64,10 +64,8 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
-    { href: "/parent/my-classes", label: "My Classes", icon: CalendarDays, disabled: false },
-    { href: "/parent/messages", label: "Messages", icon: MessageSquare, disabled: true },
+    { href: "/parent/messages", label: "Messages", icon: MessageSquare, disabled: false },
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
-    { href: "/parent/manage-students", label: "Student Profiles", icon: School, disabled: false },
     { href: "/parent/payments", label: "My Payments", icon: DollarSign, disabled: false },
   ];
 
@@ -115,7 +113,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // No longer depends on verification banner height
+            "sticky top-0 z-30", 
             `h-[${headerHeight}]`
           )}
         >
@@ -187,7 +185,6 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
             "flex-1 flex flex-col overflow-y-auto bg-secondary"
           )}
         >
-          {/* Page content is rendered here. Individual pages will manage their internal padding */}
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
           </div>

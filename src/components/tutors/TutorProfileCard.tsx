@@ -4,15 +4,20 @@
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase, ShieldCheck } from "lucide-react";
+import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase, ShieldCheck, Bookmark } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface TutorProfileCardProps {
   tutor: TutorProfile;
-  parentContextBaseUrl?: string; // New optional prop
+  parentContextBaseUrl?: string;
+  hideRating?: boolean;
+  showFullName?: boolean;
+  showShortlistButton?: boolean;
 }
 
 // Helper component for info items with icons
@@ -27,18 +32,19 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
   );
 };
 
-export function TutorProfileCard({ tutor, parentContextBaseUrl }: TutorProfileCardProps) {
+export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = false, showFullName = false, showShortlistButton = false }: TutorProfileCardProps) {
   const rating = tutor.rating || 0;
-  const [mockReviewCount, setMockReviewCount] = useState<number | 0>(0); // Initialize to 0
+  const [mockReviewCount, setMockReviewCount] = useState<number | 0>(0);
   const [isClient, setIsClient] = useState(false);
+  const [isShortlisted, setIsShortlisted] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    setIsClient(true); // Component has mounted
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
     if (isClient) {
-      // Generate random review count only on client-side after mount
       setMockReviewCount(Math.floor(Math.random() * 50) + 5);
     }
   }, [isClient]);
@@ -46,35 +52,48 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl }: TutorProfileCa
 
   const TeachingModeIcon =
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
-      ? Laptop 
+      ? Laptop
       : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
       ? Laptop
       : Array.isArray(tutor.teachingMode) && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
       ? Users
-      : Laptop; 
+      : Laptop;
 
   const teachingModeText =
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0
       ? tutor.teachingMode.map(mode => mode.replace(" (In-person)", "").replace("Offline", "In-person")).join(' & ')
       : "Not Specified";
-      
+
   let base = parentContextBaseUrl || '/tutors/';
   if (parentContextBaseUrl && !parentContextBaseUrl.endsWith('/')) {
     base += '/';
-  } else if (!parentContextBaseUrl && !base.endsWith('/')) { 
+  } else if (!parentContextBaseUrl && !base.endsWith('/')) {
     base += '/';
   }
   const linkHref = `${base}${tutor.id}`;
+
+  const handleShortlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault(); 
+    e.stopPropagation(); 
+    setIsShortlisted(prev => {
+      const newShortlistStatus = !prev;
+      toast({
+        title: newShortlistStatus ? "Tutor Shortlisted" : "Tutor Removed from Shortlist",
+        description: `${tutor.name} has been ${newShortlistStatus ? 'added to' : 'removed from'} your shortlist.`,
+      });
+      return newShortlistStatus;
+    });
+  };
 
   return (
     <Link href={linkHref} passHref legacyBehavior>
       <a className="block group cursor-pointer h-full">
         <Card className={cn(
           "w-full h-full",
-          "flex flex-col p-4 sm:p-5", // Consistent padding
-          "rounded-xl shadow-lg border border-border/40", // Modern card look
+          "flex flex-col p-4 sm:p-5",
+          "rounded-xl shadow-lg border border-border/40",
           "transition-all duration-300 bg-card",
-          "hover:shadow-xl hover:-translate-y-0.5" // Subtle hover effect
+          "hover:shadow-xl hover:-translate-y-0.5 relative" 
         )}>
           <CardHeader className="flex flex-row items-start justify-between gap-3 p-0 mb-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -84,8 +103,14 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl }: TutorProfileCa
                   {tutor.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+              <div className={cn(
+                "flex-1 min-w-0",
+                showShortlistButton && "pr-8" // Add padding to the right if shortlist button is shown
+              )}>
+                <CardTitle className={cn(
+                  "text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors",
+                  !showFullName && "truncate"
+                )}>
                   {tutor.name}
                 </CardTitle>
                  {Array.isArray(tutor.teachingMode) && tutor.teachingMode.length > 0 && (
@@ -96,10 +121,23 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl }: TutorProfileCa
                 )}
               </div>
             </div>
-            <div className="flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors shrink-0 ml-2 mt-1">
-              <Star className="w-3.5 h-3.5 fill-primary text-primary mr-1" />
-              <span className="font-medium">{typeof rating === 'number' ? rating.toFixed(1) : 'N/A'} ({mockReviewCount})</span>
-            </div>
+            {showShortlistButton && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleShortlistToggle}
+                className="absolute top-1 right-1 h-8 w-8 text-muted-foreground hover:text-primary z-10"
+                aria-label={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+              >
+                <Bookmark className={cn("h-5 w-5 transition-colors", isShortlisted && "fill-primary text-primary")} />
+              </Button>
+            )}
+            {!hideRating && !showShortlistButton && ( 
+              <div className="flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors shrink-0 ml-2 mt-1">
+                <Star className="w-3.5 h-3.5 fill-primary text-primary mr-1" />
+                <span className="font-medium">{typeof rating === 'number' ? rating.toFixed(1) : 'N/A'} ({mockReviewCount})</span>
+              </div>
+            )}
           </CardHeader>
 
           <CardContent className="p-0 space-y-2 flex-grow">
@@ -108,7 +146,7 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl }: TutorProfileCa
             {tutor.boardsTaught && tutor.boardsTaught.length > 0 && (
               <InfoItem icon={ShieldCheck} text={tutor.boardsTaught.join(', ')} className="font-medium"/>
             )}
-            {tutor.experience && <InfoItem icon={Briefcase} text={tutor.experience} className="font-medium"/>} 
+            {tutor.experience && <InfoItem icon={Briefcase} text={tutor.experience} className="font-medium"/>}
           </CardContent>
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">

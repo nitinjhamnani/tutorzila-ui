@@ -1,58 +1,35 @@
+"use client";
 
-import type { Metadata, Viewport } from "next";
-import { Montserrat } from 'next/font/google';
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { Providers } from "./providers";
-// import logoAsset from '@/assets/images/logo.png'; // Not used here
-// import { VerificationBanner } from "@/components/shared/VerificationBanner"; // Removed import
+import type { ReactNode } from 'react';
+import { AppHeader } from '@/components/shared/AppHeader';
+import { AppFooter } from '@/components/shared/AppFooter';
+import { VerificationBanner } from '@/components/shared/VerificationBanner';
+import './globals.css'; // Make sure your global styles are imported
+import { usePathname } from 'next/navigation';
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  variable: '--font-montserrat',
-});
+export default function RootLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
 
-export const metadata: Metadata = {
-  title: "Tutorzila - Find Your Perfect Tutor",
-  description: "Connecting parents with qualified tutors.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Tutorzila",
-  },
-  icons: {
-    icon: "/assets/images/favicon.ico",
-    apple: "/assets/images/tutorzila-apple-touch-icon.png",
-  },
-};
+  // Paths that have their own dedicated layout/header/footer structure
+  // or where the main public header/footer are not desired.
+  const pathsWithDedicatedLayouts = [
+    '/parent',
+    '/tutor',
+    '/auth', // Auth pages like sign-in/sign-up have minimal layout
+    '/faq', // Info pages have their own layout including AppHeader/AppFooter
+    '/terms-and-conditions', // Info pages
+    '/privacy-policy', // Info pages
+  ];
 
-export const viewport: Viewport = {
-  themeColor: "#DE6262",
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-};
+  const showPublicNavigation = !pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
   return (
-    <html lang="en" className={`${montserrat.variable}`} suppressHydrationWarning>
-      <body
-        className="antialiased min-h-screen flex flex-col font-sans tracking-wide"
-      >
-        <Providers>
-          {/* <VerificationBanner /> Removed */}
-          <main className="flex-grow animate-in fade-in duration-500 ease-out"> {/* Removed pt-[var(--verification-banner-height,0px)] */}
-            {children}
-          </main>
-          <Toaster />
-        </Providers>
+    <html>
+      <body>
+        {showPublicNavigation && <VerificationBanner />}
+        {showPublicNavigation && <AppHeader />}
+        {children}
+        {showPublicNavigation && <AppFooter />}
       </body>
     </html>
   );

@@ -3,7 +3,6 @@ export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
   id: string;
-  parentId?: string;
   name: string;
   email: string;
   role: UserRole;
@@ -35,6 +34,7 @@ export interface TuitionRequirement {
   mockIsRecommended?: boolean;
   mockIsAppliedByCurrentUser?: boolean;
   mockIsShortlistedByCurrentUser?: boolean;
+  appliedTutorIds?: string[];
 }
 
 export interface TutorProfile extends User {
@@ -80,6 +80,8 @@ export interface DemoSession {
   mode?: "Online" | "Offline (In-person)";
   feedbackSubmitted?: boolean;
   rescheduleStatus?: 'idle' | 'pending' | 'confirmed';
+  rating?: number; 
+  parentComment?: string; 
 }
 
 export interface MyClass {
@@ -116,6 +118,22 @@ export interface TutorPayment {
   paymentDate?: string; // ISO string, for when it was paid
 }
 
+export interface ParentPayment {
+  id: string;
+  parentId: string;
+  tutorId: string;
+  tutorName: string;
+  tutorAvatarSeed?: string;
+  subject: string; 
+  amount: number;
+  dueDate: string; // ISO string
+  paidDate?: string; // ISO string, if paid
+  status: "Paid" | "Due" | "Upcoming" | "Overdue";
+  invoiceId?: string; 
+  description?: string; // e.g., "Monthly fee for Physics tutoring"
+}
+
+
 export interface TutorLead {
   id: string;
   tutorId: string; // To associate with a tutor
@@ -141,4 +159,26 @@ export interface TutorTransaction {
   date: string; // ISO date string
   summary: string;
   status?: "Success" | "Failed" | "Pending";
+}
+
+export interface ConversationSummary {
+  id: string;
+  tutorId: string;
+  tutorName: string;
+  tutorAvatarSeed: string;
+  lastMessage: string;
+  lastMessageTimestamp: string; // ISO string
+  unreadCount: number;
+  status?: "Online" | "Offline" | "Away"; 
+  enquirySubject?: string; 
+  enquiryId?: string; // Added for more robust linking
+}
+
+export interface Message {
+  id: string;
+  sender: "You" | string; // Allow dynamic sender name (e.g., tutor's name or "System")
+  text?: string; // Text is optional for info_block type
+  timestamp: Date;
+  type?: 'chat' | 'info_block'; // New type property
+  enquiry?: TuitionRequirement; // Property to hold enquiry details for info_block
 }

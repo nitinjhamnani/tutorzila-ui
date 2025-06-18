@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -30,10 +31,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox"; 
+import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock } from "lucide-react"; 
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -61,14 +62,11 @@ const daysOptions: MultiSelectOption[] = [
 ];
 
 const timeSlotsOptions: MultiSelectOption[] = [
-  // Morning
   { value: "0800-1000", label: "8:00 AM - 10:00 AM" },
   { value: "1000-1200", label: "10:00 AM - 12:00 PM" },
-  // Afternoon
   { value: "1200-1400", label: "12:00 PM - 2:00 PM" },
   { value: "1400-1600", label: "2:00 PM - 4:00 PM" },
   { value: "1600-1800", label: "4:00 PM - 6:00 PM" },
-  // Evening
   { value: "1800-2000", label: "6:00 PM - 8:00 PM" },
   { value: "2000-2200", label: "8:00 PM - 10:00 PM" },
   { value: "Flexible", label: "Flexible"},
@@ -76,28 +74,45 @@ const timeSlotsOptions: MultiSelectOption[] = [
 
 
 const postRequirementSchema = z.object({
-  // Step 1
-  name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  phone: z.string().min(10, { message: "Phone number must be at least 10 digits." }).regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format."),
+  // Step 1 - Now optional
+  name: z.string().min(2, { message: "Full name must be at least 2 characters." }).optional().or(z.literal("")),
+  phone: z.string().min(10, { message: "Phone number must be at least 10 digits." }).regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format.").optional().or(z.literal("")),
   // Step 2
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
   // Step 3
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
+  location: z.string().optional().or(z.literal("")), // Added location field
   preferredDays: z.array(z.string()).min(1, { message: "Please select at least one preferred day." }),
   preferredTimeSlots: z.array(z.string()).min(1, { message: "Please select at least one preferred time slot." }),
-});
+  scheduleDetails: z.string().min(10, { message: "Please provide schedule details (at least 10 characters)." }),
+  additionalNotes: z.string().optional(),
+}).refine(data => {
+    // Location is required only if "Offline (In-person)" is selected and the field is actually present in the form data (i.e., step 3 is active)
+    if (data.teachingMode?.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
+      return false;
+    }
+    return true;
+  }, {
+    message: "Location is required for Offline (In-person) teaching mode.",
+    path: ["location"],
+  });
+
 
 type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
+  startFromStep?: 1 | 2;
 }
 
-export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequirementModalProps) {
+  const initialStep = startFromStep;
+  const [currentStep, setCurrentStep] = useState(initialStep);
+  const totalSchemaSteps = 3; // Total steps in the schema
+  const displayTotalSteps = totalSchemaSteps - (initialStep === 2 ? 1 : 0);
+
   const { toast } = useToast();
 
   const form = useForm<PostRequirementFormValues>({
@@ -109,77 +124,93 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
       gradeLevel: "",
       board: "",
       teachingMode: [],
+      location: "",
       preferredDays: [],
       preferredTimeSlots: [],
+      scheduleDetails: "",
+      additionalNotes: "",
     },
   });
 
+  // Reset currentStep if startFromStep changes (e.g., modal re-rendered with different prop)
+  useEffect(() => {
+    setCurrentStep(initialStep);
+  }, [initialStep]);
+
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
-    if (currentStep === 1) {
+    if (currentStep === 1 && initialStep === 1) {
       fieldsToValidate = ['name', 'phone'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['subject', 'gradeLevel', 'board'];
-    } else if (currentStep === 3) {
-      fieldsToValidate = ['teachingMode', 'preferredDays', 'preferredTimeSlots'];
     }
+    // Step 3 fields will be validated by the final submit
 
+    const isValid = fieldsToValidate.length > 0 ? await form.trigger(fieldsToValidate) : true;
 
-    const isValid = await form.trigger(fieldsToValidate);
-    if (isValid) {
+    if (isValid && currentStep < totalSchemaSteps) {
       setCurrentStep((prev) => prev + 1);
-    } else {
+    } else if (!isValid) {
       // Highlight errors for the current step
-      if (currentStep === 1) {
+      if (currentStep === 1 && initialStep === 1) {
         if (form.formState.errors.name) form.setFocus("name");
         else if (form.formState.errors.phone) form.setFocus("phone");
       } else if (currentStep === 2) {
          if (form.formState.errors.subject) { /* Focus handled by FormMessage */ }
          else if (form.formState.errors.gradeLevel) form.setFocus("gradeLevel");
          else if (form.formState.errors.board) form.setFocus("board");
-      } else if (currentStep === 3) {
-        if (form.formState.errors.teachingMode) { /* Focus handled by FormMessage */ }
-        else if (form.formState.errors.preferredDays) { /* Focus handled by FormMessage */ }
-        else if (form.formState.errors.preferredTimeSlots) { /* Focus handled by FormMessage */ }
       }
     }
   };
 
   const handlePrevious = () => {
-    setCurrentStep((prev) => prev - 1);
+    if (currentStep > initialStep) {
+      setCurrentStep((prev) => prev - 1);
+    }
   };
 
   const onSubmit: SubmitHandler<PostRequirementFormValues> = (data) => {
-    console.log("Tuition Requirement Submitted:", data);
+    // If step 1 was skipped, name and phone won't be in `data` from the form.
+    // In a real app, you'd fetch the logged-in user's details here.
+    const submissionData = { ...data };
+    if (initialStep === 2) {
+      // Remove potentially empty name/phone from submission if step 1 was skipped
+      // and rely on backend to associate with logged-in user.
+      // For mock, this is fine.
+    }
+    console.log("Tuition Requirement Submitted:", submissionData);
     toast({
       title: "Requirement Submitted!",
       description: "Your tuition requirement has been successfully posted. Tutors will reach out soon.",
       duration: 5000,
     });
     form.reset();
-    setCurrentStep(1);
+    setCurrentStep(initialStep); // Reset to the starting step for this modal instance
     onSuccess(); // Close the modal
   };
+
+  const displayCurrentStepForProgress = currentStep - initialStep + 1;
+  const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
 
   return (
     <div className="bg-card p-0 rounded-lg">
       <DialogHeader className="text-left pt-6 px-6">
         <DialogTitle className="text-2xl font-semibold">Post Your Tuition Requirement</DialogTitle>
         <DialogDescription>
-          Fill in the details below in {totalSteps} easy steps to find the perfect tutor.
+          Fill in the details below in {displayTotalSteps} easy step{displayTotalSteps > 1 ? 's' : ''} to find the perfect tutor.
         </DialogDescription>
       </DialogHeader>
 
       <div className="my-6 px-6">
-        <Progress value={(currentStep / totalSteps) * 100} className="w-full h-2" />
+        <Progress value={(displayCurrentStepForProgress / displayTotalSteps) * 100} className="w-full h-2" />
         <p className="text-sm text-muted-foreground mt-2 text-center font-medium">
-          Step {currentStep} of {totalSteps}
+          Step {displayCurrentStepForProgress} of {displayTotalSteps}
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6">
-          {currentStep === 1 && (
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[65vh] overflow-y-auto">
+          {currentStep === 1 && initialStep === 1 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Personal Details</h3>
               <FormField
@@ -222,7 +253,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                     <FormLabel>Subjects</FormLabel>
                     <MultiSelectCommand
                       options={subjectsList}
-                      selectedValues={field.value}
+                      selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select subjects..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
@@ -238,7 +269,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Grade Level</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
                       </FormControl>
@@ -256,7 +287,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Board (e.g., CBSE, ICSE, State)</FormLabel>
-                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                     <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a board" /></SelectTrigger>
                       </FormControl>
@@ -273,7 +304,7 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
 
           {currentStep === 3 && (
             <div className="space-y-6 animate-in fade-in duration-300">
-              <h3 className="text-lg font-semibold flex items-center text-primary"><Settings2 className="mr-2 h-5 w-5" />Preferences</h3>
+              <h3 className="text-lg font-semibold flex items-center text-primary"><Settings2 className="mr-2 h-5 w-5" />Preferences & Details</h3>
               
               <FormField
                 control={form.control}
@@ -314,6 +345,22 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                   </FormItem>
                 )}
               />
+              
+              {isOfflineModeSelected && (
+                 <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
+                      <FormControl>
+                      <Input placeholder="e.g., Student's Home, City Center Library" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+              )}
 
               <FormField
                 control={form.control}
@@ -352,24 +399,58 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="scheduleDetails"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Schedule Details & Other Notes</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="e.g., Weekdays after 5 PM, 2-3 times a week. Student needs help with exam preparation..."
+                        className="resize-none bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"
+                        {...field}
+                        rows={3}
+                      />
+                    </FormControl>
+                     <FormDescription>Provide specific timings, frequency, and goals.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="additionalNotes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Any other specific requirements or notes for the tutor." {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           )}
 
           <DialogFooter className="gap-2 sm:justify-between pt-6">
             <div>
-              {currentStep > 1 && (
+              {currentStep > initialStep && (
                 <Button type="button" variant="outline" onClick={handlePrevious} className="transform transition-transform hover:scale-105 active:scale-95">
                   <ArrowLeft className="mr-2 h-4 w-4" /> Previous
                 </Button>
               )}
             </div>
             <div>
-              {currentStep < totalSteps && (
+              {currentStep < totalSchemaSteps && (
                 <Button type="button" onClick={handleNext} className="transform transition-transform hover:scale-105 active:scale-95">
                   Next <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
-              {currentStep === totalSteps && (
+              {currentStep === totalSchemaSteps && (
                 <Button type="submit" disabled={form.formState.isSubmitting} className="transform transition-transform hover:scale-105 active:scale-95">
                   <Send className="mr-2 h-4 w-4" />
                   {form.formState.isSubmitting ? "Submitting..." : "Submit Requirement"}
@@ -382,4 +463,3 @@ export function PostRequirementModal({ onSuccess }: PostRequirementModalProps) {
     </div>
   );
 }
-

@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MessageModal } from "@/components/modals/MessageModal";
+import { ScheduleDemoRequestModal } from "@/components/modals/ScheduleDemoRequestModal";
 
 import {
   Briefcase,
@@ -47,16 +48,15 @@ import {
   Quote,
   UserX,
   CalendarClock,
-  Clock as ClockIcon, // Renamed to avoid conflict
+  Clock as ClockIcon, 
   CalendarDays,
   Share2,
   Copy,
   MessageSquareQuote,
-  User as UserProfileIcon, // Using User as UserProfileIcon
+  User as UserProfileIcon, 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
-// Removed FloatingPostRequirementButton as it's not typically needed on a detail page within a dashboard
 
 const subjectIcons: { [key: string]: React.ElementType } = {
   Mathematics: Calculator,
@@ -115,9 +115,12 @@ export default function ParentTutorProfilePage() {
   const [hasMounted, setHasMounted] = useState(false);
 
   const [showContactCard, setShowContactCard] = useState(false);
-  const [currentEnquiryContext, setCurrentEnquiryContext] = useState<string | undefined>(undefined);
+  const [currentEnquiryContext, setCurrentEnquiryContext] = useState<TuitionRequirement | undefined>(undefined);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [messageHistory, setMessageHistory] = useState<MessageType[]>([]);
+  
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [selectedTutorForDemo, setSelectedTutorForDemo] = useState<TutorProfile | null>(null);
 
 
   useEffect(() => {
@@ -138,6 +141,7 @@ export default function ParentTutorProfilePage() {
       const foundTutor = MOCK_TUTOR_PROFILES.find((t) => t.id === idFromParams);
       if (foundTutor) {
         setTutor(foundTutor);
+        setSelectedTutorForDemo(foundTutor); // Pre-select for demo modal
 
         const parentEnquiries = MOCK_ALL_PARENT_REQUIREMENTS.filter(
           (req) => req.parentId === parentUser.id
@@ -148,14 +152,14 @@ export default function ParentTutorProfilePage() {
 
         if (relevantEnquiry) {
           setShowContactCard(true);
-          const subjectText = Array.isArray(relevantEnquiry.subject) ? relevantEnquiry.subject.join(', ') : relevantEnquiry.subject;
-          setCurrentEnquiryContext(subjectText);
+          setCurrentEnquiryContext(relevantEnquiry);
           setMessageHistory([
-            { id: "msg1_tutor", sender: foundTutor.name, text: `Hello ${parentUser.name}, I saw your enquiry for ${subjectText} and I'm interested.`, timestamp: new Date(Date.now() - 3600000 * 3) },
-            { id: "msg2_parent", sender: "You", text: `Hi ${foundTutor.name}, thanks for your interest! Could you tell me more about your experience?`, timestamp: new Date(Date.now() - 3600000 * 2) }
+            { id: "msg1_tutor", sender: foundTutor.name, text: `Hello ${parentUser.name}, I saw your enquiry for ${ Array.isArray(relevantEnquiry.subject) ? relevantEnquiry.subject.join(', ') : relevantEnquiry.subject} and I'm interested.`, timestamp: new Date(Date.now() - 3600000 * 3), type: 'chat' },
+            { id: "msg2_parent", sender: "You", text: `Hi ${foundTutor.name}, thanks for your interest! Could you tell me more about your experience?`, timestamp: new Date(Date.now() - 3600000 * 2), type: 'chat' }
           ]);
         } else {
           setShowContactCard(false);
+          setCurrentEnquiryContext(undefined);
         }
 
       } else {
@@ -166,11 +170,17 @@ export default function ParentTutorProfilePage() {
   }, [idFromParams, hasMounted, isAuthenticated, isCheckingAuth, parentUser, router]);
 
 
-  const handleScheduleDemo = (tutorId: string, tutorName: string) => {
-    console.log("Schedule Demo Clicked for tutor ID:", tutorId, "Name:", tutorName);
+  const handleScheduleDemoClick = (tutorToSchedule: TutorProfile) => {
+    setSelectedTutorForDemo(tutorToSchedule);
+    setIsDemoModalOpen(true);
+  };
+
+  const handleDemoRequestSuccess = () => {
+    setIsDemoModalOpen(false);
+    setSelectedTutorForDemo(null); // Clear selection after modal closes
     toast({
-      title: "Schedule Demo (Coming Soon)",
-      description: `Functionality to schedule a demo with ${tutorName} will be implemented here.`,
+      title: "Demo Request Sent!",
+      description: "The tutor will be notified of your demo request.",
     });
   };
 
@@ -202,9 +212,10 @@ export default function ParentTutorProfilePage() {
     if (!tutor || !parentUser) return;
     const myMessage: MessageType = {
       id: `msg${messageHistory.length + 1}`,
-      sender: "You", // Parent is "You" in this context
+      sender: "You", 
       text: messageText,
       timestamp: new Date(),
+      type: 'chat',
     };
     const updatedHistory = [...messageHistory, myMessage];
     setMessageHistory(updatedHistory);
@@ -215,6 +226,7 @@ export default function ParentTutorProfilePage() {
         sender: tutor.name,
         text: "Thanks for your message! I'll get back to you shortly.",
         timestamp: new Date(),
+        type: 'chat',
       };
       setMessageHistory(prev => [...prev, tutorReply]);
     }, 1500);
@@ -289,8 +301,9 @@ export default function ParentTutorProfilePage() {
   return (
     <main className="flex-grow">
       <div className="max-w-6xl mx-auto animate-in fade-in duration-500 ease-out py-6 md:py-10 px-4 sm:px-6 md:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-0">
-          <aside className="lg:col-span-1 space-y-6">
+        <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
+          {/* Left Sidebar/Column */}
+          <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-[calc(var(--header-height,0px)+1.5rem)] lg:self-start lg:max-h-[calc(100vh-var(--header-height,0px)-3rem)] lg:overflow-y-auto lg:pr-4 lg:scrollbar-thin">
             <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
               <CardContent className="pt-6 text-center">
                 <Avatar className="w-28 h-28 border-4 border-card shadow-md ring-2 ring-primary/40 mx-auto">
@@ -322,7 +335,7 @@ export default function ParentTutorProfilePage() {
                  <Button
                     variant="default"
                     className="w-full text-sm py-2.5"
-                    onClick={() => handleScheduleDemo(tutor.id, tutor.name)}
+                    onClick={() => handleScheduleDemoClick(tutor)}
                  >
                     <CalendarDays className="mr-2 h-4 w-4" /> Schedule Demo
                  </Button>
@@ -342,9 +355,11 @@ export default function ParentTutorProfilePage() {
                   <CardTitle className="text-base font-semibold text-primary flex items-center">
                     <MessageSquareQuote className="w-3.5 h-3.5 mr-2" /> Contact Information
                   </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground">
-                    This tutor has shown interest in your requirement for "{currentEnquiryContext}".
-                  </CardDescription>
+                   {currentEnquiryContext && (
+                    <CardDescription className="text-xs text-muted-foreground">
+                        This tutor has shown interest in your requirement for "{Array.isArray(currentEnquiryContext.subject) ? currentEnquiryContext.subject.join(', ') : currentEnquiryContext.subject}".
+                    </CardDescription>
+                   )}
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between p-2.5 border rounded-md bg-background/50">
@@ -375,11 +390,12 @@ export default function ParentTutorProfilePage() {
             )}
           </aside>
 
+          {/* Right Column (Main content) */}
           <section className="lg:col-span-2 space-y-6">
              <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-semibold text-primary flex items-center">
-                  <UserProfileIcon className="w-3.5 h-3.5 mr-2"/> About Me {/* Changed from Sparkles */}
+                  <UserProfileIcon className="w-3.5 h-3.5 mr-2"/> About Me
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -466,10 +482,37 @@ export default function ParentTutorProfilePage() {
             isOpen={isMessageModalOpen}
             onOpenChange={setIsMessageModalOpen}
             leadName={tutor.name}
-            enquirySubject={currentEnquiryContext}
+            enquirySubject={currentEnquiryContext ? (Array.isArray(currentEnquiryContext.subject) ? currentEnquiryContext.subject.join(', ') : currentEnquiryContext.subject) : undefined}
             initialMessages={messageHistory}
             onSendMessage={handleSendMessage}
         />
+      )}
+       {selectedTutorForDemo && parentUser && (
+        <Dialog open={isDemoModalOpen} onOpenChange={setIsDemoModalOpen}>
+          <DialogContent className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-full text-primary">
+                        <MessageSquareQuote className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <ShadDialogTitle className="text-lg font-semibold text-foreground">
+                         Request a Demo with {selectedTutorForDemo.name}
+                        </ShadDialogTitle>
+                        <ShadDialogDescription className="text-sm text-muted-foreground mt-0.5">
+                         Fill in your preferred details for the demo session.
+                        </ShadDialogDescription>
+                    </div>
+                </div>
+            </DialogHeader>
+            <ScheduleDemoRequestModal
+              tutor={selectedTutorForDemo}
+              parentUser={parentUser}
+              enquiryContext={currentEnquiryContext}
+              onSuccess={handleDemoRequestSuccess}
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </main>
   );

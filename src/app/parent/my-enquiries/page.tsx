@@ -21,14 +21,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription as DialogDesc, // Renamed to avoid conflict
-  DialogFooter,
-  DialogClose,
-  DialogTrigger,
+  Dialog, // Import Dialog
+  DialogTrigger, 
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -62,8 +56,7 @@ import {
   Users as UsersIcon,
   PlusCircle,
 } from "lucide-react";
-// import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal"; // Removed this import
-import { PostRequirementModal } from "@/components/modals/PostRequirementModal";
+import { CreateEnquiryFormModal } from "@/components/parent/modals/CreateEnquiryFormModal";
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
 
@@ -93,10 +86,7 @@ export default function ParentMyEnquiriesPage() {
   const [startClassesConfirmation, setStartClassesConfirmation] = useState< "yes" | "no" | "">("");
   const [selectedRequirementForAction, setSelectedRequirementForAction] = useState<TuitionRequirement | null>(null);
 
-  // Removed state related to direct edit modal from this page
-  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  // const [selectedEnquiryForEdit, setSelectedEnquiryForEdit] = useState<TuitionRequirement | null>(null);
-  const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
+  const [isCreateEnquiryModalOpen, setIsCreateEnquiryModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -130,16 +120,6 @@ export default function ParentMyEnquiriesPage() {
       (req) => req.status.toLowerCase() === activeFilterCategory.toLowerCase()
     );
   }, [allRequirements, activeFilterCategory]);
-
-  // handleEdit function is removed as editing is now via detail page
-  // const handleEdit = (requirement: TuitionRequirement) => {
-  //   setSelectedEnquiryForEdit(requirement);
-  //   setIsEditModalOpen(true);
-  // };
-
-  // handleUpdateEnquiryInList function is removed
-  // const handleUpdateEnquiryInList = (updatedData: Partial<TuitionRequirement>) => { ... };
-
 
   const handleOpenDeleteConfirm = (requirement: TuitionRequirement) => {
     setSelectedRequirementForAction(requirement);
@@ -224,7 +204,7 @@ export default function ParentMyEnquiriesPage() {
       if (mockIndex > -1) {
         MOCK_ALL_PARENT_REQUIREMENTS[mockIndex].status = "open";
       }
-      router.push(`/parent/my-enquiries/edit/${id}`); // Navigate to specific edit page
+      router.push(`/parent/my-enquiries/${id}`); 
     }
   };
   
@@ -241,68 +221,46 @@ export default function ParentMyEnquiriesPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* BreadcrumbHeader removed */}
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
-          <CardHeader className="p-0 mb-3 flex flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex-grow min-w-0">
-              <CardTitle className="text-xl font-semibold text-primary flex items-center">
-                <ListChecks className="w-5 h-5 mr-2.5" />
-                My Enquiries
-              </CardTitle>
-              <CardDescription className="text-sm text-foreground/70 mt-1">
-                Manage your posted tuition requirements and track their status.
-              </CardDescription>
-            </div>
-            <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
+        <Dialog open={isCreateEnquiryModalOpen} onOpenChange={setIsCreateEnquiryModalOpen}>
+          <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
+            <CardHeader className="p-0 mb-0 flex flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex-grow min-w-0">
+                <CardTitle className="text-xl font-semibold text-primary flex items-center">
+                  <ListChecks className="w-5 h-5 mr-2.5" />
+                  My Enquiries
+                </CardTitle>
+                <CardDescription className="text-sm text-foreground/70 mt-1">
+                  Manage your posted tuition requirements and track their status.
+                </CardDescription>
+              </div>
               <DialogTrigger asChild>
-                 <Button
-                    variant="default"
-                    size="sm"
-                    className={cn(
-                        "text-xs sm:text-sm py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
-                    )}
-                  >
-                    <PlusCircle className="w-4 h-4 opacity-90 md:mr-1.5" />
-                    <span className="hidden md:inline">Create Enquiry</span>
-                  </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
-                <PostRequirementModal onSuccess={() => { setIsPostRequirementModalOpen(false); /* TODO: Refresh list */ }} />
-              </DialogContent>
-            </Dialog>
-          </CardHeader>
-          <CardContent className="p-0 mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <ListChecks className="w-5 h-5 mr-3 text-primary" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Total Enquiries</p>
-                    <p className="text-xl font-semibold text-primary">{categoryCounts.All}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <Eye className="w-5 h-5 mr-3 text-green-600" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Open Enquiries</p>
-                    <p className="text-xl font-semibold text-green-600">{categoryCounts.Open}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <Archive className="w-5 h-5 mr-3 text-gray-600" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Closed Enquiries</p>
-                    <p className="text-xl font-semibold text-gray-600">{categoryCounts.Closed}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                  <Button
+                      variant="default"
+                      size="sm"
+                      className={cn(
+                          "text-xs sm:text-sm py-2.5 md:px-3 px-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                      )}
+                    >
+                      <PlusCircle className="w-4 h-4 opacity-90 md:mr-1.5" />
+                      <span className="hidden md:inline">Create Enquiry</span>
+                    </Button>
+                </DialogTrigger>
+            </CardHeader>
+          </Card>
+          
+          <CreateEnquiryFormModal
+              onSuccess={() => {
+                  if (user) { 
+                      const parentRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(
+                          (req) => req.parentId === user.id
+                      );
+                      setAllRequirements(parentRequirements);
+                  }
+                  setIsCreateEnquiryModalOpen(false); // Close modal on success
+              }}
+          />
+        </Dialog>
+
 
         <div className="flex justify-end mb-4 sm:mb-6">
             <DropdownMenu>
@@ -347,7 +305,7 @@ export default function ParentMyEnquiriesPage() {
               <ParentEnquiryCard
                 key={req.id}
                 requirement={req}
-                // onEdit is removed as editing is now via detail page's modal
+                onEdit={() => router.push(`/parent/my-enquiries/${req.id}`)}
                 onDelete={() => handleOpenDeleteConfirm(req)}
                 onClose={() => handleOpenCloseEnquiryModal(req)}
                 onReopen={() => handleReopen(req.id)}
@@ -375,7 +333,7 @@ export default function ParentMyEnquiriesPage() {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently delete your
-                  tuition requirement for "{Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}".
+                  tuition requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}".
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -396,9 +354,9 @@ export default function ParentMyEnquiriesPage() {
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Close Enquiry: {Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}</DialogTitle>
-                <DialogDesc>
+                <DialogDescription> 
                   Please provide some details before closing this requirement.
-                </DialogDesc>
+                </DialogDescription>
               </DialogHeader>
               {closeEnquiryStep === 1 && (
                 <div className="py-4 space-y-4">
@@ -443,8 +401,8 @@ export default function ParentMyEnquiriesPage() {
             </DialogContent>
           </Dialog>
         )}
-        {/* ParentEnquiryModal import and usage removed as editing is now from detail page */}
       </div>
     </main>
   );
 }
+
