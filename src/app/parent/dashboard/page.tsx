@@ -276,6 +276,15 @@ export default function ParentDashboardPage() {
           </div>
         </div>
 
+        {/* Demo Sessions Summary Card */}
+        <div className="mb-6 md:mb-8">
+          <Card className="bg-card rounded-xl shadow-lg p-6 md:p-8 border-0">
+            <CardHeader className="p-0 pb-3">
+              <CardTitle className="text-lg font-semibold text-foreground">Manage Demo Sessions</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 text-sm text-muted-foreground">View, schedule, and update your demo class details.</CardContent>
+          </Card>
+        </div>
         {/* Parent Insights Section */}
         <div className="mb-6 md:mb-8">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">My Summary</h2>
