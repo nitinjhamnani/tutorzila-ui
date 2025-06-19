@@ -17,7 +17,7 @@ import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import {
   LayoutGrid,
-  User,
+  User as UserIconLucide, // Renamed to avoid conflict
   MessageSquare,
   Percent,
   Star,
@@ -34,12 +34,12 @@ import {
   Presentation,
   RadioTower,
   Clock as ClockIcon,
-  Image as LucideImage, // Alias Image from lucide-react
+  Image as LucideImage, 
   BookOpen as BookOpenIcon,
   Globe as GlobeIcon,
   FileText,
   Palette,
-  Link as LinkIcon,
+  Link as LinkIconLucide, // Renamed to avoid conflict
   UploadCloud,
   Ruler,
   Filter as FilterIconLucide,
@@ -57,11 +57,10 @@ import {
   Info,
   Bell,
   PlusCircle,
-  Send, // Added Send icon import
+  Send, 
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
 
-// Define props for the QuickActionCard
 interface QuickActionCardProps {
   title: string;
   description: string;
@@ -71,7 +70,6 @@ interface QuickActionCardProps {
   buttonText?: string;
 }
 
-// QuickActionCard component definition (remains at top level)
 function QuickActionCard({ title, description, IconEl, href, disabled, buttonText }: QuickActionCardProps) {
   const content = (
     <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
@@ -130,7 +128,7 @@ export default function TutorDashboardPage() {
   useEffect(() => {
     if (tutorUser) {
       let completedFields = 0;
-      const totalFields = 5; // Number of fields contributing to profile completion
+      const totalFields = 5; 
       if (tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh')) completedFields++;
       if (tutorUser.subjects && tutorUser.subjects.length > 0) completedFields++;
       if (tutorUser.bio && tutorUser.bio.trim() !== "") completedFields++;
@@ -142,20 +140,33 @@ export default function TutorDashboardPage() {
 
   const [mockInsights, setMockInsights] = useState({
     leadBalance: 0,
-    activeLeads: 0,
-    demosCompleted: 0,
+    demosScheduled: 0, 
     profileViews: 0,
-    applicationsSent: 0,
-    upcomingDemosCount: 0,
   });
 
-  useEffect(() => {
-    if (tutorUser) {
-      // Filter demos relevant to the current tutor
+ useEffect(() => {
+    if (tutorUser && hasMounted) {
       const tutorDemos = MOCK_DEMO_SESSIONS.filter(
         d => d.tutorId === tutorUser.id || d.tutorName === tutorUser.name
       );
-      // Filter classes relevant to the current tutor
+      const scheduledDemosCount = tutorDemos.filter(
+        d => d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0, 0, 0, 0))
+      ).length;
+
+      setMockInsights(prev => ({
+        leadBalance: prev.leadBalance || (Math.floor(Math.random() * 50) + 10),
+        profileViews: prev.profileViews || (Math.floor(Math.random() * 200) + 50),
+        demosScheduled: scheduledDemosCount,
+      }));
+    }
+  }, [tutorUser, hasMounted]);
+
+
+  useEffect(() => {
+    if (tutorUser && hasMounted) { // Ensure hasMounted is true before this runs
+      const tutorDemos = MOCK_DEMO_SESSIONS.filter(
+        d => d.tutorId === tutorUser.id || d.tutorName === tutorUser.name
+      );
       const tutorClasses = MOCK_CLASSES.filter(
         c => c.tutorId === tutorUser.id || c.tutorName === tutorUser.name
       );
@@ -170,17 +181,6 @@ export default function TutorDashboardPage() {
 
       const combined = [...upcomingDemosFiltered, ...upcomingRegClassesFiltered].sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
       setUpcomingSessions(combined);
-
-      // Update insights (random parts only on initial relevant user load)
-      setMockInsights(prev => ({
-        ...prev,
-        leadBalance: prev.leadBalance || (Math.floor(Math.random() * 50) + 10),
-        activeLeads: prev.activeLeads || (Math.floor(Math.random() * 10) + 2),
-        profileViews: prev.profileViews || (Math.floor(Math.random() * 200) + 50),
-        applicationsSent: prev.applicationsSent || (Math.floor(Math.random() * 30) + 5),
-        demosCompleted: tutorDemos.filter(d => d.status === "Completed").length,
-        // upcomingDemosCount: upcomingDemosFiltered.length, // Renamed to upcomingDemosCount
-      }));
     }
   }, [tutorUser, hasMounted]);
 
@@ -193,7 +193,6 @@ export default function TutorDashboardPage() {
     const file = event.target.files?.[0];
     if (file) {
       toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
-      // In a real app, you would upload the file and update user.avatar
     }
   };
 
@@ -205,11 +204,14 @@ export default function TutorDashboardPage() {
           : session
       ).sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime())
     );
-    // Also update the MOCK_DEMO_SESSIONS array if needed for global consistency
     const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === updatedDemo.id);
     if (demoIndexInMock > -1) {
       MOCK_DEMO_SESSIONS[demoIndexInMock] = updatedDemo;
     }
+    setMockInsights(prev => ({
+      ...prev,
+      demosScheduled: MOCK_DEMO_SESSIONS.filter(d => (d.tutorId === tutorUser?.id || d.tutorName === tutorUser?.name) && d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0,0,0,0))).length,
+    }));
     toast({ title: "Demo Updated", description: `Demo with ${updatedDemo.studentName} updated.` });
     setIsManageDemoModalOpen(false);
   };
@@ -222,11 +224,14 @@ export default function TutorDashboardPage() {
           : session
       )
     );
-     // Also update the MOCK_DEMO_SESSIONS array
     const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === sessionId);
     if (demoIndexInMock > -1) {
       MOCK_DEMO_SESSIONS[demoIndexInMock].status = "Cancelled";
     }
+     setMockInsights(prev => ({
+      ...prev,
+      demosScheduled: MOCK_DEMO_SESSIONS.filter(d => (d.tutorId === tutorUser?.id || d.tutorName === tutorUser?.name) && d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0,0,0,0))).length,
+    }));
     toast({ title: "Demo Cancelled", variant: "destructive" });
     setIsManageDemoModalOpen(false);
   };
@@ -235,16 +240,13 @@ export default function TutorDashboardPage() {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Dashboard...</div>;
   }
   if (tutorUser.role !== 'tutor') {
-     // This case should ideally be handled by the redirect in useEffect, but as a fallback
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Access Denied.</div>;
   }
 
   const dashboardMetrics = [
     { title: "Lead Balance", value: String(mockInsights.leadBalance), IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Active Leads", value: String(mockInsights.activeLeads), IconEl: UsersIcon, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Demos Completed", value: String(mockInsights.demosCompleted), IconEl: CheckCircle2, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Demo Scheduled", value: String(mockInsights.demosScheduled), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Profile Views", value: String(mockInsights.profileViews), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Applications Sent", value: String(mockInsights.applicationsSent), IconEl: Send, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Avg. Rating", value: tutorUser.rating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
   ];
 
@@ -263,7 +265,6 @@ export default function TutorDashboardPage() {
   return (
         <main className="flex-grow">
             <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-                {/* Welcome Section */}
                 <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                         <div className="flex items-center gap-4">
@@ -334,22 +335,15 @@ export default function TutorDashboardPage() {
                     </div>
                 </div>
                 
-                {/* Dashboard Metrics Section */}
                 <div className="mb-6 md:mb-8">
                     <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">My Insights</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
                         {dashboardMetrics.map((metric, index) => (
                             <Card key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <p className="text-xs text-muted-foreground">{metric.title}</p>
                                         <h3 className={cn("text-xl md:text-2xl font-semibold mt-0.5", metric.iconColor)}>{metric.value}</h3>
-                                        {metric.trend && (
-                                          <div className="flex items-center mt-1 text-xs">
-                                              {metric.TrendIconEl && <metric.TrendIconEl className={cn("w-3 h-3", metric.trendColor)} />}
-                                              <span className={cn("font-medium", metric.trendColor, metric.TrendIconEl && "ml-1")}>{metric.trend}</span>
-                                          </div>
-                                        )}
                                     </div>
                                     {metric.IconEl && (
                                       <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", metric.iconBg, metric.iconColor)}>
@@ -362,7 +356,6 @@ export default function TutorDashboardPage() {
                     </div>
                 </div>
                 
-                {/* Upcoming Sessions Section */}
                 <div className="mb-6 md:mb-8">
                     <div className="flex justify-between items-center mb-3 sm:mb-4">
                         <h2 className="text-base sm:text-lg font-semibold text-foreground">Upcoming Sessions</h2>
@@ -391,7 +384,6 @@ export default function TutorDashboardPage() {
                     )}
                 </div>
                 
-                {/* Quick Actions Section */}
                 <div className="mb-6 md:mb-8">
                     <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Quick Actions</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
@@ -422,3 +414,4 @@ export default function TutorDashboardPage() {
     );
 }
 
+    
