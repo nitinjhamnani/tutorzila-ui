@@ -101,8 +101,11 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       email: values.email,
       userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
       countryCode: values.countryCode,
-      ...(values.localPhoneNumber && { phone: values.localPhoneNumber }),
     };
+    if (values.localPhoneNumber && values.localPhoneNumber.trim() !== "") {
+      apiRequestBody.phone = values.localPhoneNumber;
+    }
+
 
     try {
       const response = await fetch('http://localhost:8080/api/auth/signup', {
@@ -115,42 +118,69 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       });
 
       let responseData: any;
-      let errorPayloadMessage: string | undefined;
+      let errorMessageToShow: string | undefined;
 
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await response.json();
-        // Check for logical errors even if HTTP status is ok, or if HTTP status is not ok.
-        if (!response.ok || (responseData && responseData.message !== "Success")) {
-          errorPayloadMessage = responseData?.message;
+      if (!response.ok) { // Handle all non-2xx responses (e.g., 400, 401, 500)
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            responseData = await response.json();
+            errorMessageToShow = responseData?.message || `Server Error: ${response.status}`;
+          } catch (jsonError) {
+            console.error("Failed to parse JSON error response:", jsonError);
+            // Try to get text if JSON parsing fails for a non-OK response
+            try {
+              const textError = await response.text();
+              errorMessageToShow = textError.trim() || `Server Error: ${response.status} (unreadable JSON response)`;
+            } catch (e) {
+              errorMessageToShow = `Server Error: ${response.status} (unreadable response)`;
+            }
+          }
+        } else {
+          // Non-JSON error response
+          try {
+            const textError = await response.text();
+            errorMessageToShow = textError.trim() || `Server Error: ${response.status}`;
+          } catch (e) {
+            errorMessageToShow = `Server Error: ${response.status} (unreadable response)`;
+          }
         }
-      } else if (!response.ok) {
-        // If not JSON and response is not ok, try to get text as error message
-        errorPayloadMessage = await response.text();
+        
+        toast({
+          variant: "destructive",
+          title: "Sign Up Failed",
+          description: errorMessageToShow,
+        });
+        setIsSubmitting(false);
+        return; // Stop further processing
       }
 
-      if (response.ok && responseData?.message === "Success") {
+      // If response.ok is true, attempt to parse JSON
+      responseData = await response.json();
+
+      if (responseData?.message === "Success") {
         toast({
           title: "Account Created!",
           description: `Welcome, ${values.name}! Your account has been successfully created as a ${responseData.type}.`,
         });
         console.log("Signup Token:", responseData.token);
         
+        // Use the role from the API response for login, as it's the source of truth
         await login(values.email, responseData.type.toLowerCase() as UserRole);
         
         if (onSuccess) onSuccess();
         if (onClose) onClose();
 
       } else {
-        const finalErrorMessage = errorPayloadMessage || "An unexpected error occurred. Please try again.";
+        // This case handles 2xx responses that are not logically "Success" (e.g., backend sends 200 OK but with an error message)
         toast({
           variant: "destructive",
-          title: "Sign Up Failed",
-          description: finalErrorMessage,
+          title: "Sign Up Issue",
+          description: responseData?.message || "An unexpected issue occurred with the server's response.",
         });
       }
-    } catch (error) { // This catches network errors or truly unexpected issues during fetch/parsing
-      console.error("Signup API error:", error);
+    } catch (error) { // Catches network errors or other truly unexpected issues during fetch/initial parsing
+      console.error("Signup API error (network or unexpected):", error);
       toast({
         variant: "destructive",
         title: "Sign Up Error",
