@@ -40,12 +40,12 @@ const signUpSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
-}); // Removed password and confirmPassword refinement
+});
 
 interface SignUpFormProps { 
-  onSuccess?: () => void; // Added onSuccess prop
+  onSuccess?: () => void;
   onSwitchForm: (formType: 'signin' | 'signup') => void; 
-  onClose?: () => void; // Added onClose prop
+  onClose?: () => void;
 }
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
@@ -58,7 +58,7 @@ const MOCK_COUNTRY_CODES = [
 ];
 
 export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps) {
-  const { login } = useAuthMock(); // useAuthMock still used for setting client-side session after API success
+  const { login } = useAuthMock();
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,7 +95,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       name: values.name,
       email: values.email,
       userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
-      ...(fullPhoneNumber && { phone: fullPhoneNumber }), // Conditionally add phone
+      ...(fullPhoneNumber && { phone: fullPhoneNumber }),
     };
 
     try {
@@ -115,20 +115,20 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
           title: "Account Created!",
           description: `Welcome, ${values.name}! Your account has been successfully created as a ${responseData.type}.`,
         });
-        console.log("Signup Token:", responseData.token); // Log token for now
+        console.log("Signup Token:", responseData.token);
         
-        // Use mock login to set user state and redirect
         await login(values.email, responseData.type.toLowerCase() as UserRole);
         
-        if (onSuccess) onSuccess(); // Call onSuccess if provided (e.g., to close modal)
+        if (onSuccess) onSuccess();
         if (onClose) onClose();
 
-
       } else {
+        // Use backend message if available, otherwise generic error
+        const errorMessage = responseData?.message || "An unexpected error occurred. Please try again.";
         toast({
           variant: "destructive",
           title: "Sign Up Failed",
-          description: responseData.message || "An unexpected error occurred. Please try again.",
+          description: errorMessage,
         });
       }
     } catch (error) {
