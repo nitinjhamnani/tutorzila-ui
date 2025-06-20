@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, Users, School, CheckSquare, Phone } from "lucide-react"; // Removed Lock
+import { Mail, User, Users, School, CheckSquare, Phone } from "lucide-react"; 
 
 import { Button } from "@/components/ui/button";
 import {
@@ -90,13 +90,20 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
     }
     setIsSubmitting(true);
 
-    const fullPhoneNumber = values.localPhoneNumber ? `${values.countryCode.replace(/\D/g, '')}${values.localPhoneNumber}` : undefined;
-    const apiRequestBody = {
+    const apiRequestBody: {
+        name: string;
+        email: string;
+        userType: 'PARENT' | 'TUTOR';
+        countryCode: string;
+        phone?: string;
+    } = {
       name: values.name,
       email: values.email,
       userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
-      ...(fullPhoneNumber && { phone: fullPhoneNumber }),
+      countryCode: values.countryCode,
+      ...(values.localPhoneNumber && { phone: values.localPhoneNumber }),
     };
+
 
     try {
       const response = await fetch('http://localhost:8080/api/auth/signup', {
@@ -123,7 +130,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         if (onClose) onClose();
 
       } else {
-        // Use backend message if available, otherwise generic error
         const errorMessage = responseData?.message || "An unexpected error occurred. Please try again.";
         toast({
           variant: "destructive",
