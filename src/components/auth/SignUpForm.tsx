@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, User, Users, School, CheckSquare, Phone } from "lucide-react";
+import { Mail, User, Users, School, CheckSquare, Phone } from "lucide-react"; // Removed Lock
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,11 +40,13 @@ const signUpSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-interface SignUpFormProps { onSwitchForm: (formType: 'signin' | 'signup') => void; }
+}); // Removed password and confirmPassword refinement
+
+interface SignUpFormProps { 
+  onSuccess?: () => void; // Added onSuccess prop
+  onSwitchForm: (formType: 'signin' | 'signup') => void; 
+  onClose?: () => void; // Added onClose prop
+}
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const MOCK_COUNTRY_CODES = [
@@ -55,10 +57,11 @@ const MOCK_COUNTRY_CODES = [
   { value: "+81", label: "JP (+81)" },
 ];
 
-export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
-  const { signup } = useAuthMock();
+export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps) {
+  const { login } = useAuthMock(); // useAuthMock still used for setting client-side session after API success
   const { toast } = useToast();
-  const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined); // Renamed for clarity
+  const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -76,7 +79,7 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
     form.setValue("role", selectedRole);
   }, [selectedRole, form]);
 
-  function onSubmit(values: SignUpFormValues) {
+  async function onSubmit(values: SignUpFormValues) {
     if (!values.role) {
       toast({
         variant: "destructive",
@@ -85,12 +88,59 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
       });
       return;
     }
-    const fullPhoneNumber = values.localPhoneNumber ? `${values.countryCode}${values.localPhoneNumber}` : undefined;
-    signup(values.name, values.email, values.role as UserRole, fullPhoneNumber);
-    toast({
-      title: "Account Created!",
-      description: `Welcome to Tutorzila, ${values.name}! You are registered as a ${values.role}.`,
-    });
+    setIsSubmitting(true);
+
+    const fullPhoneNumber = values.localPhoneNumber ? `${values.countryCode.replace(/\D/g, '')}${values.localPhoneNumber}` : undefined;
+    const apiRequestBody = {
+      name: values.name,
+      email: values.email,
+      userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
+      ...(fullPhoneNumber && { phone: fullPhoneNumber }), // Conditionally add phone
+    };
+
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        },
+        body: JSON.stringify(apiRequestBody),
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok && responseData.message === "Success") {
+        toast({
+          title: "Account Created!",
+          description: `Welcome, ${values.name}! Your account has been successfully created as a ${responseData.type}.`,
+        });
+        console.log("Signup Token:", responseData.token); // Log token for now
+        
+        // Use mock login to set user state and redirect
+        await login(values.email, responseData.type.toLowerCase() as UserRole);
+        
+        if (onSuccess) onSuccess(); // Call onSuccess if provided (e.g., to close modal)
+        if (onClose) onClose();
+
+
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Sign Up Failed",
+          description: responseData.message || "An unexpected error occurred. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Signup API error:", error);
+      toast({
+        variant: "destructive",
+        title: "Sign Up Error",
+        description: "Could not connect to the server or an unexpected error occurred. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const handleRoleChange = (roleValue: string) => {
@@ -237,9 +287,6 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
               </div>
             </FormItem>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-            </div>
-
             <FormField
               control={form.control}
               name="acceptTerms"
@@ -276,8 +323,8 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
               )}
             />
             
-            <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
+            <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
+              {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
         </Form>
@@ -293,6 +340,4 @@ export function SignUpForm({ onSwitchForm }: SignUpFormProps) {
     </Card>
   );
 }
-    
-
     
