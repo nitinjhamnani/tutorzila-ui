@@ -104,7 +104,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       ...(values.localPhoneNumber && { phone: values.localPhoneNumber }),
     };
 
-
     try {
       const response = await fetch('http://localhost:8080/api/auth/signup', {
         method: 'POST',
@@ -115,9 +114,22 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         body: JSON.stringify(apiRequestBody),
       });
 
-      const responseData = await response.json();
+      let responseData: any;
+      let errorPayloadMessage: string | undefined;
 
-      if (response.ok && responseData.message === "Success") {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await response.json();
+        // Check for logical errors even if HTTP status is ok, or if HTTP status is not ok.
+        if (!response.ok || (responseData && responseData.message !== "Success")) {
+          errorPayloadMessage = responseData?.message;
+        }
+      } else if (!response.ok) {
+        // If not JSON and response is not ok, try to get text as error message
+        errorPayloadMessage = await response.text();
+      }
+
+      if (response.ok && responseData?.message === "Success") {
         toast({
           title: "Account Created!",
           description: `Welcome, ${values.name}! Your account has been successfully created as a ${responseData.type}.`,
@@ -130,14 +142,14 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         if (onClose) onClose();
 
       } else {
-        const errorMessage = responseData?.message || "An unexpected error occurred. Please try again.";
+        const finalErrorMessage = errorPayloadMessage || "An unexpected error occurred. Please try again.";
         toast({
           variant: "destructive",
           title: "Sign Up Failed",
-          description: errorMessage,
+          description: finalErrorMessage,
         });
       }
-    } catch (error) {
+    } catch (error) { // This catches network errors or truly unexpected issues during fetch/parsing
       console.error("Signup API error:", error);
       toast({
         variant: "destructive",
