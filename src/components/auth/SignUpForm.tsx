@@ -117,33 +117,27 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         body: JSON.stringify(apiRequestBody),
       });
 
-      let responseData: any;
-      let errorMessageToShow: string | undefined;
-
-      if (!response.ok) { // Handle all non-2xx responses (e.g., 400, 401, 500)
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          try {
-            responseData = await response.json();
-            errorMessageToShow = responseData?.message || `Server Error: ${response.status}`;
-          } catch (jsonError) {
-            console.error("Failed to parse JSON error response:", jsonError);
-            // Try to get text if JSON parsing fails for a non-OK response
+      if (!response.ok) {
+        let errorMessageToShow = `Server Error: ${response.status}`; // Default message
+        try {
+          const errorText = await response.text(); // Read body as text first
+          if (errorText && errorText.trim() !== '') {
             try {
-              const textError = await response.text();
-              errorMessageToShow = textError.trim() || `Server Error: ${response.status} (unreadable JSON response)`;
-            } catch (e) {
-              errorMessageToShow = `Server Error: ${response.status} (unreadable response)`;
+              // Attempt to parse the text as JSON
+              const errorData = JSON.parse(errorText);
+              if (errorData && typeof errorData.message === 'string' && errorData.message.trim() !== '') {
+                errorMessageToShow = errorData.message;
+              } else {
+                // JSON parsed but no .message, or .message is empty, use the raw text if not empty
+                errorMessageToShow = errorText.trim();
+              }
+            } catch (jsonParseError) {
+              // Not JSON, or invalid JSON. Use the errorText directly as it's already trimmed.
+              errorMessageToShow = errorText.trim();
             }
           }
-        } else {
-          // Non-JSON error response
-          try {
-            const textError = await response.text();
-            errorMessageToShow = textError.trim() || `Server Error: ${response.status}`;
-          } catch (e) {
-            errorMessageToShow = `Server Error: ${response.status} (unreadable response)`;
-          }
+        } catch (bodyReadError) {
+          // If reading body fails, stick to default message "Server Error: ${response.status}"
         }
         
         toast({
@@ -156,31 +150,27 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       }
 
       // If response.ok is true, attempt to parse JSON
-      responseData = await response.json();
+      const responseData = await response.json();
 
       if (responseData?.message === "Success") {
         toast({
           title: "Account Created!",
           description: `Welcome, ${values.name}! Your account has been successfully created as a ${responseData.type}.`,
         });
-        console.log("Signup Token:", responseData.token);
         
-        // Use the role from the API response for login, as it's the source of truth
         await login(values.email, responseData.type.toLowerCase() as UserRole);
         
         if (onSuccess) onSuccess();
         if (onClose) onClose();
 
       } else {
-        // This case handles 2xx responses that are not logically "Success" (e.g., backend sends 200 OK but with an error message)
         toast({
           variant: "destructive",
           title: "Sign Up Issue",
           description: responseData?.message || "An unexpected issue occurred with the server's response.",
         });
       }
-    } catch (error) { // Catches network errors or other truly unexpected issues during fetch/initial parsing
-      console.error("Signup API error (network or unexpected):", error);
+    } catch (error) { 
       toast({
         variant: "destructive",
         title: "Sign Up Error",
