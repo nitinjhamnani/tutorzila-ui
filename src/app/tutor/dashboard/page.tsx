@@ -303,17 +303,6 @@ export default function TutorDashboardPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap xs:flex-nowrap gap-3 w-full sm:w-auto">
-                <Button variant="default" className={cn("bg-primary text-primary-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-primary/90 transition-colors text-xs md:text-sm font-medium w-full xs:w-auto")}>
-                  Upgrade Plan
-                </Button>
-                <Button variant="outline" className={cn("border-border text-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-muted flex items-center gap-1.5 text-xs md:text-sm font-medium w-full xs:w-auto", "bg-card")}>
-                  <div className="w-4 h-4 flex items-center justify-center">
-                    <Share2 className="w-3 h-3 md:w-4 md:h-4" />
-                  </div>
-                  Share Link
-                </Button>
-              </div>
             </div>
           </div>
         </div>
