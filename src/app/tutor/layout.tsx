@@ -171,10 +171,11 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           accountSettingsNavItems={accountSettingsNavItems}
           logoutNavItem={{ label: "Log Out", icon: LogOut, onClick: handleLogout }}
         />
-        <main className={cn(
-            "flex-1 flex flex-col overflow-y-auto bg-secondary",
-            hasMounted ? "pt-[var(--header-height)]" : "pt-0" // Main content still needs to clear sticky header
-        )}>
+        <main
+          className={cn(
+            "flex-1 flex flex-col overflow-y-auto bg-secondary"
+          )}
+        >
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8">
             {children}
           </div>
@@ -183,5 +184,3 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     </div>
   );
 }
-
-    
