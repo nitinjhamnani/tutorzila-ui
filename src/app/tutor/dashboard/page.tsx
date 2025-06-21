@@ -17,7 +17,7 @@ import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard"
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import {
   LayoutGrid,
-  User as UserIconLucide, // Renamed to avoid conflict
+  User as UserIconLucide,
   MessageSquare,
   Percent,
   Star,
@@ -34,12 +34,12 @@ import {
   Presentation,
   RadioTower,
   Clock as ClockIcon,
-  Image as LucideImage, 
+  Image as LucideImage,
   BookOpen as BookOpenIcon,
   Globe as GlobeIcon,
   FileText,
   Palette,
-  Link as LinkIconLucide, // Renamed to avoid conflict
+  Link as LinkIconLucide,
   UploadCloud,
   Ruler,
   Filter as FilterIconLucide,
@@ -57,9 +57,11 @@ import {
   Info,
   Bell,
   PlusCircle,
-  Send, 
+  Send,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface QuickActionCardProps {
   title: string;
@@ -98,20 +100,40 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
   );
 }
 
+const fetchTutorMetrics = async (token: string | null) => {
+  if (!token) throw new Error("No authentication token found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/tutor/metrics`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "accept": "*/*",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch tutor metrics.");
+  }
+  return response.json();
+};
 
 export default function TutorDashboardPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
 
-  const [completionPercentage, setCompletionPercentage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [hasMounted, setHasMounted] = useState(false);
   const [upcomingSessions, setUpcomingSessions] = useState<Array<{ type: 'demo' | 'class'; data: DemoSession | MyClass; sortDate: Date }>>([]);
   const [selectedDemoForModal, setSelectedDemoForModal] = useState<DemoSession | null>(null);
   const [isManageDemoModalOpen, setIsManageDemoModalOpen] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
+
+  const { data: metricsData, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
+    queryKey: ['tutorMetrics', token],
+    queryFn: () => fetchTutorMetrics(token),
+    enabled: !!token, // Only run the query if the token exists
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   useEffect(() => {
     setHasMounted(true);
@@ -124,46 +146,9 @@ export default function TutorDashboardPage() {
       }
     }
   }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
-  
+
   useEffect(() => {
-    if (tutorUser) {
-      let completedFields = 0;
-      const totalFields = 5; 
-      if (tutorUser.avatar && !tutorUser.avatar.includes('pravatar.cc') && !tutorUser.avatar.includes('avatar.vercel.sh')) completedFields++;
-      if (tutorUser.subjects && tutorUser.subjects.length > 0) completedFields++;
-      if (tutorUser.bio && tutorUser.bio.trim() !== "") completedFields++;
-      if (tutorUser.experience && tutorUser.experience.trim() !== "") completedFields++;
-      if (tutorUser.hourlyRate && tutorUser.hourlyRate.trim() !== "") completedFields++;
-      setCompletionPercentage(Math.round((completedFields / totalFields) * 100));
-    }
-  }, [tutorUser]);
-
-  const [mockInsights, setMockInsights] = useState({
-    leadBalance: 0,
-    demosScheduled: 0, 
-    profileViews: 0,
-  });
-
- useEffect(() => {
     if (tutorUser && hasMounted) {
-      const tutorDemos = MOCK_DEMO_SESSIONS.filter(
-        d => d.tutorId === tutorUser.id || d.tutorName === tutorUser.name
-      );
-      const scheduledDemosCount = tutorDemos.filter(
-        d => d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0, 0, 0, 0))
-      ).length;
-
-      setMockInsights(prev => ({
-        leadBalance: prev.leadBalance || (Math.floor(Math.random() * 50) + 10),
-        profileViews: prev.profileViews || (Math.floor(Math.random() * 200) + 50),
-        demosScheduled: scheduledDemosCount,
-      }));
-    }
-  }, [tutorUser, hasMounted]);
-
-
-  useEffect(() => {
-    if (tutorUser && hasMounted) { // Ensure hasMounted is true before this runs
       const tutorDemos = MOCK_DEMO_SESSIONS.filter(
         d => d.tutorId === tutorUser.id || d.tutorName === tutorUser.name
       );
@@ -183,7 +168,6 @@ export default function TutorDashboardPage() {
       setUpcomingSessions(combined);
     }
   }, [tutorUser, hasMounted]);
-
 
   const handleAvatarUploadClick = () => {
     fileInputRef.current?.click();
@@ -208,10 +192,6 @@ export default function TutorDashboardPage() {
     if (demoIndexInMock > -1) {
       MOCK_DEMO_SESSIONS[demoIndexInMock] = updatedDemo;
     }
-    setMockInsights(prev => ({
-      ...prev,
-      demosScheduled: MOCK_DEMO_SESSIONS.filter(d => (d.tutorId === tutorUser?.id || d.tutorName === tutorUser?.name) && d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0,0,0,0))).length,
-    }));
     toast({ title: "Demo Updated", description: `Demo with ${updatedDemo.studentName} updated.` });
     setIsManageDemoModalOpen(false);
   };
@@ -228,10 +208,6 @@ export default function TutorDashboardPage() {
     if (demoIndexInMock > -1) {
       MOCK_DEMO_SESSIONS[demoIndexInMock].status = "Cancelled";
     }
-     setMockInsights(prev => ({
-      ...prev,
-      demosScheduled: MOCK_DEMO_SESSIONS.filter(d => (d.tutorId === tutorUser?.id || d.tutorName === tutorUser?.name) && d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0,0,0,0))).length,
-    }));
     toast({ title: "Demo Cancelled", variant: "destructive" });
     setIsManageDemoModalOpen(false);
   };
@@ -244,15 +220,15 @@ export default function TutorDashboardPage() {
   }
 
   const dashboardMetrics = [
-    { title: "Lead Balance", value: String(mockInsights.leadBalance), IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Demo Scheduled", value: String(mockInsights.demosScheduled), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Profile Views", value: String(mockInsights.profileViews), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Avg. Rating", value: tutorUser.rating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Lead Balance", value: String(metricsData?.leadBalance ?? 0), IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Demo Scheduled", value: String(metricsData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Profile Views", value: String(metricsData?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Avg. Rating", value: metricsData?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
   ];
 
   const quickActions: QuickActionCardProps[] = [
     { title: "My Enquiries", description: "View & respond to tuition requests", IconEl: Briefcase, href: "/tutor/enquiries", buttonText: "View Enquiries" },
-    { title: "Demo Sessions", description: "Manage all your demo class activities", IconEl: Presentation, href: "/tutor/demo-sessions", buttonText: "Manage Demos"},
+    { title: "Demo Sessions", description: "Manage all your demo class activities", IconEl: Presentation, href: "/tutor/demo-sessions", buttonText: "Manage Demos" },
     { title: "My Classes", description: "Organize your scheduled classes", IconEl: CalendarDays, href: "/tutor/classes", buttonText: "Manage Classes" },
     { title: "My Payments", description: "Track your earnings and payment status", IconEl: DollarSign, href: "/tutor/payments", buttonText: "View Payments" },
     { title: "Edit Personal Details", description: "Update your personal information", IconEl: UserCog, href: "/tutor/edit-personal-details", buttonText: "Update Details" },
@@ -261,157 +237,171 @@ export default function TutorDashboardPage() {
     { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
   ];
 
+  const profileCompletion = metricsData?.profileCompletion ?? 0;
 
   return (
-        <main className="flex-grow">
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-                <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                            <div className="relative group shrink-0">
-                                <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                                    <AvatarImage src={tutorUser.avatar || `https://avatar.vercel.sh/${tutorUser.email}.png`} alt={tutorUser.name} />
-                                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
-                                        {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <button
-                                    onClick={handleAvatarUploadClick}
-                                    className={cn(
-                                        "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
-                                        "bg-primary/20 hover:bg-primary/30"
-                                    )}
-                                    aria-label="Update profile picture"
-                                >
-                                    <Camera className={cn("w-3 h-3 md:w-3.5 md:h-3.5", "text-primary")} />
-                                </button>
-                                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
-                                <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
-                                
-                                <div className="mt-3">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-xs text-muted-foreground">Setup progress</span>
-                                        <span className={cn("text-xs font-medium", "text-primary")}>{completionPercentage}%</span>
-                                    </div>
-                                    <Progress value={completionPercentage} className="h-2 rounded-full bg-gray-100" indicatorClassName={cn("rounded-full", "bg-primary")} />
-                                    {completionPercentage < 100 && (
-                                        <Link href="/tutor/edit-personal-details" className={cn("mt-1 block hover:underline text-xs font-medium", "text-primary")}>
-                                            Complete Your Profile
-                                        </Link>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        
-                         <div className="flex flex-col sm:flex-row gap-4 items-start w-full md:w-auto md:items-start">
-                            <div className={cn("rounded p-4 w-full sm:w-auto", "bg-secondary")}>
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Current Plan</p>
-                                        <p className="font-semibold text-foreground">Business Pro</p>
-                                        <p className="text-xs text-muted-foreground mt-1">Expires on April 28, 2025</p>
-                                    </div>
-                                    <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
-                                        <Crown className="w-4 h-4 md:w-5 md:h-5" />
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap xs:flex-nowrap gap-3 w-full sm:w-auto">
-                                <Button variant="default" className={cn("bg-primary text-primary-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-primary/90 transition-colors text-xs md:text-sm font-medium w-full xs:w-auto")}>
-                                    Upgrade Plan
-                                </Button>
-                                <Button variant="outline" className={cn("border-border text-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-muted flex items-center gap-1.5 text-xs md:text-sm font-medium w-full xs:w-auto", "bg-card")}>
-                                  <div className="w-4 h-4 flex items-center justify-center">
-                                    <Share2 className="w-3 h-3 md:w-4 md:h-4" />
-                                  </div>
-                                  Share Link
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div className="mb-6 md:mb-8">
-                    <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">My Insights</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-                        {dashboardMetrics.map((metric, index) => (
-                            <Card key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">{metric.title}</p>
-                                        <h3 className={cn("text-xl md:text-2xl font-semibold mt-0.5", metric.iconColor)}>{metric.value}</h3>
-                                    </div>
-                                    {metric.IconEl && (
-                                      <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", metric.iconBg, metric.iconColor)}>
-                                          <metric.IconEl className="w-5 h-5" />
-                                      </div>
-                                    )}
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                </div>
-                
-                <div className="mb-6 md:mb-8">
-                    <div className="flex justify-between items-center mb-3 sm:mb-4">
-                        <h2 className="text-base sm:text-lg font-semibold text-foreground">Upcoming Sessions</h2>
-                         <Button variant="link" size="sm" className="text-xs text-primary p-0 h-auto" asChild>
-                           <Link href="/tutor/demo-sessions">View All Demos</Link>
-                        </Button>
-                    </div>
-                    {upcomingSessions.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                            {upcomingSessions.slice(0, 3).map((session) => (
-                                <UpcomingSessionCard 
-                                    key={`${session.type}-${session.data.id}`} 
-                                    sessionDetails={session}
-                                    onUpdateSession={session.type === 'demo' ? handleUpdateDemoSession : undefined}
-                                    onCancelSession={session.type === 'demo' ? handleCancelDemoSession : undefined}
-                                />
-                            ))}
-                        </div>
+    <main className="flex-grow">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+        <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="relative group shrink-0">
+                <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
+                  <AvatarImage src={tutorUser.avatar || `https://avatar.vercel.sh/${tutorUser.email}.png`} alt={tutorUser.name} />
+                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
+                    {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={handleAvatarUploadClick}
+                  className={cn(
+                    "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
+                    "bg-primary/20 hover:bg-primary/30"
+                  )}
+                  aria-label="Update profile picture"
+                >
+                  <Camera className={cn("w-3 h-3 md:w-3.5 md:h-3.5", "text-primary")} />
+                </button>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
+                <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-muted-foreground">Setup progress</span>
+                    {isLoadingMetrics ? (
+                        <Skeleton className="h-4 w-10 rounded-md" />
                     ) : (
-                        <Card className="bg-card rounded-xl shadow-lg p-5 border-0 text-center">
-                            <CardContent className="pt-6">
-                                <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                                <p className="text-sm text-muted-foreground">No upcoming sessions scheduled.</p>
-                            </CardContent>
-                        </Card>
+                        <span className={cn("text-xs font-medium", "text-primary")}>{profileCompletion}%</span>
                     )}
+                  </div>
+                  {isLoadingMetrics ? (
+                      <Skeleton className="h-2 w-full rounded-full" />
+                  ) : (
+                      <Progress value={profileCompletion} className="h-2 rounded-full bg-gray-100" indicatorClassName={cn("rounded-full", "bg-primary")} />
+                  )}
+                  {profileCompletion < 100 && (
+                    <Link href="/tutor/edit-personal-details" className={cn("mt-1 block hover:underline text-xs font-medium", "text-primary")}>
+                      Complete Your Profile
+                    </Link>
+                  )}
                 </div>
-                
-                <div className="mb-6 md:mb-8">
-                    <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Quick Actions</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                        {quickActions.map((action) => (
-                          <QuickActionCard
-                            key={action.title}
-                            title={action.title}
-                            description={action.description}
-                            IconEl={action.IconEl}
-                            href={action.href}
-                            disabled={action.disabled}
-                            buttonText={action.buttonText}
-                          />
-                        ))}
-                    </div>
-                </div>
-                 {selectedDemoForModal && (
-                <ManageDemoModal
-                    isOpen={isManageDemoModalOpen}
-                    onOpenChange={setIsManageDemoModalOpen}
-                    demoSession={selectedDemoForModal}
-                    onUpdateSession={handleUpdateDemoSession}
-                    onCancelSession={handleCancelDemoSession}
-                />
-                )}
+              </div>
             </div>
-        </main>
-    );
+            <div className="flex flex-col sm:flex-row gap-4 items-start w-full md:w-auto md:items-start">
+              <div className={cn("rounded p-4 w-full sm:w-auto", "bg-secondary")}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Current Plan</p>
+                    <p className="font-semibold text-foreground">Business Pro</p>
+                    <p className="text-xs text-muted-foreground mt-1">Expires on April 28, 2025</p>
+                  </div>
+                  <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
+                    <Crown className="w-4 h-4 md:w-5 md:h-5" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap xs:flex-nowrap gap-3 w-full sm:w-auto">
+                <Button variant="default" className={cn("bg-primary text-primary-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-primary/90 transition-colors text-xs md:text-sm font-medium w-full xs:w-auto")}>
+                  Upgrade Plan
+                </Button>
+                <Button variant="outline" className={cn("border-border text-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-button whitespace-nowrap hover:bg-muted flex items-center gap-1.5 text-xs md:text-sm font-medium w-full xs:w-auto", "bg-card")}>
+                  <div className="w-4 h-4 flex items-center justify-center">
+                    <Share2 className="w-3 h-3 md:w-4 md:h-4" />
+                  </div>
+                  Share Link
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mb-6 md:mb-8">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">My Insights</h2>
+          {isLoadingMetrics ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                {[...Array(4)].map((_, index) => <Skeleton key={index} className="h-[96px] w-full rounded-xl" />)}
+            </div>
+          ) : metricsError ? (
+            <Card className="bg-destructive/10 border-destructive/20 text-destructive-foreground p-4">
+                <p className="text-sm font-semibold">Could not load insights</p>
+                <p className="text-xs">There was an error fetching your dashboard metrics. Please try again later.</p>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+              {dashboardMetrics.map((metric, index) => (
+                <Card key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">{metric.title}</p>
+                      <h3 className={cn("text-xl md:text-2xl font-semibold mt-0.5", metric.iconColor)}>{metric.value}</h3>
+                    </div>
+                    {metric.IconEl && (
+                      <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", metric.iconBg, metric.iconColor)}>
+                        <metric.IconEl className="w-5 h-5" />
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="mb-6 md:mb-8">
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">Upcoming Sessions</h2>
+            <Button variant="link" size="sm" className="text-xs text-primary p-0 h-auto" asChild>
+              <Link href="/tutor/demo-sessions">View All Demos</Link>
+            </Button>
+          </div>
+          {upcomingSessions.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+              {upcomingSessions.slice(0, 3).map((session) => (
+                <UpcomingSessionCard
+                  key={`${session.type}-${session.data.id}`}
+                  sessionDetails={session}
+                  onUpdateSession={session.type === 'demo' ? handleUpdateDemoSession : undefined}
+                  onCancelSession={session.type === 'demo' ? handleCancelDemoSession : undefined}
+                />
+              ))}
+            </div>
+          ) : (
+            <Card className="bg-card rounded-xl shadow-lg p-5 border-0 text-center">
+              <CardContent className="pt-6">
+                <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No upcoming sessions scheduled.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+        <div className="mb-6 md:mb-8">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            {quickActions.map((action) => (
+              <QuickActionCard
+                key={action.title}
+                title={action.title}
+                description={action.description}
+                IconEl={action.IconEl}
+                href={action.href}
+                disabled={action.disabled}
+                buttonText={action.buttonText}
+              />
+            ))}
+          </div>
+        </div>
+        {selectedDemoForModal && (
+          <ManageDemoModal
+            isOpen={isManageDemoModalOpen}
+            onOpenChange={setIsManageDemoModalOpen}
+            demoSession={selectedDemoForModal}
+            onUpdateSession={handleUpdateDemoSession}
+            onCancelSession={handleCancelDemoSession}
+          />
+        )}
+      </div>
+    </main>
+  );
 }
 
     
