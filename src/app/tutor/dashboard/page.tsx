@@ -131,8 +131,9 @@ export default function TutorDashboardPage() {
   const { data: metricsData, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
     queryKey: ['tutorMetrics', token],
     queryFn: () => fetchTutorMetrics(token),
-    enabled: !!token, // Only run the query if the token exists
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    refetchOnWindowFocus: false, // Prevents refetching when the window is refocused
   });
 
   useEffect(() => {
@@ -403,5 +404,3 @@ export default function TutorDashboardPage() {
     </main>
   );
 }
-
-    
