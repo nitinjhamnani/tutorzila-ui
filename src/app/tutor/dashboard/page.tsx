@@ -58,6 +58,7 @@ import {
   Bell,
   PlusCircle,
   Send,
+  Coins,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -133,7 +134,7 @@ export default function TutorDashboardPage() {
     queryFn: () => fetchTutorMetrics(token),
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
-    refetchOnWindowFocus: false, // Prevents refetching when the window is refocused
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -221,7 +222,7 @@ export default function TutorDashboardPage() {
   }
 
   const dashboardMetrics = [
-    { title: "Lead Balance", value: String(metricsData?.leadBalance ?? 0), IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Coin Balance", value: String(metricsData?.leadBalance ?? 0), IconEl: Coins, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Demo Scheduled", value: String(metricsData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Profile Views", value: String(metricsData?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Avg. Rating", value: metricsData?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
