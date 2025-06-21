@@ -2,8 +2,20 @@
 "use client";
 
 import type { ReactNode } from 'react';
-import { Provider as JotaiProvider } from "jotai";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
 
-export function Providers({ children }: { children: ReactNode }) {
-  return <JotaiProvider>{children}</JotaiProvider>;
+const queryClient = new QueryClient();
+
+interface ProvidersProps {
+  children: ReactNode;
+}
+
+export default function Providers({ children }: ProvidersProps) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <Toaster />
+    </QueryClientProvider>
+  );
 }

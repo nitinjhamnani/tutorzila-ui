@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ReactNode } from 'react';
@@ -6,6 +7,7 @@ import { AppFooter } from '@/components/shared/AppFooter';
 import { VerificationBanner } from '@/components/shared/VerificationBanner';
 import './globals.css'; // Make sure your global styles are imported
 import { usePathname } from 'next/navigation';
+import Providers from '@/components/providers';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -26,10 +28,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html>
       <body>
-        {showPublicNavigation && <VerificationBanner />}
-        {showPublicNavigation && <AppHeader />}
-        {children}
-        {showPublicNavigation && <AppFooter />}
+        <Providers>
+          {showPublicNavigation && <VerificationBanner />}
+          {showPublicNavigation && <AppHeader />}
+          {children}
+          {showPublicNavigation && <AppFooter />}
+        </Providers>
       </body>
     </html>
   );
