@@ -34,7 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const signUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
-  countryCode: z.string().min(2, "Country code is required."),
+  country: z.string().min(2, "Country is required."),
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only.").optional().or(z.literal("")),
   role: z.enum(["parent", "tutor"], { required_error: "You must select a role (Parent or Tutor)." }),
   acceptTerms: z.boolean().refine((val) => val === true, {
@@ -49,12 +49,12 @@ interface SignUpFormProps {
 }
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
-const MOCK_COUNTRY_CODES = [
-  { value: "+91", label: "IN (+91)" },
-  { value: "+1", label: "US (+1)" },
-  { value: "+44", label: "UK (+44)" },
-  { value: "+61", label: "AU (+61)" },
-  { value: "+81", label: "JP (+81)" },
+const MOCK_COUNTRIES = [
+  { country: "IN", countryCode: "+91", label: "India (+91)" },
+  { country: "US", countryCode: "+1", label: "USA (+1)" },
+  { country: "GB", countryCode: "+44", label: "UK (+44)" },
+  { country: "AU", countryCode: "+61", label: "Australia (+61)" },
+  { country: "JP", countryCode: "+81", label: "Japan (+81)" },
 ];
 
 export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps) {
@@ -68,7 +68,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
     defaultValues: {
       name: "",
       email: "",
-      countryCode: "+91",
+      country: "IN",
       localPhoneNumber: "",
       role: undefined, 
       acceptTerms: false,
@@ -90,17 +90,21 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
     }
     setIsSubmitting(true);
 
+    const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === values.country);
+
     const apiRequestBody: {
         name: string;
         email: string;
         userType: 'PARENT' | 'TUTOR';
+        country: string;
         countryCode: string;
         phone?: string;
     } = {
       name: values.name,
       email: values.email,
       userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
-      countryCode: values.countryCode,
+      country: values.country,
+      countryCode: selectedCountryData?.countryCode || '',
     };
     if (values.localPhoneNumber && values.localPhoneNumber.trim() !== "") {
       apiRequestBody.phone = values.localPhoneNumber;
@@ -256,18 +260,18 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
               <div className="flex gap-2">
                 <FormField
                   control={form.control}
-                  name="countryCode"
+                  name="country"
                   render={({ field }) => (
                     <FormItem className="w-auto min-w-[120px]"> 
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
-                            <SelectValue placeholder="Code" />
+                            <SelectValue placeholder="Country" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {MOCK_COUNTRY_CODES.map(code => (
-                            <SelectItem key={code.value} value={code.value} className="text-sm">{code.label}</SelectItem>
+                          {MOCK_COUNTRIES.map(c => (
+                            <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
