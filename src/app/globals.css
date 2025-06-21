@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -270,4 +271,10 @@ html, body {
 /* Custom override for font-semibold */
 .font-semibold {
   font-weight: 600 !important;
+}
+
+/* Custom override for .text-xs with !important to ensure it applies over base <p> styles */
+.text-xs {
+  font-size: 0.75rem !important; /* 12px */
+  line-height: 1rem !important; /* 16px */
 }
