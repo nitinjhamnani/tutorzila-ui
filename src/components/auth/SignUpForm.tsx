@@ -117,58 +117,34 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         body: JSON.stringify(apiRequestBody),
       });
 
-      let responseData;
-      let errorMessageToShow = `Server Error: ${response.status}. Please try again.`; // Default error
-
-      try {
-        // Always try to parse the response as JSON
-        responseData = await response.json();
-        if (responseData && typeof responseData.message === 'string' && responseData.message.trim() !== '') {
-           // If message exists in JSON, it will be used either for success or error
-           errorMessageToShow = responseData.message;
-        }
-      } catch (jsonParseError) {
-        // If JSON parsing fails, means the response was not JSON or was empty
-        console.error("Failed to parse JSON response or response was not JSON:", jsonParseError);
-        // errorMessageToShow remains the default status code error.
-        // If response.ok is true but parsing fails, we'll hit an issue below.
-      }
+      const responseData = await response.json();
 
       if (response.ok) {
-        // For successful HTTP status, check if the parsed data indicates backend success
-        if (responseData && responseData.message === "Success" && responseData.token && responseData.type) {
-          toast({
-            title: "Account Created!",
-            description: `Welcome, ${values.name}! Your account has been successfully created as a ${responseData.type}.`,
-          });
-          
-          await login(values.email, responseData.type.toLowerCase() as UserRole);
-          
-          if (onSuccess) onSuccess();
-          if (onClose) onClose();
-        } else {
-          // HTTP status was OK, but content of JSON response was not as expected for success
-          toast({
-            variant: "destructive",
-            title: "Sign Up Issue",
-            description: errorMessageToShow, // Use message from JSON if available, or default
-          });
-        }
+        // HTTP status is 2xx, treat as success
+        toast({
+          title: "Account Created!",
+          description: responseData.message || `Welcome, ${values.name}!`,
+        });
+        
+        // Use mock login to set the client session
+        await login(values.email, responseData.type?.toLowerCase() as UserRole);
+        
+        if (onSuccess) onSuccess();
+        if (onClose) onClose();
       } else {
-        // HTTP status was not OK (e.g., 400, 500)
-        // errorMessageToShow should contain the message from the parsed JSON error response
+        // HTTP status is 4xx or 5xx, treat as failure
         toast({
           variant: "destructive",
           title: "Sign Up Failed",
-          description: errorMessageToShow,
+          description: responseData.message || "An unknown error occurred. Please try again.",
         });
       }
-    } catch (error) { // Catch network errors or other errors before/during fetch
+    } catch (error) { // Catches network errors or if response.json() fails
       console.error("Sign Up API call failed:", error);
       toast({
         variant: "destructive",
         title: "Sign Up Error",
-        description: "Could not connect to the server or an unexpected error occurred. Please try again later.",
+        description: "Could not connect to the server or the response was invalid. Please try again later.",
       });
     } finally {
       setIsSubmitting(false);
@@ -372,4 +348,5 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
     </Card>
   );
 }
+
     
