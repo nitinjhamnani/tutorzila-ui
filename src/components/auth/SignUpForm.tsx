@@ -108,7 +108,8 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
 
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/signup', {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,26 +121,23 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       const responseData = await response.json();
 
       if (response.ok) {
-        // HTTP status is 2xx, treat as success
         toast({
           title: "Account Created!",
           description: responseData.message || `Welcome, ${values.name}!`,
         });
         
-        // Use mock login to set the client session
         await login(values.email, responseData.type?.toLowerCase() as UserRole);
         
         if (onSuccess) onSuccess();
         if (onClose) onClose();
       } else {
-        // HTTP status is 4xx or 5xx, treat as failure
         toast({
           variant: "destructive",
           title: "Sign Up Failed",
           description: responseData.message || "An unknown error occurred. Please try again.",
         });
       }
-    } catch (error) { // Catches network errors or if response.json() fails
+    } catch (error) { 
       console.error("Sign Up API call failed:", error);
       toast({
         variant: "destructive",
@@ -348,5 +346,3 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
     </Card>
   );
 }
-
-    
