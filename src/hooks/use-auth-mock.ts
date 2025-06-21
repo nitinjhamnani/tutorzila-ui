@@ -9,19 +9,23 @@ import { useEffect, useState } from "react";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
 
 const initialUser: User | null = null;
+const initialToken: string | null = null;
 
-const localStorageJSONStorage = createJSONStorage<User | null>(() => {
+const localStorageJSONStorage = createJSONStorage<any>(() => {
   if (typeof window !== 'undefined') {
     return localStorage;
   }
+  // Return a dummy storage for SSR
   return {
     getItem: () => null,
     setItem: () => {},
     removeItem: () => {},
+    subscribe: () => () => {},
   };
 });
 
-const userAtom = atomWithStorage<User | null>("mock_user", initialUser, localStorageJSONStorage);
+const userAtom = atomWithStorage<User | null>("tutorzila_user", initialUser, localStorageJSONStorage);
+const tokenAtom = atomWithStorage<string | null>("tutorzila_token", initialToken, localStorageJSONStorage);
 
 const ensureArrayField = (value: any): string[] => {
   if (Array.isArray(value)) return value;
@@ -32,194 +36,117 @@ const ensureArrayField = (value: any): string[] => {
 
 export function useAuthMock() {
   const [user, setUser] = useAtom(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    setIsCheckingAuth(true);
-    if (typeof window !== 'undefined') {
-      const storedUser = localStorage.getItem("mock_user");
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (error) {
-          console.error("Failed to parse stored user:", error);
-          localStorage.removeItem("mock_user");
-          setUser(null);
-        }
+    // This effect ensures state is synchronized with localStorage on mount
+    const storedUser = localStorage.getItem("tutorzila_user");
+    const storedToken = localStorage.getItem("tutorzila_token");
+    if (storedUser && storedToken) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setToken(JSON.parse(storedToken));
+      } catch (e) {
+        console.error("Failed to parse auth data from storage", e);
+        localStorage.removeItem("tutorzila_user");
+        localStorage.removeItem("tutorzila_token");
+        setUser(null);
+        setToken(null);
       }
     }
     setIsCheckingAuth(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-  const login = (email: string, role?: UserRole) => {
-    const determinedRole: UserRole = role || (email.toLowerCase().includes("admin") ? "admin" : email.toLowerCase().includes("tutor") ? "tutor" : "parent");
-
-    let baseUserData: User = {
-      id: Date.now().toString(),
-      name: email.split("@")[0] || "User",
-      email,
-      role: determinedRole,
-      avatar: `https://i.pravatar.cc/150?u=${email}`,
-      status: "Active",
-      phone: undefined,
-      isEmailVerified: false,
-      isPhoneVerified: false,
-      gender: "",
-      dateOfBirth: undefined,
-    };
-
-    let finalUserData: User | TutorProfile = baseUserData;
-
-    if (determinedRole === 'tutor') {
-      const existingMockTutor = MOCK_TUTOR_PROFILES.find(
-        (mockTutor) => mockTutor.email.toLowerCase() === email.toLowerCase()
-      );
-
-      if (existingMockTutor) {
-        finalUserData = { 
-          ...existingMockTutor, 
-          id: existingMockTutor.id || baseUserData.id, 
-          name: existingMockTutor.name || baseUserData.name,
-          email: existingMockTutor.email, 
-          role: 'tutor', 
-          avatar: existingMockTutor.avatar || baseUserData.avatar,
-          status: existingMockTutor.status || baseUserData.status,
-          phone: existingMockTutor.phone || baseUserData.phone || "9876543210", 
-          isEmailVerified: existingMockTutor.isEmailVerified !== undefined ? existingMockTutor.isEmailVerified : baseUserData.isEmailVerified,
-          isPhoneVerified: existingMockTutor.isPhoneVerified !== undefined ? existingMockTutor.isPhoneVerified : baseUserData.isPhoneVerified,
-          gender: existingMockTutor.gender || baseUserData.gender,
-          dateOfBirth: existingMockTutor.dateOfBirth || baseUserData.dateOfBirth,
-          subjects: ensureArrayField(existingMockTutor.subjects),
-          qualifications: ensureArrayField(existingMockTutor.qualifications),
-          teachingMode: ensureArrayField(existingMockTutor.teachingMode),
-          gradeLevelsTaught: ensureArrayField(existingMockTutor.gradeLevelsTaught),
-          boardsTaught: ensureArrayField(existingMockTutor.boardsTaught),
-          preferredDays: ensureArrayField(existingMockTutor.preferredDays),
-          preferredTimeSlots: ensureArrayField(existingMockTutor.preferredTimeSlots),
-        };
-      } else { 
-        finalUserData = {
-          ...baseUserData, 
-          role: 'tutor', 
-          subjects: ['Mathematics', 'Physics'], 
-          experience: '1-3 years',
-          grade: 'High School', 
-          hourlyRate: "1000",
-          bio: "A passionate and dedicated tutor.",
-          qualifications: ["Relevant degree"], 
-          teachingMode: ["Online"],
-          phone: baseUserData.phone || "9876543210",
-          gradeLevelsTaught: ["Grade 9-10", "Grade 11-12"],
-          boardsTaught: ["CBSE"],
-          preferredDays: ["Weekdays"],
-          preferredTimeSlots: ["1700-1900"],
-          location: "Online",
-          rating: 4.5,
-        } as TutorProfile;
-      }
-    } else if (determinedRole === 'admin' && email.toLowerCase().includes('admin')) {
-       finalUserData = {
-        ...baseUserData,
-        role: 'admin',
-        name: 'Admin User', 
+  const _constructUserObject = (email: string, role: UserRole, name?: string, phone?: string): User | TutorProfile => {
+      let baseUserData: User = {
+          id: `user-${Date.now()}`,
+          name: name || email.split("@")[0],
+          email,
+          role,
+          avatar: `https://i.pravatar.cc/150?u=${email}`,
+          status: "Active",
+          phone: phone,
+          isEmailVerified: false,
+          isPhoneVerified: false,
       };
-    } else { // PARENT
-      if (email.toLowerCase() === "alice.smith@example.com") {
-        finalUserData = {
-          ...baseUserData,
-          id: "p1", 
-          name: "Alice Smith", 
-          role: 'parent',
-        };
-      } else if (email.toLowerCase() === "bob.johnson@example.com") {
-        finalUserData = {
-            ...baseUserData,
-            id: "p2",
-            name: "Bob Johnson",
-            role: 'parent',
-        };
+
+      if (role === 'tutor') {
+          const existingTutor = MOCK_TUTOR_PROFILES.find(t => t.email.toLowerCase() === email.toLowerCase());
+          if (existingTutor) return { ...existingTutor, role: 'tutor' }; // Ensure role is correct
+          
+          return {
+              ...baseUserData,
+              role: 'tutor',
+              subjects: [], experience: '', grade: '', hourlyRate: '', bio: '',
+              qualifications: [], teachingMode: [], gradeLevelsTaught: [], boardsTaught: [],
+              preferredDays: [], preferredTimeSlots: [], location: '', rating: 0,
+          } as TutorProfile;
       }
-       else {
-        finalUserData = {
-          ...baseUserData,
-          role: 'parent',
-        };
+      return baseUserData;
+  }
+
+  const setSession = (token: string, type: string, email: string, name?: string, phone?: string) => {
+      const role = type.toLowerCase() as UserRole;
+      const userObject = _constructUserObject(email, role, name, phone);
+      
+      setToken(token);
+      setUser(userObject);
+      
+      if (role === 'tutor') {
+        router.push("/tutor/dashboard"); 
+      } else if (role === 'parent') {
+        router.push("/parent/dashboard");
+      } else if (role === 'admin') {
+        router.push("/dashboard/admin");
+      } else {
+        router.push("/"); 
       }
-    }
-    
-    setUser(finalUserData);
-    if (finalUserData.role === 'tutor') {
-      router.push("/tutor/dashboard"); 
-    } else if (finalUserData.role === 'parent') {
-      router.push("/parent/dashboard"); // Updated redirect for parent
-    } else if (finalUserData.role === 'admin') {
-      router.push("/dashboard/admin");
-    } else {
-      router.push("/"); 
-    }
-    return Promise.resolve(finalUserData);
   };
 
-  const signup = (name: string, email: string, role: UserRole, phone?: string) => {
-     let mockUserData: User | TutorProfile = {
-      id: Date.now().toString(),
-      name,
-      email,
-      role,
-      avatar: `https://i.pravatar.cc/150?u=${email}`,
-      status: "Active",
-      phone: phone || (role === "tutor" ? "9876543210" : undefined), 
-      isEmailVerified: false,
-      isPhoneVerified: false,
-      gender: "",
-      dateOfBirth: undefined,
-    };
+  const login = async (email: string, password?: string) => {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    
+    const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+        body: JSON.stringify({ email, password }),
+    });
 
-    if (role === 'tutor') {
-       mockUserData = {
-        ...mockUserData,
-        subjects: [], 
-        experience: '', 
-        grade: '',
-        hourlyRate: '',
-        bio: '',
-        qualifications: [], 
-        teachingMode: ['Online'], 
-        gradeLevelsTaught: [],
-        boardsTaught: [],
-        preferredDays: [],
-        preferredTimeSlots: [],
-        location: "Online",
-        rating: 0,
-      } as TutorProfile;
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
     }
-    setUser(mockUserData);
-    if (role === 'tutor') {
-      router.push("/tutor/dashboard"); 
-    } else if (role === 'parent') {
-      router.push("/parent/dashboard"); // Updated redirect for parent
+
+    if (responseData.token && responseData.type) {
+        setSession(responseData.token, responseData.type, email);
     } else {
-       router.push("/"); 
+        throw new Error("Invalid response from server during login.");
     }
+
+    return responseData; // Return the full response data on success
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem("mock_user");
+      localStorage.removeItem("tutorzila_user");
+      localStorage.removeItem("tutorzila_token");
     }
     router.push("/"); 
   };
 
   return {
     user,
-    isAuthenticated: !!user,
+    token,
+    isAuthenticated: !!token, // Auth status is based on token presence
     isCheckingAuth,
     login,
-    signup,
+    setSession, // Expose setSession for sign-up flow
     logout,
   };
 }

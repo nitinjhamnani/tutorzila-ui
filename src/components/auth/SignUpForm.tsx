@@ -58,7 +58,7 @@ const MOCK_COUNTRIES = [
 ];
 
 export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps) {
-  const { login } = useAuthMock();
+  const { setSession } = useAuthMock();
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,7 +110,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       apiRequestBody.phone = values.localPhoneNumber;
     }
 
-
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
       const response = await fetch(`${apiBaseUrl}/api/auth/signup`, {
@@ -130,7 +129,10 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
           description: responseData.message || `Welcome, ${values.name}!`,
         });
         
-        await login(values.email, responseData.type?.toLowerCase() as UserRole);
+        // Use the new setSession function to handle successful auth
+        if (responseData.token && responseData.type) {
+            setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone);
+        }
         
         if (onSuccess) onSuccess();
         if (onClose) onClose();

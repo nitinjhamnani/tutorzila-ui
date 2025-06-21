@@ -26,20 +26,17 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
 import type { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  // Role is no longer part of the sign-in form schema as UI for it was removed
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
@@ -48,13 +45,12 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: (
   const { login } = useAuthMock();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // selectedRole state and related useEffect are removed as there's no UI to select role
+
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
-      // Role default value removed
     },
   });
 
@@ -62,15 +58,14 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: (
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
     try {
-      // Pass undefined for role, so useAuthMock can infer from email
-      const userData = await login(values.email, undefined); 
+      const result = await login(values.email, values.password);
       toast({
         title: "Signed In!",
-        description: `Welcome back! You are signed in as a ${userData.role}.`,
+        description: result.message,
       });
-      if (onSuccess) {
-        onSuccess();
-      }
+      if (onSuccess) onSuccess();
+      if (onClose) onClose();
+
     } catch (error) {
       toast({
         variant: "destructive",
@@ -81,8 +76,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: (
       setIsSubmitting(false);
     }
   }
-
-  // handleRoleChange function removed as role selection UI is removed
 
   return (
     <Card className="w-full max-w-lg shadow-lg rounded-lg bg-card border animate-in fade-in zoom-in-95 duration-500 ease-out">
