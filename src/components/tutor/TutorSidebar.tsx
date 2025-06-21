@@ -73,6 +73,7 @@ export function TutorSidebar(props: TutorSidebarProps) {
  )}
  >
  <Avatar className="h-8 w-8 shrink-0">
+  <AvatarImage src={props.user.avatar || `https://avatar.vercel.sh/${props.user.email}.png`} alt={props.user.name} />
  <AvatarFallback className="text-xs bg-primary/20 text-primary">
  {props.user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
  </AvatarFallback>
@@ -80,7 +81,6 @@ export function TutorSidebar(props: TutorSidebarProps) {
  {(!props.isMobile && !props.isNavbarCollapsed) && ( // Show name and email on expanded desktop
  <div className="text-xs min-w-0">
  <p className="font-semibold text-foreground truncate">{props.user.name}</p>
- <p className="text-muted-foreground truncate">{props.user.email}</p>
  </div>
  )}
  </div>
