@@ -297,13 +297,45 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                   <FormItem>
                       <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Tutoring Location (for In-person)</FormLabel>
                       <FormControl>
-                      <Input placeholder="e.g., Cityville Center, or 'Student's Home'" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                      <Input placeholder="e.g., Cityville Center, or 'Student's Home'" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
                       </FormControl>
                       <FormMessage />
                   </FormItem>
                   )}
               />
               )}
+
+              <FormItem>
+                  <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
+                  <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                      control={form.control}
+                      name="minHourlyRate"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel className="text-xs text-muted-foreground">Minimum</FormLabel>
+                          <FormControl>
+                              <Input type="text" inputMode="decimal" placeholder="e.g., 500" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                      <FormField
+                      control={form.control}
+                      name="maxHourlyRate"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel className="text-xs text-muted-foreground">Maximum</FormLabel>
+                          <FormControl>
+                              <Input type="text" inputMode="decimal" placeholder="e.g., 1000" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                  </div>
+              </FormItem>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -343,38 +375,6 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                 />
               </div>
               
-              <FormItem>
-                  <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
-                  <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                      control={form.control}
-                      name="minHourlyRate"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">Minimum</FormLabel>
-                          <FormControl>
-                              <Input type="text" inputMode="decimal" placeholder="e.g., 500" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                      />
-                      <FormField
-                      control={form.control}
-                      name="maxHourlyRate"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">Maximum</FormLabel>
-                          <FormControl>
-                              <Input type="text" inputMode="decimal" placeholder="e.g., 1000" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                      />
-                  </div>
-              </FormItem>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <FormField
                   control={form.control}
