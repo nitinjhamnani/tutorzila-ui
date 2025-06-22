@@ -321,7 +321,7 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                           id="isRateNegotiableCheckbox"
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="h-3.5 w-3.5 rounded-sm"
+                          className="h-3.5 w-3.5 rounded-[2px]"
                         />
                       </FormControl>
                       <Label
