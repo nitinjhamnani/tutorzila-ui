@@ -83,10 +83,12 @@ export function MultiSelectCommand({
                     className="rounded-md px-2 py-1 text-xs"
                   >
                     {option?.label || value}
-                    <button
+                    <span
+                      role="button"
+                      tabIndex={0}
                       className="ml-1.5 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === "Enter" || e.key === " ") {
                           handleUnselect(value);
                         }
                       }}
@@ -94,10 +96,13 @@ export function MultiSelectCommand({
                         e.preventDefault();
                         e.stopPropagation();
                       }}
-                      onClick={() => handleUnselect(value)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the main button click
+                        handleUnselect(value)
+                      }}
                     >
                       <XCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
-                    </button>
+                    </span>
                   </Badge>
                 );
               })
