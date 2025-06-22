@@ -296,7 +296,7 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                   )}
               />
               )}
-
+              
               <div>
                 <FormField
                   control={form.control}
@@ -315,18 +315,18 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                   control={form.control}
                   name="isRateNegotiable"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-2 pt-3">
+                    <FormItem className="flex flex-row items-center space-x-2 pt-2">
                       <FormControl>
                         <Checkbox
                           id="isRateNegotiableCheckbox"
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="h-4 w-4 rounded-[3px]"
+                          className="h-3.5 w-3.5 rounded-sm"
                         />
                       </FormControl>
                       <Label
                         htmlFor="isRateNegotiableCheckbox"
-                        className="text-sm font-normal text-muted-foreground"
+                        className="text-xs font-normal text-muted-foreground"
                       >
                         Rate is Negotiable
                       </Label>
