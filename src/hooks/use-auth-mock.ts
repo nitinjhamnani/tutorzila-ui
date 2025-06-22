@@ -75,7 +75,7 @@ export function useAuthMock() {
 
       if (role === 'tutor') {
           const existingTutor = MOCK_TUTOR_PROFILES.find(t => t.email.toLowerCase() === email.toLowerCase());
-          if (existingTutor) return { ...existingTutor, role: 'tutor' }; // Ensure role is correct
+          if (existingTutor) return { ...existingTutor, name: name || existingTutor.name, role: 'tutor' };
           
           return {
               ...baseUserData,
@@ -122,7 +122,7 @@ export function useAuthMock() {
     }
 
     if (responseData.token && responseData.type) {
-        setSession(responseData.token, responseData.type, email);
+        setSession(responseData.token, responseData.type, email, responseData.name);
     } else {
         throw new Error("Invalid response from server during login.");
     }
