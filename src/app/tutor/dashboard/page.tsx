@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { ReactNode, ElementType } from "react";
@@ -419,7 +418,7 @@ export default function TutorDashboardPage() {
           )}
         </div>
       </main>
-      <DialogContent className="sm:max-w-3xl p-0">
+      <DialogContent className="sm:max-w-3xl p-0 flex flex-col max-h-[90vh]">
         <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <EditTutoringDetailsForm onSuccess={() => setIsEditTutoringModalOpen(false)} />
       </DialogContent>

@@ -152,15 +152,15 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-none rounded-none border-0 bg-card">
-      <CardHeader className="p-6 border-b">
+    <Card className="w-full max-w-3xl mx-auto shadow-none rounded-none border-0 bg-card flex flex-col flex-1">
+      <CardHeader className="p-6 border-b shrink-0">
         <CardTitle className="text-xl font-semibold text-primary flex items-center">
           <Edit className="mr-2.5 h-6 w-6" />
           Edit Tutoring Details
         </CardTitle>
         <CardDescription className="text-sm text-muted-foreground mt-1">Showcase your expertise and preferences to students.</CardDescription>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-6 overflow-y-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
