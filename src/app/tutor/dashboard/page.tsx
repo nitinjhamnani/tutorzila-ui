@@ -101,10 +101,10 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
   );
 }
 
-const fetchTutorMetrics = async (token: string | null) => {
+const fetchTutorDashboardData = async (token: string | null) => {
   if (!token) throw new Error("No authentication token found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-  const response = await fetch(`${apiBaseUrl}/api/tutor/metrics`, {
+  const response = await fetch(`${apiBaseUrl}/api/tutor/dashboard`, {
     headers: {
       "Authorization": `Bearer ${token}`,
       "accept": "*/*",
@@ -112,7 +112,7 @@ const fetchTutorMetrics = async (token: string | null) => {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch tutor metrics.");
+    throw new Error("Failed to fetch tutor dashboard data.");
   }
   return response.json();
 };
@@ -129,11 +129,11 @@ export default function TutorDashboardPage() {
   const [selectedDemoForModal, setSelectedDemoForModal] = useState<DemoSession | null>(null);
   const [isManageDemoModalOpen, setIsManageDemoModalOpen] = useState(false);
 
-  const { data: metricsData, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
-    queryKey: ['tutorMetrics', token],
-    queryFn: () => fetchTutorMetrics(token),
+  const { data: dashboardData, isLoading: isLoadingDashboard, error: dashboardError } = useQuery({
+    queryKey: ['tutorDashboard', token],
+    queryFn: () => fetchTutorDashboardData(token),
     enabled: !!token,
-    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000, 
     refetchOnWindowFocus: false,
   });
 
@@ -222,10 +222,10 @@ export default function TutorDashboardPage() {
   }
 
   const dashboardMetrics = [
-    { title: "Coin Balance", value: String(metricsData?.leadBalance ?? 0), IconEl: Coins, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Demo Scheduled", value: String(metricsData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Profile Views", value: String(metricsData?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Avg. Rating", value: metricsData?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Coin Balance", value: String(dashboardData?.leadBalance ?? 0), IconEl: Coins, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Demo Scheduled", value: String(dashboardData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Profile Views", value: String(dashboardData?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Avg. Rating", value: dashboardData?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
   ];
 
   const quickActions: QuickActionCardProps[] = [
@@ -239,7 +239,7 @@ export default function TutorDashboardPage() {
     { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
   ];
 
-  const profileCompletion = metricsData?.profileCompletion ?? 0;
+  const profileCompletion = dashboardData?.profileCompletion ?? 0;
 
   return (
     <main className="flex-grow">
@@ -272,13 +272,13 @@ export default function TutorDashboardPage() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-muted-foreground">Setup progress</span>
-                    {isLoadingMetrics ? (
+                    {isLoadingDashboard ? (
                         <Skeleton className="h-4 w-10 rounded-md" />
                     ) : (
                         <span className={cn("text-xs font-medium", "text-primary")}>{profileCompletion}%</span>
                     )}
                   </div>
-                  {isLoadingMetrics ? (
+                  {isLoadingDashboard ? (
                       <Skeleton className="h-2 w-full rounded-full" />
                   ) : (
                       <Progress value={profileCompletion} className="h-2 rounded-full bg-gray-100" indicatorClassName={cn("rounded-full", "bg-primary")} />
@@ -296,8 +296,18 @@ export default function TutorDashboardPage() {
                     <div className="flex items-start justify-between">
                     <div>
                         <p className="text-xs text-muted-foreground">Current Plan</p>
-                        <p className="font-semibold text-foreground">Business Pro</p>
-                        <p className="text-xs text-muted-foreground mt-1">Expires on April 28, 2025</p>
+                        {isLoadingDashboard ? (
+                           <Skeleton className="h-5 w-24 mt-0.5 rounded-md" />
+                        ) : (
+                           <p className="font-semibold text-foreground">{dashboardData?.currentPlan}</p>
+                        )}
+                        {isLoadingDashboard ? (
+                          <Skeleton className="h-4 w-32 mt-1.5 rounded-md" />
+                        ) : (
+                          dashboardData?.expiration && (
+                           <p className="text-xs text-muted-foreground mt-1">Expires on {dashboardData.expiration}</p>
+                          )
+                        )}
                     </div>
                     <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
                         <Crown className="w-4 h-4 md:w-5 md:h-5" />
@@ -312,11 +322,11 @@ export default function TutorDashboardPage() {
         </div>
         <div className="mb-6 md:mb-8">
           <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">My Insights</h2>
-          {isLoadingMetrics ? (
+          {isLoadingDashboard ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
                 {[...Array(4)].map((_, index) => <Skeleton key={index} className="h-[96px] w-full rounded-xl" />)}
             </div>
-          ) : metricsError ? (
+          ) : dashboardError ? (
             <Card className="bg-destructive/10 border-destructive/20 text-destructive-foreground p-4">
                 <p className="text-sm font-semibold">Could not load insights</p>
                 <p className="text-xs">There was an error fetching your dashboard metrics. Please try again later.</p>
