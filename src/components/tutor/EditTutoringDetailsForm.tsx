@@ -315,7 +315,7 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                   control={form.control}
                   name="isRateNegotiable"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-2 pt-2">
+                    <FormItem className="flex flex-row items-center space-x-2">
                       <FormControl>
                         <Checkbox
                           id="isRateNegotiableCheckbox"
