@@ -325,9 +325,15 @@ export default function ParentTutorProfilePage() {
                   <span className="ml-1.5 text-[10px] text-muted-foreground">({rating.toFixed(1)} stars)</span>
                 </div>
 
-                {tutor.hourlyRate && (
+                {(tutor.minHourlyRate || tutor.maxHourlyRate) && (
                   <Badge variant="secondary" className="mt-3 text-[13px] py-1 px-3 border-primary/30 bg-primary/10 text-primary font-semibold">
-                     ₹{tutor.hourlyRate} / hr
+                    {tutor.minHourlyRate && tutor.maxHourlyRate && tutor.minHourlyRate !== tutor.maxHourlyRate
+                      ? `₹${tutor.minHourlyRate} - ₹${tutor.maxHourlyRate} / hr`
+                      : tutor.minHourlyRate && tutor.maxHourlyRate && tutor.minHourlyRate === tutor.maxHourlyRate
+                      ? `₹${tutor.minHourlyRate} / hr`
+                      : tutor.minHourlyRate
+                      ? `From ₹${tutor.minHourlyRate} / hr`
+                      : `Up to ₹${tutor.maxHourlyRate} / hr`}
                   </Badge>
                 )}
               </CardContent>

@@ -165,8 +165,9 @@ export default function ParentFindTutorPage() {
         matchesMode = appliedTeachingModeFilter.some(mode => tutor.teachingMode?.includes(mode));
       }
 
-      const tutorRate = parseFloat(tutor.hourlyRate || "0");
-      const matchesFee = tutorRate >= appliedFeeRange[0] && tutorRate <= appliedFeeRange[1];
+      const minTutorRate = parseFloat(tutor.minHourlyRate || "0");
+      const maxTutorRate = parseFloat(tutor.maxHourlyRate || "999999");
+      const matchesFee = appliedFeeRange[0] <= maxTutorRate && appliedFeeRange[1] >= minTutorRate;
 
       return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesFee;
     });

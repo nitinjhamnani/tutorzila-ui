@@ -76,7 +76,8 @@ const tutoringDetailsSchema = z.object({
   }),
   qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
   experience: z.string().min(1, "Experience level is required."),
-  hourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 500 or 500.50").optional().or(z.literal("")),
+  minHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 500").optional().or(z.literal("")),
+  maxHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 1000").optional().or(z.literal("")),
   bio: z.string().max(500, "Bio should not exceed 500 characters.").optional().or(z.literal("")),
   location: z.string().optional().or(z.literal("")),
 }).refine(data => {
@@ -87,6 +88,14 @@ const tutoringDetailsSchema = z.object({
 }, {
   message: "Location is required for In-person teaching mode.",
   path: ["location"],
+}).refine(data => {
+    if (data.minHourlyRate && data.maxHourlyRate && data.minHourlyRate.trim() !== '' && data.maxHourlyRate.trim() !== '') {
+        return parseFloat(data.maxHourlyRate) >= parseFloat(data.minHourlyRate);
+    }
+    return true;
+}, {
+    message: "Max rate must be greater than or equal to min rate.",
+    path: ["maxHourlyRate"],
 });
 
 type TutoringDetailsFormValues = z.infer<typeof tutoringDetailsSchema>;
@@ -113,7 +122,8 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
       teachingMode: ensureArray(tutorUser?.teachingMode),
       qualifications: ensureArray(tutorUser?.qualifications),
       experience: tutorUser?.experience || "",
-      hourlyRate: tutorUser?.hourlyRate || "",
+      minHourlyRate: tutorUser?.minHourlyRate || "",
+      maxHourlyRate: tutorUser?.maxHourlyRate || "",
       bio: tutorUser?.bio || "",
       location: tutorUser?.location || "",
     },
@@ -130,7 +140,8 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
         teachingMode: ensureArray(tutorUser.teachingMode),
         qualifications: ensureArray(tutorUser.qualifications),
         experience: tutorUser.experience || "",
-        hourlyRate: tutorUser.hourlyRate || "",
+        minHourlyRate: tutorUser.minHourlyRate || "",
+        maxHourlyRate: tutorUser.maxHourlyRate || "",
         bio: tutorUser.bio || "",
         location: tutorUser.location || "",
       });
@@ -266,19 +277,34 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="hourlyRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (INR)</FormLabel>
-                      <FormControl>
-                        <Input type="text" inputMode="decimal" placeholder="e.g., 750" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-2">
+                    <FormField
+                    control={form.control}
+                    name="minHourlyRate"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="flex items-center text-xs"><DollarSign className="mr-1 h-3 w-3 text-primary/80"/>Min Rate</FormLabel>
+                        <FormControl>
+                            <Input type="text" inputMode="decimal" placeholder="e.g., 500" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="maxHourlyRate"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="flex items-center text-xs"><DollarSign className="mr-1 h-3 w-3 text-primary/80"/>Max Rate</FormLabel>
+                        <FormControl>
+                            <Input type="text" inputMode="decimal" placeholder="e.g., 1000" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
               </div>
                <FormField
                 control={form.control}

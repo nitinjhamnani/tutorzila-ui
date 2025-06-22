@@ -41,7 +41,8 @@ export interface TutorProfile extends User {
   subjects: string[];
   grade?: string;
   experience: string;
-  hourlyRate?: string;
+  minHourlyRate?: string;
+  maxHourlyRate?: string;
   bio?: string;
   qualifications?: string[];
   teachingMode?: string[];

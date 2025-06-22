@@ -89,8 +89,9 @@ export function TutorProfileSearch() {
 
       const matchesLocationSearch = locationSearchTerm === "" || (tutor.location && tutor.location.toLowerCase().includes(locationSearchTermLower));
       
-      const tutorRate = parseFloat(tutor.hourlyRate || "");
-      const matchesFee = isNaN(tutorRate) ? false : (tutorRate >= feeRange[0] && tutorRate <= feeRange[1]);
+      const minTutorRate = parseFloat(tutor.minHourlyRate || "0");
+      const maxTutorRate = parseFloat(tutor.maxHourlyRate || "999999");
+      const matchesFee = feeRange[0] <= maxTutorRate && feeRange[1] >= minTutorRate;
 
 
       return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch && matchesFee;
@@ -281,4 +282,3 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
-
