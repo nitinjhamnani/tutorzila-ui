@@ -92,7 +92,11 @@ type TutoringDetailsFormValues = z.infer<typeof tutoringDetailsSchema>;
 
 const ensureArray = (value: any): string[] => Array.isArray(value) ? value : [];
 
-export function EditTutoringDetailsForm() {
+interface EditTutoringDetailsFormProps {
+  onSuccess?: () => void;
+}
+
+export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormProps) {
   const { user, isAuthenticated } = useAuthMock();
   const tutorUser = user as TutorProfile | null;
   const { toast } = useToast();
@@ -139,6 +143,9 @@ export function EditTutoringDetailsForm() {
       title: "Tutoring Details Updated!",
       description: "Your tutoring information has been saved.",
     });
+    if (onSuccess) {
+      onSuccess();
+    }
   }
 
   if (!isAuthenticated || user?.role !== 'tutor') {
