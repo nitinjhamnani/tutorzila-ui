@@ -21,7 +21,7 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditTutoringDetailsForm } from "@/components/dashboard/forms/EditTutoringDetailsForm";
+import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 import {
   LayoutGrid,
   User as UserIconLucide,

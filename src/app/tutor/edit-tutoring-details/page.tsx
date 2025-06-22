@@ -1,5 +1,5 @@
 "use client";
-import { EditTutoringDetailsForm } from "@/components/dashboard/forms/EditTutoringDetailsForm";
+import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 import type { Metadata } from "next";
 import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 
