@@ -153,195 +153,66 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full bg-card">
-        <CardHeader className="p-6 border-b shrink-0">
-          <CardTitle className="text-xl font-semibold text-primary flex items-center">
-            <Edit className="mr-2.5 h-6 w-6" />
-            Edit Tutoring Details
-          </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground mt-1">Showcase your expertise and preferences to students.</CardDescription>
-        </CardHeader>
-        
-        <CardContent className="p-6 overflow-y-auto flex-1">
-          <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="subjects"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects You Teach</FormLabel>
-                  <MultiSelectCommand
-                    options={subjectsList}
-                    selectedValues={field.value || []}
-                    onValueChange={field.onChange}
-                    placeholder="Select subjects..."
-                    className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                  />
-                   <FormDescription className="text-xs">Select all subjects you are proficient in teaching.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="gradeLevelsTaught"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Levels You Teach</FormLabel>
-                  <MultiSelectCommand
-                    options={gradeLevelsList}
-                    selectedValues={field.value || []}
-                    onValueChange={field.onChange}
-                    placeholder="Select grade levels..."
-                    className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                  />
-                  <FormDescription className="text-xs">Select all grade levels you are comfortable teaching.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="boardsTaught"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-primary/80"/>Boards You're Familiar With</FormLabel>
-                  <MultiSelectCommand
-                    options={boardsList}
-                    selectedValues={field.value || []}
-                    onValueChange={field.onChange}
-                    placeholder="Select boards..."
-                    className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="qualifications"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
-                  <MultiSelectCommand
-                    options={qualificationsList}
-                    selectedValues={field.value || []}
-                    onValueChange={field.onChange}
-                    placeholder="Select qualifications..."
-                    className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <Card className="border-0 shadow-none rounded-none">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardHeader className="p-6 border-b">
+            <CardTitle className="text-xl font-semibold text-primary flex items-center">
+              <Edit className="mr-2.5 h-6 w-6" />
+              Edit Tutoring Details
+            </CardTitle>
+            <CardDescription className="text-sm text-muted-foreground mt-1">Showcase your expertise and preferences to students.</CardDescription>
+          </CardHeader>
+          
+          <CardContent className="p-6">
+            <div className="space-y-6">
               <FormField
                 control={form.control}
-                name="experience"
+                name="subjects"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="hourlyRate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (INR)</FormLabel>
-                    <FormControl>
-                      <Input type="text" inputMode="decimal" placeholder="e.g., 750" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-             <FormField
-              control={form.control}
-              name="teachingMode"
-              render={() => (
-                <FormItem>
-                  <FormLabel className="flex items-center text-base font-medium"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
-                   <FormDescription className="text-xs">Select all applicable teaching modes.</FormDescription>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  {teachingModeItems.map((item) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name="teachingMode"
-                      render={({ field }) => {
-                        return (
-                           <FormItem key={item.id}>
-                            <Label
-                              htmlFor={`teaching-mode-${item.id}`}
-                              className={cn(
-                                "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
-                                field.value?.includes(item.id) && "bg-primary/10 border-primary ring-1 ring-primary"
-                              )}
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  id={`teaching-mode-${item.id}`}
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    const currentValues = field.value || [];
-                                    return checked
-                                      ? field.onChange([...currentValues, item.id])
-                                      : field.onChange(currentValues.filter(value => value !== item.id));
-                                  }}
-                                />
-                              </FormControl>
-                              <span className="font-normal text-sm">{item.label}</span>
-                            </Label>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.watch("teachingMode")?.includes("In-person") && (
-               <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Tutoring Location (for In-person)</FormLabel>
-                    <FormControl>
-                    <Input placeholder="e.g., Cityville Center, or 'Student's Home'" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <FormField
-                control={form.control}
-                name="preferredDays"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Days</FormLabel>
+                    <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects You Teach</FormLabel>
                     <MultiSelectCommand
-                      options={daysOptionsList}
+                      options={subjectsList}
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
-                      placeholder="Select preferred days..."
+                      placeholder="Select subjects..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                    />
+                     <FormDescription className="text-xs">Select all subjects you are proficient in teaching.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="gradeLevelsTaught"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Levels You Teach</FormLabel>
+                    <MultiSelectCommand
+                      options={gradeLevelsList}
+                      selectedValues={field.value || []}
+                      onValueChange={field.onChange}
+                      placeholder="Select grade levels..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                    />
+                    <FormDescription className="text-xs">Select all grade levels you are comfortable teaching.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boardsTaught"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-primary/80"/>Boards You're Familiar With</FormLabel>
+                    <MultiSelectCommand
+                      options={boardsList}
+                      selectedValues={field.value || []}
+                      onValueChange={field.onChange}
+                      placeholder="Select boards..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
@@ -350,43 +221,174 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
               />
               <FormField
                 control={form.control}
-                name="preferredTimeSlots"
+                name="qualifications"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots</FormLabel>
+                  <FormItem>
+                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
                     <MultiSelectCommand
-                      options={timeSlotsOptionsList}
+                      options={qualificationsList}
                       selectedValues={field.value || []}
-                      onValueChange={(values) => field.onChange(values)}
-                      placeholder="Select preferred time slots..."
+                      onValueChange={field.onChange}
+                      placeholder="Select qualifications..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-            <FormField
-              control={form.control}
-              name="bio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Your Bio / Teaching Philosophy</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Max 500 characters..." {...field} rows={4} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="experience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="hourlyRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (INR)</FormLabel>
+                      <FormControl>
+                        <Input type="text" inputMode="decimal" placeholder="e.g., 750" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+               <FormField
+                control={form.control}
+                name="teachingMode"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="flex items-center text-base font-medium"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
+                     <FormDescription className="text-xs">Select all applicable teaching modes.</FormDescription>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    {teachingModeItems.map((item) => (
+                      <FormField
+                        key={item.id}
+                        control={form.control}
+                        name="teachingMode"
+                        render={({ field }) => {
+                          return (
+                             <FormItem key={item.id}>
+                              <Label
+                                htmlFor={`teaching-mode-${item.id}`}
+                                className={cn(
+                                  "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
+                                  field.value?.includes(item.id) && "bg-primary/10 border-primary ring-1 ring-primary"
+                                )}
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    id={`teaching-mode-${item.id}`}
+                                    checked={field.value?.includes(item.id)}
+                                    onCheckedChange={(checked) => {
+                                      const currentValues = field.value || [];
+                                      return checked
+                                        ? field.onChange([...currentValues, item.id])
+                                        : field.onChange(currentValues.filter(value => value !== item.id));
+                                    }}
+                                  />
+                                </FormControl>
+                                <span className="font-normal text-sm">{item.label}</span>
+                              </Label>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {form.watch("teachingMode")?.includes("In-person") && (
+                 <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Tutoring Location (for In-person)</FormLabel>
+                      <FormControl>
+                      <Input placeholder="e.g., Cityville Center, or 'Student's Home'" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
               )}
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="p-6 border-t shrink-0">
-          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? "Saving..." : "Save Tutoring Details"}
-          </Button>
-        </CardFooter>
-      </form>
-    </Form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <FormField
+                  control={form.control}
+                  name="preferredDays"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Days</FormLabel>
+                      <MultiSelectCommand
+                        options={daysOptionsList}
+                        selectedValues={field.value || []}
+                        onValueChange={field.onChange}
+                        placeholder="Select preferred days..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="preferredTimeSlots"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots</FormLabel>
+                      <MultiSelectCommand
+                        options={timeSlotsOptionsList}
+                        selectedValues={field.value || []}
+                        onValueChange={(values) => field.onChange(values)}
+                        placeholder="Select preferred time slots..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Your Bio / Teaching Philosophy</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Max 500 characters..." {...field} rows={4} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="p-6 border-t">
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Saving..." : "Save Tutoring Details"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 }
