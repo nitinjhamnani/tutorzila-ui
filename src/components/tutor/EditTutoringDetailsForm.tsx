@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import type { TutorProfile } from "@/types";
 import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck } from "lucide-react";
 import React from "react";
@@ -152,17 +153,18 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-none rounded-none border-0 bg-card flex flex-col flex-1">
-      <CardHeader className="p-6 border-b shrink-0">
-        <CardTitle className="text-xl font-semibold text-primary flex items-center">
-          <Edit className="mr-2.5 h-6 w-6" />
-          Edit Tutoring Details
-        </CardTitle>
-        <CardDescription className="text-sm text-muted-foreground mt-1">Showcase your expertise and preferences to students.</CardDescription>
-      </CardHeader>
-      <CardContent className="p-6 overflow-y-auto">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full bg-card">
+        <CardHeader className="p-6 border-b shrink-0">
+          <CardTitle className="text-xl font-semibold text-primary flex items-center">
+            <Edit className="mr-2.5 h-6 w-6" />
+            Edit Tutoring Details
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground mt-1">Showcase your expertise and preferences to students.</CardDescription>
+        </CardHeader>
+        
+        <CardContent className="p-6 overflow-y-auto flex-1">
+          <div className="space-y-6">
             <FormField
               control={form.control}
               name="subjects"
@@ -377,14 +379,14 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                 </FormItem>
               )}
             />
-            
-
-            <Button type="submit" className="w-full mt-8 py-2.5 text-base" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Save Tutoring Details"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          </div>
+        </CardContent>
+        <CardFooter className="p-6 border-t shrink-0">
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Saving..." : "Save Tutoring Details"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Form>
   );
 }
