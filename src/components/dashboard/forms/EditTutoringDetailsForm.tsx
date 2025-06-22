@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -343,12 +344,12 @@ export function EditTutoringDetailsForm() {
                 control={form.control}
                 name="preferredTimeSlots"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots</FormLabel>
                     <MultiSelectCommand
                       options={timeSlotsOptionsList}
                       selectedValues={field.value || []}
-                      onValueChange={field.onChange}
+                      onValueChange={(values) => field.onChange(values)}
                       placeholder="Select preferred time slots..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
                     />
@@ -381,4 +382,3 @@ export function EditTutoringDetailsForm() {
     </Card>
   );
 }
-
