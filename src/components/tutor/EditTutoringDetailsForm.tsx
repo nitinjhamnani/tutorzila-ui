@@ -297,43 +297,42 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
               />
               )}
 
-              <FormItem>
-                <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
-                <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-                    <FormField
-                    control={form.control}
-                    name="hourlyRate"
-                    render={({ field }) => (
-                        <FormItem className="flex-grow">
-                          <FormControl>
-                            <Input type="text" inputMode="decimal" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="isRateNegotiable"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 space-y-0 pt-2 sm:pt-0">
-                        <FormControl>
-                            <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                        <Label
-                            htmlFor="isRateNegotiable"
-                            className="text-sm font-normal text-muted-foreground"
-                        >
-                            Rate is Negotiable
-                        </Label>
-                        </FormItem>
-                    )}
-                    />
-                </div>
-              </FormItem>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="hourlyRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
+                      <FormControl>
+                        <Input type="text" inputMode="decimal" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isRateNegotiable"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 pt-2">
+                      <FormControl>
+                        <Checkbox
+                          id="isRateNegotiableCheckbox"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <Label
+                        htmlFor="isRateNegotiableCheckbox"
+                        className="text-sm font-normal text-muted-foreground"
+                      >
+                        Rate is Negotiable
+                      </Label>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
