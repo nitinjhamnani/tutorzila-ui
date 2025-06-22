@@ -18,8 +18,8 @@ import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 import {
@@ -419,10 +419,14 @@ export default function TutorDashboardPage() {
           )}
         </div>
       </main>
-      <DialogContent className="sm:max-w-3xl p-0 flex flex-col max-h-[90vh]">
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        className="sm:max-w-3xl p-0 flex flex-col max-h-[90vh]"
+      >
         <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <div className="overflow-y-auto flex-grow h-full">
-          <EditTutoringDetailsForm onSuccess={() => setIsEditTutoringModalOpen(false)} />
+            <EditTutoringDetailsForm onSuccess={() => setIsEditTutoringModalOpen(false)} />
         </div>
       </DialogContent>
     </Dialog>

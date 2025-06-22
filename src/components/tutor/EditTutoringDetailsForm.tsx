@@ -24,9 +24,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import type { TutorProfile } from "@/types";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
+import { DialogClose } from "@/components/ui/dialog";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
@@ -156,12 +157,22 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
     <Card className="border-0 shadow-none rounded-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardHeader className="p-6 border-b">
+          <CardHeader className="p-6 border-b relative">
             <CardTitle className="text-xl font-semibold text-primary flex items-center">
               <Edit className="mr-2.5 h-6 w-6" />
               Edit Tutoring Details
             </CardTitle>
             <CardDescription className="text-sm text-muted-foreground mt-1">Showcase your expertise and preferences to students.</CardDescription>
+            <DialogClose asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-3 right-3 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </DialogClose>
           </CardHeader>
           
           <CardContent className="p-6">
