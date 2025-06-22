@@ -19,6 +19,7 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/dashboard/forms/EditTutoringDetailsForm";
 import {
@@ -143,7 +144,7 @@ export default function TutorDashboardPage() {
     queryFn: () => fetchTutorDashboardData(token),
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false, // Prevents refetching on window focus
+    refetchOnWindowFocus: false, 
   });
 
   useEffect(() => {
@@ -419,6 +420,7 @@ export default function TutorDashboardPage() {
         </div>
       </main>
       <DialogContent className="sm:max-w-3xl p-0">
+        <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <EditTutoringDetailsForm onSuccess={() => setIsEditTutoringModalOpen(false)} />
       </DialogContent>
     </Dialog>

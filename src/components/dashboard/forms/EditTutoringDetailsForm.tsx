@@ -153,7 +153,7 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-lg rounded-xl border bg-card">
+    <Card className="w-full max-w-3xl mx-auto shadow-none rounded-none border-0 bg-card">
       <CardHeader className="p-6 border-b">
         <CardTitle className="text-xl font-semibold text-primary flex items-center">
           <Edit className="mr-2.5 h-6 w-6" />
