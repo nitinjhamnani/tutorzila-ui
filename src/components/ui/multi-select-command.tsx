@@ -67,7 +67,7 @@ export function MultiSelectCommand({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between h-auto min-h-10 py-2 px-3 text-left font-normal hover:bg-background flex items-start gap-1 flex-wrap",
+            "w-full justify-between h-auto min-h-10 py-2 px-3 text-left font-normal hover:bg-background flex items-start gap-1 flex-wrap group",
             className
           )}
           onClick={() => setOpen(!open)}
@@ -112,7 +112,7 @@ export function MultiSelectCommand({
               </span>
             )}
           </div>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-auto" />
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-auto transition-colors group-hover:text-primary group-hover:opacity-100" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
