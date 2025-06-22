@@ -241,72 +241,8 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                   </FormItem>
                 )}
               />
+              
               <FormField
-                control={form.control}
-                name="qualifications"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
-                    <MultiSelectCommand
-                      options={qualificationsList}
-                      selectedValues={field.value || []}
-                      onValueChange={field.onChange}
-                      placeholder="Select qualifications..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="experience"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-2 gap-2">
-                    <FormField
-                    control={form.control}
-                    name="minHourlyRate"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel className="flex items-center text-xs"><DollarSign className="mr-1 h-3 w-3 text-primary/80"/>Min Rate</FormLabel>
-                        <FormControl>
-                            <Input type="text" inputMode="decimal" placeholder="e.g., 500" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="maxHourlyRate"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel className="flex items-center text-xs"><DollarSign className="mr-1 h-3 w-3 text-primary/80"/>Max Rate</FormLabel>
-                        <FormControl>
-                            <Input type="text" inputMode="decimal" placeholder="e.g., 1000" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                </div>
-              </div>
-               <FormField
                 control={form.control}
                 name="teachingMode"
                 render={() => (
@@ -368,6 +304,77 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                   )}
               />
               )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="qualifications"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
+                      <MultiSelectCommand
+                        options={qualificationsList}
+                        selectedValues={field.value || []}
+                        onValueChange={field.onChange}
+                        placeholder="Select qualifications..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="experience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormItem>
+                  <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
+                  <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                      control={form.control}
+                      name="minHourlyRate"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel className="text-xs text-muted-foreground">Minimum</FormLabel>
+                          <FormControl>
+                              <Input type="text" inputMode="decimal" placeholder="e.g., 500" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                      <FormField
+                      control={form.control}
+                      name="maxHourlyRate"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel className="text-xs text-muted-foreground">Maximum</FormLabel>
+                          <FormControl>
+                              <Input type="text" inputMode="decimal" placeholder="e.g., 1000" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                  </div>
+              </FormItem>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <FormField
                   control={form.control}
