@@ -152,17 +152,9 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">
             {tutor.location && <InfoItem icon={MapPin} text={tutor.location} />}
-            {(tutor.minHourlyRate || tutor.maxHourlyRate) && (
+            {tutor.hourlyRate && (
               <Badge variant="outline" className="text-[11.5px] py-1 px-2.5 border-primary/40 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-semibold">
-                {tutor.minHourlyRate && tutor.maxHourlyRate && tutor.minHourlyRate !== tutor.maxHourlyRate
-                  ? `₹${tutor.minHourlyRate} - ₹${tutor.maxHourlyRate}/hr`
-                  : tutor.minHourlyRate && tutor.maxHourlyRate && tutor.minHourlyRate === tutor.maxHourlyRate
-                  ? `₹${tutor.minHourlyRate}/hr`
-                  : tutor.minHourlyRate
-                  ? `From ₹${tutor.minHourlyRate}/hr`
-                  : tutor.maxHourlyRate
-                  ? `Up to ₹${tutor.maxHourlyRate}/hr`
-                  : ''}
+                ₹{tutor.hourlyRate}/hr
               </Badge>
             )}
           </CardFooter>

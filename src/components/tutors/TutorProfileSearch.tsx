@@ -89,9 +89,8 @@ export function TutorProfileSearch() {
 
       const matchesLocationSearch = locationSearchTerm === "" || (tutor.location && tutor.location.toLowerCase().includes(locationSearchTermLower));
       
-      const minTutorRate = parseFloat(tutor.minHourlyRate || "0");
-      const maxTutorRate = parseFloat(tutor.maxHourlyRate || "999999");
-      const matchesFee = feeRange[0] <= maxTutorRate && feeRange[1] >= minTutorRate;
+      const tutorRate = parseFloat(tutor.hourlyRate || "999999");
+      const matchesFee = tutorRate >= feeRange[0] && tutorRate <= feeRange[1];
 
 
       return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch && matchesFee;

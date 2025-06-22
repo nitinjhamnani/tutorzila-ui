@@ -1,3 +1,4 @@
+
 // src/components/tutors/TutorPublicProfile.tsx
 "use client";
 
@@ -116,6 +117,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
               {tutor.hourlyRate && (
                 <Badge variant="secondary" className="mt-3 text-[13px] py-1 px-3 border-primary/30 bg-primary/10 text-primary font-semibold">
                    ₹{tutor.hourlyRate} / hr
+                   {tutor.isRateNegotiable && <span className="font-normal text-xs ml-1">(Negotiable)</span>}
                 </Badge>
               )}
             </CardContent>

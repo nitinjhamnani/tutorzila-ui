@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -24,7 +25,8 @@ const TutorProfileSchema = z.object({
   name: z.string().describe('The name of the tutor.'),
   expertise: z.string().describe('The area of expertise of the tutor.'),
   rating: z.number().describe('The rating of the tutor.'),
-  hourlyRate: z.number().describe('The hourly rate of the tutor.'),
+  hourlyRate: z.string().describe('The hourly rate of the tutor as a string.'),
+  isRateNegotiable: z.boolean().describe('Whether the hourly rate is negotiable.'),
 });
 
 const IntelligentTutorMatchingOutputSchema = z.array(TutorProfileSchema).describe('A list of tutor profiles matching the student criteria.');
@@ -44,13 +46,15 @@ const findTutors = ai.defineTool({
       name: 'Jane Doe',
       expertise: input.subject,
       rating: 4.5,
-      hourlyRate: 30,
+      hourlyRate: "30",
+      isRateNegotiable: true,
     },
     {
       name: 'John Smith',
       expertise: input.subject,
       rating: 4.0,
-      hourlyRate: 25,
+      hourlyRate: "25",
+      isRateNegotiable: false,
     },
   ];
 });
@@ -84,4 +88,3 @@ const intelligentTutorMatchingFlow = ai.defineFlow(
     return output!;
   }
 );
-

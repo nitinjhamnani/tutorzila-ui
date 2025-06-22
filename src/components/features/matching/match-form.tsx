@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,8 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useTransition } from "react";
 import { Loader2, Lightbulb } from "lucide-react";
 import TutorCard from "@/components/features/tutors/tutor-card"; // Assuming a simplified card for matched tutors
-import type { MatchedTutor, Tutor } from '@/types';
-import { mockTutors } from "@/lib/mock-data"; // To map matched tutors to full profiles if needed
+import type { TutorProfile } from '@/types';
+import { MOCK_TUTOR_PROFILES as mockTutors } from "@/lib/mock-data"; // To map matched tutors to full profiles if needed
 
 const formSchema = z.object({
   subject: z.string().min(2, { message: "Subject must be at least 2 characters." }).max(50),
@@ -66,15 +67,16 @@ export default function MatchForm() {
   }
 
   // Helper to map AI output to full Tutor profiles if possible, or use AI output directly
-  const displayTutors: Tutor[] = (matchedTutors || []).map(matchedTutor => {
+  const displayTutors: TutorProfile[] = (matchedTutors || []).map(matchedTutor => {
     const existingTutor = mockTutors.find(t => t.name === matchedTutor.name); // Simple name match for demo
     if (existingTutor) {
       return {
         ...existingTutor,
         // Override with AI data if it's more specific or different
-        expertise: [matchedTutor.expertise], 
+        subjects: [matchedTutor.expertise], 
         rating: matchedTutor.rating,
         hourlyRate: matchedTutor.hourlyRate,
+        isRateNegotiable: matchedTutor.isRateNegotiable,
       };
     }
     // If not found in mock data, create a partial Tutor object from AI output
@@ -82,14 +84,14 @@ export default function MatchForm() {
       id: matchedTutor.name.toLowerCase().replace(/\s+/g, '-'), // Generate a temp ID
       name: matchedTutor.name,
       email: "", // Placeholder
-      avatarUrl: "https://placehold.co/100x100.png", // Placeholder
-      expertise: [matchedTutor.expertise],
+      avatar: "https://placehold.co/100x100.png", // Placeholder
+      subjects: [matchedTutor.expertise],
       bio: `Specializes in ${matchedTutor.expertise}.`, // Placeholder bio
       rating: matchedTutor.rating,
       hourlyRate: matchedTutor.hourlyRate,
-      availability: [], // Placeholder
-      subjects: [matchedTutor.expertise], // Placeholder
-      gradeLevels: [] // Placeholder
+      isRateNegotiable: matchedTutor.isRateNegotiable,
+      role: 'tutor',
+      experience: 'Varies',
     };
   });
 

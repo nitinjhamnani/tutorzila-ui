@@ -74,10 +74,10 @@ const tutoringDetailsSchema = z.object({
   teachingMode: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one teaching mode.",
   }),
+  hourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 500").optional().or(z.literal("")),
+  isRateNegotiable: z.boolean().default(false).optional(),
   qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
   experience: z.string().min(1, "Experience level is required."),
-  minHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 500").optional().or(z.literal("")),
-  maxHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 1000").optional().or(z.literal("")),
   bio: z.string().max(500, "Bio should not exceed 500 characters.").optional().or(z.literal("")),
   location: z.string().optional().or(z.literal("")),
 }).refine(data => {
@@ -88,14 +88,6 @@ const tutoringDetailsSchema = z.object({
 }, {
   message: "Location is required for In-person teaching mode.",
   path: ["location"],
-}).refine(data => {
-    if (data.minHourlyRate && data.maxHourlyRate && data.minHourlyRate.trim() !== '' && data.maxHourlyRate.trim() !== '') {
-        return parseFloat(data.maxHourlyRate) >= parseFloat(data.minHourlyRate);
-    }
-    return true;
-}, {
-    message: "Max rate must be greater than or equal to min rate.",
-    path: ["maxHourlyRate"],
 });
 
 type TutoringDetailsFormValues = z.infer<typeof tutoringDetailsSchema>;
@@ -120,10 +112,10 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
       preferredDays: ensureArray(tutorUser?.preferredDays),
       preferredTimeSlots: ensureArray(tutorUser?.preferredTimeSlots),
       teachingMode: ensureArray(tutorUser?.teachingMode),
+      hourlyRate: tutorUser?.hourlyRate || "",
+      isRateNegotiable: tutorUser?.isRateNegotiable || false,
       qualifications: ensureArray(tutorUser?.qualifications),
       experience: tutorUser?.experience || "",
-      minHourlyRate: tutorUser?.minHourlyRate || "",
-      maxHourlyRate: tutorUser?.maxHourlyRate || "",
       bio: tutorUser?.bio || "",
       location: tutorUser?.location || "",
     },
@@ -138,10 +130,10 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
         preferredDays: ensureArray(tutorUser.preferredDays),
         preferredTimeSlots: ensureArray(tutorUser.preferredTimeSlots),
         teachingMode: ensureArray(tutorUser.teachingMode),
+        hourlyRate: tutorUser.hourlyRate || "",
+        isRateNegotiable: tutorUser.isRateNegotiable || false,
         qualifications: ensureArray(tutorUser.qualifications),
         experience: tutorUser.experience || "",
-        minHourlyRate: tutorUser.minHourlyRate || "",
-        maxHourlyRate: tutorUser.maxHourlyRate || "",
         bio: tutorUser.bio || "",
         location: tutorUser.location || "",
       });
@@ -306,35 +298,41 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
               )}
 
               <FormItem>
-                  <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
-                  <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                      control={form.control}
-                      name="minHourlyRate"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">Minimum</FormLabel>
+                <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
+                <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+                    <FormField
+                    control={form.control}
+                    name="hourlyRate"
+                    render={({ field }) => (
+                        <FormItem className="flex-grow">
                           <FormControl>
-                              <Input type="text" inputMode="decimal" placeholder="e.g., 500" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                            <Input type="text" inputMode="decimal" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
                           </FormControl>
                           <FormMessage />
-                          </FormItem>
-                      )}
-                      />
-                      <FormField
-                      control={form.control}
-                      name="maxHourlyRate"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">Maximum</FormLabel>
-                          <FormControl>
-                              <Input type="text" inputMode="decimal" placeholder="e.g., 1000" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                      />
-                  </div>
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="isRateNegotiable"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 space-y-0 pt-2 sm:pt-0">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <Label
+                            htmlFor="isRateNegotiable"
+                            className="text-sm font-normal text-muted-foreground"
+                        >
+                            Rate is Negotiable
+                        </Label>
+                        </FormItem>
+                    )}
+                    />
+                </div>
               </FormItem>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
