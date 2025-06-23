@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MOCK_DEMO_SESSIONS, MOCK_CLASSES } from "@/lib/mock-data";
 import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
@@ -129,7 +128,6 @@ const fetchTutorDashboardData = async (token: string | null) => {
 export default function TutorDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-  const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -188,7 +186,6 @@ export default function TutorDashboardPage() {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
       // Here you would typically upload the file to your backend/storage
     }
   };
@@ -205,7 +202,6 @@ export default function TutorDashboardPage() {
     if (demoIndexInMock > -1) {
       MOCK_DEMO_SESSIONS[demoIndexInMock] = updatedDemo;
     }
-    toast({ title: "Demo Updated", description: `Demo with ${updatedDemo.studentName} updated.` });
     setIsManageDemoModalOpen(false);
   };
 
@@ -221,7 +217,6 @@ export default function TutorDashboardPage() {
     if (demoIndexInMock > -1) {
       MOCK_DEMO_SESSIONS[demoIndexInMock].status = "Cancelled";
     }
-    toast({ title: "Demo Cancelled", variant: "destructive" });
     setIsManageDemoModalOpen(false);
   };
 
