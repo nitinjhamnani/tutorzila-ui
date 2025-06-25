@@ -4,7 +4,6 @@
 import type { ReactNode } from 'react';
 import { AppHeader } from '@/components/shared/AppHeader';
 import { AppFooter } from '@/components/shared/AppFooter';
-import { VerificationBanner } from '@/components/shared/VerificationBanner';
 import './globals.css'; // Make sure your global styles are imported
 import { usePathname } from 'next/navigation';
 import Providers from '@/components/providers';
@@ -29,7 +28,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html>
       <body>
         <Providers>
-          {showPublicNavigation && <VerificationBanner />}
           {showPublicNavigation && <AppHeader />}
           {children}
           {showPublicNavigation && <AppFooter />}
