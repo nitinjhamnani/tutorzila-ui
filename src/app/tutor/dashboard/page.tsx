@@ -421,7 +421,10 @@ export default function TutorDashboardPage() {
       >
         <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <div className="overflow-y-auto flex-grow h-full">
-            <EditTutoringDetailsForm onSuccess={() => setIsEditTutoringModalOpen(false)} />
+            <EditTutoringDetailsForm 
+              initialData={dashboardData}
+              onSuccess={() => setIsEditTutoringModalOpen(false)} 
+            />
         </div>
       </DialogContent>
     </Dialog>

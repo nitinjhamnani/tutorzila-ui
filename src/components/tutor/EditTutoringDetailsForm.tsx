@@ -21,9 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import type { TutorProfile } from "@/types";
 import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -96,49 +94,49 @@ const ensureArray = (value: any): string[] => Array.isArray(value) ? value : [];
 
 interface EditTutoringDetailsFormProps {
   onSuccess?: () => void;
+  initialData?: any;
 }
 
-export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormProps) {
-  const { user, isAuthenticated } = useAuthMock();
-  const tutorUser = user as TutorProfile | null;
+export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoringDetailsFormProps) {
   const { toast } = useToast();
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
     defaultValues: {
-      subjects: ensureArray(tutorUser?.subjects),
-      gradeLevelsTaught: ensureArray(tutorUser?.gradeLevelsTaught),
-      boardsTaught: ensureArray(tutorUser?.boardsTaught),
-      preferredDays: ensureArray(tutorUser?.preferredDays),
-      preferredTimeSlots: ensureArray(tutorUser?.preferredTimeSlots),
-      teachingMode: ensureArray(tutorUser?.teachingMode),
-      hourlyRate: tutorUser?.hourlyRate || "",
-      isRateNegotiable: tutorUser?.isRateNegotiable || false,
-      qualifications: ensureArray(tutorUser?.qualifications),
-      experience: tutorUser?.experience || "",
-      bio: tutorUser?.bio || "",
-      location: tutorUser?.location || "",
+      subjects: [],
+      gradeLevelsTaught: [],
+      boardsTaught: [],
+      preferredDays: [],
+      preferredTimeSlots: [],
+      teachingMode: [],
+      hourlyRate: "",
+      isRateNegotiable: false,
+      qualifications: [],
+      experience: "",
+      bio: "",
+      location: "",
     },
   });
 
   React.useEffect(() => {
-    if (tutorUser) {
+    if (initialData?.tutoringDetails) {
+      const details = initialData.tutoringDetails;
       form.reset({
-        subjects: ensureArray(tutorUser.subjects),
-        gradeLevelsTaught: ensureArray(tutorUser.gradeLevelsTaught),
-        boardsTaught: ensureArray(tutorUser.boardsTaught),
-        preferredDays: ensureArray(tutorUser.preferredDays),
-        preferredTimeSlots: ensureArray(tutorUser.preferredTimeSlots),
-        teachingMode: ensureArray(tutorUser.teachingMode),
-        hourlyRate: tutorUser.hourlyRate || "",
-        isRateNegotiable: tutorUser.isRateNegotiable || false,
-        qualifications: ensureArray(tutorUser.qualifications),
-        experience: tutorUser.experience || "",
-        bio: tutorUser.bio || "",
-        location: tutorUser.location || "",
+        subjects: ensureArray(details.subjects),
+        gradeLevelsTaught: ensureArray(details.grades),
+        boardsTaught: ensureArray(details.boards),
+        preferredDays: ensureArray(details.availabilityDays),
+        preferredTimeSlots: ensureArray(details.availabilityTime),
+        teachingMode: ensureArray(details.teachingModes),
+        hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
+        isRateNegotiable: details.rateNegotiable || false,
+        qualifications: ensureArray(details.qualifications),
+        experience: details.yearOfExperience || "",
+        bio: details.tutorBio || "",
+        location: details.location || "",
       });
     }
-  }, [tutorUser, form]);
+  }, [initialData, form]);
 
   function onSubmit(data: TutoringDetailsFormValues) {
     console.log("Tutoring Details Submitted:", data);
@@ -150,10 +148,6 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
     if (onSuccess) {
       onSuccess();
     }
-  }
-
-  if (!isAuthenticated || user?.role !== 'tutor') {
-    return <p className="text-center py-10">Access Denied. Only tutors can edit tutoring details.</p>;
   }
 
   return (
@@ -315,7 +309,7 @@ export function EditTutoringDetailsForm({ onSuccess }: EditTutoringDetailsFormPr
                   control={form.control}
                   name="isRateNegotiable"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-2">
+                    <FormItem className="flex flex-row items-center space-x-2 mt-0">
                       <FormControl>
                         <Checkbox
                           id="isRateNegotiableCheckbox"
