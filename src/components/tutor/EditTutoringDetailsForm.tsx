@@ -22,16 +22,19 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
 const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
 const boardsList: MultiSelectOption[] = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"].map(b => ({ value: b, label: b }));
 const qualificationsList: MultiSelectOption[] = ["Bachelor's Degree", "Master's Degree", "PhD", "Teaching Certification", "Subject Matter Expert", "Other"].map(q => ({ value: q, label: q }));
+const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
+
 
 const teachingModeItems = [
   { id: "Online", label: "Online" },
@@ -75,6 +78,7 @@ const tutoringDetailsSchema = z.object({
   hourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 500").optional().or(z.literal("")),
   isRateNegotiable: z.boolean().default(false).optional(),
   qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
+  languages: z.array(z.string()).min(1, "Please select at least one language you speak."),
   experience: z.string().min(1, "Experience level is required."),
   bio: z.string().max(500, "Bio should not exceed 500 characters.").optional().or(z.literal("")),
   location: z.string().optional().or(z.literal("")),
@@ -99,6 +103,7 @@ interface EditTutoringDetailsFormProps {
 
 export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoringDetailsFormProps) {
   const { toast } = useToast();
+  const { token } = useAuthMock();
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
@@ -112,6 +117,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       hourlyRate: "",
       isRateNegotiable: false,
       qualifications: [],
+      languages: [],
       experience: "",
       bio: "",
       location: "",
@@ -131,6 +137,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
         isRateNegotiable: details.rateNegotiable || false,
         qualifications: ensureArray(details.qualifications),
+        languages: ensureArray(details.languages),
         experience: details.yearOfExperience || "",
         bio: details.tutorBio || "",
         location: details.location || "",
@@ -138,17 +145,66 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     }
   }, [initialData, form]);
 
-  function onSubmit(data: TutoringDetailsFormValues) {
-    console.log("Tutoring Details Submitted:", data);
-    // Mock API call
-    toast({
-      title: "Tutoring Details Updated!",
-      description: "Your tutoring information has been saved.",
-    });
-    if (onSuccess) {
-      onSuccess();
+  async function onSubmit(data: TutoringDetailsFormValues) {
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "You are not authenticated. Please log in again.",
+      });
+      return;
+    }
+
+    const requestBody = {
+      subjects: data.subjects,
+      grades: data.gradeLevelsTaught,
+      boards: data.boardsTaught,
+      qualifications: data.qualifications,
+      teachingModes: data.teachingMode,
+      availabilityDays: data.preferredDays,
+      availabilityTime: data.preferredTimeSlots,
+      yearOfExperience: data.experience,
+      tutorBio: data.bio,
+      location: data.location,
+      hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
+      languages: data.languages,
+      rateNegotiable: data.isRateNegotiable || false,
+    };
+
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/api/tutor/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'accept': '*/*',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response.' }));
+        throw new Error(errorData.message || 'Failed to update details.');
+      }
+
+      toast({
+        title: "Tutoring Details Updated!",
+        description: "Your tutoring information has been saved successfully.",
+      });
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error("Failed to update tutoring details:", error);
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: (error as Error).message || "An unexpected error occurred.",
+      });
     }
   }
+
 
   return (
     <Card className="border-0 shadow-none rounded-none">
@@ -291,43 +347,45 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
               />
               )}
               
-              <div>
-                <FormField
-                  control={form.control}
-                  name="hourlyRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
-                      <FormControl>
-                        <Input type="text" inputMode="decimal" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="isRateNegotiable"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-2 mt-0">
-                      <FormControl>
-                        <Checkbox
-                          id="isRateNegotiableCheckbox"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="h-3.5 w-3.5 rounded-[2px]"
-                        />
-                      </FormControl>
-                      <Label
-                        htmlFor="isRateNegotiableCheckbox"
-                        className="text-xs font-normal text-muted-foreground"
-                      >
-                        Rate is Negotiable
-                      </Label>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormItem>
+                <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
+                <div className="flex flex-col gap-2">
+                    <FormField
+                      control={form.control}
+                      name="hourlyRate"
+                      render={({ field }) => (
+                        <FormItem className="flex-grow">
+                          <FormControl>
+                            <Input type="text" inputMode="decimal" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="isRateNegotiable"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 mt-0">
+                          <FormControl>
+                            <Checkbox
+                              id="isRateNegotiableCheckbox"
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="h-3.5 w-3.5 rounded-[2px]"
+                            />
+                          </FormControl>
+                          <Label
+                            htmlFor="isRateNegotiableCheckbox"
+                            className="text-xs font-normal text-muted-foreground"
+                          >
+                            Rate is Negotiable
+                          </Label>
+                        </FormItem>
+                      )}
+                    />
+                </div>
+              </FormItem>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -366,6 +424,25 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   )}
                 />
               </div>
+
+               <FormField
+                control={form.control}
+                name="languages"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Languages className="mr-2 h-4 w-4 text-primary/80"/>Languages Spoken</FormLabel>
+                    <MultiSelectCommand
+                      options={languagesList}
+                      selectedValues={field.value || []}
+                      onValueChange={field.onChange}
+                      placeholder="Select languages..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                    />
+                     <FormDescription className="text-xs">Select all languages you can teach in.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <FormField
