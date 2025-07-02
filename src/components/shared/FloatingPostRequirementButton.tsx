@@ -5,8 +5,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal";
-import { PlusCircle } from "lucide-react"; // Removed SquarePen as PlusCircle is more common for "add"
+import { PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 interface FloatingPostRequirementButtonProps {
   className?: string;
@@ -14,6 +15,7 @@ interface FloatingPostRequirementButtonProps {
 
 export function FloatingPostRequirementButton({ className }: FloatingPostRequirementButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, isAuthenticated } = useAuthMock();
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -32,10 +34,15 @@ export function FloatingPostRequirementButton({ className }: FloatingPostRequire
           <span className="hidden md:inline">Post Requirement</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
-        <PostRequirementModal onSuccess={() => setIsModalOpen(false)} />
+      <DialogContent 
+        className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
+        <PostRequirementModal 
+          startFromStep={isAuthenticated && user ? 2 : 1}
+          onSuccess={() => setIsModalOpen(false)} 
+        />
       </DialogContent>
     </Dialog>
   );
 }
-

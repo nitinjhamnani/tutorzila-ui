@@ -82,7 +82,7 @@ const popularSubjects = [
 
 
 export default function HomePage() {
-  const { user, isAuthenticated } = useAuthMock(); // Get auth state
+  const { user, isAuthenticated } = useAuthMock(); 
   const sectionPadding = "py-10 md:py-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
@@ -113,8 +113,14 @@ export default function HomePage() {
                       <SquarePen className="mr-2.5 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
-                    <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
+                  <DialogContent 
+                    className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+                    onPointerDownOutside={(e) => e.preventDefault()}
+                  >
+                    <PostRequirementModal 
+                      startFromStep={isAuthenticated && user ? 2 : 1} // Conditionally set start step
+                      onSuccess={() => setIsPostRequirementModalOpen(false)} 
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -213,8 +219,14 @@ export default function HomePage() {
                         <PlusCircle className="mr-2.5 h-5 w-5" /> Request A Tutor
                       </Button>
                     </DialogTrigger>
-                     <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden">
-                       <PostRequirementModal onSuccess={() => setIsPostRequirementModalOpen(false)} />
+                     <DialogContent 
+                       className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+                       onPointerDownOutside={(e) => e.preventDefault()}
+                     >
+                       <PostRequirementModal 
+                         startFromStep={isAuthenticated && user ? 2 : 1} 
+                         onSuccess={() => setIsPostRequirementModalOpen(false)} 
+                       />
                      </DialogContent>
                   </Dialog>
                 </div>
@@ -360,6 +372,7 @@ export default function HomePage() {
 }
 
     
+
 
 
 
