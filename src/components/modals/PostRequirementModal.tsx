@@ -34,7 +34,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone } from "lucide-react";
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone, Mail } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -82,10 +82,11 @@ const MOCK_COUNTRIES = [
 
 
 const postRequirementSchema = z.object({
-  // Step 1 - Now optional
-  name: z.string().min(2, { message: "Full name must be at least 2 characters." }).optional().or(z.literal("")),
+  // Step 1 - Now MANDATORY
+  name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
   country: z.string().min(2, "Country is required."),
-  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only.").optional().or(z.literal("")),
+  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   // Step 2
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
@@ -128,6 +129,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
     resolver: zodResolver(postRequirementSchema),
     defaultValues: {
       name: "",
+      email: "",
       country: "IN",
       localPhoneNumber: "",
       subject: [],
@@ -150,7 +152,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1 && initialStep === 1) {
-      fieldsToValidate = ['name', 'localPhoneNumber'];
+      fieldsToValidate = ['name', 'email', 'localPhoneNumber'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['subject', 'gradeLevel', 'board'];
     }
@@ -164,6 +166,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       // Highlight errors for the current step
       if (currentStep === 1 && initialStep === 1) {
         if (form.formState.errors.name) form.setFocus("name");
+        else if (form.formState.errors.email) form.setFocus("email");
         else if (form.formState.errors.localPhoneNumber) form.setFocus("localPhoneNumber");
       } else if (currentStep === 2) {
          if (form.formState.errors.subject) { /* Focus handled by FormMessage */ }
@@ -236,8 +239,21 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="e.g., jane.doe@example.com" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormItem>
-                <FormLabel>Phone Number (Optional)</FormLabel>
+                <FormLabel>Phone Number</FormLabel>
                 <div className="flex gap-2">
                   <FormField
                     control={form.control}
