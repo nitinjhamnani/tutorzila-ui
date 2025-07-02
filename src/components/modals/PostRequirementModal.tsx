@@ -34,7 +34,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info } from "lucide-react";
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -72,11 +72,20 @@ const timeSlotsOptions: MultiSelectOption[] = [
   { value: "Flexible", label: "Flexible"},
 ];
 
+const MOCK_COUNTRIES = [
+  { country: "IN", countryCode: "+91", label: "India (+91)" },
+  { country: "US", countryCode: "+1", label: "USA (+1)" },
+  { country: "GB", countryCode: "+44", label: "UK (+44)" },
+  { country: "AU", countryCode: "+61", label: "Australia (+61)" },
+  { country: "JP", countryCode: "+81", label: "Japan (+81)" },
+];
+
 
 const postRequirementSchema = z.object({
   // Step 1 - Now optional
   name: z.string().min(2, { message: "Full name must be at least 2 characters." }).optional().or(z.literal("")),
-  phone: z.string().min(10, { message: "Phone number must be at least 10 digits." }).regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format.").optional().or(z.literal("")),
+  country: z.string().min(2, "Country is required."),
+  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only.").optional().or(z.literal("")),
   // Step 2
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
@@ -119,7 +128,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
     resolver: zodResolver(postRequirementSchema),
     defaultValues: {
       name: "",
-      phone: "",
+      country: "IN",
+      localPhoneNumber: "",
       subject: [],
       gradeLevel: "",
       board: "",
@@ -140,7 +150,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1 && initialStep === 1) {
-      fieldsToValidate = ['name', 'phone'];
+      fieldsToValidate = ['name', 'localPhoneNumber'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['subject', 'gradeLevel', 'board'];
     }
@@ -154,7 +164,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       // Highlight errors for the current step
       if (currentStep === 1 && initialStep === 1) {
         if (form.formState.errors.name) form.setFocus("name");
-        else if (form.formState.errors.phone) form.setFocus("phone");
+        else if (form.formState.errors.localPhoneNumber) form.setFocus("localPhoneNumber");
       } else if (currentStep === 2) {
          if (form.formState.errors.subject) { /* Focus handled by FormMessage */ }
          else if (form.formState.errors.gradeLevel) form.setFocus("gradeLevel");
@@ -226,19 +236,47 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input type="tel" placeholder="e.g., +919876543210" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem>
+                <FormLabel>Phone Number (Optional)</FormLabel>
+                <div className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className="w-auto min-w-[120px]">
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
+                              <SelectValue placeholder="Country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {MOCK_COUNTRIES.map(c => (
+                              <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="localPhoneNumber"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </FormItem>
             </div>
           )}
 
