@@ -58,7 +58,6 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
-import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
@@ -283,9 +282,6 @@ export default function ParentDashboardPage() {
           </div>
         </div>
         
-        {/* Floating Action Button */}
-        <FloatingPostRequirementButton />
-
         {/* OTP Modal */}
         {otpVerificationType && otpVerificationIdentifier && (
           <OtpVerificationModal
