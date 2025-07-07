@@ -62,35 +62,6 @@ import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostR
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Badge } from "@/components/ui/badge";
 
-// Copied and adapted from Tutor Dashboard's MetricCard
-interface InsightCardProps {
-  title: string;
-  value: string;
-  IconEl: ElementType;
-  iconBg?: string;
-  iconColor?: string;
-  // Trend-related props are removed as they are not needed for parent dashboard
-}
-
-function InsightCard({ title, value, IconEl, iconBg = "bg-primary/10", iconColor = "text-primary" }: InsightCardProps) {
-  return (
-    <div className="bg-card rounded-xl shadow-lg p-5 border-0">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs text-muted-foreground">{title}</p>
-          <h3 className={cn("text-xl md:text-2xl font-semibold mt-0.5", iconColor)}>{value}</h3>
-        </div>
-        {IconEl && (
-          <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", iconBg, iconColor)}>
-            <IconEl className="w-5 h-5" />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-
 interface QuickActionCardProps {
   title: string;
   description: string;
@@ -200,14 +171,6 @@ export default function ParentDashboardPage() {
 
   const isUserVerified = isEmailVerified && isPhoneVerified;
 
-  // Parent-specific insight data, mirroring tutor dashboard's metric card structure
-  const parentInsightsData = [
-    { title: "Total Enquiries", value: "5", IconEl: ListChecks, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Active Classes", value: "2", IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Upcoming Demos", value: "1", IconEl: MessageSquareQuote, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Payments Made", value: "₹12k", IconEl: DollarSign, iconBg: "bg-primary/10", iconColor: "text-primary" },
-  ];
-  
   const parentQuickActions: QuickActionCardProps[] = [
     { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-enquiries", buttonText: "Manage Enquiries" },
     { title: "Find Tutors", description: "Search for qualified tutors.", IconEl: SearchCheck, href: "/parent/find-tutor", buttonText: "Search Now" },
@@ -275,23 +238,6 @@ export default function ParentDashboardPage() {
           </div>
         </div>
 
-        {/* Parent Insights Section */}
-        <div className="mb-6 md:mb-8">
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">My Summary</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-            {parentInsightsData.map((metric, index) => (
-              <InsightCard
-                key={index}
-                title={metric.title}
-                value={metric.value}
-                IconEl={metric.IconEl}
-                iconBg={metric.iconBg}
-                iconColor={metric.iconColor}
-              />
-            ))}
-          </div>
-        </div>
-        
         {/* Quick Actions Section */}
         <div className="mb-6 md:mb-8">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
