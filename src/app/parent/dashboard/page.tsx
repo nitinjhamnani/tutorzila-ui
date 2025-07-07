@@ -61,6 +61,7 @@ import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react"
 import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Badge } from "@/components/ui/badge";
+import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 
 interface QuickActionCardProps {
   title: string;
@@ -114,6 +115,11 @@ export default function ParentDashboardPage() {
 
   const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
+
+  const totalEnquiries = useMemo(() => {
+    if (!user) return 0;
+    return MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id).length;
+  }, [user]);
 
   useEffect(() => {
     setHasMounted(true);
@@ -234,6 +240,25 @@ export default function ParentDashboardPage() {
                   </Badge>
                 </div>
               </div>
+            </div>
+            
+            <div className="flex flex-col items-start w-full md:w-auto md:min-w-[220px]">
+              <div className={cn("rounded-xl p-4 w-full", "bg-secondary")}>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Enquiries</p>
+                    <p className="text-2xl font-bold text-primary">{totalEnquiries}</p>
+                  </div>
+                  <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg shrink-0", "bg-primary/10 text-primary")}>
+                    <ListChecks className="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+              <Button asChild variant="link" className="p-0 h-auto mt-1.5 text-xs text-primary font-medium">
+                <Link href="/parent/my-enquiries">
+                  Manage Enquiries <ArrowRight className="ml-1 w-3 h-3" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
