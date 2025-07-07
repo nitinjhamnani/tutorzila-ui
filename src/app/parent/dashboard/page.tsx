@@ -256,7 +256,7 @@ export default function ParentDashboardPage() {
               </div>
               <Button asChild variant="link" className="p-0 h-auto mt-1.5 text-xs text-primary font-medium">
                 <Link href="/parent/my-enquiries">
-                  Manage Enquiries <ArrowRight className="ml-1 w-3 h-3" />
+                  Post Requirement <ArrowRight className="ml-1 w-3 h-3" />
                 </Link>
               </Button>
             </div>
