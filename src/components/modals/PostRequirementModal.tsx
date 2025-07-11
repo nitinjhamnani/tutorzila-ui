@@ -480,7 +480,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
               {currentStep === totalSchemaSteps && (
                 <Button type="submit" disabled={form.formState.isSubmitting} className="transform transition-transform hover:scale-105 active:scale-95">
                   <Send className="mr-2 h-4 w-4" />
-                  {form.formState.isSubmitting ? "Submitting..." : "Submit Requirement"}
+                  {form.formState.isSubmitting ? "Sending..." : "Send"}
                 </Button>
               )}
             </div>
