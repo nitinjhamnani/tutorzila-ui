@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Link from "next/link"; // Added for terms link
 
 import { Button } from "@/components/ui/button";
 import {
@@ -98,6 +99,9 @@ const postRequirementSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
   country: z.string().min(2, "Country is required."),
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions to continue.",
+  }),
 }).refine(data => {
     if (data.teachingMode?.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
       return false;
@@ -139,6 +143,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       preferredDays: [],
       preferredTimeSlots: [],
       additionalNotes: "",
+      acceptTerms: false,
     },
   });
 
@@ -456,6 +461,41 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   />
                 </div>
               </FormItem>
+              <FormField
+                control={form.control}
+                name="acceptTerms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-input/50">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        id="pr-acceptTerms"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel
+                        htmlFor="pr-acceptTerms"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Accept terms and conditions
+                      </FormLabel>
+                      <FormDescription className="text-xs text-muted-foreground">
+                        By submitting, you agree to our{' '}
+                        <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank">
+                          Terms of Service
+                        </Link>{' '}
+                        and{' '}
+                        <Link href="/privacy-policy" className="text-primary hover:underline" target="_blank">
+                          Privacy Policy
+                        </Link>
+                        .
+                      </FormDescription>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
             </div>
           )}
 
