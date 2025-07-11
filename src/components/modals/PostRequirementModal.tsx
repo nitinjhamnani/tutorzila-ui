@@ -94,13 +94,11 @@ const postRequirementSchema = z.object({
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
   // Step 3
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
-  location: z.string().optional().or(z.literal("")), // Added location field
-  preferredDays: z.array(z.string()).min(1, { message: "Please select at least one preferred day." }),
-  preferredTimeSlots: z.array(z.string()).min(1, { message: "Please select at least one preferred time slot." }),
-  scheduleDetails: z.string().min(10, { message: "Please provide schedule details (at least 10 characters)." }),
+  location: z.string().optional().or(z.literal("")),
+  preferredDays: z.array(z.string()).optional(),
+  preferredTimeSlots: z.array(z.string()).optional(),
   additionalNotes: z.string().optional(),
 }).refine(data => {
-    // Location is required only if "Offline (In-person)" is selected and the field is actually present in the form data (i.e., step 3 is active)
     if (data.teachingMode?.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
       return false;
     }
@@ -121,7 +119,7 @@ interface PostRequirementModalProps {
 export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequirementModalProps) {
   const initialStep = startFromStep;
   const [currentStep, setCurrentStep] = useState(initialStep);
-  const totalSchemaSteps = 3; // Total steps in the schema
+  const totalSchemaSteps = 3; 
   const displayTotalSteps = totalSchemaSteps - (initialStep === 2 ? 1 : 0);
 
   const { toast } = useToast();
@@ -140,12 +138,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       location: "",
       preferredDays: [],
       preferredTimeSlots: [],
-      scheduleDetails: "",
       additionalNotes: "",
     },
   });
 
-  // Reset currentStep if startFromStep changes (e.g., modal re-rendered with different prop)
   useEffect(() => {
     setCurrentStep(initialStep);
   }, [initialStep]);
@@ -157,14 +153,12 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
     } else if (currentStep === 2) {
       fieldsToValidate = ['subject', 'gradeLevel', 'board'];
     }
-    // Step 3 fields will be validated by the final submit
 
     const isValid = fieldsToValidate.length > 0 ? await form.trigger(fieldsToValidate) : true;
 
     if (isValid && currentStep < totalSchemaSteps) {
       setCurrentStep((prev) => prev + 1);
     } else if (!isValid) {
-      // Highlight errors for the current step
       if (currentStep === 1 && initialStep === 1) {
         if (form.formState.errors.name) form.setFocus("name");
         else if (form.formState.errors.email) form.setFocus("email");
@@ -184,14 +178,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
   };
 
   const onSubmit: SubmitHandler<PostRequirementFormValues> = (data) => {
-    // If step 1 was skipped, name and phone won't be in `data` from the form.
-    // In a real app, you'd fetch the logged-in user's details here.
     const submissionData = { ...data };
-    if (initialStep === 2) {
-      // Remove potentially empty name/phone from submission if step 1 was skipped
-      // and rely on backend to associate with logged-in user.
-      // For mock, this is fine.
-    }
     console.log("Tuition Requirement Submitted:", submissionData);
     toast({
       title: "Requirement Submitted!",
@@ -199,8 +186,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       duration: 5000,
     });
     form.reset();
-    setCurrentStep(initialStep); // Reset to the starting step for this modal instance
-    onSuccess(); // Close the modal
+    setCurrentStep(initialStep);
+    onSuccess();
   };
 
   const displayCurrentStepForProgress = currentStep - initialStep + 1;
@@ -422,63 +409,43 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
               />
               )}
 
-              <FormField
-                control={form.control}
-                name="preferredDays"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center text-base"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days</FormLabel>
-                     <MultiSelectCommand
-                        options={daysOptions}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <FormField
+                  control={form.control}
+                  name="preferredDays"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center text-base"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                       <MultiSelectCommand
+                          options={daysOptions}
+                          selectedValues={field.value || []}
+                          onValueChange={(values) => field.onChange(values)}
+                          placeholder="Select preferred days..."
+                          className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
+                        />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="preferredTimeSlots"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="flex items-center text-base"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <MultiSelectCommand
+                        options={timeSlotsOptions}
                         selectedValues={field.value || []}
                         onValueChange={(values) => field.onChange(values)}
-                        placeholder="Select preferred days..."
+                        placeholder="Select preferred time slots..."
                         className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
                       />
-                    <FormDescription>You can select multiple days.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="preferredTimeSlots"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="flex items-center text-base"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time Slots</FormLabel>
-                    <MultiSelectCommand
-                      options={timeSlotsOptions}
-                      selectedValues={field.value || []}
-                      onValueChange={(values) => field.onChange(values)}
-                      placeholder="Select preferred time slots..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
-                    />
-                    <FormDescription>You can select multiple time slots.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="scheduleDetails"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Schedule Details & Other Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., Weekdays after 5 PM, 2-3 times a week. Student needs help with exam preparation..."
-                        className="resize-none bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"
-                        {...field}
-                        rows={3}
-                      />
-                    </FormControl>
-                     <FormDescription>Provide specific timings, frequency, and goals.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
@@ -487,7 +454,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   <FormItem>
                     <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Any other specific requirements or notes for the tutor." {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                      <Textarea placeholder="Any other specific requirements or notes for the tutor. e.g., 'Student needs help with exam preparation...'" {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
