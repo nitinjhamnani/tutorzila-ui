@@ -83,21 +83,21 @@ const MOCK_COUNTRIES = [
 
 
 const postRequirementSchema = z.object({
-  // Step 1 - Now MANDATORY
-  name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  country: z.string().min(2, "Country is required."),
-  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
-  // Step 2
+  // Step 1
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
-  // Step 3
+  // Step 2
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
   location: z.string().optional().or(z.literal("")),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   additionalNotes: z.string().optional(),
+  // Step 3
+  name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  country: z.string().min(2, "Country is required."),
+  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
 }).refine(data => {
     if (data.teachingMode?.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
       return false;
@@ -148,10 +148,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
 
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
-    if (currentStep === 1 && initialStep === 1) {
-      fieldsToValidate = ['name', 'email', 'localPhoneNumber'];
-    } else if (currentStep === 2) {
+    if (currentStep === 1) {
       fieldsToValidate = ['subject', 'gradeLevel', 'board'];
+    } else if (currentStep === 2) {
+      fieldsToValidate = ['teachingMode', 'location'];
     }
 
     const isValid = fieldsToValidate.length > 0 ? await form.trigger(fieldsToValidate) : true;
@@ -159,11 +159,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
     if (isValid && currentStep < totalSchemaSteps) {
       setCurrentStep((prev) => prev + 1);
     } else if (!isValid) {
-      if (currentStep === 1 && initialStep === 1) {
-        if (form.formState.errors.name) form.setFocus("name");
-        else if (form.formState.errors.email) form.setFocus("email");
-        else if (form.formState.errors.localPhoneNumber) form.setFocus("localPhoneNumber");
-      } else if (currentStep === 2) {
+      if (currentStep === 1) {
          if (form.formState.errors.subject) { /* Focus handled by FormMessage */ }
          else if (form.formState.errors.gradeLevel) form.setFocus("gradeLevel");
          else if (form.formState.errors.board) form.setFocus("board");
@@ -216,80 +212,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[65vh] overflow-y-auto">
-          {currentStep === 1 && initialStep === 1 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Personal Details</h3>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Jane Doe" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Mail className="mr-2 h-4 w-4 text-primary/80" />Email Address</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="e.g., jane.doe@example.com" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormItem>
-                <FormLabel className="flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80" />Phone Number</FormLabel>
-                <div className="flex gap-2">
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem className="w-auto min-w-[120px]">
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
-                              <SelectValue placeholder="Country" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {MOCK_COUNTRIES.map(c => (
-                              <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="localPhoneNumber"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </FormItem>
-            </div>
-          )}
-
-          {currentStep === 2 && (
+          {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><BookOpen className="mr-2 h-5 w-5" />Tutoring Details</h3>
               <FormField
@@ -349,7 +272,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
             </div>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === 2 && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><Settings2 className="mr-2 h-5 w-5" />Preferences & Details</h3>
               
@@ -460,6 +383,79 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   </FormItem>
                 )}
               />
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="space-y-4 animate-in fade-in duration-300">
+              <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Personal Details</h3>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Jane Doe" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Mail className="mr-2 h-4 w-4 text-primary/80" />Email Address</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="e.g., jane.doe@example.com" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormItem>
+                <FormLabel className="flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80" />Phone Number</FormLabel>
+                <div className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className="w-auto min-w-[120px]">
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
+                              <SelectValue placeholder="Country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {MOCK_COUNTRIES.map(c => (
+                              <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="localPhoneNumber"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </FormItem>
             </div>
           )}
 
