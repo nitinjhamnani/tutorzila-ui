@@ -35,7 +35,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone, Mail, X } from "lucide-react";
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone, Mail, X, GraduationCap, Building, RadioTower } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -237,7 +237,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Full Name</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g., Jane Doe" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
                     </FormControl>
@@ -250,7 +250,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Address</FormLabel>
+                    <FormLabel className="flex items-center"><Mail className="mr-2 h-4 w-4 text-primary/80" />Email Address</FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="e.g., jane.doe@example.com" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
                     </FormControl>
@@ -259,7 +259,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 )}
               />
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel className="flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80" />Phone Number</FormLabel>
                 <div className="flex gap-2">
                   <FormField
                     control={form.control}
@@ -310,7 +310,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="subject"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Subjects</FormLabel>
+                    <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80" />Subjects</FormLabel>
                     <MultiSelectCommand
                       options={subjectsList}
                       selectedValues={field.value || []}
@@ -328,7 +328,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="gradeLevel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Grade Level</FormLabel>
+                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80" />Grade Level</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
@@ -346,7 +346,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="board"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Board (e.g., CBSE, ICSE, State)</FormLabel>
+                    <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80" />Board (e.g., CBSE, ICSE, State)</FormLabel>
                      <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a board" /></SelectTrigger>
@@ -371,7 +371,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="teachingMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="flex items-center text-base"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormItem key={option.id}>
@@ -427,7 +427,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="preferredDays"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base flex items-center"><CalendarDays className="mr-2 h-4 w-4"/>Preferred Days</FormLabel>
+                    <FormLabel className="flex items-center text-base"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days</FormLabel>
                      <MultiSelectCommand
                         options={daysOptions}
                         selectedValues={field.value || []}
@@ -446,7 +446,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="preferredTimeSlots"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="text-base flex items-center"><Clock className="mr-2 h-4 w-4"/>Preferred Time Slots</FormLabel>
+                    <FormLabel className="flex items-center text-base"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time Slots</FormLabel>
                     <MultiSelectCommand
                       options={timeSlotsOptions}
                       selectedValues={field.value || []}
