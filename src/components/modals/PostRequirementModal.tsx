@@ -305,7 +305,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                       placeholder="Select subjects..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
                     />
-                    <FormDescription>You can select multiple subjects.</FormDescription>
+                    <FormDescription className="text-xs">You can select multiple subjects.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -463,7 +463,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
             </div>
           )}
 
-          <DialogFooter className="gap-2 sm:justify-between pt-6">
+          <DialogFooter className="pt-6 flex flex-row justify-between items-center w-full">
             <div>
               {currentStep > initialStep && (
                 <Button type="button" variant="outline" onClick={handlePrevious} className="transform transition-transform hover:scale-105 active:scale-95">
