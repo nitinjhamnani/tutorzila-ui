@@ -278,3 +278,7 @@ html, body {
   font-size: 0.75rem !important; /* 12px */
   line-height: 1rem !important; /* 16px */
 }
+
+.text-destructive {
+    color: hsl(var(--destructive)) !important;
+}
