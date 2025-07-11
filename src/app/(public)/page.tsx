@@ -115,7 +115,7 @@ export default function HomePage() {
                   </DialogTrigger>
                   <DialogContent 
                     className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
-                    onPointerDownOutside={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => e.preventDefault()}
                   >
                     <PostRequirementModal 
                       startFromStep={1} 
@@ -221,7 +221,7 @@ export default function HomePage() {
                     </DialogTrigger>
                      <DialogContent 
                        className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
-                       onPointerDownOutside={(e) => e.preventDefault()}
+                       onCloseAutoFocus={(e) => e.preventDefault()}
                      >
                        <PostRequirementModal 
                          startFromStep={1} 
