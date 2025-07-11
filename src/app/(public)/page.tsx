@@ -118,7 +118,7 @@ export default function HomePage() {
                     onPointerDownOutside={(e) => e.preventDefault()}
                   >
                     <PostRequirementModal 
-                      startFromStep={isAuthenticated && user ? 2 : 1} // Conditionally set start step
+                      startFromStep={1} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
                     />
                   </DialogContent>
@@ -224,7 +224,7 @@ export default function HomePage() {
                        onPointerDownOutside={(e) => e.preventDefault()}
                      >
                        <PostRequirementModal 
-                         startFromStep={isAuthenticated && user ? 2 : 1} 
+                         startFromStep={1} 
                          onSuccess={() => setIsPostRequirementModalOpen(false)} 
                        />
                      </DialogContent>
@@ -372,6 +372,7 @@ export default function HomePage() {
 }
 
     
+
 
 
 
