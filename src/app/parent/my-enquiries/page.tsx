@@ -21,8 +21,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog, // Import Dialog
-  DialogTrigger, 
+  Dialog,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -57,6 +57,8 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { CreateEnquiryFormModal } from "@/components/parent/modals/CreateEnquiryFormModal";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
 
@@ -71,12 +73,49 @@ const enquiryStatusCategories: {
   { label: "Closed", value: "Closed", icon: Archive },
 ];
 
+// Data fetching function
+const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
+  if (!token) throw new Error("Authentication token not found.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/parent/enquiries`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch enquiries.");
+  }
+  
+  const data = await response.json();
+  
+  // Transform API data to match the TuitionRequirement type
+  return data.map((item: any, index: number) => ({
+    id: `enq-${index}-${Date.now()}`, // Generating a mock ID as it's missing from API
+    parentId: "", // Not provided by API
+    parentName: "", // Not provided by API
+    subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
+    gradeLevel: item.grade,
+    scheduleDetails: "Details not provided by API", // Placeholder
+    location: item.location,
+    status: item.status || "open", // Assuming a default status if not provided
+    postedAt: new Date().toISOString(), // Placeholder
+    board: item.board,
+    teachingMode: [
+      ...(item.online ? ["Online"] : []),
+      ...(item.offline ? ["Offline (In-person)"] : []),
+    ],
+    applicantsCount: item.appliedTutors,
+  }));
+};
+
 export default function ParentMyEnquiriesPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
 
-  const [allRequirements, setAllRequirements] = useState<TuitionRequirement[]>([]);
   const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>("Open");
   
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -88,16 +127,16 @@ export default function ParentMyEnquiriesPage() {
 
   const [isCreateEnquiryModalOpen, setIsCreateEnquiryModalOpen] = useState(false);
 
+  const { data: allRequirements = [], isLoading: isLoadingEnquiries, error: enquiriesError } = useQuery({
+    queryKey: ['parentEnquiries', token],
+    queryFn: () => fetchParentEnquiries(token),
+    enabled: !!token && !!user && user.role === 'parent',
+  });
 
   useEffect(() => {
     if (!isCheckingAuth) {
       if (!isAuthenticated || user?.role !== "parent") {
         router.replace("/");
-      } else if (user) {
-        const parentRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(
-          (req) => req.parentId === user.id
-        );
-        setAllRequirements(parentRequirements);
       }
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
@@ -128,18 +167,10 @@ export default function ParentMyEnquiriesPage() {
 
   const handleConfirmDelete = () => {
     if (!selectedRequirementForAction) return;
-    setAllRequirements((prev) =>
-      prev.filter((req) => req.id !== selectedRequirementForAction.id)
-    );
-    
-    const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedRequirementForAction.id);
-    if (mockIndex > -1) {
-      MOCK_ALL_PARENT_REQUIREMENTS.splice(mockIndex, 1);
-    }
+    // This part would need a real API call to delete
     toast({
-      title: "Enquiry Deleted",
-      description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" has been deleted.`,
-      variant: "destructive",
+      title: "Deletion (Mock)",
+      description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" would be deleted.`,
     });
     setIsDeleteConfirmOpen(false);
     setSelectedRequirementForAction(null);
@@ -159,34 +190,10 @@ export default function ParentMyEnquiriesPage() {
     if (closeEnquiryStep === 1) {
       setCloseEnquiryStep(2);
     } else if (closeEnquiryStep === 2) {
-      const updatedRequirement = {
-        ...selectedRequirementForAction,
-        status: "closed" as const,
-        additionalNotes: `${selectedRequirementForAction.additionalNotes || ""}\nUpdate: Requirement closed on ${new Date().toLocaleDateString()}. ${
-          foundTutorName
-            ? `Tutor found: ${foundTutorName}.`
-            : "No tutor specified."
-        } ${
-          startClassesConfirmation === "yes"
-            ? "Classes expected to start."
-            : startClassesConfirmation === "no"
-            ? "Decided not to start classes."
-            : ""
-        }`,
-      };
-      setAllRequirements((prev) =>
-        prev.map((req) =>
-          req.id === selectedRequirementForAction.id ? updatedRequirement : req
-        )
-      );
-      
-      const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === selectedRequirementForAction.id);
-      if (mockIndex > -1) {
-        MOCK_ALL_PARENT_REQUIREMENTS[mockIndex] = updatedRequirement;
-      }
+      // API call to close enquiry would go here
       toast({
-        title: "Enquiry Closed",
-        description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" has been marked as closed.`,
+        title: "Enquiry Closed (Mock)",
+        description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" would be marked as closed.`,
       });
       setIsCloseEnquiryModalOpen(false);
       setSelectedRequirementForAction(null);
@@ -194,18 +201,8 @@ export default function ParentMyEnquiriesPage() {
   };
 
   const handleReopen = (id: string) => {
-    const reqToReopen = allRequirements.find(req => req.id === id);
-    if (reqToReopen) {
-      setAllRequirements(prev => prev.map(r => 
-        r.id === id ? { ...r, status: "open" as const } : r
-      ));
-      
-      const mockIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(req => req.id === id);
-      if (mockIndex > -1) {
-        MOCK_ALL_PARENT_REQUIREMENTS[mockIndex].status = "open";
-      }
-      router.push(`/parent/my-enquiries/${id}`); 
-    }
+    // API call to reopen enquiry would go here
+    router.push(`/parent/my-enquiries/${id}`); 
   };
   
   const selectedCategoryData = enquiryStatusCategories.find(cat => cat.value === activeFilterCategory);
@@ -250,13 +247,8 @@ export default function ParentMyEnquiriesPage() {
           
           <CreateEnquiryFormModal
               onSuccess={() => {
-                  if (user) { 
-                      const parentRequirements = MOCK_ALL_PARENT_REQUIREMENTS.filter(
-                          (req) => req.parentId === user.id
-                      );
-                      setAllRequirements(parentRequirements);
-                  }
-                  setIsCreateEnquiryModalOpen(false); // Close modal on success
+                  // After successful creation, you might want to refetch enquiries
+                  setIsCreateEnquiryModalOpen(false); 
               }}
           />
         </Dialog>
@@ -300,7 +292,17 @@ export default function ParentMyEnquiriesPage() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4">
-          {filteredRequirements.length > 0 ? (
+          {isLoadingEnquiries ? (
+            [...Array(3)].map((_, i) => <Skeleton key={i} className="h-[150px] w-full rounded-lg" />)
+          ) : enquiriesError ? (
+            <Card className="text-center py-12 bg-destructive/10 border-destructive/20 rounded-lg shadow-sm">
+                <CardContent className="flex flex-col items-center">
+                    <XCircle className="w-16 h-16 text-destructive mx-auto mb-5" />
+                    <p className="text-xl font-semibold text-destructive mb-1.5">Error Fetching Enquiries</p>
+                    <p className="text-sm text-destructive/80 max-w-sm mx-auto">Could not load your enquiries. Please try again later.</p>
+                </CardContent>
+            </Card>
+          ) : filteredRequirements.length > 0 ? (
             filteredRequirements.map((req) => (
               <ParentEnquiryCard
                 key={req.id}
@@ -405,4 +407,3 @@ export default function ParentMyEnquiriesPage() {
     </main>
   );
 }
-
