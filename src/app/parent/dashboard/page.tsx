@@ -61,6 +61,8 @@ import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react"
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface QuickActionCardProps {
   title: string;
@@ -101,11 +103,37 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
   );
 }
 
+const fetchParentDashboardData = async (token: string | null) => {
+  if (!token) throw new Error("No authentication token found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/parent/dashboard`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "accept": "*/*",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch parent dashboard data.");
+  }
+  return response.json();
+};
+
+
 export default function ParentDashboardPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: dashboardData, isLoading: isLoadingDashboard, error: dashboardError } = useQuery({
+    queryKey: ['parentDashboard', token],
+    queryFn: () => fetchParentDashboardData(token),
+    enabled: !!token && !!user && user.role === 'parent',
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
 
   const [hasMounted, setHasMounted] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
@@ -114,11 +142,6 @@ export default function ParentDashboardPage() {
 
   const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
-
-  const totalEnquiries = useMemo(() => {
-    if (!user) return 0;
-    return MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === user.id).length;
-  }, [user]);
 
   useEffect(() => {
     setHasMounted(true);
@@ -137,7 +160,11 @@ export default function ParentDashboardPage() {
       setIsEmailVerified(user.isEmailVerified || false);
       setIsPhoneVerified(user.isPhoneVerified || false);
     }
-  }, [user]);
+    if (dashboardData?.verified) {
+      setIsEmailVerified(true);
+      setIsPhoneVerified(true);
+    }
+  }, [user, dashboardData]);
 
   if (isCheckingAuth || !hasMounted || !isAuthenticated || !user || user.role !== 'parent') {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Parent Dashboard...</div>;
@@ -174,7 +201,7 @@ export default function ParentDashboardPage() {
     setOtpVerificationIdentifier(null);
   };
 
-  const isUserVerified = isEmailVerified && isPhoneVerified;
+  const isUserVerified = dashboardData ? dashboardData.verified : (isEmailVerified && isPhoneVerified);
 
   const parentQuickActions: QuickActionCardProps[] = [
     { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-enquiries", buttonText: "Manage Enquiries" },
@@ -195,7 +222,7 @@ export default function ParentDashboardPage() {
             <div className="flex items-center gap-4">
               <div className="relative group shrink-0">
                 <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                  <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
+                  <AvatarImage src={dashboardData?.profilePic || user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
                   <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
                     {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                   </AvatarFallback>
@@ -228,15 +255,19 @@ export default function ParentDashboardPage() {
                       {user.status}
                     </Badge>
                   )}
-                  <Badge
-                    className={cn(
-                      "text-xs py-0.5 px-2 border",
-                      isUserVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
-                    )}
-                  >
-                    {isUserVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                    {isUserVerified ? "Verified" : "Not Verified"}
-                  </Badge>
+                  {isLoadingDashboard ? (
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  ) : (
+                    <Badge
+                      className={cn(
+                        "text-xs py-0.5 px-2 border",
+                        isUserVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
+                      )}
+                    >
+                      {isUserVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                      {isUserVerified ? "Verified" : "Not Verified"}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
@@ -246,7 +277,11 @@ export default function ParentDashboardPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs text-muted-foreground">Total Enquiries</p>
-                    <p className="text-2xl font-bold text-primary">{totalEnquiries}</p>
+                    {isLoadingDashboard ? (
+                      <Skeleton className="h-8 w-12 mt-1 rounded-md" />
+                    ) : (
+                      <p className="text-2xl font-bold text-primary">{dashboardData?.enquiries ?? 0}</p>
+                    )}
                   </div>
                   <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg shrink-0", "bg-primary/10 text-primary")}>
                     <ListChecks className="w-5 h-5" />
@@ -296,3 +331,4 @@ export default function ParentDashboardPage() {
     </main>
   );
 }
+

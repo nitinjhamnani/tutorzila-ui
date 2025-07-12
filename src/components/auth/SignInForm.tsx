@@ -41,7 +41,7 @@ const signInSchema = z.object({
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
-export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: () => void, onSwitchForm: (formType: 'signin' | 'signup') => void, onClose?: () => void }) {
+export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { onSuccess?: () => void, onSwitchForm: (formType: 'signin' | 'signup') => void, onClose?: () => void, initialName?: string }) {
   const { login } = useAuthMock();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,7 +49,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose }: { onSuccess?: (
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: "",
+      email: initialName || "",
       password: "",
     },
   });

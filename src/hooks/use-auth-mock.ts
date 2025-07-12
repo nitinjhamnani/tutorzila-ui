@@ -122,7 +122,7 @@ export function useAuthMock() {
     }
 
     if (responseData.token && responseData.type) {
-        setSession(responseData.token, responseData.type, email, responseData.name);
+        setSession(responseData.token, responseData.type, email, responseData.name, responseData.phone);
     } else {
         throw new Error("Invalid response from server during login.");
     }

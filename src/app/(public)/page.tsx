@@ -88,7 +88,13 @@ export default function HomePage() {
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalInitialName, setAuthModalInitialName] = useState<string | undefined>(undefined);
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
+
+  const handleTriggerSignIn = (name?: string) => {
+    setAuthModalInitialName(name);
+    setIsAuthModalOpen(true);
+  };
 
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
@@ -121,7 +127,7 @@ export default function HomePage() {
                     <PostRequirementModal 
                       startFromStep={1} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
-                      onTriggerSignIn={() => setIsAuthModalOpen(true)}
+                      onTriggerSignIn={handleTriggerSignIn}
                     />
                   </DialogContent>
                 </Dialog>
@@ -227,7 +233,7 @@ export default function HomePage() {
                        <PostRequirementModal 
                          startFromStep={1} 
                          onSuccess={() => setIsPostRequirementModalOpen(false)}
-                         onTriggerSignIn={() => setIsAuthModalOpen(true)}
+                         onTriggerSignIn={handleTriggerSignIn}
                        />
                      </DialogContent>
                   </Dialog>
@@ -369,7 +375,11 @@ export default function HomePage() {
         </section>
         
       {isAuthModalOpen && (
-        <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
+        <AuthModal 
+          isOpen={isAuthModalOpen} 
+          onOpenChange={setIsAuthModalOpen} 
+          initialName={authModalInitialName}
+        />
       )}
       </div>
     

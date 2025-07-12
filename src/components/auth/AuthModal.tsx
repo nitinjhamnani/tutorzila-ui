@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 interface AuthModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  initialName?: string;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName }) => {
   const [currentForm, setCurrentForm] = useState<'signin' | 'signup'>('signin');
 
   const handleSwitchForm = (formType: 'signin' | 'signup') => {
@@ -28,7 +29,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange }) => {
           {/* The forms SignInForm and SignUpForm provide their own visual titles */}
           <div className="overflow-y-auto flex-grow h-full">
             {currentForm === 'signin' ? (
-              <SignInForm onSwitchForm={handleSwitchForm} onClose={() => onOpenChange(false)} />
+              <SignInForm onSwitchForm={handleSwitchForm} onClose={() => onOpenChange(false)} initialName={initialName} />
             ) : (
               <SignUpForm onSwitchForm={handleSwitchForm} onClose={() => onOpenChange(false)} />
             )}
