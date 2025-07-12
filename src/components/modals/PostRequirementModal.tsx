@@ -119,7 +119,7 @@ type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 interface PostRequirementModalProps {
   onSuccess: () => void;
   startFromStep?: 1; 
-  onTriggerSignIn?: () => void;
+  onTriggerSignIn?: (name?: string) => void;
 }
 
 export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSignIn }: PostRequirementModalProps) {
@@ -215,10 +215,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       if (responseData.token && responseData.type === 'PARENT') {
         toast({
           title: "Requirement Posted!",
-          description: responseData.message || "Your requirement is live. You've been logged in.",
+          description: "You've been logged in and will be redirected to your dashboard.",
         });
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
-        onSuccess(); // This will close the modal and redirect via setSession
+        onSuccess();
       } else {
         // User exists, prompt to sign in
         toast({
@@ -227,7 +227,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         });
         onSuccess(); // Close this modal
         if (onTriggerSignIn) {
-          onTriggerSignIn(); // Trigger the sign-in modal on the parent page
+          onTriggerSignIn(data.name); 
         }
       }
 
@@ -381,7 +381,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="location"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel className="flex items-center text-base font-medium"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
+                      <FormLabel className="text-base font-medium flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                       <FormControl>
                       <Input placeholder="e.g., Student's Home, City Center Library" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                       </FormControl>
@@ -397,7 +397,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center text-base font-medium"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="text-base font-medium flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -415,7 +415,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="flex items-center text-base font-medium"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="text-base font-medium flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
@@ -434,7 +434,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center text-base font-medium"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
+                    <FormLabel className="text-base font-medium flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Any other specific requirements or notes for the tutor. e.g., 'Student needs help with exam preparation...'" {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                     </FormControl>
@@ -515,7 +515,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   />
                 </div>
               </FormItem>
-              <FormField
+               <FormField
                 control={form.control}
                 name="acceptTerms"
                 render={({ field }) => (
