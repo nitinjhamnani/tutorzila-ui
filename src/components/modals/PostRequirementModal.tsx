@@ -208,7 +208,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[65vh] overflow-y-auto">
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in duration-300">
-              <h3 className="text-lg font-semibold flex items-center text-primary"><BookOpen className="mr-2 h-5 w-5" />Tuition Details</h3>
+              <h3 className="text-lg font-semibold flex items-center text-primary"><BookOpen className="mr-2 h-5 w-5" />Academic Information</h3>
               <FormField
                 control={form.control}
                 name="subject"
@@ -275,7 +275,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="teachingMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormItem key={option.id}>
@@ -332,7 +332,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-medium flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -350,7 +350,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="text-base font-medium flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
@@ -369,7 +369,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
+                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Any other specific requirements or notes for the tutor. e.g., 'Student needs help with exam preparation...'" {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                     </FormControl>
@@ -382,7 +382,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
 
           {currentStep === 3 && (
             <div className="space-y-4 animate-in fade-in duration-300">
-              <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Personal Details</h3>
+              <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Your Contact Details</h3>
               <FormField
                 control={form.control}
                 name="name"
