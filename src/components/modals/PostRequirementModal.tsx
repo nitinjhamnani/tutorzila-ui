@@ -117,14 +117,12 @@ type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
-  startFromStep?: 1 | 2;
+  startFromStep?: 1; // Always starts from step 1
 }
 
 export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequirementModalProps) {
-  const initialStep = startFromStep;
-  const [currentStep, setCurrentStep] = useState(initialStep);
-  const totalSchemaSteps = 3; 
-  const displayTotalSteps = totalSchemaSteps - (initialStep === 2 ? 1 : 0);
+  const [currentStep, setCurrentStep] = useState(startFromStep);
+  const totalSteps = 3;
 
   const { toast } = useToast();
 
@@ -147,33 +145,25 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
     },
   });
 
-  useEffect(() => {
-    setCurrentStep(initialStep);
-  }, [initialStep]);
-
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ['subject', 'gradeLevel', 'board'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['teachingMode', 'location'];
+    } else if (currentStep === 3) {
+      fieldsToValidate = ['name', 'email', 'country', 'localPhoneNumber', 'acceptTerms'];
     }
 
     const isValid = fieldsToValidate.length > 0 ? await form.trigger(fieldsToValidate) : true;
 
-    if (isValid && currentStep < totalSchemaSteps) {
+    if (isValid && currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
-    } else if (!isValid) {
-      if (currentStep === 1) {
-         if (form.formState.errors.subject) { /* Focus handled by FormMessage */ }
-         else if (form.formState.errors.gradeLevel) form.setFocus("gradeLevel");
-         else if (form.formState.errors.board) form.setFocus("board");
-      }
     }
   };
 
   const handlePrevious = () => {
-    if (currentStep > initialStep) {
+    if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
     }
   };
@@ -187,11 +177,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       duration: 5000,
     });
     form.reset();
-    setCurrentStep(initialStep);
+    setCurrentStep(startFromStep);
     onSuccess();
   };
-
-  const displayCurrentStepForProgress = currentStep - initialStep + 1;
+  
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
 
   return (
@@ -199,7 +188,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       <DialogHeader className="text-left pt-6 px-6">
         <DialogTitle className="text-2xl font-semibold">Post Your Tuition Requirement</DialogTitle>
         <DialogDescription>
-          Fill in the details below in {displayTotalSteps} easy step{displayTotalSteps > 1 ? 's' : ''} to find the perfect tutor.
+          Fill in the details below in {totalSteps} easy steps to find the perfect tutor.
         </DialogDescription>
       </DialogHeader>
 
@@ -209,9 +198,9 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
       </DialogClose>
 
       <div className="my-6 px-6">
-        <Progress value={(displayCurrentStepForProgress / displayTotalSteps) * 100} className="w-full h-2" />
+        <Progress value={(currentStep / totalSteps) * 100} className="w-full h-2" />
         <p className="text-sm text-muted-foreground mt-2 text-center font-medium">
-          Step {displayCurrentStepForProgress} of {displayTotalSteps}
+          Step {currentStep} of {totalSteps}
         </p>
       </div>
 
@@ -286,7 +275,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="teachingMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center text-base"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormItem key={option.id}>
@@ -343,7 +332,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center text-base"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -361,7 +350,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="flex items-center text-base"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
@@ -501,19 +490,19 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
 
           <DialogFooter className="pt-6 flex flex-row justify-between items-center w-full">
             <div>
-              {currentStep > initialStep && (
+              {currentStep > 1 && (
                 <Button type="button" variant="outline" onClick={handlePrevious} className="transform transition-transform hover:scale-105 active:scale-95">
                   <ArrowLeft className="mr-2 h-4 w-4" /> Previous
                 </Button>
               )}
             </div>
             <div>
-              {currentStep < totalSchemaSteps && (
+              {currentStep < totalSteps && (
                 <Button type="button" onClick={handleNext} className="transform transition-transform hover:scale-105 active:scale-95">
                   Next <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
-              {currentStep === totalSchemaSteps && (
+              {currentStep === totalSteps && (
                 <Button type="submit" disabled={form.formState.isSubmitting} className="transform transition-transform hover:scale-105 active:scale-95">
                   <Send className="mr-2 h-4 w-4" />
                   {form.formState.isSubmitting ? "Sending..." : "Send"}
