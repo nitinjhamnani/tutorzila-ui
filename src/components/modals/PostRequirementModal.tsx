@@ -6,6 +6,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link"; // Added for terms link
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -127,7 +128,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   const totalSteps = 3;
 
   const { toast } = useToast();
-  const { setSession } = useAuthMock();
+  const { setSession, isAuthenticated } = useAuthMock();
+  const router = useRouter();
 
   const form = useForm<PostRequirementFormValues>({
     resolver: zodResolver(postRequirementSchema),
@@ -147,6 +149,16 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       acceptTerms: false,
     },
   });
+
+  // Effect to redirect after successful authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+        // This assumes that if a user is authenticated immediately after a form submission in this modal,
+        // they are a new parent who should be redirected.
+        router.push("/parent/dashboard");
+    }
+  }, [isAuthenticated, router]);
+
 
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
@@ -215,9 +227,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       if (responseData.token && responseData.type === 'PARENT') {
         toast({
           title: "Requirement Posted!",
-          description: "You've been logged in and will be redirected to your dashboard.",
+          description: "You've been logged in. Redirecting to your dashboard...",
         });
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
+        // The useEffect will handle redirection. We can close the modal.
         onSuccess();
       } else {
         // User exists, prompt to sign in
@@ -335,7 +348,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
@@ -381,7 +394,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="location"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel className="text-base font-medium flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
+                      <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                       <FormControl>
                       <Input placeholder="e.g., Student's Home, City Center Library" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                       </FormControl>
@@ -397,7 +410,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-medium flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -415,7 +428,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="text-base font-medium flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
@@ -434,7 +447,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
+                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Any other specific requirements or notes for the tutor. e.g., 'Student needs help with exam preparation...'" {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                     </FormControl>

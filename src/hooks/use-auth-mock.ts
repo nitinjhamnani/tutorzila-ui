@@ -94,16 +94,8 @@ export function useAuthMock() {
       
       setToken(token);
       setUser(userObject);
-      
-      if (role === 'tutor') {
-        router.push("/tutor/dashboard"); 
-      } else if (role === 'parent') {
-        router.push("/parent/dashboard");
-      } else if (role === 'admin') {
-        router.push("/dashboard/admin");
-      } else {
-        router.push("/"); 
-      }
+
+      // REDIRECTION LOGIC IS REMOVED FROM HERE
   };
 
   const login = async (email: string, password?: string) => {
@@ -123,6 +115,15 @@ export function useAuthMock() {
 
     if (responseData.token && responseData.type) {
         setSession(responseData.token, responseData.type, email, responseData.name, responseData.phone);
+        // Redirect after successful login
+        const role = responseData.type.toLowerCase();
+        if (role === 'tutor') {
+            router.push("/tutor/dashboard");
+        } else if (role === 'parent') {
+            router.push("/parent/dashboard");
+        } else {
+            router.push("/");
+        }
     } else {
         throw new Error("Invalid response from server during login.");
     }
