@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
+import AuthModal from "@/components/auth/AuthModal";
 
 
 const howItWorksSteps = [
@@ -86,6 +87,7 @@ export default function HomePage() {
   const sectionPadding = "py-10 md:py-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
 
   return (
@@ -115,11 +117,11 @@ export default function HomePage() {
                   </DialogTrigger>
                   <DialogContent 
                     className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
-                    onCloseAutoFocus={(e) => e.preventDefault()}
                   >
                     <PostRequirementModal 
                       startFromStep={1} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
+                      onTriggerSignIn={() => setIsAuthModalOpen(true)}
                     />
                   </DialogContent>
                 </Dialog>
@@ -221,11 +223,11 @@ export default function HomePage() {
                     </DialogTrigger>
                      <DialogContent 
                        className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
-                       onCloseAutoFocus={(e) => e.preventDefault()}
                      >
                        <PostRequirementModal 
                          startFromStep={1} 
-                         onSuccess={() => setIsPostRequirementModalOpen(false)} 
+                         onSuccess={() => setIsPostRequirementModalOpen(false)}
+                         onTriggerSignIn={() => setIsAuthModalOpen(true)}
                        />
                      </DialogContent>
                   </Dialog>
@@ -366,23 +368,10 @@ export default function HomePage() {
           </div>
         </section>
         
+      {isAuthModalOpen && (
+        <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
+      )}
       </div>
     
   );
 }
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-    

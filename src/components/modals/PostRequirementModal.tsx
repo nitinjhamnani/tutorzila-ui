@@ -40,6 +40,7 @@ import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, C
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
@@ -117,14 +118,16 @@ type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
-  startFromStep?: 1; // Always starts from step 1
+  startFromStep?: 1; 
+  onTriggerSignIn: () => void;
 }
 
-export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequirementModalProps) {
+export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSignIn }: PostRequirementModalProps) {
   const [currentStep, setCurrentStep] = useState(startFromStep);
   const totalSteps = 3;
 
   const { toast } = useToast();
+  const { setSession } = useAuthMock();
 
   const form = useForm<PostRequirementFormValues>({
     resolver: zodResolver(postRequirementSchema),
@@ -168,17 +171,72 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
     }
   };
 
-  const onSubmit: SubmitHandler<PostRequirementFormValues> = (data) => {
-    const submissionData = { ...data };
-    console.log("Tuition Requirement Submitted:", submissionData);
-    toast({
-      title: "Requirement Submitted!",
-      description: "Your tuition requirement has been successfully posted. Tutors will reach out soon.",
-      duration: 5000,
-    });
-    form.reset();
-    setCurrentStep(startFromStep);
-    onSuccess();
+  const onSubmit: SubmitHandler<PostRequirementFormValues> = async (data) => {
+    form.clearErrors(); // Clear previous errors
+    const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
+
+    const apiRequestBody = {
+      signupRequest: {
+        name: data.name,
+        email: data.email,
+        country: data.country,
+        countryCode: selectedCountryData?.countryCode || '',
+        phone: data.localPhoneNumber,
+        userType: "PARENT"
+      },
+      subjects: data.subject,
+      grade: data.gradeLevel,
+      board: data.board,
+      address: data.location || "",
+      availabilityDays: data.preferredDays || [],
+      availabilityTime: data.preferredTimeSlots || [],
+      notes: data.additionalNotes || "",
+      online: data.teachingMode.includes("Online"),
+      offline: data.teachingMode.includes("Offline (In-person)"),
+    };
+
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        },
+        body: JSON.stringify(apiRequestBody),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message || "An unexpected error occurred.");
+      }
+      
+      if (responseData.token && responseData.type === 'PARENT') {
+        toast({
+          title: "Requirement Posted!",
+          description: responseData.message || "Your requirement is live. You've been logged in.",
+        });
+        setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
+        onSuccess(); // This will close the modal and redirect via setSession
+      } else {
+        // User exists, prompt to sign in
+        toast({
+          title: "Account Exists",
+          description: responseData.message || "Please sign in to complete posting your requirement.",
+        });
+        onSuccess(); // Close this modal
+        onTriggerSignIn(); // Trigger the sign-in modal on the parent page
+      }
+
+    } catch (error) {
+      console.error("Enquiry creation failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Submission Error",
+        description: (error as Error).message || "Could not submit your requirement. Please try again.",
+      });
+    }
   };
   
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
@@ -273,36 +331,41 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
               <FormField
                 control={form.control}
                 name="teachingMode"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="text-base font-medium flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
-                        <FormItem key={option.id}>
-                           <Label
-                              htmlFor={`teaching-mode-modal-${option.id}`}
-                              className={cn(
-                                "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
-                                field.value?.includes(option.id) && "bg-primary/10 border-primary ring-1 ring-primary"
-                              )}
-                            >
-                            <FormControl>
-                              <Checkbox
-                                id={`teaching-mode-modal-${option.id}`}
-                                checked={field.value?.includes(option.id)}
-                                onCheckedChange={(checked) => {
-                                  const currentValues = field.value || [];
-                                  if (checked) {
-                                    form.setValue("teachingMode", [...currentValues, option.id], { shouldValidate: true });
-                                  } else {
-                                    form.setValue("teachingMode", currentValues.filter(v => v !== option.id), { shouldValidate: true });
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <span className="font-normal text-sm">{option.label}</span>
-                          </Label>
-                        </FormItem>
+                        <FormField
+                          key={option.id}
+                          control={form.control}
+                          name="teachingMode"
+                          render={({ field }) => (
+                            <FormItem>
+                              <Label
+                                htmlFor={`teaching-mode-modal-${option.id}`}
+                                className={cn(
+                                  "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
+                                  field.value?.includes(option.id) && "bg-primary/10 border-primary ring-1 ring-primary"
+                                )}
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    id={`teaching-mode-modal-${option.id}`}
+                                    checked={field.value?.includes(option.id)}
+                                    onCheckedChange={(checked) => {
+                                      const currentValues = field.value || [];
+                                      return checked
+                                        ? field.onChange([...currentValues, option.id])
+                                        : field.onChange(currentValues.filter(v => v !== option.id));
+                                    }}
+                                  />
+                                </FormControl>
+                                <span className="font-normal text-sm">{option.label}</span>
+                              </Label>
+                            </FormItem>
+                          )}
+                        />
                       ))}
                     </div>
                     <FormMessage />
@@ -316,7 +379,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   name="location"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
+                      <FormLabel className="flex items-center text-base font-medium"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                       <FormControl>
                       <Input placeholder="e.g., Student's Home, City Center Library" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                       </FormControl>
@@ -332,7 +395,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="text-base font-medium flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -350,7 +413,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="text-base font-medium flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
@@ -369,7 +432,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1 }: PostRequi
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
+                    <FormLabel className="text-base font-medium flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Any other specific requirements or notes for the tutor. e.g., 'Student needs help with exam preparation...'" {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                     </FormControl>
