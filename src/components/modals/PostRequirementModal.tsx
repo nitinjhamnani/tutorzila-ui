@@ -42,6 +42,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
@@ -129,6 +130,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const { toast } = useToast();
   const { setSession, isAuthenticated } = useAuthMock();
+  const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
 
   const form = useForm<PostRequirementFormValues>({
@@ -150,11 +152,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     },
   });
 
-  // Effect to redirect after successful authentication
   useEffect(() => {
     if (isAuthenticated) {
-        // This assumes that if a user is authenticated immediately after a form submission in this modal,
-        // they are a new parent who should be redirected.
         router.push("/parent/dashboard");
     }
   }, [isAuthenticated, router]);
@@ -184,7 +183,9 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   };
 
   const onSubmit: SubmitHandler<PostRequirementFormValues> = async (data) => {
-    form.clearErrors(); // Clear previous errors
+    form.clearErrors();
+    showLoader();
+
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
 
     const apiRequestBody = {
@@ -226,22 +227,21 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       
       if (responseData.token && responseData.type === 'PARENT') {
         toast({
-          title: "Requirement Posted!",
-          description: "You've been logged in. Redirecting to your dashboard...",
+          title: "Requirement Posted & Logged In!",
+          description: "You are being redirected to your dashboard...",
         });
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
-        // The useEffect will handle redirection. We can close the modal.
-        onSuccess();
+        // The useEffect will handle the redirection.
+        onSuccess(); // We can close the modal now.
       } else {
-        // User exists, prompt to sign in
         toast({
           title: "Account Exists",
           description: responseData.message || "Please sign in to complete posting your requirement.",
         });
-        onSuccess(); // Close this modal
         if (onTriggerSignIn) {
           onTriggerSignIn(data.name); 
         }
+        onSuccess(); // Close this modal
       }
 
     } catch (error) {
@@ -251,6 +251,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         title: "Submission Error",
         description: (error as Error).message || "Could not submit your requirement. Please try again.",
       });
+    } finally {
+      hideLoader();
     }
   };
   
@@ -348,7 +350,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="text-base">Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
@@ -410,7 +412,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="flex items-center text-base"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -428,7 +430,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="flex items-center text-base"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
@@ -447,7 +449,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
+                    <FormLabel className="flex items-center text-base"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Any other specific requirements or notes for the tutor. e.g., 'Student needs help with exam preparation...'" {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
                     </FormControl>
