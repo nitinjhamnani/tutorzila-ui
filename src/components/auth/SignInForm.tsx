@@ -68,8 +68,9 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       });
       if (onSuccess) onSuccess();
       if (onClose) onClose();
-
+      // Do not hide loader here; the destination dashboard page will handle it.
     } catch (error) {
+      hideLoader(); // Only hide loader on failure
       toast({
         variant: "destructive",
         title: "Sign In Failed",
@@ -77,7 +78,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       });
     } finally {
       setIsSubmitting(false);
-      hideLoader();
     }
   }
 
