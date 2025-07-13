@@ -69,6 +69,7 @@ import {
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface QuickActionCardProps {
   title: string;
@@ -129,6 +130,7 @@ export default function TutorDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const tutorUser = user as TutorProfile | null;
+  const { hideLoader } = useGlobalLoader();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -147,7 +149,8 @@ export default function TutorDashboardPage() {
 
   useEffect(() => {
     setHasMounted(true);
-  }, []);
+    hideLoader(); // Ensure loader is hidden when dashboard mounts
+  }, [hideLoader]);
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {

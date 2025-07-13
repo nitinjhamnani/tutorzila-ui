@@ -143,12 +143,14 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
                 router.push("/parent/dashboard");
             } else {
                 router.push("/");
+                hideLoader(); // Hide loader if no specific dashboard
             }
         }
         
         if (onSuccess) onSuccess();
         if (onClose) onClose();
       } else {
+        hideLoader();
         toast({
           variant: "destructive",
           title: "Sign Up Failed",
@@ -156,6 +158,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         });
       }
     } catch (error) { 
+      hideLoader();
       console.error("Sign Up API call failed:", error);
       toast({
         variant: "destructive",
@@ -163,8 +166,8 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         description: "Could not connect to the server or the response was invalid. Please try again later.",
       });
     } finally {
+      // We no longer hide the loader here. It will be hidden by the destination dashboard page.
       setIsSubmitting(false);
-      hideLoader();
     }
   }
 

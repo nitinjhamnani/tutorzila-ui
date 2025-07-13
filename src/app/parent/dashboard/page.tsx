@@ -63,6 +63,7 @@ import { Badge } from "@/components/ui/badge";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface QuickActionCardProps {
   title: string;
@@ -125,6 +126,7 @@ export default function ParentDashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { hideLoader } = useGlobalLoader();
 
   const { data: dashboardData, isLoading: isLoadingDashboard, error: dashboardError } = useQuery({
     queryKey: ['parentDashboard', token],
@@ -145,7 +147,8 @@ export default function ParentDashboardPage() {
 
   useEffect(() => {
     setHasMounted(true);
-  }, []);
+    hideLoader(); // Ensure loader is hidden when dashboard mounts
+  }, [hideLoader]);
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
@@ -331,4 +334,3 @@ export default function ParentDashboardPage() {
     </main>
   );
 }
-
