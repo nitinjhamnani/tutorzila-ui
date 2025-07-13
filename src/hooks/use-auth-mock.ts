@@ -94,8 +94,6 @@ export function useAuthMock() {
       
       setToken(token);
       setUser(userObject);
-
-      // REDIRECTION LOGIC IS REMOVED FROM HERE
   };
 
   const login = async (email: string, password?: string) => {

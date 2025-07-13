@@ -7,6 +7,7 @@ import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, User, Users, School, CheckSquare, Phone } from "lucide-react"; 
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +62,7 @@ const MOCK_COUNTRIES = [
 export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps) {
   const { setSession } = useAuthMock();
   const { toast } = useToast();
+  const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -129,12 +131,19 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       if (response.ok) {
         toast({
           title: "Account Created!",
-          description: responseData.message || `Welcome, ${values.name}!`,
+          description: responseData.message || `Welcome, ${values.name}! Redirecting...`,
         });
         
-        // Use the new setSession function to handle successful auth
         if (responseData.token && responseData.type) {
             setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone);
+            const role = responseData.type.toLowerCase();
+            if (role === 'tutor') {
+                router.push("/tutor/dashboard");
+            } else if (role === 'parent') {
+                router.push("/parent/dashboard");
+            } else {
+                router.push("/");
+            }
         }
         
         if (onSuccess) onSuccess();
