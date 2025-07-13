@@ -5,10 +5,9 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { TuitionRequirement, User } from "@/types";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard"; // Changed import
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower } from "lucide-react";
+import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard"; 
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -26,17 +25,65 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const allEnquiryStatusesForPage = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
 type EnquiryStatusCategory = (typeof allEnquiryStatusesForPage)[number];
 
+const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
+  if (!token) throw new Error("Authentication token not found.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/tutor/enquiries`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch enquiries.");
+  }
+  
+  const data = await response.json();
+  
+  return data.map((item: any, index: number) => ({
+    id: item.enquiryId || `enq-${index}-${Date.now()}`,
+    parentId: `p-${index}`, 
+    parentName: "A Parent", 
+    subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
+    gradeLevel: item.grade,
+    scheduleDetails: item.initial || "No detailed schedule provided.",
+    location: item.location,
+    status: "open", 
+    postedAt: new Date().toISOString(), 
+    board: item.board,
+    teachingMode: [
+      ...(item.online ? ["Online"] : []),
+      ...(item.offline ? ["Offline (In-person)"] : []),
+    ],
+    applicantsCount: item.appliedTutors,
+    // Add mock properties for frontend display logic
+    mockIsRecommended: index % 3 === 0,
+    mockIsAppliedByCurrentUser: index % 4 === 0,
+    mockIsShortlistedByCurrentUser: index % 5 === 0,
+  }));
+};
+
 
 export default function AllEnquiriesPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
 
-  const [allOpenRequirements, setAllOpenRequirements] = useState<TuitionRequirement[]>([]);
+  const { data: allOpenRequirements = [], isLoading, error } = useQuery({
+    queryKey: ['tutorEnquiries', token],
+    queryFn: () => fetchTutorEnquiries(token),
+    enabled: !!token && !!user && user.role === 'tutor',
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempSubjectFilter, setTempSubjectFilter] = useState<string[]>([]);
@@ -58,10 +105,6 @@ export default function AllEnquiriesPage() {
       router.replace("/");
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
-
-  useEffect(() => {
-    setAllOpenRequirements(MOCK_ALL_PARENT_REQUIREMENTS.filter(r => r.status === 'open'));
-  }, []);
 
   const uniqueSubjectsForFilter = useMemo(() => {
     const subjects = new Set(allOpenRequirements.flatMap(t => Array.isArray(t.subject) ? t.subject : [t.subject]).filter(Boolean));
@@ -178,11 +221,31 @@ export default function AllEnquiriesPage() {
     );
   };
 
-  const renderEnquiryList = (requirementsToRender: TuitionRequirement[]) => {
-    if (requirementsToRender.length > 0) {
+  const renderEnquiryList = () => {
+    if (isLoading) {
       return (
         <div className="grid grid-cols-1 gap-4 md:gap-5">
-          {requirementsToRender.map((req, index) => (
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-[150px] w-full rounded-lg" />)}
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <Card className="text-center py-12 bg-destructive/10 border-destructive/20 rounded-lg shadow-sm">
+            <CardContent className="flex flex-col items-center">
+                <ErrorIcon className="w-16 h-16 text-destructive mx-auto mb-5" />
+                <p className="text-xl font-semibold text-destructive mb-1.5">Error Fetching Enquiries</p>
+                <p className="text-sm text-destructive/80 max-w-sm mx-auto">Could not load tuition opportunities. Please try again later.</p>
+            </CardContent>
+        </Card>
+      );
+    }
+
+    if (filteredRequirements.length > 0) {
+      return (
+        <div className="grid grid-cols-1 gap-4 md:gap-5">
+          {filteredRequirements.map((req, index) => (
             <div
               key={req.id}
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full"
@@ -264,7 +327,6 @@ export default function AllEnquiriesPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                        {/* Form fields for filters */}
                         <div className="space-y-1.5">
                             <Label htmlFor="filter-subject-enq" className="text-xs font-medium text-muted-foreground flex items-center"><BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70"/>Subject(s)</Label>
                             <MultiSelectCommand
@@ -272,7 +334,7 @@ export default function AllEnquiriesPage() {
                                 selectedValues={tempSubjectFilter}
                                 onValueChange={setTempSubjectFilter}
                                 placeholder="Select subjects..."
-                                className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-auto min-h-9 text-xs"
+                                className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-auto min-h-9 text-xs"
                             />
                         </div>
                         <div className="space-y-1.5">
@@ -333,10 +395,8 @@ export default function AllEnquiriesPage() {
                     </DialogContent>
                 </Dialog>
             </CardHeader>
-            <CardContent className="p-0"> {/* Search field and category dropdown were here, removed to place dropdown below card */} </CardContent>
         </Card>
         
-         {/* Filter by Category Dropdown - Moved below the card */}
         <div className="flex flex-col sm:flex-row items-center justify-end mb-4 sm:mb-6 gap-3">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -345,7 +405,7 @@ export default function AllEnquiriesPage() {
                     size="sm" 
                     className={cn(
                         "py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto",
-                        "text-xs sm:text-sm rounded-[5px]" // Ensure less rounded corners
+                        "text-xs sm:text-sm rounded-[5px]"
                     )}
                 >
                     <span className="text-primary-foreground">
@@ -375,11 +435,10 @@ export default function AllEnquiriesPage() {
         </div>
 
         <div className="mt-0"> 
-          {renderEnquiryList(filteredRequirements)}
+          {renderEnquiryList()}
         </div>
       </div>
     </main>
   );
 }
 
-    
