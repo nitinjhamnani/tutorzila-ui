@@ -129,7 +129,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   const totalSteps = 3;
 
   const { toast } = useToast();
-  const { setSession, isAuthenticated } = useAuthMock();
+  const { user, setSession, isAuthenticated } = useAuthMock();
   const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
 
@@ -153,10 +153,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   });
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user?.role === 'parent') {
         router.push("/parent/dashboard");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user, router]);
 
 
   const handleNext = async () => {
@@ -178,7 +178,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
@@ -231,28 +231,28 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
           description: "You are being redirected to your dashboard...",
         });
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
-        // The useEffect will handle the redirection.
-        onSuccess(); // We can close the modal now.
+        // The useEffect will handle the redirection, keeping the loader on.
+        // onSuccess(); // We no longer call onSuccess here to prevent premature modal close
       } else {
+        hideLoader(); // Hide loader if not redirecting
         toast({
           title: "Account Exists",
           description: responseData.message || "Please sign in to complete posting your requirement.",
         });
         if (onTriggerSignIn) {
-          onTriggerSignIn(data.name); 
+          onTriggerSignIn(data.email); 
         }
         onSuccess(); // Close this modal
       }
 
     } catch (error) {
+      hideLoader(); // Hide loader on error
       console.error("Enquiry creation failed:", error);
       toast({
         variant: "destructive",
         title: "Submission Error",
         description: (error as Error).message || "Could not submit your requirement. Please try again.",
       });
-    } finally {
-      hideLoader();
     }
   };
   
