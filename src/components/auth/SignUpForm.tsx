@@ -30,6 +30,7 @@ import type { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const signUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -62,6 +63,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -89,6 +91,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       return;
     }
     setIsSubmitting(true);
+    showLoader();
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === values.country);
 
@@ -152,6 +155,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       });
     } finally {
       setIsSubmitting(false);
+      hideLoader();
     }
   }
 

@@ -32,6 +32,7 @@ import logoAsset from '@/assets/images/logo.png';
 import type { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
 import { useState } from 'react';
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
 const signInSchema = z.object({
@@ -45,6 +46,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   const { login } = useAuthMock();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -57,6 +59,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
+    showLoader();
     try {
       const result = await login(values.email, values.password);
       toast({
@@ -74,6 +77,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       });
     } finally {
       setIsSubmitting(false);
+      hideLoader();
     }
   }
 
