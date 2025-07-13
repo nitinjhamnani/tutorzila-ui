@@ -31,7 +31,6 @@ export function GlobalLoader() {
             strokeWidth="5"
           ></circle>
         </svg>
-        <p className="text-sm font-medium text-primary-foreground">Processing...</p>
       </div>
     </div>
   );
