@@ -69,8 +69,6 @@ const parentEnquiryEditSchema = z.object({
   location: z.string().optional().or(z.literal("")),
   preferredDays: z.array(z.string()).min(1, "Please select at least one preferred day."),
   preferredTimeSlots: z.array(z.string()).min(1, "Please select at least one preferred time slot."),
-  scheduleDetails: z.string().min(10, { message: "Please provide schedule details (at least 10 characters)." }),
-  additionalNotes: z.string().optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
     return false;
@@ -101,8 +99,6 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
       location: "",
       preferredDays: [],
       preferredTimeSlots: [],
-      scheduleDetails: "",
-      additionalNotes: "",
     },
   });
 
@@ -116,8 +112,6 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
         location: enquiryData.location || "",
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        scheduleDetails: enquiryData.scheduleDetails || "",
-        additionalNotes: enquiryData.additionalNotes || "",
       });
     }
   }, [enquiryData, isOpen, form]);
@@ -298,39 +292,6 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
                 )}
               />
             </div>
-
-             <FormField
-              control={form.control}
-              name="scheduleDetails"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Schedule Details</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., Weekdays after 5 PM, 2-3 times a week. Student needs help with exam preparation..."
-                      className="resize-none bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"
-                      {...field}
-                      rows={3}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="additionalNotes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Any other specific requirements or notes for the tutor." {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             
             <DialogFooter className="pt-4">
               <DialogClose asChild>

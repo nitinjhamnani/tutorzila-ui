@@ -316,24 +316,12 @@ export default function ParentEnquiryDetailsPage() {
                       </EnquiryInfoItem>
                     )}
                   </div>
-                   {requirement.scheduleDetails && <EnquiryInfoItem label="Schedule Notes" value={requirement.scheduleDetails} icon={Info} className="md:col-span-2"/>}
                 </section>
-                {requirement.additionalNotes && (
-                  <>
-                    <Separator />
-                    <section className="space-y-3">
-                      <h3 className="text-base font-semibold text-foreground flex items-center">
-                        <Info className="w-4 h-4 mr-2 text-primary/80" />
-                        Additional Notes
-                      </h3>
-                      <p className="text-sm text-foreground/80 leading-relaxed pl-6 whitespace-pre-line">
-                        {requirement.additionalNotes}
-                      </p>
-                    </section>
-                  </>
-                )}
               </CardContent>
               <CardFooter className="p-4 md:p-5 border-t flex-wrap justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
+                  <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
+                </Button>
                 {(requirement.status === 'open' || requirement.status === 'matched') && (
                   <>
                     {(requirement.applicantsCount ?? 0) > 0 && (
@@ -349,9 +337,6 @@ export default function ParentEnquiryDetailsPage() {
                     </Button>
                   </>
                 )}
-                <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                  <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
-                </Button>
               </CardFooter>
             </Card>
           </div>
