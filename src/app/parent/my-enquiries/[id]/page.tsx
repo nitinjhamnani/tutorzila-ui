@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-// Removed TutorProfileCard import as it's no longer used on this page
 import {
   Dialog,
   DialogContent,
@@ -55,6 +54,7 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -83,18 +83,57 @@ const EnquiryInfoItem = ({
   );
 };
 
+const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/parent/enquiry/${enquiryId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    }
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("Enquiry not found or you do not have permission to view it.");
+    }
+    throw new Error("Failed to fetch enquiry details.");
+  }
+
+  const data = await response.json();
+
+  // Transform the API response to match the TuitionRequirement type
+  return {
+    id: data.enquirySummary.enquiryId,
+    parentId: "", // Not provided by API
+    parentName: data.name,
+    subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+    gradeLevel: data.enquirySummary.grade,
+    board: data.enquirySummary.board,
+    location: data.enquirySummary.location,
+    teachingMode: [
+      ...(data.enquirySummary.online ? ["Online"] : []),
+      ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
+    ],
+    scheduleDetails: data.enquirySummary.initial,
+    additionalNotes: data.notes,
+    preferredDays: typeof data.availabilityDays === 'string' ? data.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+    preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+    status: data.status?.toLowerCase() || 'open',
+    postedAt: data.createdOn,
+    applicantsCount: data.enquirySummary.appliedTutors,
+  };
+};
+
 
 export default function ParentEnquiryDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const { toast } = useToast();
   const id = params.id as string;
-
-  const [requirement, setRequirement] = useState<TuitionRequirement | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
 
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeEnquiryStep, setCloseEnquiryStep] = useState(1);
@@ -103,34 +142,19 @@ export default function ParentEnquiryDetailsPage() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // For the edit modal
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const { data: requirement, isLoading, error } = useQuery({
+    queryKey: ['parentEnquiryDetails', id, token],
+    queryFn: () => fetchParentEnquiryDetails(id, token),
+    enabled: !!id && !!token && !isCheckingAuth,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (!isClient || isCheckingAuth) return;
-
-    if (!isAuthenticated || user?.role !== "parent") {
+    if (!isCheckingAuth && !isAuthenticated) {
       router.replace("/");
-      return;
     }
-
-    if (id) {
-      setLoading(true);
-      setError(null);
-      setTimeout(() => {
-        const foundRequirement = MOCK_ALL_PARENT_REQUIREMENTS.find(
-          (req) => req.id === id && req.parentId === user?.id
-        );
-        if (foundRequirement) {
-          setRequirement(foundRequirement);
-        } else {
-          setError("Enquiry not found or you do not have permission to view it.");
-        }
-        setLoading(false);
-      }, 300);
-    }
-  }, [id, isClient, isCheckingAuth, isAuthenticated, user, router]);
+  }, [isCheckingAuth, isAuthenticated, router]);
 
   const handleOpenCloseEnquiryModal = () => {
     if (!requirement) return;
@@ -146,56 +170,38 @@ export default function ParentEnquiryDetailsPage() {
     if (closeEnquiryStep === 1) {
       setCloseEnquiryStep(2);
     } else if (closeEnquiryStep === 2) {
-      const updatedRequirement = {
-        ...requirement,
-        status: "closed" as const,
-        additionalNotes: `${requirement.additionalNotes || ""}\nUpdate: Requirement closed on ${new Date().toLocaleDateString()}. ${
-          foundTutorName ? `Tutor specified: ${foundTutorName}.` : "No specific tutor mentioned."
-        } ${
-          startClassesConfirmation === "yes"
-            ? "Classes expected to start."
-            : startClassesConfirmation === "no"
-            ? "Decided not to start classes."
-            : ""
-        }`,
-      };
+      // Mocking update as there is no API for this yet
       const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
-      if (reqIndex > -1) MOCK_ALL_PARENT_REQUIREMENTS[reqIndex] = updatedRequirement;
+      if (reqIndex > -1) MOCK_ALL_PARENT_REQUIREMENTS[reqIndex].status = "closed";
       
-      setRequirement(updatedRequirement);
-
       toast({
-        title: "Enquiry Closed",
+        title: "Enquiry Closed (Mock)",
         description: `Requirement for "${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}" has been marked as closed.`,
       });
       setIsCloseEnquiryModalOpen(false);
-      // Consider navigating back or just updating UI
       router.push("/parent/my-enquiries"); 
     }
   };
 
   const handleUpdateEnquiry = (updatedData: Partial<TuitionRequirement>) => {
     if (!requirement) return;
-    const newRequirementState = { ...requirement, ...updatedData };
-    setRequirement(newRequirementState);
-    
-    // Update the mock data source
     const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
     if (reqIndex > -1) {
       MOCK_ALL_PARENT_REQUIREMENTS[reqIndex] = {
         ...MOCK_ALL_PARENT_REQUIREMENTS[reqIndex],
-        ...newRequirementState, // Ensure all fields from newRequirementState are applied
+        ...updatedData,
       };
     }
     toast({ title: "Enquiry Updated", description: "Your requirement details have been saved." });
     setIsEditModalOpen(false);
+    // In a real app, you would refetch the query here: queryClient.invalidateQueries(...)
   };
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
   const timeAgo = requirement?.postedAt ? formatDistanceToNow(postedDate, { addSuffix: true }) : "";
   const formattedPostedDate = requirement?.postedAt ? format(postedDate, "MMMM d, yyyy 'at' h:mm a") : "";
 
-  if (!isClient || loading || isCheckingAuth) {
+  if (isLoading || isCheckingAuth) {
     return (
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
@@ -220,7 +226,7 @@ export default function ParentEnquiryDetailsPage() {
               <CardTitle className="text-xl mt-4">Enquiry Not Found</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{error}</p>
+              <p className="text-muted-foreground">{(error as Error)?.message || "An unexpected error occurred."}</p>
             </CardContent>
             <CardFooter className="flex justify-center">
               <Button onClick={() => router.push("/parent/my-enquiries")}>
@@ -238,10 +244,9 @@ export default function ParentEnquiryDetailsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* No BreadcrumbHeader here */}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          <div className="lg:col-span-3 space-y-6"> {/* Changed lg:col-span-2 to lg:col-span-3 */}
+          <div className="lg:col-span-3 space-y-6">
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
               <CardHeader className="bg-muted/30 p-4 md:p-5 border-b">
                 <div className="flex items-center justify-between">
@@ -403,4 +408,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
