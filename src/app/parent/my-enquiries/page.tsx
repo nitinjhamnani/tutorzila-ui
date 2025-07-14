@@ -40,7 +40,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ParentEnquiryCard } from "@/components/parent/ParentEnquiryCard";
 import type { User, TuitionRequirement } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
@@ -100,7 +99,7 @@ const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequir
     gradeLevel: item.grade,
     scheduleDetails: item.initial || "Details not provided by API",
     location: item.location,
-    status: item.status || "open",
+    status: item.status?.toLowerCase() || 'open',
     postedAt: new Date().toISOString(),
     board: item.board,
     teachingMode: [
@@ -131,6 +130,8 @@ export default function ParentMyEnquiriesPage() {
     queryKey: ['parentEnquiries', token],
     queryFn: () => fetchParentEnquiries(token),
     enabled: !!token && !!user && user.role === 'parent',
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false, // Prevents refetching on window focus
   });
 
   useEffect(() => {
@@ -308,8 +309,6 @@ export default function ParentMyEnquiriesPage() {
                 key={req.id}
                 requirement={req}
                 onEdit={() => router.push(`/parent/my-enquiries/${req.id}`)}
-                onDelete={() => handleOpenDeleteConfirm(req)}
-                onClose={() => handleOpenCloseEnquiryModal(req)}
                 onReopen={() => handleReopen(req.id)}
               />
             ))
