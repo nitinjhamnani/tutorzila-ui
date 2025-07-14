@@ -206,8 +206,20 @@ export default function ParentEnquiryDetailsPage() {
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
           <div className="space-y-6 mt-6">
-            <Skeleton className="h-[200px] w-full rounded-xl" />
-            <Skeleton className="h-[300px] w-full rounded-xl" />
+             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                <CardHeader className="p-4 md:p-5 border-b">
+                   <Skeleton className="h-8 w-3/4 rounded-md" />
+                   <Skeleton className="h-4 w-1/2 mt-2 rounded-md" />
+                </CardHeader>
+                <CardContent className="p-4 md:p-5 space-y-5">
+                    <Skeleton className="h-6 w-1/4 mb-4 rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                </CardContent>
+                <CardFooter className="p-4 md:p-5 border-t">
+                    <Skeleton className="h-10 w-32 rounded-md" />
+                </CardFooter>
+            </Card>
           </div>
         </div>
       </main>

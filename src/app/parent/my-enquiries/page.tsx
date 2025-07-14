@@ -92,16 +92,16 @@ const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequir
   const data = await response.json();
   
   // Transform API data to match the TuitionRequirement type
-  return data.map((item: any, index: number) => ({
-    id: `enq-${index}-${Date.now()}`, // Generating a mock ID as it's missing from API
-    parentId: "", // Not provided by API
+  return data.map((item: any) => ({
+    id: item.enquiryId, // Use the enquiryId from the API response
+    parentId: "", // Not provided by API, can be set from user context if needed
     parentName: "", // Not provided by API
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
-    scheduleDetails: "Details not provided by API", // Placeholder
+    scheduleDetails: item.initial || "Details not provided by API",
     location: item.location,
-    status: item.status || "open", // Assuming a default status if not provided
-    postedAt: new Date().toISOString(), // Placeholder
+    status: item.status || "open",
+    postedAt: new Date().toISOString(),
     board: item.board,
     teachingMode: [
       ...(item.online ? ["Online"] : []),
