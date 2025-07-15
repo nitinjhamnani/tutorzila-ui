@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
@@ -25,18 +25,22 @@ export function LocationAutocompleteInput({
     libraries: ["places"],
   });
 
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const autocompleteRef = React.useRef<google.maps.places.Autocomplete | null>(null);
 
-  const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
-    setAutocomplete(autocompleteInstance);
-  };
+  const onLoad = React.useCallback((autocompleteInstance: google.maps.places.Autocomplete) => {
+    autocompleteRef.current = autocompleteInstance;
+  }, []);
+
+  const onUnmount = React.useCallback(() => {
+    autocompleteRef.current = null;
+  }, []);
 
   const onPlaceChanged = () => {
-    if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
+    if (autocompleteRef.current !== null) {
+      const place = autocompleteRef.current.getPlace();
       onChange(place.formatted_address || place.name || "");
     } else {
-      console.error("Autocomplete is not loaded yet!");
+      console.error("Autocomplete instance not available");
     }
   };
 
@@ -59,6 +63,7 @@ export function LocationAutocompleteInput({
       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
        <Autocomplete
         onLoad={onLoad}
+        onUnmount={onUnmount}
         onPlaceChanged={onPlaceChanged}
         options={{
           componentRestrictions: { country: "in" },
@@ -68,7 +73,7 @@ export function LocationAutocompleteInput({
         <Input
           type="text"
           placeholder={placeholder}
-          defaultValue={value} 
+          defaultValue={value}
           className={cn(
             "pl-10 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"
           )}
