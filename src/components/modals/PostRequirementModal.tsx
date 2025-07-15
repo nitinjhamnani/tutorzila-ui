@@ -26,7 +26,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -43,6 +42,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
@@ -346,7 +346,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="text-base font-medium flex items-center">
+                      <RadioTower className="mr-2 h-4 w-4 text-primary/80" />
+                      Preferred Teaching Mode
+                    </FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
@@ -387,19 +390,23 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
               />
               
               {isOfflineModeSelected && (
-                 <FormField
+                <FormField
                   control={form.control}
                   name="location"
                   render={({ field }) => (
-                  <FormItem>
+                    <FormItem>
                       <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                       <FormControl>
-                      <Input placeholder="e.g., Student's Home, City Center Library" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                        <LocationAutocompleteInput
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          placeholder="Search for address or area..."
+                        />
                       </FormControl>
                       <FormMessage />
-                  </FormItem>
+                    </FormItem>
                   )}
-              />
+                />
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -408,7 +415,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="text-base font-medium flex items-center">
+                        <CalendarDays className="mr-2 h-4 w-4 text-primary/80" />
+                        Preferred Days (Optional)
+                      </FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -426,7 +436,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="text-base font-medium flex items-center">
+                        <Clock className="mr-2 h-4 w-4 text-primary/80" />
+                        Preferred Time (Optional)
+                      </FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
