@@ -17,7 +17,7 @@ import type { TutorProfile, Testimonial, User } from "@/types"; // Added User
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import { useState } from "react"; 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"; 
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
@@ -124,6 +124,7 @@ export default function HomePage() {
                   <DialogContent 
                     className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
                   >
+                    <DialogTitle className="sr-only">Post Your Requirement</DialogTitle>
                     <PostRequirementModal 
                       startFromStep={1} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
@@ -230,6 +231,7 @@ export default function HomePage() {
                      <DialogContent 
                        className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
                      >
+                       <DialogTitle className="sr-only">Post Your Requirement</DialogTitle>
                        <PostRequirementModal 
                          startFromStep={1} 
                          onSuccess={() => setIsPostRequirementModalOpen(false)}
