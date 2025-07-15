@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Link from "next/link"; // Added for terms link
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -43,9 +43,9 @@ import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
-import { Textarea } from "../ui/textarea";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
+
 const gradeLevelsList = [
     "Nursery", "LKG", "UKG", 
     "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
@@ -91,7 +91,6 @@ const MOCK_COUNTRIES = [
   { country: "AU", countryCode: "+61", label: "Australia (+61)" },
   { country: "JP", countryCode: "+81", label: "Japan (+81)" },
 ];
-
 
 const postRequirementSchema = z.object({
   // Step 1
@@ -163,10 +162,22 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   });
 
   useEffect(() => {
+    // Pre-fill user data if already logged in
     if (isAuthenticated && user?.role === 'parent') {
-        router.push("/parent/dashboard");
+        form.setValue("name", user.name || "");
+        form.setValue("email", user.email || "");
+        // Logic to pre-select country and phone if available
+        if (user.phone) {
+            const matchingCountry = MOCK_COUNTRIES.find(c => user.phone!.startsWith(c.countryCode));
+            if (matchingCountry) {
+                form.setValue("country", matchingCountry.country);
+                form.setValue("localPhoneNumber", user.phone.substring(matchingCountry.countryCode.length));
+            } else {
+                form.setValue("localPhoneNumber", user.phone);
+            }
+        }
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, form]);
 
 
   const handleNext = async () => {
@@ -231,6 +242,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     };
 
     try {
+      // The fetch URL is relative, relying on the Next.js proxy/rewrite
       const response = await fetch('/api/enquiry/create', {
         method: 'POST',
         headers: {
@@ -252,6 +264,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
           description: "You are being redirected to your dashboard...",
         });
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
+        router.push("/parent/dashboard");
       } else {
         hideLoader(); 
         toast({
