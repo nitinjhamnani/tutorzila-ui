@@ -46,9 +46,11 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = [
-    "Nursery", "LKG", "UKG", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+    "Nursery", "LKG", "UKG", 
+    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
     "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12", "College Level", "Adult Learner", "Other"
+    "Grade 11", "Grade 12", 
+    "College Level", "Adult Learner", "Other"
 ];
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 
@@ -92,7 +94,7 @@ const MOCK_COUNTRIES = [
 
 const postRequirementSchema = z.object({
   // Step 1
-  studentName: z.string().min(2, { message: "Student name is required." }),
+  studentName: z.string().min(2, { message: "Student's name is required." }),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
@@ -204,6 +206,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         phone: data.localPhoneNumber,
         userType: "PARENT"
       },
+      studentName: data.studentName,
       subjects: data.subject,
       grade: data.gradeLevel,
       board: data.board,
@@ -213,9 +216,9 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       state: data.location?.state || "",
       country: data.location?.country || "",
       pincode: data.location?.pincode || "",
-      googleMapsUrl: data.location?.googleMapsUrl || "",
+      googleMapsLink: data.location?.googleMapsUrl || "",
       availabilityDays: data.preferredDays || [],
-      availabilityTime: data.preferredTimeSlots || [],
+      availabilityTime: data.preferredTimeSlots?.map(slot => timeSlotsOptions.find(o => o.value === slot)?.label || slot) || [],
       notes: "",
       online: data.teachingMode.includes("Online"),
       offline: data.teachingMode.includes("Offline (In-person)"),
@@ -299,7 +302,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="studentName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Student Name</FormLabel>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Student's Name</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g., Rohan Kumar" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
                     </FormControl>
@@ -616,4 +619,5 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     </div>
   );
 }
+
 
