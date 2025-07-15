@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, XCircle, LinkIcon } from "lucide-react";
+import { MapPin, Loader2, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -222,11 +222,11 @@ export function LocationAutocompleteInput({
               rel="noopener noreferrer"
               className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1.5"
             >
-              <LinkIcon className="h-3 w-3" />
+              <MapPin className="h-3 w-3" />
               {selectedLocation.name}
             </a>
           ) : (
-            <p className="text-sm font-semibold text-foreground">{selectedLocation.name}</p>
+            <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><MapPin className="h-3 w-3"/>{selectedLocation.name}</p>
           )}
           <p className="text-xs text-muted-foreground mt-0.5">{selectedLocation.address}</p>
         </div>
