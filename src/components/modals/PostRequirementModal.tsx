@@ -346,7 +346,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel>Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
