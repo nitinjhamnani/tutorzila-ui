@@ -4,9 +4,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 interface LocationAutocompleteInputProps {
   value: string;
@@ -69,6 +70,7 @@ export function LocationAutocompleteInput({
       {
         input,
         componentRestrictions: { country: "in" },
+        types: ['(cities)', 'geocode'], // Broaden search types
       },
       (predictions, status) => {
         setIsTyping(false);
@@ -100,6 +102,13 @@ export function LocationAutocompleteInput({
     onChange(newDescription);
     setShowSuggestions(false);
   };
+  
+  const handleClearInput = () => {
+    setInputValue("");
+    onChange("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
 
   if (loadError) {
     return <Input value="Maps API Error" disabled className="border-destructive" />;
@@ -119,10 +128,21 @@ export function LocationAutocompleteInput({
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => { if(suggestions.length > 0) setShowSuggestions(true); }}
-          className={cn("pl-10", className)}
+          className={cn("pl-10", inputValue ? "pr-10" : "pr-4", className)}
           autoComplete="off"
         />
         {isTyping && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />}
+        {!isTyping && inputValue && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
+            onClick={handleClearInput}
+          >
+            <XCircle className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+          </Button>
+        )}
       </div>
       {showSuggestions && suggestions.length > 0 && (
         <ul className="absolute z-[9999] mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95 max-h-60 overflow-y-auto">
