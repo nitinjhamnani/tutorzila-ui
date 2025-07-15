@@ -38,7 +38,10 @@ export function LocationAutocompleteInput({
   const onPlaceChanged = () => {
     if (autocompleteRef.current !== null) {
       const place = autocompleteRef.current.getPlace();
-      onChange(place.formatted_address || place.name || "");
+      // Fix: Add a check to ensure `place` and `place.formatted_address` exist.
+      if (place && place.formatted_address) {
+        onChange(place.formatted_address || place.name || "");
+      }
     } else {
       console.error("Autocomplete is not loaded yet!");
     }
