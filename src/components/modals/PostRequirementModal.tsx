@@ -47,10 +47,10 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 
 const gradeLevelsList = [
-    "Nursery", "LKG", "UKG", 
+    "Nursery", "LKG", "UKG",
     "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
     "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12", 
+    "Grade 11", "Grade 12",
     "College Level", "Adult Learner", "Other"
 ];
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
@@ -129,7 +129,7 @@ type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
-  startFromStep?: 1; 
+  startFromStep?: 1;
   onTriggerSignIn?: (name?: string) => void;
 }
 
@@ -164,9 +164,9 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   useEffect(() => {
     // Pre-fill user data if already logged in
     if (isAuthenticated && user?.role === 'parent') {
+        setCurrentStep(2); // If logged in, start from step 2
         form.setValue("name", user.name || "");
         form.setValue("email", user.email || "");
-        // Logic to pre-select country and phone if available
         if (user.phone) {
             const matchingCountry = MOCK_COUNTRIES.find(c => user.phone!.startsWith(c.countryCode));
             if (matchingCountry) {
@@ -176,6 +176,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 form.setValue("localPhoneNumber", user.phone);
             }
         }
+        form.setValue("acceptTerms", true); // Auto-accept terms for logged in users
     }
   }, [isAuthenticated, user, form]);
 
@@ -185,7 +186,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
     } else if (currentStep === 2) {
-      fieldsToValidate = ['teachingMode', 'location'];
+      fieldsToValidate = ['teachingMode', 'location', 'preferredDays', 'preferredTimeSlots'];
     } else if (currentStep === 3) {
       fieldsToValidate = ['name', 'email', 'country', 'localPhoneNumber', 'acceptTerms'];
     }
@@ -208,8 +209,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     showLoader();
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
-    
-    // Map the time slot values to their labels
+
     const availabilityTimeLabels = data.preferredTimeSlots?.map(value => {
       const option = timeSlotsOptions.find(opt => opt.value === value);
       return option ? option.label : value;
@@ -242,7 +242,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     };
 
     try {
-      // The fetch URL is relative, relying on the Next.js proxy/rewrite
       const response = await fetch('/api/enquiry/create', {
         method: 'POST',
         headers: {
@@ -257,7 +256,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       if (!response.ok) {
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
-      
+
       if (responseData.token && responseData.type === 'PARENT') {
         toast({
           title: "Requirement Posted & Logged In!",
@@ -266,19 +265,19 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
         router.push("/parent/dashboard");
       } else {
-        hideLoader(); 
+        hideLoader();
         toast({
           title: "Account Exists",
           description: responseData.message || "Please sign in to complete posting your requirement.",
         });
         if (onTriggerSignIn) {
-          onTriggerSignIn(data.email); 
+          onTriggerSignIn(data.email);
         }
-        onSuccess(); 
+        onSuccess();
       }
 
     } catch (error) {
-      hideLoader(); 
+      hideLoader();
       console.error("Enquiry creation failed:", error);
       toast({
         variant: "destructive",
@@ -287,7 +286,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       });
     }
   };
-  
+
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
 
   return (
@@ -391,7 +390,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
           {currentStep === 2 && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><Settings2 className="mr-2 h-5 w-5" />Tuition Preferences</h3>
-              
+
               <FormField
                 control={form.control}
                 name="teachingMode"
@@ -436,7 +435,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   </FormItem>
                 )}
               />
-              
+
               {isOfflineModeSelected && (
                 <FormField
                   control={form.control}
@@ -478,7 +477,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="preferredTimeSlots"
