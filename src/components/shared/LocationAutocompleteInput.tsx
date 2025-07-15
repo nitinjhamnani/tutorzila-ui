@@ -220,13 +220,13 @@ export function LocationAutocompleteInput({
               href={selectedLocation.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-primary hover:underline inline-flex items-center gap-1.5"
+              className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1.5"
             >
               <LinkIcon className="h-3 w-3" />
               {selectedLocation.name}
             </a>
           ) : (
-            <p className="font-semibold text-foreground">{selectedLocation.name}</p>
+            <p className="text-sm font-semibold text-foreground">{selectedLocation.name}</p>
           )}
           <p className="text-xs text-muted-foreground mt-0.5">{selectedLocation.address}</p>
         </div>
