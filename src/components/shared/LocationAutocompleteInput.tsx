@@ -214,20 +214,21 @@ export function LocationAutocompleteInput({
         </ul>
       )}
       {selectedLocation && (
-        <div className="mt-2 p-2 bg-muted/50 border rounded-md text-xs">
+        <div className="mt-2 p-2 bg-muted/50 border rounded-md">
           {selectedLocation.googleMapsUrl ? (
             <a
               href={selectedLocation.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-primary hover:underline inline-flex items-center gap-1"
+              className="font-semibold text-primary hover:underline inline-flex items-center gap-1.5"
             >
-              {selectedLocation.name} <LinkIcon className="h-3 w-3" />
+              <LinkIcon className="h-3 w-3" />
+              {selectedLocation.name}
             </a>
           ) : (
             <p className="font-semibold text-foreground">{selectedLocation.name}</p>
           )}
-          <p className="text-muted-foreground">{selectedLocation.address}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{selectedLocation.address}</p>
         </div>
       )}
     </div>
