@@ -19,7 +19,7 @@ export interface LocationDetails {
 }
 
 interface LocationAutocompleteInputProps {
-  initialValue?: string;
+  initialValue?: string | null;
   onValueChange: (details: LocationDetails | null) => void;
   placeholder?: string;
   className?: string;
@@ -37,7 +37,7 @@ export function LocationAutocompleteInput({
     libraries: ["places"],
   });
 
-  const [inputValue, setInputValue] = useState(initialValue);
+  const [inputValue, setInputValue] = useState(initialValue || "");
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -49,18 +49,15 @@ export function LocationAutocompleteInput({
   useEffect(() => {
     if (isLoaded && !autocompleteService.current) {
       autocompleteService.current = new window.google.maps.places.AutocompleteService();
-      // Need a dummy element for the PlacesService constructor
       const dummyDiv = document.createElement('div');
       placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
     }
   }, [isLoaded]);
 
   useEffect(() => {
-    // Sync internal state if the initialValue prop changes from outside
-    setInputValue(initialValue);
+    setInputValue(initialValue || "");
   }, [initialValue]);
   
-  // Close suggestions when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -109,13 +106,12 @@ export function LocationAutocompleteInput({
     }
     timeoutRef.current = setTimeout(() => {
       fetchSuggestions(newValue);
-    }, 300); // Debounce API calls
+    }, 300);
   };
 
   const handleSuggestionClick = (suggestion: google.maps.places.AutocompletePrediction) => {
     if (!placesService.current || !suggestion.place_id) return;
     
-    setInputValue(suggestion.description); // Temporarily set input to suggestion text
     setShowSuggestions(false);
 
     const request = {
@@ -144,8 +140,10 @@ export function LocationAutocompleteInput({
             googleMapsUrl: place.url,
         };
         
-        setInputValue(locationDetails.address); // Correctly update input with full address
+        // This is the key fix: update both the parent form and the internal state
+        // with the complete address.
         onValueChange(locationDetails);
+        setInputValue(locationDetails.address); 
       }
     });
   };
@@ -197,7 +195,7 @@ export function LocationAutocompleteInput({
             <li
               key={suggestion.place_id}
               className="cursor-pointer p-3 hover:bg-accent hover:text-accent-foreground text-sm flex items-center gap-2 group"
-              onMouseDown={(e) => { // Use onMouseDown to prevent input blur before click registers
+              onMouseDown={(e) => { 
                 e.preventDefault();
                 handleSuggestionClick(suggestion);
               }}
