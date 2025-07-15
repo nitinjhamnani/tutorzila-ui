@@ -192,7 +192,7 @@ export function LocationAutocompleteInput({
             className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full group/clear"
             onClick={handleClearInput}
           >
-            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-destructive" />
+            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-white" />
           </Button>
         )}
       </div>
@@ -207,7 +207,7 @@ export function LocationAutocompleteInput({
                 handleSuggestionClick(suggestion);
               }}
             >
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary" />
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-white" />
               <span>{suggestion.description}</span>
             </li>
           ))}
