@@ -15,6 +15,15 @@ export interface User {
   dateOfBirth?: string; // ISO date string
 }
 
+export interface LocationDetails {
+  address: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  googleMapsUrl?: string;
+}
+
 export interface TuitionRequirement {
   id:string;
   parentId: string;
@@ -24,7 +33,7 @@ export interface TuitionRequirement {
   scheduleDetails: string;
   preferredDays?: string[];
   preferredTimeSlots?: string[];
-  location?: string;
+  location?: LocationDetails | null;
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
   postedAt: string; // ISO date string

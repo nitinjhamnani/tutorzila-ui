@@ -9,16 +9,25 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
+export interface LocationDetails {
+  address: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  googleMapsUrl?: string;
+}
+
 interface LocationAutocompleteInputProps {
-  value: string;
-  onChange: (value: string) => void;
+  initialValue?: string;
+  onValueChange: (details: LocationDetails | null) => void;
   placeholder?: string;
   className?: string;
 }
 
 export function LocationAutocompleteInput({
-  value,
-  onChange,
+  initialValue = "",
+  onValueChange,
   placeholder = "Enter a location...",
   className,
 }: LocationAutocompleteInputProps) {
@@ -28,23 +37,27 @@ export function LocationAutocompleteInput({
     libraries: ["places"],
   });
 
-  const [inputValue, setInputValue] = useState(value);
+  const [inputValue, setInputValue] = useState(initialValue);
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isLoaded && !autocompleteService.current) {
       autocompleteService.current = new window.google.maps.places.AutocompleteService();
+      // Need a dummy element for the PlacesService constructor
+      const dummyDiv = document.createElement('div');
+      placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
     }
   }, [isLoaded]);
 
   useEffect(() => {
-    setInputValue(value);
-  }, [value]);
+    setInputValue(initialValue);
+  }, [initialValue]);
   
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -87,6 +100,9 @@ export function LocationAutocompleteInput({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
+    if (!newValue) {
+      onValueChange(null);
+    }
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -96,15 +112,45 @@ export function LocationAutocompleteInput({
   };
 
   const handleSuggestionClick = (suggestion: google.maps.places.AutocompletePrediction) => {
-    const newDescription = suggestion.description;
-    setInputValue(newDescription);
-    onChange(newDescription);
+    if (!placesService.current || !suggestion.place_id) return;
+    
     setShowSuggestions(false);
+
+    const request = {
+      placeId: suggestion.place_id,
+      fields: ['name', 'formatted_address', 'address_components', 'url'],
+    };
+
+    placesService.current.getDetails(request, (place, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+        let city = '', state = '', country = '', pincode = '';
+        
+        place.address_components?.forEach(component => {
+            const types = component.types;
+            if (types.includes('locality')) city = component.long_name;
+            if (types.includes('administrative_area_level_1')) state = component.long_name;
+            if (types.includes('country')) country = component.long_name;
+            if (types.includes('postal_code')) pincode = component.long_name;
+        });
+
+        const locationDetails: LocationDetails = {
+            address: place.formatted_address || suggestion.description,
+            city,
+            state,
+            country,
+            pincode,
+            googleMapsUrl: place.url,
+        };
+        
+        setInputValue(place.formatted_address || suggestion.description);
+        onValueChange(locationDetails);
+      }
+    });
   };
   
   const handleClearInput = () => {
     setInputValue("");
-    onChange("");
+    onValueChange(null);
     setSuggestions([]);
     setShowSuggestions(false);
   };
@@ -154,7 +200,7 @@ export function LocationAutocompleteInput({
                 handleSuggestionClick(suggestion);
               }}
             >
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-accent-foreground" />
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-white" />
               <span>{suggestion.description}</span>
             </li>
           ))}

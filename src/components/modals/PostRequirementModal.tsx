@@ -42,7 +42,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
-import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
+import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
@@ -93,7 +93,10 @@ const postRequirementSchema = z.object({
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
   // Step 2
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
-  location: z.string().optional().or(z.literal("")),
+  location: z.custom<LocationDetails | null>(
+    (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
+    "Invalid location format."
+  ).optional(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   // Step 3
@@ -105,7 +108,7 @@ const postRequirementSchema = z.object({
     message: "You must accept the terms and conditions to continue.",
   }),
 }).refine(data => {
-    if (data.teachingMode?.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
+    if (data.teachingMode?.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
       return false;
     }
     return true;
@@ -143,7 +146,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       gradeLevel: "",
       board: "",
       teachingMode: [],
-      location: "",
+      location: null,
       preferredDays: [],
       preferredTimeSlots: [],
       acceptTerms: false,
@@ -198,7 +201,12 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       subjects: data.subject,
       grade: data.gradeLevel,
       board: data.board,
-      address: data.location || "",
+      address: data.location?.address || "",
+      city: data.location?.city || "",
+      state: data.location?.state || "",
+      country: data.location?.country || "",
+      pincode: data.location?.pincode || "",
+      googleMapsUrl: data.location?.googleMapsUrl || "",
       availabilityDays: data.preferredDays || [],
       availabilityTime: data.preferredTimeSlots || [],
       notes: "",
@@ -346,7 +354,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="text-base font-medium">Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
@@ -395,8 +403,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                       <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                       <FormControl>
                         <LocationAutocompleteInput
-                          value={field.value || ""}
-                          onChange={field.onChange}
+                          initialValue={field.value?.address}
+                          onValueChange={(details) => field.onChange(details)}
                           placeholder="Search for address or area..."
                         />
                       </FormControl>
