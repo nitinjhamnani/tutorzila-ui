@@ -4,13 +4,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, XCircle } from "lucide-react";
+import { MapPin, Loader2, XCircle, LinkIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
 export interface LocationDetails {
-  name?: string; // Added to store the place name
+  name?: string; 
   address: string;
   city?: string;
   state?: string;
@@ -215,8 +215,19 @@ export function LocationAutocompleteInput({
       )}
       {selectedLocation && (
         <div className="mt-2 p-2 bg-muted/50 border rounded-md text-xs">
+          {selectedLocation.googleMapsUrl ? (
+            <a
+              href={selectedLocation.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            >
+              {selectedLocation.name} <LinkIcon className="h-3 w-3" />
+            </a>
+          ) : (
             <p className="font-semibold text-foreground">{selectedLocation.name}</p>
-            <p className="text-muted-foreground">{selectedLocation.address}</p>
+          )}
+          <p className="text-muted-foreground">{selectedLocation.address}</p>
         </div>
       )}
     </div>
