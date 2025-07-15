@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const fetchTutorDashboardData = async (token: string | null) => {
   if (!token) throw new Error("No authentication token found.");
-  // NOTE: This URL should be in an environment variable in a real application
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
   const response = await fetch(`${apiBaseUrl}/api/tutor/dashboard`, {
     headers: {

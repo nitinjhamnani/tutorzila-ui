@@ -129,7 +129,7 @@ type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
-  startFromStep?: 1;
+  startFromStep?: 1 | 2;
   onTriggerSignIn?: (name?: string) => void;
 }
 
@@ -162,9 +162,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   });
 
   useEffect(() => {
-    // Pre-fill user data if already logged in
     if (isAuthenticated && user?.role === 'parent') {
-        setCurrentStep(2); // If logged in, start from step 2
+        setCurrentStep(2);
         form.setValue("name", user.name || "");
         form.setValue("email", user.email || "");
         if (user.phone) {
@@ -176,7 +175,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 form.setValue("localPhoneNumber", user.phone);
             }
         }
-        form.setValue("acceptTerms", true); // Auto-accept terms for logged in users
+        form.setValue("acceptTerms", true);
     }
   }, [isAuthenticated, user, form]);
 
@@ -200,7 +199,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -243,7 +242,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     };
     
     try {
-      const apiBaseUrl = 'http://localhost:8080';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
       const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
         method: 'POST',
         headers: {

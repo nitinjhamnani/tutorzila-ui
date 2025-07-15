@@ -320,7 +320,6 @@ export default function ParentDashboardPage() {
           </div>
         </div>
         
-        {/* OTP Modal */}
         {otpVerificationType && otpVerificationIdentifier && (
           <OtpVerificationModal
             isOpen={isOtpModalOpen}
