@@ -53,13 +53,10 @@ export function LocationAutocompleteInput({
       placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
     }
   }, [isLoaded]);
-
+  
   // Sync internal state with external value if it changes
   useEffect(() => {
-    if (initialValue !== inputValue) {
-        setInputValue(initialValue || "");
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setInputValue(initialValue || "");
   }, [initialValue]);
   
   useEffect(() => {
@@ -114,7 +111,6 @@ export function LocationAutocompleteInput({
   };
 
   const handleSuggestionClick = (suggestion: google.maps.places.AutocompletePrediction) => {
-    setInputValue(suggestion.description); // Temporarily set the shorter text
     setShowSuggestions(false);
 
     if (!placesService.current || !suggestion.place_id) return;
@@ -145,9 +141,7 @@ export function LocationAutocompleteInput({
             googleMapsUrl: place.url,
         };
         
-        // This is the key fix: update both the parent form and the internal state
-        // with the complete address.
-        setInputValue(locationDetails.address); // Definitive update with full address
+        setInputValue(locationDetails.address);
         onValueChange(locationDetails);
       }
     });
@@ -190,7 +184,7 @@ export function LocationAutocompleteInput({
             className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full group/clear"
             onClick={handleClearInput}
           >
-            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-primary-foreground" />
+            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-white" />
           </Button>
         )}
       </div>
@@ -205,7 +199,7 @@ export function LocationAutocompleteInput({
                 handleSuggestionClick(suggestion);
               }}
             >
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary-foreground" />
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-white" />
               <span>{suggestion.description}</span>
             </li>
           ))}
