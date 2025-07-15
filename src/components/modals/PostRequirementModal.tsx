@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -200,7 +200,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
@@ -215,7 +215,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       return option ? option.label : value;
     }) || [];
 
-    const apiRequestBody = {
+    const locationDetails = data.location;
+    let apiRequestBody: any = {
       signupRequest: {
         name: data.name,
         email: data.email,
@@ -228,21 +229,22 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       subjects: data.subject,
       grade: data.gradeLevel,
       board: data.board,
-      address: data.location?.address || "",
-      city: data.location?.city || "",
-      state: data.location?.state || "",
-      country: data.location?.country || data.country,
-      area: data.location?.area || "",
-      pincode: data.location?.pincode || "",
-      googleMapsLink: data.location?.googleMapsUrl || "",
+      address: locationDetails?.address || "",
+      city: locationDetails?.city || "",
+      state: locationDetails?.state || "",
+      country: locationDetails?.country || data.country,
+      area: locationDetails?.area || "",
+      pincode: locationDetails?.pincode || "",
+      googleMapsLink: locationDetails?.googleMapsUrl || "",
       availabilityDays: data.preferredDays || [],
       availabilityTime: availabilityTimeLabels,
       online: data.teachingMode.includes("Online"),
       offline: data.teachingMode.includes("Offline (In-person)"),
     };
-
+    
     try {
-      const response = await fetch('/api/enquiry/create', {
+      const apiBaseUrl = 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
