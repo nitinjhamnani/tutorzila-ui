@@ -38,7 +38,8 @@ const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "Fren
 
 const teachingModeItems = [
   { id: "Online", label: "Online" },
-  { id: "In-person", label: "In-person" },
+  { id: "Students Place", label: "Student's Place" },
+  { id: "Tutors Place", label: "Tutor's Place" },
 ];
 
 const daysOptionsList: MultiSelectOption[] = [
@@ -81,15 +82,6 @@ const tutoringDetailsSchema = z.object({
   languages: z.array(z.string()).min(1, "Please select at least one language you speak."),
   experience: z.string().min(1, "Experience level is required."),
   bio: z.string().max(500, "Bio should not exceed 500 characters.").optional().or(z.literal("")),
-  location: z.string().optional().or(z.literal("")),
-}).refine(data => {
-  if (data.teachingMode.includes("In-person") && (!data.location || data.location.trim() === "")) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Location is required for In-person teaching mode.",
-  path: ["location"],
 });
 
 type TutoringDetailsFormValues = z.infer<typeof tutoringDetailsSchema>;
@@ -120,7 +112,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       languages: [],
       experience: "",
       bio: "",
-      location: "",
     },
   });
 
@@ -140,7 +131,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         languages: ensureArray(details.languages),
         experience: details.yearOfExperience || "",
         bio: details.tutorBio || "",
-        location: details.location || "",
       });
     }
   }, [initialData, form]);
@@ -165,7 +155,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       availabilityTime: data.preferredTimeSlots,
       yearOfExperience: data.experience,
       tutorBio: data.bio,
-      location: data.location,
       hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
       languages: data.languages,
       rateNegotiable: data.isRateNegotiable || false,
@@ -291,7 +280,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   <FormItem>
                     <FormLabel className="flex items-center text-base font-medium"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
                      <FormDescription className="text-xs">Select all applicable teaching modes.</FormDescription>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                     {teachingModeItems.map((item) => (
                       <FormField
                         key={item.id}
@@ -331,21 +320,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   </FormItem>
                 )}
               />
-              {form.watch("teachingMode")?.includes("In-person") && (
-                 <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                  <FormItem>
-                      <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Tutoring Location (for In-person)</FormLabel>
-                      <FormControl>
-                      <Input placeholder="e.g., Cityville Center, or 'Student's Home'" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
-                      </FormControl>
-                      <FormMessage />
-                  </FormItem>
-                  )}
-              />
-              )}
               
               <FormItem>
                 <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
