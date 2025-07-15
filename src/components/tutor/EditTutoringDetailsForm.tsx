@@ -330,7 +330,14 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                       render={({ field }) => (
                         <FormItem className="flex-grow">
                           <FormControl>
-                            <Input type="text" inputMode="decimal" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                            <Input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="e.g., 800"
+                              maxLength={4}
+                              {...field}
+                              className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
