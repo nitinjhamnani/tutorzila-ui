@@ -12,12 +12,14 @@ interface LocationAutocompleteInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
 export function LocationAutocompleteInput({
   value,
   onChange,
   placeholder = "Enter a location...",
+  className,
 }: LocationAutocompleteInputProps) {
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script-places',
