@@ -314,3 +314,8 @@ html, body {
     stroke-dashoffset: -124;
   }
 }
+
+/* Fix for Google Maps Autocomplete suggestions appearing behind modal */
+.pac-container {
+    z-index: 9999 !important;
+}
