@@ -145,8 +145,10 @@ export function LocationAutocompleteInput({
             googleMapsUrl: place.url,
         };
         
-        setInputValue(locationDetails.address); // Definitively set the input to the full formatted address
-        onValueChange(locationDetails); // Pass the full structured object to the parent form
+        // This is the crucial fix: ensure both the visual input and the form value are updated
+        // with the complete, formatted address object.
+        setInputValue(locationDetails.address);
+        onValueChange(locationDetails);
       }
     });
   };
@@ -188,7 +190,7 @@ export function LocationAutocompleteInput({
             className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full group/clear"
             onClick={handleClearInput}
           >
-            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-destructive" />
+            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-destructive group-hover/clear:text-white" />
           </Button>
         )}
       </div>

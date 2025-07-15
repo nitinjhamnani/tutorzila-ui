@@ -96,7 +96,7 @@ const postRequirementSchema = z.object({
   location: z.custom<LocationDetails | null>(
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
-  ).optional(),
+  ).nullable(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   // Step 3
@@ -179,7 +179,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -354,7 +354,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium">Preferred Teaching Mode</FormLabel>
+                    <FormLabel>Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
@@ -403,7 +403,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                       <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                       <FormControl>
                         <LocationAutocompleteInput
-                          initialValue={field.value?.address}
+                          initialValue={field.value}
                           onValueChange={(details) => field.onChange(details)}
                           placeholder="Search for address or area..."
                         />
