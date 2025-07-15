@@ -148,13 +148,13 @@ export function LocationAutocompleteInput({
           {suggestions.map((suggestion) => (
             <li
               key={suggestion.place_id}
-              className="cursor-pointer p-3 hover:bg-accent hover:text-accent-foreground text-sm flex items-center gap-2"
+              className="cursor-pointer p-3 hover:bg-accent hover:text-accent-foreground text-sm flex items-center gap-2 group"
               onMouseDown={(e) => { // Use onMouseDown to prevent input blur before click registers
                 e.preventDefault();
                 handleSuggestionClick(suggestion);
               }}
             >
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-accent-foreground" />
               <span>{suggestion.description}</span>
             </li>
           ))}
