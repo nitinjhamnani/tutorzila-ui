@@ -196,6 +196,12 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     showLoader();
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
+    
+    // Map the time slot values to their labels
+    const availabilityTimeLabels = data.preferredTimeSlots?.map(value => {
+      const option = timeSlotsOptions.find(opt => opt.value === value);
+      return option ? option.label : value;
+    }) || [];
 
     const apiRequestBody = {
       signupRequest: {
@@ -211,14 +217,14 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       grade: data.gradeLevel,
       board: data.board,
       address: data.location?.address || "",
-      area: data.location?.area || "",
       city: data.location?.city || "",
       state: data.location?.state || "",
       country: data.location?.country || data.country,
+      area: data.location?.area || "",
       pincode: data.location?.pincode || "",
       googleMapsLink: data.location?.googleMapsUrl || "",
       availabilityDays: data.preferredDays || [],
-      availabilityTime: data.preferredTimeSlots || [],
+      availabilityTime: availabilityTimeLabels,
       online: data.teachingMode.includes("Online"),
       offline: data.teachingMode.includes("Offline (In-person)"),
     };
