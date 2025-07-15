@@ -19,14 +19,14 @@ export interface LocationDetails {
 }
 
 interface LocationAutocompleteInputProps {
-  initialValue?: string | null;
+  initialValue?: LocationDetails | null;
   onValueChange: (details: LocationDetails | null) => void;
   placeholder?: string;
   className?: string;
 }
 
 export function LocationAutocompleteInput({
-  initialValue = "",
+  initialValue = null,
   onValueChange,
   placeholder = "Enter a location...",
   className,
@@ -37,7 +37,7 @@ export function LocationAutocompleteInput({
     libraries: ["places"],
   });
 
-  const [inputValue, setInputValue] = useState(initialValue || "");
+  const [inputValue, setInputValue] = useState(initialValue?.address || "");
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -53,12 +53,15 @@ export function LocationAutocompleteInput({
       placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
     }
   }, [isLoaded]);
-  
-  // Sync internal state with external value if it changes
+
   useEffect(() => {
-    setInputValue(initialValue || "");
+    // Sync with parent form state if it changes externally
+    if (initialValue?.address !== inputValue) {
+      setInputValue(initialValue?.address || "");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue]);
-  
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -111,6 +114,7 @@ export function LocationAutocompleteInput({
   };
 
   const handleSuggestionClick = (suggestion: google.maps.places.AutocompletePrediction) => {
+    setInputValue(suggestion.description); // Temporarily set input to suggestion text
     setShowSuggestions(false);
 
     if (!placesService.current || !suggestion.place_id) return;
@@ -141,8 +145,8 @@ export function LocationAutocompleteInput({
             googleMapsUrl: place.url,
         };
         
-        setInputValue(locationDetails.address);
-        onValueChange(locationDetails);
+        setInputValue(locationDetails.address); // Definitively set the input to the full formatted address
+        onValueChange(locationDetails); // Pass the full structured object to the parent form
       }
     });
   };
@@ -184,7 +188,7 @@ export function LocationAutocompleteInput({
             className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full group/clear"
             onClick={handleClearInput}
           >
-            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-white" />
+            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-destructive" />
           </Button>
         )}
       </div>
@@ -199,7 +203,7 @@ export function LocationAutocompleteInput({
                 handleSuggestionClick(suggestion);
               }}
             >
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-white" />
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary" />
               <span>{suggestion.description}</span>
             </li>
           ))}
