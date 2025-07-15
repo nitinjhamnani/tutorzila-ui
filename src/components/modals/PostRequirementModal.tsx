@@ -346,7 +346,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="font-semibold flex items-center text-base"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
+                    <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
@@ -412,7 +412,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-semibold flex items-center text-base">
+                      <FormLabel className="flex items-center">
                         <CalendarDays className="mr-2 h-4 w-4 text-primary/80" />
                         Preferred Days (Optional)
                       </FormLabel>
@@ -433,7 +433,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="font-semibold flex items-center text-base">
+                      <FormLabel className="flex items-center">
                         <Clock className="mr-2 h-4 w-4 text-primary/80" />
                         Preferred Time (Optional)
                       </FormLabel>
