@@ -70,7 +70,6 @@ export function LocationAutocompleteInput({
       {
         input,
         componentRestrictions: { country: "in" },
-        types: ['geocode'], // Corrected: Removed '(cities)' to avoid conflict
       },
       (predictions, status) => {
         setIsTyping(false);
