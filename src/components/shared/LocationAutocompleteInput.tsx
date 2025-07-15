@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
 export interface LocationDetails {
+  name?: string; // Added to store the place name
   address: string;
   city?: string;
   state?: string;
@@ -38,7 +39,7 @@ export function LocationAutocompleteInput({
   });
 
   const [inputValue, setInputValue] = useState("");
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationDetails | null>(null);
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -57,11 +58,11 @@ export function LocationAutocompleteInput({
 
   useEffect(() => {
     if (initialValue) {
-      setInputValue(initialValue.address);
-      setSelectedAddress(initialValue.address);
+      setInputValue(initialValue.name || initialValue.address);
+      setSelectedLocation(initialValue);
     } else {
       setInputValue("");
-      setSelectedAddress(null);
+      setSelectedLocation(null);
     }
   }, [initialValue]);
 
@@ -138,6 +139,7 @@ export function LocationAutocompleteInput({
         });
 
         const locationDetails: LocationDetails = {
+            name: place.name,
             address: place.formatted_address || suggestion.description,
             city,
             state,
@@ -146,7 +148,7 @@ export function LocationAutocompleteInput({
             googleMapsUrl: place.url,
         };
         
-        setSelectedAddress(locationDetails.address);
+        setSelectedLocation(locationDetails);
         onValueChange(locationDetails);
       }
     });
@@ -154,7 +156,7 @@ export function LocationAutocompleteInput({
   
   const handleClearInput = () => {
     setInputValue("");
-    setSelectedAddress(null);
+    setSelectedLocation(null);
     onValueChange(null);
     setSuggestions([]);
     setShowSuggestions(false);
@@ -211,10 +213,10 @@ export function LocationAutocompleteInput({
           ))}
         </ul>
       )}
-      {selectedAddress && (
-        <div className="mt-2 p-2 bg-muted/50 border rounded-md">
-            <p className="text-xs text-muted-foreground font-medium">Selected Location:</p>
-            <p className="text-sm text-foreground">{selectedAddress}</p>
+      {selectedLocation && (
+        <div className="mt-2 p-2 bg-muted/50 border rounded-md text-xs">
+            <p className="font-semibold text-foreground">{selectedLocation.name}</p>
+            <p className="text-muted-foreground">{selectedLocation.address}</p>
         </div>
       )}
     </div>
