@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -228,10 +229,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
           description: "You are being redirected to your dashboard...",
         });
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
-        // The useEffect will handle the redirection, keeping the loader on.
-        // onSuccess(); // We no longer call onSuccess here to prevent premature modal close
       } else {
-        hideLoader(); // Hide loader if not redirecting
+        hideLoader(); 
         toast({
           title: "Account Exists",
           description: responseData.message || "Please sign in to complete posting your requirement.",
@@ -239,11 +238,11 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         if (onTriggerSignIn) {
           onTriggerSignIn(data.email); 
         }
-        onSuccess(); // Close this modal
+        onSuccess(); 
       }
 
     } catch (error) {
-      hideLoader(); // Hide loader on error
+      hideLoader(); 
       console.error("Enquiry creation failed:", error);
       toast({
         variant: "destructive",
@@ -347,7 +346,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                 name="teachingMode"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="text-base">Preferred Teaching Mode</FormLabel>
+                    <FormLabel>Preferred Teaching Mode</FormLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       {teachingModeOptions.map((option) => (
                         <FormField
@@ -409,7 +408,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center text-base"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Preferred Days (Optional)</FormLabel>
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
@@ -427,7 +426,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="preferredTimeSlots"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="flex items-center text-base"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80" />Preferred Time (Optional)</FormLabel>
                       <MultiSelectCommand
                         options={timeSlotsOptions}
                         selectedValues={field.value || []}
