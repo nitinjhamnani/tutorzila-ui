@@ -46,11 +46,9 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = [
-    "Kindergarten",
-    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+    "Kindergarten", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
     "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12",
-    "College Level", "Adult Learner", "Other"
+    "Grade 11", "Grade 12", "College Level", "Adult Learner", "Other"
 ];
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 
@@ -94,6 +92,7 @@ const MOCK_COUNTRIES = [
 
 const postRequirementSchema = z.object({
   // Step 1
+  studentName: z.string().optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
   board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
@@ -144,6 +143,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   const form = useForm<PostRequirementFormValues>({
     resolver: zodResolver(postRequirementSchema),
     defaultValues: {
+      studentName: "",
       name: "",
       email: "",
       country: "IN",
@@ -169,7 +169,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
-      fieldsToValidate = ['subject', 'gradeLevel', 'board'];
+      fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['teachingMode', 'location'];
     } else if (currentStep === 3) {
@@ -208,7 +208,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       grade: data.gradeLevel,
       board: data.board,
       address: data.location?.address || "",
-      area: data.location?.area || "", // Added area
+      area: data.location?.area || "",
       city: data.location?.city || "",
       state: data.location?.state || "",
       country: data.location?.country || "",
@@ -294,6 +294,19 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><BookOpen className="mr-2 h-5 w-5" />Academic Information</h3>
+               <FormField
+                control={form.control}
+                name="studentName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Student Name (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Rohan Kumar" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="subject"
@@ -336,7 +349,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="board"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80" />Board (e.g., CBSE, ICSE, State)</FormLabel>
+                      <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80" />Board</FormLabel>
                        <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a board" /></SelectTrigger>
