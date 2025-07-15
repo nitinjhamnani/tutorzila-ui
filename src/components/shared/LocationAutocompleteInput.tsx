@@ -60,7 +60,6 @@ export function LocationAutocompleteInput({
       onLoad={onLoad}
       onPlaceChanged={onPlaceChanged}
       fields={["address_components", "formatted_address", "geometry", "icon", "name"]}
-      types={["address"]}
       options={{
         componentRestrictions: { country: "in" },
       }}
