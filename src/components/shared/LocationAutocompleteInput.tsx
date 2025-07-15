@@ -40,7 +40,7 @@ export function LocationAutocompleteInput({
       const place = autocompleteRef.current.getPlace();
       onChange(place.formatted_address || place.name || "");
     } else {
-      console.error("Autocomplete instance not available");
+      console.error("Autocomplete is not loaded yet!");
     }
   };
 
