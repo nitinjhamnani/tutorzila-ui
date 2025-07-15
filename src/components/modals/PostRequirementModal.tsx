@@ -214,12 +214,11 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       area: data.location?.area || "",
       city: data.location?.city || "",
       state: data.location?.state || "",
-      country: data.location?.country || "",
+      country: data.location?.country || data.country,
       pincode: data.location?.pincode || "",
       googleMapsLink: data.location?.googleMapsUrl || "",
       availabilityDays: data.preferredDays || [],
-      availabilityTime: data.preferredTimeSlots?.map(slot => timeSlotsOptions.find(o => o.value === slot)?.label || slot) || [],
-      notes: "",
+      availabilityTime: data.preferredTimeSlots || [],
       online: data.teachingMode.includes("Online"),
       offline: data.teachingMode.includes("Offline (In-person)"),
     };
@@ -619,5 +618,3 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     </div>
   );
 }
-
-
