@@ -222,8 +222,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     };
 
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
+      const response = await fetch('/api/enquiry/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

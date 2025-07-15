@@ -1,3 +1,4 @@
+
 import type { NextConfig } from 'next';
 import withPWAConstructor from 'next-pwa';
 
@@ -8,17 +9,9 @@ const withPWA = withPWAConstructor({
   register: true,
   skipWaiting: true,
   disable: isDev,
-  // Example for custom worker starting from Next 15.2.4
-  // swSrc: 'app/sw.ts', 
-  // swDest: 'public/sw.js',
-  // fallbacks: { // Optional: configure fallbacks for offline
-  //   document: '/_offline', // Ensure you have an offline fallback page at pages/_offline.tsx or app/_offline/page.tsx
-  //   image: '/static/images/fallback.png', // Example fallback image
-  // },
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -34,6 +27,14 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:8080/api/:path*', // Proxy to Backend
+      },
+    ];
   },
 };
 
