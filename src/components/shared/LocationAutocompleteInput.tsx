@@ -37,7 +37,8 @@ export function LocationAutocompleteInput({
     libraries: ["places"],
   });
 
-  const [inputValue, setInputValue] = useState(initialValue?.address || "");
+  const [inputValue, setInputValue] = useState("");
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -55,12 +56,15 @@ export function LocationAutocompleteInput({
   }, [isLoaded]);
 
   useEffect(() => {
-    // Sync with parent form state if it changes externally
-    if (initialValue?.address !== inputValue) {
-      setInputValue(initialValue?.address || "");
+    if (initialValue) {
+      setInputValue(initialValue.address);
+      setSelectedAddress(initialValue.address);
+    } else {
+      setInputValue("");
+      setSelectedAddress(null);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue]);
+
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -102,9 +106,6 @@ export function LocationAutocompleteInput({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
-    if (!newValue) {
-      onValueChange(null);
-    }
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -114,7 +115,7 @@ export function LocationAutocompleteInput({
   };
 
   const handleSuggestionClick = (suggestion: google.maps.places.AutocompletePrediction) => {
-    setInputValue(suggestion.description); // Temporarily set input to suggestion text
+    setInputValue(suggestion.description);
     setShowSuggestions(false);
 
     if (!placesService.current || !suggestion.place_id) return;
@@ -145,9 +146,7 @@ export function LocationAutocompleteInput({
             googleMapsUrl: place.url,
         };
         
-        // This is the crucial fix: ensure both the visual input and the form value are updated
-        // with the complete, formatted address object.
-        setInputValue(locationDetails.address);
+        setSelectedAddress(locationDetails.address);
         onValueChange(locationDetails);
       }
     });
@@ -155,6 +154,7 @@ export function LocationAutocompleteInput({
   
   const handleClearInput = () => {
     setInputValue("");
+    setSelectedAddress(null);
     onValueChange(null);
     setSuggestions([]);
     setShowSuggestions(false);
@@ -190,7 +190,7 @@ export function LocationAutocompleteInput({
             className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full group/clear"
             onClick={handleClearInput}
           >
-            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-destructive group-hover/clear:text-white" />
+            <XCircle className="h-4 w-4 text-muted-foreground group-hover/clear:text-destructive" />
           </Button>
         )}
       </div>
@@ -210,6 +210,12 @@ export function LocationAutocompleteInput({
             </li>
           ))}
         </ul>
+      )}
+      {selectedAddress && (
+        <div className="mt-2 p-2 bg-muted/50 border rounded-md">
+            <p className="text-xs text-muted-foreground font-medium">Selected Location:</p>
+            <p className="text-sm text-foreground">{selectedAddress}</p>
+        </div>
       )}
     </div>
   );
