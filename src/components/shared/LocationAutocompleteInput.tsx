@@ -56,6 +56,7 @@ export function LocationAutocompleteInput({
   }, [isLoaded]);
 
   useEffect(() => {
+    // Sync internal state if the initialValue prop changes from outside
     setInputValue(initialValue);
   }, [initialValue]);
   
@@ -114,6 +115,7 @@ export function LocationAutocompleteInput({
   const handleSuggestionClick = (suggestion: google.maps.places.AutocompletePrediction) => {
     if (!placesService.current || !suggestion.place_id) return;
     
+    setInputValue(suggestion.description); // Temporarily set input to suggestion text
     setShowSuggestions(false);
 
     const request = {
@@ -142,7 +144,7 @@ export function LocationAutocompleteInput({
             googleMapsUrl: place.url,
         };
         
-        setInputValue(place.formatted_address || suggestion.description);
+        setInputValue(locationDetails.address); // Correctly update input with full address
         onValueChange(locationDetails);
       }
     });
