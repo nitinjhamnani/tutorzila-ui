@@ -76,7 +76,7 @@ const tutoringDetailsSchema = z.object({
   teachingMode: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one teaching mode.",
   }),
-  hourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate. e.g., 500").optional().or(z.literal("")),
+  hourlyRate: z.string().regex(/^\d{1,4}(\.\d{1,2})?$/, "Rate must be up to 4 digits (e.g., 9999).").optional().or(z.literal("")),
   isRateNegotiable: z.boolean().default(false).optional(),
   qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
   languages: z.array(z.string()).min(1, "Please select at least one language you speak."),
