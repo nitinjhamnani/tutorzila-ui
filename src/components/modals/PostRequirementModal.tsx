@@ -96,7 +96,6 @@ const postRequirementSchema = z.object({
   location: z.string().optional().or(z.literal("")),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
-  additionalNotes: z.string().optional(),
   // Step 3
   name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -147,7 +146,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       location: "",
       preferredDays: [],
       preferredTimeSlots: [],
-      additionalNotes: "",
       acceptTerms: false,
     },
   });
@@ -203,7 +201,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       address: data.location || "",
       availabilityDays: data.preferredDays || [],
       availabilityTime: data.preferredTimeSlots || [],
-      notes: data.additionalNotes || "",
+      notes: "",
       online: data.teachingMode.includes("Online"),
       offline: data.teachingMode.includes("Offline (In-person)"),
     };
@@ -443,20 +441,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="additionalNotes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center text-base"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Any other specific requirements or notes for the tutor. e.g., 'Student needs help with exam preparation...'" {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
           )}
 
