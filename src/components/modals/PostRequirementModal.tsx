@@ -45,7 +45,13 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-const gradeLevelsList = ["Kindergarten", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12", "College Level", "Adult Learner", "Other"];
+const gradeLevelsList = [
+    "Kindergarten",
+    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
+    "Grade 11", "Grade 12",
+    "College Level", "Adult Learner", "Other"
+];
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 
 const teachingModeOptions = [
@@ -179,7 +185,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -306,42 +312,44 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="gradeLevel"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80" />Grade Level</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {gradeLevelsList.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="board"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80" />Board (e.g., CBSE, ICSE, State)</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a board" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {boardsList.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="gradeLevel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80" />Grade Level</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {gradeLevelsList.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="board"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80" />Board (e.g., CBSE, ICSE, State)</FormLabel>
+                       <Select onValueChange={field.onChange} value={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30"><SelectValue placeholder="Select a board" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {boardsList.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           )}
 
