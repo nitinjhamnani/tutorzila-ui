@@ -107,7 +107,6 @@ const postRequirementSchema = z.object({
   ).nullable(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
-  scheduleDetails: z.string().min(10, { message: "Please provide some details (at least 10 characters)." }),
   // Step 3
   name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -159,7 +158,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       location: null,
       preferredDays: [],
       preferredTimeSlots: [],
-      scheduleDetails: "",
       acceptTerms: false,
     },
   });
@@ -176,7 +174,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
     } else if (currentStep === 2) {
-      fieldsToValidate = ['teachingMode', 'location', 'scheduleDetails'];
+      fieldsToValidate = ['teachingMode', 'location'];
     } else if (currentStep === 3) {
       fieldsToValidate = ['name', 'email', 'country', 'localPhoneNumber', 'acceptTerms'];
     }
@@ -230,7 +228,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       availabilityTime: availabilityTimeLabels,
       online: data.teachingMode.includes("Online"),
       offline: data.teachingMode.includes("Offline (In-person)"),
-      initial: data.scheduleDetails, // Backend expects 'initial' key
     };
 
     try {
@@ -490,25 +487,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   )}
                 />
               </div>
-               <FormField
-                  control={form.control}
-                  name="scheduleDetails"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>More Details & Specific Needs</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="e.g., Weekdays after 5 PM, 2-3 times a week. Student needs help with exam preparation..."
-                          className="resize-none bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
-                          {...field}
-                          rows={3}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">Provide timings, frequency, and goals for the tutor.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
             </div>
           )}
 
