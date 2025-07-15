@@ -214,7 +214,7 @@ export function LocationAutocompleteInput({
         </ul>
       )}
       {selectedLocation && (
-        <div className="mt-2 p-2 bg-muted/50 border rounded-md">
+        <div className="mt-2 p-2 bg-card border rounded-md">
           {selectedLocation.googleMapsUrl ? (
             <a
               href={selectedLocation.googleMapsUrl}
