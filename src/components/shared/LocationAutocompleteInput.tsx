@@ -1,10 +1,10 @@
 
 "use client";
 
-import React from "react";
-import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import React, { useState, useEffect, useRef } from "react";
+import { useJsApiLoader } from "@react-google-maps/api";
 import { Input } from "@/components/ui/input";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -25,63 +25,120 @@ export function LocationAutocompleteInput({
     libraries: ["places"],
   });
 
-  const autocompleteRef = React.useRef<google.maps.places.Autocomplete | null>(null);
+  const [inputValue, setInputValue] = useState(value);
+  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const onLoad = React.useCallback((autocompleteInstance: google.maps.places.Autocomplete) => {
-    autocompleteRef.current = autocompleteInstance;
-  }, []);
-
-  const onUnmount = React.useCallback(() => {
-    autocompleteRef.current = null;
-  }, []);
-
-  const onPlaceChanged = () => {
-    if (autocompleteRef.current !== null) {
-      const place = autocompleteRef.current.getPlace();
-      // Fix: Add a check to ensure `place` and `place.formatted_address` exist.
-      if (place && place.formatted_address) {
-        onChange(place.formatted_address || place.name || "");
-      }
-    } else {
-      console.error("Autocomplete is not loaded yet!");
+  useEffect(() => {
+    if (isLoaded && !autocompleteService.current) {
+      autocompleteService.current = new window.google.maps.places.AutocompleteService();
     }
+  }, [isLoaded]);
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+  
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [wrapperRef]);
+
+
+  const fetchSuggestions = (input: string) => {
+    if (!autocompleteService.current || input.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    setIsTyping(true);
+    autocompleteService.current.getPlacePredictions(
+      {
+        input,
+        componentRestrictions: { country: "in" },
+      },
+      (predictions, status) => {
+        setIsTyping(false);
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSuggestions(predictions);
+          setShowSuggestions(true);
+        } else {
+          setSuggestions([]);
+          setShowSuggestions(false);
+        }
+      }
+    );
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      fetchSuggestions(newValue);
+    }, 300); // Debounce API calls
+  };
+
+  const handleSuggestionClick = (suggestion: google.maps.places.AutocompletePrediction) => {
+    const newDescription = suggestion.description;
+    setInputValue(newDescription);
+    onChange(newDescription);
+    setShowSuggestions(false);
   };
 
   if (loadError) {
-    return (
-      <Input
-        value="Map API failed to load. Please check API key and try again."
-        disabled
-        className="border-destructive text-destructive"
-      />
-    );
+    return <Input value="Maps API Error" disabled className="border-destructive" />;
   }
 
   if (!isLoaded) {
     return <Skeleton className="h-10 w-full" />;
   }
-  
+
   return (
-    <div className="relative">
-      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-       <Autocomplete
-        onLoad={onLoad}
-        onUnmount={onUnmount}
-        onPlaceChanged={onPlaceChanged}
-        options={{
-          componentRestrictions: { country: "in" },
-          types: ["geocode", "establishment"]
-        }}
-       >
+    <div className="relative w-full" ref={wrapperRef}>
+      <div className="relative">
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder={placeholder}
-          defaultValue={value}
-          className={cn(
-            "pl-10 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"
-          )}
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={() => { if(suggestions.length > 0) setShowSuggestions(true); }}
+          className={cn("pl-10", className)}
+          autoComplete="off"
         />
-       </Autocomplete>
+        {isTyping && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />}
+      </div>
+      {showSuggestions && suggestions.length > 0 && (
+        <ul className="absolute z-[9999] mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95 max-h-60 overflow-y-auto">
+          {suggestions.map((suggestion) => (
+            <li
+              key={suggestion.place_id}
+              className="cursor-pointer p-3 hover:bg-accent hover:text-accent-foreground text-sm flex items-center gap-2"
+              onMouseDown={(e) => { // Use onMouseDown to prevent input blur before click registers
+                e.preventDefault();
+                handleSuggestionClick(suggestion);
+              }}
+            >
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span>{suggestion.description}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
