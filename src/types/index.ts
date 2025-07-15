@@ -16,7 +16,9 @@ export interface User {
 }
 
 export interface LocationDetails {
+  name?: string; 
   address: string;
+  area?: string; // e.g., neighborhood or sublocality
   city?: string;
   state?: string;
   country?: string;

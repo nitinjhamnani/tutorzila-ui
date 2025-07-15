@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 export interface LocationDetails {
   name?: string; 
   address: string;
+  area?: string;
   city?: string;
   state?: string;
   country?: string;
@@ -128,10 +129,13 @@ export function LocationAutocompleteInput({
 
     placesService.current.getDetails(request, (place, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-        let city = '', state = '', country = '', pincode = '';
+        let city = '', state = '', country = '', pincode = '', area = '';
         
         place.address_components?.forEach(component => {
             const types = component.types;
+            if (types.includes('sublocality_level_1') || types.includes('neighborhood')) {
+              area = component.long_name;
+            }
             if (types.includes('locality')) city = component.long_name;
             if (types.includes('administrative_area_level_1')) state = component.long_name;
             if (types.includes('country')) country = component.long_name;
@@ -141,6 +145,7 @@ export function LocationAutocompleteInput({
         const locationDetails: LocationDetails = {
             name: place.name,
             address: place.formatted_address || suggestion.description,
+            area: area || city, // Fallback to city if area is not found
             city,
             state,
             country,

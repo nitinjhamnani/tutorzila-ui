@@ -208,6 +208,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       grade: data.gradeLevel,
       board: data.board,
       address: data.location?.address || "",
+      area: data.location?.area || "", // Added area
       city: data.location?.city || "",
       state: data.location?.state || "",
       country: data.location?.country || "",
