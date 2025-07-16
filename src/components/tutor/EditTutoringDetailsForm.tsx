@@ -27,6 +27,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
@@ -76,6 +77,10 @@ const tutoringDetailsSchema = z.object({
   teachingMode: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one teaching mode.",
   }),
+  location: z.custom<LocationDetails | null>(
+    (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
+    "Invalid location format."
+  ).nullable().optional(),
   hourlyRate: z.string().regex(/^\d{1,4}(\.\d{1,2})?$/, "Rate must be up to 4 digits (e.g., 9999).").optional().or(z.literal("")),
   isRateNegotiable: z.boolean().default(false).optional(),
   qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
@@ -106,6 +111,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       preferredDays: [],
       preferredTimeSlots: [],
       teachingMode: [],
+      location: null,
       hourlyRate: "",
       isRateNegotiable: false,
       qualifications: [],
@@ -125,6 +131,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         preferredDays: ensureArray(details.availabilityDays),
         preferredTimeSlots: ensureArray(details.availabilityTime),
         teachingMode: ensureArray(details.teachingModes),
+        location: details.location || null, // Assuming location comes as an object
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
         isRateNegotiable: details.rateNegotiable || false,
         qualifications: ensureArray(details.qualifications),
@@ -145,6 +152,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       return;
     }
 
+    const locationDetails = data.location;
     const requestBody = {
       subjects: data.subjects,
       grades: data.gradeLevelsTaught,
@@ -158,6 +166,14 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
       languages: data.languages,
       rateNegotiable: data.isRateNegotiable || false,
+      // Location fields
+      address: locationDetails?.address || "",
+      city: locationDetails?.city || "",
+      state: locationDetails?.state || "",
+      country: locationDetails?.country || "",
+      area: locationDetails?.area || "",
+      pincode: locationDetails?.pincode || "",
+      googleMapsLink: locationDetails?.googleMapsUrl || "",
     };
 
     try {
@@ -316,6 +332,25 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                       />
                     ))}
                     </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Your Primary Location</FormLabel>
+                    <FormControl>
+                      <LocationAutocompleteInput
+                        initialValue={field.value}
+                        onValueChange={(details) => field.onChange(details)}
+                        placeholder="Search for your city or area..."
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">This helps students find you for in-person tuitions.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
