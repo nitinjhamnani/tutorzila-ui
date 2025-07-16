@@ -122,7 +122,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               variant="ghost"
               size="icon"
               onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
-              className="text-gray-600 hover:text-primary"
+              className="text-gray-600 hover:text-white hover:bg-primary/80"
               aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
             >
               {isMobile ? <MenuIcon className="h-6 w-6" /> : <PanelLeft className="h-5 w-5" />}
@@ -132,7 +132,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary relative h-8 w-8">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8">
               <Bell className="w-4 h-4" />
               <span className="sr-only">Notifications</span>
               <span className="absolute top-1 right-1 flex h-1.5 w-1.5">
@@ -140,7 +140,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
               </span>
             </Button>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary h-8 w-8">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 h-8 w-8">
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
@@ -149,7 +149,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               variant="ghost"
               size="icon"
               onClick={handleLogout}
-              className="text-muted-foreground hover:text-destructive h-8 w-8"
+              className="text-muted-foreground hover:text-white hover:bg-destructive/80 h-8 w-8"
               aria-label="Log out"
             >
               <LogOut className="w-4 h-4" />
