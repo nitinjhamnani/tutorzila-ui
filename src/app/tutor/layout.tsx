@@ -125,7 +125,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               className="text-gray-600 hover:text-white hover:bg-primary/80"
               aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
             >
-              {isMobile ? <MenuIcon className="h-6 w-6" /> : <PanelLeft className="h-5 w-5" />}
+              <MenuIcon className="h-6 w-6" />
             </Button>
             <Link href="/tutor/dashboard">
               <Logo className="h-8 w-auto" />
