@@ -144,15 +144,15 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {/* User Avatar and Name removed from here as per previous request */}
-            {/* Logout Button */}
+            {/* Logout Icon Button */}
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              size="icon"
               onClick={handleLogout}
-              className="text-xs h-8 border-destructive text-destructive hover:bg-destructive/10"
+              className="text-muted-foreground hover:text-destructive h-8 w-8"
+              aria-label="Log out"
             >
-              <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </header>
