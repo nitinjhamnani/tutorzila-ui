@@ -51,7 +51,7 @@ const signUpSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
-  whatsAppNotifications: z.boolean().default(false),
+  whatsAppNotifications: z.boolean().default(true),
 });
 
 interface SignUpFormProps { 
@@ -86,7 +86,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       localPhoneNumber: "",
       role: undefined, 
       acceptTerms: false,
-      whatsAppNotifications: false,
+      whatsAppNotifications: true,
     },
   });
 
