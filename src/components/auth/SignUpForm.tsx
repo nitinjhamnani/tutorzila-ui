@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, Users, School, CheckSquare, Phone } from "lucide-react"; 
+import { Mail, User, Users, School, CheckSquare, Phone, MessageSquare } from "lucide-react"; 
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -32,16 +32,18 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Switch } from "@/components/ui/switch";
 
 const signUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
   country: z.string().min(2, "Country is required."),
-  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only.").optional().or(z.literal("")),
+  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   role: z.enum(["parent", "tutor"], { required_error: "You must select a role (Parent or Tutor)." }),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
+  whatsAppNotifications: z.boolean().default(false),
 });
 
 interface SignUpFormProps { 
@@ -76,6 +78,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       localPhoneNumber: "",
       role: undefined, 
       acceptTerms: false,
+      whatsAppNotifications: false,
     },
   });
 
@@ -104,12 +107,14 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         country: string;
         countryCode: string;
         phone?: string;
+        whatsappConsent: boolean;
     } = {
       name: values.name,
       email: values.email,
       userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
       country: values.country,
       countryCode: selectedCountryData?.countryCode || '',
+      whatsappConsent: values.whatsAppNotifications,
     };
     if (values.localPhoneNumber && values.localPhoneNumber.trim() !== "") {
       apiRequestBody.phone = values.localPhoneNumber;
@@ -274,7 +279,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
             />
             
             <FormItem>
-              <FormLabel className="text-foreground">Phone Number (Optional)</FormLabel>
+              <FormLabel className="text-foreground">Phone Number</FormLabel>
               <div className="flex gap-2">
                 <FormField
                   control={form.control}
@@ -314,6 +319,29 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
                 />
               </div>
             </FormItem>
+
+            <FormField
+              control={form.control}
+              name="whatsAppNotifications"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-sm">
+                      WhatsApp Notifications
+                    </FormLabel>
+                    <FormDescription className="text-xs">
+                      Receive updates on this number.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}
