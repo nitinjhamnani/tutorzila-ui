@@ -335,7 +335,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
                   <div className="space-y-0.5">
                     <FormLabel className="text-sm flex items-center">
-                      <WhatsAppIcon className="h-4 w-4 mr-2 text-green-600" />
+                      <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
                       WhatsApp Notifications
                     </FormLabel>
                     <FormDescription className="text-xs">
