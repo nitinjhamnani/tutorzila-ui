@@ -111,8 +111,8 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col gap-3.5 min-[400px]:flex-row pt-2">
                 <Button asChild size="sm" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                   <Link href="/search-tuitions">
-                    <Search className="mr-2.5 h-5 w-5" /> Search Tutors
+                   <Link href="/become-a-tutor">
+                    <GraduationCap className="mr-2.5 h-5 w-5" /> Become a Tutor
                   </Link>
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
