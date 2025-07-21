@@ -135,8 +135,9 @@ declare module "lucide-react" {
     export const ArrowDownCircle: React.FC<React.SVGProps<SVGSVGElement>>;
     export const User: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Image: React.FC<React.SVGProps<SVGSVGElement>>; 
-    export const MapPinned: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const FilePlus: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Languages: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const CheckSquare: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
     
-

@@ -302,7 +302,7 @@ export default function HomePage() {
                 </div>
                  <div className="flex justify-center lg:justify-start mt-6">
                     <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                      <Link href="/sign-up"> 
+                      <Link href="/become-a-tutor"> 
                         <GraduationCap className="mr-2.5 h-5 w-5" /> Start Teaching Today
                       </Link>
                     </Button>

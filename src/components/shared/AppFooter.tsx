@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle } from "lucide-react"; // Added HelpCircle
+import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap } from "lucide-react"; // Added HelpCircle, GraduationCap
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"; 
 
@@ -19,18 +19,17 @@ const footerLinks = [
   {
     title: "About",
     links: [
-      // { label: "About Us", href: "/privacy-policy", icon: Info }, // Removed "About Us"
       { label: "Privacy Policy", href: "/privacy-policy", icon: ShieldCheck },
       { label: "Terms & Conditions", href: "/terms-and-conditions", icon: FileText },
-      { label: "FAQ", href: "/faq", icon: HelpCircle }, // Added FAQ link
+      { label: "FAQ", href: "/faq", icon: HelpCircle },
     ],
   },
   {
     title: "Connect",
     links: [
       { label: "Contact Us", href: "mailto:support@tutorzila.com", icon: Mail },
+      { label: "Become a Tutor", href: "/become-a-tutor", icon: GraduationCap },
       { label: "Sign In", href: "/?signin=true", icon: LogIn }, 
-      { label: "Sign Up", href: "/sign-up", icon: UserPlus },
     ],
   },
 ];
