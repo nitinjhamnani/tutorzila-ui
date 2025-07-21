@@ -49,18 +49,23 @@ export function AppHeader() {
       setIsScrolled(window.scrollY > (bannerHeight > 0 ? 10 : 20));
     };
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); 
-
     // Handle sign-in modal opening from URL param
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('signin') === 'true') {
+        setIsAuthModalOpen(true);
       }
+      
+      window.addEventListener("scroll", handleScroll);
+      // Initial check
+      handleScroll();
     }
 
+
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener("scroll", handleScroll);
+      }
     };
   }, []);
 
@@ -104,7 +109,7 @@ export function AppHeader() {
               <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")} onClick={() => setIsAuthModalOpen(true)}>Sign In</Button>
             )}
           </div>
-          <div className="md:hidden"> {/* This div was closing prematurely */}
+          <div className="md:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
@@ -143,7 +148,8 @@ export function AppHeader() {
                
               </SheetContent>
             </Sheet>
-          </div>{isAuthModalOpen && (<AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />)}
+          </div>
+          {isAuthModalOpen && (<AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />)}
         </div>
       </div>
     </header>
