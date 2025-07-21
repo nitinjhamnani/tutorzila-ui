@@ -37,11 +37,14 @@ export function AppHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // Keep for mobile sheet
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
 
   // Paths where the header should be transparent when not scrolled
   const transparentHeaderPaths = ["/", "/become-a-tutor"];
 
   useEffect(() => {
+    setHasMounted(true); // Component has mounted
+
     // Handle scroll logic
     const handleScroll = () => {
       const bannerHeightString = typeof window !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--verification-banner-height').trim() : '0px';
@@ -86,6 +89,10 @@ export function AppHeader() {
   
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
+  
+  const mobileMenuTriggerClass = hasMounted && (isScrolled || !isTransparentPath) 
+    ? "text-foreground" 
+    : "text-card-foreground hover:bg-white/10 active:bg-white/20";
 
   return (
     <header className={headerClasses}>
@@ -113,7 +120,7 @@ export function AppHeader() {
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
-                  (isScrolled || !isTransparentPath) ? "text-foreground" : "text-card-foreground hover:bg-white/10 active:bg-white/20", 
+                  mobileMenuTriggerClass, 
                   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 )}>
                   <Menu className="h-6 w-6" />
