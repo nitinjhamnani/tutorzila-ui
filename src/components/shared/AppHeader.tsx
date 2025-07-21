@@ -37,6 +37,10 @@ export function AppHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // Keep for mobile sheet
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Paths where the header should be transparent when not scrolled
+  const transparentHeaderPaths = ["/", "/become-a-tutor"];
+
   useEffect(() => {
     // Handle scroll logic
     const handleScroll = () => {
@@ -63,10 +67,12 @@ export function AppHeader() {
   // Mock authentication state (replace with actual auth context/hook)
   const { isAuthenticated, logout } = useAuth();
 
+  const isTransparentPath = transparentHeaderPaths.includes(pathname);
+
   const headerClasses = cn(
     "sticky z-50 w-full transition-all duration-300 ease-in-out",
     "top-[var(--verification-banner-height,0px)]", 
-    isScrolled || pathname !== "/" ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
+    isScrolled || !isTransparentPath ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
   );
 
   const signInButtonClass = cn(
@@ -102,7 +108,7 @@ export function AppHeader() {
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
-                  (isScrolled || pathname !== "/") ? "text-foreground" : "text-card-foreground hover:bg-white/10 active:bg-white/20", 
+                  (isScrolled || !isTransparentPath) ? "text-foreground" : "text-card-foreground hover:bg-white/10 active:bg-white/20", 
                   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 )}>
                   <Menu className="h-6 w-6" />
