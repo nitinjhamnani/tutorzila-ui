@@ -60,13 +60,6 @@ const MOCK_COUNTRIES = [
   { country: "JP", countryCode: "+81", label: "Japan (+81)" },
 ];
 
-const benefits = [
-    "Reach Thousands of Students",
-    "Flexible Working Hours",
-    "Competitive Compensation",
-    "User-Friendly Platform",
-    "Dedicated Support Team",
-];
 
 export default function BecomeTutorPage() {
   const { setSession } = useAuthMock();
@@ -165,14 +158,6 @@ export default function BecomeTutorPage() {
                 <p className="mt-4 text-base text-foreground/80">
                     Join our community of passionate educators. Share your knowledge, set your own schedule, and earn by making a difference.
                 </p>
-                <ul className="mt-6 space-y-2 text-left text-foreground/80">
-                    {benefits.map((benefit, index) => (
-                        <li key={index} className="flex items-center">
-                            <CheckCircle className="h-4 w-4 mr-2 text-primary"/>
-                            <span className="text-sm">{benefit}</span>
-                        </li>
-                    ))}
-                </ul>
             </div>
         </div>
         <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
