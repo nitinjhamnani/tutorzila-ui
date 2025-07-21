@@ -68,37 +68,35 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
             </div>
           </div>
         </CardHeader>
-        <CardFooter className="flex flex-col items-start gap-4 bg-destructive/10 p-4 border-t border-destructive/20">
-          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="text-left">
-                  <p className="text-sm font-semibold text-destructive">
-                      One-Time Activation Fee: <span className="text-lg">₹199</span>
-                  </p>
-                  <p className="text-xs text-destructive/80">
-                      By activating, you agree to our{' '}
-                      <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">
-                          Terms & Conditions
-                      </Link>
-                      .
-                  </p>
-              </div>
-               <Button 
+        <CardFooter className="flex flex-col items-start gap-3 bg-destructive/10 p-4 border-t border-destructive/20">
+            <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <p className="text-sm font-semibold text-destructive">
+                  One-Time Activation Fee: <span className="text-lg">₹199</span>
+              </p>
+              <Button 
                   variant="destructive" 
-                  size="lg" 
+                  size="default" 
                   className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95"
                   onClick={onActivate}
               >
                 <Unlock className="mr-2 h-4 w-4" />
                 Activate My Account Now
               </Button>
-          </div>
-          <div className="w-full pt-2">
-            <DialogTrigger asChild>
-              <Button variant="link" className="p-0 h-auto text-xs text-destructive/80 hover:text-destructive">
-                Have a referral code?
-              </Button>
-            </DialogTrigger>
-          </div>
+            </div>
+            <div className="w-full space-y-1">
+              <p className="text-xs text-destructive/80">
+                  By activating, you agree to our{' '}
+                  <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">
+                      Terms & Conditions
+                  </Link>
+                  .
+              </p>
+               <DialogTrigger asChild>
+                <Button variant="link" className="p-0 h-auto text-xs text-destructive/80 hover:text-destructive">
+                  Have a referral code?
+                </Button>
+              </DialogTrigger>
+            </div>
         </CardFooter>
       </Card>
       
