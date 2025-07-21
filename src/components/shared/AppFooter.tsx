@@ -1,9 +1,10 @@
 
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { Github, Twitter, Facebook, Instagram, Home, Search, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap } from "lucide-react"; // Added HelpCircle, GraduationCap
+import { Github, Twitter, Facebook, Instagram, Home, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"; 
 
@@ -12,7 +13,7 @@ const footerLinks = [
     title: "Explore",
     links: [
       { label: "Home", href: "/", icon: Home },
-      { label: "Search Tutors", href: "/search-tuitions", icon: Search },
+      { label: "Become a Tutor", href: "/become-a-tutor", icon: GraduationCap },
       { label: "Post Requirement", href: "/dashboard/post-requirement", icon: BookOpen },
     ],
   },
@@ -42,6 +43,15 @@ const socialLinks = [
 ];
 
 export function AppFooter() {
+  const [hasMounted, setHasMounted] = React.useState(false);
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return null;
+  }
+  
   return (
     <footer className="bg-card border-t border-border/50 text-card-foreground animate-in fade-in duration-500 ease-out">
       <div className="container mx-auto px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12">
