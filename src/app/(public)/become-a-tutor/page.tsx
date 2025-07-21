@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +47,7 @@ const tutorSignUpSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
-  whatsAppNotifications: z.boolean().default(true),
+  whatsappEnabled: z.boolean().default(true),
 });
 
 type TutorSignUpFormValues = z.infer<typeof tutorSignUpSchema>;
@@ -76,7 +77,7 @@ export default function BecomeTutorPage() {
       country: "IN",
       localPhoneNumber: "",
       acceptTerms: false,
-      whatsAppNotifications: true,
+      whatsappEnabled: true,
     },
   });
 
@@ -93,7 +94,7 @@ export default function BecomeTutorPage() {
       country: values.country,
       countryCode: selectedCountryData?.countryCode || '',
       phone: values.localPhoneNumber,
-      whatsappConsent: values.whatsAppNotifications,
+      whatsappEnabled: values.whatsappEnabled,
     };
 
     try {
@@ -245,7 +246,7 @@ export default function BecomeTutorPage() {
 
                   <FormField
                     control={form.control}
-                    name="whatsAppNotifications"
+                    name="whatsappEnabled"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
                         <div className="space-y-0.5">
@@ -326,3 +327,4 @@ export default function BecomeTutorPage() {
     </>
   );
 }
+
