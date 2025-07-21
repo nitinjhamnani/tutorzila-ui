@@ -150,8 +150,8 @@ export default function BecomeTutorPage() {
 
   return (
     <>
-      <div className="w-full lg:grid lg:min-h-[calc(100vh_-_var(--header-height))] lg:grid-cols-2 xl:min-h-[calc(100vh_-_var(--header-height))]">
-        <div className="hidden bg-muted lg:flex lg:items-center lg:justify-center p-8">
+      <div className="w-full lg:grid lg:min-h-[calc(100vh_-_var(--header-height))] lg:grid-cols-2 xl:min-h-[calc(100vh_-_var(--header-height))] bg-secondary">
+        <div className="hidden lg:flex lg:items-center lg:justify-center p-8">
             <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
                 <Image
                     src={bannerImage}
@@ -175,7 +175,7 @@ export default function BecomeTutorPage() {
                 </ul>
             </div>
         </div>
-        <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-secondary">
+        <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <Card className="w-full max-w-lg shadow-xl bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
             <CardHeader className="p-8 pb-4 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
               <CardTitle className="text-center text-3xl font-bold tracking-tight">Become a Tutor</CardTitle>
