@@ -28,6 +28,9 @@ export function AppHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  
+  // Removed isAuthenticated and logout from here as they are no longer needed
+  // in this component's logic.
 
   useEffect(() => {
     setHasMounted(true);
@@ -49,7 +52,6 @@ export function AppHeader() {
     };
   }, []);
 
-  const { isAuthenticated, logout } = useAuthMock();
   const transparentHeaderPaths = ["/", "/become-a-tutor"];
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
 
@@ -83,15 +85,7 @@ export function AppHeader() {
               <Link href="/become-a-tutor">Become A Tutor</Link>
             </Button>
             {hasMounted && (
-              <>
-                {isAuthenticated ? (
-                  <Button onClick={logout} className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>
-                    Logout
-                  </Button>
-                ) : (
-                  <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")} onClick={() => setIsAuthModalOpen(true)}>Sign In</Button>
-                )}
-              </>
+              <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")} onClick={() => setIsAuthModalOpen(true)}>Sign In</Button>
             )}
           </div>
           <div className="md:hidden">
@@ -120,17 +114,9 @@ export function AppHeader() {
                   </Button>
 
                   {hasMounted && (
-                    <>
-                      {isAuthenticated ? (
-                        <Button variant="ghost" className={mobileButtonClass} onClick={() => { logout(); setMobileMenuOpen(false); }}>
-                          <LogIn className="h-5 w-5 text-primary" /> Logout
-                        </Button>
-                      ) : (
-                        <Button variant="ghost" className={mobileButtonClass} onClick={() => { setIsAuthModalOpen(true); setMobileMenuOpen(false); }}>
-                          <LogIn className="h-5 w-5 text-primary" /> Sign In
-                        </Button>
-                      )}
-                    </>
+                    <Button variant="ghost" className={mobileButtonClass} onClick={() => { setIsAuthModalOpen(true); setMobileMenuOpen(false); }}>
+                      <LogIn className="h-5 w-5 text-primary" /> Sign In
+                    </Button>
                   )}
                 </div>                
               </SheetContent>
