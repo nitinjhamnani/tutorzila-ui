@@ -70,6 +70,7 @@ import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react"
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
 
 interface QuickActionCardProps {
   title: string;
@@ -249,11 +250,20 @@ export default function TutorDashboardPage() {
   ];
 
   const profileCompletion = dashboardData?.profileCompletion ?? 0;
+  const isTutorActive = dashboardData?.tutorActive ?? true;
 
   return (
     <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+          
+          {!isTutorActive && !isLoadingDashboard && (
+             <ActivationStatusCard 
+                onActivate={() => console.log("Activate button clicked - mock action")} 
+                className="mb-6"
+             />
+          )}
+
           <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
               <div className="flex items-center gap-4">
