@@ -24,7 +24,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
-import logoAsset from '@/assets/images/logo.png';
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
@@ -141,10 +140,7 @@ export default function BecomeTutorPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary py-12 px-4">
         <Card className="w-full max-w-lg shadow-xl bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
-          <CardHeader className="p-0 pt-0 pb-0 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
-            <Link href="/" className="hover:opacity-90 transition-opacity inline-block">
-              <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
-            </Link>
+          <CardHeader className="p-8 pb-4 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
             <CardTitle className="text-center text-3xl font-bold tracking-tight">Become a Tutor</CardTitle>
             <CardDescription className="text-center text-muted-foreground mt-2 px-4">Join our community of passionate educators and start earning.</CardDescription>
           </CardHeader>
