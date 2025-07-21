@@ -13,11 +13,8 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle, 
-  DialogTrigger as ShadDialogTrigger, 
 } from "@/components/ui/dialog";
-import { Menu, LogIn, Search, HomeIcon, GraduationCap } from "lucide-react";
+import { Menu, LogIn, GraduationCap } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -32,11 +29,8 @@ export function AppHeader() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
-  const transparentHeaderPaths = ["/", "/become-a-tutor"];
-  const isTransparentPath = transparentHeaderPaths.includes(pathname);
-
   useEffect(() => {
-    setHasMounted(true); // This runs only on the client, after the initial render
+    setHasMounted(true);
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -56,15 +50,16 @@ export function AppHeader() {
   }, []);
 
   const { isAuthenticated, logout } = useAuthMock();
+  const transparentHeaderPaths = ["/", "/become-a-tutor"];
+  const isTransparentPath = transparentHeaderPaths.includes(pathname);
 
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
-  // Default to solid style. The dynamic style will be applied only after mount.
-  const headerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
+  const headerDynamicClasses = isTransparentPath && !isScrolled
     ? "bg-transparent shadow-none border-transparent"
     : "bg-card shadow-md border-b border-border/20";
     
-  const mobileMenuTriggerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
+  const mobileMenuTriggerDynamicClasses = isTransparentPath && !isScrolled
     ? "text-card-foreground hover:bg-white/10 active:bg-white/20"
     : "text-foreground hover:bg-accent";
     
@@ -76,14 +71,13 @@ export function AppHeader() {
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
   return (
-    <header className={cn(headerBaseClasses, headerDynamicClasses)}>
+    <header className={cn(headerBaseClasses, hasMounted ? headerDynamicClasses : "bg-card shadow-md border-b border-border/20")}>
       <div className="container mx-auto flex h-[var(--header-height)] items-center justify-between px-4 md:px-6">
         <Link href="/" onClick={() => setMobileMenuOpen(false)}>
           <Logo className="h-[var(--logo-height)] w-auto" />
         </Link>
 
         <div className="flex items-center gap-4">          
-
           <div className="hidden md:flex items-center gap-3">
             <Button asChild variant="default" className={cn(signInButtonClass, "bg-transparent hover:bg-primary/10 text-primary border-primary border-2")}>
               <Link href="/become-a-tutor">Become A Tutor</Link>
@@ -105,7 +99,7 @@ export function AppHeader() {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
                   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  mobileMenuTriggerDynamicClasses
+                  hasMounted ? mobileMenuTriggerDynamicClasses : "text-foreground hover:bg-accent"
                 )}>
                   <Menu className="h-6 w-6" />
                 </Button>
@@ -142,7 +136,13 @@ export function AppHeader() {
               </SheetContent>
             </Sheet>
           </div>
-          {hasMounted && isAuthModalOpen && (<AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />)}
+          {hasMounted && isAuthModalOpen && (
+            <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+              <DialogContent className="p-0 flex flex-col visible max-h-[90vh]">
+                <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
     </header>

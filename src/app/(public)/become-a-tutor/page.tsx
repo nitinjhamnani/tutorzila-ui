@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -5,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, School, CheckSquare, Phone, MessageSquare } from "lucide-react";
+import { Mail, User, School, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -20,14 +21,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import logoAsset from '@/assets/images/logo.png';
-import type { UserRole } from "@/types";
-import { cn } from "@/lib/utils";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Switch } from "@/components/ui/switch";

@@ -4,10 +4,13 @@
 import type { ReactNode } from 'react';
 import { AppHeader } from '@/components/shared/AppHeader';
 import { AppFooter } from '@/components/shared/AppFooter';
-import './globals.css'; // Make sure your global styles are imported
+import './globals.css';
 import { usePathname } from 'next/navigation';
 import Providers from '@/components/providers';
 import { GlobalLoader } from '@/components/shared/GlobalLoader';
+
+// This is a client component because usePathname can only be used in client components.
+// However, the children it renders can be server components.
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -18,19 +21,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     '/parent',
     '/tutor',
     '/auth', // Auth pages like sign-in/sign-up have minimal layout
-    '/faq', // Info pages have their own layout including AppHeader/AppFooter
-    '/terms-and-conditions', // Info pages
-    '/privacy-policy', // Info pages
   ];
-
+  
+  // Info pages now use the public layout.
+  const isInfoPage = pathname.startsWith('/faq') || pathname.startsWith('/terms-and-conditions') || pathname.startsWith('/privacy-policy');
+  
   const showPublicNavigation = !pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
 
   return (
-    <html>
+    <html lang="en">
       <body>
         <Providers>
           {showPublicNavigation && <AppHeader />}
-          {children}
+          <main className="flex-grow">
+            {children}
+          </main>
           {showPublicNavigation && <AppFooter />}
           <GlobalLoader />
         </Providers>

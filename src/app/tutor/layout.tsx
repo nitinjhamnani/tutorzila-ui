@@ -90,7 +90,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     }
   }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
-  if (isCheckingAuth && !hasMounted) {
+  if (isCheckingAuth || !hasMounted) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Area...</div>;
   }
 
@@ -106,13 +106,12 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* <VerificationBanner /> Removed as per user request */}
       {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", // Sticks to the very top as banner is removed
+            "sticky top-0 z-30",
             `h-[${headerHeight}]`
           )}
         >
@@ -159,7 +158,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
       )}
 
       {/* This div contains the sidebar and the main page content. */}
-      <div className={cn("flex flex-1 overflow-hidden")}> {/* Removed top padding */}
+      <div className={cn("flex flex-1 overflow-hidden")}>
         <TutorSidebar
           isMobile={isMobile}
           isMobileNavOpen={isMobileNavOpen}

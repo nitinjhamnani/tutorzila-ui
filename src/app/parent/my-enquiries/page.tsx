@@ -23,6 +23,11 @@ import {
 import {
   Dialog,
   DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription as DialogDesc,
+  DialogFooter
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -56,7 +61,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { CreateEnquiryFormModal } from "@/components/parent/modals/CreateEnquiryFormModal";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
@@ -72,7 +77,6 @@ const enquiryStatusCategories: {
   { label: "Closed", value: "Closed", icon: Archive },
 ];
 
-// Data fetching function
 const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
   
@@ -90,11 +94,10 @@ const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequir
   
   const data = await response.json();
   
-  // Transform API data to match the TuitionRequirement type
   return data.map((item: any) => ({
-    id: item.enquiryId, // Use the enquiryId from the API response
-    parentId: "", // Not provided by API, can be set from user context if needed
-    parentName: "", // Not provided by API
+    id: item.enquiryId,
+    parentId: "", 
+    parentName: "", 
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
     scheduleDetails: item.initial || "Details not provided by API",
@@ -114,6 +117,7 @@ export default function ParentMyEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>("Open");
   
@@ -130,8 +134,8 @@ export default function ParentMyEnquiriesPage() {
     queryKey: ['parentEnquiries', token],
     queryFn: () => fetchParentEnquiries(token),
     enabled: !!token && !!user && user.role === 'parent',
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false, // Prevents refetching on window focus
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -141,6 +145,12 @@ export default function ParentMyEnquiriesPage() {
       }
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
+  
+  const handleSuccess = () => {
+    setIsCreateEnquiryModalOpen(false);
+    queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+  };
+
 
   const categoryCounts = useMemo(() => {
     const counts = {
@@ -168,7 +178,6 @@ export default function ParentMyEnquiriesPage() {
 
   const handleConfirmDelete = () => {
     if (!selectedRequirementForAction) return;
-    // This part would need a real API call to delete
     toast({
       title: "Deletion (Mock)",
       description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" would be deleted.`,
@@ -191,7 +200,6 @@ export default function ParentMyEnquiriesPage() {
     if (closeEnquiryStep === 1) {
       setCloseEnquiryStep(2);
     } else if (closeEnquiryStep === 2) {
-      // API call to close enquiry would go here
       toast({
         title: "Enquiry Closed (Mock)",
         description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" would be marked as closed.`,
@@ -202,7 +210,6 @@ export default function ParentMyEnquiriesPage() {
   };
 
   const handleReopen = (id: string) => {
-    // API call to reopen enquiry would go here
     router.push(`/parent/my-enquiries/${id}`); 
   };
   
@@ -245,13 +252,7 @@ export default function ParentMyEnquiriesPage() {
                 </DialogTrigger>
             </CardHeader>
           </Card>
-          
-          <CreateEnquiryFormModal
-              onSuccess={() => {
-                  // After successful creation, you might want to refetch enquiries
-                  setIsCreateEnquiryModalOpen(false); 
-              }}
-          />
+          <CreateEnquiryFormModal onSuccess={handleSuccess} />
         </Dialog>
 
 
@@ -355,9 +356,9 @@ export default function ParentMyEnquiriesPage() {
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Close Enquiry: {Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}</DialogTitle>
-                <DialogDescription> 
+                <DialogDesc> 
                   Please provide some details before closing this requirement.
-                </DialogDescription>
+                </DialogDesc>
               </DialogHeader>
               {closeEnquiryStep === 1 && (
                 <div className="py-4 space-y-4">
