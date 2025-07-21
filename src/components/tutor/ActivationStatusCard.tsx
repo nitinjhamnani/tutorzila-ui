@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, Unlock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface ActivationStatusCardProps {
   onActivate: () => void;
@@ -38,7 +39,11 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
                 One-Time Activation Fee: <span className="text-lg">₹199</span>
             </p>
             <p className="text-xs text-destructive/80">
-                This is a one-time charge to ensure platform quality and security.
+                By activating, you agree to our{' '}
+                <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">
+                    Terms & Conditions
+                </Link>
+                .
             </p>
         </div>
         <Button 
