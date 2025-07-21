@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Menu, LogIn, Search, HomeIcon, GraduationCap } from "lucide-react";
 import { Logo } from "./Logo";
-import { cn } from "@/lib/utils"; // Added cn import
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SignInForm } from "@/components/auth/SignInForm";
@@ -43,16 +43,14 @@ export function AppHeader() {
   const transparentHeaderPaths = ["/", "/become-a-tutor"];
 
   useEffect(() => {
-    setHasMounted(true); // Component has mounted
+    setHasMounted(true);
 
-    // Handle scroll logic
     const handleScroll = () => {
       const bannerHeightString = typeof window !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--verification-banner-height').trim() : '0px';
       const bannerHeight = parseFloat(bannerHeightString) || 0;
       setIsScrolled(window.scrollY > (bannerHeight > 0 ? 10 : 20));
     };
 
-    // Handle sign-in modal opening from URL param
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('signin') === 'true') {
@@ -60,10 +58,8 @@ export function AppHeader() {
       }
       
       window.addEventListener("scroll", handleScroll);
-      // Initial check
-      handleScroll();
+      handleScroll(); // Initial check
     }
-
 
     return () => {
       if (typeof window !== 'undefined') {
@@ -72,28 +68,26 @@ export function AppHeader() {
     };
   }, []);
 
-  // Mock authentication state (replace with actual auth context/hook)
   const { isAuthenticated, logout } = useAuth();
 
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
-
   const headerClasses = cn(
     "sticky z-50 w-full transition-all duration-300 ease-in-out",
-    "top-[var(--verification-banner-height,0px)]", 
-    isScrolled || !isTransparentPath ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
+    "top-[var(--verification-banner-height,0px)]",
+    hasMounted && (isScrolled || !isTransparentPath) ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
   );
-
+  
   const signInButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg"
   );
   
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
-  
-  const mobileMenuTriggerClass = hasMounted && (isScrolled || !isTransparentPath) 
-    ? "text-foreground" 
-    : "text-card-foreground hover:bg-white/10 active:bg-white/20";
 
+  const mobileMenuTriggerClass = hasMounted && (isScrolled || !isTransparentPath)
+    ? "text-foreground hover:bg-accent"
+    : "text-card-foreground hover:bg-white/10 active:bg-white/20";
+    
   return (
     <header className={headerClasses}>
       <div className="container mx-auto flex h-[var(--header-height)] items-center justify-between px-4 md:px-6">
@@ -108,7 +102,6 @@ export function AppHeader() {
               <Link href="/become-a-tutor">Become A Tutor</Link>
             </Button>
             {isAuthenticated ? (
-              // Add authenticated menu items here (e.g., Dashboard, Profile, Logout)
               <Button onClick={logout} className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>
                 Logout
               </Button>
@@ -120,8 +113,8 @@ export function AppHeader() {
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
-                  mobileMenuTriggerClass, 
-                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  mobileMenuTriggerClass
                 )}>
                   <Menu className="h-6 w-6" />
                 </Button>
@@ -142,7 +135,6 @@ export function AppHeader() {
                   </Button>
 
                   {isAuthenticated ? (
-                     // Add authenticated mobile menu items here (e.g., Dashboard, Profile, Logout)
                     <Button variant="ghost" className={mobileButtonClass} onClick={() => { logout(); setMobileMenuOpen(false); }}>
                       <LogIn className="h-5 w-5 text-primary" /> Logout
                     </Button>
