@@ -28,6 +28,7 @@ import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Switch } from "@/components/ui/switch";
+import AuthModal from "@/components/auth/AuthModal";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -64,6 +65,7 @@ export default function BecomeTutorPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showLoader, hideLoader } = useGlobalLoader();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const form = useForm<TutorSignUpFormValues>({
     resolver: zodResolver(tutorSignUpSchema),
@@ -138,167 +140,175 @@ export default function BecomeTutorPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-secondary py-12 px-4">
-        <Card className="w-full max-w-lg shadow-xl bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
-          <CardHeader className="p-8 pb-4 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
-            <CardTitle className="text-center text-3xl font-bold tracking-tight">Become a Tutor</CardTitle>
-            <CardDescription className="text-center text-muted-foreground mt-2 px-4">Join our community of passionate educators and start earning.</CardDescription>
-          </CardHeader>
-          <CardContent className="px-8 pb-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">Full Name</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                          <Input placeholder="John Doe" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">Email Address</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                          <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormItem>
-                  <FormLabel className="text-foreground">Phone Number</FormLabel>
-                  <div className="flex gap-2">
-                    <FormField
-                      control={form.control}
-                      name="country"
-                      render={({ field }) => (
-                        <FormItem className="w-auto min-w-[120px]"> 
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
-                                <SelectValue placeholder="Country" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {MOCK_COUNTRIES.map(c => (
-                                <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="localPhoneNumber"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormControl>
-                            <div className="relative">
-                              <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                              <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </FormItem>
-
-                <FormField
-                  control={form.control}
-                  name="whatsAppNotifications"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm flex items-center">
-                          <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
-                          WhatsApp Notifications
-                        </FormLabel>
-                        <FormDescription className="text-xs">
-                          Receive updates on this number.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="data-[state=unchecked]:bg-destructive/50"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="acceptTerms"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-input/50">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          id="acceptTerms-tutor"
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel
-                          htmlFor="acceptTerms-tutor"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Accept terms and conditions
-                        </FormLabel>
-                        <FormDescription className="text-xs text-muted-foreground">
-                          By signing up, you agree to our{' '}
-                          <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank">
-                            Terms of Service
-                          </Link>{' '}
-                          and{' '}
-                          <Link href="/privacy-policy" className="text-primary hover:underline" target="_blank">
-                            Privacy Policy
-                          </Link>
-                          .
-                        </FormDescription>
+    <>
+      <div className="flex items-center justify-center min-h-screen bg-secondary py-12 px-4">
+          <Card className="w-full max-w-lg shadow-xl bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
+            <CardHeader className="p-8 pb-4 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
+              <CardTitle className="text-center text-3xl font-bold tracking-tight">Become a Tutor</CardTitle>
+              <CardDescription className="text-center text-muted-foreground mt-2 px-4">Join our community of passionate educators and start earning.</CardDescription>
+            </CardHeader>
+            <CardContent className="px-8 pb-8">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground">Full Name</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input placeholder="John Doe" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                          </div>
+                        </FormControl>
                         <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-                
-                <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
-                  <School className="mr-2 h-5 w-5" />
-                  {isSubmitting ? 'Registering...' : 'Register as Tutor'}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground">Email Address</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormItem>
+                    <FormLabel className="text-foreground">Phone Number</FormLabel>
+                    <div className="flex gap-2">
+                      <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem className="w-auto min-w-[120px]"> 
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
+                                  <SelectValue placeholder="Country" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {MOCK_COUNTRIES.map(c => (
+                                  <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="localPhoneNumber"
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <div className="relative">
+                                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </FormItem>
+
+                  <FormField
+                    control={form.control}
+                    name="whatsAppNotifications"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm flex items-center">
+                            <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
+                            WhatsApp Notifications
+                          </FormLabel>
+                          <FormDescription className="text-xs">
+                            Receive updates on this number.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=unchecked]:bg-destructive/50"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="acceptTerms"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-input/50">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            id="acceptTerms-tutor"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel
+                            htmlFor="acceptTerms-tutor"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Accept terms and conditions
+                          </FormLabel>
+                          <FormDescription className="text-xs text-muted-foreground">
+                            By signing up, you agree to our{' '}
+                            <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank">
+                              Terms of Service
+                            </Link>{' '}
+                            and{' '}
+                            <Link href="/privacy-policy" className="text-primary hover:underline" target="_blank">
+                              Privacy Policy
+                            </Link>
+                            .
+                          </FormDescription>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
+                    <School className="mr-2 h-5 w-5" />
+                    {isSubmitting ? 'Registering...' : 'Register as Tutor'}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+            <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
+              <p className="text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Button variant="link" onClick={() => setIsAuthModalOpen(true)} className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
+                  Sign In
                 </Button>
-              </form>
-            </Form>
-          </CardContent>
-          <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-                <Link href="/auth/signin">Sign In</Link>
-              </Button>
-            </p>
-          </CardFooter>
-        </Card>
-    </div>
+              </p>
+            </CardFooter>
+          </Card>
+      </div>
+      {isAuthModalOpen && (
+        <AuthModal 
+          isOpen={isAuthModalOpen} 
+          onOpenChange={setIsAuthModalOpen}
+        />
+      )}
+    </>
   );
 }
