@@ -103,8 +103,8 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col gap-3.5 min-[400px]:flex-row pt-2">
                 <Button asChild size="sm" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                   <Link href="/search-tuitions">
-                    <Search className="mr-2.5 h-5 w-5" /> Search Tutors
+                   <Link href="/become-a-tutor">
+                    <GraduationCap className="mr-2.5 h-5 w-5" /> Become a Tutor
                   </Link>
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
@@ -292,7 +292,7 @@ export default function HomePage() {
                 </div>
                  <div className="flex justify-center lg:justify-start mt-6">
                     <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-                      <Link href="/sign-up"> 
+                      <Link href="/become-a-tutor"> 
                         <GraduationCap className="mr-2.5 h-5 w-5" /> Start Teaching Today
                       </Link>
                     </Button>
@@ -325,7 +325,7 @@ export default function HomePage() {
             </p>
             <div className="mt-10">
               <Button asChild size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base">
-                <Link href="/sign-up">
+                <Link href="/auth/signup">
                    Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
                 </Link>
               </Button>
