@@ -314,31 +314,7 @@ export default function TutorDashboardPage() {
                 </div>
               </div>
               <div className="flex flex-col items-start w-full md:w-auto">
-                  <div className={cn("rounded p-4 w-full", "bg-secondary")}>
-                      <div className="flex items-start justify-between">
-                      <div>
-                          <p className="text-xs text-muted-foreground">Current Plan</p>
-                          {isLoadingDashboard ? (
-                             <Skeleton className="h-5 w-24 mt-0.5 rounded-md" />
-                          ) : (
-                             <p className="font-semibold text-foreground">{dashboardData?.currentPlan}</p>
-                          )}
-                          {isLoadingDashboard ? (
-                            <Skeleton className="h-4 w-32 mt-1.5 rounded-md" />
-                          ) : (
-                            dashboardData?.expiration && (
-                             <p className="text-xs text-muted-foreground mt-1">Expires on {dashboardData.expiration}</p>
-                            )
-                          )}
-                      </div>
-                      <div className={cn("w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0", "bg-primary/10 text-primary")}>
-                          <Crown className="w-4 h-4 md:w-5 md:h-5" />
-                      </div>
-                      </div>
-                  </div>
-                  <Link href="#" className={cn("mt-1 block hover:underline text-xs font-medium text-primary")}>
-                      Upgrade Plan
-                  </Link>
+                  
               </div>
             </div>
           </div>
