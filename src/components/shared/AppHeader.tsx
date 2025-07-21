@@ -7,7 +7,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict with local SheetTitle
+  SheetTitle as SheetTitleComponent,
   SheetTrigger
 } from "@/components/ui/sheet";
 import {
@@ -23,60 +23,52 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import AuthModal from "@/components/auth/AuthModal";
-
-// Mock authentication state (replace with actual auth context/hook)
-const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Assume not authenticated initially
-  const logout = () => setIsAuthenticated(false);
-  return { isAuthenticated, logout, setIsAuthenticated };
-}
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 export function AppHeader() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // Keep for mobile sheet
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
-  // Paths where the header should be transparent when not scrolled
   const transparentHeaderPaths = ["/", "/become-a-tutor"];
+  const isTransparentPath = transparentHeaderPaths.includes(pathname);
 
   useEffect(() => {
     setHasMounted(true);
-  }, []);
-  
-  useEffect(() => {
-    if (!hasMounted) return;
 
     const handleScroll = () => {
-      const bannerHeightString = typeof window !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--verification-banner-height').trim() : '0px';
-      const bannerHeight = parseFloat(bannerHeightString) || 0;
-      setIsScrolled(window.scrollY > (bannerHeight > 0 ? 10 : 20));
+      setIsScrolled(window.scrollY > 20);
     };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check initial scroll position
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('signin') === 'true') {
       setIsAuthModalOpen(true);
     }
-    
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Initial check
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [hasMounted]);
+  }, []);
 
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuthMock();
 
-  const isTransparentPath = transparentHeaderPaths.includes(pathname);
+  // Base classes are always applied.
+  const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
+  
+  // Dynamic classes are calculated based on state, but only applied after mount.
+  const headerDynamicClasses = hasMounted && (isScrolled || !isTransparentPath)
+    ? "bg-card shadow-md border-b border-border/20"
+    : "bg-transparent";
 
-  const headerClasses = cn(
-    "sticky z-50 w-full transition-all duration-300 ease-in-out",
-    "top-[var(--verification-banner-height,0px)]",
-    (isScrolled || !isTransparentPath) ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
-  );
-
+  const mobileMenuTriggerDynamicClasses = hasMounted && (isScrolled || !isTransparentPath)
+    ? "text-foreground hover:bg-accent"
+    : "text-card-foreground hover:bg-white/10 active:bg-white/20";
+    
   const signInButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg"
   );
@@ -84,13 +76,8 @@ export function AppHeader() {
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
-  // This class is now safe to be dynamic as it depends on `hasMounted`
-  const mobileMenuTriggerClass = hasMounted && (isScrolled || !isTransparentPath)
-    ? "text-foreground hover:bg-accent"
-    : "text-card-foreground hover:bg-white/10 active:bg-white/20";
-    
   return (
-    <header className={headerClasses}>
+    <header className={cn(headerBaseClasses, headerDynamicClasses)}>
       <div className="container mx-auto flex h-[var(--header-height)] items-center justify-between px-4 md:px-6">
         <Link href="/" onClick={() => setMobileMenuOpen(false)}>
           <Logo className="h-[var(--logo-height)] w-auto" />
@@ -114,8 +101,8 @@ export function AppHeader() {
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
-                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-card-foreground hover:bg-white/10 active:bg-white/20",
-                   mobileMenuTriggerClass
+                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  mobileMenuTriggerDynamicClasses
                 )}>
                   <Menu className="h-6 w-6" />
                 </Button>
