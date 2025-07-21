@@ -43,7 +43,7 @@ export function AppHeader() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Check initial scroll position
+    handleScroll(); 
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('signin') === 'true') {
@@ -57,17 +57,15 @@ export function AppHeader() {
 
   const { isAuthenticated, logout } = useAuthMock();
 
-  // Base classes are always applied.
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
-  // Dynamic classes are calculated based on state, but only applied after mount.
-  const headerDynamicClasses = hasMounted && (isScrolled || !isTransparentPath)
-    ? "bg-card shadow-md border-b border-border/20"
-    : "bg-transparent";
+  const headerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
+    ? "bg-transparent shadow-none border-transparent"
+    : "bg-card shadow-md border-b border-border/20";
 
-  const mobileMenuTriggerDynamicClasses = hasMounted && (isScrolled || !isTransparentPath)
-    ? "text-foreground hover:bg-accent"
-    : "text-card-foreground hover:bg-white/10 active:bg-white/20";
+  const mobileMenuTriggerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
+    ? "text-card-foreground hover:bg-white/10 active:bg-white/20"
+    : "text-foreground hover:bg-accent";
     
   const signInButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg"
