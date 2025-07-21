@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, School, Phone } from "lucide-react";
+import { Mail, User, School, Phone, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Switch } from "@/components/ui/switch";
 import AuthModal from "@/components/auth/AuthModal";
+import bannerImage from '@/assets/images/banner-11.png';
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -57,6 +58,14 @@ const MOCK_COUNTRIES = [
   { country: "GB", countryCode: "+44", label: "UK (+44)" },
   { country: "AU", countryCode: "+61", label: "Australia (+61)" },
   { country: "JP", countryCode: "+81", label: "Japan (+81)" },
+];
+
+const benefits = [
+    "Reach Thousands of Students",
+    "Flexible Working Hours",
+    "Competitive Compensation",
+    "User-Friendly Platform",
+    "Dedicated Support Team",
 ];
 
 export default function BecomeTutorPage() {
@@ -141,7 +150,32 @@ export default function BecomeTutorPage() {
 
   return (
     <>
-      <div className="flex items-center justify-center min-h-screen bg-secondary py-12 px-4">
+      <div className="w-full lg:grid lg:min-h-[calc(100vh_-_var(--header-height))] lg:grid-cols-2 xl:min-h-[calc(100vh_-_var(--header-height))]">
+        <div className="hidden bg-muted lg:flex lg:items-center lg:justify-center p-8">
+            <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
+                <Image
+                    src={bannerImage}
+                    alt="Become a Tutor Illustration"
+                    width={500}
+                    height={500}
+                    className="mb-8 rounded-xl object-contain"
+                    data-ai-hint="teacher online education"
+                />
+                <h1 className="text-3xl font-bold text-primary tracking-tight">Inspire Minds, Change Lives</h1>
+                <p className="mt-4 text-base text-foreground/80">
+                    Join our community of passionate educators. Share your knowledge, set your own schedule, and earn by making a difference.
+                </p>
+                <ul className="mt-6 space-y-2 text-left text-foreground/80">
+                    {benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-center">
+                            <CheckCircle className="h-4 w-4 mr-2 text-primary"/>
+                            <span className="text-sm">{benefit}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+        <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-secondary">
           <Card className="w-full max-w-lg shadow-xl bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
             <CardHeader className="p-8 pb-4 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
               <CardTitle className="text-center text-3xl font-bold tracking-tight">Become a Tutor</CardTitle>
@@ -302,6 +336,7 @@ export default function BecomeTutorPage() {
               </p>
             </CardFooter>
           </Card>
+      </div>
       </div>
       {isAuthModalOpen && (
         <AuthModal 
