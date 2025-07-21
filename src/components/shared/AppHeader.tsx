@@ -10,17 +10,12 @@ import {
   SheetTitle as SheetTitleComponent,
   SheetTrigger
 } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
 import { Menu, LogIn, GraduationCap } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import AuthModal from "@/components/auth/AuthModal";
-import { useAuthMock } from "@/hooks/use-auth-mock";
 
 export function AppHeader() {
   const pathname = usePathname();
@@ -28,9 +23,6 @@ export function AppHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
-  
-  // Removed isAuthenticated and logout from here as they are no longer needed
-  // in this component's logic.
 
   useEffect(() => {
     setHasMounted(true);
@@ -54,14 +46,14 @@ export function AppHeader() {
 
   const transparentHeaderPaths = ["/", "/become-a-tutor"];
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
-
+  
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
-  const headerDynamicClasses = isTransparentPath && !isScrolled
+  const headerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
     ? "bg-transparent shadow-none border-transparent"
     : "bg-card shadow-md border-b border-border/20";
     
-  const mobileMenuTriggerDynamicClasses = isTransparentPath && !isScrolled
+  const mobileMenuTriggerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
     ? "text-card-foreground hover:bg-white/10 active:bg-white/20"
     : "text-foreground hover:bg-accent";
     
@@ -73,7 +65,7 @@ export function AppHeader() {
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
   return (
-    <header className={cn(headerBaseClasses, hasMounted ? headerDynamicClasses : "bg-card shadow-md border-b border-border/20")}>
+    <header className={cn(headerBaseClasses, headerDynamicClasses)}>
       <div className="container mx-auto flex h-[var(--header-height)] items-center justify-between px-4 md:px-6">
         <Link href="/" onClick={() => setMobileMenuOpen(false)}>
           <Logo className="h-[var(--logo-height)] w-auto" />
@@ -93,7 +85,7 @@ export function AppHeader() {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
                   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  hasMounted ? mobileMenuTriggerDynamicClasses : "text-foreground hover:bg-accent"
+                  mobileMenuTriggerDynamicClasses
                 )}>
                   <Menu className="h-6 w-6" />
                 </Button>
@@ -123,11 +115,7 @@ export function AppHeader() {
             </Sheet>
           </div>
           {hasMounted && isAuthModalOpen && (
-            <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
-              <DialogContent className="p-0 flex flex-col visible max-h-[90vh]">
-                <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
-              </DialogContent>
-            </Dialog>
+            <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
           )}
         </div>
       </div>
