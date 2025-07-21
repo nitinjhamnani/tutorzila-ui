@@ -232,7 +232,7 @@ export default function TutorDashboardPage() {
   }
 
   const dashboardMetrics = [
-    { title: "Coin Balance", value: String(dashboardData?.leadBalance ?? 0), IconEl: Coins, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Enquiries Assigned", value: String(dashboardData?.enquiriesAssigned ?? 0), IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Demo Scheduled", value: String(dashboardData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Profile Views", value: String(dashboardData?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Avg. Rating", value: dashboardData?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
