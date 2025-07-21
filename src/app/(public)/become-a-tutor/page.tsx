@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -313,12 +312,7 @@ export default function BecomeTutorPage() {
               </Form>
             </CardContent>
             <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
-              <p className="text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Button variant="link" onClick={() => setIsAuthModalOpen(true)} className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-                  Sign In
-                </Button>
-              </p>
+             
             </CardFooter>
           </Card>
       </div>
