@@ -17,7 +17,7 @@ import {
   DialogTitle, 
   DialogTrigger as ShadDialogTrigger, 
 } from "@/components/ui/dialog";
-import { Menu, LogIn, Search, HomeIcon } from "lucide-react";
+import { Menu, LogIn, Search, HomeIcon, GraduationCap } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils"; // Added cn import
 import { useEffect, useState } from "react";
@@ -87,7 +87,7 @@ export function AppHeader() {
 
           <div className="hidden md:flex items-center gap-3">
             <Button asChild variant="default" className={cn(signInButtonClass, "bg-transparent hover:bg-primary/10 text-primary border-primary border-2")}>
-              <Link href="/search-tuitions">Find Tutors</Link>
+              <Link href="/become-a-tutor">Become A Tutor</Link>
             </Button>
             {isAuthenticated ? (
               // Add authenticated menu items here (e.g., Dashboard, Profile, Logout)
@@ -118,8 +118,8 @@ export function AppHeader() {
                 </SheetHeader>
                 <div className="flex flex-col space-y-2 p-4 overflow-y-auto flex-grow visible">
                   <Button asChild variant="ghost" className={mobileButtonClass} onClick={() => { setMobileMenuOpen(false); }}>
-                    <Link href="/search-tuitions">
-                      <Search className="h-5 w-5 text-primary" /> Find Tutors
+                    <Link href="/become-a-tutor">
+                      <GraduationCap className="h-5 w-5 text-primary" /> Become a Tutor
                     </Link>
                   </Button>
 
