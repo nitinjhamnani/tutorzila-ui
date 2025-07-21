@@ -22,7 +22,6 @@ import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { SignInForm } from "@/components/auth/SignInForm";
 import AuthModal from "@/components/auth/AuthModal";
 
 // Mock authentication state (replace with actual auth context/hook)
@@ -44,6 +43,10 @@ export function AppHeader() {
 
   useEffect(() => {
     setHasMounted(true);
+  }, []);
+  
+  useEffect(() => {
+    if (!hasMounted) return;
 
     const handleScroll = () => {
       const bannerHeightString = typeof window !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--verification-banner-height').trim() : '0px';
@@ -51,32 +54,29 @@ export function AppHeader() {
       setIsScrolled(window.scrollY > (bannerHeight > 0 ? 10 : 20));
     };
 
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('signin') === 'true') {
-        setIsAuthModalOpen(true);
-      }
-      
-      window.addEventListener("scroll", handleScroll);
-      handleScroll(); // Initial check
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('signin') === 'true') {
+      setIsAuthModalOpen(true);
     }
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Initial check
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener("scroll", handleScroll);
-      }
+      window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [hasMounted]);
 
   const { isAuthenticated, logout } = useAuth();
 
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
+
   const headerClasses = cn(
     "sticky z-50 w-full transition-all duration-300 ease-in-out",
     "top-[var(--verification-banner-height,0px)]",
-    hasMounted && (isScrolled || !isTransparentPath) ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
+    (isScrolled || !isTransparentPath) ? "bg-card shadow-md border-b border-border/20" : "bg-transparent"
   );
-  
+
   const signInButtonClass = cn(
     "transform transition-transform hover:scale-105 active:scale-95 text-[15px] font-semibold py-2.5 px-5 rounded-lg"
   );
@@ -84,6 +84,7 @@ export function AppHeader() {
   const mobileLinkClass = "flex items-center gap-3 p-3 rounded-md hover:bg-accent text-base font-medium transition-colors";
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
+  // This class is now safe to be dynamic as it depends on `hasMounted`
   const mobileMenuTriggerClass = hasMounted && (isScrolled || !isTransparentPath)
     ? "text-foreground hover:bg-accent"
     : "text-card-foreground hover:bg-white/10 active:bg-white/20";
@@ -113,8 +114,8 @@ export function AppHeader() {
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
-                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  mobileMenuTriggerClass
+                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-card-foreground hover:bg-white/10 active:bg-white/20",
+                   mobileMenuTriggerClass
                 )}>
                   <Menu className="h-6 w-6" />
                 </Button>
