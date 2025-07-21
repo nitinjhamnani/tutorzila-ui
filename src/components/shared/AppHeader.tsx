@@ -36,7 +36,7 @@ export function AppHeader() {
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
 
   useEffect(() => {
-    setHasMounted(true);
+    setHasMounted(true); // This runs only on the client, after the initial render
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -59,10 +59,11 @@ export function AppHeader() {
 
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
+  // Default to solid style. The dynamic style will be applied only after mount.
   const headerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
     ? "bg-transparent shadow-none border-transparent"
     : "bg-card shadow-md border-b border-border/20";
-
+    
   const mobileMenuTriggerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
     ? "text-card-foreground hover:bg-white/10 active:bg-white/20"
     : "text-foreground hover:bg-accent";
@@ -87,12 +88,16 @@ export function AppHeader() {
             <Button asChild variant="default" className={cn(signInButtonClass, "bg-transparent hover:bg-primary/10 text-primary border-primary border-2")}>
               <Link href="/become-a-tutor">Become A Tutor</Link>
             </Button>
-            {isAuthenticated ? (
-              <Button onClick={logout} className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>
-                Logout
-              </Button>
-            ) : (
-              <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")} onClick={() => setIsAuthModalOpen(true)}>Sign In</Button>
+            {hasMounted && (
+              <>
+                {isAuthenticated ? (
+                  <Button onClick={logout} className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")}>
+                    Logout
+                  </Button>
+                ) : (
+                  <Button className={cn(signInButtonClass, "bg-primary hover:bg-primary/90 text-primary-foreground")} onClick={() => setIsAuthModalOpen(true)}>Sign In</Button>
+                )}
+              </>
             )}
           </div>
           <div className="md:hidden">
@@ -120,21 +125,24 @@ export function AppHeader() {
                     </Link>
                   </Button>
 
-                  {isAuthenticated ? (
-                    <Button variant="ghost" className={mobileButtonClass} onClick={() => { logout(); setMobileMenuOpen(false); }}>
-                      <LogIn className="h-5 w-5 text-primary" /> Logout
-                    </Button>
-                  ) : (
-                    <Button variant="ghost" className={mobileButtonClass} onClick={() => { setIsAuthModalOpen(true); setMobileMenuOpen(false); }}>
-                      <LogIn className="h-5 w-5 text-primary" /> Sign In
-                    </Button>
+                  {hasMounted && (
+                    <>
+                      {isAuthenticated ? (
+                        <Button variant="ghost" className={mobileButtonClass} onClick={() => { logout(); setMobileMenuOpen(false); }}>
+                          <LogIn className="h-5 w-5 text-primary" /> Logout
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" className={mobileButtonClass} onClick={() => { setIsAuthModalOpen(true); setMobileMenuOpen(false); }}>
+                          <LogIn className="h-5 w-5 text-primary" /> Sign In
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>                
-               
               </SheetContent>
             </Sheet>
           </div>
-          {isAuthModalOpen && (<AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />)}
+          {hasMounted && isAuthModalOpen && (<AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />)}
         </div>
       </div>
     </header>
