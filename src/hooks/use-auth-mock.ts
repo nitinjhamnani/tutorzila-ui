@@ -66,7 +66,7 @@ export function useAuthMock() {
           name: name || email.split("@")[0],
           email,
           role,
-          avatar: profilePicture || `https://i.pravatar.cc/150?u=${email}`,
+          avatar: profilePicture || undefined,
           status: "Active",
           phone: phone,
           isEmailVerified: false,
