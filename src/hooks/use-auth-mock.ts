@@ -66,7 +66,7 @@ export function useAuthMock() {
           name: name || email.split("@")[0],
           email,
           role,
-          avatar: profilePicture || undefined,
+          avatar: profilePicture || undefined, // Set avatar ONLY from API response
           status: "Active",
           phone: phone,
           isEmailVerified: false,
@@ -77,7 +77,12 @@ export function useAuthMock() {
           const existingTutor = MOCK_TUTOR_PROFILES.find(t => t.email.toLowerCase() === email.toLowerCase());
           if (existingTutor) {
             // Use existing tutor data but prioritize the new profile picture from the API
-            return { ...existingTutor, name: name || existingTutor.name, role: 'tutor', avatar: profilePicture || undefined };
+            return { 
+                ...existingTutor, 
+                name: name || existingTutor.name, 
+                role: 'tutor', 
+                avatar: profilePicture || undefined // Set avatar ONLY from API response
+            };
           }
           
           return {
