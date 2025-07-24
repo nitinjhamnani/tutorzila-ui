@@ -225,7 +225,7 @@ export default function ParentDashboardPage() {
             <div className="flex items-center gap-4">
               <div className="relative group shrink-0">
                 <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                  <AvatarImage src={dashboardData?.profilePic || undefined} alt={user.name} />
+                  <AvatarImage src={dashboardData?.profilePicture || user.avatar || undefined} alt={user.name} />
                   <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
                     {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                   </AvatarFallback>

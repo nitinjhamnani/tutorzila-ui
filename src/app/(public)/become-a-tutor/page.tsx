@@ -117,7 +117,7 @@ export default function BecomeTutorPage() {
         });
         
         if (responseData.token && responseData.type === 'TUTOR') {
-            setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone);
+            setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone, responseData.profilePicture);
             router.push("/tutor/dashboard");
         }
       } else {
@@ -312,9 +312,6 @@ export default function BecomeTutorPage() {
                 </form>
               </Form>
             </CardContent>
-            <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8">
-             
-            </CardFooter>
           </Card>
       </div>
       </div>
@@ -327,4 +324,3 @@ export default function BecomeTutorPage() {
     </>
   );
 }
-

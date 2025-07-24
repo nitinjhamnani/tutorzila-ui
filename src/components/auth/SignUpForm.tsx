@@ -115,14 +115,14 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         country: string;
         countryCode: string;
         phone?: string;
-        whatsappConsent: boolean;
+        whatsappEnabled: boolean;
     } = {
       name: values.name,
       email: values.email,
       userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
       country: values.country,
       countryCode: selectedCountryData?.countryCode || '',
-      whatsappConsent: values.whatsAppNotifications,
+      whatsappEnabled: values.whatsAppNotifications,
     };
     if (values.localPhoneNumber && values.localPhoneNumber.trim() !== "") {
       apiRequestBody.phone = values.localPhoneNumber;
@@ -148,7 +148,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         });
         
         if (responseData.token && responseData.type) {
-            setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone);
+            setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone, responseData.profilePicture);
             const role = responseData.type.toLowerCase();
             if (role === 'tutor') {
                 router.push("/tutor/dashboard");

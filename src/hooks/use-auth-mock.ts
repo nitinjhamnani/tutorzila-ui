@@ -60,13 +60,13 @@ export function useAuthMock() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const _constructUserObject = (email: string, role: UserRole, name?: string, phone?: string): User | TutorProfile => {
+  const _constructUserObject = (email: string, role: UserRole, name?: string, phone?: string, profilePicture?: string): User | TutorProfile => {
       let baseUserData: User = {
           id: `user-${Date.now()}`,
           name: name || email.split("@")[0],
           email,
           role,
-          avatar: `https://i.pravatar.cc/150?u=${email}`,
+          avatar: profilePicture || `https://i.pravatar.cc/150?u=${email}`,
           status: "Active",
           phone: phone,
           isEmailVerified: false,
@@ -75,7 +75,7 @@ export function useAuthMock() {
 
       if (role === 'tutor') {
           const existingTutor = MOCK_TUTOR_PROFILES.find(t => t.email.toLowerCase() === email.toLowerCase());
-          if (existingTutor) return { ...existingTutor, name: name || existingTutor.name, role: 'tutor' };
+          if (existingTutor) return { ...existingTutor, name: name || existingTutor.name, role: 'tutor', avatar: profilePicture || existingTutor.avatar };
           
           return {
               ...baseUserData,
@@ -88,9 +88,9 @@ export function useAuthMock() {
       return baseUserData;
   }
 
-  const setSession = (token: string, type: string, email: string, name?: string, phone?: string) => {
+  const setSession = (token: string, type: string, email: string, name?: string, phone?: string, profilePicture?: string) => {
       const role = type.toLowerCase() as UserRole;
-      const userObject = _constructUserObject(email, role, name, phone);
+      const userObject = _constructUserObject(email, role, name, phone, profilePicture);
       
       setToken(token);
       setUser(userObject);
@@ -112,7 +112,7 @@ export function useAuthMock() {
     }
 
     if (responseData.token && responseData.type) {
-        setSession(responseData.token, responseData.type, email, responseData.name, responseData.phone);
+        setSession(responseData.token, responseData.type, email, responseData.name, responseData.phone, responseData.profilePicture);
         // Redirect after successful login
         const role = responseData.type.toLowerCase();
         if (role === 'tutor') {

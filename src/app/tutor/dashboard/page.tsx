@@ -269,7 +269,7 @@ export default function TutorDashboardPage() {
               <div className="flex items-center gap-4">
                 <div className="relative group shrink-0">
                   <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                    <AvatarImage src={tutorUser.avatar || `https://avatar.vercel.sh/${tutorUser.email}.png`} alt={tutorUser.name} />
+                    <AvatarImage src={dashboardData?.profilePicture || tutorUser.avatar} alt={tutorUser.name} />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
                       {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                     </AvatarFallback>
@@ -312,9 +312,6 @@ export default function TutorDashboardPage() {
                     )}
                   </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-start w-full md:w-auto">
-                  
               </div>
             </div>
           </div>
