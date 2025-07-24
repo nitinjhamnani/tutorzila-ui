@@ -75,7 +75,10 @@ export function useAuthMock() {
 
       if (role === 'tutor') {
           const existingTutor = MOCK_TUTOR_PROFILES.find(t => t.email.toLowerCase() === email.toLowerCase());
-          if (existingTutor) return { ...existingTutor, name: name || existingTutor.name, role: 'tutor', avatar: profilePicture || existingTutor.avatar };
+          if (existingTutor) {
+            // Use existing tutor data but prioritize the new profile picture from the API
+            return { ...existingTutor, name: name || existingTutor.name, role: 'tutor', avatar: profilePicture || undefined };
+          }
           
           return {
               ...baseUserData,
