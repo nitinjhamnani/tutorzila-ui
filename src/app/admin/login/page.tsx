@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Mail, Lock, LogIn } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -27,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from 'react';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useRouter } from "next/navigation";
+import logoAsset from '@/assets/images/logo.png';
 
 const adminLoginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -89,7 +92,10 @@ export default function AdminLoginPage() {
 
   return (
     <Card className="w-full max-w-md shadow-xl bg-card border rounded-lg">
-      <CardHeader className="space-y-1.5 text-center p-8 pb-4">
+      <CardHeader className="space-y-1.5 text-center p-8 pb-4 flex flex-col items-center">
+        <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-4">
+          <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
+        </Link>
         <CardTitle className="text-3xl font-bold tracking-tight text-primary">Admin Login</CardTitle>
         <CardDescription className="text-muted-foreground">
           Enter your credentials to access the admin dashboard.
