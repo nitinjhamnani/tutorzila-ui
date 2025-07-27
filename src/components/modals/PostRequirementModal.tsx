@@ -233,7 +233,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         countryCode: selectedCountryData?.countryCode || '',
         phone: data.localPhoneNumber,
         userType: "PARENT",
-        whatsappConsent: data.whatsAppNotifications,
+        whatsappEnabled: data.whatsAppNotifications,
       },
       studentName: data.studentName,
       subjects: data.subject,
