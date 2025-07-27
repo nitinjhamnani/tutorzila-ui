@@ -173,7 +173,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   useEffect(() => {
     if (isAuthenticated && user?.role === 'parent') {
-        setCurrentStep(2);
         form.setValue("name", user.name || "");
         form.setValue("email", user.email || "");
         if (user.phone) {
