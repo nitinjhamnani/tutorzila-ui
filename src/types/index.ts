@@ -197,9 +197,8 @@ export interface Message {
 }
 
 export interface AdminDashboardData {
-    totalTutors: number;
     totalParents: number;
+    totalTutors: number;
     totalEnquiries: number;
-    monthlyRevenue: number;
-    pendingApprovals: number;
+    noOfDemos: number;
 }

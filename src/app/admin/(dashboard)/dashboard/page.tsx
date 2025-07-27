@@ -17,11 +17,13 @@ import {
   Settings,
   FileText,
   ArrowRight,
+  CalendarCheck,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AdminDashboardData } from "@/types";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface MetricCardProps {
   title: string;
@@ -89,22 +91,26 @@ function AdminQuickActionCard({ title, description, IconEl, href, disabled }: Ad
 }
 
 const fetchAdminDashboardData = async (token: string | null): Promise<AdminDashboardData> => {
-    // MOCK IMPLEMENTATION
     if (!token) throw new Error("No admin token found.");
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-    return {
-        totalTutors: 152,
-        totalParents: 845,
-        totalEnquiries: 234,
-        monthlyRevenue: 45000,
-        pendingApprovals: 12,
-    };
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/admin/dashboard`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': '*/*',
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch admin dashboard data.");
+    }
+    return response.json();
 };
 
 
 export default function AdminDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
+  const { hideLoader } = useGlobalLoader();
   
   const { data: dashboardData, isLoading, error } = useQuery<AdminDashboardData>({
     queryKey: ['adminDashboard', token],
@@ -117,8 +123,10 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'admin')) {
       router.replace("/admin/login");
+    } else if (!isCheckingAuth) {
+      hideLoader();
     }
-  }, [isAuthenticated, isCheckingAuth, user, router]);
+  }, [isAuthenticated, isCheckingAuth, user, router, hideLoader]);
 
   if (isCheckingAuth || isLoading || !user) {
     return (
@@ -142,15 +150,15 @@ export default function AdminDashboardPage() {
   const adminMetrics: MetricCardProps[] = [
     { title: "Total Tutors", value: String(dashboardData?.totalTutors || 0), IconEl: Users, description: "Active & pending tutors", iconColor: "text-blue-600" },
     { title: "Total Parents", value: String(dashboardData?.totalParents || 0), IconEl: UsersRound, description: "Registered parent accounts", iconColor: "text-green-600" },
-    { title: "Open Enquiries", value: String(dashboardData?.totalEnquiries || 0), IconEl: Briefcase, description: "Active tuition requests", iconColor: "text-orange-600" },
-    { title: "Revenue (Month)", value: `₹${(dashboardData?.monthlyRevenue || 0).toLocaleString()}`, IconEl: DollarSign, description: "Last 30 days", iconColor: "text-purple-600" },
+    { title: "Total Enquiries", value: String(dashboardData?.totalEnquiries || 0), IconEl: Briefcase, description: "Active tuition requests", iconColor: "text-orange-600" },
+    { title: "Total Demos", value: String(dashboardData?.noOfDemos || 0), IconEl: CalendarCheck, description: "Scheduled demo sessions", iconColor: "text-purple-600" },
   ];
   
   const adminQuickActions: AdminQuickActionCardProps[] = [
       { title: "Tutor Management", description: "Approve, view, or manage tutor profiles.", IconEl: Users, href: "#", disabled: true },
       { title: "Parent Management", description: "View and manage parent accounts.", IconEl: UsersRound, href: "#", disabled: true },
       { title: "Enquiry Management", description: "Oversee all posted tuition enquiries.", IconEl: Briefcase, href: "#", disabled: true },
-      { title: "Approval Queue", description: `Review ${dashboardData?.pendingApprovals || 0} pending tutor applications.`, IconEl: ShieldCheck, href: "#", disabled: true },
+      { title: "Approval Queue", description: "Review pending tutor applications.", IconEl: ShieldCheck, href: "#", disabled: true },
       { title: "System Settings", description: "Configure platform settings and fees.", IconEl: Settings, href: "#", disabled: true },
       { title: "Reports", description: "Generate financial and user reports.", IconEl: BarChart2, href: "#", disabled: true },
       { title: "Content Management", description: "Manage site content like FAQs.", IconEl: FileText, href: "#", disabled: true },

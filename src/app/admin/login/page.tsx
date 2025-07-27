@@ -39,7 +39,7 @@ const adminLoginSchema = z.object({
 type AdminLoginFormValues = z.infer<typeof adminLoginSchema>;
 
 export default function AdminLoginPage() {
-  const { login } = useAuthMock();
+  const { setSession } = useAuthMock();
   const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,24 +57,35 @@ export default function AdminLoginPage() {
     setIsSubmitting(true);
     showLoader();
     try {
-      const result = await login(values.email, values.password);
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/api/auth/admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Sign in failed.");
+      }
 
       if (result.type.toLowerCase() !== 'admin') {
-        hideLoader();
-        toast({
-          variant: "destructive",
-          title: "Access Denied",
-          description: "You do not have administrative privileges.",
-        });
-        return;
+        throw new Error("You do not have administrative privileges.");
       }
       
+      setSession(result.token, result.type, values.email, result.name, result.profilePicture);
+
       toast({
         title: "Admin Sign In Successful!",
         description: `Welcome back, ${result.name || 'Admin'}!`,
       });
       
       router.push("/admin/dashboard");
+
     } catch (error) {
       hideLoader();
       toast({
