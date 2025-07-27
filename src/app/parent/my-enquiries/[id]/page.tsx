@@ -292,7 +292,9 @@ export default function ParentEnquiryDetailsPage() {
                       {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                     </CardTitle>
                     {requirement.studentName && (
-                        <p className="text-sm font-medium text-foreground/80 mt-1">For: {requirement.studentName}</p>
+                        <p className="text-sm font-medium text-foreground/80 mt-1 flex items-center">
+                           <User className="w-4 h-4 mr-1.5 text-primary/80" /> {requirement.studentName}
+                        </p>
                     )}
                     <CardDescription className="text-xs text-muted-foreground mt-1.5">
                       Posted {timeAgo} (on {formattedPostedDate})
