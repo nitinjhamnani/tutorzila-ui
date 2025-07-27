@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   User as UserIconLucide,
-  MessageSquare,
   Percent,
   Star,
   DollarSign,
@@ -209,7 +208,6 @@ export default function ParentDashboardPage() {
   const parentQuickActions: QuickActionCardProps[] = [
     { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-enquiries", buttonText: "Manage Enquiries" },
     { title: "Find Tutors", description: "Search for qualified tutors.", IconEl: SearchCheck, href: "/parent/find-tutor", buttonText: "Search Now" },
-    { title: "Messages", description: "Chat with tutors and support.", IconEl: MessageSquare, href: "/parent/messages", buttonText: "View Messages", disabled: false },
     { title: "Demo Sessions", description: "Manage demo class requests & schedules.", IconEl: MessageSquareQuote, href: "/parent/demo-sessions", buttonText: "Manage Demos", disabled: false },
     { title: "My Payments", description: "View your payment history.", IconEl: DollarSign, href: "/parent/payments", buttonText: "View Payments", disabled: false },
     { title: "My Account", description: "Update your profile settings.", IconEl: UserCog, href: "/parent/my-account", buttonText: "Go to Account" },

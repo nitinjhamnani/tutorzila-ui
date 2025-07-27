@@ -25,7 +25,6 @@ import {
   Menu as MenuIcon,
   Bell,
   SearchCheck, 
-  MessageSquare
 } from "lucide-react";
 
 export default function ParentSpecificLayout({ children }: { children: ReactNode }) {
@@ -64,7 +63,6 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
-    { href: "/parent/messages", label: "Messages", icon: MessageSquare, disabled: false },
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
     { href: "/parent/payments", label: "My Payments", icon: DollarSign, disabled: false },
   ];
