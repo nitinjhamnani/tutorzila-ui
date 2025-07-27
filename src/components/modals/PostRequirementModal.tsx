@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -191,7 +192,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
@@ -251,17 +252,13 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
-      toast({
-        title: "Requirement Submitted!",
-        description: responseData.message || "Your requirement has been posted. Tutors will start applying soon.",
-      });
-
       if (responseData.token && responseData.type === 'PARENT') {
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
+        // Set a flag in session storage to show toast on the dashboard
+        sessionStorage.setItem('showNewRequirementToast', 'true');
         router.push("/parent/dashboard");
-        // Don't hide loader, let the dashboard page handle it
       } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
-          hideLoader(); // Hide loader before showing sign-in modal
+          hideLoader();
           onTriggerSignIn(data.email);
       } else {
         hideLoader();
@@ -652,3 +649,4 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     </div>
   );
 }
+

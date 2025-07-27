@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import type { ReactNode, ElementType } from "react";
@@ -147,7 +148,16 @@ export default function ParentDashboardPage() {
   useEffect(() => {
     setHasMounted(true);
     hideLoader(); // Ensure loader is hidden when dashboard mounts
-  }, [hideLoader]);
+
+    const shouldShowToast = sessionStorage.getItem('showNewRequirementToast');
+    if (shouldShowToast) {
+      toast({
+        title: "Requirement Submitted!",
+        description: "Your tuition requirement has been posted. Tutors will start applying soon.",
+      });
+      sessionStorage.removeItem('showNewRequirementToast');
+    }
+  }, [hideLoader, toast]);
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
@@ -344,3 +354,4 @@ export default function ParentDashboardPage() {
     </main>
   );
 }
+
