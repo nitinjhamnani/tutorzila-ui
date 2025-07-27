@@ -130,7 +130,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     id: data.enquirySummary.enquiryId,
     parentId: "", // Not provided by API
     parentName: data.name,
-    studentName: data.studentName, // Capture student name
+    studentName: data.studentName,
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
     board: data.enquirySummary.board,
@@ -439,6 +439,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
-
-    
