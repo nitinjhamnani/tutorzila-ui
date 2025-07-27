@@ -162,8 +162,8 @@ export function ParentEnquiryCard({
                         className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
                     >
                         <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-                        {requirement.applicantsCount} Applicant
-                        {requirement.applicantsCount === 1 ? "" : "s"}
+                        {requirement.applicantsCount} Tutor
+                        {requirement.applicantsCount === 1 ? " Assigned" : "s Assigned"}
                     </Badge>
                 )}
             </div>
