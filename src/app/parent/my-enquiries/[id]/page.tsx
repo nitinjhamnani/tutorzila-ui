@@ -359,12 +359,12 @@ export default function ParentEnquiryDetailsPage() {
                         <Button asChild variant="default" size="sm">
                             <Link href={`/parent/my-tutors/${requirement.id}`}>
                             <UsersIcon className="mr-1.5 h-3.5 w-3.5" />
-                            View Applied Tutors ({requirement.applicantsCount})
+                            View Assigned Tutors ({requirement.applicantsCount})
                             </Link>
                         </Button>
                         )}
                         <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
-                        <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
+                        <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
                         </Button>
                     </>
                     )}
