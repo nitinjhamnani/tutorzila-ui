@@ -123,7 +123,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
     status: data.status?.toLowerCase() || 'open',
     postedAt: data.createdOn,
-    applicantsCount: data.enquirySummary.appliedTutors,
+    applicantsCount: data.enquirySummary.assignedTutors,
   };
 };
 
