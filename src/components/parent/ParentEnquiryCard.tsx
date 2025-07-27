@@ -85,6 +85,10 @@ export function ParentEnquiryCard({
   const parentInitials = getInitials(requirement.parentName);
   const isPastEnquiry = requirement.status === "closed";
 
+  const locationString = typeof requirement.location === 'object' && requirement.location !== null
+    ? [requirement.location.area, requirement.location.city, requirement.location.country].filter(Boolean).join(', ')
+    : requirement.location;
+
   return (
       <Card
         className={cn(
@@ -149,21 +153,21 @@ export function ParentEnquiryCard({
               value={requirement.teachingMode.join(", ")}
             />
           )}
-          {requirement.location && (
-            <InfoItem icon={MapPin} label="Location" value={requirement.location} />
+          {locationString && requirement.teachingMode?.includes('Offline (In-person)') && (
+            <InfoItem icon={MapPin} label="Location" value={locationString} />
           )}
         </CardContent>
 
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
             <div className="flex-shrink-0">
-                {requirement.applicantsCount !== undefined && (
+                {requirement.assignedTutors !== undefined && (
                     <Badge
                         variant="outline"
                         className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
                     >
                         <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-                        {requirement.applicantsCount} Tutor
-                        {requirement.applicantsCount === 1 ? " Assigned" : "s Assigned"}
+                        {requirement.assignedTutors} Tutor
+                        {requirement.assignedTutors === 1 ? " Assigned" : "s Assigned"}
                     </Badge>
                 )}
             </div>

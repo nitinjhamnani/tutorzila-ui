@@ -101,7 +101,12 @@ const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequir
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
     scheduleDetails: item.initial || "Details not provided by API",
-    location: item.location,
+    location: {
+      address: [item.area, item.city, item.country].filter(Boolean).join(', '),
+      area: item.area,
+      city: item.city,
+      country: item.country,
+    },
     status: item.status?.toLowerCase() || 'open',
     postedAt: new Date().toISOString(),
     board: item.board,
@@ -109,7 +114,7 @@ const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequir
       ...(item.online ? ["Online"] : []),
       ...(item.offline ? ["Offline (In-person)"] : []),
     ],
-    applicantsCount: item.appliedTutors,
+    assignedTutors: item.assignedTutors,
   }));
 };
 
