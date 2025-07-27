@@ -18,12 +18,16 @@ import {
   FileText,
   ArrowRight,
   CalendarCheck,
+  Camera,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { AdminDashboardData } from "@/types";
+import type { AdminDashboardData, User } from "@/types";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 interface MetricCardProps {
   title: string;
@@ -111,6 +115,8 @@ export default function AdminDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { hideLoader } = useGlobalLoader();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   
   const { data: dashboardData, isLoading, error } = useQuery<AdminDashboardData>({
     queryKey: ['adminDashboard', token],
@@ -127,11 +133,23 @@ export default function AdminDashboardPage() {
       hideLoader();
     }
   }, [isAuthenticated, isCheckingAuth, user, router, hideLoader]);
+  
+  const handleAvatarUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
+    }
+  };
+
 
   if (isCheckingAuth || isLoading || !user) {
     return (
         <div className="space-y-6">
-            <Skeleton className="h-14 w-1/3 rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-xl" />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
                 {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
             </div>
@@ -166,9 +184,52 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Admin Dashboard</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-            {adminMetrics.map(metric => <MetricCard key={metric.title} {...metric} />)}
+        <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 border-0">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="relative group shrink-0">
+                <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
+                    {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={handleAvatarUploadClick}
+                  className={cn(
+                    "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
+                    "bg-primary/20 hover:bg-primary/30 text-primary"
+                  )}
+                  aria-label="Update profile picture"
+                >
+                  <Camera className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                </button>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {user.name} <span className="inline-block ml-1">👋</span></h1>
+                <p className="text-xs text-muted-foreground mt-1">Welcome back to the Admin Dashboard</p>
+                
+                <div className="mt-3 flex items-center space-x-2 flex-wrap">
+                  <Badge
+                      className={cn(
+                        "text-xs py-0.5 px-2 border",
+                        "bg-primary text-primary-foreground border-primary"
+                      )}
+                    >
+                      Admin
+                    </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+            <h2 className="text-xl font-semibold text-foreground mb-4">My Insights</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+                {adminMetrics.map(metric => <MetricCard key={metric.title} {...metric} />)}
+            </div>
         </div>
         
         <div>
