@@ -223,7 +223,6 @@ export default function ParentEnquiryDetailsPage() {
   };
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
-  const timeAgo = requirement?.postedAt ? formatDistanceToNow(postedDate, { addSuffix: true }) : "";
   const formattedPostedDate = requirement?.postedAt ? format(postedDate, "MMMM d, yyyy 'at' h:mm a") : "";
 
   if (isLoading || isCheckingAuth) {
@@ -296,9 +295,6 @@ export default function ParentEnquiryDetailsPage() {
                            <User className="w-4 h-4 mr-1.5 text-primary/80" /> {requirement.studentName}
                         </p>
                     )}
-                    <CardDescription className="text-xs text-muted-foreground mt-1.5">
-                      Posted {timeAgo} (on {formattedPostedDate})
-                    </CardDescription>
                   </div>
                    <Badge variant={requirement.status === 'open' ? 'default' : requirement.status === 'matched' ? 'secondary' : 'outline'}
                      className={cn(
@@ -348,25 +344,31 @@ export default function ParentEnquiryDetailsPage() {
                   </div>
                 </section>
               </CardContent>
-              <CardFooter className="p-4 md:p-5 border-t flex-wrap justify-end gap-2">
-                <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                  <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
-                </Button>
-                {(requirement.status === 'open' || requirement.status === 'matched') && (
-                  <>
-                    {(requirement.applicantsCount ?? 0) > 0 && (
-                      <Button asChild variant="default" size="sm">
-                        <Link href={`/parent/my-tutors/${requirement.id}`}>
-                          <UsersIcon className="mr-1.5 h-3.5 w-3.5" />
-                          View Applied Tutors ({requirement.applicantsCount})
-                        </Link>
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
-                      <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
+              <CardFooter className="p-4 md:p-5 border-t flex-wrap justify-between items-center gap-2">
+                <div className="text-xs text-muted-foreground flex items-center">
+                    <Clock className="w-3.5 h-3.5 mr-1.5" />
+                    Posted on {formattedPostedDate}
+                </div>
+                <div className="flex flex-wrap justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
+                    <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                     </Button>
-                  </>
-                )}
+                    {(requirement.status === 'open' || requirement.status === 'matched') && (
+                    <>
+                        {(requirement.applicantsCount ?? 0) > 0 && (
+                        <Button asChild variant="default" size="sm">
+                            <Link href={`/parent/my-tutors/${requirement.id}`}>
+                            <UsersIcon className="mr-1.5 h-3.5 w-3.5" />
+                            View Applied Tutors ({requirement.applicantsCount})
+                            </Link>
+                        </Button>
+                        )}
+                        <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
+                        <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
+                        </Button>
+                    </>
+                    )}
+                </div>
               </CardFooter>
             </Card>
           </div>
@@ -437,3 +439,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
