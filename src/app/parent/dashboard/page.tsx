@@ -299,6 +299,19 @@ export default function ParentDashboardPage() {
             </div>
           </div>
         </div>
+        
+        <div className="mb-6 md:mb-8">
+            <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">Upcoming Demos</h2>
+            </div>
+            <Card className="bg-card rounded-xl shadow-lg p-5 border-0 text-center">
+              <CardContent className="pt-6">
+                <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No upcoming demos scheduled.</p>
+              </CardContent>
+            </Card>
+        </div>
+
 
         {/* Quick Actions Section */}
         <div className="mb-6 md:mb-8">
