@@ -152,6 +152,12 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   };
 };
 
+const closeReasons = [
+    { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
+    { id: 'found-elsewhere', label: "Found a tutor elsewhere" },
+    { id: 'no-longer-needed', label: "Don't need a tutor anymore" },
+    { id: 'other', label: "Other" }
+];
 
 export default function ParentEnquiryDetailsPage() {
   const params = useParams();
@@ -161,9 +167,7 @@ export default function ParentEnquiryDetailsPage() {
   const id = params.id as string;
 
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
-  const [closeEnquiryStep, setCloseEnquiryStep] = useState(1);
-  const [foundTutorName, setFoundTutorName] = useState("");
-  const [startClassesConfirmation, setStartClassesConfirmation] = useState<"yes" | "no" | "">("");
+  const [closeReason, setCloseReason] = useState<string | null>(null);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // For the edit modal
 
@@ -183,29 +187,32 @@ export default function ParentEnquiryDetailsPage() {
 
   const handleOpenCloseEnquiryModal = () => {
     if (!requirement) return;
-    setCloseEnquiryStep(1);
-    setFoundTutorName("");
-    setStartClassesConfirmation("");
+    setCloseReason(null);
     setIsCloseEnquiryModalOpen(true);
   };
 
   const handleCloseEnquiryDialogAction = () => {
     if (!requirement) return;
-
-    if (closeEnquiryStep === 1) {
-      setCloseEnquiryStep(2);
-    } else if (closeEnquiryStep === 2) {
-      // Mocking update as there is no API for this yet
-      const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
-      if (reqIndex > -1) MOCK_ALL_PARENT_REQUIREMENTS[reqIndex].status = "closed";
-      
-      toast({
-        title: "Enquiry Closed (Mock)",
-        description: `Requirement for "${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}" has been marked as closed.`,
-      });
-      setIsCloseEnquiryModalOpen(false);
-      router.push("/parent/my-enquiries"); 
+    if (!closeReason) {
+        toast({
+            variant: "destructive",
+            title: "Reason Required",
+            description: "Please select a reason for closing the enquiry.",
+        });
+        return;
     }
+
+    // Mocking update as there is no API for this yet
+    const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
+    if (reqIndex > -1) MOCK_ALL_PARENT_REQUIREMENTS[reqIndex].status = "closed";
+    
+    console.log(`Closing enquiry ${requirement.id}. Reason: ${closeReason}`);
+    toast({
+      title: "Enquiry Closed (Mock)",
+      description: `Requirement for "${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}" has been marked as closed.`,
+    });
+    setIsCloseEnquiryModalOpen(false);
+    router.push("/parent/my-enquiries"); 
   };
 
   const handleUpdateEnquiry = (updatedData: Partial<TuitionRequirement>) => {
@@ -377,47 +384,33 @@ export default function ParentEnquiryDetailsPage() {
               <DialogHeader>
                 <DialogTitle>Close Enquiry: {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}</DialogTitle>
                 <DialogDesc>
-                  Please provide some details before closing this requirement.
+                  Please select a reason for closing this requirement. This helps us improve our service.
                 </DialogDesc>
               </DialogHeader>
-              {closeEnquiryStep === 1 && (
-                <div className="py-4 space-y-4">
-                  <Label htmlFor="foundTutor">Did you find a tutor for this requirement?</Label>
-                  <Input
-                    id="foundTutor"
-                    placeholder="Enter Tutor's Name (Optional)"
-                    value={foundTutorName}
-                    onChange={(e) => setFoundTutorName(e.target.value)}
-                  />
-                </div>
-              )}
-              {closeEnquiryStep === 2 && (
-                <div className="py-4 space-y-4">
-                  <Label>Would you like to start classes with {foundTutorName || "the selected tutor"}?</Label>
+              <div className="py-4 space-y-4">
                   <RadioGroup
-                    onValueChange={(value: "yes" | "no") => setStartClassesConfirmation(value)}
-                    value={startClassesConfirmation}
-                    className="flex space-x-4"
+                    onValueChange={(value: string) => setCloseReason(value)}
+                    value={closeReason || ""}
+                    className="flex flex-col space-y-2"
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="start-yes" />
-                      <Label htmlFor="start-yes">Yes</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="start-no" />
-                      <Label htmlFor="start-no">No</Label>
-                    </div>
+                    {closeReasons.map((reason) => (
+                        <FormItem key={reason.id} className="flex items-center space-x-3 space-y-0">
+                             <FormControl>
+                                <RadioGroupItem value={reason.id} id={reason.id} />
+                            </FormControl>
+                            <Label htmlFor={reason.id} className="font-normal text-sm">{reason.label}</Label>
+                        </FormItem>
+                    ))}
                   </RadioGroup>
-                </div>
-              )}
+              </div>
               <DialogFooter>
                 <DialogClose asChild>
                   <Button type="button" variant="outline">
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button type="button" onClick={handleCloseEnquiryDialogAction}>
-                  {closeEnquiryStep === 1 ? "Next" : "Confirm & Close Requirement"}
+                <Button type="button" onClick={handleCloseEnquiryDialogAction} disabled={!closeReason}>
+                  Confirm & Close
                 </Button>
               </DialogFooter>
             </DialogContent>
