@@ -195,3 +195,11 @@ export interface Message {
   type?: 'chat' | 'info_block'; // New type property
   enquiry?: TuitionRequirement; // Property to hold enquiry details for info_block
 }
+
+export interface AdminDashboardData {
+    totalTutors: number;
+    totalParents: number;
+    totalEnquiries: number;
+    monthlyRevenue: number;
+    pendingApprovals: number;
+}

@@ -57,8 +57,6 @@ export default function AdminLoginPage() {
     setIsSubmitting(true);
     showLoader();
     try {
-      // For now, we can use the same login logic.
-      // In a real app, this would point to an admin-specific endpoint.
       const result = await login(values.email, values.password);
 
       if (result.type.toLowerCase() !== 'admin') {
@@ -68,7 +66,6 @@ export default function AdminLoginPage() {
           title: "Access Denied",
           description: "You do not have administrative privileges.",
         });
-        // Optionally log the user out if they were logged into a non-admin account.
         return;
       }
       
@@ -77,7 +74,7 @@ export default function AdminLoginPage() {
         description: `Welcome back, ${result.name || 'Admin'}!`,
       });
       
-      // router.push("/admin/dashboard"); // Redirect to admin dashboard on success
+      router.push("/admin/dashboard");
     } catch (error) {
       hideLoader();
       toast({
