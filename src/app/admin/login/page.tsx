@@ -96,8 +96,7 @@ export default function AdminLoginPage() {
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block mb-4">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
         </Link>
-        <CardTitle className="text-3xl font-bold tracking-tight text-primary">Admin Login</CardTitle>
-        <CardDescription className="text-muted-foreground">
+        <CardDescription className="text-muted-foreground pt-2">
           Enter your credentials to access the admin dashboard.
         </CardDescription>
       </CardHeader>
