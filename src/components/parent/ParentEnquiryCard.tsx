@@ -88,7 +88,7 @@ export function ParentEnquiryCard({
   return (
       <Card
         className={cn(
-          "bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
+          "bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
           isPastEnquiry && "opacity-70 bg-muted/30"
         )}
       >
