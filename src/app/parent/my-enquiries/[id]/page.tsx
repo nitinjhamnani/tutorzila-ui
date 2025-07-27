@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { FormItem, FormControl } from "@/components/ui/form";
+import { FormItem, FormControl, FormLabel as ShadcnFormLabel, FormMessage } from "@/components/ui/form"; // Correctly import form components
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -395,12 +395,10 @@ export default function ParentEnquiryDetailsPage() {
                     className="flex flex-col space-y-2"
                   >
                     {closeReasons.map((reason) => (
-                        <FormItem key={reason.id} className="flex items-center space-x-3 space-y-0">
-                             <FormControl>
-                                <RadioGroupItem value={reason.id} id={reason.id} />
-                            </FormControl>
+                        <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                             <RadioGroupItem value={reason.id} id={reason.id} />
                             <Label htmlFor={reason.id} className="font-normal text-sm">{reason.label}</Label>
-                        </FormItem>
+                        </div>
                     ))}
                   </RadioGroup>
               </div>
@@ -429,4 +427,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
