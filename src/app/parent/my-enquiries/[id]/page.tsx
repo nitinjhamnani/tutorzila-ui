@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import type { TuitionRequirement, TutorProfile } from "@/types";
+import type { TuitionRequirement, TutorProfile, LocationDetails } from "@/types";
 import { MOCK_ALL_PARENT_REQUIREMENTS, MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +51,7 @@ import {
   XCircle,
   Briefcase,
   ArrowLeft,
+  MapPinned,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -65,19 +66,39 @@ const EnquiryInfoItem = ({
 }: {
   icon?: React.ElementType;
   label: string;
-  value?: string | string[];
+  value?: string | string[] | LocationDetails | null;
   children?: React.ReactNode;
   className?: string;
 }) => {
   if (!value && !children) return null;
-  const displayText = Array.isArray(value) ? value.join(", ") : value;
+  
+  let displayText: React.ReactNode = null;
+
+  if (typeof value === 'object' && value !== null && 'address' in value) {
+    const location = value as LocationDetails;
+    if (location.googleMapsUrl) {
+      displayText = (
+        <a href={location.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1.5">
+           <MapPinned className="h-3 w-3" /> {location.address}
+        </a>
+      );
+    } else {
+        displayText = location.address;
+    }
+  } else if (Array.isArray(value)) {
+    displayText = value.join(", ");
+  } else {
+    displayText = value as string;
+  }
+
+
   return (
     <div className={cn("space-y-0.5", className)}>
       <span className="text-xs text-muted-foreground font-medium flex items-center">
         {Icon && <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80" />}
         {label}
       </span>
-      {displayText && <p className="text-sm text-foreground/90">{displayText}</p>}
+      {displayText && <div className="text-sm text-foreground/90">{displayText}</div>}
       {children && <div className="text-sm text-foreground/90">{children}</div>}
     </div>
   );
@@ -113,7 +134,10 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
     board: data.enquirySummary.board,
-    location: data.address, // Use the full address from the root
+    location: {
+        address: data.address,
+        googleMapsUrl: data.googleMapsLink,
+    },
     teachingMode: [
       ...(data.enquirySummary.online ? ["Online"] : []),
       ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
@@ -309,7 +333,7 @@ export default function ParentEnquiryDetailsPage() {
                     {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
                       <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
                     )}
-                    {requirement.location && (typeof requirement.location === 'string') && <EnquiryInfoItem label="Location Preference" value={requirement.location} icon={MapPin} />}
+                    {requirement.location && <EnquiryInfoItem label="Location Preference" value={requirement.location} icon={MapPin} />}
                     {requirement.teachingMode && requirement.teachingMode.length > 0 && (
                        <EnquiryInfoItem label="Teaching Mode(s)" icon={RadioTower}>
                         <div className="flex flex-wrap gap-1.5 mt-0.5">

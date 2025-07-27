@@ -30,6 +30,7 @@ export interface TuitionRequirement {
   id:string;
   parentId: string;
   parentName?: string;
+  studentName?: string;
   subject: string[];
   gradeLevel: string;
   scheduleDetails: string;
