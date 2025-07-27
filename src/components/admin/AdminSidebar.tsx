@@ -57,7 +57,7 @@ export function AdminSidebar({
               "relative md:flex md:flex-col",
               isNavbarCollapsed ? "w-20" : "w-60"
             ),
-        props.isMobile ? "md:hidden" : "hidden md:flex"
+        isMobile ? "md:hidden" : "hidden md:flex"
       )}
       aria-label="Admin Navigation"
     >
