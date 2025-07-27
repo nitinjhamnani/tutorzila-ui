@@ -21,6 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     '/parent',
     '/tutor',
     '/auth', // Auth pages like sign-in/sign-up have minimal layout
+    '/admin',
   ];
   
   // Info pages now use the public layout.
