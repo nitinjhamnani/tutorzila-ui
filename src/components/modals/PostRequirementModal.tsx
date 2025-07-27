@@ -40,7 +40,6 @@ import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, C
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Switch } from "@/components/ui/switch";
@@ -138,7 +137,7 @@ type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
-  startFromStep?: 1 | 2;
+  startFromStep?: 1 | 2 | 3;
   onTriggerSignIn?: (name?: string) => void;
 }
 
@@ -147,7 +146,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   const totalSteps = 3;
 
   const { toast } = useToast();
-  const { user, setSession, isAuthenticated } = useAuthMock();
   const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
 
@@ -170,24 +168,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       acceptTerms: false,
     },
   });
-
-  useEffect(() => {
-    if (isAuthenticated && user?.role === 'parent') {
-        form.setValue("name", user.name || "");
-        form.setValue("email", user.email || "");
-        if (user.phone) {
-            const matchingCountry = MOCK_COUNTRIES.find(c => user.phone!.startsWith(c.countryCode));
-            if (matchingCountry) {
-                form.setValue("country", matchingCountry.country);
-                form.setValue("localPhoneNumber", user.phone.substring(matchingCountry.countryCode.length));
-            } else {
-                form.setValue("localPhoneNumber", user.phone);
-            }
-        }
-        form.setValue("acceptTerms", true);
-    }
-  }, [isAuthenticated, user, form]);
-
 
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
@@ -268,22 +248,20 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
-      if (responseData.token && responseData.type === 'PARENT') {
-        toast({
-          title: "Requirement Posted & Logged In!",
-          description: "You are being redirected to your dashboard...",
-        });
-        setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber);
-        router.push("/parent/dashboard");
-      } else {
-        hideLoader();
-        toast({
-          title: "Account Exists",
-          description: responseData.message || "Please sign in to complete posting your requirement.",
-        });
-        if (onTriggerSignIn) {
+      // Since this is a public modal, we assume the user is not logged in.
+      // The API response for an existing user should guide the next action.
+      // We expect a message that tells us the user exists.
+      hideLoader();
+      toast({
+        title: "Requirement Submitted!",
+        description: responseData.message || "Your requirement has been posted. Tutors will start applying soon.",
+      });
+
+      // If the API response indicates an existing account, trigger the sign-in modal
+      if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
           onTriggerSignIn(data.email);
-        }
+      } else {
+        // Otherwise, just close this modal on success.
         onSuccess();
       }
 
