@@ -109,10 +109,11 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     id: data.enquirySummary.enquiryId,
     parentId: "", // Not provided by API
     parentName: data.name,
+    studentName: data.studentName, // Capture student name
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
     board: data.enquirySummary.board,
-    location: data.enquirySummary.location,
+    location: data.address, // Use the full address from the root
     teachingMode: [
       ...(data.enquirySummary.online ? ["Online"] : []),
       ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
@@ -266,7 +267,10 @@ export default function ParentEnquiryDetailsPage() {
                     <CardTitle className="text-lg md:text-xl font-semibold text-primary tracking-tight">
                       {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                     </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                    {requirement.studentName && (
+                        <p className="text-sm font-medium text-foreground/80 mt-1">For: {requirement.studentName}</p>
+                    )}
+                    <CardDescription className="text-xs text-muted-foreground mt-1.5">
                       Posted {timeAgo} (on {formattedPostedDate})
                     </CardDescription>
                   </div>
@@ -305,7 +309,7 @@ export default function ParentEnquiryDetailsPage() {
                     {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
                       <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
                     )}
-                    {requirement.location && <EnquiryInfoItem label="Location Preference" value={requirement.location} icon={MapPin} />}
+                    {requirement.location && (typeof requirement.location === 'string') && <EnquiryInfoItem label="Location Preference" value={requirement.location} icon={MapPin} />}
                     {requirement.teachingMode && requirement.teachingMode.length > 0 && (
                        <EnquiryInfoItem label="Teaching Mode(s)" icon={RadioTower}>
                         <div className="flex flex-wrap gap-1.5 mt-0.5">
