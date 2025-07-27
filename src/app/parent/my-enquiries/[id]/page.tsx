@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { FormItem, FormControl, FormLabel as ShadcnFormLabel, FormMessage } from "@/components/ui/form"; // Correctly import form components
+import { FormControl, FormItem } from "@/components/ui/form"; // Correctly import form components
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -369,7 +369,7 @@ export default function ParentEnquiryDetailsPage() {
                           </Link>
                       </Button>
                     )}
-                    <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
+                    <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}>
                       <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
                     </Button>
                 </div>
@@ -395,10 +395,10 @@ export default function ParentEnquiryDetailsPage() {
                     className="flex flex-col space-y-2"
                   >
                     {closeReasons.map((reason) => (
-                        <div key={reason.id} className="flex items-center space-x-3 space-y-0">
-                             <RadioGroupItem value={reason.id} id={reason.id} />
-                            <Label htmlFor={reason.id} className="font-normal text-sm">{reason.label}</Label>
-                        </div>
+                      <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                        <RadioGroupItem value={reason.id} id={reason.id} />
+                        <Label htmlFor={reason.id} className="font-normal text-sm">{reason.label}</Label>
+                      </div>
                     ))}
                   </RadioGroup>
               </div>
@@ -427,3 +427,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
