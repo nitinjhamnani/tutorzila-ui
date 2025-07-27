@@ -351,23 +351,19 @@ export default function ParentEnquiryDetailsPage() {
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                    <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
+                      <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                     </Button>
-                    {(requirement.status === 'open' || requirement.status === 'matched') && (
-                    <>
-                        {(requirement.applicantsCount ?? 0) > 0 && (
-                        <Button asChild variant="default" size="sm">
-                            <Link href={`/parent/my-tutors/${requirement.id}`}>
-                            <UsersIcon className="mr-1.5 h-3.5 w-3.5" />
-                            View Assigned Tutors ({requirement.applicantsCount})
-                            </Link>
-                        </Button>
-                        )}
-                        <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
-                        <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
-                        </Button>
-                    </>
+                    {(requirement.applicantsCount ?? 0) > 0 && (
+                      <Button asChild variant="default" size="sm">
+                          <Link href={`/parent/my-tutors/${requirement.id}`}>
+                          <UsersIcon className="mr-1.5 h-3.5 w-3.5" />
+                          View Assigned Tutors ({requirement.applicantsCount})
+                          </Link>
+                      </Button>
                     )}
+                    <Button variant="outline" size="sm" className="border-orange-500 text-orange-600 hover:bg-orange-500/10" onClick={handleOpenCloseEnquiryModal}>
+                      <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
+                    </Button>
                 </div>
               </CardFooter>
             </Card>
