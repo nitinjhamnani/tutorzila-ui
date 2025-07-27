@@ -142,25 +142,14 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               <SettingsIcon className="w-4 h-4" />
               <span className="sr-only">Settings</span>
             </Button>
-            {user && (
-              <div className="flex items-center gap-1.5">
-                <Avatar className="h-7 w-7">
-                  <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                  <AvatarFallback className="bg-primary/20 text-primary text-xs font-medium">
-                    {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                 <span className="text-xs font-medium text-muted-foreground hidden md:inline">{user.name}</span>
-              </div>
-            )}
-             <Button
-                variant="outline"
-                size="sm"
-                onClick={logoutNavItem.onClick}
-                className="text-xs h-8 border-destructive text-destructive hover:bg-destructive/10"
-              >
-                <LogOut className="mr-1.5 h-3.5 w-3.5" /> 
-                <span className="hidden sm:inline">Log Out</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-white hover:bg-destructive/80 h-8 w-8"
+              aria-label="Log out"
+            >
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </header>
