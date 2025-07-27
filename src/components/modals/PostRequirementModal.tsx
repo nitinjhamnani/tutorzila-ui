@@ -43,6 +43,8 @@ import { cn } from "@/lib/utils";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Switch } from "@/components/ui/switch";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -148,6 +150,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
+  const { setSession } = useAuthMock();
 
   const form = useForm<PostRequirementFormValues>({
     resolver: zodResolver(postRequirementSchema),
@@ -248,20 +251,20 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
-      // Since this is a public modal, we assume the user is not logged in.
-      // The API response for an existing user should guide the next action.
-      // We expect a message that tells us the user exists.
-      hideLoader();
       toast({
         title: "Requirement Submitted!",
         description: responseData.message || "Your requirement has been posted. Tutors will start applying soon.",
       });
 
-      // If the API response indicates an existing account, trigger the sign-in modal
-      if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
+      if (responseData.token && responseData.type === 'PARENT') {
+        setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
+        router.push("/parent/dashboard");
+        // Don't hide loader, let the dashboard page handle it
+      } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
+          hideLoader(); // Hide loader before showing sign-in modal
           onTriggerSignIn(data.email);
       } else {
-        // Otherwise, just close this modal on success.
+        hideLoader();
         onSuccess();
       }
 
