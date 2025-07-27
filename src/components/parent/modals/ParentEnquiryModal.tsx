@@ -37,9 +37,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
-import type { TuitionRequirement } from "@/types";
+import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
 import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save } from "lucide-react";
+import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
@@ -66,11 +67,14 @@ const parentEnquiryEditSchema = z.object({
   gradeLevel: z.string().min(1, { message: "Grade level is required." }),
   board: z.string().min(1, { message: "Board is required."}),
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
-  location: z.string().optional().or(z.literal("")),
+  location: z.custom<LocationDetails | null>(
+    (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
+    "Invalid location format."
+  ).nullable(),
   preferredDays: z.array(z.string()).min(1, "Please select at least one preferred day."),
   preferredTimeSlots: z.array(z.string()).min(1, "Please select at least one preferred time slot."),
 }).refine(data => {
-  if (data.teachingMode.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
+  if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
   }
   return true;
@@ -96,7 +100,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
       gradeLevel: "",
       board: "",
       teachingMode: [],
-      location: "",
+      location: null,
       preferredDays: [],
       preferredTimeSlots: [],
     },
@@ -109,7 +113,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
         gradeLevel: enquiryData.gradeLevel || "",
         board: enquiryData.board || "",
         teachingMode: enquiryData.teachingMode || [],
-        location: enquiryData.location || "",
+        location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: enquiryData.location || "" },
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
       });
@@ -121,6 +125,8 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
     onUpdateEnquiry({ ...enquiryData, ...data });
     onOpenChange(false); // Close modal on successful update
   };
+  
+  const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
 
   if (!enquiryData) return null;
 
@@ -198,7 +204,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
               name="teachingMode"
               render={() => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
+                  <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                   {teachingModeOptions.map((item) => (
                     <FormField
@@ -240,7 +246,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
               )}
             />
             
-            {form.watch("teachingMode")?.includes("Offline (In-person)") && (
+            {isOfflineModeSelected && (
                <FormField
                 control={form.control}
                 name="location"
@@ -248,7 +254,11 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
                 <FormItem>
                     <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                     <FormControl>
-                    <Input placeholder="e.g., Student's Home, City Center Library" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                      <LocationAutocompleteInput
+                        initialValue={field.value}
+                        onValueChange={(details) => field.onChange(details)}
+                        placeholder="Search for address or area..."
+                      />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
