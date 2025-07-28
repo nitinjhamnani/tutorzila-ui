@@ -322,13 +322,12 @@ export default function TutorDashboardPage() {
                     </div>
                   </div>
                 </div>
-                {profileCompletion < 100 && (
-                  <DialogTrigger asChild>
-                    <Button variant="link" className="p-0 h-auto mt-1.5 text-xs text-primary font-medium">
-                      Complete Your Profile <ArrowRight className="ml-1 w-3 h-3" />
-                    </Button>
-                  </DialogTrigger>
-                )}
+                <DialogTrigger asChild>
+                  <Button variant="link" className="p-0 h-auto mt-1.5 text-xs text-primary font-medium">
+                    {profileCompletion < 100 ? "Complete Your Profile" : "Edit Your Profile"}
+                    <ArrowRight className="ml-1 w-3 h-3" />
+                  </Button>
+                </DialogTrigger>
               </div>
             </div>
           </div>
