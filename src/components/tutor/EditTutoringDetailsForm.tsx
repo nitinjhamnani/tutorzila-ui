@@ -104,12 +104,15 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
+    defaultValues: {
+      hourlyRate: "", // Initialize as empty string to prevent uncontrolled -> controlled error
+    }
   });
 
   React.useEffect(() => {
     if (initialData?.tutoringDetails) {
+      console.log(initialData.tutoringDetails);
       const details = initialData.tutoringDetails;
-      console.log("Populating form with details:", details);
       const modes = [];
       if (details.online) modes.push("Online");
       if (details.offline) modes.push("Offline");
