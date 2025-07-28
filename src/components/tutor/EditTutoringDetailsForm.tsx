@@ -105,20 +105,20 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
     defaultValues: {
-      subjects: [],
-      gradeLevelsTaught: [],
-      boardsTaught: [],
-      preferredDays: [],
-      preferredTimeSlots: [],
+      subjects: ensureArray(initialData?.tutoringDetails?.subjects),
+      gradeLevelsTaught: ensureArray(initialData?.tutoringDetails?.grades),
+      boardsTaught: ensureArray(initialData?.tutoringDetails?.boards),
+      preferredDays: ensureArray(initialData?.tutoringDetails?.availabilityDays),
+      preferredTimeSlots: ensureArray(initialData?.tutoringDetails?.availabilityTime),
       teachingMode: [],
-      isHybrid: false,
-      location: null,
-      hourlyRate: "",
-      isRateNegotiable: false,
-      qualifications: [],
-      languages: [],
-      yearOfExperience: "",
-      bio: "",
+      isHybrid: initialData?.tutoringDetails?.hybrid || false,
+      location: initialData?.tutoringDetails?.address ? { address: initialData.tutoringDetails.address } : null,
+      hourlyRate: initialData?.tutoringDetails?.hourlyRate ? String(initialData.tutoringDetails.hourlyRate) : "",
+      isRateNegotiable: initialData?.tutoringDetails?.rateNegotiable || false,
+      qualifications: ensureArray(initialData?.tutoringDetails?.qualifications),
+      languages: ensureArray(initialData?.tutoringDetails?.languages),
+      yearOfExperience: initialData?.tutoringDetails?.yearOfExperience || "",
+      bio: initialData?.tutoringDetails?.tutorBio || "",
     },
   });
 
@@ -467,8 +467,8 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center">
-                          <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
-                          Years of Experience
+                        <Briefcase className="mr-2 h-4 w-4 text-primary/80" />
+                        Years of Experience
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value ?? ""}>
                         <FormControl>
@@ -477,7 +477,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {experienceLevels.map(exp => (
+                          {experienceLevels.map((exp) => (
                             <SelectItem key={exp} value={exp}>
                               {exp}
                             </SelectItem>
