@@ -129,29 +129,31 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       if (details.online) modes.push("Online");
       if (details.offline) modes.push("Offline");
       
-      form.setValue("subjects", ensureArray(details.subjects));
-      form.setValue("gradeLevelsTaught", ensureArray(details.grades));
-      form.setValue("boardsTaught", ensureArray(details.boards));
-      form.setValue("preferredDays", ensureArray(details.availabilityDays));
-      form.setValue("preferredTimeSlots", ensureArray(details.availabilityTime));
-      form.setValue("teachingMode", modes);
-      form.setValue("isHybrid", details.hybrid || false);
-      form.setValue("location", {
-          name: details.addressName || details.address,
-          address: details.address || "",
-          area: details.area,
-          city: details.city,
-          state: details.state,
-          country: details.country,
-          pincode: details.pincode,
-          googleMapsLink: details.googleMapsLink,
+      form.reset({
+        subjects: ensureArray(details.subjects),
+        gradeLevelsTaught: ensureArray(details.grades),
+        boardsTaught: ensureArray(details.boards),
+        preferredDays: ensureArray(details.availabilityDays),
+        preferredTimeSlots: ensureArray(details.availabilityTime),
+        teachingMode: modes,
+        isHybrid: details.hybrid || false,
+        location: {
+            name: details.addressName || details.address || "",
+            address: details.address || "",
+            area: details.area || "",
+            city: details.city || "",
+            state: details.state || "",
+            country: details.country || "",
+            pincode: details.pincode || "",
+            googleMapsUrl: details.googleMapsLink || "",
+        },
+        hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
+        isRateNegotiable: details.rateNegotiable || false,
+        qualifications: ensureArray(details.qualifications),
+        languages: ensureArray(details.languages),
+        yearOfExperience: details.yearOfExperience || "",
+        bio: details.tutorBio || "",
       });
-      form.setValue("hourlyRate", details.hourlyRate ? String(details.hourlyRate) : "");
-      form.setValue("isRateNegotiable", details.rateNegotiable || false);
-      form.setValue("qualifications", ensureArray(details.qualifications));
-      form.setValue("languages", ensureArray(details.languages));
-      form.setValue("yearOfExperience", details.yearOfExperience || "");
-      form.setValue("bio", details.tutorBio || "");
     }
   }, [initialData, form]);
 
@@ -431,7 +433,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                           </FormControl>
                           <Label
                             htmlFor="isRateNegotiableCheckbox"
-                            className="text-xs font-semibold text-muted-foreground"
+                            className="text-sm font-semibold text-foreground"
                           >
                             Rate is Negotiable
                           </Label>
