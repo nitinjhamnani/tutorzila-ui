@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
@@ -461,36 +462,33 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="yearOfExperience"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
-                        Years of Experience
-                      </FormLabel>
-                      <Select
-                        key={initialData?.tutoringDetails?.yearOfExperience || 'default'}
-                        onValueChange={field.onChange}
-                        value={field.value ?? ""}
-                      >
+                 <FormField
+                    control={form.control}
+                    name="yearOfExperience"
+                    render={({ field }) => (
+                    <FormItem className="space-y-3">
+                        <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
                         <FormControl>
-                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
-                            <SelectValue placeholder="Select experience" />
-                          </SelectTrigger>
+                        <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="grid grid-cols-2 gap-2 pt-1"
+                        >
+                            {experienceLevels.map((exp) => (
+                            <FormItem key={exp} className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                <RadioGroupItem value={exp} id={`exp-${exp.replace(/\s+/g, '-')}`} />
+                                </FormControl>
+                                <Label htmlFor={`exp-${exp.replace(/\s+/g, '-')}`} className="text-sm font-normal cursor-pointer">
+                                {exp}
+                                </Label>
+                            </FormItem>
+                            ))}
+                        </RadioGroup>
                         </FormControl>
-                        <SelectContent>
-                          {experienceLevels.map(exp => (
-                            <SelectItem key={exp} value={exp}>
-                              {exp}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
+                        <FormMessage />
                     </FormItem>
-                  )}
+                    )}
                 />
               </div>
 
