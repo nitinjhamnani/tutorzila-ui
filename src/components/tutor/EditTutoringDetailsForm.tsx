@@ -411,7 +411,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                               placeholder="e.g., 800"
                               maxLength={4}
                               {...field}
-                              value={field.value ?? ""}
                               className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
                             />
                           </FormControl>
@@ -463,35 +462,31 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   )}
                 />
                  <FormField
-                    control={form.control}
-                    name="yearOfExperience"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel className="flex items-center">
-                            <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
-                            Years of Experience
-                        </FormLabel>
-                         <div className="relative">
-                            <select
-                                {...field}
-                                value={field.value ?? ""}
-                                className={cn(
-                                    "flex h-10 w-full appearance-none items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                                    "bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
-                                )}
-                                >
-                                <option value="" disabled>Select experience...</option>
-                                {experienceLevels.map(exp => (
-                                    <option key={exp} value={exp}>
-                                    {exp}
-                                    </option>
-                                ))}
-                            </select>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
-                        </div>
-                        <FormMessage />
-                        </FormItem>
-                    )}
+                  control={form.control}
+                  name="yearOfExperience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                          <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
+                          Years of Experience
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
+                            <SelectValue placeholder="Select experience" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {experienceLevels.map(exp => (
+                            <SelectItem key={exp} value={exp}>
+                              {exp}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                  />
               </div>
 
@@ -559,8 +554,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     <FormControl>
                       <Textarea 
                         placeholder="Max 500 characters..." 
-                        {...field} 
-                        value={field.value ?? ""}
+                        {...field}
                         rows={4} 
                         className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
                     </FormControl>
