@@ -351,7 +351,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                             </FormControl>
                             <Label
                               htmlFor="isHybridCheckbox"
-                              className="text-xs font-normal text-muted-foreground"
+                              className="text-xs font-semibold text-muted-foreground"
                             >
                               Also available for Hybrid (mix of Online & Offline) classes.
                             </Label>
@@ -418,7 +418,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                           </FormControl>
                           <Label
                             htmlFor="isRateNegotiableCheckbox"
-                            className="text-xs font-normal text-muted-foreground"
+                            className="text-xs font-semibold text-muted-foreground"
                           >
                             Rate is Negotiable
                           </Label>
