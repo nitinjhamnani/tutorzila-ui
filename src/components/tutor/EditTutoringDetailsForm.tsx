@@ -21,12 +21,14 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
@@ -461,35 +463,36 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   )}
                 />
                  <FormField
-                  control={form.control}
-                  name="yearOfExperience"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
-                        Years of Experience
-                      </FormLabel>
-                      <FormControl>
-                        <select
-                          {...field}
-                          value={field.value ?? ""}
-                          className={cn(
-                            "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                            "bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
-                          )}
-                        >
-                          <option value="" disabled>Select experience...</option>
-                          {experienceLevels.map(exp => (
-                            <option key={exp} value={exp}>
-                              {exp}
-                            </option>
-                          ))}
-                        </select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    control={form.control}
+                    name="yearOfExperience"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="flex items-center">
+                            <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
+                            Years of Experience
+                        </FormLabel>
+                         <div className="relative">
+                            <select
+                                {...field}
+                                value={field.value ?? ""}
+                                className={cn(
+                                    "flex h-10 w-full appearance-none items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                    "bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
+                                )}
+                                >
+                                <option value="" disabled>Select experience...</option>
+                                {experienceLevels.map(exp => (
+                                    <option key={exp} value={exp}>
+                                    {exp}
+                                    </option>
+                                ))}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
+                        </div>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                 />
               </div>
 
                <FormField
