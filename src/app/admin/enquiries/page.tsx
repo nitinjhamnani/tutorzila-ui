@@ -61,12 +61,6 @@ export default function AdminAllEnquiriesPage() {
     refetchOnWindowFocus: false,
   });
 
-  useEffect(() => {
-    if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'admin')) {
-      router.replace("/admin/login");
-    }
-  }, [isCheckingAuth, isAuthenticated, user, router]);
-
   const renderEnquiryList = () => {
     if (isLoading) {
       return (
@@ -115,10 +109,6 @@ export default function AdminAllEnquiriesPage() {
       </Card>
     );
   };
-
-  if (isCheckingAuth || !user || user.role !== 'admin') {
-    return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
-  }
 
   return (
     <div className="space-y-6">
