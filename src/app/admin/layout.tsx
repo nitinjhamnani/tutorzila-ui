@@ -59,7 +59,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/tutors", label: "Tutors", icon: Users, disabled: true },
     { href: "/admin/parents", label: "Parents", icon: UsersRound, disabled: true },
-    { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
+    { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase, disabled: false },
     { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
     { href: "/admin/reports", label: "Reports", icon: BarChart2, disabled: true },
     { href: "/admin/settings", label: "Settings", icon: SettingsIcon, disabled: true },
