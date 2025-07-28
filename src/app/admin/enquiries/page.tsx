@@ -25,7 +25,10 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch enquiries.");
+    if (response.status === 504) {
+      throw new Error("The server took too long to respond (504 Gateway Timeout). Please try again later.");
+    }
+    throw new Error("Failed to fetch enquiries. The server returned an error.");
   }
   
   const data = await response.json();
@@ -76,7 +79,7 @@ export default function AdminAllEnquiriesPage() {
             <CardContent className="flex flex-col items-center">
                 <ErrorIcon className="w-16 h-16 text-destructive mx-auto mb-5" />
                 <p className="text-xl font-semibold text-destructive mb-1.5">Error Fetching Enquiries</p>
-                <p className="text-sm text-destructive/80 max-w-sm mx-auto">Could not load tuition opportunities. Please try again later.</p>
+                <p className="text-sm text-destructive/80 max-w-sm mx-auto">{(error as Error).message}</p>
             </CardContent>
         </Card>
       );
