@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { MOCK_DEMO_SESSIONS, MOCK_CLASSES } from "@/lib/mock-data";
 import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -65,6 +66,8 @@ import {
   PlusCircle,
   Send,
   Coins,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -251,6 +254,7 @@ export default function TutorDashboardPage() {
 
   const profileCompletion = dashboardData?.profileCompletion ?? 0;
   const isTutorActive = dashboardData?.tutorActive ?? true;
+  const isVerified = (tutorUser?.isEmailVerified && tutorUser?.isPhoneVerified) || false;
 
   return (
     <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
@@ -289,6 +293,16 @@ export default function TutorDashboardPage() {
                 <div>
                   <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
                   <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
+                  <div className="mt-3 flex items-center space-x-2 flex-wrap">
+                      <Badge className={cn("text-xs py-0.5 px-2 border", isTutorActive ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500")}>
+                        {isTutorActive ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                        {isTutorActive ? "Active" : "Inactive"}
+                      </Badge>
+                      <Badge className={cn("text-xs py-0.5 px-2 border", isVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50")}>
+                        {isVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                        {isVerified ? "Verified" : "Not Verified"}
+                      </Badge>
+                  </div>
                 </div>
               </div>
 
@@ -307,11 +321,6 @@ export default function TutorDashboardPage() {
                       <Percent className="w-5 h-5" />
                     </div>
                   </div>
-                  {isLoadingDashboard ? (
-                      <Skeleton className="h-2 w-full rounded-full mt-2" />
-                  ) : (
-                      <Progress value={profileCompletion} className="h-2 rounded-full bg-gray-100 mt-2" indicatorClassName={cn("rounded-full", "bg-primary")} />
-                  )}
                 </div>
                 {profileCompletion < 100 && (
                   <DialogTrigger asChild>
@@ -424,5 +433,3 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
-
-    
