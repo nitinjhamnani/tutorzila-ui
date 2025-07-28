@@ -125,6 +125,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   React.useEffect(() => {
     if (initialData?.tutoringDetails) {
       const details = initialData.tutoringDetails;
+      console.log("Populating form with details:", details); // Debugging line added
       const modes = [];
       if (details.online) modes.push("Online");
       if (details.offline) modes.push("Offline");
