@@ -104,22 +104,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
-    defaultValues: {
-      subjects: [],
-      gradeLevelsTaught: [],
-      boardsTaught: [],
-      preferredDays: [],
-      preferredTimeSlots: [],
-      teachingMode: [],
-      isHybrid: false,
-      location: null,
-      hourlyRate: "",
-      isRateNegotiable: false,
-      qualifications: [],
-      languages: [],
-      yearOfExperience: "",
-      bio: "",
-    }
   });
 
   React.useEffect(() => {
@@ -461,20 +445,27 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     </FormItem>
                   )}
                 />
-                 <FormField
+                <FormField
                   control={form.control}
                   name="yearOfExperience"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <FormLabel className="flex items-center">
+                        <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
+                        Years of Experience
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
                             <SelectValue placeholder="Select experience" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
+                          {experienceLevels.map(exp => (
+                            <SelectItem key={exp} value={exp}>
+                              {exp}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
