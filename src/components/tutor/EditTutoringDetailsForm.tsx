@@ -105,20 +105,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
     defaultValues: {
-      subjects: [],
-      gradeLevelsTaught: [],
-      boardsTaught: [],
-      preferredDays: [],
-      preferredTimeSlots: [],
-      teachingMode: [],
-      qualifications: [],
-      languages: [],
-      yearOfExperience: "",
-      hourlyRate: "",
-      bio: "",
-      isHybrid: false,
-      isRateNegotiable: false,
-      location: null,
+      hourlyRate: "" // Initialize as controlled
     }
   });
 
@@ -129,7 +116,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       if (details.online) modes.push("Online");
       if (details.offline) modes.push("Offline");
       
-      form.reset({
+      const defaultValues = {
         subjects: ensureArray(details.subjects),
         gradeLevelsTaught: ensureArray(details.grades),
         boardsTaught: ensureArray(details.boards),
@@ -153,7 +140,8 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         languages: ensureArray(details.languages),
         yearOfExperience: details.yearOfExperience || "",
         bio: details.tutorBio || "",
-      });
+      };
+      form.reset(defaultValues);
     }
   }, [initialData, form]);
 
@@ -461,7 +449,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     </FormItem>
                   )}
                 />
-                <FormField
+                 <FormField
                   control={form.control}
                   name="yearOfExperience"
                   render={({ field }) => (
