@@ -105,13 +105,25 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
     defaultValues: {
-      hourlyRate: "", // Initialize as empty string to prevent uncontrolled -> controlled error
+      subjects: [],
+      gradeLevelsTaught: [],
+      boardsTaught: [],
+      preferredDays: [],
+      preferredTimeSlots: [],
+      teachingMode: [],
+      qualifications: [],
+      languages: [],
+      yearOfExperience: "",
+      hourlyRate: "",
+      bio: "",
+      isHybrid: false,
+      isRateNegotiable: false,
+      location: null,
     }
   });
 
   React.useEffect(() => {
     if (initialData?.tutoringDetails) {
-      console.log(initialData.tutoringDetails);
       const details = initialData.tutoringDetails;
       const modes = [];
       if (details.online) modes.push("Online");
@@ -133,7 +145,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
             state: details.state || "",
             country: details.country || "",
             pincode: details.pincode || "",
-            googleMapsUrl: details.googleMapsLink || "",
+            googleMapsLink: details.googleMapsLink || "",
         },
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
         isRateNegotiable: details.rateNegotiable || false,
