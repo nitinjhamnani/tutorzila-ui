@@ -140,10 +140,10 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
         />
         <main
           className={cn(
-            "flex-1 flex flex-col overflow-y-auto bg-secondary p-4 sm:p-6 md:p-8"
+            "flex-1 flex flex-col overflow-y-auto bg-secondary"
           )}
         >
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8">
             {children}
           </div>
         </main>
