@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
@@ -39,8 +39,7 @@ const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "Fren
 
 const teachingModeItems = [
   { id: "Online", label: "Online" },
-  { id: "Students Place", label: "Student's Place" },
-  { id: "Tutors Place", label: "Tutor's Place" },
+  { id: "Offline (Student's Home)", label: "Offline (Student's Home)" },
 ];
 
 const daysOptionsList: MultiSelectOption[] = [
@@ -77,6 +76,7 @@ const tutoringDetailsSchema = z.object({
   teachingMode: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one teaching mode.",
   }),
+  isHybrid: z.boolean().default(false).optional(),
   location: z.custom<LocationDetails | null>(
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
@@ -111,6 +111,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       preferredDays: [],
       preferredTimeSlots: [],
       teachingMode: [],
+      isHybrid: false,
       location: null,
       hourlyRate: "",
       isRateNegotiable: false,
@@ -131,6 +132,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         preferredDays: ensureArray(details.availabilityDays),
         preferredTimeSlots: ensureArray(details.availabilityTime),
         teachingMode: ensureArray(details.teachingModes),
+        isHybrid: details.isHybrid || false,
         location: details.location || null, // Assuming location comes as an object
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
         isRateNegotiable: details.rateNegotiable || false,
@@ -159,6 +161,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       boards: data.boardsTaught,
       qualifications: data.qualifications,
       teachingModes: data.teachingMode,
+      isHybrid: data.isHybrid,
       availabilityDays: data.preferredDays,
       availabilityTime: data.preferredTimeSlots,
       yearOfExperience: data.experience,
@@ -333,6 +336,28 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     ))}
                     </div>
                     <FormMessage />
+                     <FormField
+                        control={form.control}
+                        name="isHybrid"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-2 mt-2">
+                            <FormControl>
+                              <Checkbox
+                                id="isHybridCheckbox"
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                className="h-3.5 w-3.5 rounded-[2px]"
+                              />
+                            </FormControl>
+                            <Label
+                              htmlFor="isHybridCheckbox"
+                              className="text-xs font-normal text-muted-foreground"
+                            >
+                              Also available for Hybrid (mix of Online & Offline) classes.
+                            </Label>
+                          </FormItem>
+                        )}
+                      />
                   </FormItem>
                 )}
               />
