@@ -77,7 +77,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
         <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
           {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
-              <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Applied
+              <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Tutors Assigned
             </Badge>
           )}
         </div>
