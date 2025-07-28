@@ -129,15 +129,14 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       if (details.online) modes.push("Online");
       if (details.offline) modes.push("Offline");
       
-      form.reset({
-        subjects: ensureArray(details.subjects),
-        gradeLevelsTaught: ensureArray(details.grades),
-        boardsTaught: ensureArray(details.boards),
-        preferredDays: ensureArray(details.availabilityDays),
-        preferredTimeSlots: ensureArray(details.availabilityTime),
-        teachingMode: modes,
-        isHybrid: details.hybrid || false,
-        location: {
+      form.setValue("subjects", ensureArray(details.subjects));
+      form.setValue("gradeLevelsTaught", ensureArray(details.grades));
+      form.setValue("boardsTaught", ensureArray(details.boards));
+      form.setValue("preferredDays", ensureArray(details.availabilityDays));
+      form.setValue("preferredTimeSlots", ensureArray(details.availabilityTime));
+      form.setValue("teachingMode", modes);
+      form.setValue("isHybrid", details.hybrid || false);
+      form.setValue("location", {
           name: details.addressName || details.address,
           address: details.address || "",
           area: details.area,
@@ -145,15 +144,14 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
           state: details.state,
           country: details.country,
           pincode: details.pincode,
-          googleMapsLink: details.googleMapsLink,
-        },
-        hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
-        isRateNegotiable: details.rateNegotiable || false,
-        qualifications: ensureArray(details.qualifications),
-        languages: ensureArray(details.languages),
-        yearOfExperience: details.yearOfExperience || "",
-        bio: details.tutorBio || "",
+          googleMapsUrl: details.googleMapsLink,
       });
+      form.setValue("hourlyRate", details.hourlyRate ? String(details.hourlyRate) : "");
+      form.setValue("isRateNegotiable", details.rateNegotiable || false);
+      form.setValue("qualifications", ensureArray(details.qualifications));
+      form.setValue("languages", ensureArray(details.languages));
+      form.setValue("yearOfExperience", details.yearOfExperience || "");
+      form.setValue("bio", details.tutorBio || "");
     }
   }, [initialData, form]);
 
@@ -467,7 +465,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
                         </FormControl>
