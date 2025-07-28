@@ -104,6 +104,22 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
+    defaultValues: {
+      subjects: [],
+      gradeLevelsTaught: [],
+      boardsTaught: [],
+      preferredDays: [],
+      preferredTimeSlots: [],
+      teachingMode: [],
+      isHybrid: false,
+      location: null,
+      hourlyRate: "",
+      isRateNegotiable: false,
+      qualifications: [],
+      languages: [],
+      yearOfExperience: "",
+      bio: "",
+    }
   });
 
   React.useEffect(() => {
@@ -547,3 +563,4 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     </Card>
   );
 }
+
