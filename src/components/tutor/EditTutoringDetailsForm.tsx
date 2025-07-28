@@ -104,9 +104,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
-    defaultValues: {
-      hourlyRate: "" // Initialize as controlled
-    }
   });
 
   React.useEffect(() => {
@@ -116,7 +113,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       if (details.online) modes.push("Online");
       if (details.offline) modes.push("Offline");
       
-      const defaultValues = {
+      form.reset({
         subjects: ensureArray(details.subjects),
         gradeLevelsTaught: ensureArray(details.grades),
         boardsTaught: ensureArray(details.boards),
@@ -140,8 +137,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         languages: ensureArray(details.languages),
         yearOfExperience: details.yearOfExperience || "",
         bio: details.tutorBio || "",
-      };
-      form.reset(defaultValues);
+      });
     }
   }, [initialData, form]);
 
