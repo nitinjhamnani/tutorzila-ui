@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { TuitionRequirement, User } from "@/types";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard"; 
+import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
 import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -97,7 +97,7 @@ export default function AdminAllEnquiriesPage() {
               className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full"
               style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
             >
-              <TutorEnquiryCard requirement={req} />
+              <AdminEnquiryCard requirement={req} />
             </div>
           ))}
         </div>
