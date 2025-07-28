@@ -145,7 +145,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
           state: details.state,
           country: details.country,
           pincode: details.pincode,
-          googleMapsLink: details.googleMapsLink,
+          googleMapsUrl: details.googleMapsLink,
         },
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
         isRateNegotiable: details.rateNegotiable || false,
