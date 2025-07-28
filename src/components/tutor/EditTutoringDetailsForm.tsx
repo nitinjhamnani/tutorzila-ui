@@ -183,7 +183,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       offline: data.teachingMode.includes("Offline"),
       hybrid: data.isHybrid,
       rateNegotiable: data.isRateNegotiable,
-      // Location fields
       addressName: locationDetails?.name || "",
       address: locationDetails?.address || "",
       city: locationDetails?.city || "",
@@ -228,6 +227,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     }
   }
 
+  const formValues = form.watch();
 
   return (
     <Card className="border-0 shadow-none rounded-none">
@@ -470,7 +470,11 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                         <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
                         Years of Experience
                       </FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                      <Select
+                        key={initialData?.tutoringDetails?.yearOfExperience || 'default'}
+                        onValueChange={field.onChange}
+                        value={field.value ?? ""}
+                      >
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
                             <SelectValue placeholder="Select experience" />
