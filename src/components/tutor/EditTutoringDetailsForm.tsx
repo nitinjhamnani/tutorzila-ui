@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
@@ -28,7 +27,6 @@ import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
@@ -51,8 +49,7 @@ const daysOptionsList: MultiSelectOption[] = [
   { value: "Friday", label: "Friday" },
   { value: "Saturday", label: "Saturday" },
   { value: "Sunday", label: "Sunday" },
-  { value: "Weekdays", label: "Weekdays" },
-  { value: "Weekends", label: "Weekends" },
+  { value: "Weekdays", label: "Weekends" },
   { value: "Flexible", label: "Flexible" },
 ];
 
@@ -412,6 +409,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                               placeholder="e.g., 800"
                               maxLength={4}
                               {...field}
+                              value={field.value ?? ""}
                               className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
                             />
                           </FormControl>
@@ -463,32 +461,34 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   )}
                 />
                  <FormField
-                    control={form.control}
-                    name="yearOfExperience"
-                    render={({ field }) => (
-                    <FormItem className="space-y-3">
-                        <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
-                        <FormControl>
-                        <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="grid grid-cols-2 gap-2 pt-1"
+                  control={form.control}
+                  name="yearOfExperience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        <Briefcase className="mr-2 h-4 w-4 text-primary/80"/>
+                        Years of Experience
+                      </FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          value={field.value ?? ""}
+                          className={cn(
+                            "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                            "bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
+                          )}
                         >
-                            {experienceLevels.map((exp) => (
-                            <FormItem key={exp} className="flex items-center space-x-2 space-y-0">
-                                <FormControl>
-                                <RadioGroupItem value={exp} id={`exp-${exp.replace(/\s+/g, '-')}`} />
-                                </FormControl>
-                                <Label htmlFor={`exp-${exp.replace(/\s+/g, '-')}`} className="text-sm font-normal cursor-pointer">
-                                {exp}
-                                </Label>
-                            </FormItem>
-                            ))}
-                        </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
+                          <option value="" disabled>Select experience...</option>
+                          {experienceLevels.map(exp => (
+                            <option key={exp} value={exp}>
+                              {exp}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
-                    )}
+                  )}
                 />
               </div>
 
@@ -554,7 +554,12 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   <FormItem>
                     <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Your Bio / Teaching Philosophy</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Max 500 characters..." {...field} rows={4} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
+                      <Textarea 
+                        placeholder="Max 500 characters..." 
+                        {...field} 
+                        value={field.value ?? ""}
+                        rows={4} 
+                        className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
