@@ -469,7 +469,9 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                       <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
+                            <SelectValue placeholder="Select experience" />
+                          </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
