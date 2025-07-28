@@ -68,7 +68,7 @@ export function AdminSidebar({
             <Link
               key={item.label}
               href={item.disabled ? "#" : item.href}
-              onClick={isMobile && isMobileNavOpen ? toggleMobileNav : undefined}
+              onClick={isMobile ? toggleMobileNav : undefined}
               className={cn(
                 "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out",
                 isActive
