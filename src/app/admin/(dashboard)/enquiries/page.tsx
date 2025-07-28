@@ -121,9 +121,8 @@ export default function AdminAllEnquiriesPage() {
   }
 
   return (
-    <main className="flex-grow">
-      <div className="w-full">
-        <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
+    <div className="space-y-6">
+        <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
             <CardHeader className="p-0 flex flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex-grow min-w-0">
                     <CardTitle className="text-xl font-semibold text-primary flex items-center">
@@ -137,10 +136,7 @@ export default function AdminAllEnquiriesPage() {
             </CardHeader>
         </Card>
         
-        <div className="mt-0"> 
-          {renderEnquiryList()}
-        </div>
-      </div>
-    </main>
+        {renderEnquiryList()}
+    </div>
   );
 }
