@@ -85,7 +85,7 @@ const tutoringDetailsSchema = z.object({
   isRateNegotiable: z.boolean().default(false).optional(),
   qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
   languages: z.array(z.string()).min(1, "Please select at least one language you speak."),
-  experience: z.string().min(1, "Experience level is required."),
+  yearOfExperience: z.string().min(1, "Experience level is required."),
   bio: z.string().max(500, "Bio should not exceed 500 characters.").optional().or(z.literal("")),
 });
 
@@ -117,7 +117,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       isRateNegotiable: false,
       qualifications: [],
       languages: [],
-      experience: "",
+      yearOfExperience: "",
       bio: "",
     },
   });
@@ -151,7 +151,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         isRateNegotiable: details.rateNegotiable || false,
         qualifications: ensureArray(details.qualifications),
         languages: ensureArray(details.languages),
-        experience: details.yearOfExperience || "",
+        yearOfExperience: details.yearOfExperience || "",
         bio: details.tutorBio || "",
       });
     }
@@ -175,7 +175,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       qualifications: data.qualifications,
       availabilityDays: data.preferredDays,
       availabilityTime: data.preferredTimeSlots,
-      yearOfExperience: data.experience,
+      yearOfExperience: data.yearOfExperience,
       tutorBio: data.bio,
       hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
       languages: data.languages,
@@ -463,7 +463,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                 />
                 <FormField
                   control={form.control}
-                  name="experience"
+                  name="yearOfExperience"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80"/>Years of Experience</FormLabel>
