@@ -266,7 +266,7 @@ export default function TutorDashboardPage() {
 
           <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-1">
                 <div className="relative group shrink-0">
                   <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
                     <AvatarImage src={dashboardData?.profilePicture || tutorUser.avatar} alt={tutorUser.name} />
@@ -289,29 +289,37 @@ export default function TutorDashboardPage() {
                 <div>
                   <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
                   <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">Setup progress</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-start w-full md:w-auto md:min-w-[240px]">
+                <div className={cn("rounded-xl p-4 w-full", "bg-secondary")}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Profile Completion</p>
                       {isLoadingDashboard ? (
-                          <Skeleton className="h-4 w-10 rounded-md" />
+                          <Skeleton className="h-8 w-16 mt-1 rounded-md" />
                       ) : (
-                          <span className={cn("text-xs font-medium", "text-primary")}>{profileCompletion}%</span>
+                          <p className={cn("text-2xl font-bold", "text-primary")}>{profileCompletion}%</p>
                       )}
                     </div>
-                    {isLoadingDashboard ? (
-                        <Skeleton className="h-2 w-full rounded-full" />
-                    ) : (
-                        <Progress value={profileCompletion} className="h-2 rounded-full bg-gray-100" indicatorClassName={cn("rounded-full", "bg-primary")} />
-                    )}
-                    {profileCompletion < 100 && (
-                      <DialogTrigger asChild>
-                        <button className={cn("mt-1 block hover:underline text-xs font-medium text-left", "text-primary")}>
-                          Complete Your Profile
-                        </button>
-                      </DialogTrigger>
-                    )}
+                    <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg shrink-0", "bg-primary/10 text-primary")}>
+                      <Percent className="w-5 h-5" />
+                    </div>
                   </div>
+                  {isLoadingDashboard ? (
+                      <Skeleton className="h-2 w-full rounded-full mt-2" />
+                  ) : (
+                      <Progress value={profileCompletion} className="h-2 rounded-full bg-gray-100 mt-2" indicatorClassName={cn("rounded-full", "bg-primary")} />
+                  )}
                 </div>
+                {profileCompletion < 100 && (
+                  <DialogTrigger asChild>
+                    <Button variant="link" className="p-0 h-auto mt-1.5 text-xs text-primary font-medium">
+                      Complete Your Profile <ArrowRight className="ml-1 w-3 h-3" />
+                    </Button>
+                  </DialogTrigger>
+                )}
               </div>
             </div>
           </div>
@@ -416,3 +424,5 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
+
+    
