@@ -25,6 +25,19 @@ import {
   UsersRound,
 } from "lucide-react";
 
+const adminNavItems = [
+  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/tutors", label: "Tutors", icon: Users, disabled: true },
+  { href: "/admin/parents", label: "Parents", icon: UsersRound, disabled: true },
+  { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
+  { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
+  { href: "/admin/reports", label: "Reports", icon: BarChart2, disabled: true },
+  { href: "/admin/settings", label: "Settings", icon: SettingsIcon, disabled: true },
+];
+
+const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: () => {} };
+
+
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -55,17 +68,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     router.push('/admin/login'); 
   };
   
-  const adminNavItems = [
-    { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/tutors", label: "Tutors", icon: Users, disabled: true },
-    { href: "/admin/parents", label: "Parents", icon: UsersRound, disabled: true },
-    { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
-    { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
-    { href: "/admin/reports", label: "Reports", icon: BarChart2, disabled: true },
-    { href: "/admin/settings", label: "Settings", icon: SettingsIcon, disabled: true },
-  ];
-
-  const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: handleLogout };
+  logoutNavItem.onClick = handleLogout;
+  
   const headerHeight = "4rem";
 
   useEffect(() => {
