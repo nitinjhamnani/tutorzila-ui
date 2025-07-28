@@ -39,7 +39,7 @@ const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "Fren
 
 const teachingModeItems = [
   { id: "Online", label: "Online" },
-  { id: "Offline (Student's Home)", label: "Offline (Student's Home)" },
+  { id: "Offline", label: "Offline (Student's Home)" },
 ];
 
 const daysOptionsList: MultiSelectOption[] = [
@@ -125,15 +125,28 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   React.useEffect(() => {
     if (initialData?.tutoringDetails) {
       const details = initialData.tutoringDetails;
+      const modes = [];
+      if (details.online) modes.push("Online");
+      if (details.offline) modes.push("Offline");
+      
       form.reset({
         subjects: ensureArray(details.subjects),
         gradeLevelsTaught: ensureArray(details.grades),
         boardsTaught: ensureArray(details.boards),
         preferredDays: ensureArray(details.availabilityDays),
         preferredTimeSlots: ensureArray(details.availabilityTime),
-        teachingMode: ensureArray(details.teachingModes),
-        isHybrid: details.isHybrid || false,
-        location: details.location || null, // Assuming location comes as an object
+        teachingMode: modes,
+        isHybrid: details.hybrid || false,
+        location: {
+          name: details.addressName || details.address,
+          address: details.address || "",
+          area: details.area,
+          city: details.city,
+          state: details.state,
+          country: details.country,
+          pincode: details.pincode,
+          googleMapsUrl: details.googleMapsLink,
+        },
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
         isRateNegotiable: details.rateNegotiable || false,
         qualifications: ensureArray(details.qualifications),
@@ -160,16 +173,18 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       grades: data.gradeLevelsTaught,
       boards: data.boardsTaught,
       qualifications: data.qualifications,
-      teachingModes: data.teachingMode,
-      isHybrid: data.isHybrid,
       availabilityDays: data.preferredDays,
       availabilityTime: data.preferredTimeSlots,
       yearOfExperience: data.experience,
       tutorBio: data.bio,
       hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
       languages: data.languages,
-      rateNegotiable: data.isRateNegotiable || false,
+      online: data.teachingMode.includes("Online"),
+      offline: data.teachingMode.includes("Offline"),
+      hybrid: data.isHybrid,
+      rateNegotiable: data.isRateNegotiable,
       // Location fields
+      addressName: locationDetails?.name || "",
       address: locationDetails?.address || "",
       city: locationDetails?.city || "",
       state: locationDetails?.state || "",
