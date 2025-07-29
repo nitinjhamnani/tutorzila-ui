@@ -59,6 +59,7 @@ import {
   Edit3,
   Users as UsersIcon,
   PlusCircle,
+  Loader2,
 } from "lucide-react";
 import { CreateEnquiryFormModal } from "@/components/parent/modals/CreateEnquiryFormModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -300,7 +301,9 @@ export default function ParentMyEnquiriesPage() {
 
         <div className="mt-6 grid grid-cols-1 gap-4">
           {isLoadingEnquiries ? (
-            [...Array(3)].map((_, i) => <Skeleton key={i} className="h-[150px] w-full rounded-lg" />)
+             <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+             </div>
           ) : enquiriesError ? (
             <Card className="text-center py-12 bg-destructive/10 border-destructive/20 rounded-lg shadow-sm">
                 <CardContent className="flex flex-col items-center">
@@ -412,3 +415,4 @@ export default function ParentMyEnquiriesPage() {
     </main>
   );
 }
+
