@@ -144,7 +144,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
       >
         <DialogHeader className="p-6 pb-4 border-b relative">
           <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Update the details for your enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
           </DialogDescription>
            <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
