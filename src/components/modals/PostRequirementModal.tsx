@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -84,13 +83,13 @@ const daysOptions: MultiSelectOption[] = [
 ];
 
 const timeSlotsOptions: MultiSelectOption[] = [
-  { value: "0800-1000", label: "8:00 AM - 10:00 AM" },
-  { value: "1000-1200", label: "10:00 AM - 12:00 PM" },
-  { value: "1200-1400", label: "12:00 PM - 2:00 PM" },
-  { value: "1400-1600", label: "2:00 PM - 4:00 PM" },
-  { value: "1600-1800", label: "4:00 PM - 6:00 PM" },
-  { value: "1800-2000", label: "6:00 PM - 8:00 PM" },
-  { value: "2000-2200", label: "8:00 PM - 10:00 PM" },
+  { value: "8:00 AM - 10:00 AM", label: "8:00 AM - 10:00 AM" },
+  { value: "10:00 AM - 12:00 PM", label: "10:00 AM - 12:00 PM" },
+  { value: "12:00 PM - 2:00 PM", label: "12:00 PM - 2:00 PM" },
+  { value: "2:00 PM - 4:00 PM", label: "2:00 PM - 4:00 PM" },
+  { value: "4:00 PM - 6:00 PM", label: "4:00 PM - 6:00 PM" },
+  { value: "6:00 PM - 8:00 PM", label: "6:00 PM - 8:00 PM" },
+  { value: "8:00 PM - 10:00 PM", label: "8:00 PM - 10:00 PM" },
   { value: "Flexible", label: "Flexible"},
 ];
 
@@ -192,7 +191,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -201,13 +200,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     showLoader();
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
-
-    const availabilityTimeLabels = data.preferredTimeSlots?.map(value => {
-      const option = timeSlotsOptions.find(opt => opt.value === value);
-      return option ? option.label : value;
-    }) || [];
-
     const locationDetails = data.location;
+    
     let apiRequestBody: any = {
       signupRequest: {
         name: data.name,
@@ -222,6 +216,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       subjects: data.subject,
       grade: data.gradeLevel,
       board: data.board,
+      addressName: locationDetails?.name || locationDetails?.address || "",
       address: locationDetails?.address || "",
       city: locationDetails?.city || "",
       state: locationDetails?.state || "",
@@ -230,14 +225,14 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       pincode: locationDetails?.pincode || "",
       googleMapsLink: locationDetails?.googleMapsUrl || "",
       availabilityDays: data.preferredDays || [],
-      availabilityTime: availabilityTimeLabels,
+      availabilityTime: data.preferredTimeSlots || [],
       online: data.teachingMode.includes("Online"),
       offline: data.teachingMode.includes("Offline (In-person)"),
     };
     
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
+      const response = await fetch(`${apiBaseUrl}/api/auth/enquiry`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -254,7 +249,6 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
       if (responseData.token && responseData.type === 'PARENT') {
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
-        // Set a flag in session storage to show toast on the dashboard
         sessionStorage.setItem('showNewRequirementToast', 'true');
         router.push("/parent/dashboard");
       } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
@@ -650,3 +644,5 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   );
 }
 
+
+    
