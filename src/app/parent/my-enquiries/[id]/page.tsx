@@ -357,9 +357,9 @@ export default function ParentEnquiryDetailsPage() {
                         Location
                     </h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                        {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} />}
+                        {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
                         {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
-                            <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} />
+                            <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} icon={MapPinned} />
                         )}
                          {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
                     </div>
