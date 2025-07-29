@@ -67,7 +67,7 @@ const EnquiryInfoItem = ({
   className,
 }: {
   icon?: React.ElementType;
-  label: string;
+  label?: string;
   value?: string | string[] | LocationDetails | null;
   children?: React.ReactNode;
   className?: string;
@@ -110,12 +110,15 @@ const EnquiryInfoItem = ({
 
   return (
     <div className={cn("space-y-0.5", className)}>
-      <span className="text-xs text-muted-foreground font-medium flex items-center">
-        {Icon && <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80" />}
-        {label}
-      </span>
-      {displayText && <div className="text-sm text-foreground/90">{displayText}</div>}
-      {children && <div className="text-sm text-foreground/90">{children}</div>}
+      {label && (
+         <span className="text-xs text-muted-foreground font-medium flex items-center">
+            {Icon && <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80" />}
+            {label}
+        </span>
+      )}
+      {!label && Icon && <Icon className="w-3.5 h-3.5 text-primary/80" />}
+      {displayText && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{displayText}</div>}
+      {children && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{children}</div>}
     </div>
   );
 };
@@ -289,6 +292,8 @@ export default function ParentEnquiryDetailsPage() {
 
   if (!requirement) return null;
 
+  const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
+
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
@@ -336,7 +341,7 @@ export default function ParentEnquiryDetailsPage() {
                             ))}
                             </div>
                         </EnquiryInfoItem>
-                        )}
+                    )}
                   </div>
                 </section>
                 <Separator />
@@ -361,7 +366,11 @@ export default function ParentEnquiryDetailsPage() {
                         Location
                     </h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                        {requirement.location && <EnquiryInfoItem label="Location Preference" value={requirement.location} />}
+                        {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} />}
+                        {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
+                            <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} />
+                        )}
+                         {locationInfo?.address && <EnquiryInfoItem icon={MapPin} value={locationInfo.address} />}
                     </div>
                 </section>
                 {requirement.additionalNotes && (
