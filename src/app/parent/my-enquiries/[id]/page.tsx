@@ -110,7 +110,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   if (!enquiryId) throw new Error("Enquiry ID is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/parent/enquiry/${enquiryId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/details/${enquiryId}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -129,26 +129,32 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   // Transform the API response to match the TuitionRequirement type
   return {
     id: data.enquirySummary.enquiryId,
-    parentId: "", // Not provided by API
-    parentName: data.name,
+    parentId: "", // Not provided by API, but part of the type
+    parentName: data.name || "A Parent", // Assuming 'name' exists at top-level
     studentName: data.studentName,
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
     board: data.enquirySummary.board,
     location: {
+        name: data.addressName || data.address || "",
         address: data.address,
         googleMapsUrl: data.googleMapsLink,
+        city: data.enquirySummary.city,
+        state: data.enquirySummary.state,
+        country: data.enquirySummary.country,
+        area: data.enquirySummary.area,
+        pincode: data.pincode,
     },
     teachingMode: [
       ...(data.enquirySummary.online ? ["Online"] : []),
       ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
     ],
-    scheduleDetails: data.enquirySummary.initial,
+    scheduleDetails: data.notes, // 'initial' field from list is now 'notes' in detail
     additionalNotes: data.notes,
     preferredDays: typeof data.availabilityDays === 'string' ? data.availabilityDays.split(',').map((d:string) => d.trim()) : [],
     preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
     status: data.status?.toLowerCase() || 'open',
-    postedAt: data.createdOn,
+    postedAt: data.enquirySummary.createdOn,
     applicantsCount: data.enquirySummary.assignedTutors,
   };
 };
@@ -351,6 +357,18 @@ export default function ParentEnquiryDetailsPage() {
                     )}
                   </div>
                 </section>
+                {requirement.additionalNotes && (
+                   <>
+                    <Separator />
+                    <section className="space-y-3">
+                        <h3 className="text-base font-semibold text-foreground flex items-center">
+                            <Info className="w-4 h-4 mr-2 text-primary/80" />
+                            Additional Notes
+                        </h3>
+                        <p className="text-sm text-foreground/80 pl-6">{requirement.additionalNotes}</p>
+                    </section>
+                   </>
+                )}
               </CardContent>
               <CardFooter className="p-4 md:p-5 border-t flex-wrap justify-between items-center gap-2">
                 <div className="text-xs text-muted-foreground flex items-center">
@@ -427,4 +445,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
