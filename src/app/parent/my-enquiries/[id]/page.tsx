@@ -88,14 +88,14 @@ const EnquiryInfoItem = ({
 
     if (location.googleMapsUrl) {
       displayText = (
-        <div>
+        <div className="mt-1 p-2 bg-muted/30 border rounded-md">
           {renderLink(location.name || location.address)}
           {hasDistinctName && <div className="text-xs text-muted-foreground pl-5">{location.address}</div>}
         </div>
       );
     } else {
        displayText = (
-        <div>
+        <div className="mt-1 p-2 bg-muted/30 border rounded-md">
           <p className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {location.name || location.address}</p>
           {hasDistinctName && <div className="text-xs text-muted-foreground pl-5">{location.address}</div>}
         </div>
@@ -370,7 +370,7 @@ export default function ParentEnquiryDetailsPage() {
                         {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
                             <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} />
                         )}
-                         {locationInfo?.address && <EnquiryInfoItem icon={MapPin} value={locationInfo.address} />}
+                         {locationInfo?.address && <EnquiryInfoItem value={locationInfo} />}
                     </div>
                 </section>
                 {requirement.additionalNotes && (
