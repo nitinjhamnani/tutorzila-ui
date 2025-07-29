@@ -109,7 +109,7 @@ const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequir
       country: item.country,
     },
     status: item.status?.toLowerCase() || 'open',
-    postedAt: new Date().toISOString(),
+    postedAt: item.createdOn || new Date().toISOString(),
     board: item.board,
     teachingMode: [
       ...(item.online ? ["Online"] : []),
@@ -415,4 +415,3 @@ export default function ParentMyEnquiriesPage() {
     </main>
   );
 }
-
