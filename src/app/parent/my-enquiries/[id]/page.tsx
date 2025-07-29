@@ -332,28 +332,37 @@ export default function ParentEnquiryDetailsPage() {
                 </section>
                 <Separator />
                 <section className="space-y-3">
-                  <h3 className="text-base font-semibold text-foreground flex items-center">
-                    <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                    Schedule & Location
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                    {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-                      <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
-                    )}
-                    {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
-                      <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
-                    )}
-                    {requirement.location && <EnquiryInfoItem label="Location Preference" value={requirement.location} icon={MapPin} />}
-                    {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-                       <EnquiryInfoItem label="Teaching Mode(s)" icon={RadioTower}>
-                        <div className="flex flex-wrap gap-1.5 mt-0.5">
-                          {requirement.teachingMode.map(mode => (
-                            <Badge key={mode} variant="secondary" className="text-[11px] py-0.5 px-1.5">{mode}</Badge>
-                          ))}
-                        </div>
-                      </EnquiryInfoItem>
-                    )}
-                  </div>
+                    <h3 className="text-base font-semibold text-foreground flex items-center">
+                        <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
+                        Schedule Preferences
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                        {requirement.preferredDays && requirement.preferredDays.length > 0 && (
+                        <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
+                        )}
+                        {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
+                        <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
+                        )}
+                    </div>
+                </section>
+                <Separator />
+                <section className="space-y-3">
+                    <h3 className="text-base font-semibold text-foreground flex items-center">
+                        <MapPin className="w-4 h-4 mr-2 text-primary/80" />
+                        Location & Mode
+                    </h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                        {requirement.location && <EnquiryInfoItem label="Location Preference" value={requirement.location} />}
+                        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+                        <EnquiryInfoItem label="Teaching Mode(s)" icon={RadioTower}>
+                            <div className="flex flex-wrap gap-1.5 mt-0.5">
+                            {requirement.teachingMode.map(mode => (
+                                <Badge key={mode} variant="secondary" className="text-[11px] py-0.5 px-1.5">{mode}</Badge>
+                            ))}
+                            </div>
+                        </EnquiryInfoItem>
+                        )}
+                    </div>
                 </section>
                 {requirement.additionalNotes && (
                    <>
