@@ -258,7 +258,7 @@ export default function AllEnquiriesPage() {
       );
     }
     return (
-      <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
+      <Card className="text-center py-12 bg-card border-0 rounded-xl shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
         <CardContent className="flex flex-col items-center">
           <LucideFilterIcon className="w-16 h-16 text-primary/30 mx-auto mb-5" />
           <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
