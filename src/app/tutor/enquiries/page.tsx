@@ -30,13 +30,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 
 const allEnquiryStatusesForPage = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
-type EnquiryStatusCategory = (typeof allEnquiryStatusesForPage)[number];
+type EnquiryStatusCategory = typeof allEnquiryStatusesForPage[number];
 
 const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/tutor/enquiries`, {
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/list`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -55,8 +55,8 @@ const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequire
     parentName: "A Parent", 
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
-    scheduleDetails: item.initial || "No detailed schedule provided.",
-    location: item.location,
+    scheduleDetails: "Details not provided by API",
+    location: [item.area, item.city, item.country].filter(Boolean).join(', '),
     status: "open", 
     postedAt: new Date().toISOString(), 
     board: item.board,
@@ -64,7 +64,7 @@ const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequire
       ...(item.online ? ["Online"] : []),
       ...(item.offline ? ["Offline (In-person)"] : []),
     ],
-    applicantsCount: item.appliedTutors,
+    applicantsCount: item.assignedTutors,
     // Add mock properties for frontend display logic
     mockIsRecommended: index % 3 === 0,
     mockIsAppliedByCurrentUser: index % 4 === 0,
