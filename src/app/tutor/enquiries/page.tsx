@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { TuitionRequirement, User } from "@/types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard"; 
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon } from "lucide-react";
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
@@ -224,8 +224,8 @@ export default function AllEnquiriesPage() {
   const renderEnquiryList = () => {
     if (isLoading) {
       return (
-        <div className="grid grid-cols-1 gap-4 md:gap-5">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-[150px] w-full rounded-lg" />)}
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       );
     }
