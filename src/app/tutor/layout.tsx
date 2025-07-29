@@ -53,7 +53,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     { href: "/tutor/demo-sessions", label: "Demos", icon: CalendarDays, disabled: false },
     { href: "/tutor/classes", label: "Classes", icon: School, disabled: false },
     { href: "/tutor/payments", label: "Payments", icon: DollarSign, disabled: false },
-    { href: "/tutor/leads", label: "Leads", icon: ShoppingBag, disabled: false },
     { href: "/tutor/transactions", label: "Transactions", icon: ListChecks, disabled: false },
   ];
 
