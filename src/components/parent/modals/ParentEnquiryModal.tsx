@@ -39,7 +39,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -138,12 +138,19 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden">
-        <DialogHeader className="p-6 pb-4 border-b">
+      <DialogContent 
+        className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
+        <DialogHeader className="p-6 pb-4 border-b relative">
           <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
           <DialogDescription>
             Update the details for your enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
           </DialogDescription>
+           <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
         </DialogHeader>
         
         <Form {...form}>
