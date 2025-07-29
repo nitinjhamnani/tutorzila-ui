@@ -78,14 +78,28 @@ const EnquiryInfoItem = ({
 
   if (typeof value === 'object' && value !== null && 'address' in value) {
     const location = value as LocationDetails;
+    const hasDistinctName = location.name && location.name !== location.address;
+    
+    const renderLink = (text: string) => (
+       <a href={location.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1.5">
+           <MapPinned className="h-3 w-3" /> {text}
+        </a>
+    )
+
     if (location.googleMapsUrl) {
       displayText = (
-        <a href={location.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1.5">
-           <MapPinned className="h-3 w-3" /> {location.address}
-        </a>
+        <div>
+          {renderLink(location.name || location.address)}
+          {hasDistinctName && <div className="text-xs text-muted-foreground pl-5">{location.address}</div>}
+        </div>
       );
     } else {
-        displayText = location.address;
+       displayText = (
+        <div>
+          <p className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {location.name || location.address}</p>
+          {hasDistinctName && <div className="text-xs text-muted-foreground pl-5">{location.address}</div>}
+        </div>
+      );
     }
   } else if (Array.isArray(value)) {
     displayText = value.join(", ");
