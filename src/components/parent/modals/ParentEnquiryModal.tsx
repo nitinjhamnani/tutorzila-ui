@@ -39,7 +39,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -69,6 +69,7 @@ const timeSlotsOptions: MultiSelectOption[] = [
 ];
 
 const parentEnquiryEditSchema = z.object({
+  studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string().min(1, { message: "Grade level is required." }),
   board: z.string().min(1, { message: "Board is required."}),
@@ -102,6 +103,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
+      studentName: "",
       subject: [],
       gradeLevel: "",
       board: "",
@@ -115,6 +117,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
   useEffect(() => {
     if (enquiryData && isOpen) {
       form.reset({
+        studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [enquiryData.subject],
         gradeLevel: enquiryData.gradeLevel || "",
         board: enquiryData.board || "",
@@ -155,6 +158,19 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[70vh] overflow-y-auto">
+             <FormField
+                control={form.control}
+                name="studentName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Student's Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Rohan Kumar" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <FormField
               control={form.control}
               name="subject"
