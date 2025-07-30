@@ -50,6 +50,7 @@ import {
   Loader2,
   XCircle,
   Edit3,
+  ClipboardEdit,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -244,7 +245,8 @@ export default function AdminEnquiryDetailsPage() {
 
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeReason, setCloseReason] = useState<string | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false); 
 
   const { data: requirement, isLoading, error } = useQuery({
     queryKey: ['adminEnquiryDetails', id],
@@ -487,6 +489,9 @@ export default function AdminEnquiryDetailsPage() {
                 <div className="flex flex-wrap justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
                       <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setIsAddNotesModalOpen(true)}>
+                      <ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Add Notes
                     </Button>
                     {(requirement.applicantsCount ?? 0) > 0 && (
                       <Button asChild variant="default" size="sm">
