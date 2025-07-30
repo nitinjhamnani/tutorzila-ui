@@ -86,7 +86,6 @@ function AssignTutorsContent() {
         board: searchParams.get('board') || '',
         teachingMode: searchParams.get('mode')?.split(',') || [],
         location: { address: searchParams.get('location') || "" },
-        // These are not passed via URL but are part of the type, so we can add default/empty values
         parentName: '',
         studentName: '',
         status: 'open' as const,
@@ -132,7 +131,6 @@ function AssignTutorsContent() {
       });
       return;
     }
-    // Mock API call
     console.log(`Assigning tutors ${selectedTutorIds.join(", ")} to enquiry ${enquiryId}`);
     toast({
       title: "Tutors Assigned (Mock)",
