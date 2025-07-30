@@ -45,7 +45,8 @@ import {
   BookOpen,
   MapPin,
   RadioTower,
-  DollarSign
+  DollarSign,
+  Building
 } from "lucide-react";
 
 // API Fetching Functions
@@ -199,6 +200,8 @@ export default function AssignTutorsToEnquiryPage() {
               <CardDescription className="text-sm text-foreground/70 mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
                 <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-primary/80"/><strong>Subject:</strong> {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
                 <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/><strong>Grade:</strong> {enquiry.gradeLevel}</span>
+                <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/><strong>Board:</strong> {enquiry.board}</span>
+                <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/><strong>Mode:</strong> {enquiry.teachingMode.join(', ')}</span>
               </CardDescription>
             </>
           )}
