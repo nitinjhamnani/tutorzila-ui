@@ -149,7 +149,8 @@ const createEnquiry = async ({ token, formData }: { token: string | null, formDa
   if (!response.ok) {
     throw new Error("Failed to create enquiry.");
   }
-  return response.json();
+  // If the response is successful but has no body, return a simple success value
+  return true;
 };
 
 export default function ParentMyEnquiriesPage() {
