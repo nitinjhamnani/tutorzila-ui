@@ -411,7 +411,7 @@ export default function ParentEnquiryDetailsPage() {
                         </p>
                     )}
                   </div>
-                   <Badge>
+                   <Badge variant="default">
                     {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
                   </Badge>
                 </div>
@@ -545,7 +545,7 @@ export default function ParentEnquiryDetailsPage() {
                   disabled={!closeReason || closeEnquiryMutation.isPending}
                 >
                   {closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Confirm & Close
+                  {closeEnquiryMutation.isPending ? "Closing..." : "Confirm & Close"}
                 </Button>
               </DialogFooter>
             </DialogContent>
