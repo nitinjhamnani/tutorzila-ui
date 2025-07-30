@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send } from "lucide-react";
+import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send, Edit3 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-xs">
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
               {subjectInitials}
             </AvatarFallback>
           </Avatar>
@@ -59,6 +59,17 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
               <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
+            <Button
+                asChild
+                variant="default"
+                size="icon"
+                className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
+                title="View Enquiry Details"
+            >
+                <Link href={`/admin/enquiries/${requirement.id}`}>
+                    <Edit3 className="h-4 w-4" />
+                </Link>
+            </Button>
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 text-xs flex-grow">
@@ -84,19 +95,6 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
             </Badge>
           )}
         </div>
-          <Button
-            asChild
-            size="sm"
-            className={cn(
-              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
-              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
-            )}
-          >
-            <Link href={`/admin/enquiries/${requirement.id}`}> 
-                <Eye className="w-3 h-3 mr-1.5" />
-                View Details
-            </Link>
-          </Button>
       </CardFooter>
     </Card>
   );
