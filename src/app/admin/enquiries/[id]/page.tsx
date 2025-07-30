@@ -346,7 +346,8 @@ export default function AdminEnquiryDetailsPage() {
   };
 
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
-  const timeAgo = requirement?.postedAt ? formatDistanceToNow(postedDate, { addSuffix: true }) : "";
+  const formattedPostedDate = requirement?.postedAt ? format(postedDate, "MMMM d, yyyy 'at' h:mm a") : "";
+
 
   if (isLoading || isCheckingAuth) {
     return (
@@ -407,7 +408,7 @@ export default function AdminEnquiryDetailsPage() {
                     )}
                      <p className="text-xs text-muted-foreground mt-1 flex items-center">
                         <Clock className="w-3.5 h-3.5 mr-1.5" />
-                        Posted {timeAgo}
+                        Posted on {formattedPostedDate}
                     </p>
                   </div>
                    <Badge variant="default">
