@@ -135,9 +135,17 @@ function AssignTutorsContent() {
   };
   
   const handleClearFilters = () => {
-    const initialFilters = getInitialFilters();
-    setFilters(initialFilters);
-    setAppliedFilters(initialFilters);
+    const clearedFilters = {
+      subjects: [],
+      grade: '',
+      board: '',
+      isOnline: false,
+      isOffline: false,
+      city: "",
+      area: "",
+    };
+    setFilters(clearedFilters);
+    setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
   };
 
@@ -441,5 +449,7 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
+
+    
 
     
