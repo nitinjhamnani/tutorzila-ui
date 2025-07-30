@@ -60,6 +60,9 @@ const getInitials = (name?: string): string => {
 };
 
 export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
+  console.log("Raw address from backend:", requirement.address);
+  console.log("Trimmed address:", requirement.address?.trim());
+  
   const postedDate = requirement.postedAt ? parseISO(requirement.postedAt) : new Date();
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const formattedPostedDate = format(postedDate, "MMMM d, yyyy 'at' h:mm a");
