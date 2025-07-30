@@ -119,6 +119,8 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
     });
   };
 
+  const hasScheduleInfo = requirement.preferredDays?.length || requirement.preferredTimeSlots?.length;
+
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
       <CardHeader className="bg-muted/30 p-4 md:p-5 border-b relative"> 
@@ -174,33 +176,36 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           </div>
         </section>
 
-        <Separator />
+        {(hasScheduleInfo || requirement.address) && <Separator />}
 
+        {hasScheduleInfo && (
+            <section className="space-y-2">
+            <h3 className="text-sm font-semibold text-foreground flex items-center">
+                <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
+                Schedule Preferences
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
+                {requirement.preferredDays && requirement.preferredDays.length > 0 && (
+                <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} className="text-xs"/>
+                )}
+                {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
+                <DetailItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} className="text-xs"/>
+                )}
+            </div>
+            </section>
+        )}
         
-        <section className="space-y-2">
-          <h3 className="text-sm font-semibold text-foreground flex items-center">
-            <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-            Schedule & Location
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
-            {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-              <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} className="text-xs"/>
-            )}
-            {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
-              <DetailItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} className="text-xs"/>
-            )}
-            {requirement.location && <DetailItem label="Location Preference" value={requirement.location} icon={MapPin} className="text-xs"/>}
-            {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-              <DetailItem label="Teaching Mode(s)" icon={RadioTower} className="text-xs">
-                <div className="flex flex-wrap gap-1 mt-0.5">
-                  {requirement.teachingMode.map(mode => (
-                    <Badge key={mode} variant="secondary" className="text-[10px] py-0.5 px-1.5">{mode}</Badge>
-                  ))}
-                </div>
-              </DetailItem>
-            )}
-          </div>
-        </section>
+        {requirement.address && (
+          <section className="space-y-2">
+            <h3 className="text-sm font-semibold text-foreground flex items-center">
+              <MapPin className="w-4 h-4 mr-2 text-primary/80" />
+              Location
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
+                <DetailItem label="Preference" value={requirement.address} icon={MapPin} className="text-xs"/>
+            </div>
+          </section>
+        )}
 
         {requirement.additionalNotes && (
           <>
@@ -220,7 +225,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
 
       <CardFooter className="bg-muted/30 p-4 border-t flex flex-col sm:flex-row justify-between items-center gap-2">
         <Button variant="link" asChild className="text-xs p-0 h-auto text-primary hover:text-primary/80">
-          <Link href="/dashboard/enquiries">
+          <Link href="/tutor/enquiries">
             <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
             Go back to listing
           </Link>
@@ -319,5 +324,3 @@ function DetailItem({ label, value, icon: Icon, children, className }: DetailIte
     </div>
   );
 }
-
-    
