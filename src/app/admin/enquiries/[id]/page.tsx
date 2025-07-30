@@ -574,14 +574,14 @@ export default function AdminEnquiryDetailsPage() {
       <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Internal Notes</DialogTitle>
+            <DialogTitle>Add Additional Notes</DialogTitle>
             <DialogDesc>
-              These notes are for internal use and will not be visible to parents or tutors.
+              These notes will be visible to tutors viewing the enquiry details. Add any special instructions or requirements.
             </DialogDesc>
           </DialogHeader>
           <div className="py-4">
             <Textarea
-              placeholder="Type your note here..."
+              placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="min-h-[120px]"
