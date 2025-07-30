@@ -259,15 +259,9 @@ export default function AssignTutorsToEnquiryPage() {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 border">
-                            <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold">{getInitials(tutor.displayName)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <div className="font-medium text-foreground">{tutor.displayName}</div>
-                            <div className="text-xs text-muted-foreground">{tutor.city}, {tutor.state}</div>
-                        </div>
+                      <div>
+                        <div className="font-medium text-foreground">{tutor.displayName}</div>
+                        <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
                       </div>
                     </TableCell>
                     <TableCell className="text-xs">
