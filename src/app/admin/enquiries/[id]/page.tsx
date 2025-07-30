@@ -51,6 +51,7 @@ import {
   XCircle,
   Edit3,
   ClipboardEdit,
+  Save,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -229,6 +230,29 @@ const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, t
   return true;
 };
 
+const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string, token: string | null, note: string }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+  if (!note) throw new Error("Note content cannot be empty.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/notes`, {
+    method: 'PUT', 
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: note }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to add note to the enquiry.");
+  }
+  return response.json();
+};
+
 const closeReasons = [
     { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
     { id: 'found-elsewhere', label: "Found a tutor elsewhere" },
@@ -320,6 +344,49 @@ export default function AdminEnquiryDetailsPage() {
     },
   });
 
+  const addNoteMutation = useMutation({
+    mutationFn: (note: string) => addNoteToEnquiry({ enquiryId: id, token, note }),
+    onSuccess: (updatedData) => {
+      toast({ title: "Note Saved!", description: "The additional notes have been updated." });
+      const transformedData: TuitionRequirement = {
+        id: updatedData.enquirySummary.enquiryId,
+        parentName: updatedData.name || requirement?.parentName || "A Parent", 
+        studentName: updatedData.studentName,
+        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+        gradeLevel: updatedData.enquirySummary.grade,
+        board: updatedData.enquirySummary.board,
+        location: {
+            name: updatedData.addressName || updatedData.address || "",
+            address: updatedData.address,
+            googleMapsUrl: updatedData.googleMapsLink,
+            city: updatedData.enquirySummary.city,
+            state: updatedData.enquirySummary.state,
+            country: updatedData.enquirySummary.country,
+            area: updatedData.enquirySummary.area,
+            pincode: updatedData.pincode,
+        },
+        teachingMode: [
+          ...(updatedData.enquirySummary.online ? ["Online"] : []),
+          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+        ],
+        scheduleDetails: updatedData.notes, 
+        additionalNotes: updatedData.notes,
+        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+        status: updatedData.status?.toLowerCase() || 'open',
+        postedAt: updatedData.enquirySummary.createdOn,
+        applicantsCount: updatedData.enquirySummary.assignedTutors,
+      };
+
+      queryClient.setQueryData(['adminEnquiryDetails', id], transformedData);
+      setIsAddNotesModalOpen(false);
+      setNotes("");
+    },
+    onError: (error) => {
+      toast({ variant: "destructive", title: "Failed to Save Note", description: error.message });
+    },
+  });
+
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'admin')) {
       router.replace("/admin/login");
@@ -350,9 +417,11 @@ export default function AdminEnquiryDetailsPage() {
   };
   
   const handleSaveNotes = () => {
-    console.log("Saving notes:", notes); // Placeholder action
-    toast({ title: "Notes Saved (Mock)", description: "This is a placeholder. Notes would be saved to the backend." });
-    setIsAddNotesModalOpen(false);
+    if (!notes.trim()) {
+      toast({ variant: "destructive", title: "Note is empty", description: "Please enter a note to save." });
+      return;
+    }
+    addNoteMutation.mutate(notes);
   };
 
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
@@ -585,16 +654,27 @@ export default function AdminEnquiryDetailsPage() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="min-h-[120px]"
+              disabled={addNoteMutation.isPending}
             />
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" disabled={addNoteMutation.isPending}>
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim()}>
-              Save Note
+            <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
+              {addNoteMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Note
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
