@@ -92,8 +92,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
               "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
             )}
           >
-            {/* This would link to a detailed admin view of the enquiry */}
-            <Link href={`#`}> 
+            <Link href={`/admin/enquiries/${requirement.id}`}> 
                 <Eye className="w-3 h-3 mr-1.5" />
                 View Details
             </Link>
