@@ -366,7 +366,8 @@ function AssignTutorsContent() {
                 <TableHead>Tutor Details</TableHead>
                 <TableHead>Experience & Rate</TableHead>
                 <TableHead>Subjects</TableHead>
-                <TableHead>Grade & Board</TableHead>
+                <TableHead>Grade</TableHead>
+                <TableHead>Board</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -379,13 +380,14 @@ function AssignTutorsContent() {
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                   </TableRow>
                 ))
               ) : tutorsError ? (
-                 <TableRow><TableCell colSpan={6} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
               ) : allTutors.length === 0 ? (
-                 <TableRow><TableCell colSpan={6} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={7} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
               ) : (
                 allTutors.map(tutor => (
                   <TableRow key={tutor.id} data-state={selectedTutorIds.includes(tutor.id) && "selected"}>
@@ -415,15 +417,13 @@ function AssignTutorsContent() {
                       </div>
                     </TableCell>
                     <TableCell>
-                       <div className="flex flex-col gap-1 text-xs">
-                        <div className="flex flex-wrap gap-1">
-                            {tutor.gradesList.slice(0, 1).map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
-                            {tutor.gradesList.length > 1 && <Badge variant="outline">+{tutor.gradesList.length - 1}</Badge>}
-                        </div>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                            {tutor.boardsList.slice(0, 1).map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
-                            {tutor.boardsList.length > 1 && <Badge variant="outline">+{tutor.boardsList.length - 1}</Badge>}
-                        </div>
+                      <div className="flex flex-wrap gap-1 text-xs">
+                        {tutor.gradesList.map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1 text-xs">
+                          {tutor.boardsList.map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
                       </div>
                     </TableCell>
                      <TableCell>
@@ -455,7 +455,3 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
-
-    
-
-    
