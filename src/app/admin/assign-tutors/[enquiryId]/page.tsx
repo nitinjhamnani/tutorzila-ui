@@ -66,7 +66,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
     board: data.enquirySummary.board,
-    location: { address: data.address || ""},
+    location: { address: data.address || "", city: data.enquirySummary.city, area: data.enquirySummary.area },
     teachingMode: [
       ...(data.enquirySummary.online ? ["Online"] : []),
       ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
@@ -118,7 +118,11 @@ export default function AssignTutorsToEnquiryPage() {
         if(enquiry.gradeLevel) params.append('grades', enquiry.gradeLevel);
         if(enquiry.board) params.append('boards', enquiry.board);
         if(enquiry.teachingMode?.includes("Online")) params.append('isOnline', 'true');
-        if(enquiry.teachingMode?.includes("Offline (In-person)")) params.append('isOffline', 'true');
+        if(enquiry.teachingMode?.includes("Offline (In-person)")) {
+          params.append('isOffline', 'true');
+          if (enquiry.location?.city) params.append('city', enquiry.location.city);
+          if (enquiry.location?.area) params.append('area', enquiry.location.area);
+        }
     }
     return params;
   }, [enquiry]);
