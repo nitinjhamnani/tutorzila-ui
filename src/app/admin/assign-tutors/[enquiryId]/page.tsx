@@ -366,7 +366,7 @@ function AssignTutorsContent() {
                 <TableHead>Tutor Details</TableHead>
                 <TableHead>Experience & Rate</TableHead>
                 <TableHead>Subjects</TableHead>
-                <TableHead>Qualifications</TableHead>
+                <TableHead>Grade & Board</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -415,9 +415,15 @@ function AssignTutorsContent() {
                       </div>
                     </TableCell>
                     <TableCell>
-                       <div className="flex flex-wrap gap-1">
-                        {tutor.qualificationList.slice(0, 1).map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
-                        {tutor.qualificationList.length > 1 && <Badge variant="outline">+{tutor.qualificationList.length - 1}</Badge>}
+                       <div className="flex flex-col gap-1 text-xs">
+                        <div className="flex flex-wrap gap-1">
+                            {tutor.gradesList.slice(0, 1).map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
+                            {tutor.gradesList.length > 1 && <Badge variant="outline">+{tutor.gradesList.length - 1}</Badge>}
+                        </div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                            {tutor.boardsList.slice(0, 1).map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
+                            {tutor.boardsList.length > 1 && <Badge variant="outline">+{tutor.boardsList.length - 1}</Badge>}
+                        </div>
                       </div>
                     </TableCell>
                      <TableCell>
