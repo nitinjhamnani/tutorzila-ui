@@ -171,6 +171,7 @@ function AssignTutorsContent() {
     queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
     queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
     enabled: !!token && !!enquiry,
+    refetchOnWindowFocus: false,
   });
 
   const uniqueCities = useMemo(() => {
