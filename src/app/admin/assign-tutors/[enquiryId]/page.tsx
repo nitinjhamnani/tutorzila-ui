@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -262,7 +263,7 @@ function AssignTutorsContent() {
                       Filter Tutors
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-white sm:max-w-lg">
+                  <DialogContent className="bg-card sm:max-w-lg">
                     <DialogHeader>
                       <DialogTitle>Filter Tutors</DialogTitle>
                       <DialogDescription>
@@ -354,6 +355,7 @@ function AssignTutorsContent() {
             </div>
         </CardHeader>
         <CardContent className="p-0">
+          <TooltipProvider>
            <Table>
             <TableHeader>
               <TableRow>
@@ -430,19 +432,31 @@ function AssignTutorsContent() {
                       </div>
                     </TableCell>
                     <TableCell>
-                        <div className="flex flex-col gap-1.5 text-xs">
-                            {tutor.online && (
-                                <div className="flex items-center gap-1.5 font-medium text-primary-foreground bg-primary px-2 py-1 rounded-md w-fit">
-                                    <CheckSquare className="w-3 h-3" />
-                                    <span>Online</span>
-                                </div>
-                            )}
-                            {tutor.offline && (
-                                <div className="flex items-center gap-1.5 font-medium text-primary-foreground bg-primary px-2 py-1 rounded-md w-fit">
-                                    <CheckSquare className="w-3 h-3" />
-                                    <span>Offline</span>
-                                </div>
-                            )}
+                        <div className="flex items-center gap-2">
+                          {tutor.online && (
+                              <Tooltip>
+                                  <TooltipTrigger asChild>
+                                      <div className="p-1.5 bg-primary/10 rounded-full">
+                                          <RadioTower className="w-4 h-4 text-primary" />
+                                      </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                      <p>Available for Online</p>
+                                  </TooltipContent>
+                              </Tooltip>
+                          )}
+                          {tutor.offline && (
+                              <Tooltip>
+                                  <TooltipTrigger asChild>
+                                      <div className="p-1.5 bg-primary/10 rounded-full">
+                                          <Users className="w-4 h-4 text-primary" />
+                                      </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                      <p>Available for Offline</p>
+                                  </TooltipContent>
+                              </Tooltip>
+                          )}
                         </div>
                     </TableCell>
                      <TableCell>
@@ -456,6 +470,7 @@ function AssignTutorsContent() {
               )}
             </TableBody>
            </Table>
+          </TooltipProvider>
         </CardContent>
         <CardFooter className="p-4 border-t">
           <Button onClick={handleAssignTutors} disabled={selectedTutorIds.length === 0}>
