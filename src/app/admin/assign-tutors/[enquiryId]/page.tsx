@@ -49,6 +49,15 @@ import {
   Building
 } from "lucide-react";
 
+const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
+const gradeLevelsList = [
+    "Nursery", "LKG", "UKG",
+    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
+    "Grade 11", "Grade 12",
+    "College Level", "Adult Learner", "Other"
+];
+
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -190,13 +199,31 @@ function AssignTutorsContent() {
                     <Label htmlFor="subjects-filter" className="text-xs">Subjects</Label>
                     <Input id="subjects-filter" placeholder="e.g. Maths, Physics" value={filters.subjects} onChange={(e) => handleFilterChange('subjects', e.target.value)} />
                 </div>
-                <div className="space-y-1">
+                 <div className="space-y-1">
                     <Label htmlFor="grade-filter" className="text-xs">Grade</Label>
-                    <Input id="grade-filter" placeholder="e.g. Grade 10" value={filters.grade} onChange={(e) => handleFilterChange('grade', e.target.value)} />
+                    <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
+                         <SelectTrigger id="grade-filter">
+                            <SelectValue placeholder="Select Grade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {gradeLevelsList.map(grade => (
+                                <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
-                <div className="space-y-1">
+                 <div className="space-y-1">
                     <Label htmlFor="board-filter" className="text-xs">Board</Label>
-                    <Input id="board-filter" placeholder="e.g. CBSE" value={filters.board} onChange={(e) => handleFilterChange('board', e.target.value)} />
+                     <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
+                        <SelectTrigger id="board-filter">
+                            <SelectValue placeholder="Select Board" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {boardsList.map(board => (
+                                <SelectItem key={board} value={board}>{board}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                 <div className="flex items-center space-x-4 pt-5">
                      <div className="flex items-center space-x-2">
