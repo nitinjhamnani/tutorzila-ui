@@ -1,3 +1,4 @@
+
 // src/components/tuitions/EnquiryDetails.tsx
 "use client";
 
@@ -73,8 +74,8 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const mockParentPhone = `+91-98765XXXXX`; 
 
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
-  const hasLocationInfo = requirement.address && requirement.address.trim() !== '';
-  console.log("hasLocationInfo:", hasLocationInfo);
+  const hasLocationInfo = !!requirement.address && requirement.address.trim() !== '';
+  console.log('hasLocationInfo:', hasLocationInfo);
 
   const handleCopy = async (textToCopy: string, fieldName: string) => {
     if (!isApplied) {
