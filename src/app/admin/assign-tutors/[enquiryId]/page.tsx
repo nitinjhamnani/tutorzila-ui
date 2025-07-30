@@ -104,38 +104,24 @@ export default function AssignTutorsToEnquiryPage() {
   const { toast } = useToast();
   
   const [selectedTutorIds, setSelectedTutorIds] = useState<string[]>([]);
-  const [filters, setFilters] = useState({
-    subjects: [] as string[],
-    grades: [] as string[],
-    boards: [] as string[],
-    isOnline: false,
-    isOffline: false,
-  });
-
+  
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
     enabled: !!token && !!enquiryId,
-    onSuccess: (data) => {
-        setFilters({
-            subjects: data.subject,
-            grades: [data.gradeLevel],
-            boards: data.board ? [data.board] : [],
-            isOnline: data.teachingMode?.includes("Online") || false,
-            isOffline: data.teachingMode?.includes("Offline (In-person)") || false,
-        })
-    }
   });
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
-    if(filters.subjects.length > 0) params.append('subjects', filters.subjects.join(','));
-    if(filters.grades.length > 0) params.append('grades', filters.grades.join(','));
-    if(filters.boards.length > 0) params.append('boards', filters.boards.join(','));
-    if(filters.isOnline) params.append('isOnline', 'true');
-    if(filters.isOffline) params.append('isOffline', 'true');
+    if (enquiry) {
+        if(enquiry.subject.length > 0) params.append('subjects', enquiry.subject.join(','));
+        if(enquiry.gradeLevel) params.append('grades', enquiry.gradeLevel);
+        if(enquiry.board) params.append('boards', enquiry.board);
+        if(enquiry.teachingMode?.includes("Online")) params.append('isOnline', 'true');
+        if(enquiry.teachingMode?.includes("Offline (In-person)")) params.append('isOffline', 'true');
+    }
     return params;
-  }, [filters]);
+  }, [enquiry]);
   
   const { data: allTutors = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
     queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
@@ -301,5 +287,3 @@ export default function AssignTutorsToEnquiryPage() {
     </div>
   );
 }
-
-    
