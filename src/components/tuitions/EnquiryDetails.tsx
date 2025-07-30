@@ -174,6 +174,15 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
              {requirement.applicantsCount !== undefined && (
               <DetailItem label="Applicants" value={String(requirement.applicantsCount)} icon={UsersIcon} className="text-xs"/>
             )}
+             {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+              <DetailItem label="Teaching Mode(s)" icon={RadioTower} className="md:col-span-2">
+                <div className="flex flex-wrap gap-1.5 mt-0.5">
+                  {requirement.teachingMode.map(mode => (
+                      <Badge key={mode} variant="secondary" className="text-[11px] py-0.5 px-1.5">{mode}</Badge>
+                  ))}
+                </div>
+              </DetailItem>
+             )}
           </div>
         </section>
 
