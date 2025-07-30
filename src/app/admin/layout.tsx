@@ -80,6 +80,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       document.documentElement.style.setProperty('--header-height', '0px');
     };
   }, [hasMounted]);
+  
+  useEffect(() => {
+    if (!isCheckingAuth && hasMounted && pathname !== '/admin/login' && (!isAuthenticated || user?.role !== 'admin')) {
+      router.replace("/admin/login");
+    }
+  }, [isCheckingAuth, hasMounted, isAuthenticated, user, router, pathname]);
 
   // If we're on the login page, render children directly without the dashboard layout
   if (pathname === '/admin/login') {
@@ -87,13 +93,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
   
   // Logic for authenticated dashboard view
-  if (isCheckingAuth || !hasMounted) {
+  if (isCheckingAuth || !hasMounted || !isAuthenticated || user?.role !== 'admin') {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Admin Area...</div>;
-  }
-
-  if (!isAuthenticated || user?.role !== 'admin') {
-     router.replace("/admin/login");
-     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Redirecting...</div>;
   }
 
   return (
