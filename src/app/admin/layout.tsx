@@ -27,7 +27,7 @@ import {
 
 const adminNavItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/tutors", label: "Tutors", icon: Users, disabled: true },
+  { href: "/admin/tutors", label: "Tutors", icon: Users, disabled: false },
   { href: "/admin/parents", label: "Parents", icon: UsersRound, disabled: true },
   { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
   { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
