@@ -1,4 +1,3 @@
-
 // src/components/tuitions/EnquiryDetails.tsx
 "use client";
 
@@ -186,7 +185,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
              )}
           </div>
         </section>
-
+        
         {hasScheduleInfo && (
           <>
             <Separator />
