@@ -37,6 +37,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 
 import {
   Users,
@@ -59,6 +60,7 @@ import {
   Building
 } from "lucide-react";
 
+const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 const gradeLevelsList = [
     "Nursery", "LKG", "UKG",
@@ -115,20 +117,20 @@ function AssignTutorsContent() {
   }, [searchParams, enquiryId]);
 
   const [filters, setFilters] = useState({
-    subjects: enquiry?.subject.join(',') || '',
+    subjects: enquiry?.subject || [],
     grade: enquiry?.gradeLevel || '',
     board: enquiry?.board || '',
     isOnline: enquiry?.teachingMode?.includes("Online") || false,
     isOffline: enquiry?.teachingMode?.includes("Offline (In-person)") || false,
   });
 
-  const handleFilterChange = (key: keyof typeof filters, value: string | boolean) => {
+  const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
-    if(filters.subjects) params.append('subjects', filters.subjects);
+    if(filters.subjects.length > 0) params.append('subjects', filters.subjects.join(','));
     if(filters.grade) params.append('grades', filters.grade);
     if(filters.board) params.append('boards', filters.board);
     if(filters.isOnline) params.append('isOnline', 'true');
@@ -219,9 +221,15 @@ function AssignTutorsContent() {
                       </DialogDescription>
                     </DialogHeader>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                        <div className="space-y-2">
+                        <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="subjects-filter-modal">Subjects</Label>
-                            <Input id="subjects-filter-modal" placeholder="e.g. Maths, Physics" value={filters.subjects} onChange={(e) => handleFilterChange('subjects', e.target.value)} />
+                             <MultiSelectCommand
+                                options={allSubjectsList}
+                                selectedValues={filters.subjects}
+                                onValueChange={(value) => handleFilterChange('subjects', value)}
+                                placeholder="Select subjects..."
+                                className="w-full"
+                             />
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="grade-filter-modal">Grade</Label>
@@ -249,7 +257,7 @@ function AssignTutorsContent() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="flex items-center space-x-4 pt-5">
+                        <div className="flex items-center space-x-4 pt-5 md:col-span-2">
                              <div className="flex items-center space-x-2">
                                 <Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
                                 <Label htmlFor="online-filter-modal" className="font-medium">Online</Label>
@@ -366,3 +374,4 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
+
