@@ -75,7 +75,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
   const hasLocationInfo = !!requirement.address && requirement.address.trim() !== '';
 
-
   const handleCopy = async (textToCopy: string, fieldName: string) => {
     if (!isApplied) {
       toast({
