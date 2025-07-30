@@ -213,7 +213,7 @@ function AssignTutorsContent() {
                       Filter Tutors
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="bg-white">
                     <DialogHeader>
                       <DialogTitle>Filter Tutors</DialogTitle>
                       <DialogDescription>
@@ -374,4 +374,3 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
-
