@@ -120,8 +120,6 @@ export default function AssignTutorsToEnquiryPage() {
         if(enquiry.teachingMode?.includes("Online")) params.append('isOnline', 'true');
         if(enquiry.teachingMode?.includes("Offline (In-person)")) {
           params.append('isOffline', 'true');
-          if (enquiry.location?.city) params.append('city', enquiry.location.city);
-          if (enquiry.location?.area) params.append('area', enquiry.location.area);
         }
     }
     return params;
@@ -192,6 +190,7 @@ export default function AssignTutorsToEnquiryPage() {
                 <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/><strong>Grade:</strong> {enquiry.gradeLevel}</span>
                 <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/><strong>Board:</strong> {enquiry.board}</span>
                 <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/><strong>Mode:</strong> {enquiry.teachingMode.join(', ')}</span>
+                 {enquiry.location?.address && <span className="flex items-center gap-1.5 col-span-2"><MapPin className="w-3.5 h-3.5 text-primary/80"/><strong>Location:</strong> {enquiry.location.address}</span>}
               </CardDescription>
             </>
           )}
@@ -291,3 +290,4 @@ export default function AssignTutorsToEnquiryPage() {
     </div>
   );
 }
+
