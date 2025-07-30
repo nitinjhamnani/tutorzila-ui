@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import type { TuitionRequirement, TutorProfile, LocationDetails } from "@/types";
+import type { TuitionRequirement, User, LocationDetails } from "@/types";
 import { MOCK_ALL_PARENT_REQUIREMENTS, MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
@@ -36,7 +36,7 @@ import { FormControl, FormItem } from "@/components/ui/form"; // Correctly impor
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
+import { ParentEnquiryModal, type ParentEnquiryEditFormValues } from "@/components/parent/modals/ParentEnquiryModal";
 import {
   User,
   BookOpen,
@@ -57,7 +57,7 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -108,7 +108,7 @@ const EnquiryInfoItem = ({
         </span>
       )}
       {!label && Icon && <Icon className="w-3.5 h-3.5 text-primary/80" />}
-      {displayText && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{displayText}</div>}
+      {displayText && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{children ? null : displayText}</div>}
       {children && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{children}</div>}
     </div>
   );
@@ -135,11 +135,10 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
 
   const data = await response.json();
 
-  // Transform the API response to match the TuitionRequirement type
   return {
     id: data.enquirySummary.enquiryId,
-    parentId: "", // Not provided by API, but part of the type
-    parentName: data.name || "A Parent", // Assuming 'name' exists at top-level
+    parentId: "", 
+    parentName: data.name || "A Parent", 
     studentName: data.studentName,
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
@@ -158,7 +157,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
       ...(data.enquirySummary.online ? ["Online"] : []),
       ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
     ],
-    scheduleDetails: data.notes, // 'initial' field from list is now 'notes' in detail
+    scheduleDetails: data.notes, 
     additionalNotes: data.notes,
     preferredDays: typeof data.availabilityDays === 'string' ? data.availabilityDays.split(',').map((d:string) => d.trim()) : [],
     preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
@@ -166,6 +165,47 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     postedAt: data.enquirySummary.createdOn,
     applicantsCount: data.enquirySummary.assignedTutors,
   };
+};
+
+const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: ParentEnquiryEditFormValues }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  
+  const locationDetails = formData.location;
+  const requestBody = {
+    studentName: formData.studentName,
+    subjects: formData.subject,
+    grade: formData.gradeLevel,
+    board: formData.board,
+    addressName: locationDetails?.name || locationDetails?.address || "",
+    address: locationDetails?.address || "",
+    city: locationDetails?.city || "",
+    state: locationDetails?.state || "",
+    country: locationDetails?.country || "",
+    area: locationDetails?.area || "",
+    pincode: locationDetails?.pincode || "",
+    googleMapsLink: locationDetails?.googleMapsUrl || "",
+    availabilityDays: formData.preferredDays,
+    availabilityTime: formData.preferredTimeSlots,
+    online: formData.teachingMode.includes("Online"),
+    offline: formData.teachingMode.includes("Offline (In-person)"),
+  };
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/update`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update enquiry.");
+  }
+  return response.json();
 };
 
 const closeReasons = [
@@ -181,18 +221,31 @@ export default function ParentEnquiryDetailsPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const { toast } = useToast();
   const id = params.id as string;
+  const queryClient = useQueryClient();
 
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeReason, setCloseReason] = useState<string | null>(null);
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // For the edit modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
 
   const { data: requirement, isLoading, error } = useQuery({
-    queryKey: ['parentEnquiryDetails', id, token],
+    queryKey: ['parentEnquiryDetails', id],
     queryFn: () => fetchParentEnquiryDetails(id, token),
     enabled: !!id && !!token && !isCheckingAuth,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (formData: ParentEnquiryEditFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
+    onSuccess: () => {
+      toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
+      queryClient.invalidateQueries({ queryKey: ['parentEnquiryDetails', id] });
+      setIsEditModalOpen(false);
+    },
+    onError: (error) => {
+      toast({ variant: "destructive", title: "Update Failed", description: error.message });
+    },
   });
 
   useEffect(() => {
@@ -218,7 +271,6 @@ export default function ParentEnquiryDetailsPage() {
         return;
     }
 
-    // Mocking update as there is no API for this yet
     const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
     if (reqIndex > -1) MOCK_ALL_PARENT_REQUIREMENTS[reqIndex].status = "closed";
     
@@ -231,18 +283,8 @@ export default function ParentEnquiryDetailsPage() {
     router.push("/parent/my-enquiries"); 
   };
 
-  const handleUpdateEnquiry = (updatedData: Partial<TuitionRequirement>) => {
-    if (!requirement) return;
-    const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
-    if (reqIndex > -1) {
-      MOCK_ALL_PARENT_REQUIREMENTS[reqIndex] = {
-        ...MOCK_ALL_PARENT_REQUIREMENTS[reqIndex],
-        ...updatedData,
-      };
-    }
-    toast({ title: "Enquiry Updated", description: "Your requirement details have been saved." });
-    setIsEditModalOpen(false);
-    // In a real app, you would refetch the query here: queryClient.invalidateQueries(...)
+  const handleUpdateEnquiry = (updatedData: ParentEnquiryEditFormValues) => {
+    updateMutation.mutate(updatedData);
   };
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
@@ -447,6 +489,7 @@ export default function ParentEnquiryDetailsPage() {
           onOpenChange={setIsEditModalOpen}
           enquiryData={requirement}
           onUpdateEnquiry={handleUpdateEnquiry}
+          isUpdating={updateMutation.isPending}
         />
       )}
     </main>

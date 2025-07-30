@@ -19,14 +19,12 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -39,7 +37,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Save, X, User } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -90,16 +88,17 @@ const parentEnquiryEditSchema = z.object({
   path: ["location"],
 });
 
-type ParentEnquiryEditFormValues = z.infer<typeof parentEnquiryEditSchema>;
+export type ParentEnquiryEditFormValues = z.infer<typeof parentEnquiryEditSchema>;
 
 interface ParentEnquiryModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   enquiryData: TuitionRequirement | null;
-  onUpdateEnquiry: (updatedData: Partial<TuitionRequirement>) => void;
+  onUpdateEnquiry: (updatedData: ParentEnquiryEditFormValues) => void;
+  isUpdating: boolean;
 }
 
-export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEnquiry }: ParentEnquiryModalProps) {
+export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: ParentEnquiryModalProps) {
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
@@ -131,8 +130,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
 
   const onSubmit: SubmitHandler<ParentEnquiryEditFormValues> = (data) => {
     if (!enquiryData) return;
-    onUpdateEnquiry({ ...enquiryData, ...data });
-    onOpenChange(false); // Close modal on successful update
+    onUpdateEnquiry(data);
   };
   
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
@@ -334,11 +332,11 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
             
             <DialogFooter className="pt-4">
               <DialogClose asChild>
-                <Button type="button" variant="outline">Cancel</Button>
+                <Button type="button" variant="outline" disabled={isUpdating}>Cancel</Button>
               </DialogClose>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button type="submit" disabled={isUpdating}>
                 <Save className="mr-2 h-4 w-4" />
-                {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
+                {isUpdating ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
