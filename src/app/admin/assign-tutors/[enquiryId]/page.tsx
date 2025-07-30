@@ -122,16 +122,22 @@ function AssignTutorsContent() {
     board: enquiry?.board || '',
     isOnline: enquiry?.teachingMode?.includes("Online") || false,
     isOffline: enquiry?.teachingMode?.includes("Offline (In-person)") || false,
-    location: "",
+    city: "",
+    area: "",
   });
 
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
-    if (key === 'location' && value === 'all-locations') {
-        setFilters(prev => ({ ...prev, location: "" }));
-    } else {
-        setFilters(prev => ({ ...prev, [key]: value }));
-    }
+      setFilters(prev => ({ ...prev, [key]: value }));
   };
+  
+  const handleCityChange = (city: string) => {
+    setFilters(prev => ({ ...prev, city: city === 'all-cities' ? '' : city, area: '' }));
+  };
+
+  const handleAreaChange = (area: string) => {
+      setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
+  };
+
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -140,7 +146,8 @@ function AssignTutorsContent() {
     if(filters.board) params.append('boards', filters.board);
     if(filters.isOnline) params.append('isOnline', 'true');
     if(filters.isOffline) params.append('isOffline', 'true');
-    if(filters.location) params.append('location', filters.location);
+    if(filters.city) params.append('location', filters.city);
+    if(filters.area) params.append('location', `${filters.area}, ${filters.city}`);
     return params;
   }, [filters]);
   
@@ -150,15 +157,15 @@ function AssignTutorsContent() {
     enabled: !!token && !!enquiry,
   });
 
-  const uniqueLocations = useMemo(() => {
+  const uniqueCities = useMemo(() => {
     if (!allTutors) return [];
-    const locations = new Set<string>();
-    allTutors.forEach(tutor => {
-      if (tutor.city) locations.add(tutor.city);
-      if (tutor.area) locations.add(`${tutor.area}, ${tutor.city}`);
-    });
-    return Array.from(locations).sort();
+    return Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort();
   }, [allTutors]);
+
+  const uniqueAreasInCity = useMemo(() => {
+    if (!filters.city || !allTutors) return [];
+    return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
+  }, [allTutors, filters.city]);
   
   const handleAssignTutors = () => {
     if (selectedTutorIds.length === 0) {
@@ -273,15 +280,29 @@ function AssignTutorsContent() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="location-filter-modal">Location</Label>
-                            <Select onValueChange={(value) => handleFilterChange('location', value)} value={filters.location}>
-                                <SelectTrigger id="location-filter-modal">
-                                    <SelectValue placeholder="Select Location" />
+                        <div className="space-y-2">
+                            <Label htmlFor="city-filter-modal">City</Label>
+                            <Select onValueChange={handleCityChange} value={filters.city}>
+                                <SelectTrigger id="city-filter-modal">
+                                    <SelectValue placeholder="Select City" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="all-locations">All Locations</SelectItem>
-                                    {uniqueLocations.map(loc => (
+                                  <SelectItem value="all-cities">All Cities</SelectItem>
+                                    {uniqueCities.map(loc => (
+                                        <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="area-filter-modal">Area</Label>
+                            <Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}>
+                                <SelectTrigger id="area-filter-modal">
+                                    <SelectValue placeholder="Select Area" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="all-areas">All Areas</SelectItem>
+                                    {uniqueAreasInCity.map(loc => (
                                         <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                                     ))}
                                 </SelectContent>
