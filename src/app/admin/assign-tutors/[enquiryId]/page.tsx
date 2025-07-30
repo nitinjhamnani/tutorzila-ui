@@ -122,6 +122,7 @@ function AssignTutorsContent() {
     board: enquiry?.board || '',
     isOnline: enquiry?.teachingMode?.includes("Online") || false,
     isOffline: enquiry?.teachingMode?.includes("Offline (In-person)") || false,
+    location: "",
   });
 
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
@@ -135,6 +136,7 @@ function AssignTutorsContent() {
     if(filters.board) params.append('boards', filters.board);
     if(filters.isOnline) params.append('isOnline', 'true');
     if(filters.isOffline) params.append('isOffline', 'true');
+    if(filters.location) params.append('location', filters.location);
     return params;
   }, [filters]);
   
@@ -143,6 +145,16 @@ function AssignTutorsContent() {
     queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
     enabled: !!token && !!enquiry,
   });
+
+  const uniqueLocations = useMemo(() => {
+    if (!allTutors) return [];
+    const locations = new Set<string>();
+    allTutors.forEach(tutor => {
+      if (tutor.city) locations.add(tutor.city);
+      if (tutor.area) locations.add(`${tutor.area}, ${tutor.city}`);
+    });
+    return Array.from(locations).sort();
+  }, [allTutors]);
   
   const handleAssignTutors = () => {
     if (selectedTutorIds.length === 0) {
@@ -213,7 +225,7 @@ function AssignTutorsContent() {
                       Filter Tutors
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-white">
+                  <DialogContent className="bg-white sm:max-w-lg">
                     <DialogHeader>
                       <DialogTitle>Filter Tutors</DialogTitle>
                       <DialogDescription>
@@ -253,6 +265,20 @@ function AssignTutorsContent() {
                                 <SelectContent>
                                     {boardsList.map(board => (
                                         <SelectItem key={board} value={board}>{board}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="location-filter-modal">Location</Label>
+                            <Select onValueChange={(value) => handleFilterChange('location', value)} value={filters.location}>
+                                <SelectTrigger id="location-filter-modal">
+                                    <SelectValue placeholder="Select Location" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="">All Locations</SelectItem>
+                                    {uniqueLocations.map(loc => (
+                                        <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
