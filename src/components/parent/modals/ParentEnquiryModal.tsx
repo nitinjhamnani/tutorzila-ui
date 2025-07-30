@@ -76,8 +76,8 @@ const parentEnquiryEditSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  preferredDays: z.array(z.string()).min(1, "Please select at least one preferred day."),
-  preferredTimeSlots: z.array(z.string()).min(1, "Please select at least one preferred time slot."),
+  preferredDays: z.array(z.string()).optional(),
+  preferredTimeSlots: z.array(z.string()).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -145,7 +145,7 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
       >
         <DialogHeader className="p-6 pb-4 border-b relative">
           <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
-          <DialogDescription className="text-sm">
+          <DialogDescription className="text-xs">
             Update the details for your enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
           </DialogDescription>
            <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">

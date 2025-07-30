@@ -80,8 +80,8 @@ const enquiryFormSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  preferredDays: z.array(z.string()).min(1, "Please select at least one preferred day."),
-  preferredTimeSlots: z.array(z.string()).min(1, "Please select at least one preferred time slot."),
+  preferredDays: z.array(z.string()).optional(),
+  preferredTimeSlots: z.array(z.string()).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
