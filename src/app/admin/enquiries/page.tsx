@@ -35,14 +35,18 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
   
   return data.map((item: any, index: number) => ({
     id: item.enquiryId || `enq-${index}-${Date.now()}`,
-    parentId: `p-${index}`, 
     parentName: "A Parent", 
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
     scheduleDetails: "Details not provided by API",
-    location: [item.area, item.city, item.country].filter(Boolean).join(', '),
+    location: {
+      address: [item.area, item.city, item.country].filter(Boolean).join(', '),
+      area: item.area,
+      city: item.city,
+      country: item.country,
+    },
     status: "open", 
-    postedAt: new Date().toISOString(), 
+    postedAt: item.createdOn || new Date().toISOString(),
     board: item.board,
     teachingMode: [
       ...(item.online ? ["Online"] : []),

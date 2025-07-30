@@ -15,13 +15,10 @@ interface AdminEnquiryCardProps {
   requirement: TuitionRequirement;
 }
 
-const getInitials = (name?: string): string => {
-  if (!name || name.trim() === "") return "??";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) {
-    return parts[0].substring(0, 2).toUpperCase();
-  }
-  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+const getInitials = (subject?: string[]): string => {
+  if (!subject || subject.length === 0 || !subject[0]) return "?";
+  const firstSubject = subject[0];
+  return firstSubject[0].toUpperCase();
 };
 
 const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; text?: string | string[]; className?: string }) => {
@@ -40,7 +37,10 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
 export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
-  const parentInitials = getInitials("Parent"); // Placeholder as parentName isn't always available
+  const subjectInitials = getInitials(requirement.subject);
+  const locationString = typeof requirement.location === 'object' && requirement.location !== null
+    ? [requirement.location.area, requirement.location.city, requirement.location.country].filter(Boolean).join(', ')
+    : requirement.location;
 
   return (
     <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
@@ -48,7 +48,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
         <div className="flex items-start space-x-3">
           <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-xs">
-              {parentInitials}
+              {subjectInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
@@ -69,15 +69,18 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
         {requirement.teachingMode && requirement.teachingMode.length > 0 && (
             <InfoItem icon={RadioTower} text={requirement.teachingMode.join(', ')} />
         )}
-        {requirement.location && (
-            <InfoItem icon={MapPin} text={requirement.location as string} />
-        )}
       </CardContent>
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
           {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Tutors Assigned
+            </Badge>
+          )}
+           {locationString && (
+            <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
+              <MapPin className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+              {locationString}
             </Badge>
           )}
         </div>
