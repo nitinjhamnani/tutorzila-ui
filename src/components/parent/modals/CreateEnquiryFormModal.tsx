@@ -1,18 +1,19 @@
 
 "use client";
 
+import { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  DialogContent, // Changed from Dialog
+  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose, // Added DialogClose
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -24,7 +25,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -33,96 +33,108 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, Send } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import type { TuitionRequirement } from "@/types";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User } from "lucide-react";
+import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
 
-const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-const gradeLevelsList = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"];
-const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 
+const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
+const gradeLevelsList = [
+    "Nursery", "LKG", "UKG",
+    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
+    "Grade 11", "Grade 12",
+    "College Level", "Adult Learner", "Other"
+];
+const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
 const teachingModeOptions = [
   { id: "Online", label: "Online" },
   { id: "Offline (In-person)", label: "Offline (In-person)" },
 ];
-
 const daysOptions: MultiSelectOption[] = [
   { value: "Monday", label: "Monday" }, { value: "Tuesday", label: "Tuesday" }, { value: "Wednesday", label: "Wednesday" },
   { value: "Thursday", label: "Thursday" }, { value: "Friday", label: "Friday" }, { value: "Saturday", label: "Saturday" },
   { value: "Sunday", label: "Sunday" }, { value: "Weekdays", label: "Weekdays" }, { value: "Weekends", label: "Weekends" },
   { value: "Flexible", label: "Flexible"},
 ];
-
 const timeSlotsOptions: MultiSelectOption[] = [
-  { value: "0800-1000", label: "8:00 AM - 10:00 AM" }, { value: "1000-1200", label: "10:00 AM - 12:00 PM" },
-  { value: "1200-1400", label: "12:00 PM - 2:00 PM" }, { value: "1400-1600", label: "2:00 PM - 4:00 PM" },
-  { value: "1600-1800", label: "4:00 PM - 6:00 PM" }, { value: "1800-2000", label: "6:00 PM - 8:00 PM" },
-  { value: "2000-2200", label: "8:00 PM - 10:00 PM" }, { value: "Flexible", label: "Flexible"},
+  { value: "8:00 AM - 10:00 AM", label: "8:00 AM - 10:00 AM" },
+  { value: "10:00 AM - 12:00 PM", label: "10:00 AM - 12:00 PM" },
+  { value: "12:00 PM - 2:00 PM", label: "12:00 PM - 2:00 PM" },
+  { value: "2:00 PM - 4:00 PM", label: "2:00 PM - 4:00 PM" },
+  { value: "4:00 PM - 6:00 PM", label: "4:00 PM - 6:00 PM" },
+  { value: "6:00 PM - 8:00 PM", label: "6:00 PM - 8:00 PM" },
+  { value: "8:00 PM - 10:00 PM", label: "8:00 PM - 10:00 PM" },
+  { value: "Flexible", label: "Flexible"},
 ];
 
-const createEnquirySchema = z.object({
+
+const enquiryFormSchema = z.object({
+  studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
-  gradeLevel: z.string({ required_error: "Please select a grade level." }).min(1, "Please select a grade level."),
-  board: z.string({ required_error: "Please select a board." }).min(1, "Please select a board."),
+  gradeLevel: z.string().min(1, { message: "Grade level is required." }),
+  board: z.string().min(1, { message: "Board is required."}),
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
-  location: z.string().optional().or(z.literal("")),
+  location: z.custom<LocationDetails | null>(
+    (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
+    "Invalid location format."
+  ).nullable(),
   preferredDays: z.array(z.string()).min(1, "Please select at least one preferred day."),
   preferredTimeSlots: z.array(z.string()).min(1, "Please select at least one preferred time slot."),
-  scheduleDetails: z.string().min(10, { message: "Please provide schedule details (at least 10 characters)." }),
-  additionalNotes: z.string().optional(),
 }).refine(data => {
-    if (data.teachingMode?.includes("Offline (In-person)") && (!data.location || data.location.trim() === "")) {
-      return false;
-    }
-    return true;
-  }, {
-    message: "Location is required for Offline (In-person) teaching mode.",
-    path: ["location"],
-  });
+  if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Location is required for Offline (In-person) teaching mode.",
+  path: ["location"],
+});
 
-type CreateEnquiryFormValues = z.infer<typeof createEnquirySchema>;
+type EnquiryFormValues = z.infer<typeof enquiryFormSchema>;
 
 interface CreateEnquiryFormModalProps {
-  onSuccess: () => void; 
+  onSuccess: () => void;
 }
 
 export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProps) {
   const { toast } = useToast();
   const { user } = useAuthMock();
 
-  const form = useForm<CreateEnquiryFormValues>({
-    resolver: zodResolver(createEnquirySchema),
+  const form = useForm<EnquiryFormValues>({
+    resolver: zodResolver(enquiryFormSchema),
     defaultValues: {
+      studentName: "",
       subject: [],
       gradeLevel: "",
       board: "",
       teachingMode: [],
-      location: "",
+      location: null,
       preferredDays: [],
       preferredTimeSlots: [],
-      scheduleDetails: "",
-      additionalNotes: "",
     },
   });
 
-  const onSubmit: SubmitHandler<CreateEnquiryFormValues> = (data) => {
+  const onSubmit: SubmitHandler<EnquiryFormValues> = (data) => {
     if (!user) {
-        toast({ title: "Error", description: "You must be logged in to post a requirement.", variant: "destructive" });
-        return;
+      toast({ title: "Error", description: "You must be logged in to post a requirement.", variant: "destructive" });
+      return;
     }
     const newRequirement: TuitionRequirement = {
-        id: `req-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        parentId: user.id,
-        parentName: user.name,
-        ...data,
-        status: "open",
-        postedAt: new Date().toISOString(),
-        applicantsCount: 0,
+      id: `req-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      parentId: user.id,
+      parentName: user.name,
+      ...data,
+      status: "open",
+      postedAt: new Date().toISOString(),
+      scheduleDetails: "N/A", // This field is not in the new form
+      applicantsCount: 0,
     };
 
     MOCK_ALL_PARENT_REQUIREMENTS.unshift(newRequirement);
@@ -134,28 +146,48 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
       duration: 5000,
     });
     form.reset();
-    onSuccess(); 
+    onSuccess();
   };
   
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
 
   return (
-    <DialogContent className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden">
-      <DialogHeader className="text-left pt-6 px-6 pb-4 border-b">
-        <DialogTitle className="text-2xl font-semibold">Post New Tuition Requirement</DialogTitle>
-        <DialogDescription>
+    <DialogContent 
+      className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
+      onPointerDownOutside={(e) => e.preventDefault()}
+    >
+      <DialogHeader className="p-6 pb-4 border-b relative">
+        <DialogTitle className="text-xl font-semibold text-primary">Create New Tuition Requirement</DialogTitle>
+        <DialogDescription className="text-sm">
           Please fill in the details below to find the perfect tutor.
         </DialogDescription>
+        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogClose>
       </DialogHeader>
-
+      
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 px-6 pb-6 pt-4 max-h-[70vh] overflow-y-auto">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[70vh] overflow-y-auto">
+          <FormField
+            control={form.control}
+            name="studentName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80" />Student's Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Rohan Kumar" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="subject"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects</FormLabel>
+                <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subject(s)</FormLabel>
                 <MultiSelectCommand
                   options={subjectsList}
                   selectedValues={field.value || []}
@@ -163,24 +195,20 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
                   placeholder="Select subjects..."
                   className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                 />
-                <FormDescription className="text-xs">You can select multiple subjects.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="gradeLevel"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Level</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
-                          <SelectValue placeholder="Select a grade level" />
-                      </SelectTrigger>
+                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {gradeLevelsList.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
@@ -196,11 +224,9 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80"/>Board</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
-                          <SelectValue placeholder="Select a board" />
-                      </SelectTrigger>
+                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a board" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {boardsList.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
@@ -211,45 +237,50 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
               )}
             />
           </div>
-
           <FormField
             control={form.control}
             name="teachingMode"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
-                <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Mode</FormLabel>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                  {teachingModeOptions.map((option) => (
-                    <FormItem key={option.id}>
-                      <Label
-                        htmlFor={`create-mode-${option.id}`}
-                        className={cn(
-                          "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
-                          field.value?.includes(option.id) && "bg-primary/10 border-primary ring-1 ring-primary"
-                        )}
-                      >
-                        <FormControl>
-                          <Checkbox
-                            id={`create-mode-${option.id}`}
-                            checked={field.value?.includes(option.id)}
-                            onCheckedChange={(checked) => {
-                              const currentValues = field.value || [];
-                              return checked
-                                ? field.onChange([...currentValues, option.id])
-                                : field.onChange(currentValues.filter(v => v !== option.id));
-                            }}
-                          />
-                        </FormControl>
-                        <span className="font-normal text-sm">{option.label}</span>
-                      </Label>
-                    </FormItem>
+                <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {teachingModeOptions.map((item) => (
+                    <FormField
+                      key={item.id}
+                      control={form.control}
+                      name="teachingMode"
+                      render={({ field }) => (
+                        <FormItem key={item.id}>
+                          <Label
+                            htmlFor={`teaching-mode-create-${item.id}`}
+                            className={cn(
+                              "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
+                              field.value?.includes(item.id) && "bg-primary/10 border-primary ring-1 ring-primary"
+                            )}
+                          >
+                            <FormControl>
+                              <Checkbox
+                                id={`teaching-mode-create-${item.id}`}
+                                checked={field.value?.includes(item.id)}
+                                onCheckedChange={(checked) => {
+                                  const currentValues = field.value || [];
+                                  return checked
+                                    ? field.onChange([...currentValues, item.id])
+                                    : field.onChange(currentValues.filter(value => value !== item.id));
+                                }}
+                              />
+                            </FormControl>
+                            <span className="font-normal text-sm">{item.label}</span>
+                          </Label>
+                        </FormItem>
+                      )}
+                    />
                   ))}
                 </div>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
           {isOfflineModeSelected && (
             <FormField
               control={form.control}
@@ -258,25 +289,28 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
                 <FormItem>
                   <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Location (for In-person)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Student's Home, City Center Library" {...field} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
+                    <LocationAutocompleteInput
+                      initialValue={field.value}
+                      onValueChange={(details) => field.onChange(details)}
+                      placeholder="Search for address or area..."
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="preferredDays"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Days</FormLabel>
+                  <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Days</FormLabel>
                   <MultiSelectCommand
                     options={daysOptions}
                     selectedValues={field.value || []}
-                    onValueChange={(values) => field.onChange(values)}
+                    onValueChange={field.onChange}
                     placeholder="Select preferred days..."
                     className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                   />
@@ -302,48 +336,13 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
               )}
             />
           </div>
-
-          <FormField
-            control={form.control}
-            name="scheduleDetails"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Schedule Details</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="e.g., Weekdays after 5 PM, 2-3 times a week. Student needs help with exam preparation..."
-                    className="resize-none bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"
-                    {...field}
-                    rows={3}
-                  />
-                </FormControl>
-                <FormDescription className="text-xs">Provide specific timings, frequency, and goals.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="additionalNotes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Additional Notes (Optional)</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Any other specific requirements or notes for the tutor." {...field} rows={3} className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"/>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
           <DialogFooter className="pt-4">
             <DialogClose asChild>
               <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              <Send className="mr-2 h-4 w-4" />
-              {form.formState.isSubmitting ? "Submitting..." : "Submit Requirement"}
+              <Save className="mr-2 h-4 w-4" />
+              {form.formState.isSubmitting ? "Creating..." : "Create Requirement"}
             </Button>
           </DialogFooter>
         </form>
@@ -351,4 +350,3 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
     </DialogContent>
   );
 }
-
