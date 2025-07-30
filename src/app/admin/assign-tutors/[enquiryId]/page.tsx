@@ -126,7 +126,11 @@ function AssignTutorsContent() {
   });
 
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    if (key === 'location' && value === 'all-locations') {
+        setFilters(prev => ({ ...prev, location: "" }));
+    } else {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    }
   };
 
   const tutorSearchParams = useMemo(() => {
@@ -276,7 +280,7 @@ function AssignTutorsContent() {
                                     <SelectValue placeholder="Select Location" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="">All Locations</SelectItem>
+                                  <SelectItem value="all-locations">All Locations</SelectItem>
                                     {uniqueLocations.map(loc => (
                                         <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                                     ))}
