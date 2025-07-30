@@ -181,7 +181,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             <>
             <Separator />
             <section className="space-y-2">
-            <h3 className="text-sm font-semibold text-foreground flex items-center">
+            <h3 className="text-base font-semibold text-foreground flex items-center">
                 <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
                 Schedule Preferences
             </h3>
@@ -201,7 +201,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           <>
           <Separator />
           <section className="space-y-2">
-            <h3 className="text-sm font-semibold text-foreground flex items-center">
+            <h3 className="text-base font-semibold text-foreground flex items-center">
               <MapPin className="w-4 h-4 mr-2 text-primary/80" />
               Location
             </h3>
