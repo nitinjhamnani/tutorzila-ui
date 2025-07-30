@@ -28,6 +28,7 @@ import { DialogClose } from "@/components/ui/dialog";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -101,6 +102,7 @@ interface EditTutoringDetailsFormProps {
 export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoringDetailsFormProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
+  const queryClient = useQueryClient();
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
@@ -209,6 +211,9 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response.' }));
         throw new Error(errorData.message || 'Failed to update details.');
       }
+      
+      const updatedDashboardData = await response.json();
+      queryClient.setQueryData(['tutorDashboard', token], updatedDashboardData);
 
       toast({
         title: "Tutoring Details Updated!",
