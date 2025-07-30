@@ -58,7 +58,7 @@ const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequire
     scheduleDetails: "Details not provided by API",
     location: [item.area, item.city, item.country].filter(Boolean).join(', '),
     status: "open", 
-    postedAt: new Date().toISOString(), 
+    postedAt: item.createdOn || new Date().toISOString(),
     board: item.board,
     teachingMode: [
       ...(item.online ? ["Online"] : []),
