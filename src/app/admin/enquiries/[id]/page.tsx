@@ -11,6 +11,28 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription as DialogDesc,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   User,
   BookOpen,
@@ -27,10 +49,12 @@ import {
   MapPinned,
   Loader2,
   XCircle,
+  Edit3,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AdminEnquiryModal, type AdminEnquiryEditFormValues } from "@/components/admin/modals/AdminEnquiryModal";
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -139,11 +163,88 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   };
 };
 
+const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: AdminEnquiryEditFormValues }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  
+  const locationDetails = formData.location;
+  const requestBody = {
+    studentName: formData.studentName,
+    subjects: formData.subject,
+    grade: formData.gradeLevel,
+    board: formData.board,
+    addressName: locationDetails?.name || locationDetails?.address || "",
+    address: locationDetails?.address || "",
+    city: locationDetails?.city || "",
+    state: locationDetails?.state || "",
+    country: locationDetails?.country || "",
+    area: locationDetails?.area || "",
+    pincode: locationDetails?.pincode || "",
+    googleMapsLink: locationDetails?.googleMapsUrl || "",
+    availabilityDays: formData.preferredDays,
+    availabilityTime: formData.preferredTimeSlots,
+    online: formData.teachingMode.includes("Online"),
+    offline: formData.teachingMode.includes("Offline (In-person)"),
+  };
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/update`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update enquiry.");
+  }
+  return response.json();
+};
+
+const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, token: string | null, reason: string }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+  if (!reason) throw new Error("A reason for closing is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/close`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to close enquiry.");
+  }
+  return true;
+};
+
+const closeReasons = [
+    { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
+    { id: 'found-elsewhere', label: "Found a tutor elsewhere" },
+    { id: 'no-longer-needed', label: "Don't need a tutor anymore" },
+    { id: 'other', label: "Other" }
+];
+
 export default function AdminEnquiryDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { toast } = useToast();
   const id = params.id as string;
+  const queryClient = useQueryClient();
+
+  const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
+  const [closeReason, setCloseReason] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
 
   const { data: requirement, isLoading, error } = useQuery({
     queryKey: ['adminEnquiryDetails', id],
@@ -153,11 +254,96 @@ export default function AdminEnquiryDetailsPage() {
     refetchOnWindowFocus: false,
   });
 
+  const updateMutation = useMutation({
+    mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
+    onSuccess: (updatedData) => {
+      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+      
+      const transformedData: TuitionRequirement = {
+        id: updatedData.enquirySummary.enquiryId,
+        parentName: updatedData.name || requirement?.parentName || "A Parent", 
+        studentName: updatedData.studentName,
+        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+        gradeLevel: updatedData.enquirySummary.grade,
+        board: updatedData.enquirySummary.board,
+        location: {
+            name: updatedData.addressName || updatedData.address || "",
+            address: updatedData.address,
+            googleMapsUrl: updatedData.googleMapsLink,
+            city: updatedData.enquirySummary.city,
+            state: updatedData.enquirySummary.state,
+            country: updatedData.enquirySummary.country,
+            area: updatedData.enquirySummary.area,
+            pincode: updatedData.pincode,
+        },
+        teachingMode: [
+          ...(updatedData.enquirySummary.online ? ["Online"] : []),
+          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+        ],
+        scheduleDetails: updatedData.notes, 
+        additionalNotes: updatedData.notes,
+        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+        status: updatedData.status?.toLowerCase() || 'open',
+        postedAt: updatedData.enquirySummary.createdOn,
+        applicantsCount: updatedData.enquirySummary.assignedTutors,
+      };
+
+      queryClient.setQueryData(['adminEnquiryDetails', id], transformedData);
+      setIsEditModalOpen(false);
+    },
+    onError: (error) => {
+      toast({ variant: "destructive", title: "Update Failed", description: error.message });
+    },
+  });
+
+  const closeEnquiryMutation = useMutation({
+    mutationFn: (reason: string) => closeEnquiry({ enquiryId: id, token, reason }),
+    onSuccess: () => {
+      toast({
+        title: "Enquiry Closed",
+        description: `The requirement has been successfully closed.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['adminAllEnquiries'] });
+      router.push("/admin/enquiries");
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Failed to Close Enquiry",
+        description: error.message,
+      });
+    },
+  });
+
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'admin')) {
       router.replace("/admin/login");
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
+
+  const handleOpenCloseEnquiryModal = () => {
+    if (!requirement) return;
+    setCloseReason(null);
+    setIsCloseEnquiryModalOpen(true);
+  };
+
+  const handleCloseEnquiryDialogAction = () => {
+    if (!closeReason) {
+        toast({
+            variant: "destructive",
+            title: "Reason Required",
+            description: "Please select a reason for closing the enquiry.",
+        });
+        return;
+    }
+    closeEnquiryMutation.mutate(closeReason);
+    setIsCloseEnquiryModalOpen(false);
+  };
+
+  const handleUpdateEnquiry = (updatedData: AdminEnquiryEditFormValues) => {
+    updateMutation.mutate(updatedData);
+  };
 
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
   const formattedPostedDate = requirement?.postedAt ? format(postedDate, "MMMM d, yyyy 'at' h:mm a") : "";
@@ -298,6 +484,9 @@ export default function AdminEnquiryDetailsPage() {
                     Posted on {formattedPostedDate}
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
+                      <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
+                    </Button>
                     {(requirement.applicantsCount ?? 0) > 0 && (
                       <Button asChild variant="default" size="sm">
                           <Link href="#">
@@ -306,12 +495,67 @@ export default function AdminEnquiryDetailsPage() {
                           </Link>
                       </Button>
                     )}
+                    <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}>
+                      <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
+                    </Button>
                 </div>
               </CardFooter>
             </Card>
           </div>
         </div>
       </div>
+      
+      {requirement && (
+        <Dialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Close Enquiry: {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}</DialogTitle>
+                <DialogDesc>
+                  Please select a reason for closing this requirement. This helps us improve our service.
+                </DialogDesc>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                  <RadioGroup
+                    onValueChange={(value: string) => setCloseReason(value)}
+                    value={closeReason || ""}
+                    className="flex flex-col space-y-2"
+                  >
+                    {closeReasons.map((reason) => (
+                      <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                        <RadioGroupItem value={reason.id} id={`admin-close-${reason.id}`} />
+                        <Label htmlFor={`admin-close-${reason.id}`} className="font-normal text-sm">{reason.label}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button 
+                  type="button" 
+                  onClick={handleCloseEnquiryDialogAction} 
+                  disabled={!closeReason || closeEnquiryMutation.isPending}
+                >
+                  {closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {closeEnquiryMutation.isPending ? "Closing..." : "Confirm & Close"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+      )}
+
+      {requirement && (
+        <AdminEnquiryModal
+          isOpen={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          enquiryData={requirement}
+          onUpdateEnquiry={handleUpdateEnquiry}
+          isUpdating={updateMutation.isPending}
+        />
+      )}
     </main>
   );
 }
