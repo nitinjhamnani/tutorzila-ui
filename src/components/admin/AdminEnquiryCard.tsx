@@ -42,6 +42,18 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
     ? [requirement.location.area, requirement.location.city, requirement.location.country].filter(Boolean).join(', ')
     : requirement.location;
 
+  const constructAssignTutorUrl = () => {
+    const params = new URLSearchParams();
+    if(requirement.subject) params.append('subjects', Array.isArray(requirement.subject) ? requirement.subject.join(',') : requirement.subject);
+    if(requirement.gradeLevel) params.append('grade', requirement.gradeLevel);
+    if(requirement.board) params.append('board', requirement.board);
+    if(requirement.teachingMode) params.append('mode', requirement.teachingMode.join(','));
+    if(locationString) params.append('location', locationString);
+
+    return `/admin/assign-tutors/${requirement.id}?${params.toString()}`;
+  }
+
+
   return (
     <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
@@ -102,7 +114,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
                 variant="default"
                 className="text-xs py-1.5 px-3 h-auto"
                 >
-                <Link href={`/admin/assign-tutors/${requirement.id}`}>
+                <Link href={constructAssignTutorUrl()}>
                     <UsersIcon className="w-3 h-3 mr-1.5" /> Assign Tutors
                 </Link>
             </Button>

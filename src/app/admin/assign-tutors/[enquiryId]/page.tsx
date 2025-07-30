@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { format } from 'date-fns';
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -49,34 +49,6 @@ import {
   Building
 } from "lucide-react";
 
-// API Fetching Functions
-
-const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
-  if (!token || !enquiryId) throw new Error("Token and Enquiry ID are required.");
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/details/${enquiryId}`, {
-    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
-  });
-  if (!response.ok) throw new Error("Failed to fetch enquiry details.");
-  const data = await response.json();
-  return {
-    id: data.enquirySummary.enquiryId,
-    parentName: data.name || "A Parent", 
-    studentName: data.studentName,
-    subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-    gradeLevel: data.enquirySummary.grade,
-    board: data.enquirySummary.board,
-    location: { address: data.address || "", city: data.enquirySummary.city, area: data.enquirySummary.area },
-    teachingMode: [
-      ...(data.enquirySummary.online ? ["Online"] : []),
-      ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
-    ],
-    status: data.status?.toLowerCase() || 'open',
-    postedAt: data.enquirySummary.createdOn,
-    applicantsCount: data.enquirySummary.assignedTutors,
-    scheduleDetails: data.notes,
-  };
-};
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -96,20 +68,32 @@ const getInitials = (name: string): string => {
       : parts[0].slice(0, 2);
 };
 
-
-export default function AssignTutorsToEnquiryPage() {
+function AssignTutorsContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const enquiryId = params.enquiryId as string;
   const { token } = useAuthMock();
   const { toast } = useToast();
   
   const [selectedTutorIds, setSelectedTutorIds] = useState<string[]>([]);
-  
-  const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
-    queryKey: ['adminEnquiryDetails', enquiryId],
-    queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
-    enabled: !!token && !!enquiryId,
-  });
+
+  const enquiry = useMemo(() => {
+    if (!searchParams) return null;
+    return {
+        id: enquiryId,
+        subject: searchParams.get('subjects')?.split(',') || [],
+        gradeLevel: searchParams.get('grade') || '',
+        board: searchParams.get('board') || '',
+        teachingMode: searchParams.get('mode')?.split(',') || [],
+        location: { address: searchParams.get('location') || "" },
+        // These are not passed via URL but are part of the type, so we can add default/empty values
+        parentName: '',
+        studentName: '',
+        status: 'open' as const,
+        postedAt: new Date().toISOString(),
+        scheduleDetails: ''
+    };
+  }, [searchParams, enquiryId]);
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -166,20 +150,14 @@ export default function AssignTutorsToEnquiryPage() {
     );
   };
   
-  const isLoading = isLoadingEnquiry;
+  if (!enquiry) {
+    return <Loader2 className="h-8 w-8 animate-spin text-primary" />;
+  }
 
   return (
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
         <CardHeader className="p-0">
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          ) : enquiryError ? (
-            <CardTitle className="text-destructive">Error loading enquiry</CardTitle>
-          ) : enquiry && (
             <>
               <CardTitle className="text-xl font-semibold text-primary flex items-center">
                 <Briefcase className="w-5 h-5 mr-2.5" />
@@ -193,7 +171,6 @@ export default function AssignTutorsToEnquiryPage() {
                  {enquiry.location?.address && <span className="flex items-center gap-1.5 col-span-2"><MapPin className="w-3.5 h-3.5 text-primary/80"/><strong>Location:</strong> {enquiry.location.address}</span>}
               </CardDescription>
             </>
-          )}
         </CardHeader>
       </Card>
       
@@ -291,3 +268,10 @@ export default function AssignTutorsToEnquiryPage() {
   );
 }
 
+export default function AssignTutorsToEnquiryPage() {
+    return (
+        <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin text-primary" />}>
+            <AssignTutorsContent />
+        </Suspense>
+    )
+}
