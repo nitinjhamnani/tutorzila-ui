@@ -207,6 +207,29 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
   return response.json();
 };
 
+const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, token: string | null, reason: string }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+  if (!reason) throw new Error("A reason for closing is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/close`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to close enquiry.");
+  }
+  return true;
+};
+
 const closeReasons = [
     { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
     { id: 'found-elsewhere', label: "Found a tutor elsewhere" },
@@ -278,6 +301,25 @@ export default function ParentEnquiryDetailsPage() {
     },
   });
 
+  const closeEnquiryMutation = useMutation({
+    mutationFn: (reason: string) => closeEnquiry({ enquiryId: id, token, reason }),
+    onSuccess: () => {
+      toast({
+        title: "Enquiry Closed",
+        description: `Your requirement has been successfully closed.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+      router.push("/parent/my-enquiries");
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Failed to Close Enquiry",
+        description: error.message,
+      });
+    },
+  });
+
   useEffect(() => {
     if (!isCheckingAuth && !isAuthenticated) {
       router.replace("/");
@@ -299,16 +341,8 @@ export default function ParentEnquiryDetailsPage() {
         });
         return;
     }
-    
-    console.log(`Closing enquiry ${id}. Reason: ${closeReason}`);
-    toast({
-      title: "Enquiry Closed (Mock)",
-      description: `Requirement for "${Array.isArray(requirement?.subject) ? requirement.subject.join(', ') : requirement?.subject}" has been marked as closed.`,
-    });
+    closeEnquiryMutation.mutate(closeReason);
     setIsCloseEnquiryModalOpen(false);
-    // Invalidate queries to refetch the list on the previous page
-    queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
-    router.push("/parent/my-enquiries"); 
   };
 
   const handleUpdateEnquiry = (updatedData: ParentEnquiryEditFormValues) => {
@@ -505,7 +539,12 @@ export default function ParentEnquiryDetailsPage() {
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button type="button" onClick={handleCloseEnquiryDialogAction} disabled={!closeReason}>
+                <Button 
+                  type="button" 
+                  onClick={handleCloseEnquiryDialogAction} 
+                  disabled={!closeReason || closeEnquiryMutation.isPending}
+                >
+                  {closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirm & Close
                 </Button>
               </DialogFooter>
@@ -525,4 +564,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
