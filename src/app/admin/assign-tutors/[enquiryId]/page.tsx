@@ -95,19 +95,27 @@ function AssignTutorsContent() {
     };
   }, [searchParams, enquiryId]);
 
+  const [filters, setFilters] = useState({
+    subjects: enquiry?.subject.join(',') || '',
+    grade: enquiry?.gradeLevel || '',
+    board: enquiry?.board || '',
+    isOnline: enquiry?.teachingMode?.includes("Online") || false,
+    isOffline: enquiry?.teachingMode?.includes("Offline (In-person)") || false,
+  });
+
+  const handleFilterChange = (key: keyof typeof filters, value: string | boolean) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
-    if (enquiry) {
-        if(enquiry.subject.length > 0) params.append('subjects', enquiry.subject.join(','));
-        if(enquiry.gradeLevel) params.append('grades', enquiry.gradeLevel);
-        if(enquiry.board) params.append('boards', enquiry.board);
-        if(enquiry.teachingMode?.includes("Online")) params.append('isOnline', 'true');
-        if(enquiry.teachingMode?.includes("Offline (In-person)")) {
-          params.append('isOffline', 'true');
-        }
-    }
+    if(filters.subjects) params.append('subjects', filters.subjects);
+    if(filters.grade) params.append('grades', filters.grade);
+    if(filters.board) params.append('boards', filters.board);
+    if(filters.isOnline) params.append('isOnline', 'true');
+    if(filters.isOffline) params.append('isOffline', 'true');
     return params;
-  }, [enquiry]);
+  }, [filters]);
   
   const { data: allTutors = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
     queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
@@ -176,12 +184,33 @@ function AssignTutorsContent() {
       
       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
         <CardHeader className="p-4 border-b">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h3 className="text-base font-semibold text-foreground">Recommended Tutors</h3>
-            <Button onClick={handleAssignTutors} disabled={selectedTutorIds.length === 0}>
-              Assign ({selectedTutorIds.length}) Selected Tutors
-            </Button>
-          </div>
+            <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold text-foreground flex items-center gap-2"><ListFilter className="w-5 h-5"/> Filter Tutors</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
+                <div className="space-y-1">
+                    <Label htmlFor="subjects-filter" className="text-xs">Subjects</Label>
+                    <Input id="subjects-filter" placeholder="e.g. Maths, Physics" value={filters.subjects} onChange={(e) => handleFilterChange('subjects', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="grade-filter" className="text-xs">Grade</Label>
+                    <Input id="grade-filter" placeholder="e.g. Grade 10" value={filters.grade} onChange={(e) => handleFilterChange('grade', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="board-filter" className="text-xs">Board</Label>
+                    <Input id="board-filter" placeholder="e.g. CBSE" value={filters.board} onChange={(e) => handleFilterChange('board', e.target.value)} />
+                </div>
+                <div className="flex items-center space-x-4 pt-5">
+                     <div className="flex items-center space-x-2">
+                        <Checkbox id="online-filter" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
+                        <Label htmlFor="online-filter" className="text-xs font-medium">Online</Label>
+                    </div>
+                     <div className="flex items-center space-x-2">
+                        <Checkbox id="offline-filter" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
+                        <Label htmlFor="offline-filter" className="text-xs font-medium">Offline</Label>
+                    </div>
+                </div>
+            </div>
         </CardHeader>
         <CardContent className="p-0">
            <Table>
@@ -263,6 +292,11 @@ function AssignTutorsContent() {
             </TableBody>
            </Table>
         </CardContent>
+        <CardFooter className="p-4 border-t">
+          <Button onClick={handleAssignTutors} disabled={selectedTutorIds.length === 0}>
+              Assign ({selectedTutorIds.length}) Selected Tutors
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );
