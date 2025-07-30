@@ -28,17 +28,16 @@ export interface LocationDetails {
 
 export interface TuitionRequirement {
   id:string;
-  parentId: string;
   parentName?: string;
   studentName?: string;
   subject: string[];
   gradeLevel: string;
-  scheduleDetails: string;
+  scheduleDetails: string | null;
   preferredDays?: string[];
   preferredTimeSlots?: string[];
-  location?: LocationDetails | null | string; // Allow string for backward compatibility
-  address?: string; // Add address directly
-  additionalNotes?: string;
+  location?: LocationDetails | null;
+  address?: string; 
+  additionalNotes?: string | null;
   status: "open" | "matched" | "closed";
   postedAt: string; // ISO date string
   board?: string;

@@ -137,7 +137,6 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
 
   return {
     id: data.enquirySummary.enquiryId,
-    parentId: "", 
     parentName: data.name || "A Parent", 
     studentName: data.studentName,
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
@@ -244,7 +243,6 @@ export default function ParentEnquiryDetailsPage() {
       
       const transformedData: TuitionRequirement = {
         id: updatedData.enquirySummary.enquiryId,
-        parentId: requirement?.parentId || "", 
         parentName: updatedData.name || requirement?.parentName || "A Parent", 
         studentName: updatedData.studentName,
         subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
