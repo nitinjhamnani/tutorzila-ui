@@ -37,6 +37,7 @@ export interface TuitionRequirement {
   preferredDays?: string[];
   preferredTimeSlots?: string[];
   location?: LocationDetails | null | string; // Allow string for backward compatibility
+  address?: string; // Add address directly
   additionalNotes?: string;
   status: "open" | "matched" | "closed";
   postedAt: string; // ISO date string

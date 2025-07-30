@@ -143,6 +143,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
     board: data.enquirySummary.board,
+    address: data.address,
     location: {
         name: data.addressName || data.address || "",
         address: data.address,
@@ -249,6 +250,7 @@ export default function ParentEnquiryDetailsPage() {
         subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
         gradeLevel: updatedData.enquirySummary.grade,
         board: updatedData.enquirySummary.board,
+        address: updatedData.address,
         location: {
             name: updatedData.addressName || updatedData.address || "",
             address: updatedData.address,

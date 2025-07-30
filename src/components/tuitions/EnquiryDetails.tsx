@@ -119,7 +119,8 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
     });
   };
 
-  const hasScheduleInfo = requirement.preferredDays?.length || requirement.preferredTimeSlots?.length;
+  const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
+  const hasLocationInfo = requirement.address && requirement.address.trim() !== '';
 
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
@@ -176,9 +177,9 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           </div>
         </section>
 
-        {(hasScheduleInfo || requirement.address) && <Separator />}
-
         {hasScheduleInfo && (
+            <>
+            <Separator />
             <section className="space-y-2">
             <h3 className="text-sm font-semibold text-foreground flex items-center">
                 <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
@@ -193,9 +194,12 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                 )}
             </div>
             </section>
+            </>
         )}
         
-        {requirement.address && (
+        {hasLocationInfo && (
+          <>
+          <Separator />
           <section className="space-y-2">
             <h3 className="text-sm font-semibold text-foreground flex items-center">
               <MapPin className="w-4 h-4 mr-2 text-primary/80" />
@@ -205,6 +209,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                 <DetailItem label="Preference" value={requirement.address} icon={MapPin} className="text-xs"/>
             </div>
           </section>
+          </>
         )}
 
         {requirement.additionalNotes && (
