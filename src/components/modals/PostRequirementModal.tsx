@@ -191,7 +191,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -202,6 +202,25 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
     const locationDetails = data.location;
     
+    const enquiryRequest = {
+        studentName: data.studentName,
+        subjects: data.subject,
+        grade: data.gradeLevel,
+        board: data.board,
+        addressName: locationDetails?.name || locationDetails?.address || "",
+        address: locationDetails?.address || "",
+        city: locationDetails?.city || "",
+        state: locationDetails?.state || "",
+        country: locationDetails?.country || data.country,
+        area: locationDetails?.area || "",
+        pincode: locationDetails?.pincode || "",
+        googleMapsLink: locationDetails?.googleMapsUrl || "",
+        availabilityDays: data.preferredDays || [],
+        availabilityTime: data.preferredTimeSlots || [],
+        online: data.teachingMode.includes("Online"),
+        offline: data.teachingMode.includes("Offline (In-person)"),
+    };
+
     let apiRequestBody: any = {
       signupRequest: {
         name: data.name,
@@ -212,22 +231,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         userType: "PARENT",
         whatsappEnabled: data.whatsAppNotifications,
       },
-      studentName: data.studentName,
-      subjects: data.subject,
-      grade: data.gradeLevel,
-      board: data.board,
-      addressName: locationDetails?.name || locationDetails?.address || "",
-      address: locationDetails?.address || "",
-      city: locationDetails?.city || "",
-      state: locationDetails?.state || "",
-      country: locationDetails?.country || data.country,
-      area: locationDetails?.area || "",
-      pincode: locationDetails?.pincode || "",
-      googleMapsLink: locationDetails?.googleMapsUrl || "",
-      availabilityDays: data.preferredDays || [],
-      availabilityTime: data.preferredTimeSlots || [],
-      online: data.teachingMode.includes("Online"),
-      offline: data.teachingMode.includes("Offline (In-person)"),
+      enquiryRequest: enquiryRequest
     };
     
     try {
