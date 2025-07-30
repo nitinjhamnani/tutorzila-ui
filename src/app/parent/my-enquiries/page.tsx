@@ -14,14 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogTrigger,
   DialogContent,
@@ -43,34 +35,13 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
   ListChecks,
-  ChevronDown,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Archive,
-  Eye,
-  Trash2,
-  Edit3,
-  Users as UsersIcon,
   PlusCircle,
   Loader2,
+  XCircle
 } from "lucide-react";
 import { CreateEnquiryFormModal, type CreateEnquiryFormValues } from "@/components/parent/modals/CreateEnquiryFormModal";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-
-type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
-
-const enquiryStatusCategories: {
-  label: string;
-  value: EnquiryStatusCategory;
-  icon: React.ElementType;
-}[] = [
-  { label: "All Enquiries", value: "All", icon: ListChecks },
-  { label: "Open", value: "Open", icon: Eye },
-  { label: "Matched", value: "Matched", icon: UsersIcon },
-  { label: "Closed", value: "Closed", icon: Archive },
-];
 
 const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -160,7 +131,6 @@ export default function ParentMyEnquiriesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>("Open");
   const [isCreateEnquiryModalOpen, setIsCreateEnquiryModalOpen] = useState(false);
 
   const { data: allRequirements = [], isLoading: isLoadingEnquiries, error: enquiriesError } = useQuery({
@@ -196,32 +166,10 @@ export default function ParentMyEnquiriesPage() {
     queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
   };
 
-
-  const categoryCounts = useMemo(() => {
-    const counts = {
-      All: allRequirements.length,
-      Open: allRequirements.filter((req) => req.status === "open").length,
-      Matched: allRequirements.filter((req) => req.status === "matched").length,
-      Closed: allRequirements.filter((req) => req.status === "closed").length,
-    };
-    return counts;
-  }, [allRequirements]);
-
-  const filteredRequirements = useMemo(() => {
-    if (activeFilterCategory === "All") {
-      return allRequirements;
-    }
-    return allRequirements.filter(
-      (req) => req.status.toLowerCase() === activeFilterCategory.toLowerCase()
-    );
-  }, [allRequirements, activeFilterCategory]);
-
   const handleReopen = (id: string) => {
     router.push(`/parent/my-enquiries/${id}`); 
   };
   
-  const selectedCategoryData = enquiryStatusCategories.find(cat => cat.value === activeFilterCategory);
-
   if (isCheckingAuth || !user) {
     return (
       <div className="flex h-screen items-center justify-center text-muted-foreground">
@@ -269,43 +217,6 @@ export default function ParentMyEnquiriesPage() {
         </Dialog>
 
 
-        <div className="flex justify-end mb-4 sm:mb-6">
-            <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                variant="default"
-                size="sm" 
-                className={cn(
-                    "py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90",
-                    "text-xs sm:text-sm rounded-[5px]"
-                )}
-                >
-                <span className="text-primary-foreground">
-                    {selectedCategoryData?.label || "Filter"} ({selectedCategoryData ? categoryCounts[selectedCategoryData.value] : 'N/A'})
-                </span>
-                <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[220px]">
-                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {enquiryStatusCategories.map((category) => (
-                <DropdownMenuItem
-                    key={category.value}
-                    onClick={() => setActiveFilterCategory(category.value)}
-                    className={cn(
-                    "text-sm",
-                    activeFilterCategory === category.value && "bg-primary text-primary-foreground hover:bg-primary focus:bg-primary hover:text-primary-foreground focus:text-primary-foreground"
-                    )}
-                >
-                    <category.icon className="mr-2 h-4 w-4" />
-                    {category.label} ({categoryCounts[category.value]})
-                </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-
         <div className="mt-6 grid grid-cols-1 gap-4">
           {isDataLoading ? (
              <div className="flex justify-center items-center h-64">
@@ -319,8 +230,8 @@ export default function ParentMyEnquiriesPage() {
                     <p className="text-sm text-destructive/80 max-w-sm mx-auto">Could not load your enquiries. Please try again later.</p>
                 </CardContent>
             </Card>
-          ) : filteredRequirements.length > 0 ? (
-            filteredRequirements.map((req) => (
+          ) : allRequirements.length > 0 ? (
+            allRequirements.map((req) => (
               <ParentEnquiryCard
                 key={req.id}
                 requirement={req}
@@ -336,7 +247,7 @@ export default function ParentMyEnquiriesPage() {
                   No Enquiries Found
                 </p>
                 <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                  There are no enquiries matching "{activeFilterCategory}". Try a different filter or post a new requirement.
+                  You have not posted any tuition requirements yet.
                 </p>
               </CardContent>
             </Card>
