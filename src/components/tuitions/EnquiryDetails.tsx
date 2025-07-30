@@ -114,14 +114,12 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
         title: newShortlistStatus ? "Added to Shortlist" : "Removed from Shortlist",
         description: `Enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} has been ${newShortlistStatus ? 'added to' : 'removed from'} your shortlist.`,
       });
-      // In a real app, you would also make an API call here to update the shortlist status
       return newShortlistStatus;
     });
   };
 
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
-  const hasLocationInfo = requirement.address && requirement.address.trim() !== '';
-
+  
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
       <CardHeader className="bg-muted/30 p-4 md:p-5 border-b relative"> 
@@ -206,18 +204,18 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             </>
         )}
         
-        {hasLocationInfo && (
+        {requirement.address && (
           <>
-          <Separator />
-          <section className="space-y-2">
-            <h3 className="text-base font-semibold text-foreground flex items-center">
-              <MapPin className="w-4 h-4 mr-2 text-primary/80" />
-              Location
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
+            <Separator />
+            <section className="space-y-2">
+              <h3 className="text-base font-semibold text-foreground flex items-center">
+                <MapPin className="w-4 h-4 mr-2 text-primary/80" />
+                Location
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
                 <DetailItem label="Preference" value={requirement.address} icon={MapPin} className="text-xs"/>
-            </div>
-          </section>
+              </div>
+            </section>
           </>
         )}
 
