@@ -166,10 +166,10 @@ export default function AdminDashboardPage() {
   }
   
   const adminMetrics: MetricCardProps[] = [
-    { title: "Total Tutors", value: String(dashboardData?.totalTutors || 0), IconEl: Users, description: "Active & pending tutors", iconColor: "text-blue-600" },
-    { title: "Total Parents", value: String(dashboardData?.totalParents || 0), IconEl: UsersRound, description: "Registered parent accounts", iconColor: "text-green-600" },
-    { title: "Total Enquiries", value: String(dashboardData?.totalEnquiries || 0), IconEl: Briefcase, description: "Active tuition requests", iconColor: "text-orange-600" },
-    { title: "Total Demos", value: String(dashboardData?.noOfDemos || 0), IconEl: CalendarCheck, description: "Scheduled demo sessions", iconColor: "text-purple-600" },
+    { title: "Total Tutors", value: String(dashboardData?.totalTutors || 0), IconEl: Users, description: "Active & pending tutors", iconColor: "text-primary" },
+    { title: "Total Parents", value: String(dashboardData?.totalParents || 0), IconEl: UsersRound, description: "Registered parent accounts", iconColor: "text-primary" },
+    { title: "Total Enquiries", value: String(dashboardData?.totalEnquiries || 0), IconEl: Briefcase, description: "Active tuition requests", iconColor: "text-primary" },
+    { title: "Total Demos", value: String(dashboardData?.noOfDemos || 0), IconEl: CalendarCheck, description: "Scheduled demo sessions", iconColor: "text-primary" },
   ];
   
   const adminQuickActions: AdminQuickActionCardProps[] = [
