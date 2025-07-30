@@ -56,14 +56,17 @@ import {
   PhoneCall,
   CheckCircle,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { CreateEnquiryFormModal, type CreateEnquiryFormValues } from "@/components/parent/modals/CreateEnquiryFormModal";
 
 interface QuickActionCardProps {
   title: string;
@@ -120,6 +123,46 @@ const fetchParentDashboardData = async (token: string | null) => {
   return response.json();
 };
 
+const createEnquiry = async ({ token, formData }: { token: string | null, formData: CreateEnquiryFormValues }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  
+  const locationDetails = formData.location;
+  const requestBody = {
+    studentName: formData.studentName,
+    subjects: formData.subject,
+    grade: formData.gradeLevel,
+    board: formData.board,
+    addressName: locationDetails?.name || locationDetails?.address || "",
+    address: locationDetails?.address || "",
+    city: locationDetails?.city || "",
+    state: locationDetails?.state || "",
+    country: locationDetails?.country || "",
+    area: locationDetails?.area || "",
+    pincode: locationDetails?.pincode || "",
+    googleMapsLink: locationDetails?.googleMapsUrl || "",
+    availabilityDays: formData.preferredDays,
+    availabilityTime: formData.preferredTimeSlots,
+    online: formData.teachingMode.includes("Online"),
+    offline: formData.teachingMode.includes("Offline (In-person)"),
+  };
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create enquiry.");
+  }
+  return true;
+};
+
 
 export default function ParentDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -127,6 +170,9 @@ export default function ParentDashboardPage() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { hideLoader } = useGlobalLoader();
+  const queryClient = useQueryClient();
+
+  const [isCreateEnquiryModalOpen, setIsCreateEnquiryModalOpen] = useState(false);
 
   const { data: dashboardData, isLoading: isLoadingDashboard, error: dashboardError } = useQuery({
     queryKey: ['parentDashboard', token],
@@ -136,6 +182,17 @@ export default function ParentDashboardPage() {
     refetchOnWindowFocus: false,
   });
 
+  const createEnquiryMutation = useMutation({
+    mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ token, formData }),
+    onSuccess: () => {
+      toast({ title: "Requirement Submitted!", description: "Your tuition requirement has been successfully posted." });
+      queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+      setIsCreateEnquiryModalOpen(false);
+    },
+    onError: (error) => {
+      toast({ variant: "destructive", title: "Submission Failed", description: error.message });
+    },
+  });
 
   const [hasMounted, setHasMounted] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
@@ -212,6 +269,12 @@ export default function ParentDashboardPage() {
     setOtpVerificationType(null);
     setOtpVerificationIdentifier(null);
   };
+  
+  const handleCreateEnquirySuccess = () => {
+    setIsCreateEnquiryModalOpen(false);
+    queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+  };
+
 
   const isUserVerified = dashboardData ? dashboardData.verified : (isEmailVerified && isPhoneVerified);
 
@@ -225,133 +288,140 @@ export default function ParentDashboardPage() {
   ];
 
   return (
-    <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* Welcome Section */}
-        <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="relative group shrink-0">
-                <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                  <AvatarImage src={dashboardData?.profilePicture || user.avatar || undefined} alt={user.name} />
-                  <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
-                    {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <button
-                  onClick={handleAvatarUploadClick}
-                  className={cn(
-                    "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
-                    "bg-primary/20 hover:bg-primary/30 text-primary"
-                  )}
-                  aria-label="Update profile picture"
-                >
-                  <Camera className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                </button>
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-              </div>
-              <div>
-                <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {user.name} <span className="inline-block ml-1">👋</span></h1>
-                <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
-                
-                <div className="mt-3 flex items-center space-x-2 flex-wrap">
-                  {user.status && (
-                    <Badge
-                      className={cn(
-                        "text-xs py-0.5 px-2 border",
-                        user.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500 hover:bg-opacity-80",
-                      )}
-                    >
-                      {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3 text-primary-foreground" /> : <XCircle className="mr-1 h-3 w-3" />}
-                      {user.status}
-                    </Badge>
-                  )}
-                  {isLoadingDashboard ? (
-                    <Skeleton className="h-5 w-20 rounded-full" />
-                  ) : (
-                    <Badge
-                      className={cn(
-                        "text-xs py-0.5 px-2 border",
-                        isUserVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
-                      )}
-                    >
-                      {isUserVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                      {isUserVerified ? "Verified" : "Not Verified"}
-                    </Badge>
-                  )}
+    <Dialog open={isCreateEnquiryModalOpen} onOpenChange={setIsCreateEnquiryModalOpen}>
+      <main className="flex-grow">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+          {/* Welcome Section */}
+          <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="relative group shrink-0">
+                  <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
+                    <AvatarImage src={dashboardData?.profilePicture || user.avatar || undefined} alt={user.name} />
+                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
+                      {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    onClick={handleAvatarUploadClick}
+                    className={cn(
+                      "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
+                      "bg-primary/20 hover:bg-primary/30 text-primary"
+                    )}
+                    aria-label="Update profile picture"
+                  >
+                    <Camera className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                  </button>
+                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                 </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-start w-full md:w-auto md:min-w-[220px]">
-              <div className={cn("rounded-xl p-4 w-full", "bg-secondary")}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Total Enquiries</p>
+                <div>
+                  <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {user.name} <span className="inline-block ml-1">👋</span></h1>
+                  <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
+                  
+                  <div className="mt-3 flex items-center space-x-2 flex-wrap">
+                    {user.status && (
+                      <Badge
+                        className={cn(
+                          "text-xs py-0.5 px-2 border",
+                          user.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500 hover:bg-opacity-80",
+                        )}
+                      >
+                        {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3 text-primary-foreground" /> : <XCircle className="mr-1 h-3 w-3" />}
+                        {user.status}
+                      </Badge>
+                    )}
                     {isLoadingDashboard ? (
-                      <Skeleton className="h-8 w-12 mt-1 rounded-md" />
+                      <Skeleton className="h-5 w-20 rounded-full" />
                     ) : (
-                      <p className="text-2xl font-bold text-primary">{dashboardData?.enquiries ?? 0}</p>
+                      <Badge
+                        className={cn(
+                          "text-xs py-0.5 px-2 border",
+                          isUserVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
+                        )}
+                      >
+                        {isUserVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                        {isUserVerified ? "Verified" : "Not Verified"}
+                      </Badge>
                     )}
                   </div>
-                  <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg shrink-0", "bg-primary/10 text-primary")}>
-                    <ListChecks className="w-5 h-5" />
-                  </div>
                 </div>
               </div>
-              <Button asChild variant="link" className="p-0 h-auto mt-1.5 text-xs text-primary font-medium">
-                <Link href="/parent/my-enquiries">
-                  Post Requirement <ArrowRight className="ml-1 w-3 h-3" />
-                </Link>
-              </Button>
+              
+              <div className="flex flex-col items-start w-full md:w-auto md:min-w-[220px]">
+                <div className={cn("rounded-xl p-4 w-full", "bg-secondary")}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total Enquiries</p>
+                      {isLoadingDashboard ? (
+                        <Skeleton className="h-8 w-12 mt-1 rounded-md" />
+                      ) : (
+                        <p className="text-2xl font-bold text-primary">{dashboardData?.enquiries ?? 0}</p>
+                      )}
+                    </div>
+                    <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg shrink-0", "bg-primary/10 text-primary")}>
+                      <ListChecks className="w-5 h-5" />
+                    </div>
+                  </div>
+                </div>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="p-0 h-auto mt-1.5 text-xs text-primary font-medium">
+                    Post Requirement <ArrowRight className="ml-1 w-3 h-3" />
+                  </Button>
+                </DialogTrigger>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="mb-6 md:mb-8">
-            <div className="flex justify-between items-center mb-3 sm:mb-4">
-              <h2 className="text-base sm:text-lg font-semibold text-foreground">Upcoming Demos</h2>
-            </div>
-            <Card className="bg-card rounded-xl shadow-lg p-5 border-0 text-center">
-              <CardContent className="pt-6">
-                <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No upcoming demos scheduled.</p>
-              </CardContent>
-            </Card>
-        </div>
-
-
-        {/* Quick Actions Section */}
-        <div className="mb-6 md:mb-8">
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {parentQuickActions.map((action) => (
-              <QuickActionCard
-                key={action.title}
-                title={action.title}
-                description={action.description}
-                IconEl={action.IconEl}
-                href={action.href}
-                disabled={action.disabled}
-                buttonText={action.buttonText}
-                iconBg={action.iconBg}
-                iconTextColor={action.iconTextColor}
-              />
-            ))}
+          
+          <div className="mb-6 md:mb-8">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
+                <h2 className="text-base sm:text-lg font-semibold text-foreground">Upcoming Demos</h2>
+              </div>
+              <Card className="bg-card rounded-xl shadow-lg p-5 border-0 text-center">
+                <CardContent className="pt-6">
+                  <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">No upcoming demos scheduled.</p>
+                </CardContent>
+              </Card>
           </div>
+
+
+          {/* Quick Actions Section */}
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {parentQuickActions.map((action) => (
+                <QuickActionCard
+                  key={action.title}
+                  title={action.title}
+                  description={action.description}
+                  IconEl={action.IconEl}
+                  href={action.href}
+                  disabled={action.disabled}
+                  buttonText={action.buttonText}
+                  iconBg={action.iconBg}
+                  iconTextColor={action.iconTextColor}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {otpVerificationType && otpVerificationIdentifier && (
+            <OtpVerificationModal
+              isOpen={isOtpModalOpen}
+              onOpenChange={setIsOtpModalOpen}
+              verificationType={otpVerificationType}
+              identifier={otpVerificationIdentifier}
+              onSuccess={handleOtpSuccess}
+            />
+          )}
         </div>
-        
-        {otpVerificationType && otpVerificationIdentifier && (
-          <OtpVerificationModal
-            isOpen={isOtpModalOpen}
-            onOpenChange={setIsOtpModalOpen}
-            verificationType={otpVerificationType}
-            identifier={otpVerificationIdentifier}
-            onSuccess={handleOtpSuccess}
-          />
-        )}
-      </div>
-    </main>
+      </main>
+      <CreateEnquiryFormModal 
+        onSuccess={handleCreateEnquirySuccess} 
+        onFormSubmit={createEnquiryMutation.mutate}
+        isSubmitting={createEnquiryMutation.isPending}
+      />
+    </Dialog>
   );
 }
 
