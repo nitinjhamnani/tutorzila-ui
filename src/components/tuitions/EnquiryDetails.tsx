@@ -72,6 +72,10 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   const mockParentEmail = `${requirement.parentName?.toLowerCase().replace(/\s+/g, '.')}@example.com`;
   const mockParentPhone = `+91-98765XXXXX`; 
 
+  const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
+  const hasLocationInfo = requirement.address && requirement.address.trim() !== '';
+  console.log("hasLocationInfo:", hasLocationInfo);
+
   const handleCopy = async (textToCopy: string, fieldName: string) => {
     if (!isApplied) {
       toast({
@@ -117,10 +121,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
       return newShortlistStatus;
     });
   };
-
-  const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
-  const hasLocationInfo = requirement.address && requirement.address.trim() !== '';
-  console.log("hasLocationInfo:", hasLocationInfo);
   
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
