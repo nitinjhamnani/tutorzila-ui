@@ -95,6 +95,18 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
             </Badge>
           )}
         </div>
+        <div className="flex items-center gap-2 self-end">
+            <Button
+                asChild
+                size="sm"
+                variant="default"
+                className="text-xs py-1.5 px-3 h-auto"
+                >
+                <Link href={`/admin/assign-tutors/${requirement.id}`}>
+                    <UsersIcon className="w-3 h-3 mr-1.5" /> Assign Tutors
+                </Link>
+            </Button>
+        </div>
       </CardFooter>
     </Card>
   );
