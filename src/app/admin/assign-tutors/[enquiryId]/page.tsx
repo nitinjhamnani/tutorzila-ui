@@ -57,7 +57,8 @@ import {
   MapPin,
   RadioTower,
   DollarSign,
-  Building
+  Building,
+  CheckSquare
 } from "lucide-react";
 
 const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -429,10 +430,20 @@ function AssignTutorsContent() {
                       </div>
                     </TableCell>
                     <TableCell>
-                       <div className="flex flex-wrap gap-1 text-xs">
-                          {tutor.online && <Badge variant="default" className="font-normal">Online</Badge>}
-                          {tutor.offline && <Badge variant="default" className="font-normal">Offline</Badge>}
-                      </div>
+                        <div className="flex flex-col gap-1.5 text-xs">
+                            {tutor.online && (
+                                <div className="flex items-center gap-1.5 font-medium text-primary-foreground bg-primary px-2 py-1 rounded-md w-fit">
+                                    <CheckSquare className="w-3 h-3" />
+                                    <span>Online</span>
+                                </div>
+                            )}
+                            {tutor.offline && (
+                                <div className="flex items-center gap-1.5 font-medium text-primary-foreground bg-primary px-2 py-1 rounded-md w-fit">
+                                    <CheckSquare className="w-3 h-3" />
+                                    <span>Offline</span>
+                                </div>
+                            )}
+                        </div>
                     </TableCell>
                      <TableCell>
                        <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
