@@ -241,7 +241,6 @@ export default function ParentEnquiryDetailsPage() {
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
       
-      // Manually update the query cache with the response data
       const transformedData: TuitionRequirement = {
         id: updatedData.enquirySummary.enquiryId,
         parentId: requirement?.parentId || "", 
@@ -447,7 +446,7 @@ export default function ParentEnquiryDetailsPage() {
                             <Info className="w-4 h-4 mr-2 text-primary/80" />
                             Additional Notes
                         </h3>
-                        <p className="text-sm text-foreground/80 pl-6">{requirement.additionalNotes}</p>
+                        <p className="text-sm text-foreground/80 leading-relaxed pl-6">{requirement.additionalNotes}</p>
                     </section>
                    </>
                 )}

@@ -37,7 +37,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Save, X, User } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Save, X, User, Loader2 } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -335,8 +335,17 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
                 <Button type="button" variant="outline" disabled={isUpdating}>Cancel</Button>
               </DialogClose>
               <Button type="submit" disabled={isUpdating}>
-                <Save className="mr-2 h-4 w-4" />
-                {isUpdating ? "Saving..." : "Save Changes"}
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </form>
