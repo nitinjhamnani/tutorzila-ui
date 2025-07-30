@@ -218,7 +218,7 @@ export function LocationAutocompleteInput({
           ))}
         </ul>
       )}
-      {selectedLocation && (
+      {selectedLocation && selectedLocation.address && (
         <div className="mt-2 p-2 bg-card border rounded-md">
           {selectedLocation.googleMapsUrl ? (
             <a
@@ -228,12 +228,14 @@ export function LocationAutocompleteInput({
               className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1.5"
             >
               <MapPinned className="h-3 w-3" />
-              {selectedLocation.name}
+              {selectedLocation.name || selectedLocation.address}
             </a>
           ) : (
-            <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><MapPinned className="h-3 w-3"/>{selectedLocation.name}</p>
+            <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><MapPinned className="h-3 w-3"/>{selectedLocation.name || selectedLocation.address}</p>
           )}
-          <p className="text-xs text-muted-foreground mt-0.5">{selectedLocation.address}</p>
+          {(selectedLocation.name && selectedLocation.name !== selectedLocation.address) && (
+            <p className="text-xs text-muted-foreground mt-0.5">{selectedLocation.address}</p>
+          )}
         </div>
       )}
     </div>
