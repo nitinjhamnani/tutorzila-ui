@@ -24,10 +24,6 @@ import {
   Dialog,
   DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription as DialogDesc,
-  DialogFooter
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -39,11 +35,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ParentEnquiryCard } from "@/components/parent/ParentEnquiryCard";
-import type { User, TuitionRequirement } from "@/types";
+import type { User, TuitionRequirement, LocationDetails } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -61,8 +54,8 @@ import {
   PlusCircle,
   Loader2,
 } from "lucide-react";
-import { CreateEnquiryFormModal } from "@/components/parent/modals/CreateEnquiryFormModal";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CreateEnquiryFormModal, type CreateEnquiryFormValues } from "@/components/parent/modals/CreateEnquiryFormModal";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type EnquiryStatusCategory = "All" | "Open" | "Matched" | "Closed";
@@ -119,6 +112,46 @@ const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequir
   }));
 };
 
+const createEnquiry = async ({ token, formData }: { token: string | null, formData: CreateEnquiryFormValues }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  
+  const locationDetails = formData.location;
+  const requestBody = {
+    studentName: formData.studentName,
+    subjects: formData.subject,
+    grade: formData.gradeLevel,
+    board: formData.board,
+    addressName: locationDetails?.name || locationDetails?.address || "",
+    address: locationDetails?.address || "",
+    city: locationDetails?.city || "",
+    state: locationDetails?.state || "",
+    country: locationDetails?.country || "",
+    area: locationDetails?.area || "",
+    pincode: locationDetails?.pincode || "",
+    googleMapsLink: locationDetails?.googleMapsUrl || "",
+    availabilityDays: formData.preferredDays,
+    availabilityTime: formData.preferredTimeSlots,
+    online: formData.teachingMode.includes("Online"),
+    offline: formData.teachingMode.includes("Offline (In-person)"),
+  };
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create enquiry.");
+  }
+  return response.json();
+};
+
 export default function ParentMyEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
@@ -126,14 +159,6 @@ export default function ParentMyEnquiriesPage() {
   const queryClient = useQueryClient();
 
   const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>("Open");
-  
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
-  const [closeEnquiryStep, setCloseEnquiryStep] = useState(1);
-  const [foundTutorName, setFoundTutorName] = useState("");
-  const [startClassesConfirmation, setStartClassesConfirmation] = useState< "yes" | "no" | "">("");
-  const [selectedRequirementForAction, setSelectedRequirementForAction] = useState<TuitionRequirement | null>(null);
-
   const [isCreateEnquiryModalOpen, setIsCreateEnquiryModalOpen] = useState(false);
 
   const { data: allRequirements = [], isLoading: isLoadingEnquiries, error: enquiriesError } = useQuery({
@@ -142,6 +167,18 @@ export default function ParentMyEnquiriesPage() {
     enabled: !!token && !!user && user.role === 'parent',
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+  });
+
+  const createEnquiryMutation = useMutation({
+    mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ token, formData }),
+    onSuccess: () => {
+      toast({ title: "Requirement Submitted!", description: "Your tuition requirement has been successfully posted." });
+      queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+      setIsCreateEnquiryModalOpen(false);
+    },
+    onError: (error) => {
+      toast({ variant: "destructive", title: "Submission Failed", description: error.message });
+    },
   });
 
   useEffect(() => {
@@ -177,44 +214,6 @@ export default function ParentMyEnquiriesPage() {
     );
   }, [allRequirements, activeFilterCategory]);
 
-  const handleOpenDeleteConfirm = (requirement: TuitionRequirement) => {
-    setSelectedRequirementForAction(requirement);
-    setIsDeleteConfirmOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (!selectedRequirementForAction) return;
-    toast({
-      title: "Deletion (Mock)",
-      description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" would be deleted.`,
-    });
-    setIsDeleteConfirmOpen(false);
-    setSelectedRequirementForAction(null);
-  };
-
-  const handleOpenCloseEnquiryModal = (requirement: TuitionRequirement) => {
-    setSelectedRequirementForAction(requirement);
-    setCloseEnquiryStep(1);
-    setFoundTutorName("");
-    setStartClassesConfirmation("");
-    setIsCloseEnquiryModalOpen(true);
-  };
-
-  const handleCloseEnquiryDialogAction = () => {
-    if (!selectedRequirementForAction) return;
-
-    if (closeEnquiryStep === 1) {
-      setCloseEnquiryStep(2);
-    } else if (closeEnquiryStep === 2) {
-      toast({
-        title: "Enquiry Closed (Mock)",
-        description: `Requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}" would be marked as closed.`,
-      });
-      setIsCloseEnquiryModalOpen(false);
-      setSelectedRequirementForAction(null);
-    }
-  };
-
   const handleReopen = (id: string) => {
     router.push(`/parent/my-enquiries/${id}`); 
   };
@@ -228,6 +227,8 @@ export default function ParentMyEnquiriesPage() {
       </div>
     );
   }
+
+  const isDataLoading = isLoadingEnquiries || createEnquiryMutation.isPending;
 
   return (
     <main className="flex-grow">
@@ -258,7 +259,11 @@ export default function ParentMyEnquiriesPage() {
                 </DialogTrigger>
             </CardHeader>
           </Card>
-          <CreateEnquiryFormModal onSuccess={handleSuccess} />
+          <CreateEnquiryFormModal 
+            onSuccess={handleSuccess} 
+            onFormSubmit={createEnquiryMutation.mutate}
+            isSubmitting={createEnquiryMutation.isPending}
+          />
         </Dialog>
 
 
@@ -300,7 +305,7 @@ export default function ParentMyEnquiriesPage() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4">
-          {isLoadingEnquiries ? (
+          {isDataLoading ? (
              <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
              </div>
@@ -335,82 +340,6 @@ export default function ParentMyEnquiriesPage() {
             </Card>
           )}
         </div>
-
-        {selectedRequirementForAction && (
-          <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your
-                  tuition requirement for "${Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}".
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={() => setSelectedRequirementForAction(null)}>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
-
-        {selectedRequirementForAction && (
-          <Dialog open={isCloseEnquiryModalOpen} onOpenChange={(isOpen) => {
-            if (!isOpen) setSelectedRequirementForAction(null);
-            setIsCloseEnquiryModalOpen(isOpen);
-          }}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Close Enquiry: {Array.isArray(selectedRequirementForAction.subject) ? selectedRequirementForAction.subject.join(', ') : selectedRequirementForAction.subject}</DialogTitle>
-                <DialogDesc> 
-                  Please provide some details before closing this requirement.
-                </DialogDesc>
-              </DialogHeader>
-              {closeEnquiryStep === 1 && (
-                <div className="py-4 space-y-4">
-                  <Label htmlFor="foundTutor">Did you find a tutor for this requirement?</Label>
-                  <Input
-                    id="foundTutor"
-                    placeholder="Enter Tutor's Name (Optional)"
-                    value={foundTutorName}
-                    onChange={(e) => setFoundTutorName(e.target.value)}
-                  />
-                </div>
-              )}
-              {closeEnquiryStep === 2 && (
-                <div className="py-4 space-y-4">
-                  <Label>Would you like to start classes with {foundTutorName || "the selected tutor"}?</Label>
-                  <RadioGroup
-                    onValueChange={(value: "yes" | "no") => setStartClassesConfirmation(value)}
-                    value={startClassesConfirmation}
-                    className="flex space-x-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="start-yes" />
-                      <Label htmlFor="start-yes">Yes</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="start-no" />
-                      <Label htmlFor="start-no">No</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-              )}
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button type="button" onClick={handleCloseEnquiryDialogAction}>
-                  {closeEnquiryStep === 1 ? "Next" : "Confirm & Close"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
       </div>
     </main>
   );

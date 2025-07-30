@@ -35,14 +35,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User, Loader2 } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
-import { useAuthMock } from "@/hooks/use-auth-mock";
-import { MOCK_ALL_PARENT_REQUIREMENTS } from "@/lib/mock-data";
-
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList = [
@@ -74,7 +70,6 @@ const timeSlotsOptions: MultiSelectOption[] = [
   { value: "Flexible", label: "Flexible"},
 ];
 
-
 const enquiryFormSchema = z.object({
   studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
@@ -97,17 +92,17 @@ const enquiryFormSchema = z.object({
   path: ["location"],
 });
 
-type EnquiryFormValues = z.infer<typeof enquiryFormSchema>;
+export type CreateEnquiryFormValues = z.infer<typeof enquiryFormSchema>;
 
 interface CreateEnquiryFormModalProps {
   onSuccess: () => void;
+  onFormSubmit: (data: CreateEnquiryFormValues) => void;
+  isSubmitting: boolean;
 }
 
-export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProps) {
-  const { toast } = useToast();
-  const { user } = useAuthMock();
+export function CreateEnquiryFormModal({ onSuccess, onFormSubmit, isSubmitting }: CreateEnquiryFormModalProps) {
 
-  const form = useForm<EnquiryFormValues>({
+  const form = useForm<CreateEnquiryFormValues>({
     resolver: zodResolver(enquiryFormSchema),
     defaultValues: {
       studentName: "",
@@ -121,32 +116,8 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
     },
   });
 
-  const onSubmit: SubmitHandler<EnquiryFormValues> = (data) => {
-    if (!user) {
-      toast({ title: "Error", description: "You must be logged in to post a requirement.", variant: "destructive" });
-      return;
-    }
-    const newRequirement: TuitionRequirement = {
-      id: `req-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      parentId: user.id,
-      parentName: user.name,
-      ...data,
-      status: "open",
-      postedAt: new Date().toISOString(),
-      scheduleDetails: "N/A", // This field is not in the new form
-      applicantsCount: 0,
-    };
-
-    MOCK_ALL_PARENT_REQUIREMENTS.unshift(newRequirement);
-    
-    console.log("New Tuition Requirement Submitted:", newRequirement);
-    toast({
-      title: "Requirement Submitted!",
-      description: "Your tuition requirement has been successfully posted.",
-      duration: 5000,
-    });
-    form.reset();
-    onSuccess();
+  const onSubmit: SubmitHandler<CreateEnquiryFormValues> = (data) => {
+    onFormSubmit(data);
   };
   
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
@@ -338,11 +309,20 @@ export function CreateEnquiryFormModal({ onSuccess }: CreateEnquiryFormModalProp
           </div>
           <DialogFooter className="pt-4">
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline" disabled={isSubmitting}>Cancel</Button>
             </DialogClose>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              <Save className="mr-2 h-4 w-4" />
-              {form.formState.isSubmitting ? "Creating..." : "Create Requirement"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Create Requirement
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>
