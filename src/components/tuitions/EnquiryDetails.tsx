@@ -1,4 +1,4 @@
-
+// src/components/tuitions/EnquiryDetails.tsx
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -119,6 +119,8 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
   };
 
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
+  const hasLocationInfo = requirement.address && requirement.address.trim() !== '';
+  console.log('hasLocationInfo:', hasLocationInfo);
   
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
@@ -204,7 +206,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
             </>
         )}
         
-        {requirement.address && (
+        {hasLocationInfo && (
           <>
             <Separator />
             <section className="space-y-2">
