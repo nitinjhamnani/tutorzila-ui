@@ -1,4 +1,3 @@
-
 // src/components/tuitions/EnquiryDetails.tsx
 "use client";
 
@@ -75,7 +74,6 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
 
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
   const hasLocationInfo = !!requirement.address && requirement.address.trim() !== '';
-  console.log('hasLocationInfo:', hasLocationInfo);
 
   const handleCopy = async (textToCopy: string, fieldName: string) => {
     if (!isApplied) {
@@ -191,18 +189,18 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
           <>
             <Separator />
             <section className="space-y-2">
-            <h3 className="text-base font-semibold text-foreground flex items-center">
+              <h3 className="text-base font-semibold text-foreground flex items-center">
                 <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
                 Schedule Preferences
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-6 text-xs">
                 {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-                <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} className="text-xs"/>
+                  <DetailItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} className="text-xs"/>
                 )}
                 {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
-                <DetailItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} className="text-xs"/>
+                  <DetailItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} className="text-xs"/>
                 )}
-            </div>
+              </div>
             </section>
           </>
         )}
