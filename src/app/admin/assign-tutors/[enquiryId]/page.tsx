@@ -430,8 +430,8 @@ function AssignTutorsContent() {
                     </TableCell>
                     <TableCell>
                        <div className="flex flex-wrap gap-1 text-xs">
-                          {tutor.online && <Badge variant="secondary" className="font-normal bg-blue-100 text-blue-800">Online</Badge>}
-                          {tutor.offline && <Badge variant="secondary" className="font-normal bg-green-100 text-green-800">Offline</Badge>}
+                          {tutor.online && <Badge variant="default" className="font-normal">Online</Badge>}
+                          {tutor.offline && <Badge variant="default" className="font-normal">Offline</Badge>}
                       </div>
                     </TableCell>
                      <TableCell>
