@@ -238,9 +238,42 @@ export default function ParentEnquiryDetailsPage() {
 
   const updateMutation = useMutation({
     mutationFn: (formData: ParentEnquiryEditFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
-    onSuccess: () => {
+    onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
-      queryClient.invalidateQueries({ queryKey: ['parentEnquiryDetails', id] });
+      
+      // Manually update the query cache with the response data
+      const transformedData: TuitionRequirement = {
+        id: updatedData.enquirySummary.enquiryId,
+        parentId: requirement?.parentId || "", 
+        parentName: updatedData.name || requirement?.parentName || "A Parent", 
+        studentName: updatedData.studentName,
+        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+        gradeLevel: updatedData.enquirySummary.grade,
+        board: updatedData.enquirySummary.board,
+        location: {
+            name: updatedData.addressName || updatedData.address || "",
+            address: updatedData.address,
+            googleMapsUrl: updatedData.googleMapsLink,
+            city: updatedData.enquirySummary.city,
+            state: updatedData.enquirySummary.state,
+            country: updatedData.enquirySummary.country,
+            area: updatedData.enquirySummary.area,
+            pincode: updatedData.pincode,
+        },
+        teachingMode: [
+          ...(updatedData.enquirySummary.online ? ["Online"] : []),
+          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+        ],
+        scheduleDetails: updatedData.notes, 
+        additionalNotes: updatedData.notes,
+        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+        status: updatedData.status?.toLowerCase() || 'open',
+        postedAt: updatedData.enquirySummary.createdOn,
+        applicantsCount: updatedData.enquirySummary.assignedTutors,
+      };
+
+      queryClient.setQueryData(['parentEnquiryDetails', id], transformedData);
       setIsEditModalOpen(false);
     },
     onError: (error) => {
