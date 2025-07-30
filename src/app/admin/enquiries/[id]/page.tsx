@@ -398,6 +398,11 @@ export default function AdminEnquiryDetailsPage() {
     setCloseReason(null);
     setIsCloseEnquiryModalOpen(true);
   };
+  
+  const handleOpenNotesModal = () => {
+    setNotes(requirement?.additionalNotes || "");
+    setIsAddNotesModalOpen(true);
+  };
 
   const handleCloseEnquiryDialogAction = () => {
     if (!closeReason) {
@@ -567,7 +572,7 @@ export default function AdminEnquiryDetailsPage() {
                     <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
                       <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsAddNotesModalOpen(true)}>
+                    <Button variant="outline" size="sm" onClick={handleOpenNotesModal}>
                       <ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes
                     </Button>
                     {(requirement.applicantsCount ?? 0) > 0 && (
