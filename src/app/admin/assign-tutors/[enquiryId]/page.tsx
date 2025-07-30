@@ -27,6 +27,16 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 import {
   Users,
@@ -85,6 +95,7 @@ function AssignTutorsContent() {
   const { toast } = useToast();
   
   const [selectedTutorIds, setSelectedTutorIds] = useState<string[]>([]);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   const enquiry = useMemo(() => {
     if (!searchParams) return null;
@@ -192,49 +203,70 @@ function AssignTutorsContent() {
       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
         <CardHeader className="p-4 border-b">
             <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold text-foreground flex items-center gap-2"><ListFilter className="w-5 h-5"/> Filter Tutors</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
-                <div className="space-y-1">
-                    <Label htmlFor="subjects-filter" className="text-xs">Subjects</Label>
-                    <Input id="subjects-filter" placeholder="e.g. Maths, Physics" value={filters.subjects} onChange={(e) => handleFilterChange('subjects', e.target.value)} />
-                </div>
-                 <div className="space-y-1">
-                    <Label htmlFor="grade-filter" className="text-xs">Grade</Label>
-                    <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
-                         <SelectTrigger id="grade-filter">
-                            <SelectValue placeholder="Select Grade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {gradeLevelsList.map(grade => (
-                                <SelectItem key={grade} value={grade}>{grade}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div className="space-y-1">
-                    <Label htmlFor="board-filter" className="text-xs">Board</Label>
-                     <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
-                        <SelectTrigger id="board-filter">
-                            <SelectValue placeholder="Select Board" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {boardsList.map(board => (
-                                <SelectItem key={board} value={board}>{board}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex items-center space-x-4 pt-5">
-                     <div className="flex items-center space-x-2">
-                        <Checkbox id="online-filter" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
-                        <Label htmlFor="online-filter" className="text-xs font-medium">Online</Label>
+                <h3 className="text-base font-semibold text-foreground flex items-center gap-2"><UsersRound className="w-5 h-5"/> Available Tutors ({allTutors.length})</h3>
+                 <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <ListFilter className="w-4 h-4 mr-2"/>
+                      Filter Tutors
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Filter Tutors</DialogTitle>
+                      <DialogDescription>
+                        Refine the list of tutors based on specific criteria.
+                      </DialogDescription>
+                    </DialogHeader>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="subjects-filter-modal">Subjects</Label>
+                            <Input id="subjects-filter-modal" placeholder="e.g. Maths, Physics" value={filters.subjects} onChange={(e) => handleFilterChange('subjects', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="grade-filter-modal">Grade</Label>
+                            <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
+                                 <SelectTrigger id="grade-filter-modal">
+                                    <SelectValue placeholder="Select Grade" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {gradeLevelsList.map(grade => (
+                                        <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="board-filter-modal">Board</Label>
+                             <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
+                                <SelectTrigger id="board-filter-modal">
+                                    <SelectValue placeholder="Select Board" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {boardsList.map(board => (
+                                        <SelectItem key={board} value={board}>{board}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex items-center space-x-4 pt-5">
+                             <div className="flex items-center space-x-2">
+                                <Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
+                                <Label htmlFor="online-filter-modal" className="font-medium">Online</Label>
+                            </div>
+                             <div className="flex items-center space-x-2">
+                                <Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
+                                <Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label>
+                            </div>
+                        </div>
                     </div>
-                     <div className="flex items-center space-x-2">
-                        <Checkbox id="offline-filter" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
-                        <Label htmlFor="offline-filter" className="text-xs font-medium">Offline</Label>
-                    </div>
-                </div>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button type="button">Done</Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
             </div>
         </CardHeader>
         <CardContent className="p-0">
