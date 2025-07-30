@@ -87,19 +87,6 @@ export function AdminSidebar({
       </div>
 
       <div className="mt-auto p-3 border-t border-border shrink-0">
-        {!isMobile && !isNavbarCollapsed && user && (
-          <div className="flex items-center gap-2 mb-3 px-2.5">
-            <Avatar className="h-8 w-8 shrink-0">
-              <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-              <AvatarFallback className="text-xs bg-primary/20 text-primary">
-                {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-xs min-w-0">
-              <p className="font-semibold text-foreground truncate">{user.name}</p>
-            </div>
-          </div>
-        )}
         <Button
           variant="ghost"
           onClick={() => {
