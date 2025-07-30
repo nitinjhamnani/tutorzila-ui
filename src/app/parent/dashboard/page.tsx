@@ -187,6 +187,7 @@ export default function ParentDashboardPage() {
     onSuccess: () => {
       toast({ title: "Requirement Submitted!", description: "Your tuition requirement has been successfully posted." });
       queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+      queryClient.invalidateQueries({ queryKey: ['parentDashboard', token] });
       setIsCreateEnquiryModalOpen(false);
     },
     onError: (error) => {
@@ -424,4 +425,3 @@ export default function ParentDashboardPage() {
     </Dialog>
   );
 }
-
