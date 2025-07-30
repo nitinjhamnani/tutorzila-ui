@@ -120,7 +120,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
 
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
   const hasLocationInfo = requirement.address && requirement.address.trim() !== '';
-  console.log('hasLocationInfo:', hasLocationInfo);
+  console.log("hasLocationInfo:", hasLocationInfo);
   
   return (
     <Card className="bg-card border rounded-lg shadow-lg animate-in fade-in duration-500 ease-out overflow-hidden">
@@ -187,7 +187,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
         </section>
 
         {hasScheduleInfo && (
-            <>
+          <>
             <Separator />
             <section className="space-y-2">
             <h3 className="text-base font-semibold text-foreground flex items-center">
@@ -203,7 +203,7 @@ export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
                 )}
             </div>
             </section>
-            </>
+          </>
         )}
         
         {hasLocationInfo && (
