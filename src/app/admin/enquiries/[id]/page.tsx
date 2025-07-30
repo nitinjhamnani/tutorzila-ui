@@ -56,6 +56,7 @@ import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminEnquiryModal, type AdminEnquiryEditFormValues } from "@/components/admin/modals/AdminEnquiryModal";
+import { Textarea } from "@/components/ui/textarea";
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -246,7 +247,8 @@ export default function AdminEnquiryDetailsPage() {
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeReason, setCloseReason] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false); 
+  const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false);
+  const [notes, setNotes] = useState("");
 
   const { data: requirement, isLoading, error } = useQuery({
     queryKey: ['adminEnquiryDetails', id],
@@ -345,6 +347,12 @@ export default function AdminEnquiryDetailsPage() {
 
   const handleUpdateEnquiry = (updatedData: AdminEnquiryEditFormValues) => {
     updateMutation.mutate(updatedData);
+  };
+  
+  const handleSaveNotes = () => {
+    console.log("Saving notes:", notes); // Placeholder action
+    toast({ title: "Notes Saved (Mock)", description: "This is a placeholder. Notes would be saved to the backend." });
+    setIsAddNotesModalOpen(false);
   };
 
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
@@ -562,6 +570,35 @@ export default function AdminEnquiryDetailsPage() {
           isUpdating={updateMutation.isPending}
         />
       )}
+
+      <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Internal Notes</DialogTitle>
+            <DialogDesc>
+              These notes are for internal use and will not be visible to parents or tutors.
+            </DialogDesc>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Type your note here..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[120px]"
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim()}>
+              Save Note
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
