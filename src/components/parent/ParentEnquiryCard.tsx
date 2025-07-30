@@ -179,19 +179,21 @@ export function ParentEnquiryCard({
                 <Archive className="mr-1.5 h-3 w-3" /> Reopen
               </Button>
             )}
-            <Button
-                asChild
-                size="sm"
-                className={cn(
-                "text-xs py-1.5 px-3 h-auto",
-                "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
-                )}
-            >
-                <Link href={`/parent/my-tutors/${requirement.id}`}>
-                  <UsersIcon className="w-3 h-3 mr-1.5" />
-                  View Tutors
-                </Link>
-            </Button>
+            {requirement.assignedTutors !== undefined && requirement.assignedTutors > 0 && (
+              <Button
+                  asChild
+                  size="sm"
+                  className={cn(
+                  "text-xs py-1.5 px-3 h-auto",
+                  "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
+                  )}
+              >
+                  <Link href={`/parent/my-tutors/${requirement.id}`}>
+                    <UsersIcon className="w-3 h-3 mr-1.5" />
+                    View Tutors
+                  </Link>
+              </Button>
+            )}
           </div>
         </CardFooter>
       </Card>
