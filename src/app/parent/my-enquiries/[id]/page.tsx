@@ -379,13 +379,7 @@ export default function ParentEnquiryDetailsPage() {
                         </p>
                     )}
                   </div>
-                   <Badge variant={requirement.status === 'open' ? 'default' : requirement.status === 'matched' ? 'secondary' : 'outline'}
-                     className={cn(
-                       requirement.status === 'open' && 'bg-green-600 hover:bg-green-700 text-white',
-                       requirement.status === 'matched' && 'bg-blue-600 hover:bg-blue-700 text-white',
-                       requirement.status === 'closed' && 'bg-gray-500 hover:bg-gray-600 text-white'
-                     )}
-                   >
+                   <Badge>
                     {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
                   </Badge>
                 </div>
