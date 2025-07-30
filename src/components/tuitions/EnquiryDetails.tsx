@@ -41,10 +41,7 @@ const getInitials = (name?: string): string => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 };
 
-export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {
-  console.log("Raw address from backend:", requirement.address);
-  console.log("Trimmed address:", requirement.address?.trim());
-  
+export function EnquiryDetails({ requirement }: EnquiryDetailsProps) {  
   const postedDate = requirement.postedAt ? parseISO(requirement.postedAt) : new Date();
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const formattedPostedDate = format(postedDate, "MMMM d, yyyy 'at' h:mm a");
