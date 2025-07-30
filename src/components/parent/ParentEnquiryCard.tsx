@@ -119,19 +119,6 @@ export function ParentEnquiryCard({
                     <Edit3 className="h-4 w-4" />
                   </Button>
             )}
-             {/* Settings icon linking to detailed view if needed */}
-             <Link href={`/parent/my-enquiries/${requirement.id}`} passHref legacyBehavior>
-                <Button
-                  asChild
-                  variant="ghost" 
-                  size="icon"
-                  className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
-                  title="View Enquiry Details & Timeline"
-                  // Removed onClick from here as Link handles navigation
-                >
-                  <a><SettingsIcon className="h-4 w-4" /></a>
-                </Button>
-              </Link>
           </div>
         </CardHeader>
 
@@ -152,17 +139,23 @@ export function ParentEnquiryCard({
           )}
         </CardContent>
 
-        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center">
-            <div className="flex-shrink-0">
-                {requirement.assignedTutors !== undefined && (
+        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+            <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
+                {requirement.assignedTutors !== undefined && requirement.assignedTutors >= 0 && (
                     <Badge
                         variant="outline"
-                        className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                        className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal"
                     >
                         <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
                         {requirement.assignedTutors} Tutor
                         {requirement.assignedTutors === 1 ? " Assigned" : "s Assigned"}
                     </Badge>
+                )}
+                {locationString && (
+                  <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
+                    <MapPin className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
+                    {locationString}
+                  </Badge>
                 )}
             </div>
            <div className="flex items-center gap-2">
