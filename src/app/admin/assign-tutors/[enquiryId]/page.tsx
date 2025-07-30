@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { format } from 'date-fns';
@@ -25,6 +25,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 import {
   Users,
@@ -40,10 +42,13 @@ import {
   Briefcase,
   Search,
   GraduationCap,
-  BookOpen
+  BookOpen,
+  MapPin,
+  RadioTower,
+  DollarSign
 } from "lucide-react";
 
-// API Fetching Functions (similar to other admin pages)
+// API Fetching Functions
 
 const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
   if (!token || !enquiryId) throw new Error("Token and Enquiry ID are required.");
@@ -72,11 +77,10 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   };
 };
 
-
-const fetchAllTutors = async (token: string | null): Promise<ApiTutor[]> => {
+const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/admin/users?userType=TUTOR`, {
+  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
   if (!response.ok) throw new Error("Failed to fetch tutors.");
@@ -99,28 +103,44 @@ export default function AssignTutorsToEnquiryPage() {
   const { toast } = useToast();
   
   const [selectedTutorIds, setSelectedTutorIds] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
+    subjects: [] as string[],
+    grades: [] as string[],
+    boards: [] as string[],
+    isOnline: false,
+    isOffline: false,
+  });
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
     enabled: !!token && !!enquiryId,
-  });
-  
-  const { data: allTutors = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
-    queryKey: ['allAdminTutors'],
-    queryFn: () => fetchAllTutors(token),
-    enabled: !!token,
+    onSuccess: (data) => {
+        setFilters({
+            subjects: data.subject,
+            grades: [data.gradeLevel],
+            boards: data.board ? [data.board] : [],
+            isOnline: data.teachingMode?.includes("Online") || false,
+            isOffline: data.teachingMode?.includes("Offline (In-person)") || false,
+        })
+    }
   });
 
-  const filteredTutors = useMemo(() => {
-    const term = searchTerm.toLowerCase();
-    if (!term) return allTutors;
-    return allTutors.filter(tutor => 
-      tutor.name.toLowerCase().includes(term) ||
-      tutor.email.toLowerCase().includes(term)
-    );
-  }, [allTutors, searchTerm]);
+  const tutorSearchParams = useMemo(() => {
+    const params = new URLSearchParams();
+    if(filters.subjects.length > 0) params.append('subjects', filters.subjects.join(','));
+    if(filters.grades.length > 0) params.append('grades', filters.grades.join(','));
+    if(filters.boards.length > 0) params.append('boards', filters.boards.join(','));
+    if(filters.isOnline) params.append('isOnline', 'true');
+    if(filters.isOffline) params.append('isOffline', 'true');
+    return params;
+  }, [filters]);
+  
+  const { data: allTutors = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
+    queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
+    queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
+    enabled: !!token && !!enquiry,
+  });
   
   const handleAssignTutors = () => {
     if (selectedTutorIds.length === 0) {
@@ -140,12 +160,12 @@ export default function AssignTutorsToEnquiryPage() {
     setSelectedTutorIds([]);
   };
 
-  const isAllSelected = filteredTutors.length > 0 && selectedTutorIds.length === filteredTutors.length;
+  const isAllSelected = allTutors.length > 0 && selectedTutorIds.length === allTutors.length;
   const handleSelectAll = () => {
     if (isAllSelected) {
       setSelectedTutorIds([]);
     } else {
-      setSelectedTutorIds(filteredTutors.map(t => t.id));
+      setSelectedTutorIds(allTutors.map(t => t.id));
     }
   };
 
@@ -157,7 +177,7 @@ export default function AssignTutorsToEnquiryPage() {
     );
   };
   
-  const isLoading = isLoadingEnquiry || isLoadingTutors;
+  const isLoading = isLoadingEnquiry;
 
   return (
     <div className="space-y-6">
@@ -188,15 +208,7 @@ export default function AssignTutorsToEnquiryPage() {
       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
         <CardHeader className="p-4 border-b">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <h3 className="text-base font-semibold text-foreground">Recommended Tutors</h3>
             <Button onClick={handleAssignTutors} disabled={selectedTutorIds.length === 0}>
               Assign ({selectedTutorIds.length}) Selected Tutors
             </Button>
@@ -214,9 +226,9 @@ export default function AssignTutorsToEnquiryPage() {
                   />
                 </TableHead>
                 <TableHead>Tutor Details</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Registered</TableHead>
-                <TableHead>Verification</TableHead>
+                <TableHead>Experience & Rate</TableHead>
+                <TableHead>Subjects</TableHead>
+                <TableHead>Qualifications</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -227,58 +239,59 @@ export default function AssignTutorsToEnquiryPage() {
                     <TableCell><Skeleton className="h-5 w-5 rounded-sm" /></TableCell>
                     <TableCell><Skeleton className="h-10 w-48" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                   </TableRow>
                 ))
               ) : tutorsError ? (
                  <TableRow><TableCell colSpan={6} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
-              ) : filteredTutors.length === 0 ? (
-                 <TableRow><TableCell colSpan={6} className="text-center">No tutors found.</TableCell></TableRow>
+              ) : allTutors.length === 0 ? (
+                 <TableRow><TableCell colSpan={6} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
               ) : (
-                filteredTutors.map(tutor => (
+                allTutors.map(tutor => (
                   <TableRow key={tutor.id} data-state={selectedTutorIds.includes(tutor.id) && "selected"}>
                     <TableCell>
                       <Checkbox
                         checked={selectedTutorIds.includes(tutor.id)}
                         onCheckedChange={() => handleSelectTutor(tutor.id)}
-                        aria-label={`Select tutor ${tutor.name}`}
+                        aria-label={`Select tutor ${tutor.displayName}`}
                       />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10 border">
-                            <AvatarImage src={tutor.profilePicUrl} alt={tutor.name} />
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold">{getInitials(tutor.name)}</AvatarFallback>
+                            <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                            <AvatarFallback className="bg-primary/10 text-primary font-bold">{getInitials(tutor.displayName)}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <div className="font-medium text-foreground">{tutor.name}</div>
-                            <div className="text-xs text-muted-foreground">{tutor.email}</div>
+                            <div className="font-medium text-foreground">{tutor.displayName}</div>
+                            <div className="text-xs text-muted-foreground">{tutor.city}, {tutor.state}</div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="text-xs">
-                      <div className="flex flex-col">
-                        <span className="font-medium text-foreground">{`${tutor.countryCode} ${tutor.phone}`}</span>
-                        {tutor.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit bg-green-100 text-green-700">WhatsApp</Badge>}
+                        <div className="flex flex-col gap-1">
+                           <span className="font-medium">{tutor.experienceYears}</span>
+                           <span className="text-muted-foreground flex items-center gap-1"><DollarSign className="w-3 h-3"/> {tutor.hourlyRate}/hr {tutor.isRateNegotiable && "(Neg.)"}</span>
+                        </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {tutor.subjectsList.slice(0, 2).map(s => <Badge key={s} variant="secondary">{s}</Badge>)}
+                        {tutor.subjectsList.length > 2 && <Badge variant="outline">+{tutor.subjectsList.length - 2}</Badge>}
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs">{format(new Date(tutor.registeredDate), "MMM d, yyyy")}</TableCell>
                     <TableCell>
-                      <div className="flex flex-col items-start gap-1.5">
-                          <Badge variant={tutor.emailVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor.emailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                            {tutor.emailVerified ? <MailCheck className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />} Email
-                          </Badge>
-                          <Badge variant={tutor.phoneVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor.phoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                            {tutor.phoneVerified ? <PhoneCall className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />} Phone
-                          </Badge>
+                       <div className="flex flex-wrap gap-1">
+                        {tutor.qualificationList.slice(0, 1).map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
+                        {tutor.qualificationList.length > 1 && <Badge variant="outline">+{tutor.qualificationList.length - 1}</Badge>}
                       </div>
                     </TableCell>
                      <TableCell>
-                       <Badge variant={tutor.active ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                        {tutor.active ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                        {tutor.active ? 'Active' : 'Inactive'}
+                       <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                        {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                        {tutor.isActive ? 'Active' : 'Inactive'}
                        </Badge>
                     </TableCell>
                   </TableRow>

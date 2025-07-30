@@ -67,6 +67,50 @@ export interface TutorProfile extends User {
   rating?: number;
 }
 
+export interface ApiTutor {
+  id: string;
+  displayName: string;
+  gender: string;
+  subjects: string;
+  hourlyRate: number;
+  bio: string;
+  qualification: string;
+  experienceYears: string;
+  availabilityDays: string;
+  availabilityTime: string;
+  addressName: string;
+  address: string;
+  city: string;
+  state: string;
+  area: string;
+  pincode: string;
+  country: string;
+  googleMapsLink: string;
+  languages: string;
+  grades: string;
+  boards: string;
+  documentsUrl: string;
+  profileCompletion: number;
+  isVerified: boolean;
+  isActive: boolean;
+  isRateNegotiable: boolean;
+  isHybrid: boolean;
+  createdAt: string;
+  updatedAt: string;
+  isBioReviewed: boolean;
+  subjectsList: string[];
+  availabilityDaysList: string[];
+  availabilityTimeList: string[];
+  languagesList: string[];
+  gradesList: string[];
+  boardsList: string[];
+  qualificationList: string[];
+  online: boolean;
+  offline: boolean;
+  profilePicUrl?: string; // Adding optional profile pic
+}
+
+
 export interface Testimonial {
   id: string;
   name: string;
