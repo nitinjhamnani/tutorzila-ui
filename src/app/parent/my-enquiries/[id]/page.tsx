@@ -358,6 +358,7 @@ export default function ParentEnquiryDetailsPage() {
   if (!requirement) return null;
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
+  const hasLocationInfo = locationInfo?.address && locationInfo.address.trim() !== '';
 
   return (
     <main className="flex-grow">
@@ -424,20 +425,26 @@ export default function ParentEnquiryDetailsPage() {
                         )}
                     </div>
                 </section>
-                <Separator />
-                <section className="space-y-3">
-                    <h3 className="text-base font-semibold text-foreground flex items-center">
-                        <MapPin className="w-4 h-4 mr-2 text-primary/80" />
-                        Location
-                    </h3>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                        {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
-                        {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
-                            <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} icon={MapPinned} />
-                        )}
-                         {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
-                    </div>
-                </section>
+
+                {hasLocationInfo && (
+                  <>
+                    <Separator />
+                    <section className="space-y-3">
+                        <h3 className="text-base font-semibold text-foreground flex items-center">
+                            <MapPin className="w-4 h-4 mr-2 text-primary/80" />
+                            Location
+                        </h3>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                            {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
+                            {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
+                                <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} icon={MapPinned} />
+                            )}
+                             {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
+                        </div>
+                    </section>
+                  </>
+                )}
+
                 {requirement.additionalNotes && (
                    <>
                     <Separator />
