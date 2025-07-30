@@ -568,7 +568,7 @@ export default function AdminEnquiryDetailsPage() {
                       <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => setIsAddNotesModalOpen(true)}>
-                      <ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Add Notes
+                      <ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes
                     </Button>
                     {(requirement.applicantsCount ?? 0) > 0 && (
                       <Button asChild variant="default" size="sm">
@@ -579,7 +579,7 @@ export default function AdminEnquiryDetailsPage() {
                       </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}>
-                      <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
+                      <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
                     </Button>
                 </div>
               </CardFooter>
