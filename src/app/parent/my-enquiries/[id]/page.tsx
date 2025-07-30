@@ -1,11 +1,11 @@
 
+
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { TuitionRequirement, User, LocationDetails } from "@/types";
-import { MOCK_ALL_PARENT_REQUIREMENTS, MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -142,7 +142,6 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
     board: data.enquirySummary.board,
-    address: data.address,
     location: {
         name: data.addressName || data.address || "",
         address: data.address,
@@ -248,7 +247,6 @@ export default function ParentEnquiryDetailsPage() {
         subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
         gradeLevel: updatedData.enquirySummary.grade,
         board: updatedData.enquirySummary.board,
-        address: updatedData.address,
         location: {
             name: updatedData.addressName || updatedData.address || "",
             address: updatedData.address,
@@ -293,7 +291,6 @@ export default function ParentEnquiryDetailsPage() {
   };
 
   const handleCloseEnquiryDialogAction = () => {
-    if (!requirement) return;
     if (!closeReason) {
         toast({
             variant: "destructive",
@@ -302,16 +299,15 @@ export default function ParentEnquiryDetailsPage() {
         });
         return;
     }
-
-    const reqIndex = MOCK_ALL_PARENT_REQUIREMENTS.findIndex(r => r.id === requirement.id);
-    if (reqIndex > -1) MOCK_ALL_PARENT_REQUIREMENTS[reqIndex].status = "closed";
     
-    console.log(`Closing enquiry ${requirement.id}. Reason: ${closeReason}`);
+    console.log(`Closing enquiry ${id}. Reason: ${closeReason}`);
     toast({
       title: "Enquiry Closed (Mock)",
-      description: `Requirement for "${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}" has been marked as closed.`,
+      description: `Requirement for "${Array.isArray(requirement?.subject) ? requirement.subject.join(', ') : requirement?.subject}" has been marked as closed.`,
     });
     setIsCloseEnquiryModalOpen(false);
+    // Invalidate queries to refetch the list on the previous page
+    queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
     router.push("/parent/my-enquiries"); 
   };
 
@@ -358,7 +354,9 @@ export default function ParentEnquiryDetailsPage() {
   if (!requirement) return null;
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
-  const hasLocationInfo = locationInfo?.address && locationInfo.address.trim() !== '';
+  const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
+
+  const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
 
   return (
     <main className="flex-grow">
@@ -394,31 +392,30 @@ export default function ParentEnquiryDetailsPage() {
                     <EnquiryInfoItem label="Grade Level" value={requirement.gradeLevel} icon={GraduationCap} />
                     {requirement.board && <EnquiryInfoItem label="Board" value={requirement.board} icon={Building} />}
                     {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-                        <EnquiryInfoItem label="Teaching Mode(s)" icon={RadioTower}>
-                            <div className="flex flex-wrap gap-1.5 mt-0.5">
-                            {requirement.teachingMode.map(mode => (
-                                <Badge key={mode} variant="secondary" className="text-[11px] py-0.5 px-1.5">{mode}</Badge>
-                            ))}
-                            </div>
-                        </EnquiryInfoItem>
+                        <EnquiryInfoItem label="Teaching Mode(s)" value={requirement.teachingMode} icon={RadioTower} />
                     )}
                   </div>
                 </section>
-                <Separator />
-                <section className="space-y-3">
-                    <h3 className="text-base font-semibold text-foreground flex items-center">
-                        <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                        Schedule Preferences
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                        {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-                        <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
-                        )}
-                        {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
-                        <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
-                        )}
-                    </div>
-                </section>
+                
+                {hasScheduleInfo && (
+                  <>
+                    <Separator />
+                    <section className="space-y-3">
+                        <h3 className="text-base font-semibold text-foreground flex items-center">
+                            <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
+                            Schedule Preferences
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                            {requirement.preferredDays && requirement.preferredDays.length > 0 && (
+                            <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
+                            )}
+                            {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
+                            <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
+                            )}
+                        </div>
+                    </section>
+                  </>
+                )}
 
                 {hasLocationInfo && (
                   <>
@@ -528,3 +525,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
