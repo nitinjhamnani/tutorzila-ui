@@ -115,8 +115,8 @@ function AssignTutorsContent() {
         scheduleDetails: ''
     };
   }, [searchParams, enquiryId]);
-
-  const [filters, setFilters] = useState({
+  
+  const getInitialFilters = useCallback(() => ({
     subjects: enquiry?.subject || [],
     grade: enquiry?.gradeLevel || '',
     board: enquiry?.board || '',
@@ -124,7 +124,23 @@ function AssignTutorsContent() {
     isOffline: enquiry?.teachingMode?.includes("Offline (In-person)") || false,
     city: "",
     area: "",
-  });
+  }), [enquiry]);
+
+  const [filters, setFilters] = useState(getInitialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setIsFilterModalOpen(false);
+  };
+  
+  const handleClearFilters = () => {
+    const initialFilters = getInitialFilters();
+    setFilters(initialFilters);
+    setAppliedFilters(initialFilters);
+    setIsFilterModalOpen(false);
+  };
+
 
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
       setFilters(prev => ({ ...prev, [key]: value }));
@@ -141,15 +157,15 @@ function AssignTutorsContent() {
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
-    if(filters.subjects.length > 0) params.append('subjects', filters.subjects.join(','));
-    if(filters.grade) params.append('grades', filters.grade);
-    if(filters.board) params.append('boards', filters.board);
-    if(filters.isOnline) params.append('isOnline', 'true');
-    if(filters.isOffline) params.append('isOffline', 'true');
-    if(filters.city) params.append('location', filters.city);
-    if(filters.area) params.append('location', `${filters.area}, ${filters.city}`);
+    if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+    if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
+    if(appliedFilters.board) params.append('boards', appliedFilters.board);
+    if(appliedFilters.isOnline) params.append('isOnline', 'true');
+    if(appliedFilters.isOffline) params.append('isOffline', 'true');
+    if(appliedFilters.city) params.append('location', appliedFilters.city);
+    if(appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
     return params;
-  }, [filters]);
+  }, [appliedFilters]);
   
   const { data: allTutors = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
     queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
@@ -319,10 +335,9 @@ function AssignTutorsContent() {
                             </div>
                         </div>
                     </div>
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button type="button">Done</Button>
-                      </DialogClose>
+                    <DialogFooter className="gap-2 sm:justify-between">
+                        <Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
+                        <Button type="button" onClick={handleApplyFilters}>Apply Filters</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -425,3 +440,5 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
+
+    
