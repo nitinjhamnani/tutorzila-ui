@@ -35,16 +35,10 @@ interface ParentEnquiryCardProps {
   onReopen: (id: string) => void;
 }
 
-const getInitials = (name?: string): string => {
-  if (!name || name.trim() === "") return "P";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) {
-    return parts[0].substring(0, 2).toUpperCase();
-  }
-  return (
-    (parts[0][0] || "") +
-    (parts.length > 1 ? parts[parts.length - 1][0] || "" : "")
-  ).toUpperCase();
+const getInitials = (subject?: string[]): string => {
+  if (!subject || subject.length === 0 || !subject[0]) return "?";
+  const firstSubject = subject[0];
+  return firstSubject[0].toUpperCase();
 };
 
 const InfoItem = ({
@@ -82,7 +76,7 @@ export function ParentEnquiryCard({
 }: ParentEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
-  const parentInitials = getInitials(requirement.parentName);
+  const subjectInitials = getInitials(requirement.subject);
   const isPastEnquiry = requirement.status === "closed";
 
   const locationString = typeof requirement.location === 'object' && requirement.location !== null
@@ -99,8 +93,8 @@ export function ParentEnquiryCard({
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
             <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
-              <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-[10px] sm:text-xs">
-                {parentInitials}
+              <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
+                {subjectInitials}
               </AvatarFallback>
             </Avatar>
             <div className="flex-grow min-w-0 space-y-0.5">
