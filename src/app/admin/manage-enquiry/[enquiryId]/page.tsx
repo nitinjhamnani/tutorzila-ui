@@ -329,6 +329,7 @@ function ManageEnquiryContent() {
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
   
   const [isInitialFilterReady, setIsInitialFilterReady] = useState(false);
+  const [isTutorQueryEnabled, setIsTutorQueryEnabled] = useState(false);
   const [filters, setFilters] = useState<any>({});
   const [appliedFilters, setAppliedFilters] = useState<any>({});
   
@@ -341,7 +342,7 @@ function ManageEnquiryContent() {
   
   useEffect(() => {
     if (enquiry && !isInitialFilterReady) {
-      const location = (typeof enquiry.location === 'object' && enquiry.location) ? enquiry.location : { city: "", area: "" };
+      const location = enquiry.location ?? { city: "", area: "" };
       const initialFilters = {
         subjects: enquiry.subject || [],
         grade: enquiry.gradeLevel || '',
@@ -353,7 +354,11 @@ function ManageEnquiryContent() {
       };
       setFilters(initialFilters);
       setAppliedFilters(initialFilters);
-      setIsInitialFilterReady(true);
+
+      setTimeout(() => {
+        setIsInitialFilterReady(true);
+        setIsTutorQueryEnabled(true);
+      }, 0);
     }
   }, [enquiry, isInitialFilterReady]);
 
@@ -374,7 +379,7 @@ function ManageEnquiryContent() {
         }
         return fetchAssignableTutors(token, params);
     },
-    enabled: !!token && !!enquiry && isInitialFilterReady,
+    enabled: !!token && !!enquiry && isTutorQueryEnabled,
     refetchOnWindowFocus: false,
   });
 
