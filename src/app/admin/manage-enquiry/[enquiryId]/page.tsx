@@ -220,7 +220,7 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   return response.json();
 };
 
-const updateEnquiryStatus = async ({ enquiryId, token, status }: { enquiryId: string, token: string | null, status: string }) => {
+const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enquiryId: string, token: string | null, status: string, remark?: string }) => {
   if (!token) throw new Error("Authentication token is required.");
   if (!status) throw new Error("Status is required.");
   
@@ -230,8 +230,10 @@ const updateEnquiryStatus = async ({ enquiryId, token, status }: { enquiryId: st
     headers: {
       'Authorization': `Bearer ${token}`,
       'TZ-ENQ-ID': enquiryId,
+      'Content-Type': 'application/json',
       'accept': '*/*',
     },
+    body: JSON.stringify({ message: remark }),
   });
 
   if (!response.ok) { throw new Error("Failed to update enquiry status."); }
@@ -314,6 +316,7 @@ function ManageEnquiryContent() {
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [statusRemark, setStatusRemark] = useState("");
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -354,11 +357,12 @@ function ManageEnquiryContent() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: (status: string) => updateEnquiryStatus({ enquiryId, token, status }),
+    mutationFn: ({ status, remark }: { status: string, remark?: string }) => updateEnquiryStatus({ enquiryId, token, status, remark }),
     onSuccess: () => {
       toast({ title: "Status Updated", description: "The enquiry status has been updated." });
       queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
       setIsStatusModalOpen(false);
+      setStatusRemark("");
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Status Update Failed", description: error.message }),
   });
@@ -401,6 +405,7 @@ function ManageEnquiryContent() {
 
   const handleOpenStatusModal = () => {
     setSelectedStatus(enquiry?.status || null);
+    setStatusRemark("");
     setIsStatusModalOpen(true);
   }
 
@@ -409,7 +414,7 @@ function ManageEnquiryContent() {
       toast({ variant: "destructive", title: "No Status Selected", description: "Please choose a new status." });
       return;
     }
-    updateStatusMutation.mutate(selectedStatus);
+    updateStatusMutation.mutate({ status: selectedStatus, remark: statusRemark });
   }
   
   if (isLoadingEnquiry) {
@@ -465,24 +470,35 @@ function ManageEnquiryContent() {
                       {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
                 </Badge>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-xs">
+              <DialogContent className="sm:max-w-sm">
                 <DialogHeader>
                   <DialogTitle>Change Enquiry Status</DialogTitle>
                 </DialogHeader>
-                <RadioGroup value={selectedStatus || enquiry.status} onValueChange={setSelectedStatus} className="py-4">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="open" id="status-open" />
-                    <Label htmlFor="status-open">Open</Label>
+                <div className="py-4 space-y-4">
+                  <RadioGroup value={selectedStatus || enquiry.status} onValueChange={setSelectedStatus} className="py-2">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="open" id="status-open" />
+                      <Label htmlFor="status-open">Open</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="matched" id="status-matched" />
+                      <Label htmlFor="status-matched">Matched</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="closed" id="status-closed" />
+                      <Label htmlFor="status-closed">Closed</Label>
+                    </div>
+                  </RadioGroup>
+                  <div className="space-y-2">
+                    <Label htmlFor="status-remark">Add a Remark (Optional)</Label>
+                    <Textarea
+                      id="status-remark"
+                      placeholder="Add an internal note about this status change..."
+                      value={statusRemark}
+                      onChange={(e) => setStatusRemark(e.target.value)}
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="matched" id="status-matched" />
-                    <Label htmlFor="status-matched">Matched</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="closed" id="status-closed" />
-                    <Label htmlFor="status-closed">Closed</Label>
-                  </div>
-                </RadioGroup>
+                </div>
                 <DialogFooter>
                   <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
                   <Button onClick={handleConfirmStatusChange} disabled={updateStatusMutation.isPending || selectedStatus === enquiry.status}>
