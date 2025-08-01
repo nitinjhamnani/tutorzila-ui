@@ -44,7 +44,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
+  AlertDialogDescription as AlertDialogDesc,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -157,98 +157,6 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     applicantsCount: data.enquirySummary.assignedTutors,
   };
 };
-
-const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
-  // Mock implementation, replace with actual API call if needed
-  console.log("Mock fetching assignable tutors with params:", params.toString());
-  return MOCK_TUTOR_PROFILES.map(t => ({
-      ...t,
-      id: t.id,
-      displayName: t.name,
-      subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
-      hourlyRate: parseFloat(t.hourlyRate || '0'),
-      bio: t.bio || "",
-      qualification: t.qualifications ? t.qualifications.join(", ") : "",
-      experienceYears: t.experience,
-      availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
-      availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
-      addressName: "",
-      address: t.location || "",
-      city: t.location || "",
-      state: "",
-      area: "",
-      pincode: "",
-      country: "",
-      googleMapsLink: "",
-      languages: "",
-      grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
-      boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
-      documentsUrl: "",
-      profileCompletion: 80,
-      isVerified: true,
-      isActive: t.status === 'Active',
-      isHybrid: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isBioReviewed: true,
-      subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
-      availabilityDaysList: t.preferredDays || [],
-      availabilityTimeList: t.preferredTimeSlots || [],
-      languagesList: [],
-      gradesList: t.gradeLevelsTaught || [],
-      boardsList: t.boardsTaught || [],
-      qualificationList: t.qualifications || [],
-      online: t.teachingMode?.includes("Online") || false,
-      offline: t.teachingMode?.includes("Offline (In-person)") || false,
-  }));
-};
-
-const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
-    // Mock implementation, replace with actual API call if needed
-    console.log(`Mock fetching assigned tutors for enquiry: ${enquiryId}`);
-    const allTutors = MOCK_TUTOR_PROFILES.slice(0, 2).map(t => ({ // Return first 2 as assigned
-      ...t,
-      id: t.id,
-      displayName: t.name,
-      subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
-      hourlyRate: parseFloat(t.hourlyRate || '0'),
-      bio: t.bio || "",
-      qualification: t.qualifications ? t.qualifications.join(", ") : "",
-      experienceYears: t.experience,
-      availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
-      availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
-      addressName: "",
-      address: t.location || "",
-      city: t.location || "",
-      state: "",
-      area: "",
-      pincode: "",
-      country: "",
-      googleMapsLink: "",
-      languages: "",
-      grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
-      boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
-      documentsUrl: "",
-      profileCompletion: 80,
-      isVerified: true,
-      isActive: t.status === 'Active',
-      isHybrid: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isBioReviewed: true,
-      subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
-      availabilityDaysList: t.preferredDays || [],
-      availabilityTimeList: t.preferredTimeSlots || [],
-      languagesList: [],
-      gradesList: t.gradeLevelsTaught || [],
-      boardsList: t.boardsTaught || [],
-      qualificationList: t.qualifications || [],
-      online: t.teachingMode?.includes("Online") || false,
-      offline: t.teachingMode?.includes("Offline (In-person)") || false,
-    }));
-    return Promise.resolve(allTutors);
-};
-
 
 const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: AdminEnquiryEditFormValues }) => {
   if (!token) throw new Error("Authentication token is required.");
@@ -431,7 +339,7 @@ function ManageEnquiryContent() {
       queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
       setIsEditModalOpen(false);
     },
-    onError: (error) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
+    onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
   });
 
   const closeEnquiryMutation = useMutation({
@@ -441,7 +349,7 @@ function ManageEnquiryContent() {
       queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
       setIsCloseEnquiryModalOpen(false);
     },
-    onError: (error) => toast({ variant: "destructive", title: "Failed to Close Enquiry", description: error.message }),
+    onError: (error: any) => toast({ variant: "destructive", title: "Failed to Close Enquiry", description: error.message }),
   });
 
   const addNoteMutation = useMutation({
@@ -452,7 +360,7 @@ function ManageEnquiryContent() {
       setIsAddNotesModalOpen(false);
       setNotes("");
     },
-    onError: (error) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
+    onError: (error: any) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
   });
   
   const handleApplyFilters = () => {
@@ -507,61 +415,64 @@ function ManageEnquiryContent() {
     addNoteMutation.mutate(notes);
   };
   
-  const tutorSearchParams = useMemo(() => {
-    const params = new URLSearchParams();
-    if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-    if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
-    if(appliedFilters.board) params.append('boards', appliedFilters.board);
-    if(appliedFilters.isOnline) params.append('isOnline', 'true');
-    if(appliedFilters.isOffline) params.append('isOffline', 'true');
-    if(appliedFilters.city) params.append('location', appliedFilters.city);
-    if(appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-    return params;
-  }, [appliedFilters]);
-
-  const { data: allTutorsData, isLoading: isLoadingTutors, error: tutorsError } = useQuery<ApiTutor[]>({
-      queryKey: ['allTutorsForFilter', enquiryId],
-      queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
-      enabled: !!token,
-      staleTime: Infinity,
-  });
-
+  const allTutorsData = useMemo(() => MOCK_TUTOR_PROFILES.map(t => ({
+      ...t,
+      id: t.id,
+      displayName: t.name,
+      subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
+      hourlyRate: parseFloat(t.hourlyRate || '0'),
+      bio: t.bio || "",
+      qualification: t.qualifications ? t.qualifications.join(", ") : "",
+      experienceYears: t.experience,
+      availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
+      availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
+      addressName: "",
+      address: t.location || "",
+      city: t.location || "",
+      state: "",
+      area: "",
+      pincode: "",
+      country: "",
+      googleMapsLink: "",
+      languages: "",
+      grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
+      boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
+      documentsUrl: "",
+      profileCompletion: 80,
+      isVerified: true,
+      isActive: t.status === 'Active',
+      isHybrid: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isBioReviewed: true,
+      subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
+      availabilityDaysList: t.preferredDays || [],
+      availabilityTimeList: t.preferredTimeSlots || [],
+      languagesList: [],
+      gradesList: t.gradeLevelsTaught || [],
+      boardsList: t.boardsTaught || [],
+      qualificationList: t.qualifications || [],
+      online: t.teachingMode?.includes("Online") || false,
+      offline: t.teachingMode?.includes("Offline (In-person)") || false,
+  })), []);
+  
   const uniqueCities = useMemo(() => Array.from(new Set(allTutorsData?.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutorsData]);
   const uniqueAreasInCity = useMemo(() => {
     if (!filters.city || !allTutorsData) return [];
     return Array.from(new Set(allTutorsData.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
   }, [allTutorsData, filters.city]);
   
-  const { data: assignedTutors, isLoading: isLoadingAssigned } = useQuery({
-      queryKey: ["assignedTutors", enquiryId, token],
-      queryFn: () => fetchAssignedTutors(token, enquiryId),
-      enabled: !!token && activeTab === "assigned",
-  });
-  
-  const { data: recommendedTutors, isLoading: isLoadingRecommended } = useQuery({
-      queryKey: ["recommendedTutors", enquiryId, tutorSearchParams.toString()],
-      queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
-      enabled: !!token && activeTab === "recommended",
-  });
-
-  const { data: appliedTutors, isLoading: isLoadingApplied } = useQuery({
-      queryKey: ["appliedTutors", enquiryId, token],
-      queryFn: () => fetchAssignableTutors(token, new URLSearchParams()), // Replace with actual applied tutors fetch logic
-      enabled: !!token && activeTab === "applied",
-  });
-
-  const { data: shortlistedTutors, isLoading: isLoadingShortlisted } = useQuery({
-      queryKey: ["shortlistedTutors", enquiryId, token],
-      queryFn: () => fetchAssignableTutors(token, new URLSearchParams()), // Replace with actual shortlisted tutors fetch logic
-      enabled: !!token && activeTab === "shortlisted",
-  });
+  const recommendedTutors = useMemo(() => allTutorsData.slice(0, 5), [allTutorsData]);
+  const appliedTutors = useMemo(() => allTutorsData.slice(5, 8), [allTutorsData]);
+  const shortlistedTutors = useMemo(() => allTutorsData.slice(2, 4), [allTutorsData]);
+  const assignedTutors = useMemo(() => allTutorsData.slice(0, 2), [allTutorsData]);
   
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   if (enquiryError) {
-      return <div className="text-center py-10 text-destructive">Error loading enquiry details: {enquiryError.message}</div>
+      return <div className="text-center py-10 text-destructive">Error loading enquiry details: {(enquiryError as Error).message}</div>
   }
 
   const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null) => (
@@ -706,10 +617,10 @@ function ManageEnquiryContent() {
                     </Dialog>
             </div>
 
-            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, isLoadingRecommended, tutorsError)}</TabsContent>
-            <TabsContent value="applied">{renderTutorTable(appliedTutors, isLoadingApplied, tutorsError)}</TabsContent>
-            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, isLoadingShortlisted, tutorsError)}</TabsContent>
-            <TabsContent value="assigned">{renderTutorTable(assignedTutors, isLoadingAssigned, tutorsError)}</TabsContent>
+            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, false, null)}</TabsContent>
+            <TabsContent value="applied">{renderTutorTable(appliedTutors, false, null)}</TabsContent>
+            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, false, null)}</TabsContent>
+            <TabsContent value="assigned">{renderTutorTable(assignedTutors, false, null)}</TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -727,7 +638,7 @@ function ManageEnquiryContent() {
             </DialogContent>
         </Dialog>
         <AlertDialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
-            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure you want to close this enquiry?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDescription></AlertDialogHeader>
+            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure you want to close this enquiry?</AlertDialogTitle><AlertDialogDesc>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDesc></AlertDialogHeader>
             <div className="py-4 space-y-4"><RadioGroup onValueChange={setCloseReason} value={closeReason || ""} className="flex flex-col space-y-2">{closeReasons.map((reason) => (<div key={reason.id} className="flex items-center space-x-3"><RadioGroupItem value={reason.id} id={`admin-close-${reason.id}`} /><Label htmlFor={`admin-close-${reason.id}`} className="font-normal text-sm">{reason.label}</Label></div>))}</RadioGroup></div>
             <AlertDialogFooter><AlertDialogCancel disabled={closeEnquiryMutation.isPending}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleCloseEnquiryDialogAction} disabled={!closeReason || closeEnquiryMutation.isPending}>{closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirm & Close</AlertDialogAction></AlertDialogFooter>
             </AlertDialogContent>
@@ -827,9 +738,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-
-
-
-
-    
