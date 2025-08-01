@@ -345,7 +345,6 @@ function AssignTutorsContent() {
             <TableHeader>
               <TableRow>
                 <TableHead>Tutor Details</TableHead>
-                <TableHead>Experience & Rate</TableHead>
                 <TableHead>Subjects</TableHead>
                 <TableHead>Grade</TableHead>
                 <TableHead>Board</TableHead>
@@ -362,16 +361,15 @@ function AssignTutorsContent() {
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                     <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
                   </TableRow>
                 ))
               ) : tutorsError ? (
-                 <TableRow><TableCell colSpan={8} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
               ) : allTutors.length === 0 ? (
-                 <TableRow><TableCell colSpan={8} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={7} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
               ) : (
                 allTutors.map(tutor => (
                   <TableRow key={tutor.id}>
@@ -380,12 +378,6 @@ function AssignTutorsContent() {
                         <div className="font-medium text-foreground">{tutor.displayName}</div>
                         <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-xs">
-                        <div className="flex flex-col gap-1">
-                           <span className="font-medium">{tutor.experienceYears}</span>
-                           <span className="text-muted-foreground flex items-center gap-1"><DollarSign className="w-3 h-3"/> {tutor.hourlyRate}/hr {tutor.isRateNegotiable && "(Neg.)"}</span>
-                        </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
