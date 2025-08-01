@@ -92,7 +92,7 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
             </Avatar>
             <div>
               <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}, {tutor.experienceYears} experience</DialogDescription>
+              <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
             </div>
             <div className="ml-auto flex items-center gap-2">
                 <Badge variant={tutor.isActive ? "default" : "destructive"}>
