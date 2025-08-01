@@ -257,9 +257,9 @@ function AssignTutorsContent() {
       
       <Tabs defaultValue="all-tutors" className="w-full">
          <div className="flex justify-between items-center mb-4">
-             <TabsList>
-                <TabsTrigger value="all-tutors">All Tutors ({allTutors.length})</TabsTrigger>
-                <TabsTrigger value="assigned-tutors">Assigned Tutors ({assignedTutors.length})</TabsTrigger>
+             <TabsList className="bg-transparent p-0">
+                <TabsTrigger value="all-tutors" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">All Tutors ({allTutors.length})</TabsTrigger>
+                <TabsTrigger value="assigned-tutors" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Assigned Tutors ({assignedTutors.length})</TabsTrigger>
             </TabsList>
              <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                   <DialogTrigger asChild>
@@ -547,5 +547,7 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
+
+    
 
     
