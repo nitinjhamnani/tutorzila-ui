@@ -83,9 +83,13 @@ import {
   Save,
   ClipboardEdit,
   Loader2,
+  Info,
+  MapPinned,
+  CalendarDays,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
+import { Separator } from "@/components/ui/separator";
 
 const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
@@ -225,6 +229,61 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   return response.json();
 };
 
+const EnquiryInfoItem = ({
+  icon: Icon,
+  label,
+  value,
+  children,
+  className,
+}: {
+  icon?: React.ElementType;
+  label?: string;
+  value?: string | string[] | LocationDetails | null;
+  children?: React.ReactNode;
+  className?: string;
+}) => {
+  if (!value && !children) return null;
+  
+  let displayText: React.ReactNode = null;
+
+  if (typeof value === 'object' && value !== null && 'address' in value) {
+    const location = value as LocationDetails;
+    const hasDistinctName = location.name && location.name !== location.address;
+    
+    const renderLink = (text: string) => (
+       <a href={location.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1.5">
+           <MapPinned className="h-3 w-3" /> {text}
+        </a>
+    )
+
+    displayText = (
+        <div className="mt-1 p-2 bg-muted/30 border rounded-md">
+          {location.googleMapsUrl ? renderLink(location.name || location.address) : <p className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {location.name || location.address}</p>}
+          {hasDistinctName && <div className="text-xs text-muted-foreground pl-5">{location.address}</div>}
+        </div>
+      );
+  } else if (Array.isArray(value)) {
+    displayText = value.join(", ");
+  } else {
+    displayText = value as string;
+  }
+
+
+  return (
+    <div className={cn("space-y-0.5", className)}>
+      {label && (
+         <span className="text-xs text-muted-foreground font-medium flex items-center">
+            {Icon && <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80" />}
+            {label}
+        </span>
+      )}
+      {!label && Icon && <Icon className="w-3.5 h-3.5 text-primary/80" />}
+      {displayText && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{children ? null : displayText}</div>}
+      {children && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{children}</div>}
+    </div>
+  );
+};
+
 function ManageEnquiryContent() {
   const params = useParams();
   const router = useRouter();
@@ -244,6 +303,7 @@ function ManageEnquiryContent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false);
   const [notes, setNotes] = useState("");
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -358,7 +418,6 @@ function ManageEnquiryContent() {
   const { data: allTutors = [] } = useQuery<ApiTutor[]>({
       queryKey: ['allTutorsForFilter', enquiryId],
       queryFn: async () => {
-        // MOCK: In a real app this might be a generic tutor search. For now, use mock data.
         return MOCK_TUTOR_PROFILES.map(t => ({
           ...t,
           id: t.id,
@@ -491,6 +550,10 @@ function ManageEnquiryContent() {
     </Card>
   );
 
+  const locationInfo = enquiry ? (typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null) : null;
+  const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
+  const hasScheduleInfo = enquiry ? ((enquiry.preferredDays && enquiry.preferredDays.length > 0) || (enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0)) : false;
+
   return (
     <div className="space-y-6">
       {enquiry && (
@@ -513,7 +576,7 @@ function ManageEnquiryContent() {
             </div>
           </CardHeader>
           <CardFooter className="flex flex-wrap justify-end gap-2">
-             <Button asChild variant="default" size="sm"><Link href={`/admin/enquiries/${enquiry.id}`}><Eye className="mr-1.5 h-3.5 w-3.5" />View Full Details</Link></Button>
+             <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)}><Eye className="mr-1.5 h-3.5 w-3.5" />View Full Details</Button>
              <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
              <Button variant="outline" size="sm" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
              <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}><XCircle className="mr-1.5 h-3.5 w-3.5" /> Close</Button>
@@ -579,6 +642,90 @@ function ManageEnquiryContent() {
             <AlertDialogFooter><AlertDialogCancel disabled={closeEnquiryMutation.isPending}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleCloseEnquiryDialogAction} disabled={!closeReason || closeEnquiryMutation.isPending}>{closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirm & Close</AlertDialogAction></AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
+        {enquiry && (
+            <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+              <DialogContent className="sm:max-w-2xl bg-card">
+                  <DialogHeader>
+                      <DialogTitle className="text-xl font-semibold text-primary">Enquiry Details</DialogTitle>
+                      <DialogDescription>
+                          Full details for enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+                      </DialogDescription>
+                  </DialogHeader>
+                  <div className="max-h-[60vh] overflow-y-auto pr-2">
+                  <div className="p-4 md:p-5 space-y-5">
+                    <section className="space-y-3">
+                      <h3 className="text-base font-semibold text-foreground flex items-center">
+                        <Briefcase className="w-4 h-4 mr-2 text-primary/80" />
+                        Requirement Details
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                        <EnquiryInfoItem label="Grade Level" value={enquiry.gradeLevel} icon={GraduationCap} />
+                        {enquiry.board && <EnquiryInfoItem label="Board" value={enquiry.board} icon={Building} />}
+                        {enquiry.teachingMode && enquiry.teachingMode.length > 0 && (
+                            <EnquiryInfoItem label="Teaching Mode(s)" value={enquiry.teachingMode} icon={RadioTower} />
+                        )}
+                      </div>
+                    </section>
+                    
+                    {hasScheduleInfo && (
+                      <>
+                        <Separator />
+                        <section className="space-y-3">
+                            <h3 className="text-base font-semibold text-foreground flex items-center">
+                                <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
+                                Schedule Preferences
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                                {enquiry.preferredDays && enquiry.preferredDays.length > 0 && (
+                                <EnquiryInfoItem label="Preferred Days" value={enquiry.preferredDays.join(', ')} icon={CalendarDays} />
+                                )}
+                                {enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0 && (
+                                <EnquiryInfoItem label="Preferred Time" value={enquiry.preferredTimeSlots.join(', ')} icon={Clock} />
+                                )}
+                            </div>
+                        </section>
+                      </>
+                    )}
+
+                    {hasLocationInfo && (
+                      <>
+                        <Separator />
+                        <section className="space-y-3">
+                            <h3 className="text-base font-semibold text-foreground flex items-center">
+                                <MapPin className="w-4 h-4 mr-2 text-primary/80" />
+                                Location
+                            </h3>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                                {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
+                                {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
+                                    <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} icon={MapPinned} />
+                                )}
+                                 {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
+                            </div>
+                        </section>
+                      </>
+                    )}
+
+                    {enquiry.additionalNotes && (
+                       <>
+                        <Separator />
+                        <section className="space-y-3">
+                            <h3 className="text-base font-semibold text-foreground flex items-center">
+                                <Info className="w-4 h-4 mr-2 text-primary/80" />
+                                Additional Notes
+                            </h3>
+                            <p className="text-sm text-foreground/80 leading-relaxed pl-6">{enquiry.additionalNotes}</p>
+                        </section>
+                       </>
+                    )}
+                  </div>
+                  </div>
+                  <DialogFooter>
+                      <Button type="button" onClick={() => setIsDetailsModalOpen(false)}>Close</Button>
+                  </DialogFooter>
+              </DialogContent>
+            </Dialog>
+        )}
     </div>
   );
 }
