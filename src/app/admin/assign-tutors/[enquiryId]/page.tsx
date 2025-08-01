@@ -383,16 +383,16 @@ function AssignTutorsContent() {
       </Card>
       
       <Tabs defaultValue="recommended" className="w-full">
-         <div className="flex justify-between items-center mb-4">
-             <TabsList className="bg-transparent p-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+            <TabsList className="bg-transparent p-0 w-full overflow-x-auto sm:w-auto">
                 <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Recommended ({recommendedTutors.length})</TabsTrigger>
                 <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Applied ({appliedTutors.length})</TabsTrigger>
                 <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Shortlisted (0)</TabsTrigger>
                 <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Assigned ({assignedTutors.length})</TabsTrigger>
             </TabsList>
-             <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+            <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
                       <ListFilter className="w-4 h-4 mr-2"/>
                       Filter Tutors
                     </Button>
@@ -486,7 +486,7 @@ function AssignTutorsContent() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-         </div>
+        </div>
 
         <TabsContent value="recommended">
           {renderTutorTable(recommendedTutors, isLoadingAllTutors, allTutorsError)}
