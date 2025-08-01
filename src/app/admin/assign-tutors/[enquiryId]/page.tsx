@@ -17,13 +17,10 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -39,15 +36,13 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   Users,
   Eye,
   CheckCircle,
   XCircle,
-  MailCheck,
-  PhoneCall,
-  Loader2,
   ShieldAlert,
   ListFilter,
   UsersRound,
@@ -61,8 +56,12 @@ import {
   Building,
   CheckSquare,
   ShieldCheck,
+  Mail,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
+import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
+import { Loader2 } from "lucide-react";
+
 
 const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
@@ -108,6 +107,7 @@ function AssignTutorsContent() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const enquiry = useMemo(() => {
     if (!searchParams) return null;
@@ -175,6 +175,11 @@ function AssignTutorsContent() {
   const handleViewProfile = (tutor: ApiTutor) => {
     setSelectedTutor(tutor);
     setIsProfileModalOpen(true);
+  }
+  
+  const handleContactTutor = (tutor: ApiTutor) => {
+    setSelectedTutor(tutor);
+    setIsContactModalOpen(true);
   }
 
 
@@ -454,9 +459,14 @@ function AssignTutorsContent() {
                         </div>
                     </TableCell>
                     <TableCell>
-                        <Button variant="outline" size="sm" className="h-8" onClick={() => handleViewProfile(tutor)}>
+                      <div className="flex items-center gap-1.5">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}>
                             <Eye className="w-4 h-4" />
                         </Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}>
+                            <Mail className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -473,6 +483,13 @@ function AssignTutorsContent() {
             tutor={selectedTutor}
           />
         )}
+        {selectedTutor && (
+            <TutorContactModal
+                isOpen={isContactModalOpen}
+                onOpenChange={setIsContactModalOpen}
+                tutor={selectedTutor}
+            />
+        )}
     </div>
   );
 }
@@ -484,4 +501,3 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
- 
