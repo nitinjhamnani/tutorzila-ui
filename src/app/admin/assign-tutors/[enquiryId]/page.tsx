@@ -57,6 +57,7 @@ import {
   CheckSquare,
   ShieldCheck,
   Mail,
+  Phone,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -464,7 +465,7 @@ function AssignTutorsContent() {
                             <Eye className="w-4 h-4" />
                         </Button>
                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}>
-                            <Mail className="w-4 h-4" />
+                            <Phone className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -501,3 +502,5 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
+
+    
