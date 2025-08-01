@@ -220,6 +220,24 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   return response.json();
 };
 
+const updateEnquiryStatus = async ({ enquiryId, token, status }: { enquiryId: string, token: string | null, status: string }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!status) throw new Error("Status is required.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/admin/enquiry/status?status=${status.toUpperCase()}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'accept': '*/*',
+    },
+  });
+
+  if (!response.ok) { throw new Error("Failed to update enquiry status."); }
+  return response.json();
+};
+
 const EnquiryInfoItem = ({
   icon: Icon,
   label,
@@ -294,6 +312,8 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -332,6 +352,16 @@ function ManageEnquiryContent() {
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
   });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: (status: string) => updateEnquiryStatus({ enquiryId, token, status }),
+    onSuccess: () => {
+      toast({ title: "Status Updated", description: "The enquiry status has been updated." });
+      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+      setIsStatusModalOpen(false);
+    },
+    onError: (error: any) => toast({ variant: "destructive", title: "Status Update Failed", description: error.message }),
+  });
   
   const handleViewProfile = (tutor: ApiTutor) => {
     setSelectedTutor(tutor);
@@ -368,6 +398,19 @@ function ManageEnquiryContent() {
     }
     addNoteMutation.mutate(notes);
   };
+
+  const handleOpenStatusModal = () => {
+    setSelectedStatus(enquiry?.status || null);
+    setIsStatusModalOpen(true);
+  }
+
+  const handleConfirmStatusChange = () => {
+    if (!selectedStatus) {
+      toast({ variant: "destructive", title: "No Status Selected", description: "Please choose a new status." });
+      return;
+    }
+    updateStatusMutation.mutate(selectedStatus);
+  }
   
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -416,9 +459,39 @@ function ManageEnquiryContent() {
         <CardHeader className="p-4 sm:p-5">
           <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
             <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
-             <Badge variant="default" className="text-xs">
-                  {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
-            </Badge>
+            <Dialog open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
+              <DialogTrigger asChild>
+                 <Badge variant="default" className="text-xs cursor-pointer hover:bg-primary/80 transition-colors">
+                      {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
+                </Badge>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-xs">
+                <DialogHeader>
+                  <DialogTitle>Change Enquiry Status</DialogTitle>
+                </DialogHeader>
+                <RadioGroup value={selectedStatus || enquiry.status} onValueChange={setSelectedStatus} className="py-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="open" id="status-open" />
+                    <Label htmlFor="status-open">Open</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="matched" id="status-matched" />
+                    <Label htmlFor="status-matched">Matched</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="closed" id="status-closed" />
+                    <Label htmlFor="status-closed">Closed</Label>
+                  </div>
+                </RadioGroup>
+                <DialogFooter>
+                  <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+                  <Button onClick={handleConfirmStatusChange} disabled={updateStatusMutation.isPending || selectedStatus === enquiry.status}>
+                    {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                    Save
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </CardTitle>
           <div className="space-y-2 pt-2">
               <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
