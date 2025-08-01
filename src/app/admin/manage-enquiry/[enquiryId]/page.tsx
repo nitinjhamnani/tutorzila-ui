@@ -318,10 +318,10 @@ function ManageEnquiryContent() {
     board: enquiry?.board || '',
     isOnline: enquiry?.teachingMode?.includes("Online") || false,
     isOffline: enquiry?.teachingMode?.includes("Offline (In-person)") || false,
-    city: enquiry?.location?.city || "",
-    area: enquiry?.location?.area || "",
+    city: typeof enquiry?.location === 'object' && enquiry.location ? enquiry.location.city || "" : "",
+    area: typeof enquiry?.location === 'object' && enquiry.location ? enquiry.location.area || "" : "",
   }), [enquiry]);
-
+  
   const [filters, setFilters] = useState(getInitialFilters);
   const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
   
@@ -419,41 +419,17 @@ function ManageEnquiryContent() {
       ...t,
       id: t.id,
       displayName: t.name,
-      subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
-      hourlyRate: parseFloat(t.hourlyRate || '0'),
-      bio: t.bio || "",
-      qualification: t.qualifications ? t.qualifications.join(", ") : "",
-      experienceYears: t.experience,
-      availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
-      availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
-      addressName: "",
-      address: t.location || "",
-      city: t.location || "",
-      state: "",
-      area: "",
-      pincode: "",
-      country: "",
-      googleMapsLink: "",
-      languages: "",
-      grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
-      boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
-      documentsUrl: "",
-      profileCompletion: 80,
-      isVerified: true,
-      isActive: t.status === 'Active',
-      isHybrid: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isBioReviewed: true,
       subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
-      availabilityDaysList: t.preferredDays || [],
-      availabilityTimeList: t.preferredTimeSlots || [],
-      languagesList: [],
       gradesList: t.gradeLevelsTaught || [],
       boardsList: t.boardsTaught || [],
-      qualificationList: t.qualifications || [],
       online: t.teachingMode?.includes("Online") || false,
       offline: t.teachingMode?.includes("Offline (In-person)") || false,
+      isActive: t.status === 'Active',
+      isVerified: true, // Mock
+      area: "Area", // Mock
+      city: "City", // Mock
+      profilePicUrl: t.avatar,
+      isHybrid: t.teachingMode?.includes("Online") && (t.teachingMode?.includes("Offline (In-person)") || t.teachingMode?.includes("In-person")),
   })), []);
   
   const uniqueCities = useMemo(() => Array.from(new Set(allTutorsData?.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutorsData]);
@@ -462,10 +438,10 @@ function ManageEnquiryContent() {
     return Array.from(new Set(allTutorsData.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
   }, [allTutorsData, filters.city]);
   
-  const recommendedTutors = useMemo(() => allTutorsData.slice(0, 5), [allTutorsData]);
-  const appliedTutors = useMemo(() => allTutorsData.slice(5, 8), [allTutorsData]);
-  const shortlistedTutors = useMemo(() => allTutorsData.slice(2, 4), [allTutorsData]);
-  const assignedTutors = useMemo(() => allTutorsData.slice(0, 2), [allTutorsData]);
+  const recommendedTutors = useMemo(() => allTutorsData.slice(0, 5) as unknown as ApiTutor[], [allTutorsData]);
+  const appliedTutors = useMemo(() => allTutorsData.slice(5, 8) as unknown as ApiTutor[], [allTutorsData]);
+  const shortlistedTutors = useMemo(() => allTutorsData.slice(2, 4) as unknown as ApiTutor[], [allTutorsData]);
+  const assignedTutors = useMemo(() => allTutorsData.slice(0, 2) as unknown as ApiTutor[], [allTutorsData]);
   
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -569,8 +545,17 @@ function ManageEnquiryContent() {
                   <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
                   <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
                   <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
-                  {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
-                    <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-primary/80"/>{locationInfo.address}</span>
+                  {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo && (
+                      <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
+                          {locationInfo.googleMapsUrl ? (
+                              <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
+                                  {locationInfo.address}
+                              </a>
+                          ) : (
+                              <span className="line-clamp-1">{locationInfo.address}</span>
+                          )}
+                      </span>
                   )}
                 </div>
             </div>
@@ -738,3 +723,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
