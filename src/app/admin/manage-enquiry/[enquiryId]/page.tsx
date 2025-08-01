@@ -316,8 +316,8 @@ function ManageEnquiryContent() {
   const queryClient = useQueryClient();
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("recommended");
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
@@ -328,9 +328,8 @@ function ManageEnquiryContent() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
   
-  const [appliedFilters, setAppliedFilters] = useState<any>(null);
+  const [appliedFilters, setAppliedFilters] = useState<any>({});
 
-  // Fetch enquiry details first
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
@@ -338,10 +337,10 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
-  const [filters, setFilters] = useState<any | null>(null);
+  const [filters, setFilters] = useState<any>({});
   
   useEffect(() => {
-    if (enquiry && appliedFilters === null) {
+    if (enquiry) {
       const location = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : { city: "", area: "" };
       const initialFilters = {
         subjects: enquiry.subject || [],
@@ -355,13 +354,12 @@ function ManageEnquiryContent() {
       setFilters(initialFilters);
       setAppliedFilters(initialFilters);
     }
-  }, [enquiry, appliedFilters]);
-
+  }, [enquiry]);
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
     if (appliedFilters) {
-        if (appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+        if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
         if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
         if (appliedFilters.board) params.append('boards', appliedFilters.board);
         if (appliedFilters.isOnline) params.append('isOnline', 'true');
@@ -372,15 +370,13 @@ function ManageEnquiryContent() {
     return params;
   }, [appliedFilters]);
 
-  // Fetch assignable tutors, enabled only after appliedFilters is set and has keys
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
     queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
     queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
-    enabled: !!token && appliedFilters !== null && Object.keys(appliedFilters).length > 0,
+    enabled: !!token && !!enquiry && Object.keys(appliedFilters).length > 0,
     refetchOnWindowFocus: false,
   });
 
-  // Fetch assigned tutors
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
     queryFn: () => fetchAssignedTutors(token, enquiryId),
