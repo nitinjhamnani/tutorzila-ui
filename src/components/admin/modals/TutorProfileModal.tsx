@@ -85,7 +85,7 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0">
         <DialogHeader className="p-6 pb-4 border-b">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16 border-2 border-primary/20">
                 <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
@@ -108,7 +108,7 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
                   </div>
                 </div>
             </div>
-            <Button size="sm">
+            <Button size="sm" className="w-full sm:w-auto mt-2 sm:mt-0">
                 <UserPlus className="w-4 h-4 mr-2"/>
                 Assign Tutor
             </Button>
