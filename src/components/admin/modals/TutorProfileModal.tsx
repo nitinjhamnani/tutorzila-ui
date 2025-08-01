@@ -28,11 +28,13 @@ import {
   UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Bookmark } from "lucide-react";
 
 interface TutorProfileModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   tutor: ApiTutor | null;
+  sourceTab?: string;
 }
 
 const getInitials = (name: string): string => {
@@ -79,7 +81,7 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
   );
 };
 
-export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileModalProps) {
+export function TutorProfileModal({ isOpen, onOpenChange, tutor, sourceTab = "recommended" }: TutorProfileModalProps) {
   if (!tutor) return null;
 
   return (
@@ -109,10 +111,17 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
                   </div>
                 </div>
             </div>
-            <Button size="sm" className="w-full sm:w-auto mt-2 sm:mt-0">
-                <UserPlus className="w-4 h-4 mr-2"/>
-                Assign Tutor
-            </Button>
+            {sourceTab === "recommended" ? (
+              <Button size="sm" className="w-full sm:w-auto mt-2 sm:mt-0">
+                <Bookmark className="w-4 h-4 mr-2"/>
+                Shortlist Tutor
+              </Button>
+            ) : (
+              <Button size="sm" className="w-full sm:w-auto mt-2 sm:mt-0">
+                  <UserPlus className="w-4 h-4 mr-2"/>
+                  Assign Tutor
+              </Button>
+            )}
           </div>
         </DialogHeader>
 
