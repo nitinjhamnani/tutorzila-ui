@@ -69,6 +69,7 @@ import {
   MapPinned,
   CalendarDays,
   User,
+  Building,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
