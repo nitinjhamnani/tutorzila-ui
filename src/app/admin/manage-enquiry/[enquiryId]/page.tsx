@@ -502,17 +502,16 @@ function ManageEnquiryContent() {
                     {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
               </Badge>
             </CardTitle>
-            <CardDescription className="text-sm text-foreground/70 flex items-center gap-1.5">
-                <UsersRound className="w-4 h-4"/> {enquiry.studentName}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div><span className="font-semibold">Grade:</span> {enquiry.gradeLevel}</div>
-              <div><span className="font-semibold">Board:</span> {enquiry.board}</div>
-              <div><span className="font-semibold">Posted:</span> {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}</div>
+            <div className="space-y-1">
+                <CardDescription className="text-sm text-foreground/70 flex items-center gap-1.5">
+                    <UsersRound className="w-4 h-4"/> {enquiry.studentName}
+                </CardDescription>
+                <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                    <Clock className="w-3.5 h-3.5" /> 
+                    Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
+                </CardDescription>
             </div>
-          </CardContent>
+          </CardHeader>
           <CardFooter className="flex flex-wrap justify-end gap-2">
              <Button asChild variant="default" size="sm"><Link href={`/admin/enquiries/${enquiry.id}`}><Eye className="mr-1.5 h-3.5 w-3.5" />View Full Details</Link></Button>
              <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
