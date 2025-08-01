@@ -115,7 +115,11 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
   if (!response.ok) throw new Error("Failed to fetch tutors.");
-  return response.json();
+  const data = await response.json();
+    return data.map((tutor: any) => ({
+    ...tutor,
+    isVerified: tutor.isVerified || false, // Ensure isVerified exists
+  }));
 };
 
 const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
@@ -334,10 +338,10 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
-  const [filters, setFilters] = useState<any>({});
+  const [filters, setFilters] = useState<any | null>(null);
   
   useEffect(() => {
-    if (enquiry && appliedFilters === null) {
+    if (enquiry && !filters) {
       const location = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : { city: "", area: "" };
       const initialFilters = {
         subjects: enquiry.subject || [],
@@ -351,7 +355,7 @@ function ManageEnquiryContent() {
       setFilters(initialFilters);
       setAppliedFilters(initialFilters);
     }
-  }, [enquiry, appliedFilters]);
+  }, [enquiry, filters]);
 
 
   const tutorSearchParams = useMemo(() => {
@@ -489,7 +493,7 @@ function ManageEnquiryContent() {
   const appliedTutors = useMemo(() => allTutorsData.slice(5, 8) as unknown as ApiTutor[], [allTutorsData]);
   const shortlistedTutors = useMemo(() => allTutorsData.slice(2, 4) as unknown as ApiTutor[], [allTutorsData]);
   
-  if (isLoadingEnquiry) {
+  if (isLoadingEnquiry || !filters) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
@@ -502,8 +506,8 @@ function ManageEnquiryContent() {
   }
 
   const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null) => (
-    <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-        <CardContent className="p-0">
+     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+      <CardContent className="p-0">
             <TooltipProvider>
             <Table>
                 <TableHeader>
@@ -564,7 +568,7 @@ function ManageEnquiryContent() {
                 </TableBody>
             </Table>
             </TooltipProvider>
-        </CardContent>
+      </CardContent>
     </Card>
   );
 
@@ -619,9 +623,8 @@ function ManageEnquiryContent() {
            <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}><XCircle className="mr-1.5 h-3.5 w-3.5" /> Close</Button>
         </CardFooter>
       </Card>
-
-      <div className="mt-6">
-        <Tabs defaultValue="recommended" onValueChange={setActiveTab} className="w-full">
+      
+      <Tabs defaultValue="recommended" onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                 <ScrollArea className="w-full sm:w-auto">
                     <TabsList className="bg-transparent p-0 gap-2">
@@ -652,8 +655,7 @@ function ManageEnquiryContent() {
             <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
             <TabsContent value="assigned">{renderTutorTable(assignedTutorsData, isLoadingAssignedTutors, assignedTutorsError)}</TabsContent>
         </Tabs>
-      </div>
-
+      
        {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} sourceTab={activeTab} />}
        {selectedTutor && <TutorContactModal isOpen={isContactModalOpen} onOpenChange={setIsContactModalOpen} tutor={selectedTutor} />}
         {enquiry && (
