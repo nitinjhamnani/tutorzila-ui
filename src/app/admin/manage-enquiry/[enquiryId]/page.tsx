@@ -497,18 +497,17 @@ function ManageEnquiryContent() {
         <Card className="bg-card rounded-xl shadow-lg border-0">
           <CardHeader>
             <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
-              Enquiry Details
+              <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
                <Badge variant="default" className="text-xs">
                     {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
               </Badge>
             </CardTitle>
-            <CardDescription className="text-sm text-foreground/70">
-              Summary for: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+            <CardDescription className="text-sm text-foreground/70 flex items-center gap-1.5">
+                <UsersRound className="w-4 h-4"/> {enquiry.studentName}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-sm">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div><span className="font-semibold">Student:</span> {enquiry.studentName}</div>
               <div><span className="font-semibold">Grade:</span> {enquiry.gradeLevel}</div>
               <div><span className="font-semibold">Board:</span> {enquiry.board}</div>
               <div><span className="font-semibold">Posted:</span> {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}</div>
