@@ -379,22 +379,9 @@ function AssignTutorsContent() {
                         <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {tutor.subjectsList.slice(0, 2).map(s => <Badge key={s} variant="secondary">{s}</Badge>)}
-                        {tutor.subjectsList.length > 2 && <Badge variant="outline">+{tutor.subjectsList.length - 2}</Badge>}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1 text-xs">
-                        {tutor.gradesList.map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1 text-xs">
-                          {tutor.boardsList.map(q => <Badge key={q} variant="secondary" className="font-normal">{q}</Badge>)}
-                      </div>
-                    </TableCell>
+                     <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
+                    <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
+                    <TableCell className="text-xs">{tutor.boardsList.join(', ')}</TableCell>
                     <TableCell>
                         <div className="flex items-center gap-2">
                           {tutor.online && (
