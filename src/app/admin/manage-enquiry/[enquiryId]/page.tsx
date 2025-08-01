@@ -10,8 +10,6 @@ import Link from 'next/link';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import type { ApiTutor, TuitionRequirement, LocationDetails } from "@/types";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 import {
     Table,
     TableBody,
@@ -38,22 +36,11 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminEnquiryModal, type AdminEnquiryEditFormValues } from "@/components/admin/modals/AdminEnquiryModal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   Users,
@@ -69,11 +56,7 @@ import {
   BookOpen,
   MapPin,
   RadioTower,
-  DollarSign,
-  Building,
-  CheckSquare,
   ShieldCheck,
-  Mail,
   Phone,
   Star,
   Bookmark,
@@ -91,11 +74,14 @@ import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
 import { Separator } from "@/components/ui/separator";
 
-const closeReasons = [
-    { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
-    { id: 'found-elsewhere', label: "Found a tutor elsewhere" },
-    { id: 'no-longer-needed', label: "Don't need a tutor anymore" },
-    { id: 'other', label: "Other" }
+const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
+const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
+const gradeLevelsList = [
+    "Nursery", "LKG", "UKG",
+    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
+    "Grade 11", "Grade 12",
+    "College Level", "Adult Learner", "Other"
 ];
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
@@ -304,7 +290,6 @@ function ManageEnquiryContent() {
   const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("recommended");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false);
   const [notes, setNotes] = useState("");
@@ -367,6 +352,39 @@ function ManageEnquiryContent() {
 
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = allTutorsQuery;
 
+  const uniqueCities = useMemo(() => {
+    if (!allTutorsData) return [];
+    return Array.from(new Set(allTutorsData.map(tutor => tutor.city).filter(Boolean))).sort();
+  }, [allTutorsData]);
+
+  const uniqueAreasInCity = useMemo(() => {
+    if (!filters.city || !allTutorsData) return [];
+    return Array.from(new Set(allTutorsData.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
+  }, [allTutorsData, filters.city]);
+  
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setIsFilterModalOpen(false);
+  };
+  
+  const handleClearFilters = () => {
+    const clearedFilters = getInitialFilters();
+    setFilters(clearedFilters);
+    setAppliedFilters(clearedFilters);
+    setIsFilterModalOpen(false);
+  };
+
+  const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
+      setFilters(prev => ({ ...prev, [key]: value }));
+  };
+  
+  const handleCityChange = (city: string) => {
+    setFilters(prev => ({ ...prev, city: city === 'all-cities' ? '' : city, area: '' }));
+  };
+
+  const handleAreaChange = (area: string) => {
+      setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
+  };
   
   const updateMutation = useMutation({
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
@@ -507,7 +525,94 @@ function ManageEnquiryContent() {
                   Filter
                 </Button>
               </DialogTrigger>
-               {/* Filter Dialog Content will be rendered here */}
+              <DialogContent className="bg-card sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Filter Tutors</DialogTitle>
+                  <DialogDescription>
+                    Refine the list of tutors based on specific criteria.
+                  </DialogDescription>
+                </DialogHeader>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="subjects-filter-modal">Subjects</Label>
+                         <MultiSelectCommand
+                            options={allSubjectsList}
+                            selectedValues={filters.subjects}
+                            onValueChange={(value) => handleFilterChange('subjects', value)}
+                            placeholder="Select subjects..."
+                            className="w-full"
+                         />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="grade-filter-modal">Grade</Label>
+                        <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
+                             <SelectTrigger id="grade-filter-modal">
+                                <SelectValue placeholder="Select Grade" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {gradeLevelsList.map(grade => (
+                                    <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="board-filter-modal">Board</Label>
+                         <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
+                            <SelectTrigger id="board-filter-modal">
+                                <SelectValue placeholder="Select Board" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {boardsList.map(board => (
+                                    <SelectItem key={board} value={board}>{board}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="city-filter-modal">City</Label>
+                        <Select onValueChange={handleCityChange} value={filters.city}>
+                            <SelectTrigger id="city-filter-modal">
+                                <SelectValue placeholder="Select City" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all-cities">All Cities</SelectItem>
+                                {uniqueCities.map(loc => (
+                                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="area-filter-modal">Area</Label>
+                        <Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}>
+                            <SelectTrigger id="area-filter-modal">
+                                <SelectValue placeholder="Select Area" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all-areas">All Areas</SelectItem>
+                                {uniqueAreasInCity.map(loc => (
+                                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center space-x-4 pt-5 md:col-span-2">
+                         <div className="flex items-center space-x-2">
+                            <Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
+                            <Label htmlFor="online-filter-modal" className="font-medium">Online</Label>
+                        </div>
+                         <div className="flex items-center space-x-2">
+                            <Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
+                            <Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label>
+                        </div>
+                    </div>
+                </div>
+                <DialogFooter className="gap-2 sm:justify-between">
+                    <Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
+                    <Button type="button" onClick={handleApplyFilters}>Apply Filters</Button>
+                </DialogFooter>
+              </DialogContent>
             </Dialog>
           </div>
           {renderTutorTable(allTutorsData, isLoadingAllTutors, allTutorsError)}
@@ -625,7 +730,7 @@ function ManageEnquiryContent() {
         {renderRecommendedTutorContent()}
       </div>
       
-       {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} sourceTab={activeTab} />}
+       {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} />}
        {selectedTutor && <TutorContactModal isOpen={isContactModalOpen} onOpenChange={setIsContactModalOpen} tutor={selectedTutor} />}
         {enquiry && (
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
