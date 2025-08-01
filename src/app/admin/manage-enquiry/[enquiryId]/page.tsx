@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
@@ -90,16 +90,6 @@ import {
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
 import { Separator } from "@/components/ui/separator";
-
-const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
-const gradeLevelsList = [
-    "Nursery", "LKG", "UKG",
-    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
-    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12",
-    "College Level", "Adult Learner", "Other"
-];
 
 const closeReasons = [
     { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
@@ -307,18 +297,16 @@ const EnquiryInfoItem = ({
 
 function ManageEnquiryContent() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const enquiryId = params.enquiryId as string;
   const { token } = useAuthMock();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("recommended");
+  const [activeTab, setActiveTab] = useState("assigned");
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeReason, setCloseReason] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -326,8 +314,6 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
-  
-  const [filters, setFilters] = useState<any>({});
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -512,13 +498,13 @@ function ManageEnquiryContent() {
             </ScrollArea>
         </div>
         <TabsContent value="recommended">
-          {renderTutorTable([], false, null)}
+          {renderTutorTable([], true, null)}
         </TabsContent>
         <TabsContent value="applied">
-          {renderTutorTable([], false, null)}
+          {renderTutorTable([], true, null)}
         </TabsContent>
         <TabsContent value="shortlisted">
-          {renderTutorTable([], false, null)}
+          {renderTutorTable([], true, null)}
         </TabsContent>
         <TabsContent value="assigned">
           {renderTutorTable(assignedTutorsData, isLoadingAssignedTutors, assignedTutorsError)}

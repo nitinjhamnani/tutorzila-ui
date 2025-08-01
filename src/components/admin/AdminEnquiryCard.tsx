@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -41,16 +42,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
     ? [requirement.location.area, requirement.location.city, requirement.location.country].filter(Boolean).join(', ')
     : requirement.location;
 
-  const constructAssignTutorUrl = () => {
-    const params = new URLSearchParams();
-    if(requirement.subject) params.append('subjects', Array.isArray(requirement.subject) ? requirement.subject.join(',') : requirement.subject);
-    if(requirement.gradeLevel) params.append('grade', requirement.gradeLevel);
-    if(requirement.board) params.append('board', requirement.board);
-    if(requirement.teachingMode) params.append('mode', requirement.teachingMode.join(','));
-    if(locationString) params.append('location', locationString);
-
-    return `/admin/manage-enquiry/${requirement.id}?${params.toString()}`;
-  }
+  const manageEnquiryUrl = `/admin/manage-enquiry/${requirement.id}`;
 
 
   return (
@@ -102,7 +94,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
                 variant="default"
                 className="text-xs py-1.5 px-3 h-auto"
                 >
-                <Link href={constructAssignTutorUrl()}>
+                <Link href={manageEnquiryUrl}>
                     <Settings className="w-3 h-3 mr-1.5" /> Manage
                 </Link>
             </Button>
