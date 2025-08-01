@@ -571,36 +571,36 @@ function ManageEnquiryContent() {
       )}
 
       <div className="mt-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-            <ScrollArea className="w-full sm:w-auto">
-                <TabsList className="bg-transparent p-0 gap-2">
-                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted ({shortlistedTutors?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutors?.length || 0})</TabsTrigger>
-                </TabsList>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-            <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-                  <DialogTrigger asChild><Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0"><ListFilter className="w-4 h-4 mr-2"/>Filter Tutors</Button></DialogTrigger>
-                  <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><DialogDescription>Refine the list of tutors based on specific criteria.</DialogDescription></DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                      <div className="space-y-2 md:col-span-2"><Label htmlFor="subjects-filter-modal">Subjects</Label><MultiSelectCommand options={allSubjectsList} selectedValues={filters.subjects} onValueChange={(value) => handleFilterChange('subjects', value)} placeholder="Select subjects..." className="w-full"/></div>
-                      <div className="space-y-2"><Label htmlFor="grade-filter-modal">Grade</Label><Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}><SelectTrigger id="grade-filter-modal"><SelectValue placeholder="Select Grade" /></SelectTrigger><SelectContent>{gradeLevelsList.map(grade => (<SelectItem key={grade} value={grade}>{grade}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="space-y-2"><Label htmlFor="board-filter-modal">Board</Label><Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}><SelectTrigger id="board-filter-modal"><SelectValue placeholder="Select Board" /></SelectTrigger><SelectContent>{boardsList.map(board => (<SelectItem key={board} value={board}>{board}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="space-y-2"><Label htmlFor="city-filter-modal">City</Label><Select onValueChange={handleCityChange} value={filters.city}><SelectTrigger id="city-filter-modal"><SelectValue placeholder="Select City" /></SelectTrigger><SelectContent><SelectItem value="all-cities">All Cities</SelectItem>{uniqueCities.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="space-y-2"><Label htmlFor="area-filter-modal">Area</Label><Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}><SelectTrigger id="area-filter-modal"><SelectValue placeholder="Select Area" /></SelectTrigger><SelectContent><SelectItem value="all-areas">All Areas</SelectItem>{uniqueAreasInCity.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="flex items-center space-x-4 pt-5 md:col-span-2"><div className="flex items-center space-x-2"><Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} /><Label htmlFor="online-filter-modal" className="font-medium">Online</Label></div><div className="flex items-center space-x-2"><Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} /><Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label></div></div>
-                    </div>
-                    <DialogFooter className="gap-2 sm:justify-between"><Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button><Button type="button" onClick={handleApplyFilters}>Apply Filters</Button></DialogFooter>
-                  </DialogContent>
-            </Dialog>
-        </div>
         <Tabs defaultValue="recommended" onValueChange={setActiveTab}>
-          <TabsContent value="recommended">{renderTutorTable(recommendedTutors, false, null)}</TabsContent>
-          <TabsContent value="applied">{renderTutorTable(appliedTutors, false, null)}</TabsContent>
-          <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, false, null)}</TabsContent>
-          <TabsContent value="assigned">{renderTutorTable(assignedTutors, false, null)}</TabsContent>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+                <ScrollArea className="w-full sm:w-auto">
+                    <TabsList className="bg-transparent p-0 gap-2">
+                        <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted ({shortlistedTutors?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutors?.length || 0})</TabsTrigger>
+                    </TabsList>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+                <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+                      <DialogTrigger asChild><Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0"><ListFilter className="w-4 h-4 mr-2"/>Filter Tutors</Button></DialogTrigger>
+                      <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><DialogDescription>Refine the list of tutors based on specific criteria.</DialogDescription></DialogHeader>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                          <div className="space-y-2 md:col-span-2"><Label htmlFor="subjects-filter-modal">Subjects</Label><MultiSelectCommand options={allSubjectsList} selectedValues={filters.subjects} onValueChange={(value) => handleFilterChange('subjects', value)} placeholder="Select subjects..." className="w-full"/></div>
+                          <div className="space-y-2"><Label htmlFor="grade-filter-modal">Grade</Label><Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}><SelectTrigger id="grade-filter-modal"><SelectValue placeholder="Select Grade" /></SelectTrigger><SelectContent>{gradeLevelsList.map(grade => (<SelectItem key={grade} value={grade}>{grade}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="space-y-2"><Label htmlFor="board-filter-modal">Board</Label><Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}><SelectTrigger id="board-filter-modal"><SelectValue placeholder="Select Board" /></SelectTrigger><SelectContent>{boardsList.map(board => (<SelectItem key={board} value={board}>{board}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="space-y-2"><Label htmlFor="city-filter-modal">City</Label><Select onValueChange={handleCityChange} value={filters.city}><SelectTrigger id="city-filter-modal"><SelectValue placeholder="Select City" /></SelectTrigger><SelectContent><SelectItem value="all-cities">All Cities</SelectItem>{uniqueCities.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="space-y-2"><Label htmlFor="area-filter-modal">Area</Label><Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}><SelectTrigger id="area-filter-modal"><SelectValue placeholder="Select Area" /></SelectTrigger><SelectContent><SelectItem value="all-areas">All Areas</SelectItem>{uniqueAreasInCity.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="flex items-center space-x-4 pt-5 md:col-span-2"><div className="flex items-center space-x-2"><Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} /><Label htmlFor="online-filter-modal" className="font-medium">Online</Label></div><div className="flex items-center space-x-2"><Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} /><Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label></div></div>
+                        </div>
+                        <DialogFooter className="gap-2 sm:justify-between"><Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button><Button type="button" onClick={handleApplyFilters}>Apply Filters</Button></DialogFooter>
+                      </DialogContent>
+                </Dialog>
+            </div>
+            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, false, null)}</TabsContent>
+            <TabsContent value="applied">{renderTutorTable(appliedTutors, false, null)}</TabsContent>
+            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, false, null)}</TabsContent>
+            <TabsContent value="assigned">{renderTutorTable(assignedTutors, false, null)}</TabsContent>
         </Tabs>
       </div>
 
