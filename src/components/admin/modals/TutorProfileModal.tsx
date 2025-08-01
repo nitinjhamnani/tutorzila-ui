@@ -157,7 +157,17 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
                     {tutor.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
                     {tutor.isHybrid && <Badge>Hybrid</Badge>}
                  </div>
-                 {tutor.offline && <InfoItem icon={MapPin} label="Address" value={tutor.address || "Not specified"} />}
+                 {tutor.offline && (
+                    <InfoItem icon={MapPin} label="Address" value={
+                        tutor.googleMapsLink ? (
+                        <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {tutor.addressName || tutor.address}
+                        </a>
+                        ) : (
+                        <span>{tutor.addressName || tutor.address || "Not specified"}</span>
+                        )
+                    } />
+                    )}
               </InfoSection>
           </div>
         </div>
