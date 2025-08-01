@@ -61,6 +61,7 @@ import {
   Building,
   CheckSquare
 } from "lucide-react";
+import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 
 const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
@@ -100,6 +101,8 @@ function AssignTutorsContent() {
   
   const [selectedTutorIds, setSelectedTutorIds] = useState<string[]>([]);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
 
   const enquiry = useMemo(() => {
     if (!searchParams) return null;
@@ -163,6 +166,11 @@ function AssignTutorsContent() {
   const handleAreaChange = (area: string) => {
       setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
   };
+
+  const handleViewProfile = (tutor: ApiTutor) => {
+    setSelectedTutor(tutor);
+    setIsProfileModalOpen(true);
+  }
 
 
   const tutorSearchParams = useMemo(() => {
@@ -373,6 +381,7 @@ function AssignTutorsContent() {
                 <TableHead>Board</TableHead>
                 <TableHead>Teaching Mode</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -387,12 +396,13 @@ function AssignTutorsContent() {
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
                   </TableRow>
                 ))
               ) : tutorsError ? (
-                 <TableRow><TableCell colSpan={8} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={9} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
               ) : allTutors.length === 0 ? (
-                 <TableRow><TableCell colSpan={8} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={9} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
               ) : (
                 allTutors.map(tutor => (
                   <TableRow key={tutor.id} data-state={selectedTutorIds.includes(tutor.id) && "selected"}>
@@ -465,6 +475,11 @@ function AssignTutorsContent() {
                         {tutor.isActive ? 'Active' : 'Inactive'}
                        </Badge>
                     </TableCell>
+                    <TableCell>
+                        <Button variant="outline" size="sm" className="h-8" onClick={() => handleViewProfile(tutor)}>
+                            <Eye className="w-4 h-4" />
+                        </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -478,6 +493,13 @@ function AssignTutorsContent() {
             </Button>
         </CardFooter>
       </Card>
+       {selectedTutor && (
+          <TutorProfileModal
+            isOpen={isProfileModalOpen}
+            onOpenChange={setIsProfileModalOpen}
+            tutor={selectedTutor}
+          />
+        )}
     </div>
   );
 }
