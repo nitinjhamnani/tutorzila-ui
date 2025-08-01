@@ -328,10 +328,10 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
-
+  
   const getInitialFilters = useCallback(() => {
     return {
-      subjects: searchParams.get('subjects')?.split(',') || [],
+      subjects: searchParams.get('subjects')?.split(',').filter(Boolean) || [],
       grade: searchParams.get('grade') || '',
       board: searchParams.get('board') || '',
       isOnline: searchParams.get('mode')?.split(',').includes("Online") || false,
@@ -340,8 +340,9 @@ function ManageEnquiryContent() {
       area: searchParams.get('location')?.split(',')[1] || "",
     };
   }, [searchParams]);
-  
+
   const initialFilters = useMemo(() => getInitialFilters(), [getInitialFilters]);
+  
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
@@ -351,9 +352,12 @@ function ManageEnquiryContent() {
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
-  
-  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
+
+  const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
+
+  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } =
+  useQuery<ApiTutor[]>({
+    queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
     queryFn: () => {
       const params = new URLSearchParams();
       if (appliedFilters) {
@@ -367,9 +371,10 @@ function ManageEnquiryContent() {
       }
       return fetchAssignableTutors(token, params);
     },
-    enabled: !!token,
+    enabled: !!token && !!enquiry,
     refetchOnWindowFocus: false,
   });
+
   
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
@@ -773,3 +778,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
