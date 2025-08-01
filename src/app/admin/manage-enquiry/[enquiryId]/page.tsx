@@ -543,7 +543,6 @@ function ManageEnquiryContent() {
            <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
            <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
            <Button variant="outline" size="sm" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
-           <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}><XCircle className="mr-1.5 h-3.5 w-3.5" /> Close</Button>
         </CardFooter>
       </Card>
       
