@@ -338,14 +338,15 @@ function ManageEnquiryContent() {
   
   useEffect(() => {
     if (enquiry && appliedFilters === null) {
+      const location = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : { city: "", area: "" };
       const initialFilters = {
         subjects: enquiry.subject || [],
         grade: enquiry.gradeLevel || '',
         board: enquiry.board || '',
         isOnline: enquiry.teachingMode?.includes("Online") || false,
         isOffline: enquiry.teachingMode?.includes("Offline (In-person)") || false,
-        city: typeof enquiry.location === 'object' && enquiry.location ? enquiry.location.city || "" : "",
-        area: typeof enquiry.location === 'object' && enquiry.location ? enquiry.location.area || "" : "",
+        city: location.city || "",
+        area: location.area || "",
       };
       setFilters(initialFilters);
       setAppliedFilters(initialFilters);
@@ -595,7 +596,7 @@ function ManageEnquiryContent() {
                         <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
                         <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
                     </div>
-                    {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo && (
+                    {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
                         <div className="flex items-center gap-1.5 pt-1">
                             <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
                             {locationInfo.googleMapsUrl ? (
