@@ -59,7 +59,8 @@ import {
   RadioTower,
   DollarSign,
   Building,
-  CheckSquare
+  CheckSquare,
+  ShieldCheck,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 
@@ -81,8 +82,13 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
   if (!response.ok) throw new Error("Failed to fetch tutors.");
-  return response.json();
+  const data = await response.json();
+  return data.map((tutor: any) => ({
+    ...tutor,
+    isVerified: tutor.isVerified || false, // Ensure isVerified exists
+  }));
 };
+
 
 const getInitials = (name: string): string => {
     if (!name) return "?";
@@ -420,10 +426,32 @@ function AssignTutorsContent() {
                         </div>
                     </TableCell>
                      <TableCell>
-                       <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                        {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                        {tutor.isActive ? 'Active' : 'Inactive'}
-                       </Badge>
+                        <div className="flex items-center gap-2">
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    {tutor.isActive ? (
+                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                    ) : (
+                                        <XCircle className="h-4 w-4 text-red-500" />
+                                    )}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{tutor.isActive ? "Active" : "Inactive"}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    {tutor.isVerified ? (
+                                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                                    ) : (
+                                        <ShieldAlert className="h-4 w-4 text-yellow-500" />
+                                    )}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{tutor.isVerified ? "Verified" : "Not Verified"}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
                     </TableCell>
                     <TableCell>
                         <Button variant="outline" size="sm" className="h-8" onClick={() => handleViewProfile(tutor)}>
