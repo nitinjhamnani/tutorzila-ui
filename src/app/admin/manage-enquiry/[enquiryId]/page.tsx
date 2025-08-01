@@ -345,39 +345,13 @@ function ManageEnquiryContent() {
   
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
-  const [hasAppliedFiltersInitialized, setHasAppliedFiltersInitialized] = useState(false);
-
+  
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
-
-  useEffect(() => {
-    if (
-      enquiry &&
-      !hasAppliedFiltersInitialized &&
-      (!appliedFilters || Object.values(appliedFilters).every(val => val === '' || (Array.isArray(val) && val.length === 0)))
-    ) {
-      const location = enquiry.location ?? { city: "", area: "" };
-      const initialEnquiryFilters = {
-        subjects: enquiry.subject || [],
-        grade: enquiry.gradeLevel || '',
-        board: enquiry.board || '',
-        isOnline: enquiry.teachingMode?.includes("Online") || false,
-        isOffline: enquiry.teachingMode?.includes("Offline (In-person)") || false,
-        city: location.city || "",
-        area: location.area || "",
-      };
-      setFilters(initialEnquiryFilters);
-      setAppliedFilters(initialEnquiryFilters);
-      setHasAppliedFiltersInitialized(true);
-    } else if (!hasAppliedFiltersInitialized) {
-      // If filters are already set from URL, just mark as ready
-      setHasAppliedFiltersInitialized(true);
-    }
-  }, [enquiry, appliedFilters, hasAppliedFiltersInitialized]);
   
   const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
 
@@ -396,7 +370,7 @@ function ManageEnquiryContent() {
       }
       return fetchAssignableTutors(token, params);
     },
-    enabled: !!token && !!enquiry && hasAppliedFiltersInitialized,
+    enabled: false, // Disabled by default, will be triggered by handleApplyFilters
     refetchOnWindowFocus: false,
   });
   
@@ -441,6 +415,8 @@ function ManageEnquiryContent() {
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setIsFilterModalOpen(false);
+    // Manually refetch the query for tutors
+    queryClient.refetchQueries({ queryKey: ['assignableTutors', enquiryId, JSON.stringify(filters)] });
   };
   
   const handleClearFilters = () => {
@@ -803,4 +779,3 @@ export default function ManageEnquiryPage() {
     )
 }
 
-    
