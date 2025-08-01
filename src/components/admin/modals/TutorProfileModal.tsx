@@ -24,8 +24,10 @@ import {
   Users as UsersIcon,
   ShieldCheck,
   ShieldAlert,
-  Building
+  Building,
+  UserPlus
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TutorProfileModalProps {
   isOpen: boolean;
@@ -83,27 +85,33 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0">
         <DialogHeader className="p-6 pb-4 border-b">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 border-2 border-primary/20">
-              <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-              <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
-                {getInitials(tutor.displayName)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16 border-2 border-primary/20">
+                <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
+                    {getInitials(tutor.displayName)}
+                </AvatarFallback>
+                </Avatar>
+                <div>
+                  <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Badge variant={tutor.isActive ? "default" : "destructive"}>
+                        {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                        {tutor.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                    <Badge variant={tutor.isVerified ? "default" : "destructive"}>
+                        {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                        {tutor.isVerified ? 'Verified' : 'Not Verified'}
+                    </Badge>
+                  </div>
+                </div>
             </div>
-            <div className="ml-auto flex items-center gap-2">
-                <Badge variant={tutor.isActive ? "default" : "destructive"}>
-                    {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                    {tutor.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-                <Badge variant={tutor.isVerified ? "default" : "destructive"}>
-                    {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                    {tutor.isVerified ? 'Verified' : 'Not Verified'}
-                </Badge>
-            </div>
+            <Button size="sm">
+                <UserPlus className="w-4 h-4 mr-2"/>
+                Assign Tutor
+            </Button>
           </div>
         </DialogHeader>
 
