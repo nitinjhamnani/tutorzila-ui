@@ -450,7 +450,7 @@ function ManageEnquiryContent() {
           </div>
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
-           <Button variant="outline" size="sm" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent Info</Button>
+           <Button variant="outline" size="sm" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
            <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
            <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
            <Button variant="outline" size="sm" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
