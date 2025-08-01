@@ -328,6 +328,7 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
+  const [isTutorQueryEnabled, setIsTutorQueryEnabled] = useState(false);
   
   const getInitialFilters = useCallback(() => {
     return {
@@ -370,7 +371,7 @@ function ManageEnquiryContent() {
       }
       return fetchAssignableTutors(token, params);
     },
-    enabled: false, // Disabled by default, will be triggered by handleApplyFilters
+    enabled: isTutorQueryEnabled && !!token && !!enquiry,
     refetchOnWindowFocus: false,
   });
   
@@ -415,8 +416,9 @@ function ManageEnquiryContent() {
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setIsFilterModalOpen(false);
-    // Manually refetch the query for tutors
-    queryClient.refetchQueries({ queryKey: ['assignableTutors', enquiryId, JSON.stringify(filters)] });
+    if (!isTutorQueryEnabled) {
+      setIsTutorQueryEnabled(true);
+    }
   };
   
   const handleClearFilters = () => {
@@ -424,6 +426,9 @@ function ManageEnquiryContent() {
     setFilters(clearedFilters);
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
+    if (!isTutorQueryEnabled) {
+      setIsTutorQueryEnabled(true);
+    }
   };
   
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
@@ -528,7 +533,7 @@ function ManageEnquiryContent() {
               ) : error ? (
                 <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
               ) : !tutors || tutors.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center">{!isTutorQueryEnabled ? 'Click "Filter Tutors" to search.' : 'No tutors found for this category.'}</TableCell></TableRow>
               ) : (
                 tutors.map(tutor => (
                   <TableRow key={tutor.id}>
@@ -779,3 +784,4 @@ export default function ManageEnquiryPage() {
     )
 }
 
+    
