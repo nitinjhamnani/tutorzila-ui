@@ -118,16 +118,27 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
   const data = await response.json();
     return data.map((tutor: any) => ({
     ...tutor,
-    isVerified: tutor.isVerified || false, // Ensure isVerified exists
+    isVerified: tutor.isVerified || false,
   }));
 };
 
 const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
     if (!token) throw new Error("Authentication token not found.");
     console.log(`Fetching assigned tutors for enquiry: ${enquiryId}`);
-    // In a real app, this would be a different endpoint.
-    const allTutors = await fetchAssignableTutors(token, new URLSearchParams());
-    return allTutors.slice(0, 2); // Mock: return first 2 tutors as "assigned"
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/tutor/list`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'accept': '*/*',
+            'TZ-ENQ-ID': enquiryId,
+        }
+    });
+    if (!response.ok) throw new Error("Failed to fetch assigned tutors.");
+    const data = await response.json();
+    return data.map((tutor: any) => ({
+        ...tutor,
+        isVerified: tutor.isVerified || false,
+    }));
 };
 
 const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
@@ -291,7 +302,6 @@ const EnquiryInfoItem = ({
     displayText = value as string;
   }
 
-
   return (
     <div className={cn("space-y-0.5", className)}>
       {label && (
@@ -306,6 +316,65 @@ const EnquiryInfoItem = ({
     </div>
   );
 };
+
+// Extracted Component for Assignable Tutors
+function AssignableTutorsTable({
+  filters,
+  enquiryId,
+  token,
+  onViewProfile,
+  onContactTutor,
+}: {
+  filters: any;
+  enquiryId: string;
+  token: string | null;
+  onViewProfile: (tutor: ApiTutor) => void;
+  onContactTutor: (tutor: ApiTutor) => void;
+}) {
+    const stringifiedFilters = useMemo(() => JSON.stringify(filters), [filters]);
+
+    const { data: tutors = [], isLoading, error } = useQuery<ApiTutor[]>({
+        queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
+        queryFn: () => {
+            const params = new URLSearchParams();
+            if (filters.subjects?.length > 0) params.append('subjects', filters.subjects.join(','));
+            if (filters.grade) params.append('grades', filters.grade);
+            if (filters.board) params.append('boards', filters.board);
+            if (filters.isOnline) params.append('isOnline', 'true');
+            if (filters.isOffline) params.append('isOffline', 'true');
+            if (filters.city) params.append('location', filters.city);
+            if (filters.area) params.append('location', `${filters.area}, ${filters.city}`);
+            return fetchAssignableTutors(token, params);
+        },
+        refetchOnWindowFocus: false,
+    });
+
+    return (
+        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+            <CardContent className="p-0">
+                <TooltipProvider>
+                    <Table>
+                        <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Subjects</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
+                        <TableBody>
+                            {isLoading ? ([...Array(5)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
+                            : error ? (<TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>) 
+                            : !tutors || tutors.length === 0 ? (<TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>) 
+                            : (tutors.map(tutor => (
+                                <TableRow key={tutor.id}>
+                                    <TableCell><div><div className="font-medium text-foreground">{tutor.displayName}</div><div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div></div></TableCell>
+                                    <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
+                                    <TableCell><div className="flex items-center gap-2">{tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}{tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}</div></TableCell>
+                                    <TableCell><div className="flex items-center gap-2"><Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip><Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip></div></TableCell>
+                                    <TableCell><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onViewProfile(tutor)}><Eye className="w-4 h-4" /></Button><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onContactTutor(tutor)}><Phone className="w-4 h-4" /></Button></div></TableCell>
+                                </TableRow>
+                            )))}
+                        </TableBody>
+                    </Table>
+                </TooltipProvider>
+            </CardContent>
+        </Card>
+    );
+}
 
 function ManageEnquiryContent() {
   const params = useParams();
@@ -329,25 +398,19 @@ function ManageEnquiryContent() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
   const [isTutorQueryEnabled, setIsTutorQueryEnabled] = useState(false);
-  
-  const getInitialFilters = useCallback(() => {
-    return {
-      subjects: searchParams.get('subjects')?.split(',').filter(Boolean) || [],
-      grade: searchParams.get('grade') || '',
-      board: searchParams.get('board') || '',
-      isOnline: searchParams.get('mode')?.split(',').includes("Online") || false,
-      isOffline: searchParams.get('mode')?.split(',').includes("Offline (In-person)") || false,
-      city: searchParams.get('location')?.split(',')[0] || "",
-      area: searchParams.get('location')?.split(',')[1] || "",
-    };
-  }, [searchParams]);
 
-  const initialFilters = useMemo(() => getInitialFilters(), [getInitialFilters]);
-  
+  const initialFilters = useMemo(() => ({
+    subjects: searchParams.get('subjects')?.split(',').filter(Boolean) || [],
+    grade: searchParams.get('grade') || '',
+    board: searchParams.get('board') || '',
+    isOnline: searchParams.get('mode')?.split(',').includes("Online") || false,
+    isOffline: searchParams.get('mode')?.split(',').includes("Offline (In-person)") || false,
+    city: searchParams.get('location')?.split(',')[0] || "",
+    area: searchParams.get('location')?.split(',')[1] || "",
+  }), [searchParams]);
+
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
-  
-  const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -356,34 +419,6 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
-  const allTutorsQuery = isTutorQueryEnabled
-  ? useQuery<ApiTutor[]>({
-      queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
-      queryFn: () => {
-        const params = new URLSearchParams();
-        if (appliedFilters) {
-          if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-          if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
-          if (appliedFilters.board) params.append('boards', appliedFilters.board);
-          if (appliedFilters.isOnline) params.append('isOnline', 'true');
-          if (appliedFilters.isOffline) params.append('isOffline', 'true');
-          if (appliedFilters.city) params.append('location', appliedFilters.city);
-          if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-        }
-        return fetchAssignableTutors(token, params);
-      },
-      refetchOnWindowFocus: false,
-    })
-  : {
-      data: [],
-      isLoading: false,
-      error: null,
-    };
-
-    const allTutorsData = allTutorsQuery.data ?? [];
-    const isLoadingAllTutors = allTutorsQuery.isLoading;
-    const allTutorsError = allTutorsQuery.error;
-  
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
     queryFn: () => fetchAssignedTutors(token, enquiryId),
@@ -391,6 +426,26 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
+  const { data: uniqueCities = [] } = useQuery<string[]>({
+      queryKey: ['uniqueCities'],
+      queryFn: async () => {
+          const allTutors = await fetchAssignableTutors(token, new URLSearchParams());
+          return Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort();
+      },
+      enabled: !!token,
+      staleTime: Infinity,
+  });
+
+  const { data: uniqueAreasInCity = [] } = useQuery<string[]>({
+      queryKey: ['uniqueAreas', filters.city],
+      queryFn: async () => {
+          const allTutors = await fetchAssignableTutors(token, new URLSearchParams());
+          return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
+      },
+      enabled: !!token && !!filters.city,
+      staleTime: Infinity,
+  });
+
   const updateMutation = useMutation({
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: () => {
@@ -426,7 +481,7 @@ function ManageEnquiryContent() {
     setAppliedFilters(filters);
     setIsFilterModalOpen(false);
     if (!isTutorQueryEnabled) {
-       setIsTutorQueryEnabled(true);
+      setIsTutorQueryEnabled(true);
     }
   };
   
@@ -441,19 +496,13 @@ function ManageEnquiryContent() {
   };
   
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
-      if (filters) {
-        setFilters((prev:any) => ({ ...prev!, [key]: value }));
-      }
+      setFilters(prev => ({ ...prev!, [key]: value }));
   };
   const handleCityChange = (city: string) => {
-      if (filters) {
-        setFilters((prev:any) => ({ ...prev!, city: city === 'all-cities' ? '' : city, area: '' }));
-      }
+      setFilters(prev => ({ ...prev!, city: city === 'all-cities' ? '' : city, area: '' }));
   };
   const handleAreaChange = (area: string) => {
-      if (filters) {
-        setFilters((prev:any) => ({ ...prev!, area: area === 'all-areas' ? '' : area }));
-      }
+      setFilters(prev => ({ ...prev!, area: area === 'all-areas' ? '' : area }));
   };
 
   const handleViewProfile = (tutor: ApiTutor) => {
@@ -492,16 +541,6 @@ function ManageEnquiryContent() {
     addNoteMutation.mutate(notes);
   };
   
-  const uniqueCities = useMemo(() => Array.from(new Set(allTutorsData?.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutorsData]);
-  const uniqueAreasInCity = useMemo(() => {
-    if (!filters?.city || !allTutorsData) return [];
-    return Array.from(new Set(allTutorsData.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
-  }, [allTutorsData, filters?.city]);
-  
-  const recommendedTutors = useMemo(() => allTutorsData.slice(0, 5) as unknown as ApiTutor[], [allTutorsData]);
-  const appliedTutors = useMemo(() => allTutorsData.slice(5, 8) as unknown as ApiTutor[], [allTutorsData]);
-  const shortlistedTutors = useMemo(() => allTutorsData.slice(2, 4) as unknown as ApiTutor[], [allTutorsData]);
-  
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -513,73 +552,6 @@ function ManageEnquiryContent() {
   if (!enquiry) {
       return <div className="text-center py-10 text-muted-foreground">Enquiry not found.</div>
   }
-
-  const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null) => (
-    <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-      <CardContent className="p-0">
-        <TooltipProvider>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tutor</TableHead>
-                <TableHead>Subjects</TableHead>
-                <TableHead>Mode</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                [...Array(5)].map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-10 w-48" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
-                  </TableRow>
-                ))
-              ) : error ? (
-                <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
-              ) : !tutors || tutors.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center">{!isTutorQueryEnabled ? 'Click "Filter Tutors" to search.' : 'No tutors found for this category.'}</TableCell></TableRow>
-              ) : (
-                tutors.map(tutor => (
-                  <TableRow key={tutor.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium text-foreground">{tutor.displayName}</div>
-                        <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}
-                        {tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip>
-                        <Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}><Eye className="w-4 h-4" /></Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TooltipProvider>
-      </CardContent>
-    </Card>
-  );
 
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
@@ -637,9 +609,9 @@ function ManageEnquiryContent() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
             <ScrollArea className="w-full sm:w-auto">
                 <TabsList className="bg-transparent p-0 gap-2">
-                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted ({shortlistedTutors?.length || 0})</TabsTrigger>
+                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended</TabsTrigger>
+                    <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied</TabsTrigger>
+                    <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted</TabsTrigger>
                     <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutorsData?.length || 0})</TabsTrigger>
                 </TabsList>
                 <ScrollBar orientation="horizontal" />
@@ -659,10 +631,18 @@ function ManageEnquiryContent() {
                   </DialogContent>
             </Dialog>
         </div>
-        <TabsContent value="recommended">{renderTutorTable(recommendedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
-        <TabsContent value="applied">{renderTutorTable(appliedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
-        <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
-        <TabsContent value="assigned">{renderTutorTable(assignedTutorsData, isLoadingAssignedTutors, assignedTutorsError)}</TabsContent>
+        <TabsContent value="recommended">
+            {isTutorQueryEnabled && <AssignableTutorsTable filters={appliedFilters} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />}
+        </TabsContent>
+        <TabsContent value="applied">
+            {isTutorQueryEnabled && <AssignableTutorsTable filters={appliedFilters} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />}
+        </TabsContent>
+        <TabsContent value="shortlisted">
+            {isTutorQueryEnabled && <AssignableTutorsTable filters={appliedFilters} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />}
+        </TabsContent>
+        <TabsContent value="assigned">
+            <AssignableTutorsTable filters={{}} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />
+        </TabsContent>
       </Tabs>
       
        {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} sourceTab={activeTab} />}
