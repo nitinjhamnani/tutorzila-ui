@@ -202,22 +202,6 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
   return response.json();
 };
 
-const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, token: string | null, reason: string }) => {
-  if (!token) throw new Error("Authentication token is required.");
-  if (!enquiryId) throw new Error("Enquiry ID is required.");
-  if (!reason) throw new Error("A reason for closing is required.");
-
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/close`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' },
-    body: JSON.stringify({ message: reason }),
-  });
-
-  if (!response.ok) { throw new Error("Failed to close enquiry."); }
-  return true;
-};
-
 const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string, token: string | null, note: string }) => {
   if (!token) throw new Error("Authentication token is required.");
   if (!enquiryId) throw new Error("Enquiry ID is required.");
@@ -321,8 +305,6 @@ function ManageEnquiryContent() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("recommended");
-  const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
-  const [closeReason, setCloseReason] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false);
   const [notes, setNotes] = useState("");
@@ -371,16 +353,6 @@ function ManageEnquiryContent() {
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
   });
 
-  const closeEnquiryMutation = useMutation({
-    mutationFn: (reason: string) => closeEnquiry({ enquiryId, token, reason }),
-    onSuccess: () => {
-      toast({ title: "Enquiry Closed", description: `The requirement has been successfully closed.` });
-      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
-      setIsCloseEnquiryModalOpen(false);
-    },
-    onError: (error: any) => toast({ variant: "destructive", title: "Failed to Close Enquiry", description: error.message }),
-  });
-
   const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: () => {
@@ -412,23 +384,10 @@ function ManageEnquiryContent() {
     setSelectedTutor(tutor);
     setIsContactModalOpen(true);
   }
-
-  const handleOpenCloseEnquiryModal = () => {
-    setCloseReason(null);
-    setIsCloseEnquiryModalOpen(true);
-  };
   
   const handleOpenNotesModal = () => {
     setNotes(enquiry?.additionalNotes || "");
     setIsAddNotesModalOpen(true);
-  };
-
-  const handleCloseEnquiryDialogAction = () => {
-    if (!closeReason) {
-      toast({ variant: "destructive", title: "Reason Required", description: "Please select a reason for closing the enquiry." });
-      return;
-    }
-    closeEnquiryMutation.mutate(closeReason);
   };
 
   const handleSaveNotes = () => {
@@ -619,27 +578,9 @@ function ManageEnquiryContent() {
         </CardFooter>
       </Card>
       
-      <Tabs defaultValue="recommended" onValueChange={setActiveTab} className="w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-            <ScrollArea className="w-full sm:w-auto">
-                <TabsList className="bg-transparent p-0 gap-2">
-                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended</TabsTrigger>
-                    <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied (0)</TabsTrigger>
-                    <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted (0)</TabsTrigger>
-                </TabsList>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-        </div>
-        <TabsContent value="recommended">
-          {renderRecommendedTutorContent()}
-        </TabsContent>
-        <TabsContent value="applied">
-          {renderTutorTable([], false, null)}
-        </TabsContent>
-        <TabsContent value="shortlisted">
-          {renderTutorTable([], false, null)}
-        </TabsContent>
-      </Tabs>
+      <div className="mt-6">
+        {renderRecommendedTutorContent()}
+      </div>
       
        {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} sourceTab={activeTab} />}
        {selectedTutor && <TutorContactModal isOpen={isContactModalOpen} onOpenChange={setIsContactModalOpen} tutor={selectedTutor} />}
@@ -652,12 +593,6 @@ function ManageEnquiryContent() {
             <DialogFooter><DialogClose asChild><Button type="button" variant="outline" disabled={addNoteMutation.isPending}>Cancel</Button></DialogClose><Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>{addNoteMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : <><Save className="mr-2 h-4 w-4" />Save Note</>}</Button></DialogFooter>
             </DialogContent>
         </Dialog>
-        <AlertDialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
-            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure you want to close this enquiry?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDescription></AlertDialogHeader>
-            <div className="py-4 space-y-4"><RadioGroup onValueChange={setCloseReason} value={closeReason || ""} className="flex flex-col space-y-2">{closeReasons.map((reason) => (<div key={reason.id} className="flex items-center space-x-3"><RadioGroupItem value={reason.id} id={`admin-close-${reason.id}`} /><Label htmlFor={`admin-close-${reason.id}`} className="font-normal text-sm">{reason.label}</Label></div>))}</RadioGroup></div>
-            <AlertDialogFooter><AlertDialogCancel disabled={closeEnquiryMutation.isPending}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleCloseEnquiryDialogAction} disabled={!closeReason || closeEnquiryMutation.isPending}>{closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirm & Close</AlertDialogAction></AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
           <DialogContent className="sm:max-w-xl bg-card">
               <DialogHeader className="p-6 pb-4">
