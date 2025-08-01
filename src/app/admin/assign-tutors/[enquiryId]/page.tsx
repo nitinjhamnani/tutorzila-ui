@@ -344,11 +344,11 @@ function AssignTutorsContent() {
            <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tutor Details</TableHead>
+                <TableHead>Tutor</TableHead>
                 <TableHead>Subjects</TableHead>
                 <TableHead>Grade</TableHead>
                 <TableHead>Board</TableHead>
-                <TableHead>Teaching Mode</TableHead>
+                <TableHead>Mode</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
