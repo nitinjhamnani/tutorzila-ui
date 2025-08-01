@@ -341,8 +341,9 @@ function ManageEnquiryContent() {
     };
   }, [searchParams]);
   
-  const [filters, setFilters] = useState(getInitialFilters());
-  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters());
+  const initialFilters = useMemo(() => getInitialFilters(), [getInitialFilters]);
+  const [filters, setFilters] = useState(initialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -350,25 +351,25 @@ function ManageEnquiryContent() {
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
-
+  
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-      queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
-      queryFn: () => {
-        const params = new URLSearchParams();
-        if (appliedFilters) {
-          if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-          if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
-          if (appliedFilters.board) params.append('boards', appliedFilters.board);
-          if (appliedFilters.isOnline) params.append('isOnline', 'true');
-          if (appliedFilters.isOffline) params.append('isOffline', 'true');
-          if (appliedFilters.city) params.append('location', appliedFilters.city);
-          if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-        }
-        return fetchAssignableTutors(token, params);
-      },
-      enabled: !!token, // Call is enabled by default if token exists
-      refetchOnWindowFocus: false,
-    });
+    queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (appliedFilters) {
+        if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+        if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
+        if (appliedFilters.board) params.append('boards', appliedFilters.board);
+        if (appliedFilters.isOnline) params.append('isOnline', 'true');
+        if (appliedFilters.isOffline) params.append('isOffline', 'true');
+        if (appliedFilters.city) params.append('location', appliedFilters.city);
+        if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+      }
+      return fetchAssignableTutors(token, params);
+    },
+    enabled: !!token,
+    refetchOnWindowFocus: false,
+  });
   
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
