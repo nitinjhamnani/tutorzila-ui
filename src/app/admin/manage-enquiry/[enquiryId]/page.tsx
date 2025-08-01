@@ -355,25 +355,34 @@ function ManageEnquiryContent() {
   });
 
   useEffect(() => {
-    if (enquiry && !hasAppliedFiltersInitialized) {
-        const location = enquiry.location ?? { city: "", area: "" };
-        const initialEnquiryFilters = {
-            subjects: enquiry.subject || [],
-            grade: enquiry.gradeLevel || '',
-            board: enquiry.board || '',
-            isOnline: enquiry.teachingMode?.includes("Online") || false,
-            isOffline: enquiry.teachingMode?.includes("Offline (In-person)") || false,
-            city: location.city || "",
-            area: location.area || "",
-        };
-        setFilters(initialEnquiryFilters);
-        setAppliedFilters(initialEnquiryFilters);
-        setHasAppliedFiltersInitialized(true);
+    if (
+      enquiry &&
+      !hasAppliedFiltersInitialized &&
+      (!appliedFilters || Object.values(appliedFilters).every(val => val === '' || (Array.isArray(val) && val.length === 0)))
+    ) {
+      const location = enquiry.location ?? { city: "", area: "" };
+      const initialEnquiryFilters = {
+        subjects: enquiry.subject || [],
+        grade: enquiry.gradeLevel || '',
+        board: enquiry.board || '',
+        isOnline: enquiry.teachingMode?.includes("Online") || false,
+        isOffline: enquiry.teachingMode?.includes("Offline (In-person)") || false,
+        city: location.city || "",
+        area: location.area || "",
+      };
+      setFilters(initialEnquiryFilters);
+      setAppliedFilters(initialEnquiryFilters);
+      setHasAppliedFiltersInitialized(true);
+    } else if (!hasAppliedFiltersInitialized) {
+      // If filters are already set from URL, just mark as ready
+      setHasAppliedFiltersInitialized(true);
     }
-  }, [enquiry, hasAppliedFiltersInitialized]);
+  }, [enquiry, appliedFilters, hasAppliedFiltersInitialized]);
+  
+  const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
 
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
+    queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
     queryFn: () => {
       const params = new URLSearchParams();
       if (appliedFilters) {
@@ -793,3 +802,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
