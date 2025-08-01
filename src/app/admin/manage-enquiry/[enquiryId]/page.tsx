@@ -369,7 +369,15 @@ function ManageEnquiryContent() {
   };
   
   const handleClearFilters = () => {
-    const clearedFilters = getInitialFilters();
+    const clearedFilters = {
+      subjects: [],
+      grade: '',
+      board: '',
+      isOnline: false,
+      isOffline: false,
+      city: "",
+      area: "",
+    };
     setFilters(clearedFilters);
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
