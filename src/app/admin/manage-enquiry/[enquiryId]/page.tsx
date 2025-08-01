@@ -545,8 +545,9 @@ function ManageEnquiryContent() {
                   <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
                   <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
                   <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
-                  {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo && (
-                      <span className="flex items-center gap-1.5">
+                </div>
+                 {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
                           <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
                           {locationInfo.googleMapsUrl ? (
                               <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
@@ -555,9 +556,8 @@ function ManageEnquiryContent() {
                           ) : (
                               <span className="line-clamp-1">{locationInfo.address}</span>
                           )}
-                      </span>
+                      </div>
                   )}
-                </div>
             </div>
           </CardHeader>
           <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
@@ -723,5 +723,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
