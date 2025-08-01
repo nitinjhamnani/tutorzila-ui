@@ -701,7 +701,7 @@ function ManageEnquiryContent() {
                <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                         <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
-                        <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
+                        {enquiry.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>}
                         <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
                     </div>
                     {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
