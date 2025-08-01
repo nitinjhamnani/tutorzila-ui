@@ -561,7 +561,7 @@ function ManageEnquiryContent() {
             </div>
           </CardHeader>
           <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
-             <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)}><Eye className="mr-1.5 h-3.5 w-3.5" />View Full Details</Button>
+             <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
              <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
              <Button variant="outline" size="sm" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
              <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}><XCircle className="mr-1.5 h-3.5 w-3.5" /> Close</Button>
@@ -630,71 +630,35 @@ function ManageEnquiryContent() {
         </AlertDialog>
         {enquiry && (
             <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-              <DialogContent className="sm:max-w-2xl bg-card">
+              <DialogContent className="sm:max-w-xl bg-card">
                   <DialogHeader className="p-6 pb-4">
-                      <DialogTitle className="text-xl font-semibold text-primary">Enquiry Details</DialogTitle>
+                      <DialogTitle className="text-xl font-semibold text-primary">Preferences & Notes</DialogTitle>
                       <DialogDescription>
-                          Full details for enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+                          Scheduling preferences and additional notes for this enquiry.
                       </DialogDescription>
                   </DialogHeader>
                   <div className="max-h-[60vh] overflow-y-auto pr-2">
                   <div className="p-6 pt-0 space-y-5">
-                    <section className="space-y-3">
-                      <h3 className="text-base font-semibold text-foreground flex items-center">
-                        <Briefcase className="w-4 h-4 mr-2 text-primary/80" />
-                        Requirement Details
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                        <EnquiryInfoItem label="Grade Level" value={enquiry.gradeLevel} icon={GraduationCap} />
-                        {enquiry.board && <EnquiryInfoItem label="Board" value={enquiry.board} icon={Building} />}
-                        {enquiry.teachingMode && enquiry.teachingMode.length > 0 && (
-                            <EnquiryInfoItem label="Teaching Mode(s)" value={enquiry.teachingMode} icon={RadioTower} />
-                        )}
-                      </div>
-                    </section>
-                    
                     {hasScheduleInfo && (
-                      <>
-                        <Separator />
-                        <section className="space-y-3">
-                            <h3 className="text-base font-semibold text-foreground flex items-center">
-                                <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                                Schedule Preferences
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                                {enquiry.preferredDays && enquiry.preferredDays.length > 0 && (
-                                <EnquiryInfoItem label="Preferred Days" value={enquiry.preferredDays.join(', ')} icon={CalendarDays} />
-                                )}
-                                {enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0 && (
-                                <EnquiryInfoItem label="Preferred Time" value={enquiry.preferredTimeSlots.join(', ')} icon={Clock} />
-                                )}
-                            </div>
-                        </section>
-                      </>
-                    )}
-
-                    {hasLocationInfo && (
-                      <>
-                        <Separator />
-                        <section className="space-y-3">
-                            <h3 className="text-base font-semibold text-foreground flex items-center">
-                                <MapPin className="w-4 h-4 mr-2 text-primary/80" />
-                                Location
-                            </h3>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                                {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
-                                {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
-                                    <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} icon={MapPinned} />
-                                )}
-                                 {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
-                            </div>
-                        </section>
-                      </>
+                      <section className="space-y-3">
+                          <h3 className="text-base font-semibold text-foreground flex items-center">
+                              <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
+                              Schedule Preferences
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                              {enquiry.preferredDays && enquiry.preferredDays.length > 0 && (
+                              <EnquiryInfoItem label="Preferred Days" value={enquiry.preferredDays.join(', ')} icon={CalendarDays} />
+                              )}
+                              {enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0 && (
+                              <EnquiryInfoItem label="Preferred Time" value={enquiry.preferredTimeSlots.join(', ')} icon={Clock} />
+                              )}
+                          </div>
+                      </section>
                     )}
 
                     {enquiry.additionalNotes && (
                        <>
-                        <Separator />
+                        {hasScheduleInfo && <Separator />}
                         <section className="space-y-3">
                             <h3 className="text-base font-semibold text-foreground flex items-center">
                                 <Info className="w-4 h-4 mr-2 text-primary/80" />
@@ -703,6 +667,9 @@ function ManageEnquiryContent() {
                             <p className="text-sm text-foreground/80 leading-relaxed pl-6">{enquiry.additionalNotes}</p>
                         </section>
                        </>
+                    )}
+                    {!hasScheduleInfo && !enquiry.additionalNotes && (
+                        <p className="text-center text-sm text-muted-foreground py-8">No specific preferences or notes were provided for this enquiry.</p>
                     )}
                   </div>
                   </div>
@@ -723,3 +690,6 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+
+    
