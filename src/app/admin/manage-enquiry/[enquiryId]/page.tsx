@@ -345,6 +345,7 @@ function ManageEnquiryContent() {
   
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
+  const [hasAppliedFiltersInitialized, setHasAppliedFiltersInitialized] = useState(false);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -353,11 +354,26 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
 
-  const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
+  useEffect(() => {
+    if (enquiry && !hasAppliedFiltersInitialized) {
+        const location = enquiry.location ?? { city: "", area: "" };
+        const initialEnquiryFilters = {
+            subjects: enquiry.subject || [],
+            grade: enquiry.gradeLevel || '',
+            board: enquiry.board || '',
+            isOnline: enquiry.teachingMode?.includes("Online") || false,
+            isOffline: enquiry.teachingMode?.includes("Offline (In-person)") || false,
+            city: location.city || "",
+            area: location.area || "",
+        };
+        setFilters(initialEnquiryFilters);
+        setAppliedFilters(initialEnquiryFilters);
+        setHasAppliedFiltersInitialized(true);
+    }
+  }, [enquiry, hasAppliedFiltersInitialized]);
 
-  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } =
-  useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
+  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
+    queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
     queryFn: () => {
       const params = new URLSearchParams();
       if (appliedFilters) {
@@ -371,10 +387,9 @@ function ManageEnquiryContent() {
       }
       return fetchAssignableTutors(token, params);
     },
-    enabled: !!token && !!enquiry,
+    enabled: !!token && !!enquiry && hasAppliedFiltersInitialized,
     refetchOnWindowFocus: false,
   });
-
   
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
@@ -778,5 +793,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
