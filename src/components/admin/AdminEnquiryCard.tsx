@@ -115,7 +115,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
                 className="text-xs py-1.5 px-3 h-auto"
                 >
                 <Link href={constructAssignTutorUrl()}>
-                    <UsersIcon className="w-3 h-3 mr-1.5" /> Assign Tutors
+                    <Edit3 className="w-3 h-3 mr-1.5" /> Manage Enquiry
                 </Link>
             </Button>
         </div>
