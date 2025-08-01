@@ -26,9 +26,7 @@ const ScrollArea = React.forwardRef<
     >
       {children}
     </ScrollAreaPrimitive.Viewport>
-    {/* ScrollBar component will be added explicitly by the consumer if needed */}
-    {/* Forcing a default scrollbar might not always be desired, so let consumer add it */}
-    {/* <ScrollBar /> */}
+    <ScrollBar />
     <ScrollAreaPrimitive.Corner />
   </ScrollAreaPrimitive.Root>
 ))
