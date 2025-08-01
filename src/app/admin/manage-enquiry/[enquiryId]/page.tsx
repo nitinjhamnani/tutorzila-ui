@@ -44,10 +44,10 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription as AlertDialogDesc,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle as AlertDialogTitleComponent,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -558,24 +558,29 @@ function ManageEnquiryContent() {
     <div className="space-y-6">
       {enquiry && (
         <Card className="bg-card rounded-xl shadow-lg border-0">
-          <CardHeader>
+          <CardHeader className="p-4 sm:p-5">
             <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
               <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
                <Badge variant="default" className="text-xs">
                     {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
               </Badge>
             </CardTitle>
-            <div className="space-y-1">
-                <CardDescription className="text-sm text-foreground/70 flex items-center gap-1.5">
+            <div className="space-y-2 pt-2">
+                <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
                     <UsersRound className="w-4 h-4"/> {enquiry.studentName}
                 </CardDescription>
                 <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
                     <Clock className="w-3.5 h-3.5" /> 
                     Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
                 </CardDescription>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2">
+                  <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
+                  <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
+                  <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
+                </div>
             </div>
           </CardHeader>
-          <CardFooter className="flex flex-wrap justify-end gap-2">
+          <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
              <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)}><Eye className="mr-1.5 h-3.5 w-3.5" />View Full Details</Button>
              <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
              <Button variant="outline" size="sm" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
@@ -585,10 +590,11 @@ function ManageEnquiryContent() {
       )}
 
       <Card className="bg-card rounded-xl shadow-lg border-0">
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-5">
           <CardTitle className="text-xl font-semibold text-primary">Tutor List</CardTitle>
+          <CardDescription>Recommended, applied, and assigned tutors for this enquiry.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-5 pt-0">
           <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                 <ScrollArea className="w-full sm:w-auto">
@@ -602,7 +608,7 @@ function ManageEnquiryContent() {
                 </ScrollArea>
                 <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                       <DialogTrigger asChild><Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0"><ListFilter className="w-4 h-4 mr-2"/>Filter Tutors</Button></DialogTrigger>
-                      <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><AlertDialogDesc>Refine the list of tutors based on specific criteria.</AlertDialogDesc></DialogHeader>
+                      <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><DialogDescription>Refine the list of tutors based on specific criteria.</DialogDescription></DialogHeader>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                           <div className="space-y-2 md:col-span-2"><Label htmlFor="subjects-filter-modal">Subjects</Label><MultiSelectCommand options={allSubjectsList} selectedValues={filters.subjects} onValueChange={(value) => handleFilterChange('subjects', value)} placeholder="Select subjects..." className="w-full"/></div>
                           <div className="space-y-2"><Label htmlFor="grade-filter-modal">Grade</Label><Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}><SelectTrigger id="grade-filter-modal"><SelectValue placeholder="Select Grade" /></SelectTrigger><SelectContent>{gradeLevelsList.map(grade => (<SelectItem key={grade} value={grade}>{grade}</SelectItem>))}</SelectContent></Select></div>
@@ -631,13 +637,13 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Add Additional Notes</DialogTitle><AlertDialogDesc>These notes will be visible to tutors viewing the enquiry details.</AlertDialogDesc></DialogHeader>
+            <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Add Additional Notes</DialogTitle><DialogDescription>These notes will be visible to tutors viewing the enquiry details.</DialogDescription></DialogHeader>
             <div className="py-4"><Textarea placeholder="e.g., Student requires special attention..." value={notes} onChange={(e) => setNotes(e.target.value)} className="min-h-[120px]" disabled={addNoteMutation.isPending}/></div>
             <DialogFooter><DialogClose asChild><Button type="button" variant="outline" disabled={addNoteMutation.isPending}>Cancel</Button></DialogClose><Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>{addNoteMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : <><Save className="mr-2 h-4 w-4" />Save Note</>}</Button></DialogFooter>
             </DialogContent>
         </Dialog>
         <AlertDialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
-            <AlertDialogContent><AlertDialogHeader><AlertDialogTitleComponent>Are you sure you want to close this enquiry?</AlertDialogTitleComponent><AlertDialogDesc>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDesc></AlertDialogHeader>
+            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure you want to close this enquiry?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDescription></AlertDialogHeader>
             <div className="py-4 space-y-4"><RadioGroup onValueChange={setCloseReason} value={closeReason || ""} className="flex flex-col space-y-2">{closeReasons.map((reason) => (<div key={reason.id} className="flex items-center space-x-3"><RadioGroupItem value={reason.id} id={`admin-close-${reason.id}`} /><Label htmlFor={`admin-close-${reason.id}`} className="font-normal text-sm">{reason.label}</Label></div>))}</RadioGroup></div>
             <AlertDialogFooter><AlertDialogCancel disabled={closeEnquiryMutation.isPending}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleCloseEnquiryDialogAction} disabled={!closeReason || closeEnquiryMutation.isPending}>{closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirm & Close</AlertDialogAction></AlertDialogFooter>
             </AlertDialogContent>
@@ -645,14 +651,14 @@ function ManageEnquiryContent() {
         {enquiry && (
             <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
               <DialogContent className="sm:max-w-2xl bg-card">
-                  <DialogHeader>
+                  <DialogHeader className="p-6 pb-4">
                       <DialogTitle className="text-xl font-semibold text-primary">Enquiry Details</DialogTitle>
                       <DialogDescription>
                           Full details for enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
                       </DialogDescription>
                   </DialogHeader>
                   <div className="max-h-[60vh] overflow-y-auto pr-2">
-                  <div className="p-4 md:p-5 space-y-5">
+                  <div className="p-6 pt-0 space-y-5">
                     <section className="space-y-3">
                       <h3 className="text-base font-semibold text-foreground flex items-center">
                         <Briefcase className="w-4 h-4 mr-2 text-primary/80" />
@@ -720,7 +726,7 @@ function ManageEnquiryContent() {
                     )}
                   </div>
                   </div>
-                  <DialogFooter>
+                  <DialogFooter className="p-6 border-t">
                       <Button type="button" onClick={() => setIsDetailsModalOpen(false)}>Close</Button>
                   </DialogFooter>
               </DialogContent>
@@ -737,5 +743,6 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
 
 
