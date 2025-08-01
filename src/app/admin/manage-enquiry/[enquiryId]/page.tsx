@@ -108,19 +108,6 @@ const closeReasons = [
     { id: 'other', label: "Other" }
 ];
 
-const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
-  if (!token) throw new Error("Authentication token not found.");
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
-    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
-  });
-  if (!response.ok) throw new Error("Failed to fetch tutors.");
-  const data = await response.json();
-    return data.map((tutor: any) => ({
-    ...tutor,
-    isVerified: tutor.isVerified || false,
-  }));
-};
 
 const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -317,64 +304,6 @@ const EnquiryInfoItem = ({
   );
 };
 
-// Extracted Component for Assignable Tutors
-function AssignableTutorsTable({
-  filters,
-  enquiryId,
-  token,
-  onViewProfile,
-  onContactTutor,
-}: {
-  filters: any;
-  enquiryId: string;
-  token: string | null;
-  onViewProfile: (tutor: ApiTutor) => void;
-  onContactTutor: (tutor: ApiTutor) => void;
-}) {
-    const stringifiedFilters = useMemo(() => JSON.stringify(filters), [filters]);
-
-    const { data: tutors = [], isLoading, error } = useQuery<ApiTutor[]>({
-        queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
-        queryFn: () => {
-            const params = new URLSearchParams();
-            if (filters.subjects?.length > 0) params.append('subjects', filters.subjects.join(','));
-            if (filters.grade) params.append('grades', filters.grade);
-            if (filters.board) params.append('boards', filters.board);
-            if (filters.isOnline) params.append('isOnline', 'true');
-            if (filters.isOffline) params.append('isOffline', 'true');
-            if (filters.city) params.append('location', filters.city);
-            if (filters.area) params.append('location', `${filters.area}, ${filters.city}`);
-            return fetchAssignableTutors(token, params);
-        },
-        refetchOnWindowFocus: false,
-    });
-
-    return (
-        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-            <CardContent className="p-0">
-                <TooltipProvider>
-                    <Table>
-                        <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Subjects</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
-                        <TableBody>
-                            {isLoading ? ([...Array(5)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
-                            : error ? (<TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>) 
-                            : !tutors || tutors.length === 0 ? (<TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>) 
-                            : (tutors.map(tutor => (
-                                <TableRow key={tutor.id}>
-                                    <TableCell><div><div className="font-medium text-foreground">{tutor.displayName}</div><div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div></div></TableCell>
-                                    <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
-                                    <TableCell><div className="flex items-center gap-2">{tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}{tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}</div></TableCell>
-                                    <TableCell><div className="flex items-center gap-2"><Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip><Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip></div></TableCell>
-                                    <TableCell><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onViewProfile(tutor)}><Eye className="w-4 h-4" /></Button><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onContactTutor(tutor)}><Phone className="w-4 h-4" /></Button></div></TableCell>
-                                </TableRow>
-                            )))}
-                        </TableBody>
-                    </Table>
-                </TooltipProvider>
-            </CardContent>
-        </Card>
-    );
-}
 
 function ManageEnquiryContent() {
   const params = useParams();
@@ -397,20 +326,8 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
-  const [isTutorQueryEnabled, setIsTutorQueryEnabled] = useState(false);
-
-  const initialFilters = useMemo(() => ({
-    subjects: searchParams.get('subjects')?.split(',').filter(Boolean) || [],
-    grade: searchParams.get('grade') || '',
-    board: searchParams.get('board') || '',
-    isOnline: searchParams.get('mode')?.split(',').includes("Online") || false,
-    isOffline: searchParams.get('mode')?.split(',').includes("Offline (In-person)") || false,
-    city: searchParams.get('location')?.split(',')[0] || "",
-    area: searchParams.get('location')?.split(',')[1] || "",
-  }), [searchParams]);
-
-  const [filters, setFilters] = useState(initialFilters);
-  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
+  
+  const [filters, setFilters] = useState<any>({});
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -426,26 +343,6 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
-  const { data: uniqueCities = [] } = useQuery<string[]>({
-      queryKey: ['uniqueCities'],
-      queryFn: async () => {
-          const allTutors = await fetchAssignableTutors(token, new URLSearchParams());
-          return Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort();
-      },
-      enabled: !!token,
-      staleTime: Infinity,
-  });
-
-  const { data: uniqueAreasInCity = [] } = useQuery<string[]>({
-      queryKey: ['uniqueAreas', filters.city],
-      queryFn: async () => {
-          const allTutors = await fetchAssignableTutors(token, new URLSearchParams());
-          return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
-      },
-      enabled: !!token && !!filters.city,
-      staleTime: Infinity,
-  });
-
   const updateMutation = useMutation({
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: () => {
@@ -477,34 +374,6 @@ function ManageEnquiryContent() {
     onError: (error: any) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
   });
   
-  const handleApplyFilters = () => {
-    setAppliedFilters(filters);
-    setIsFilterModalOpen(false);
-    if (!isTutorQueryEnabled) {
-      setIsTutorQueryEnabled(true);
-    }
-  };
-  
-  const handleClearFilters = () => {
-    const clearedFilters = { subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
-    setFilters(clearedFilters);
-    setAppliedFilters(clearedFilters);
-    setIsFilterModalOpen(false);
-    if (!isTutorQueryEnabled) {
-      setIsTutorQueryEnabled(true);
-    }
-  };
-  
-  const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
-      setFilters(prev => ({ ...prev!, [key]: value }));
-  };
-  const handleCityChange = (city: string) => {
-      setFilters(prev => ({ ...prev!, city: city === 'all-cities' ? '' : city, area: '' }));
-  };
-  const handleAreaChange = (area: string) => {
-      setFilters(prev => ({ ...prev!, area: area === 'all-areas' ? '' : area }));
-  };
-
   const handleViewProfile = (tutor: ApiTutor) => {
     setSelectedTutor(tutor);
     setIsProfileModalOpen(true);
@@ -553,8 +422,33 @@ function ManageEnquiryContent() {
       return <div className="text-center py-10 text-muted-foreground">Enquiry not found.</div>
   }
 
+  const renderTutorTable = (tutors: ApiTutor[], isLoading: boolean, error: Error | null) => (
+    <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+        <CardContent className="p-0">
+            <TooltipProvider>
+                <Table>
+                    <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Subjects</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                        {isLoading ? ([...Array(5)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
+                        : error ? (<TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>) 
+                        : !tutors || tutors.length === 0 ? (<TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>) 
+                        : (tutors.map(tutor => (
+                            <TableRow key={tutor.id}>
+                                <TableCell><div><div className="font-medium text-foreground">{tutor.displayName}</div><div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div></div></TableCell>
+                                <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
+                                <TableCell><div className="flex items-center gap-2">{tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}{tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}</div></TableCell>
+                                <TableCell><div className="flex items-center gap-2"><Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip><Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip></div></TableCell>
+                                <TableCell><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}><Eye className="w-4 h-4" /></Button><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button></div></TableCell>
+                            </TableRow>
+                        )))}
+                    </TableBody>
+                </Table>
+            </TooltipProvider>
+        </CardContent>
+    </Card>
+  );
+
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
-  const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
   const hasScheduleInfo = enquiry ? ((enquiry.preferredDays && enquiry.preferredDays.length > 0) || (enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0)) : false;
 
   return (
@@ -605,43 +499,29 @@ function ManageEnquiryContent() {
         </CardFooter>
       </Card>
       
-      <Tabs defaultValue="recommended" onValueChange={setActiveTab} className="w-full">
+      <Tabs defaultValue="assigned" onValueChange={setActiveTab} className="w-full">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
             <ScrollArea className="w-full sm:w-auto">
                 <TabsList className="bg-transparent p-0 gap-2">
-                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended</TabsTrigger>
-                    <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied</TabsTrigger>
-                    <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted</TabsTrigger>
+                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended (0)</TabsTrigger>
+                    <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied (0)</TabsTrigger>
+                    <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted (0)</TabsTrigger>
                     <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutorsData?.length || 0})</TabsTrigger>
                 </TabsList>
                 <ScrollBar orientation="horizontal" />
             </ScrollArea>
-            <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-                  <DialogTrigger asChild><Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0"><ListFilter className="w-4 h-4 mr-2"/>Filter Tutors</Button></DialogTrigger>
-                  <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><DialogDescription>Refine the list of tutors based on specific criteria.</DialogDescription></DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                      <div className="space-y-2 md:col-span-2"><Label htmlFor="subjects-filter-modal">Subjects</Label><MultiSelectCommand options={allSubjectsList} selectedValues={filters?.subjects || []} onValueChange={(value) => handleFilterChange('subjects', value)} placeholder="Select subjects..." className="w-full"/></div>
-                      <div className="space-y-2"><Label htmlFor="grade-filter-modal">Grade</Label><Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters?.grade}><SelectTrigger id="grade-filter-modal"><SelectValue placeholder="Select Grade" /></SelectTrigger><SelectContent>{gradeLevelsList.map(grade => (<SelectItem key={grade} value={grade}>{grade}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="space-y-2"><Label htmlFor="board-filter-modal">Board</Label><Select onValueChange={(value) => handleFilterChange('board', value)} value={filters?.board}><SelectTrigger id="board-filter-modal"><SelectValue placeholder="Select Board" /></SelectTrigger><SelectContent>{boardsList.map(board => (<SelectItem key={board} value={board}>{board}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="space-y-2"><Label htmlFor="city-filter-modal">City</Label><Select onValueChange={handleCityChange} value={filters?.city}><SelectTrigger id="city-filter-modal"><SelectValue placeholder="Select City" /></SelectTrigger><SelectContent><SelectItem value="all-cities">All Cities</SelectItem>{uniqueCities.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="space-y-2"><Label htmlFor="area-filter-modal">Area</Label><Select onValueChange={handleAreaChange} value={filters?.area} disabled={!filters?.city}><SelectTrigger id="area-filter-modal"><SelectValue placeholder="Select Area" /></SelectTrigger><SelectContent><SelectItem value="all-areas">All Areas</SelectItem>{uniqueAreasInCity.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
-                      <div className="flex items-center space-x-4 pt-5 md:col-span-2"><div className="flex items-center space-x-2"><Checkbox id="online-filter-modal" checked={filters?.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} /><Label htmlFor="online-filter-modal" className="font-medium">Online</Label></div><div className="flex items-center space-x-2"><Checkbox id="offline-filter-modal" checked={filters?.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} /><Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label></div></div>
-                    </div>
-                    <DialogFooter className="gap-2 sm:justify-between"><Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button><Button type="button" onClick={handleApplyFilters}>Apply Filters</Button></DialogFooter>
-                  </DialogContent>
-            </Dialog>
         </div>
         <TabsContent value="recommended">
-            {isTutorQueryEnabled && <AssignableTutorsTable filters={appliedFilters} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />}
+          {renderTutorTable([], false, null)}
         </TabsContent>
         <TabsContent value="applied">
-            {isTutorQueryEnabled && <AssignableTutorsTable filters={appliedFilters} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />}
+          {renderTutorTable([], false, null)}
         </TabsContent>
         <TabsContent value="shortlisted">
-            {isTutorQueryEnabled && <AssignableTutorsTable filters={appliedFilters} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />}
+          {renderTutorTable([], false, null)}
         </TabsContent>
         <TabsContent value="assigned">
-            <AssignableTutorsTable filters={{}} enquiryId={enquiryId} token={token} onViewProfile={handleViewProfile} onContactTutor={handleContactTutor} />
+          {renderTutorTable(assignedTutorsData, isLoadingAssignedTutors, assignedTutorsError)}
         </TabsContent>
       </Tabs>
       
