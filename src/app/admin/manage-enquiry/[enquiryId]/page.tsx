@@ -356,24 +356,33 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
-  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
-    queryFn: () => {
-      const params = new URLSearchParams();
-      if (appliedFilters) {
-        if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-        if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
-        if (appliedFilters.board) params.append('boards', appliedFilters.board);
-        if (appliedFilters.isOnline) params.append('isOnline', 'true');
-        if (appliedFilters.isOffline) params.append('isOffline', 'true');
-        if (appliedFilters.city) params.append('location', appliedFilters.city);
-        if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-      }
-      return fetchAssignableTutors(token, params);
-    },
-    enabled: isTutorQueryEnabled && !!token && !!enquiry,
-    refetchOnWindowFocus: false,
-  });
+  const allTutorsQuery = isTutorQueryEnabled
+  ? useQuery<ApiTutor[]>({
+      queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
+      queryFn: () => {
+        const params = new URLSearchParams();
+        if (appliedFilters) {
+          if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+          if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
+          if (appliedFilters.board) params.append('boards', appliedFilters.board);
+          if (appliedFilters.isOnline) params.append('isOnline', 'true');
+          if (appliedFilters.isOffline) params.append('isOffline', 'true');
+          if (appliedFilters.city) params.append('location', appliedFilters.city);
+          if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+        }
+        return fetchAssignableTutors(token, params);
+      },
+      refetchOnWindowFocus: false,
+    })
+  : {
+      data: [],
+      isLoading: false,
+      error: null,
+    };
+
+    const allTutorsData = allTutorsQuery.data ?? [];
+    const isLoadingAllTutors = allTutorsQuery.isLoading;
+    const allTutorsError = allTutorsQuery.error;
   
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
@@ -417,7 +426,7 @@ function ManageEnquiryContent() {
     setAppliedFilters(filters);
     setIsFilterModalOpen(false);
     if (!isTutorQueryEnabled) {
-       // setIsTutorQueryEnabled(true);
+       setIsTutorQueryEnabled(true);
     }
   };
   
@@ -427,7 +436,7 @@ function ManageEnquiryContent() {
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
     if (!isTutorQueryEnabled) {
-      // setIsTutorQueryEnabled(true);
+      setIsTutorQueryEnabled(true);
     }
   };
   
