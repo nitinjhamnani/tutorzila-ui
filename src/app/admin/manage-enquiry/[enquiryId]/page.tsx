@@ -416,7 +416,9 @@ function ManageEnquiryContent() {
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setIsFilterModalOpen(false);
-    
+    if (!isTutorQueryEnabled) {
+       // setIsTutorQueryEnabled(true);
+    }
   };
   
   const handleClearFilters = () => {
@@ -424,7 +426,9 @@ function ManageEnquiryContent() {
     setFilters(clearedFilters);
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
-    
+    if (!isTutorQueryEnabled) {
+      // setIsTutorQueryEnabled(true);
+    }
   };
   
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
