@@ -88,7 +88,16 @@ const gradeLevelsList = [
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
+  
+  // Create a new URLSearchParams object to avoid modifying the original
+  const fetchParams = new URLSearchParams(params.toString());
+
+  // If no specific filters are applied, don't pass any to the API
+  if (fetchParams.toString() === "") {
+    // This logic ensures that if we call with no filters, we don't send empty params
+  }
+
+  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${fetchParams.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
   if (!response.ok) throw new Error("Failed to fetch tutors.");
@@ -379,7 +388,7 @@ function ManageEnquiryContent() {
       area: "",
     };
     setFilters(clearedFilters);
-    setAppliedFilters(clearedFilters);
+    setAppliedFilters(clearedFilters); // This will trigger the refetch
     setIsFilterModalOpen(false);
   };
 
@@ -756,6 +765,7 @@ function ManageEnquiryContent() {
         </CardFooter>
       </Card>
       
+      {renderPlaceholderTable("Assigned Tutors", 0)}
       {renderPlaceholderTable("Applied Tutors", 0)}
       {renderPlaceholderTable("Shortlisted Tutors", 0)}
 
