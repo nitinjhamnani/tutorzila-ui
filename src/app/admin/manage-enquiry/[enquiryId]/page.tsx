@@ -98,26 +98,6 @@ const closeReasons = [
     { id: 'other', label: "Other" }
 ];
 
-
-const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
-    if (!token) throw new Error("Authentication token not found.");
-    console.log(`Fetching assigned tutors for enquiry: ${enquiryId}`);
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    const response = await fetch(`${apiBaseUrl}/api/tutor/list`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'accept': '*/*',
-            'TZ-ENQ-ID': enquiryId,
-        }
-    });
-    if (!response.ok) throw new Error("Failed to fetch assigned tutors.");
-    const data = await response.json();
-    return data.map((tutor: any) => ({
-        ...tutor,
-        isVerified: tutor.isVerified || false,
-    }));
-};
-
 const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
   if (!token) throw new Error("Authentication token is required.");
   if (!enquiryId) throw new Error("Enquiry ID is required.");
@@ -322,13 +302,6 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
-  const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
-    queryKey: ['assignedTutors', enquiryId],
-    queryFn: () => fetchAssignedTutors(token, enquiryId),
-    enabled: !!token && !!enquiry,
-    refetchOnWindowFocus: false,
-  });
-  
   const updateMutation = useMutation({
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: () => {
@@ -492,22 +465,22 @@ function ManageEnquiryContent() {
                     <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended (0)</TabsTrigger>
                     <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied (0)</TabsTrigger>
                     <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted (0)</TabsTrigger>
-                    <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutorsData?.length || 0})</TabsTrigger>
+                    <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({enquiry.applicantsCount || 0})</TabsTrigger>
                 </TabsList>
                 <ScrollBar orientation="horizontal" />
             </ScrollArea>
         </div>
         <TabsContent value="recommended">
-          {renderTutorTable([], true, null)}
+          {renderTutorTable([], false, null)}
         </TabsContent>
         <TabsContent value="applied">
-          {renderTutorTable([], true, null)}
+          {renderTutorTable([], false, null)}
         </TabsContent>
         <TabsContent value="shortlisted">
-          {renderTutorTable([], true, null)}
+          {renderTutorTable([], false, null)}
         </TabsContent>
         <TabsContent value="assigned">
-          {renderTutorTable(assignedTutorsData, isLoadingAssignedTutors, assignedTutorsError)}
+          {renderTutorTable([], true, null)}
         </TabsContent>
       </Tabs>
       
