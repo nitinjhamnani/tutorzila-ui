@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
@@ -341,8 +341,8 @@ function ManageEnquiryContent() {
     };
   }, [searchParams]);
   
-  const [filters, setFilters] = useState(getInitialFilters);
-  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
+  const [filters, setFilters] = useState(getInitialFilters());
+  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters());
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -351,10 +351,8 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
 
-  const tutorFilterKey = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
-
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-      queryKey: ['assignableTutors', enquiryId, tutorFilterKey],
+      queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
       queryFn: () => {
         const params = new URLSearchParams();
         if (appliedFilters) {
@@ -368,7 +366,7 @@ function ManageEnquiryContent() {
         }
         return fetchAssignableTutors(token, params);
       },
-      enabled: !!token,
+      enabled: !!token, // Call is enabled by default if token exists
       refetchOnWindowFocus: false,
     });
   
@@ -774,5 +772,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
