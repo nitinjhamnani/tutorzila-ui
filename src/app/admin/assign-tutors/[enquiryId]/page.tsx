@@ -392,7 +392,7 @@ function AssignTutorsContent() {
             </TabsList>
             <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto">
                       <ListFilter className="w-4 h-4 mr-2"/>
                       Filter Tutors
                     </Button>
