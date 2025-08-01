@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import type { ApiTutor, TuitionRequirement, LocationDetails } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
 
 import {
     Table,
@@ -224,31 +225,6 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   return response.json();
 };
 
-// Generic fetcher for tutors by category
-const fetchTutorsByCategory = async (token: string | null, params: URLSearchParams, category: string): Promise<ApiTutor[]> => {
-  if (!token) throw new Error("Authentication token not found.");
-  
-  // In a real app, you would have different endpoints like /api/tutors/recommended
-  // For this mock, we'll use the same endpoint but log the category.
-  console.log(`Fetching tutors for category: ${category}`);
-  params.append('category', category); // Mocking category parameter
-
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
-    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
-  });
-  if (!response.ok) throw new Error(`Failed to fetch ${category} tutors.`);
-  const data = await response.json();
-  
-  // Mock different data for different categories
-  if(category === 'recommended') return data.slice(0, 5).map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
-  if(category === 'applied') return data.slice(5, 8).map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
-  if(category === 'shortlisted') return []; // Mock empty for now
-  if(category === 'assigned') return data.slice(0, 2).map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
-
-  return data.map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
-};
-
 function ManageEnquiryContent() {
   const params = useParams();
   const router = useRouter();
@@ -378,56 +354,61 @@ function ManageEnquiryContent() {
     }
     addNoteMutation.mutate(notes);
   };
-
-  const tutorSearchParams = useMemo(() => {
-    const params = new URLSearchParams();
-    if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-    if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
-    if(appliedFilters.board) params.append('boards', appliedFilters.board);
-    if(appliedFilters.isOnline) params.append('isOnline', 'true');
-    if(appliedFilters.isOffline) params.append('isOffline', 'true');
-    if(appliedFilters.city) params.append('location', appliedFilters.city);
-    if(appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-    return params;
-  }, [appliedFilters]);
   
-  const { data: recommendedTutors = [], isLoading: isLoadingRecommended, error: recommendedError } = useQuery({
-    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'recommended'],
-    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'recommended'),
-    enabled: !!token && !!enquiry && activeTab === 'recommended',
-  });
-
-  const { data: appliedTutors = [], isLoading: isLoadingApplied, error: appliedError } = useQuery({
-    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'applied'],
-    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'applied'),
-    enabled: !!token && !!enquiry && activeTab === 'applied',
-  });
-  
-  const { data: shortlistedTutors = [], isLoading: isLoadingShortlisted, error: shortlistedError } = useQuery({
-    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'shortlisted'],
-    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'shortlisted'),
-    enabled: !!token && !!enquiry && activeTab === 'shortlisted',
-  });
-
-  const { data: assignedTutors = [], isLoading: isLoadingAssigned, error: assignedError } = useQuery({
-    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'assigned'],
-    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'assigned'),
-    enabled: !!token && !!enquiry && activeTab === 'assigned',
-  });
-
-  // Since we don't have a specific API for all tutors, we will need to fetch it for the filter modal.
-  const { data: allTutorsForFilter = [] } = useQuery({
+  const { data: allTutors = [] } = useQuery<ApiTutor[]>({
       queryKey: ['allTutorsForFilter', enquiryId],
-      queryFn: () => fetchTutorsByCategory(token, new URLSearchParams(), 'all'), // 'all' is a mock category
-      enabled: !!token && isFilterModalOpen,
+      queryFn: async () => {
+        // MOCK: In a real app this might be a generic tutor search. For now, use mock data.
+        return MOCK_TUTOR_PROFILES.map(t => ({
+          ...t,
+          id: t.id,
+          displayName: t.name,
+          subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
+          hourlyRate: parseFloat(t.hourlyRate || '0'),
+          bio: t.bio || "",
+          qualification: t.qualifications ? t.qualifications.join(", ") : "",
+          experienceYears: t.experience,
+          availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
+          availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
+          addressName: "",
+          address: t.location || "",
+          city: t.location || "",
+          state: "",
+          area: "",
+          pincode: "",
+          country: "",
+          googleMapsLink: "",
+          languages: "",
+          grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
+          boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
+          documentsUrl: "",
+          profileCompletion: 80,
+          isVerified: true,
+          isActive: t.status === 'Active',
+          isHybrid: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isBioReviewed: true,
+          subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
+          availabilityDaysList: t.preferredDays || [],
+          availabilityTimeList: t.preferredTimeSlots || [],
+          languagesList: [],
+          gradesList: t.gradeLevelsTaught || [],
+          boardsList: t.boardsTaught || [],
+          qualificationList: t.qualifications || [],
+          online: t.teachingMode?.includes("Online") || false,
+          offline: t.teachingMode?.includes("Offline (In-person)") || false,
+        }));
+      },
+      enabled: !!token,
       staleTime: Infinity,
   });
 
-  const uniqueCities = useMemo(() => Array.from(new Set(allTutorsForFilter.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutorsForFilter]);
+  const uniqueCities = useMemo(() => Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutors]);
   const uniqueAreasInCity = useMemo(() => {
-    if (!filters.city || !allTutorsForFilter) return [];
-    return Array.from(new Set(allTutorsForFilter.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
-  }, [allTutorsForFilter, filters.city]);
+    if (!filters.city || !allTutors) return [];
+    return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
+  }, [allTutors, filters.city]);
   
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -436,6 +417,12 @@ function ManageEnquiryContent() {
   if (enquiryError) {
       return <div className="text-center py-10 text-destructive">Error loading enquiry details: {enquiryError.message}</div>
   }
+
+  const recommendedTutors = allTutors.slice(0,5);
+  const appliedTutors = allTutors.slice(5,8);
+  const shortlistedTutors: ApiTutor[] = [];
+  const assignedTutors = allTutors.slice(0,2);
+
 
   const renderTutorTable = (tutors: ApiTutor[], isLoading: boolean, error: Error | null) => (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
@@ -568,10 +555,10 @@ function ManageEnquiryContent() {
                     </Dialog>
             </div>
 
-            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, isLoadingRecommended, recommendedError)}</TabsContent>
-            <TabsContent value="applied">{renderTutorTable(appliedTutors, isLoadingApplied, appliedError)}</TabsContent>
-            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, isLoadingShortlisted, shortlistedError)}</TabsContent>
-            <TabsContent value="assigned">{renderTutorTable(assignedTutors, isLoadingAssigned, assignedError)}</TabsContent>
+            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, false, null)}</TabsContent>
+            <TabsContent value="applied">{renderTutorTable(appliedTutors, false, null)}</TabsContent>
+            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, false, null)}</TabsContent>
+            <TabsContent value="assigned">{renderTutorTable(assignedTutors, false, null)}</TabsContent>
           </Tabs>
         </CardContent>
       </Card>
