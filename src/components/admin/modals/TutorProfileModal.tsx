@@ -23,7 +23,8 @@ import {
   RadioTower,
   Users as UsersIcon,
   ShieldCheck,
-  ShieldAlert
+  ShieldAlert,
+  Building
 } from "lucide-react";
 
 interface TutorProfileModalProps {
