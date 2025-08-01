@@ -347,6 +347,8 @@ function ManageEnquiryContent() {
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
   
+  const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
+
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
@@ -354,8 +356,6 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
   
-  const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
-
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
     queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
     queryFn: () => {
@@ -416,9 +416,7 @@ function ManageEnquiryContent() {
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setIsFilterModalOpen(false);
-    if (!isTutorQueryEnabled) {
-      setIsTutorQueryEnabled(true);
-    }
+    
   };
   
   const handleClearFilters = () => {
@@ -426,9 +424,7 @@ function ManageEnquiryContent() {
     setFilters(clearedFilters);
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
-    if (!isTutorQueryEnabled) {
-      setIsTutorQueryEnabled(true);
-    }
+    
   };
   
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
@@ -783,5 +779,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
