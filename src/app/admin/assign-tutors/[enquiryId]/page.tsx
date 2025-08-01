@@ -59,6 +59,8 @@ import {
   ShieldCheck,
   Mail,
   Phone,
+  Star,
+  Bookmark,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -235,6 +237,131 @@ function AssignTutorsContent() {
     return <Loader2 className="h-8 w-8 animate-spin text-primary" />;
   }
 
+  // Placeholder logic for tab content
+  const recommendedTutors = allTutors.slice(0, 5); // Mock
+  const appliedTutors = allTutors.slice(5, 8); // Mock
+
+  const renderTutorTable = (tutors: ApiTutor[], isLoading: boolean, error: Error | null) => (
+    <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+      <CardContent className="p-0">
+        <TooltipProvider>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tutor</TableHead>
+                <TableHead>Subjects</TableHead>
+                <TableHead>Grade</TableHead>
+                <TableHead>Board</TableHead>
+                <TableHead>Mode</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-10 w-48" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
+                  </TableRow>
+                ))
+              ) : error ? (
+                <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
+              ) : tutors.length === 0 ? (
+                <TableRow><TableCell colSpan={7} className="text-center">No tutors found for this category.</TableCell></TableRow>
+              ) : (
+                tutors.map(tutor => (
+                  <TableRow key={tutor.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-foreground">{tutor.displayName}</div>
+                        <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
+                    <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
+                    <TableCell className="text-xs">{tutor.boardsList.join(', ')}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {tutor.online && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="p-1.5 bg-primary/10 rounded-full">
+                                <RadioTower className="w-4 h-4 text-primary" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Available for Online</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                        {tutor.offline && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="p-1.5 bg-primary/10 rounded-full">
+                                <Users className="w-4 h-4 text-primary" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Available for Offline</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {tutor.isActive ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{tutor.isActive ? "Active" : "Inactive"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {tutor.isVerified ? (
+                              <ShieldCheck className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <ShieldAlert className="h-4 w-4 text-yellow-500" />
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{tutor.isVerified ? "Verified" : "Not Verified"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}>
+                          <Phone className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TooltipProvider>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
@@ -255,11 +382,13 @@ function AssignTutorsContent() {
         </CardHeader>
       </Card>
       
-      <Tabs defaultValue="all-tutors" className="w-full">
+      <Tabs defaultValue="recommended" className="w-full">
          <div className="flex justify-between items-center mb-4">
              <TabsList className="bg-transparent p-0">
-                <TabsTrigger value="all-tutors" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">All Tutors ({allTutors.length})</TabsTrigger>
-                <TabsTrigger value="assigned-tutors" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Assigned Tutors ({assignedTutors.length})</TabsTrigger>
+                <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Recommended ({recommendedTutors.length})</TabsTrigger>
+                <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Applied ({appliedTutors.length})</TabsTrigger>
+                <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Shortlisted (0)</TabsTrigger>
+                <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-transparent">Assigned ({assignedTutors.length})</TabsTrigger>
             </TabsList>
              <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                   <DialogTrigger asChild>
@@ -359,166 +488,17 @@ function AssignTutorsContent() {
                 </Dialog>
          </div>
 
-        <TabsContent value="all-tutors">
-             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-                <CardContent className="p-0">
-                <TooltipProvider>
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Tutor</TableHead>
-                        <TableHead>Subjects</TableHead>
-                        <TableHead>Grade</TableHead>
-                        <TableHead>Board</TableHead>
-                        <TableHead>Mode</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {isLoadingAllTutors ? (
-                        [...Array(5)].map((_, i) => (
-                        <TableRow key={i}>
-                            <TableCell><Skeleton className="h-10 w-48" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                            <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
-                        </TableRow>
-                        ))
-                    ) : allTutorsError ? (
-                        <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
-                    ) : allTutors.length === 0 ? (
-                        <TableRow><TableCell colSpan={7} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
-                    ) : (
-                        allTutors.map(tutor => (
-                        <TableRow key={tutor.id}>
-                            <TableCell>
-                            <div>
-                                <div className="font-medium text-foreground">{tutor.displayName}</div>
-                                <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
-                            </div>
-                            </TableCell>
-                            <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
-                            <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
-                            <TableCell className="text-xs">{tutor.boardsList.join(', ')}</TableCell>
-                            <TableCell>
-                                <div className="flex items-center gap-2">
-                                {tutor.online && (
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="p-1.5 bg-primary/10 rounded-full">
-                                                <RadioTower className="w-4 h-4 text-primary" />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Available for Online</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                )}
-                                {tutor.offline && (
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="p-1.5 bg-primary/10 rounded-full">
-                                                <Users className="w-4 h-4 text-primary" />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Available for Offline</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                )}
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex items-center gap-2">
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            {tutor.isActive ? (
-                                                <CheckCircle className="h-4 w-4 text-green-500" />
-                                            ) : (
-                                                <XCircle className="h-4 w-4 text-red-500" />
-                                            )}
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>{tutor.isActive ? "Active" : "Inactive"}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            {tutor.isVerified ? (
-                                                <ShieldCheck className="h-4 w-4 text-green-500" />
-                                            ) : (
-                                                <ShieldAlert className="h-4 w-4 text-yellow-500" />
-                                            )}
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>{tutor.isVerified ? "Verified" : "Not Verified"}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                            <div className="flex items-center gap-1.5">
-                                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}>
-                                    <Eye className="w-4 h-4" />
-                                </Button>
-                                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}>
-                                    <Phone className="w-4 h-4" />
-                                </Button>
-                            </div>
-                            </TableCell>
-                        </TableRow>
-                        ))
-                    )}
-                    </TableBody>
-                </Table>
-                </TooltipProvider>
-                </CardContent>
-            </Card>
+        <TabsContent value="recommended">
+          {renderTutorTable(recommendedTutors, isLoadingAllTutors, allTutorsError)}
         </TabsContent>
-        <TabsContent value="assigned-tutors">
-            <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Tutor</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {isLoadingAssignedTutors ? (
-                            <TableRow><TableCell colSpan={3} className="text-center"><Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" /></TableCell></TableRow>
-                        ) : assignedTutorsError ? (
-                            <TableRow><TableCell colSpan={3} className="text-center text-destructive">Failed to load assigned tutors.</TableCell></TableRow>
-                        ) : assignedTutors.length === 0 ? (
-                            <TableRow><TableCell colSpan={3} className="text-center">No tutors have been assigned to this enquiry yet.</TableCell></TableRow>
-                        ) : (
-                             assignedTutors.map(tutor => (
-                                 <TableRow key={tutor.id}>
-                                    <TableCell>
-                                        <div>
-                                            <div className="font-medium text-foreground">{tutor.displayName}</div>
-                                            <div className="text-xs text-muted-foreground">{tutor.email}</div>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge>Assigned</Badge> 
-                                    </TableCell>
-                                    <TableCell>
-                                        <Button variant="outline" size="sm">Update Status</Button>
-                                    </TableCell>
-                                 </TableRow>
-                             ))
-                        )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+        <TabsContent value="applied">
+          {renderTutorTable(appliedTutors, isLoadingAllTutors, allTutorsError)}
+        </TabsContent>
+        <TabsContent value="shortlisted">
+          {renderTutorTable([], isLoadingAllTutors, allTutorsError)}
+        </TabsContent>
+        <TabsContent value="assigned">
+          {renderTutorTable(assignedTutors, isLoadingAssignedTutors, assignedTutorsError)}
         </TabsContent>
       </Tabs>
 
@@ -547,7 +527,5 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
-
-    
 
     
