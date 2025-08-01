@@ -99,7 +99,6 @@ function AssignTutorsContent() {
   const { token } = useAuthMock();
   const { toast } = useToast();
   
-  const [selectedTutorIds, setSelectedTutorIds] = useState<string[]>([]);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
@@ -201,40 +200,6 @@ function AssignTutorsContent() {
     if (!filters.city || !allTutors) return [];
     return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
   }, [allTutors, filters.city]);
-  
-  const handleAssignTutors = () => {
-    if (selectedTutorIds.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "No Tutors Selected",
-        description: "Please select at least one tutor to assign.",
-      });
-      return;
-    }
-    console.log(`Assigning tutors ${selectedTutorIds.join(", ")} to enquiry ${enquiryId}`);
-    toast({
-      title: "Tutors Assigned (Mock)",
-      description: `${selectedTutorIds.length} tutor(s) have been notified about this enquiry.`,
-    });
-    setSelectedTutorIds([]);
-  };
-
-  const isAllSelected = allTutors.length > 0 && selectedTutorIds.length === allTutors.length;
-  const handleSelectAll = () => {
-    if (isAllSelected) {
-      setSelectedTutorIds([]);
-    } else {
-      setSelectedTutorIds(allTutors.map(t => t.id));
-    }
-  };
-
-  const handleSelectTutor = (tutorId: string) => {
-    setSelectedTutorIds(prev =>
-      prev.includes(tutorId)
-        ? prev.filter(id => id !== tutorId)
-        : [...prev, tutorId]
-    );
-  };
   
   if (!enquiry) {
     return <Loader2 className="h-8 w-8 animate-spin text-primary" />;
@@ -367,13 +332,6 @@ function AssignTutorsContent() {
            <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">
-                   <Checkbox
-                    checked={isAllSelected}
-                    onCheckedChange={handleSelectAll}
-                    aria-label="Select all tutors"
-                  />
-                </TableHead>
                 <TableHead>Tutor Details</TableHead>
                 <TableHead>Experience & Rate</TableHead>
                 <TableHead>Subjects</TableHead>
@@ -388,7 +346,6 @@ function AssignTutorsContent() {
               {isLoadingTutors ? (
                 [...Array(5)].map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-5 w-5 rounded-sm" /></TableCell>
                     <TableCell><Skeleton className="h-10 w-48" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
@@ -400,19 +357,12 @@ function AssignTutorsContent() {
                   </TableRow>
                 ))
               ) : tutorsError ? (
-                 <TableRow><TableCell colSpan={9} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={8} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
               ) : allTutors.length === 0 ? (
-                 <TableRow><TableCell colSpan={9} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
+                 <TableRow><TableCell colSpan={8} className="text-center">No tutors found for these criteria.</TableCell></TableRow>
               ) : (
                 allTutors.map(tutor => (
-                  <TableRow key={tutor.id} data-state={selectedTutorIds.includes(tutor.id) && "selected"}>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedTutorIds.includes(tutor.id)}
-                        onCheckedChange={() => handleSelectTutor(tutor.id)}
-                        aria-label={`Select tutor ${tutor.displayName}`}
-                      />
-                    </TableCell>
+                  <TableRow key={tutor.id}>
                     <TableCell>
                       <div>
                         <div className="font-medium text-foreground">{tutor.displayName}</div>
@@ -487,11 +437,6 @@ function AssignTutorsContent() {
            </Table>
           </TooltipProvider>
         </CardContent>
-        <CardFooter className="p-4 border-t">
-          <Button onClick={handleAssignTutors} disabled={selectedTutorIds.length === 0}>
-              Assign ({selectedTutorIds.length}) Selected Tutors
-            </Button>
-        </CardFooter>
       </Card>
        {selectedTutor && (
           <TutorProfileModal
@@ -511,3 +456,4 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
+ 
