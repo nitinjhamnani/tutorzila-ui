@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from 'date-fns';
-import Link from 'next/link';
+import Link from 'link';
 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
@@ -327,17 +327,15 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
-  
   const [appliedFilters, setAppliedFilters] = useState<any>({});
-
+  const [filters, setFilters] = useState<any>({});
+  
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
-  
-  const [filters, setFilters] = useState<any>({});
   
   useEffect(() => {
     if (enquiry) {
@@ -355,24 +353,22 @@ function ManageEnquiryContent() {
       setAppliedFilters(initialFilters);
     }
   }, [enquiry]);
-
-  const tutorSearchParams = useMemo(() => {
-    const params = new URLSearchParams();
-    if (appliedFilters) {
-        if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-        if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
-        if (appliedFilters.board) params.append('boards', appliedFilters.board);
-        if (appliedFilters.isOnline) params.append('isOnline', 'true');
-        if (appliedFilters.isOffline) params.append('isOffline', 'true');
-        if (appliedFilters.city) params.append('location', appliedFilters.city);
-        if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-    }
-    return params;
-  }, [appliedFilters]);
-
+  
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
-    queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
+    queryKey: ['assignableTutors', enquiryId, appliedFilters],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (appliedFilters) {
+          if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+          if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
+          if (appliedFilters.board) params.append('boards', appliedFilters.board);
+          if (appliedFilters.isOnline) params.append('isOnline', 'true');
+          if (appliedFilters.isOffline) params.append('isOffline', 'true');
+          if (appliedFilters.city) params.append('location', appliedFilters.city);
+          if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+      }
+      return fetchAssignableTutors(token, params);
+    },
     enabled: !!token && !!enquiry && Object.keys(appliedFilters).length > 0,
     refetchOnWindowFocus: false,
   });
