@@ -30,6 +30,8 @@ export interface LocationDetails {
 export interface TuitionRequirement {
   id:string;
   parentName?: string;
+  parentEmail?: string;
+  parentPhone?: string;
   studentName?: string;
   subject: string[];
   gradeLevel: string;
@@ -247,3 +249,5 @@ export interface AdminDashboardData {
     totalEnquiries: number;
     noOfDemos: number;
 }
+
+    

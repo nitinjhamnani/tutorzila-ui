@@ -86,6 +86,7 @@ import {
   Info,
   MapPinned,
   CalendarDays,
+  User,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -130,6 +131,8 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   return {
     id: data.enquirySummary.enquiryId,
     parentName: data.name || "A Parent", 
+    parentEmail: data.email,
+    parentPhone: data.phone,
     studentName: data.studentName,
     subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
     gradeLevel: data.enquirySummary.grade,
@@ -304,6 +307,7 @@ function ManageEnquiryContent() {
   const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false);
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
   
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -561,6 +565,7 @@ function ManageEnquiryContent() {
             </div>
           </CardHeader>
           <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
+             <Button variant="outline" size="sm" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent Info</Button>
              <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
              <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
              <Button variant="outline" size="sm" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
@@ -679,6 +684,58 @@ function ManageEnquiryContent() {
               </DialogContent>
             </Dialog>
         )}
+        {enquiry && (
+           <Dialog open={isParentInfoModalOpen} onOpenChange={setIsParentInfoModalOpen}>
+            <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Parent Information</DialogTitle>
+                <DialogDescription>
+                    Contact details for the parent who posted this enquiry.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+                <div className="flex items-center gap-4">
+                    <div className="p-2 bg-muted rounded-full">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <div>
+                        <Label className="text-xs text-muted-foreground">Name</Label>
+                        <p className="font-medium text-foreground">{enquiry.parentName}</p>
+                    </div>
+                </div>
+                {enquiry.parentEmail && (
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-muted rounded-full">
+                            <Mail className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                            <Label className="text-xs text-muted-foreground">Email</Label>
+                            <p className="font-medium text-foreground">{enquiry.parentEmail}</p>
+                        </div>
+                    </div>
+                )}
+                {enquiry.parentPhone && (
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-muted rounded-full">
+                            <Phone className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                            <Label className="text-xs text-muted-foreground">Phone</Label>
+                            <p className="font-medium text-foreground">{enquiry.parentPhone}</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                <Button type="button" variant="outline">
+                    Close
+                </Button>
+                </DialogClose>
+            </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        )}
     </div>
   );
 }
@@ -691,5 +748,7 @@ export default function ManageEnquiryPage() {
     )
 }
 
+
+    
 
     
