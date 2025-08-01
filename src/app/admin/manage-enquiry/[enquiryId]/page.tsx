@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
@@ -355,24 +356,24 @@ function ManageEnquiryContent() {
       setIsInitialFilterReady(true);
     }
   }, [enquiry, isInitialFilterReady]);
-  
-  const tutorSearchParams = useMemo(() => {
-    const params = new URLSearchParams();
-    if (appliedFilters) {
-        if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-        if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
-        if (appliedFilters.board) params.append('boards', appliedFilters.board);
-        if (appliedFilters.isOnline) params.append('isOnline', 'true');
-        if (appliedFilters.isOffline) params.append('isOffline', 'true');
-        if (appliedFilters.city) params.append('location', appliedFilters.city);
-        if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-    }
-    return params;
-  }, [appliedFilters]);
+
+  const tutorFilterKey = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
 
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
-    queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
+    queryKey: ['assignableTutors', enquiryId, tutorFilterKey],
+    queryFn: () => {
+        const params = new URLSearchParams();
+        if (appliedFilters) {
+            if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+            if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
+            if (appliedFilters.board) params.append('boards', appliedFilters.board);
+            if (appliedFilters.isOnline) params.append('isOnline', 'true');
+            if (appliedFilters.isOffline) params.append('isOffline', 'true');
+            if (appliedFilters.city) params.append('location', appliedFilters.city);
+            if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+        }
+        return fetchAssignableTutors(token, params);
+    },
     enabled: !!token && !!enquiry && isInitialFilterReady,
     refetchOnWindowFocus: false,
   });
