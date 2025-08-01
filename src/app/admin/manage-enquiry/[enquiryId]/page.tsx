@@ -1,12 +1,15 @@
+
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { format } from 'date-fns';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { format, parseISO } from 'date-fns';
+import Link from 'next/link';
+
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
-import type { ApiTutor, TuitionRequirement } from "@/types";
+import type { ApiTutor, TuitionRequirement, LocationDetails } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
@@ -30,14 +33,26 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogDescription as DialogDesc,
   DialogFooter,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import { AdminEnquiryModal, type AdminEnquiryEditFormValues } from "@/components/admin/modals/AdminEnquiryModal";
 
 import {
   Users,
@@ -61,11 +76,14 @@ import {
   Phone,
   Star,
   Bookmark,
+  Clock,
+  Edit3,
+  Save,
+  ClipboardEdit,
+  Loader2,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
-import { Loader2 } from "lucide-react";
-
 
 const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
@@ -76,6 +94,134 @@ const gradeLevelsList = [
     "Grade 11", "Grade 12",
     "College Level", "Adult Learner", "Other"
 ];
+
+const closeReasons = [
+    { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
+    { id: 'found-elsewhere', label: "Found a tutor elsewhere" },
+    { id: 'no-longer-needed', label: "Don't need a tutor anymore" },
+    { id: 'other', label: "Other" }
+];
+
+
+const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/details/${enquiryId}`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("Enquiry not found or you do not have permission to view it.");
+    }
+    throw new Error("Failed to fetch enquiry details.");
+  }
+
+  const data = await response.json();
+
+  return {
+    id: data.enquirySummary.enquiryId,
+    parentName: data.name || "A Parent", 
+    studentName: data.studentName,
+    subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+    gradeLevel: data.enquirySummary.grade,
+    board: data.enquirySummary.board,
+    location: {
+        name: data.addressName || data.address || "",
+        address: data.address,
+        googleMapsUrl: data.googleMapsLink,
+        city: data.enquirySummary.city,
+        state: data.enquirySummary.state,
+        country: data.enquirySummary.country,
+        area: data.enquirySummary.area,
+        pincode: data.pincode,
+    },
+    teachingMode: [
+      ...(data.enquirySummary.online ? ["Online"] : []),
+      ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
+    ],
+    scheduleDetails: data.notes, 
+    additionalNotes: data.notes,
+    preferredDays: typeof data.availabilityDays === 'string' ? data.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+    preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+    status: data.status?.toLowerCase() || 'open',
+    postedAt: data.enquirySummary.createdOn,
+    applicantsCount: data.enquirySummary.assignedTutors,
+  };
+};
+
+const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: AdminEnquiryEditFormValues }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  
+  const locationDetails = formData.location;
+  const requestBody = {
+    studentName: formData.studentName,
+    subjects: formData.subject,
+    grade: formData.gradeLevel,
+    board: formData.board,
+    addressName: locationDetails?.name || locationDetails?.address || "",
+    address: locationDetails?.address || "",
+    city: locationDetails?.city || "",
+    state: locationDetails?.state || "",
+    country: locationDetails?.country || "",
+    area: locationDetails?.area || "",
+    pincode: locationDetails?.pincode || "",
+    googleMapsLink: locationDetails?.googleMapsUrl || "",
+    availabilityDays: formData.preferredDays,
+    availabilityTime: formData.preferredTimeSlots,
+    online: formData.teachingMode.includes("Online"),
+    offline: formData.teachingMode.includes("Offline (In-person)"),
+  };
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/update`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) { throw new Error("Failed to update enquiry."); }
+  return response.json();
+};
+
+const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, token: string | null, reason: string }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+  if (!reason) throw new Error("A reason for closing is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/close`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) { throw new Error("Failed to close enquiry."); }
+  return true;
+};
+
+const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string, token: string | null, note: string }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+  if (!note) throw new Error("Note content cannot be empty.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/notes`, {
+    method: 'PUT', 
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' },
+    body: JSON.stringify({ message: note }),
+  });
+
+  if (!response.ok) { throw new Error("Failed to add note to the enquiry."); }
+  return response.json();
+};
 
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
@@ -92,100 +238,107 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
   }));
 };
 
-// Mock fetch for assigned tutors
 const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
     if (!token) throw new Error("Authentication token not found.");
     console.log(`Fetching assigned tutors for enquiry: ${enquiryId}`);
-    // In a real app, this would be a different endpoint.
-    // For now, let's just return a subset of the assignable tutors as a mock.
     const allTutors = await fetchAssignableTutors(token, new URLSearchParams());
-    return allTutors.slice(0, 2); // Mock: return first 2 tutors as "assigned"
+    return allTutors.slice(0, 2); 
 };
 
-
-const getInitials = (name: string): string => {
-    if (!name) return "?";
-    const parts = name.split(" ");
-    return parts.length > 1
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-      : parts[0].slice(0, 2);
-};
 
 function ManageEnquiryContent() {
   const params = useParams();
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const enquiryId = params.enquiryId as string;
   const { token } = useAuthMock();
   const { toast } = useToast();
-  
+  const queryClient = useQueryClient();
+
+  // State for modals and UI
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("recommended");
-
-  const enquiry = useMemo(() => {
-    if (!searchParams) return null;
-    return {
-        id: enquiryId,
-        subject: searchParams.get('subjects')?.split(',') || [],
-        gradeLevel: searchParams.get('grade') || '',
-        board: searchParams.get('board') || '',
-        teachingMode: searchParams.get('mode')?.split(',') || [],
-        location: { address: searchParams.get('location') || "" },
-        parentName: '',
-        studentName: '',
-        status: 'open' as const,
-        postedAt: new Date().toISOString(),
-        scheduleDetails: ''
-    };
-  }, [searchParams, enquiryId]);
+  const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
+  const [closeReason, setCloseReason] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddNotesModalOpen, setIsAddNotesModalOpen] = useState(false);
+  const [notes, setNotes] = useState("");
   
+  const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
+    queryKey: ['adminEnquiryDetails', enquiryId],
+    queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
+    enabled: !!enquiryId && !!token,
+    refetchOnWindowFocus: false,
+  });
+
   const getInitialFilters = useCallback(() => ({
     subjects: enquiry?.subject || [],
     grade: enquiry?.gradeLevel || '',
     board: enquiry?.board || '',
     isOnline: enquiry?.teachingMode?.includes("Online") || false,
     isOffline: enquiry?.teachingMode?.includes("Offline (In-person)") || false,
-    city: "",
-    area: "",
+    city: enquiry?.location?.city || "",
+    area: enquiry?.location?.area || "",
   }), [enquiry]);
 
   const [filters, setFilters] = useState(getInitialFilters);
   const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
+  
+  useEffect(() => {
+    if(enquiry){
+      setFilters(getInitialFilters());
+      setAppliedFilters(getInitialFilters());
+    }
+  }, [enquiry, getInitialFilters]);
+  
+  const updateMutation = useMutation({
+    mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
+    onSuccess: () => {
+      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+      setIsEditModalOpen(false);
+    },
+    onError: (error) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
+  });
 
+  const closeEnquiryMutation = useMutation({
+    mutationFn: (reason: string) => closeEnquiry({ enquiryId, token, reason }),
+    onSuccess: () => {
+      toast({ title: "Enquiry Closed", description: `The requirement has been successfully closed.` });
+      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+      setIsCloseEnquiryModalOpen(false);
+    },
+    onError: (error) => toast({ variant: "destructive", title: "Failed to Close Enquiry", description: error.message }),
+  });
+
+  const addNoteMutation = useMutation({
+    mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
+    onSuccess: () => {
+      toast({ title: "Note Saved!", description: "The additional notes have been updated." });
+      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+      setIsAddNotesModalOpen(false);
+      setNotes("");
+    },
+    onError: (error) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
+  });
+  
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setIsFilterModalOpen(false);
   };
   
   const handleClearFilters = () => {
-    const clearedFilters = {
-      subjects: [],
-      grade: '',
-      board: '',
-      isOnline: false,
-      isOffline: false,
-      city: "",
-      area: "",
-    };
+    const clearedFilters = { subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
     setFilters(clearedFilters);
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
   };
-
-
-  const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
-      setFilters(prev => ({ ...prev, [key]: value }));
-  };
   
-  const handleCityChange = (city: string) => {
-    setFilters(prev => ({ ...prev, city: city === 'all-cities' ? '' : city, area: '' }));
-  };
-
-  const handleAreaChange = (area: string) => {
-      setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
-  };
+  const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => setFilters(prev => ({ ...prev, [key]: value }));
+  const handleCityChange = (city: string) => setFilters(prev => ({ ...prev, city: city === 'all-cities' ? '' : city, area: '' }));
+  const handleAreaChange = (area: string) => setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
 
   const handleViewProfile = (tutor: ApiTutor) => {
     setSelectedTutor(tutor);
@@ -197,6 +350,31 @@ function ManageEnquiryContent() {
     setIsContactModalOpen(true);
   }
 
+  const handleOpenCloseEnquiryModal = () => {
+    setCloseReason(null);
+    setIsCloseEnquiryModalOpen(true);
+  };
+  
+  const handleOpenNotesModal = () => {
+    setNotes(enquiry?.additionalNotes || "");
+    setIsAddNotesModalOpen(true);
+  };
+
+  const handleCloseEnquiryDialogAction = () => {
+    if (!closeReason) {
+      toast({ variant: "destructive", title: "Reason Required", description: "Please select a reason for closing the enquiry." });
+      return;
+    }
+    closeEnquiryMutation.mutate(closeReason);
+  };
+
+  const handleSaveNotes = () => {
+    if (!notes.trim()) {
+      toast({ variant: "destructive", title: "Note is empty", description: "Please enter a note to save." });
+      return;
+    }
+    addNoteMutation.mutate(notes);
+  };
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -224,23 +402,22 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
 
-  const uniqueCities = useMemo(() => {
-    if (!allTutors) return [];
-    return Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort();
-  }, [allTutors]);
-
+  const uniqueCities = useMemo(() => Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutors]);
   const uniqueAreasInCity = useMemo(() => {
     if (!filters.city || !allTutors) return [];
     return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
   }, [allTutors, filters.city]);
   
-  if (!enquiry) {
-    return <Loader2 className="h-8 w-8 animate-spin text-primary" />;
+  const recommendedTutors = useMemo(() => allTutors.slice(0, 5), [allTutors]);
+  const appliedTutors = useMemo(() => allTutors.slice(5, 8), [allTutors]);
+
+  if (isLoadingEnquiry) {
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
-  // Placeholder logic for tab content
-  const recommendedTutors = allTutors.slice(0, 5); // Mock
-  const appliedTutors = allTutors.slice(5, 8); // Mock
+  if (enquiryError) {
+      return <div className="text-center py-10 text-destructive">Error loading enquiry details: {enquiryError.message}</div>
+  }
 
   const renderTutorTable = (tutors: ApiTutor[], isLoading: boolean, error: Error | null) => (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
@@ -251,8 +428,6 @@ function ManageEnquiryContent() {
               <TableRow>
                 <TableHead>Tutor</TableHead>
                 <TableHead>Subjects</TableHead>
-                <TableHead>Grade</TableHead>
-                <TableHead>Board</TableHead>
                 <TableHead>Mode</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -264,17 +439,15 @@ function ManageEnquiryContent() {
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-10 w-48" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                     <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
                   </TableRow>
                 ))
               ) : error ? (
-                <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
               ) : tutors.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center">No tutors found for this category.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>
               ) : (
                 tutors.map(tutor => (
                   <TableRow key={tutor.id}>
@@ -285,72 +458,22 @@ function ManageEnquiryContent() {
                       </div>
                     </TableCell>
                     <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
-                    <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
-                    <TableCell className="text-xs">{tutor.boardsList.join(', ')}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {tutor.online && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="p-1.5 bg-primary/10 rounded-full">
-                                <RadioTower className="w-4 h-4 text-primary" />
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Available for Online</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                        {tutor.offline && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="p-1.5 bg-primary/10 rounded-full">
-                                <Users className="w-4 h-4 text-primary" />
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Available for Offline</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                        {tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}
+                        {tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Tooltip>
-                          <TooltipTrigger>
-                            {tutor.isActive ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <XCircle className="h-4 w-4 text-red-500" />
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{tutor.isActive ? "Active" : "Inactive"}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            {tutor.isVerified ? (
-                              <ShieldCheck className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <ShieldAlert className="h-4 w-4 text-yellow-500" />
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{tutor.isVerified ? "Verified" : "Not Verified"}</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        <Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip>
+                        <Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}>
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}>
-                          <Phone className="w-4 h-4" />
-                        </Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}><Eye className="w-4 h-4" /></Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -365,170 +488,104 @@ function ManageEnquiryContent() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
-        <CardHeader className="p-0">
-            <>
-              <CardTitle className="text-xl font-semibold text-primary flex items-center">
-                <Briefcase className="w-5 h-5 mr-2.5" />
-                Assign Tutors for Enquiry
-              </CardTitle>
-              <CardDescription className="text-sm text-foreground/70 mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
-                <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-primary/80"/><strong>Subject:</strong> {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
-                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/><strong>Grade:</strong> {enquiry.gradeLevel}</span>
-                <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/><strong>Board:</strong> {enquiry.board}</span>
-                <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/><strong>Mode:</strong> {enquiry.teachingMode.join(', ')}</span>
-                 {enquiry.location?.address && <span className="flex items-center gap-1.5 col-span-2"><MapPin className="w-3.5 h-3.5 text-primary/80"/><strong>Location:</strong> {enquiry.location.address}</span>}
-              </CardDescription>
-            </>
+      {enquiry && (
+        <Card className="bg-card rounded-xl shadow-lg border-0">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
+              Enquiry Details
+               <Badge variant="default" className="text-xs">
+                    {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
+              </Badge>
+            </CardTitle>
+            <CardDescription className="text-sm text-foreground/70">
+              Summary for: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div><span className="font-semibold">Student:</span> {enquiry.studentName}</div>
+              <div><span className="font-semibold">Grade:</span> {enquiry.gradeLevel}</div>
+              <div><span className="font-semibold">Board:</span> {enquiry.board}</div>
+              <div><span className="font-semibold">Posted:</span> {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}</div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-wrap justify-end gap-2">
+             <Button asChild variant="default" size="sm"><Link href={`/admin/enquiries/${enquiry.id}`}><Eye className="mr-1.5 h-3.5 w-3.5" />View Full Details</Link></Button>
+             <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
+             <Button variant="outline" size="sm" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
+             <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}><XCircle className="mr-1.5 h-3.5 w-3.5" /> Close</Button>
+          </CardFooter>
+        </Card>
+      )}
+
+      <Card className="bg-card rounded-xl shadow-lg border-0">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-primary">Tutor List</CardTitle>
         </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+                <ScrollArea className="w-full sm:w-auto">
+                    <TabsList className="bg-transparent p-0 gap-2">
+                        <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors.length})</TabsTrigger>
+                        <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors.length})</TabsTrigger>
+                        <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted (0)</TabsTrigger>
+                        <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutors.length})</TabsTrigger>
+                    </TabsList>
+                    <ScrollBar orientation="horizontal" className="p-0" />
+                </ScrollArea>
+                <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+                      <DialogTrigger asChild><Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0"><ListFilter className="w-4 h-4 mr-2"/>Filter Tutors</Button></DialogTrigger>
+                      <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><DialogDesc>Refine the list of tutors based on specific criteria.</DialogDesc></DialogHeader>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                          <div className="space-y-2 md:col-span-2"><Label htmlFor="subjects-filter-modal">Subjects</Label><MultiSelectCommand options={allSubjectsList} selectedValues={filters.subjects} onValueChange={(value) => handleFilterChange('subjects', value)} placeholder="Select subjects..." className="w-full"/></div>
+                          <div className="space-y-2"><Label htmlFor="grade-filter-modal">Grade</Label><Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}><SelectTrigger id="grade-filter-modal"><SelectValue placeholder="Select Grade" /></SelectTrigger><SelectContent>{gradeLevelsList.map(grade => (<SelectItem key={grade} value={grade}>{grade}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="space-y-2"><Label htmlFor="board-filter-modal">Board</Label><Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}><SelectTrigger id="board-filter-modal"><SelectValue placeholder="Select Board" /></SelectTrigger><SelectContent>{boardsList.map(board => (<SelectItem key={board} value={board}>{board}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="space-y-2"><Label htmlFor="city-filter-modal">City</Label><Select onValueChange={handleCityChange} value={filters.city}><SelectTrigger id="city-filter-modal"><SelectValue placeholder="Select City" /></SelectTrigger><SelectContent><SelectItem value="all-cities">All Cities</SelectItem>{uniqueCities.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="space-y-2"><Label htmlFor="area-filter-modal">Area</Label><Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}><SelectTrigger id="area-filter-modal"><SelectValue placeholder="Select Area" /></SelectTrigger><SelectContent><SelectItem value="all-areas">All Areas</SelectItem>{uniqueAreasInCity.map(loc => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}</SelectContent></Select></div>
+                          <div className="flex items-center space-x-4 pt-5 md:col-span-2"><div className="flex items-center space-x-2"><Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} /><Label htmlFor="online-filter-modal" className="font-medium">Online</Label></div><div className="flex items-center space-x-2"><Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} /><Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label></div></div>
+                        </div>
+                        <DialogFooter className="gap-2 sm:justify-between"><Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button><Button type="button" onClick={handleApplyFilters}>Apply Filters</Button></DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+            </div>
+
+            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
+            <TabsContent value="applied">{renderTutorTable(appliedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
+            <TabsContent value="shortlisted">{renderTutorTable([], isLoadingAllTutors, allTutorsError)}</TabsContent>
+            <TabsContent value="assigned">{renderTutorTable(assignedTutors, isLoadingAssignedTutors, assignedTutorsError)}</TabsContent>
+          </Tabs>
+        </CardContent>
       </Card>
-      
-      <Tabs defaultValue="recommended" className="w-full" onValueChange={setActiveTab}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-            <ScrollArea className="w-full sm:w-auto">
-                <TabsList className="bg-transparent p-0 gap-2">
-                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors.length})</TabsTrigger>
-                    <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors.length})</TabsTrigger>
-                    <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted (0)</TabsTrigger>
-                    <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutors.length})</TabsTrigger>
-                </TabsList>
-                <ScrollBar orientation="horizontal" className="p-0" />
-            </ScrollArea>
-            <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0">
-                      <ListFilter className="w-4 h-4 mr-2"/>
-                      Filter Tutors
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-card sm:max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Filter Tutors</DialogTitle>
-                      <DialogDescription>
-                        Refine the list of tutors based on specific criteria.
-                      </DialogDescription>
-                    </DialogHeader>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="subjects-filter-modal">Subjects</Label>
-                             <MultiSelectCommand
-                                options={allSubjectsList}
-                                selectedValues={filters.subjects}
-                                onValueChange={(value) => handleFilterChange('subjects', value)}
-                                placeholder="Select subjects..."
-                                className="w-full"
-                             />
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="grade-filter-modal">Grade</Label>
-                            <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
-                                 <SelectTrigger id="grade-filter-modal">
-                                    <SelectValue placeholder="Select Grade" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {gradeLevelsList.map(grade => (
-                                        <SelectItem key={grade} value={grade}>{grade}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="board-filter-modal">Board</Label>
-                             <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
-                                <SelectTrigger id="board-filter-modal">
-                                    <SelectValue placeholder="Select Board" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {boardsList.map(board => (
-                                        <SelectItem key={board} value={board}>{board}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="city-filter-modal">City</Label>
-                            <Select onValueChange={handleCityChange} value={filters.city}>
-                                <SelectTrigger id="city-filter-modal">
-                                    <SelectValue placeholder="Select City" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="all-cities">All Cities</SelectItem>
-                                    {uniqueCities.map(loc => (
-                                        <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="area-filter-modal">Area</Label>
-                            <Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}>
-                                <SelectTrigger id="area-filter-modal">
-                                    <SelectValue placeholder="Select Area" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="all-areas">All Areas</SelectItem>
-                                    {uniqueAreasInCity.map(loc => (
-                                        <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="flex items-center space-x-4 pt-5 md:col-span-2">
-                             <div className="flex items-center space-x-2">
-                                <Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
-                                <Label htmlFor="online-filter-modal" className="font-medium">Online</Label>
-                            </div>
-                             <div className="flex items-center space-x-2">
-                                <Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
-                                <Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label>
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter className="gap-2 sm:justify-between">
-                        <Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
-                        <Button type="button" onClick={handleApplyFilters}>Apply Filters</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-        </div>
 
-        <TabsContent value="recommended">
-          {renderTutorTable(recommendedTutors, isLoadingAllTutors, allTutorsError)}
-        </TabsContent>
-        <TabsContent value="applied">
-          {renderTutorTable(appliedTutors, isLoadingAllTutors, allTutorsError)}
-        </TabsContent>
-        <TabsContent value="shortlisted">
-          {renderTutorTable([], isLoadingAllTutors, allTutorsError)}
-        </TabsContent>
-        <TabsContent value="assigned">
-          {renderTutorTable(assignedTutors, isLoadingAssignedTutors, assignedTutorsError)}
-        </TabsContent>
-      </Tabs>
 
-       {selectedTutor && (
-          <TutorProfileModal
-            isOpen={isProfileModalOpen}
-            onOpenChange={setIsProfileModalOpen}
-            tutor={selectedTutor}
-            sourceTab={activeTab}
-          />
+       {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} sourceTab={activeTab} />}
+       {selectedTutor && <TutorContactModal isOpen={isContactModalOpen} onOpenChange={setIsContactModalOpen} tutor={selectedTutor} />}
+        {enquiry && (
+            <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
-        {selectedTutor && (
-            <TutorContactModal
-                isOpen={isContactModalOpen}
-                onOpenChange={setIsContactModalOpen}
-                tutor={selectedTutor}
-            />
-        )}
+        <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
+            <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Add Additional Notes</DialogTitle><DialogDesc>These notes will be visible to tutors viewing the enquiry details.</DialogDesc></DialogHeader>
+            <div className="py-4"><Textarea placeholder="e.g., Student requires special attention..." value={notes} onChange={(e) => setNotes(e.target.value)} className="min-h-[120px]" disabled={addNoteMutation.isPending}/></div>
+            <DialogFooter><DialogClose asChild><Button type="button" variant="outline" disabled={addNoteMutation.isPending}>Cancel</Button></DialogClose><Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>{addNoteMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : <><Save className="mr-2 h-4 w-4" />Save Note</>}</Button></DialogFooter>
+            </DialogContent>
+        </Dialog>
+        <AlertDialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
+            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure you want to close this enquiry?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDescription></AlertDialogHeader>
+            <div className="py-4 space-y-4"><RadioGroup onValueChange={setCloseReason} value={closeReason || ""} className="flex flex-col space-y-2">{closeReasons.map((reason) => (<div key={reason.id} className="flex items-center space-x-3"><RadioGroupItem value={reason.id} id={`admin-close-${reason.id}`} /><Label htmlFor={`admin-close-${reason.id}`} className="font-normal text-sm">{reason.label}</Label></div>))}</RadioGroup></div>
+            <AlertDialogFooter><AlertDialogCancel disabled={closeEnquiryMutation.isPending}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleCloseEnquiryDialogAction} disabled={!closeReason || closeEnquiryMutation.isPending}>{closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirm & Close</AlertDialogAction></AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
   );
 }
 
 export default function ManageEnquiryPage() {
     return (
-        <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin text-primary" />}>
+        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
             <ManageEnquiryContent />
         </Suspense>
     )
 }
+
+    
