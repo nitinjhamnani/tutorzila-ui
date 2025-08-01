@@ -323,10 +323,8 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
-
-  // State for filters
-  const [filters, setFilters] = useState<{ subjects: string[]; grade: string; board: string; isOnline: boolean; isOffline: boolean; city: string; area: string; } | null>(null);
-  const [appliedFilters, setAppliedFilters] = useState<{ subjects: string[]; grade: string; board: string; isOnline: boolean; isOffline: boolean; city: string; area: string; } | null>(null);
+  
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   // Fetch enquiry details first
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
@@ -335,10 +333,11 @@ function ManageEnquiryContent() {
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
-
-  // Effect to set initial filters once enquiry data is loaded
+  
+  const [filters, setFilters] = useState<any>({});
+  
   useEffect(() => {
-    if (enquiry && !filters) { // Only set once
+    if (enquiry) {
       const initialFilters = {
         subjects: enquiry.subject || [],
         grade: enquiry.gradeLevel || '',
@@ -349,9 +348,12 @@ function ManageEnquiryContent() {
         area: typeof enquiry.location === 'object' && enquiry.location ? enquiry.location.area || "" : "",
       };
       setFilters(initialFilters);
-      setAppliedFilters(initialFilters);
+      if(!appliedFilters) {
+        setAppliedFilters(initialFilters);
+      }
     }
-  }, [enquiry, filters]);
+  }, [enquiry, appliedFilters]);
+
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -428,17 +430,17 @@ function ManageEnquiryContent() {
   
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
       if (filters) {
-        setFilters(prev => ({ ...prev!, [key]: value }));
+        setFilters((prev:any) => ({ ...prev!, [key]: value }));
       }
   };
   const handleCityChange = (city: string) => {
       if (filters) {
-        setFilters(prev => ({ ...prev!, city: city === 'all-cities' ? '' : city, area: '' }));
+        setFilters((prev:any) => ({ ...prev!, city: city === 'all-cities' ? '' : city, area: '' }));
       }
   };
   const handleAreaChange = (area: string) => {
       if (filters) {
-        setFilters(prev => ({ ...prev!, area: area === 'all-areas' ? '' : area }));
+        setFilters((prev:any) => ({ ...prev!, area: area === 'all-areas' ? '' : area }));
       }
   };
 
@@ -488,7 +490,7 @@ function ManageEnquiryContent() {
   const appliedTutors = useMemo(() => allTutorsData.slice(5, 8) as unknown as ApiTutor[], [allTutorsData]);
   const shortlistedTutors = useMemo(() => allTutorsData.slice(2, 4) as unknown as ApiTutor[], [allTutorsData]);
   
-  if (isLoadingEnquiry || !filters) {
+  if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
@@ -589,23 +591,25 @@ function ManageEnquiryContent() {
                   <Clock className="w-3.5 h-3.5" /> 
                   Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
               </CardDescription>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2">
-                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
-                <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
-                <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
-              </div>
-               {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
-                        <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
-                        {locationInfo.googleMapsUrl ? (
-                            <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
-                                {locationInfo.address}
-                            </a>
-                        ) : (
-                            <span className="line-clamp-1">{locationInfo.address}</span>
-                        )}
+               <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                        <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
+                        <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
+                        <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
                     </div>
-                )}
+                    {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo && (
+                        <div className="flex items-center gap-1.5 pt-1">
+                            <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
+                            {locationInfo.googleMapsUrl ? (
+                                <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
+                                    {locationInfo.address}
+                                </a>
+                            ) : (
+                                <span className="line-clamp-1">{locationInfo.address}</span>
+                            )}
+                        </div>
+                    )}
+                </div>
           </div>
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
