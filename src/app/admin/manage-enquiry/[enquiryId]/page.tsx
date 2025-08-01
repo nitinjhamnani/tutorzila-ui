@@ -313,7 +313,8 @@ function ManageEnquiryContent() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [statusRemark, setStatusRemark] = useState("");
-  const [isSearchingForTutors, setIsSearchingForTutors] = useState(false);
+  const [isTutorQueryEnabled, setIsTutorQueryEnabled] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -322,26 +323,50 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
 
-  const tutorSearchParams = useMemo(() => {
-    if (!enquiry) return new URLSearchParams();
-    const params = new URLSearchParams();
-    const location = (typeof enquiry.location === 'object' && enquiry.location) ? enquiry.location : null;
-    if (enquiry.subject?.length > 0) params.append('subjects', enquiry.subject.join(','));
-    if (enquiry.gradeLevel) params.append('grades', enquiry.gradeLevel);
-    if (enquiry.board) params.append('boards', enquiry.board);
-    if (enquiry.teachingMode?.includes("Online")) params.append('isOnline', 'true');
-    if (enquiry.teachingMode?.includes("Offline (In-person)")) params.append('isOffline', 'true');
-    if (location?.city) params.append('location', location.city);
-    if (location?.area) params.append('location', `${location.area}, ${location.city}`);
-    return params;
+  const getInitialFilters = useCallback(() => {
+    if (!enquiry) return {};
+    const location = (typeof enquiry.location === 'object' && enquiry.location) ? enquiry.location : { city: "", area: "" };
+    return {
+      subjects: enquiry.subject || [],
+      grade: enquiry.gradeLevel || '',
+      board: enquiry.board || '',
+      isOnline: enquiry.teachingMode?.includes("Online") || false,
+      isOffline: enquiry.teachingMode?.includes("Offline (In-person)") || false,
+      city: location.city || "",
+      area: location.area || "",
+    };
   }, [enquiry]);
 
-  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
-    queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
-    enabled: isSearchingForTutors, // Only runs when isSearchingForTutors is true
+  const [filters, setFilters] = useState(getInitialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
+
+  useEffect(() => {
+      const initial = getInitialFilters();
+      setFilters(initial);
+      setAppliedFilters(initial);
+  }, [getInitialFilters]);
+  
+  const stringifiedFilters = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
+
+  const allTutorsQuery = useQuery<ApiTutor[]>({
+    queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+      if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
+      if (appliedFilters.board) params.append('boards', appliedFilters.board);
+      if (appliedFilters.isOnline) params.append('isOnline', 'true');
+      if (appliedFilters.isOffline) params.append('isOffline', 'true');
+      if (appliedFilters.city) params.append('location', appliedFilters.city);
+      if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+      return fetchAssignableTutors(token, params);
+    },
+    enabled: isTutorQueryEnabled, 
     refetchOnWindowFocus: false,
   });
+
+  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = allTutorsQuery;
+
   
   const updateMutation = useMutation({
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
@@ -469,16 +494,34 @@ function ManageEnquiryContent() {
     }
 
     if (allTutorsData.length > 0) {
-      return renderTutorTable(allTutorsData, isLoadingAllTutors, allTutorsError);
+      return (
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">
+              Recommended Tutors ({allTutorsData.length})
+            </h3>
+            <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <ListFilter className="w-4 h-4 mr-2" />
+                  Filter
+                </Button>
+              </DialogTrigger>
+               {/* Filter Dialog Content will be rendered here */}
+            </Dialog>
+          </div>
+          {renderTutorTable(allTutorsData, isLoadingAllTutors, allTutorsError)}
+        </div>
+      );
     }
     
-    if (isSearchingForTutors && allTutorsData.length === 0) {
+    if (isTutorQueryEnabled && allTutorsData.length === 0) {
       return <div className="text-center p-8">No recommended tutors found for this enquiry.</div>;
     }
 
     return (
       <div className="text-center p-8">
-        <Button onClick={() => setIsSearchingForTutors(true)}>
+        <Button onClick={() => setIsTutorQueryEnabled(true)}>
           <Search className="mr-2 h-4 w-4" />
           Find Recommended Tutors
         </Button>
