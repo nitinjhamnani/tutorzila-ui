@@ -337,7 +337,7 @@ function ManageEnquiryContent() {
   const [filters, setFilters] = useState<any>({});
   
   useEffect(() => {
-    if (enquiry) {
+    if (enquiry && appliedFilters === null) {
       const initialFilters = {
         subjects: enquiry.subject || [],
         grade: enquiry.gradeLevel || '',
@@ -348,9 +348,7 @@ function ManageEnquiryContent() {
         area: typeof enquiry.location === 'object' && enquiry.location ? enquiry.location.area || "" : "",
       };
       setFilters(initialFilters);
-      if(!appliedFilters) {
-        setAppliedFilters(initialFilters);
-      }
+      setAppliedFilters(initialFilters);
     }
   }, [enquiry, appliedFilters]);
 
