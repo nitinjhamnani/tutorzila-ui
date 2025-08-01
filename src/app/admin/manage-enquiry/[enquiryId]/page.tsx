@@ -224,28 +224,30 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   return response.json();
 };
 
-
-const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
+// Generic fetcher for tutors by category
+const fetchTutorsByCategory = async (token: string | null, params: URLSearchParams, category: string): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
+  
+  // In a real app, you would have different endpoints like /api/tutors/recommended
+  // For this mock, we'll use the same endpoint but log the category.
+  console.log(`Fetching tutors for category: ${category}`);
+  params.append('category', category); // Mocking category parameter
+
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
-  if (!response.ok) throw new Error("Failed to fetch tutors.");
+  if (!response.ok) throw new Error(`Failed to fetch ${category} tutors.`);
   const data = await response.json();
-  return data.map((tutor: any) => ({
-    ...tutor,
-    isVerified: tutor.isVerified || false, // Ensure isVerified exists
-  }));
-};
+  
+  // Mock different data for different categories
+  if(category === 'recommended') return data.slice(0, 5).map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
+  if(category === 'applied') return data.slice(5, 8).map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
+  if(category === 'shortlisted') return []; // Mock empty for now
+  if(category === 'assigned') return data.slice(0, 2).map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
 
-const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
-    if (!token) throw new Error("Authentication token not found.");
-    console.log(`Fetching assigned tutors for enquiry: ${enquiryId}`);
-    const allTutors = await fetchAssignableTutors(token, new URLSearchParams());
-    return allTutors.slice(0, 2); 
+  return data.map((t: any) => ({ ...t, isVerified: t.isVerified || false }));
 };
-
 
 function ManageEnquiryContent() {
   const params = useParams();
@@ -389,29 +391,44 @@ function ManageEnquiryContent() {
     return params;
   }, [appliedFilters]);
   
-  const { data: allTutors = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery({
-    queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
-    queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
-    enabled: !!token && !!enquiry,
-    refetchOnWindowFocus: false,
+  const { data: recommendedTutors = [], isLoading: isLoadingRecommended, error: recommendedError } = useQuery({
+    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'recommended'],
+    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'recommended'),
+    enabled: !!token && !!enquiry && activeTab === 'recommended',
   });
 
-  const { data: assignedTutors = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
-    queryKey: ['assignedTutors', enquiryId],
-    queryFn: () => fetchAssignedTutors(token, enquiryId),
-    enabled: !!token && !!enquiry,
-    refetchOnWindowFocus: false,
+  const { data: appliedTutors = [], isLoading: isLoadingApplied, error: appliedError } = useQuery({
+    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'applied'],
+    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'applied'),
+    enabled: !!token && !!enquiry && activeTab === 'applied',
   });
-
-  const uniqueCities = useMemo(() => Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutors]);
-  const uniqueAreasInCity = useMemo(() => {
-    if (!filters.city || !allTutors) return [];
-    return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
-  }, [allTutors, filters.city]);
   
-  const recommendedTutors = useMemo(() => allTutors.slice(0, 5), [allTutors]);
-  const appliedTutors = useMemo(() => allTutors.slice(5, 8), [allTutors]);
+  const { data: shortlistedTutors = [], isLoading: isLoadingShortlisted, error: shortlistedError } = useQuery({
+    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'shortlisted'],
+    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'shortlisted'),
+    enabled: !!token && !!enquiry && activeTab === 'shortlisted',
+  });
 
+  const { data: assignedTutors = [], isLoading: isLoadingAssigned, error: assignedError } = useQuery({
+    queryKey: ['tutorsByCategory', enquiryId, tutorSearchParams.toString(), 'assigned'],
+    queryFn: () => fetchTutorsByCategory(token, tutorSearchParams, 'assigned'),
+    enabled: !!token && !!enquiry && activeTab === 'assigned',
+  });
+
+  // Since we don't have a specific API for all tutors, we will need to fetch it for the filter modal.
+  const { data: allTutorsForFilter = [] } = useQuery({
+      queryKey: ['allTutorsForFilter', enquiryId],
+      queryFn: () => fetchTutorsByCategory(token, new URLSearchParams(), 'all'), // 'all' is a mock category
+      enabled: !!token && isFilterModalOpen,
+      staleTime: Infinity,
+  });
+
+  const uniqueCities = useMemo(() => Array.from(new Set(allTutorsForFilter.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutorsForFilter]);
+  const uniqueAreasInCity = useMemo(() => {
+    if (!filters.city || !allTutorsForFilter) return [];
+    return Array.from(new Set(allTutorsForFilter.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
+  }, [allTutorsForFilter, filters.city]);
+  
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -530,10 +547,10 @@ function ManageEnquiryContent() {
                     <TabsList className="bg-transparent p-0 gap-2">
                         <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors.length})</TabsTrigger>
                         <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors.length})</TabsTrigger>
-                        <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted (0)</TabsTrigger>
+                        <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted ({shortlistedTutors.length})</TabsTrigger>
                         <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutors.length})</TabsTrigger>
                     </TabsList>
-                    <ScrollBar orientation="horizontal" className="p-0" />
+                    <ScrollBar orientation="horizontal" />
                 </ScrollArea>
                 <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                       <DialogTrigger asChild><Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0"><ListFilter className="w-4 h-4 mr-2"/>Filter Tutors</Button></DialogTrigger>
@@ -551,10 +568,10 @@ function ManageEnquiryContent() {
                     </Dialog>
             </div>
 
-            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
-            <TabsContent value="applied">{renderTutorTable(appliedTutors, isLoadingAllTutors, allTutorsError)}</TabsContent>
-            <TabsContent value="shortlisted">{renderTutorTable([], isLoadingAllTutors, allTutorsError)}</TabsContent>
-            <TabsContent value="assigned">{renderTutorTable(assignedTutors, isLoadingAssignedTutors, assignedTutorsError)}</TabsContent>
+            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, isLoadingRecommended, recommendedError)}</TabsContent>
+            <TabsContent value="applied">{renderTutorTable(appliedTutors, isLoadingApplied, appliedError)}</TabsContent>
+            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, isLoadingShortlisted, shortlistedError)}</TabsContent>
+            <TabsContent value="assigned">{renderTutorTable(assignedTutors, isLoadingAssigned, assignedError)}</TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -588,5 +605,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
