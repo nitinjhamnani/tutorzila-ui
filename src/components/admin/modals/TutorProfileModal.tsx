@@ -83,7 +83,7 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl p-0">
+      <DialogContent className="sm:max-w-3xl p-0 bg-white">
         <DialogHeader className="p-6 pb-4 border-b">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -96,7 +96,7 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
                 <div>
                   <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
                   <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
-                  <div className="mt-2 flex items-center gap-2">
+                   <div className="mt-2 flex items-center gap-2">
                     <Badge variant={tutor.isActive ? "default" : "destructive"}>
                         {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                         {tutor.isActive ? 'Active' : 'Inactive'}
