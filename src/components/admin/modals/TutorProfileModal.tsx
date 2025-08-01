@@ -50,18 +50,19 @@ const InfoSection = ({ title, children, className }: { title: string; children: 
   </div>
 );
 
-const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value?: string | number | React.ReactNode }) => {
-  if (!value) return null;
+const InfoItem = ({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children?: React.ReactNode }) => {
+  if (!children) return null;
   return (
     <div className="flex items-start">
       <Icon className="w-3.5 h-3.5 mr-2 mt-0.5 text-muted-foreground shrink-0" />
       <div className="flex flex-col">
         <span className="font-medium text-foreground">{label}</span>
-        <span className="text-muted-foreground">{value}</span>
+        <div className="text-muted-foreground">{children}</div>
       </div>
     </div>
   );
 };
+
 
 const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items: string[] }) => {
   if (!items || items.length === 0) return null;
@@ -124,15 +125,15 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InfoSection title="Contact & Personal">
-              <InfoItem icon={Mail} label="Email" value={tutor.email} />
-              <InfoItem icon={Phone} label="Phone" value={tutor.countryCode ? `${tutor.countryCode} ${tutor.phone}` : tutor.phone} />
-              <InfoItem icon={Languages} label="Languages" value={tutor.languagesList?.join(', ')} />
+              <InfoItem icon={Mail} label="Email">{tutor.email}</InfoItem>
+              <InfoItem icon={Phone} label="Phone">{tutor.countryCode ? `${tutor.countryCode} ${tutor.phone}` : tutor.phone}</InfoItem>
+              <InfoItem icon={Languages} label="Languages">{tutor.languagesList?.join(', ')}</InfoItem>
             </InfoSection>
 
             <InfoSection title="Tutoring Details">
-              <InfoItem icon={DollarSign} label="Hourly Rate" value={`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`} />
-              <InfoItem icon={GraduationCap} label="Qualifications" value={tutor.qualificationList?.join(', ')} />
-              <InfoItem icon={Briefcase} label="Experience" value={tutor.experienceYears} />
+              <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+              <InfoItem icon={GraduationCap} label="Qualifications">{tutor.qualificationList?.join(', ')}</InfoItem>
+              <InfoItem icon={Briefcase} label="Experience">{tutor.experienceYears}</InfoItem>
             </InfoSection>
           </div>
           
@@ -158,16 +159,19 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor }: TutorProfileM
                     {tutor.isHybrid && <Badge>Hybrid</Badge>}
                  </div>
                  {tutor.offline && (
-                    <InfoItem icon={MapPin} label="Address" value={
-                        tutor.googleMapsLink ? (
+                    <InfoItem icon={MapPin} label="Address">
+                      {tutor.googleMapsLink ? (
                         <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                            {tutor.addressName || tutor.address}
+                          {tutor.addressName || tutor.address}
                         </a>
-                        ) : (
+                      ) : (
                         <span>{tutor.addressName || tutor.address || "Not specified"}</span>
-                        )
-                    } />
-                    )}
+                      )}
+                      {(tutor.addressName && tutor.address && tutor.addressName !== tutor.address) && (
+                        <div className="text-xs text-muted-foreground mt-1">{tutor.address}</div>
+                      )}
+                    </InfoItem>
+                  )}
               </InfoSection>
           </div>
         </div>
