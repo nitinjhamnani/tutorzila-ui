@@ -158,6 +158,98 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   };
 };
 
+const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
+  // Mock implementation, replace with actual API call if needed
+  console.log("Mock fetching assignable tutors with params:", params.toString());
+  return MOCK_TUTOR_PROFILES.map(t => ({
+      ...t,
+      id: t.id,
+      displayName: t.name,
+      subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
+      hourlyRate: parseFloat(t.hourlyRate || '0'),
+      bio: t.bio || "",
+      qualification: t.qualifications ? t.qualifications.join(", ") : "",
+      experienceYears: t.experience,
+      availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
+      availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
+      addressName: "",
+      address: t.location || "",
+      city: t.location || "",
+      state: "",
+      area: "",
+      pincode: "",
+      country: "",
+      googleMapsLink: "",
+      languages: "",
+      grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
+      boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
+      documentsUrl: "",
+      profileCompletion: 80,
+      isVerified: true,
+      isActive: t.status === 'Active',
+      isHybrid: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isBioReviewed: true,
+      subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
+      availabilityDaysList: t.preferredDays || [],
+      availabilityTimeList: t.preferredTimeSlots || [],
+      languagesList: [],
+      gradesList: t.gradeLevelsTaught || [],
+      boardsList: t.boardsTaught || [],
+      qualificationList: t.qualifications || [],
+      online: t.teachingMode?.includes("Online") || false,
+      offline: t.teachingMode?.includes("Offline (In-person)") || false,
+  }));
+};
+
+const fetchAssignedTutors = async (token: string | null, enquiryId: string): Promise<ApiTutor[]> => {
+    // Mock implementation, replace with actual API call if needed
+    console.log(`Mock fetching assigned tutors for enquiry: ${enquiryId}`);
+    const allTutors = MOCK_TUTOR_PROFILES.slice(0, 2).map(t => ({ // Return first 2 as assigned
+      ...t,
+      id: t.id,
+      displayName: t.name,
+      subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
+      hourlyRate: parseFloat(t.hourlyRate || '0'),
+      bio: t.bio || "",
+      qualification: t.qualifications ? t.qualifications.join(", ") : "",
+      experienceYears: t.experience,
+      availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
+      availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
+      addressName: "",
+      address: t.location || "",
+      city: t.location || "",
+      state: "",
+      area: "",
+      pincode: "",
+      country: "",
+      googleMapsLink: "",
+      languages: "",
+      grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
+      boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
+      documentsUrl: "",
+      profileCompletion: 80,
+      isVerified: true,
+      isActive: t.status === 'Active',
+      isHybrid: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isBioReviewed: true,
+      subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
+      availabilityDaysList: t.preferredDays || [],
+      availabilityTimeList: t.preferredTimeSlots || [],
+      languagesList: [],
+      gradesList: t.gradeLevelsTaught || [],
+      boardsList: t.boardsTaught || [],
+      qualificationList: t.qualifications || [],
+      online: t.teachingMode?.includes("Online") || false,
+      offline: t.teachingMode?.includes("Offline (In-person)") || false,
+    }));
+    return Promise.resolve(allTutors);
+};
+
+
 const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: AdminEnquiryEditFormValues }) => {
   if (!token) throw new Error("Authentication token is required.");
   
@@ -415,59 +507,54 @@ function ManageEnquiryContent() {
     addNoteMutation.mutate(notes);
   };
   
-  const { data: allTutors = [] } = useQuery<ApiTutor[]>({
+  const tutorSearchParams = useMemo(() => {
+    const params = new URLSearchParams();
+    if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+    if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
+    if(appliedFilters.board) params.append('boards', appliedFilters.board);
+    if(appliedFilters.isOnline) params.append('isOnline', 'true');
+    if(appliedFilters.isOffline) params.append('isOffline', 'true');
+    if(appliedFilters.city) params.append('location', appliedFilters.city);
+    if(appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+    return params;
+  }, [appliedFilters]);
+
+  const { data: allTutorsData, isLoading: isLoadingTutors, error: tutorsError } = useQuery<ApiTutor[]>({
       queryKey: ['allTutorsForFilter', enquiryId],
-      queryFn: async () => {
-        return MOCK_TUTOR_PROFILES.map(t => ({
-          ...t,
-          id: t.id,
-          displayName: t.name,
-          subjects: Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects,
-          hourlyRate: parseFloat(t.hourlyRate || '0'),
-          bio: t.bio || "",
-          qualification: t.qualifications ? t.qualifications.join(", ") : "",
-          experienceYears: t.experience,
-          availabilityDays: t.preferredDays ? t.preferredDays.join(", ") : "",
-          availabilityTime: t.preferredTimeSlots ? t.preferredTimeSlots.join(", ") : "",
-          addressName: "",
-          address: t.location || "",
-          city: t.location || "",
-          state: "",
-          area: "",
-          pincode: "",
-          country: "",
-          googleMapsLink: "",
-          languages: "",
-          grades: Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught.join(", ") : "",
-          boards: Array.isArray(t.boardsTaught) ? t.boardsTaught.join(", ") : "",
-          documentsUrl: "",
-          profileCompletion: 80,
-          isVerified: true,
-          isActive: t.status === 'Active',
-          isHybrid: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          isBioReviewed: true,
-          subjectsList: Array.isArray(t.subjects) ? t.subjects : [t.subjects],
-          availabilityDaysList: t.preferredDays || [],
-          availabilityTimeList: t.preferredTimeSlots || [],
-          languagesList: [],
-          gradesList: t.gradeLevelsTaught || [],
-          boardsList: t.boardsTaught || [],
-          qualificationList: t.qualifications || [],
-          online: t.teachingMode?.includes("Online") || false,
-          offline: t.teachingMode?.includes("Offline (In-person)") || false,
-        }));
-      },
+      queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
       enabled: !!token,
       staleTime: Infinity,
   });
 
-  const uniqueCities = useMemo(() => Array.from(new Set(allTutors.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutors]);
+  const uniqueCities = useMemo(() => Array.from(new Set(allTutorsData?.map(tutor => tutor.city).filter(Boolean))).sort(), [allTutorsData]);
   const uniqueAreasInCity = useMemo(() => {
-    if (!filters.city || !allTutors) return [];
-    return Array.from(new Set(allTutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
-  }, [allTutors, filters.city]);
+    if (!filters.city || !allTutorsData) return [];
+    return Array.from(new Set(allTutorsData.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
+  }, [allTutorsData, filters.city]);
+  
+  const { data: assignedTutors, isLoading: isLoadingAssigned } = useQuery({
+      queryKey: ["assignedTutors", enquiryId, token],
+      queryFn: () => fetchAssignedTutors(token, enquiryId),
+      enabled: !!token && activeTab === "assigned",
+  });
+  
+  const { data: recommendedTutors, isLoading: isLoadingRecommended } = useQuery({
+      queryKey: ["recommendedTutors", enquiryId, tutorSearchParams.toString()],
+      queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
+      enabled: !!token && activeTab === "recommended",
+  });
+
+  const { data: appliedTutors, isLoading: isLoadingApplied } = useQuery({
+      queryKey: ["appliedTutors", enquiryId, token],
+      queryFn: () => fetchAssignableTutors(token, new URLSearchParams()), // Replace with actual applied tutors fetch logic
+      enabled: !!token && activeTab === "applied",
+  });
+
+  const { data: shortlistedTutors, isLoading: isLoadingShortlisted } = useQuery({
+      queryKey: ["shortlistedTutors", enquiryId, token],
+      queryFn: () => fetchAssignableTutors(token, new URLSearchParams()), // Replace with actual shortlisted tutors fetch logic
+      enabled: !!token && activeTab === "shortlisted",
+  });
   
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -477,13 +564,7 @@ function ManageEnquiryContent() {
       return <div className="text-center py-10 text-destructive">Error loading enquiry details: {enquiryError.message}</div>
   }
 
-  const recommendedTutors = allTutors.slice(0,5);
-  const appliedTutors = allTutors.slice(5,8);
-  const shortlistedTutors: ApiTutor[] = [];
-  const assignedTutors = allTutors.slice(0,2);
-
-
-  const renderTutorTable = (tutors: ApiTutor[], isLoading: boolean, error: Error | null) => (
+  const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null) => (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
       <CardContent className="p-0">
         <TooltipProvider>
@@ -510,7 +591,7 @@ function ManageEnquiryContent() {
                 ))
               ) : error ? (
                 <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
-              ) : tutors.length === 0 ? (
+              ) : !tutors || tutors.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>
               ) : (
                 tutors.map(tutor => (
@@ -577,6 +658,9 @@ function ManageEnquiryContent() {
                   <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
                   <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>
                   <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
+                  {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
+                    <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-primary/80"/>{locationInfo.address}</span>
+                  )}
                 </div>
             </div>
           </CardHeader>
@@ -599,10 +683,10 @@ function ManageEnquiryContent() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                 <ScrollArea className="w-full sm:w-auto">
                     <TabsList className="bg-transparent p-0 gap-2">
-                        <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors.length})</TabsTrigger>
-                        <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors.length})</TabsTrigger>
-                        <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted ({shortlistedTutors.length})</TabsTrigger>
-                        <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutors.length})</TabsTrigger>
+                        <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended ({recommendedTutors?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied ({appliedTutors?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted ({shortlistedTutors?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="assigned" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Assigned ({assignedTutors?.length || 0})</TabsTrigger>
                     </TabsList>
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
@@ -622,10 +706,10 @@ function ManageEnquiryContent() {
                     </Dialog>
             </div>
 
-            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, false, null)}</TabsContent>
-            <TabsContent value="applied">{renderTutorTable(appliedTutors, false, null)}</TabsContent>
-            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, false, null)}</TabsContent>
-            <TabsContent value="assigned">{renderTutorTable(assignedTutors, false, null)}</TabsContent>
+            <TabsContent value="recommended">{renderTutorTable(recommendedTutors, isLoadingRecommended, tutorsError)}</TabsContent>
+            <TabsContent value="applied">{renderTutorTable(appliedTutors, isLoadingApplied, tutorsError)}</TabsContent>
+            <TabsContent value="shortlisted">{renderTutorTable(shortlistedTutors, isLoadingShortlisted, tutorsError)}</TabsContent>
+            <TabsContent value="assigned">{renderTutorTable(assignedTutors, isLoadingAssigned, tutorsError)}</TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -746,3 +830,6 @@ export default function ManageEnquiryPage() {
 
 
 
+
+
+    
