@@ -98,6 +98,20 @@ const closeReasons = [
     { id: 'other', label: "Other" }
 ];
 
+const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+  });
+  if (!response.ok) throw new Error("Failed to fetch tutors.");
+  const data = await response.json();
+    return data.map((tutor: any) => ({
+    ...tutor,
+    isVerified: tutor.isVerified || false,
+  }));
+};
+
 const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
   if (!token) throw new Error("Authentication token is required.");
   if (!enquiryId) throw new Error("Enquiry ID is required.");
@@ -317,11 +331,33 @@ function ManageEnquiryContent() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [statusRemark, setStatusRemark] = useState("");
+  const [isSearchingForTutors, setIsSearchingForTutors] = useState(false);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
     enabled: !!enquiryId && !!token,
+    refetchOnWindowFocus: false,
+  });
+
+  const tutorSearchParams = useMemo(() => {
+    if (!enquiry) return new URLSearchParams();
+    const params = new URLSearchParams();
+    const location = (typeof enquiry.location === 'object' && enquiry.location) ? enquiry.location : null;
+    if (enquiry.subject?.length > 0) params.append('subjects', enquiry.subject.join(','));
+    if (enquiry.gradeLevel) params.append('grades', enquiry.gradeLevel);
+    if (enquiry.board) params.append('boards', enquiry.board);
+    if (enquiry.teachingMode?.includes("Online")) params.append('isOnline', 'true');
+    if (enquiry.teachingMode?.includes("Offline (In-person)")) params.append('isOffline', 'true');
+    if (location?.city) params.append('location', location.city);
+    if (location?.area) params.append('location', `${location.area}, ${location.city}`);
+    return params;
+  }, [enquiry]);
+
+  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
+    queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
+    queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
+    enabled: isSearchingForTutors, // Only runs when isSearchingForTutors is true
     refetchOnWindowFocus: false,
   });
   
@@ -455,6 +491,43 @@ function ManageEnquiryContent() {
     </Card>
   );
 
+  const renderRecommendedTutorContent = () => {
+    if (isLoadingAllTutors) {
+      return (
+        <div className="text-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground mt-2">Searching for tutors...</p>
+        </div>
+      );
+    }
+
+    if (allTutorsError) {
+      return (
+        <div className="text-center p-8 text-destructive">
+          <p>Failed to load tutors: {(allTutorsError as Error).message}</p>
+        </div>
+      );
+    }
+
+    if (allTutorsData.length > 0) {
+      return renderTutorTable(allTutorsData, isLoadingAllTutors, allTutorsError);
+    }
+    
+    if (isSearchingForTutors && allTutorsData.length === 0) {
+      return <div className="text-center p-8">No recommended tutors found for this enquiry.</div>;
+    }
+
+    return (
+      <div className="text-center p-8">
+        <Button onClick={() => setIsSearchingForTutors(true)}>
+          <Search className="mr-2 h-4 w-4" />
+          Find Recommended Tutors
+        </Button>
+      </div>
+    );
+  };
+
+
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
   const hasScheduleInfo = enquiry ? ((enquiry.preferredDays && enquiry.preferredDays.length > 0) || (enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0)) : false;
 
@@ -550,7 +623,7 @@ function ManageEnquiryContent() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
             <ScrollArea className="w-full sm:w-auto">
                 <TabsList className="bg-transparent p-0 gap-2">
-                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended (0)</TabsTrigger>
+                    <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Recommended</TabsTrigger>
                     <TabsTrigger value="applied" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Applied (0)</TabsTrigger>
                     <TabsTrigger value="shortlisted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold data-[state=inactive]:bg-white data-[state=inactive]:border data-[state=inactive]:border-primary data-[state=inactive]:text-primary data-[state=inactive]:hover:bg-primary data-[state=inactive]:hover:text-primary-foreground">Shortlisted (0)</TabsTrigger>
                 </TabsList>
@@ -558,7 +631,7 @@ function ManageEnquiryContent() {
             </ScrollArea>
         </div>
         <TabsContent value="recommended">
-          {renderTutorTable([], false, null)}
+          {renderRecommendedTutorContent()}
         </TabsContent>
         <TabsContent value="applied">
           {renderTutorTable([], false, null)}
