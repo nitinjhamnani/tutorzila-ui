@@ -309,6 +309,7 @@ const EnquiryInfoItem = ({
 
 function ManageEnquiryContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const enquiryId = params.enquiryId as string;
   const { token } = useAuthMock();
@@ -327,10 +328,21 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
+
+  const getInitialFilters = useCallback(() => {
+    return {
+      subjects: searchParams.get('subjects')?.split(',') || [],
+      grade: searchParams.get('grade') || '',
+      board: searchParams.get('board') || '',
+      isOnline: searchParams.get('mode')?.split(',').includes("Online") || false,
+      isOffline: searchParams.get('mode')?.split(',').includes("Offline (In-person)") || false,
+      city: searchParams.get('location')?.split(',')[0] || "",
+      area: searchParams.get('location')?.split(',')[1] || "",
+    };
+  }, [searchParams]);
   
-  const [filters, setFilters] = useState<any>({});
-  const [appliedFilters, setAppliedFilters] = useState<any>({});
-  const [hasAppliedFiltersInitialized, setHasAppliedFiltersInitialized] = useState(false);
+  const [filters, setFilters] = useState(getInitialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -338,43 +350,27 @@ function ManageEnquiryContent() {
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
-  
-  useEffect(() => {
-    if (enquiry && !hasAppliedFiltersInitialized) {
-      const location = enquiry.location ?? { city: "", area: "" };
-      const initialFilters = {
-        subjects: enquiry.subject || [],
-        grade: enquiry.gradeLevel || '',
-        board: enquiry.board || '',
-        isOnline: enquiry.teachingMode?.includes("Online") || false,
-        isOffline: enquiry.teachingMode?.includes("Offline (In-person)") || false,
-        city: location.city || "",
-        area: location.area || "",
-      };
-      setFilters(initialFilters);
-      setAppliedFilters(initialFilters);
-      setHasAppliedFiltersInitialized(true);
-    }
-  }, [enquiry, hasAppliedFiltersInitialized]);
+
+  const tutorFilterKey = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
 
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
-    queryFn: () => {
-      const params = new URLSearchParams();
-      if (appliedFilters) {
-        if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-        if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
-        if (appliedFilters.board) params.append('boards', appliedFilters.board);
-        if (appliedFilters.isOnline) params.append('isOnline', 'true');
-        if (appliedFilters.isOffline) params.append('isOffline', 'true');
-        if (appliedFilters.city) params.append('location', appliedFilters.city);
-        if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-      }
-      return fetchAssignableTutors(token, params);
-    },
-    enabled: !!token && !!enquiry && hasAppliedFiltersInitialized,
-    refetchOnWindowFocus: false,
-  });
+      queryKey: ['assignableTutors', enquiryId, tutorFilterKey],
+      queryFn: () => {
+        const params = new URLSearchParams();
+        if (appliedFilters) {
+          if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+          if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
+          if (appliedFilters.board) params.append('boards', appliedFilters.board);
+          if (appliedFilters.isOnline) params.append('isOnline', 'true');
+          if (appliedFilters.isOffline) params.append('isOffline', 'true');
+          if (appliedFilters.city) params.append('location', appliedFilters.city);
+          if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+        }
+        return fetchAssignableTutors(token, params);
+      },
+      enabled: !!token,
+      refetchOnWindowFocus: false,
+    });
   
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
@@ -778,3 +774,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
