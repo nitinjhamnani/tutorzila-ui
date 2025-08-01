@@ -328,10 +328,10 @@ function ManageEnquiryContent() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
   
-  const [isInitialFilterReady, setIsInitialFilterReady] = useState(false);
   const [filters, setFilters] = useState<any>({});
-  const [appliedFilters, setAppliedFilters] = useState<any | null>(null);
-  
+  const [appliedFilters, setAppliedFilters] = useState<any>({});
+  const [hasAppliedFiltersInitialized, setHasAppliedFiltersInitialized] = useState(false);
+
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
@@ -340,7 +340,7 @@ function ManageEnquiryContent() {
   });
   
   useEffect(() => {
-    if (enquiry && appliedFilters === null) {
+    if (enquiry && !hasAppliedFiltersInitialized) {
       const location = enquiry.location ?? { city: "", area: "" };
       const initialFilters = {
         subjects: enquiry.subject || [],
@@ -353,17 +353,16 @@ function ManageEnquiryContent() {
       };
       setFilters(initialFilters);
       setAppliedFilters(initialFilters);
-      setIsInitialFilterReady(true);
+      setHasAppliedFiltersInitialized(true);
     }
-  }, [enquiry, appliedFilters]);
+  }, [enquiry, hasAppliedFiltersInitialized]);
 
-  const tutorFilterKey = useMemo(() => JSON.stringify(appliedFilters), [appliedFilters]);
-
-  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
-    queryKey: ['assignableTutors', enquiryId, tutorFilterKey],
-    queryFn: () => {
-      const params = new URLSearchParams();
-      if (appliedFilters) {
+  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } =
+    useQuery<ApiTutor[]>({
+      queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
+      queryFn: () => {
+        const params = new URLSearchParams();
+        if (appliedFilters) {
           if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
           if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
           if (appliedFilters.board) params.append('boards', appliedFilters.board);
@@ -371,12 +370,12 @@ function ManageEnquiryContent() {
           if (appliedFilters.isOffline) params.append('isOffline', 'true');
           if (appliedFilters.city) params.append('location', appliedFilters.city);
           if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-      }
-      return fetchAssignableTutors(token, params);
-    },
-    enabled: !!token && !!enquiry && isInitialFilterReady,
-    refetchOnWindowFocus: false,
-  });
+        }
+        return fetchAssignableTutors(token, params);
+      },
+      enabled: !!token && !!enquiry && hasAppliedFiltersInitialized,
+      refetchOnWindowFocus: false,
+    });
   
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
