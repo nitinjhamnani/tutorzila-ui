@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { TuitionRequirement } from "@/types";
@@ -50,7 +49,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
     if(requirement.teachingMode) params.append('mode', requirement.teachingMode.join(','));
     if(locationString) params.append('location', locationString);
 
-    return `/admin/assign-tutors/${requirement.id}?${params.toString()}`;
+    return `/admin/manage-enquiry/${requirement.id}?${params.toString()}`;
   }
 
 
