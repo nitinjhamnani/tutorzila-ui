@@ -485,7 +485,7 @@ function ManageEnquiryContent() {
                     <TableBody>
                         {isLoading ? ([...Array(5)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
                         : error ? (<TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>) 
-                        : !tutors || tutors.length === 0 ? (<TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>) 
+                        : !tutors || tutors.length === 0 ? (<TableRow><TableCell colSpan={5} className="text-center py-8">No tutors found.</TableCell></TableRow>) 
                         : (tutors.map(tutor => (
                             <TableRow key={tutor.id}>
                                 <TableCell><div><div className="font-medium text-foreground">{tutor.displayName}</div><div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div></div></TableCell>
@@ -500,6 +500,28 @@ function ManageEnquiryContent() {
             </TooltipProvider>
         </CardContent>
     </Card>
+  );
+
+  const renderPlaceholderTable = (title: string, count: number) => (
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold text-foreground mb-4">
+        {title} ({count})
+      </h3>
+      <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Subjects</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  No {title.toLowerCase()} found for this enquiry yet.
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 
   const renderRecommendedTutorContent = () => {
@@ -546,7 +568,7 @@ function ManageEnquiryContent() {
                         <Label htmlFor="subjects-filter-modal">Subjects</Label>
                          <MultiSelectCommand
                             options={allSubjectsList}
-                            selectedValues={filters.subjects}
+                            selectedValues={filters.subjects || []}
                             onValueChange={(value) => handleFilterChange('subjects', value)}
                             placeholder="Select subjects..."
                             className="w-full"
@@ -643,7 +665,6 @@ function ManageEnquiryContent() {
     );
   };
 
-
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
   const hasScheduleInfo = enquiry ? ((enquiry.preferredDays && enquiry.preferredDays.length > 0) || (enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0)) : false;
 
@@ -735,6 +756,9 @@ function ManageEnquiryContent() {
         </CardFooter>
       </Card>
       
+      {renderPlaceholderTable("Applied Tutors", 0)}
+      {renderPlaceholderTable("Shortlisted Tutors", 0)}
+
       <div className="mt-6">
         {renderRecommendedTutorContent()}
       </div>
