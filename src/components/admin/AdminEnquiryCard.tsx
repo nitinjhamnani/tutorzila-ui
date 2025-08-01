@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send, Edit3 } from "lucide-react";
+import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send, Edit3, Settings } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -71,17 +71,6 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
               <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
-            <Button
-                asChild
-                variant="default"
-                size="icon"
-                className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
-                title="View Enquiry Details"
-            >
-                <Link href={`/admin/enquiries/${requirement.id}`}>
-                    <Edit3 className="h-4 w-4" />
-                </Link>
-            </Button>
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 text-xs flex-grow">
@@ -95,7 +84,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
       </CardContent>
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
-          {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
+          {requirement.applicantsCount !== undefined && requirement.applicantsCount > 0 && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Tutors Assigned
             </Badge>
@@ -115,7 +104,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
                 className="text-xs py-1.5 px-3 h-auto"
                 >
                 <Link href={constructAssignTutorUrl()}>
-                    <Edit3 className="w-3 h-3 mr-1.5" /> Manage Enquiry
+                    <Settings className="w-3 h-3 mr-1.5" /> Manage
                 </Link>
             </Button>
         </div>
