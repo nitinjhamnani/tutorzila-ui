@@ -357,28 +357,24 @@ function ManageEnquiryContent() {
     }
   }, [enquiry, hasAppliedFiltersInitialized]);
 
-  const allTutorsQuery = hasAppliedFiltersInitialized
-    ? useQuery<ApiTutor[]>({
-        queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
-        queryFn: () => {
-          const params = new URLSearchParams();
-          if (appliedFilters) {
-            if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
-            if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
-            if (appliedFilters.board) params.append('boards', appliedFilters.board);
-            if (appliedFilters.isOnline) params.append('isOnline', 'true');
-            if (appliedFilters.isOffline) params.append('isOffline', 'true');
-            if (appliedFilters.city) params.append('location', appliedFilters.city);
-            if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
-          }
-          return fetchAssignableTutors(token, params);
-        },
-        refetchOnWindowFocus: false,
-      })
-    : { data: [], isLoading: true, error: null };
-  
-  const { data: allTutorsData, isLoading: isLoadingAllTutors, error: allTutorsError } = allTutorsQuery;
-
+  const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
+    queryKey: ['assignableTutors', enquiryId, JSON.stringify(appliedFilters)],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (appliedFilters) {
+        if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+        if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
+        if (appliedFilters.board) params.append('boards', appliedFilters.board);
+        if (appliedFilters.isOnline) params.append('isOnline', 'true');
+        if (appliedFilters.isOffline) params.append('isOffline', 'true');
+        if (appliedFilters.city) params.append('location', appliedFilters.city);
+        if (appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+      }
+      return fetchAssignableTutors(token, params);
+    },
+    enabled: !!token && !!enquiry && hasAppliedFiltersInitialized,
+    refetchOnWindowFocus: false,
+  });
   
   const { data: assignedTutorsData = [], isLoading: isLoadingAssignedTutors, error: assignedTutorsError } = useQuery({
     queryKey: ['assignedTutors', enquiryId],
