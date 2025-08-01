@@ -34,7 +34,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription as DialogDesc,
+  DialogDescription,
   DialogFooter,
   DialogTrigger,
   DialogClose,
@@ -44,10 +44,10 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
+  AlertDialogDescription as AlertDialogDesc,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle as AlertDialogTitleComponent,
 } from "@/components/ui/alert-dialog";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -602,7 +602,7 @@ function ManageEnquiryContent() {
                 </ScrollArea>
                 <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                       <DialogTrigger asChild><Button variant="primary-outline" size="sm" className="w-full sm:w-auto flex-shrink-0"><ListFilter className="w-4 h-4 mr-2"/>Filter Tutors</Button></DialogTrigger>
-                      <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><DialogDesc>Refine the list of tutors based on specific criteria.</DialogDesc></DialogHeader>
+                      <DialogContent className="bg-card sm:max-w-lg"><DialogHeader><DialogTitle>Filter Tutors</DialogTitle><AlertDialogDesc>Refine the list of tutors based on specific criteria.</AlertDialogDesc></DialogHeader>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                           <div className="space-y-2 md:col-span-2"><Label htmlFor="subjects-filter-modal">Subjects</Label><MultiSelectCommand options={allSubjectsList} selectedValues={filters.subjects} onValueChange={(value) => handleFilterChange('subjects', value)} placeholder="Select subjects..." className="w-full"/></div>
                           <div className="space-y-2"><Label htmlFor="grade-filter-modal">Grade</Label><Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}><SelectTrigger id="grade-filter-modal"><SelectValue placeholder="Select Grade" /></SelectTrigger><SelectContent>{gradeLevelsList.map(grade => (<SelectItem key={grade} value={grade}>{grade}</SelectItem>))}</SelectContent></Select></div>
@@ -631,13 +631,13 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Add Additional Notes</DialogTitle><DialogDesc>These notes will be visible to tutors viewing the enquiry details.</DialogDesc></DialogHeader>
+            <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Add Additional Notes</DialogTitle><AlertDialogDesc>These notes will be visible to tutors viewing the enquiry details.</AlertDialogDesc></DialogHeader>
             <div className="py-4"><Textarea placeholder="e.g., Student requires special attention..." value={notes} onChange={(e) => setNotes(e.target.value)} className="min-h-[120px]" disabled={addNoteMutation.isPending}/></div>
             <DialogFooter><DialogClose asChild><Button type="button" variant="outline" disabled={addNoteMutation.isPending}>Cancel</Button></DialogClose><Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>{addNoteMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : <><Save className="mr-2 h-4 w-4" />Save Note</>}</Button></DialogFooter>
             </DialogContent>
         </Dialog>
         <AlertDialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
-            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure you want to close this enquiry?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDescription></AlertDialogHeader>
+            <AlertDialogContent><AlertDialogHeader><AlertDialogTitleComponent>Are you sure you want to close this enquiry?</AlertDialogTitleComponent><AlertDialogDesc>This action cannot be undone. This will permanently close the enquiry and you will not be able to assign tutors.</AlertDialogDesc></AlertDialogHeader>
             <div className="py-4 space-y-4"><RadioGroup onValueChange={setCloseReason} value={closeReason || ""} className="flex flex-col space-y-2">{closeReasons.map((reason) => (<div key={reason.id} className="flex items-center space-x-3"><RadioGroupItem value={reason.id} id={`admin-close-${reason.id}`} /><Label htmlFor={`admin-close-${reason.id}`} className="font-normal text-sm">{reason.label}</Label></div>))}</RadioGroup></div>
             <AlertDialogFooter><AlertDialogCancel disabled={closeEnquiryMutation.isPending}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleCloseEnquiryDialogAction} disabled={!closeReason || closeEnquiryMutation.isPending}>{closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirm & Close</AlertDialogAction></AlertDialogFooter>
             </AlertDialogContent>
@@ -737,3 +737,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+
