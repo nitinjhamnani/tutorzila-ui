@@ -341,7 +341,7 @@ function ManageEnquiryContent() {
   const [filters, setFilters] = useState<any | null>(null);
   
   useEffect(() => {
-    if (enquiry && !filters) {
+    if (enquiry && appliedFilters === null) {
       const location = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : { city: "", area: "" };
       const initialFilters = {
         subjects: enquiry.subject || [],
@@ -355,7 +355,7 @@ function ManageEnquiryContent() {
       setFilters(initialFilters);
       setAppliedFilters(initialFilters);
     }
-  }, [enquiry, filters]);
+  }, [enquiry, appliedFilters]);
 
 
   const tutorSearchParams = useMemo(() => {
@@ -372,11 +372,11 @@ function ManageEnquiryContent() {
     return params;
   }, [appliedFilters]);
 
-  // Fetch assignable tutors, enabled only after appliedFilters is set
+  // Fetch assignable tutors, enabled only after appliedFilters is set and has keys
   const { data: allTutorsData = [], isLoading: isLoadingAllTutors, error: allTutorsError } = useQuery<ApiTutor[]>({
     queryKey: ['assignableTutors', enquiryId, tutorSearchParams.toString()],
     queryFn: () => fetchAssignableTutors(token, tutorSearchParams),
-    enabled: !!token && !!appliedFilters, // Enable only when appliedFilters is not null
+    enabled: !!token && appliedFilters !== null && Object.keys(appliedFilters).length > 0,
     refetchOnWindowFocus: false,
   });
 
@@ -493,7 +493,7 @@ function ManageEnquiryContent() {
   const appliedTutors = useMemo(() => allTutorsData.slice(5, 8) as unknown as ApiTutor[], [allTutorsData]);
   const shortlistedTutors = useMemo(() => allTutorsData.slice(2, 4) as unknown as ApiTutor[], [allTutorsData]);
   
-  if (isLoadingEnquiry || !filters) {
+  if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
@@ -506,68 +506,68 @@ function ManageEnquiryContent() {
   }
 
   const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null) => (
-     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+    <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
       <CardContent className="p-0">
-            <TooltipProvider>
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Tutor</TableHead>
-                    <TableHead>Subjects</TableHead>
-                    <TableHead>Mode</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {isLoading ? (
-                    [...Array(5)].map((_, i) => (
-                    <TableRow key={i}>
-                        <TableCell><Skeleton className="h-10 w-48" /></TableCell>
-                        <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                        <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                        <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
-                    </TableRow>
-                    ))
-                ) : error ? (
-                    <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
-                ) : !tutors || tutors.length === 0 ? (
-                    <TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>
-                ) : (
-                    tutors.map(tutor => (
-                    <TableRow key={tutor.id}>
-                        <TableCell>
-                        <div>
-                            <div className="font-medium text-foreground">{tutor.displayName}</div>
-                            <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
-                        </div>
-                        </TableCell>
-                        <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
-                        <TableCell>
-                        <div className="flex items-center gap-2">
-                            {tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}
-                            {tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}
-                        </div>
-                        </TableCell>
-                        <TableCell>
-                        <div className="flex items-center gap-2">
-                            <Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip>
-                            <Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip>
-                        </div>
-                        </TableCell>
-                        <TableCell>
-                        <div className="flex items-center gap-1.5">
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}><Eye className="w-4 h-4" /></Button>
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button>
-                        </div>
-                        </TableCell>
-                    </TableRow>
-                    ))
-                )}
-                </TableBody>
-            </Table>
-            </TooltipProvider>
+        <TooltipProvider>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tutor</TableHead>
+                <TableHead>Subjects</TableHead>
+                <TableHead>Mode</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-10 w-48" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
+                  </TableRow>
+                ))
+              ) : error ? (
+                <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>
+              ) : !tutors || tutors.length === 0 ? (
+                <TableRow><TableCell colSpan={5} className="text-center">No tutors found for this category.</TableCell></TableRow>
+              ) : (
+                tutors.map(tutor => (
+                  <TableRow key={tutor.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-foreground">{tutor.displayName}</div>
+                        <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}
+                        {tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip>
+                        <Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}><Eye className="w-4 h-4" /></Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TooltipProvider>
       </CardContent>
     </Card>
   );
