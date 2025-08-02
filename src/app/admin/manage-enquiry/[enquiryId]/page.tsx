@@ -362,6 +362,8 @@ function ManageEnquiryContent() {
   const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
   const [hoursPerSession, setHoursPerSession] = useState(1);
   const [totalFees, setTotalFees] = useState(0); 
+  const [perHourRate, setPerHourRate] = useState(500);
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
   const { totalDays, totalHours } = useMemo(() => {
@@ -370,35 +372,47 @@ function ManageEnquiryContent() {
     return { totalDays: days, totalHours: hours };
   }, [sessionsPerWeek, hoursPerSession]);
 
-  useEffect(() => {
-      const defaultRate = 500;
-      setTotalFees(Math.round(totalHours * defaultRate));
-  }, [totalHours]);
-
-
-  const handleEditBudget = () => {
-    totalFeesInputRef.current?.focus();
-    totalFeesInputRef.current?.select();
+   useEffect(() => {
+    if (!isEditingBudget) { // Only auto-calculate if not in edit mode
+        setTotalFees(Math.round(totalHours * perHourRate));
+    }
+   }, [totalHours, perHourRate, isEditingBudget]);
+   
+  const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
+    let newTotalFees, newPerHourRate;
+    if (type === 'sessions') {
+        const newTotalHours = Math.round(value * (32 / 7)) * hoursPerSession;
+        newTotalFees = Math.round(newTotalHours * perHourRate);
+        setSessionsPerWeek(value);
+    } else { // hours
+        const newTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * value;
+        newTotalFees = Math.round(newTotalHours * perHourRate);
+        setHoursPerSession(value);
+    }
+    setTotalFees(newTotalFees);
   };
   
-  const handleSessionDetailChange = (
-    type: 'sessions' | 'hours',
-    value: number
-  ) => {
-    const newSessions = type === 'sessions' ? value : sessionsPerWeek;
-    const newHoursPer = type === 'hours' ? value : hoursPerSession;
-
-    if (type === 'sessions') setSessionsPerWeek(value);
-    if (type === 'hours') setHoursPerSession(value);
-
-    // Recalculate total fees based on a default per-hour rate when session details change
-    const defaultRate = 500;
-    const newTotalDays = Math.round(newSessions * (32 / 7));
-    const newTotalHours = newTotalDays * newHoursPer;
-    setTotalFees(Math.round(newTotalHours * defaultRate));
+  const handleTotalFeesChange = (newFees: number) => {
+      setTotalFees(newFees);
+      if (totalHours > 0) {
+        setPerHourRate(Math.round(newFees / totalHours));
+      }
   };
 
-
+  const handleEditBudget = () => {
+    setIsEditingBudget(true);
+    setTimeout(() => {
+        totalFeesInputRef.current?.focus();
+        totalFeesInputRef.current?.select();
+    }, 100);
+  };
+  
+  const handleSessionDetailBlur = () => {
+    if (totalHours > 0) {
+        setPerHourRate(Math.round(totalFees / totalHours));
+    }
+  };
+  
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
@@ -497,7 +511,7 @@ function ManageEnquiryContent() {
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
         toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
+        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], (oldData: any) => ({...oldData, ...updatedData}));
         setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
@@ -507,7 +521,7 @@ function ManageEnquiryContent() {
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
       toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], (oldData: any) => ({...oldData, ...updatedData}));
       setIsAddNotesModalOpen(false);
       setNotes("");
     },
@@ -1129,11 +1143,11 @@ function ManageEnquiryContent() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="sessions-week">Sessions/Week</Label>
-                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange('sessions', Number(e.target.value))} />
+                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange('sessions', Number(e.target.value))} onBlur={handleSessionDetailBlur} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="hours-session">Hours/Session</Label>
-                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} />
+                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} onBlur={handleSessionDetailBlur} />
                     </div>
                 </div>
                 
@@ -1142,23 +1156,32 @@ function ManageEnquiryContent() {
                 <div className="text-center p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-center gap-2">
                     <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={handleEditBudget}>
-                      <Edit3 className="h-3.5 w-3.5" />
-                    </Button>
+                    {!isEditingBudget && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={handleEditBudget}>
+                            <Edit3 className="h-3.5 w-3.5" />
+                        </Button>
+                    )}
                   </div>
                   <div className="relative mt-2">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl font-bold">₹</span>
-                      <Input 
-                        ref={totalFeesInputRef}
-                        id="total-fees-editable" 
-                        type="number" 
-                        value={totalFees} 
-                        onChange={(e) => setTotalFees(Number(e.target.value))} 
-                        className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
+                       {isEditingBudget ? (
+                           <Input 
+                                ref={totalFeesInputRef}
+                                id="total-fees-editable" 
+                                type="number" 
+                                value={totalFees} 
+                                onChange={(e) => handleTotalFeesChange(Number(e.target.value))}
+                                onBlur={() => setIsEditingBudget(false)}
+                                className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-1 focus-visible:ring-primary"
+                            />
+                       ) : (
+                          <p className="pl-8 text-2xl font-bold text-primary text-center h-auto p-1">
+                              {totalFees.toLocaleString()}
+                          </p>
+                       )}
                   </div>
                    <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days & {totalHours} hours over 32 days.
+                      Based on ~{totalDays} days & {totalHours} hours. (≈₹{perHourRate}/hr)
                     </div>
                 </div>
               </div>
