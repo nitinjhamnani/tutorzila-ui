@@ -676,7 +676,7 @@ function ManageEnquiryContent() {
   return (
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg border-0">
-        <CardHeader className="p-4 sm:p-5 flex flex-row items-start justify-between gap-4">
+        <CardHeader className="p-4 sm:p-5 flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex-grow">
             <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
               <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
@@ -754,10 +754,10 @@ function ManageEnquiryContent() {
                   </div>
             </div>
           </div>
-           {enquiry.status === "open" && (
+            {enquiry.status === "open" && (
                 <Button
                     size="sm"
-                    className="text-xs bg-green-600 hover:bg-green-700 h-9 shrink-0"
+                    className="text-xs bg-primary hover:bg-primary/90 h-9 shrink-0"
                     onClick={() => updateStatusMutation.mutate({ status: "accepted" })}
                 >
                     <CheckCircle className="mr-1.5 h-4 w-4" />
