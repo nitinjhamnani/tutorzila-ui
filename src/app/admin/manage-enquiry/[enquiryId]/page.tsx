@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -360,33 +359,36 @@ function ManageEnquiryContent() {
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
-  const [totalFees, setTotalFees] = useState(0); 
-  const [precisePerHourRate, setPrecisePerHourRate] = useState(500); 
+  const [totalFees, setTotalFees] = useState(0);
+  const [precisePerHourRate, setPrecisePerHourRate] = useState(500);
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
   const { totalDays, totalHours } = useMemo(() => {
     if (sessionsPerWeek <= 0 || hoursPerSession <= 0) return { totalDays: 0, totalHours: 0 };
-    const days = Math.round(sessionsPerWeek * (32 / 7));
+    const days = Math.round(sessionsPerWeek * (30 / 7));
     const hours = days * hoursPerSession;
     return { totalDays: days, totalHours: hours };
   }, [sessionsPerWeek, hoursPerSession]);
 
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
+    let newTotalFees = totalFees;
+    let newSessionsPerWeek = sessionsPerWeek;
+    let newHoursPerSession = hoursPerSession;
+
     if (type === 'sessions') {
-      setSessionsPerWeek(value);
-      if (!isEditingBudget) {
-        const newTotalHours = Math.round(value * (32 / 7)) * hoursPerSession;
-        setTotalFees(Math.round(newTotalHours * precisePerHourRate));
-      }
+      newSessionsPerWeek = value;
+      setSessionsPerWeek(newSessionsPerWeek);
     }
     if (type === 'hours') {
-      setHoursPerSession(value);
-      if (!isEditingBudget) {
-        const newTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * value;
-        setTotalFees(Math.round(newTotalHours * precisePerHourRate));
-      }
+      newHoursPerSession = value;
+      setHoursPerSession(newHoursPerSession);
     }
+    
+    // Always recalculate total fees based on the per-hour rate when session details change
+    const newTotalHours = Math.round(newSessionsPerWeek * (30 / 7)) * newHoursPerSession;
+    newTotalFees = Math.round(newTotalHours * precisePerHourRate);
+    setTotalFees(newTotalFees);
   };
 
   const handleEditBudget = () => {
@@ -397,8 +399,10 @@ function ManageEnquiryContent() {
     }, 100);
   };
   
-  const handleTotalFeesChange = (newTotal: number) => {
+  const handleTotalFeesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTotal = Number(e.target.value);
     setTotalFees(newTotal);
+    // When total fees are manually changed, update the per-hour rate
     if (totalHours > 0) {
       setPrecisePerHourRate(newTotal / totalHours);
     }
@@ -415,8 +419,8 @@ function ManageEnquiryContent() {
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
-        if (sessionsPerWeek > 0 && hoursPerSession > 0) {
-          const initialTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * hoursPerSession;
+        if (sessionsPerWeek > 0 || hoursPerSession > 0) {
+          const initialTotalHours = Math.round(sessionsPerWeek * (30 / 7)) * hoursPerSession;
           setTotalFees(initialTotalHours * 500);
         }
     }
@@ -513,39 +517,7 @@ function ManageEnquiryContent() {
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-      const transformedData: TuitionRequirement = {
-        id: updatedData.enquirySummary.enquiryId,
-        parentName: updatedData.name || enquiry?.parentName || "A Parent",
-        parentEmail: updatedData.email,
-        parentPhone: updatedData.phone,
-        studentName: updatedData.studentName,
-        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-        gradeLevel: updatedData.enquirySummary.grade,
-        board: updatedData.enquirySummary.board,
-        location: {
-            name: updatedData.addressName || updatedData.address || "",
-            address: updatedData.address,
-            googleMapsUrl: updatedData.googleMapsLink,
-            city: updatedData.enquirySummary.city,
-            state: updatedData.enquirySummary.state,
-            country: updatedData.enquirySummary.country,
-            area: updatedData.enquirySummary.area,
-            pincode: updatedData.pincode,
-        },
-        teachingMode: [
-          ...(updatedData.enquirySummary.online ? ["Online"] : []),
-          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
-        ],
-        scheduleDetails: updatedData.notes,
-        additionalNotes: updatedData.notes,
-        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
-        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-        status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
-        postedAt: updatedData.enquirySummary.createdOn,
-        applicantsCount: updatedData.enquirySummary.assignedTutors,
-        createdBy: updatedData.createdBy,
-      };
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
       setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
@@ -555,39 +527,7 @@ function ManageEnquiryContent() {
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
       toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-       const transformedData: TuitionRequirement = {
-        id: updatedData.enquirySummary.enquiryId,
-        parentName: updatedData.name || enquiry?.parentName || "A Parent",
-        parentEmail: updatedData.email,
-        parentPhone: updatedData.phone,
-        studentName: updatedData.studentName,
-        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-        gradeLevel: updatedData.enquirySummary.grade,
-        board: updatedData.enquirySummary.board,
-        location: {
-            name: updatedData.addressName || updatedData.address || "",
-            address: updatedData.address,
-            googleMapsUrl: updatedData.googleMapsLink,
-            city: updatedData.enquirySummary.city,
-            state: updatedData.enquirySummary.state,
-            country: updatedData.enquirySummary.country,
-            area: updatedData.enquirySummary.area,
-            pincode: updatedData.pincode,
-        },
-        teachingMode: [
-          ...(updatedData.enquirySummary.online ? ["Online"] : []),
-          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
-        ],
-        scheduleDetails: updatedData.notes,
-        additionalNotes: updatedData.notes,
-        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
-        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-        status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
-        postedAt: updatedData.enquirySummary.createdOn,
-        applicantsCount: updatedData.enquirySummary.assignedTutors,
-        createdBy: updatedData.createdBy,
-      };
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
       setIsAddNotesModalOpen(false);
       setNotes("");
     },
@@ -1222,6 +1162,11 @@ function ManageEnquiryContent() {
                 <div className="text-center p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-center gap-2">
                     <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
+                     {!isEditingBudget && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={handleEditBudget}>
+                            <Edit3 className="h-3.5 w-3.5" />
+                        </Button>
+                    )}
                   </div>
                    <div className="relative mt-2">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl font-bold">₹</span>
@@ -1231,7 +1176,7 @@ function ManageEnquiryContent() {
                         id="total-fees-editable"
                         type="number"
                         value={totalFees}
-                        onChange={(e) => setTotalFees(Number(e.target.value))}
+                        onChange={handleTotalFeesChange}
                         onBlur={handleStopEditingBudget}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleStopEditingBudget();
@@ -1243,9 +1188,6 @@ function ManageEnquiryContent() {
                         <p className="pl-8 text-2xl font-bold text-primary text-center h-auto p-1">
                           {Math.round(totalFees).toLocaleString()}
                         </p>
-                         <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={handleEditBudget}>
-                            <Edit3 className="h-3.5 w-3.5" />
-                        </Button>
                       </div>
                     )}
                   </div>
@@ -1271,6 +1213,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-
-    
