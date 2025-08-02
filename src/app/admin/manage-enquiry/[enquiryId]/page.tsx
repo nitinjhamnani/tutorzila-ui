@@ -872,7 +872,7 @@ function ManageEnquiryContent() {
           </DialogContent>
         </Dialog>
         <Dialog open={isParentInfoModalOpen} onOpenChange={setIsParentInfoModalOpen}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md bg-card">
                 <DialogHeader>
                     <DialogTitle>Parent Information</DialogTitle>
                     <DialogDescription>
