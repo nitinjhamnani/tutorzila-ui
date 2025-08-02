@@ -451,10 +451,40 @@ function ManageEnquiryContent() {
   
   const updateMutation = useMutation({
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
-    onSuccess: () => {
-      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
-      setIsEditModalOpen(false);
+    onSuccess: (updatedData) => {
+        toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+        const transformedData: TuitionRequirement = {
+            id: updatedData.enquirySummary.enquiryId,
+            parentName: updatedData.name || enquiry?.parentName || "A Parent", 
+            studentName: updatedData.studentName,
+            subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+            gradeLevel: updatedData.enquirySummary.grade,
+            board: updatedData.enquirySummary.board,
+            location: {
+                name: updatedData.addressName || updatedData.address || "",
+                address: updatedData.address,
+                googleMapsUrl: updatedData.googleMapsLink,
+                city: updatedData.enquirySummary.city,
+                state: updatedData.enquirySummary.state,
+                country: updatedData.enquirySummary.country,
+                area: updatedData.enquirySummary.area,
+                pincode: updatedData.pincode,
+            },
+            teachingMode: [
+            ...(updatedData.enquirySummary.online ? ["Online"] : []),
+            ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+            ],
+            scheduleDetails: updatedData.notes, 
+            additionalNotes: updatedData.notes,
+            preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+            preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+            status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
+            postedAt: updatedData.enquirySummary.createdOn,
+            applicantsCount: updatedData.enquirySummary.assignedTutors,
+            createdBy: updatedData.createdBy,
+        };
+        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+        setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
   });
