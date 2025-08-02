@@ -46,7 +46,10 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      {/* Default close button removed. Consumers should add their own DialogClose or manage onOpenChange. */}
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-1 transition-colors hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+        <X className="h-4 w-4 text-primary" />
+        <span className="sr-only">Close</span>
+      </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
 ))

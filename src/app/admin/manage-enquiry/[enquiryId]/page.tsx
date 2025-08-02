@@ -881,8 +881,8 @@ function ManageEnquiryContent() {
           </DialogContent>
         </Dialog>
         <Dialog open={isParentInfoModalOpen} onOpenChange={setIsParentInfoModalOpen}>
-            <DialogContent className="sm:max-w-md bg-white">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-md bg-card">
+                <DialogHeader className="p-6 pb-4">
                     <DialogTitle>Parent Information</DialogTitle>
                     <DialogDescription>
                         Contact details for the parent who posted this enquiry.
@@ -898,7 +898,7 @@ function ManageEnquiryContent() {
                         <p className="text-xs">{(parentContactQuery.error as Error).message}</p>
                     </div>
                 ) : parentContactQuery.data ? (
-                    <div className="space-y-4 py-4">
+                    <div className="space-y-4 py-4 px-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="p-2 bg-secondary rounded-full">
@@ -940,7 +940,7 @@ function ManageEnquiryContent() {
                         </div>
                     </div>
                 ) : null}
-                <DialogFooter>
+                <DialogFooter className="p-6 border-t">
                     <DialogClose asChild>
                     <Button type="button" variant="outline">
                         Close
@@ -960,6 +960,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-
-    
