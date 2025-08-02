@@ -104,6 +104,8 @@ const acceptReasons = [
 ];
 
 const closeReasons = [
+    { id: 'found-tutor-tutorzila', label: "Found a tutor on Tutorzila" },
+    { id: 'demo-not-liked', label: "Didn't like the tutor demo" },
     { id: 'not-interested', label: "Parent is not interested anymore" },
     { id: 'not-reachable', label: "Parent is not reachable" },
     { id: 'no-tutors-available', label: "No suitable tutors available" },
@@ -851,38 +853,43 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-          <DialogContent className="sm:max-w-md bg-card">
-            <DialogHeader className="p-6 pb-4 border-b">
-              <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
-              <DialogDescription>
-                These notes will be visible to tutors viewing the enquiry details.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="p-6">
-              <Textarea
-                placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="min-h-[120px]"
-                disabled={addNoteMutation.isPending}
-              />
-            </div>
-            <DialogFooter className="p-6 pt-0 border-t">
-              <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
-                {addNoteMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Note
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader className="p-6 pb-4 border-b">
+                <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
+                <DialogDescription>
+                  These notes will be visible to tutors viewing the enquiry details.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="p-6">
+                <Textarea
+                  placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="min-h-[120px]"
+                  disabled={addNoteMutation.isPending}
+                />
+              </div>
+              <DialogFooter className="p-6 pt-0 border-t">
+                 <DialogClose asChild>
+                    <Button type="button" variant="outline" disabled={addNoteMutation.isPending}>
+                        Cancel
+                    </Button>
+                </DialogClose>
+                <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
+                  {addNoteMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Note
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
         </Dialog>
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
           <DialogContent className="sm:max-w-xl bg-card">
