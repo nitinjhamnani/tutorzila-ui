@@ -361,6 +361,7 @@ function ManageEnquiryContent() {
   const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
   const [hoursPerSession, setHoursPerSession] = useState(1);
   const [pricePerHour] = useState(500); // Default price per hour
+  const [totalFees, setTotalFees] = useState(0);
 
   const { totalDays, totalHours, monthlyTotal } = useMemo(() => {
     const days = Math.round(sessionsPerWeek * (32 / 7));
@@ -368,6 +369,10 @@ function ManageEnquiryContent() {
     const total = hours * pricePerHour;
     return { totalDays: days, totalHours: hours, monthlyTotal: total };
   }, [sessionsPerWeek, hoursPerSession, pricePerHour]);
+
+  useEffect(() => {
+    setTotalFees(monthlyTotal);
+  }, [monthlyTotal]);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -550,7 +555,7 @@ function ManageEnquiryContent() {
   const handleConfirmBudget = () => {
     toast({
         title: "Budget Confirmed (Mock)",
-        description: `Budget of ₹${monthlyTotal.toLocaleString()} for this enquiry has been noted.`
+        description: `Budget of ₹${totalFees.toLocaleString()} for this enquiry has been noted.`
     });
     setIsSessionDetailsModalOpen(false);
   }
@@ -876,8 +881,8 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader>
+            <DialogContent className="sm:max-w-md bg-card p-0">
+              <DialogHeader className="p-6">
                 <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
                 <DialogDescription>
                   These notes will be visible to tutors viewing the enquiry details.
@@ -892,7 +897,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter>
+              <DialogFooter className="p-4 sm:p-5">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1114,9 +1119,7 @@ function ManageEnquiryContent() {
                 </div>
                  <div className="space-y-2">
                   <Label htmlFor="total-fees">Total Fees</Label>
-                   <p id="total-fees" className="text-lg font-semibold text-foreground p-2 bg-input rounded-md border">
-                    ₹{monthlyTotal.toLocaleString()}
-                  </p>
+                    <Input id="total-fees" type="number" value={totalFees} onChange={(e) => setTotalFees(Number(e.target.value))} className="text-lg font-semibold text-foreground p-2 bg-input rounded-md border" />
                 </div>
               </div>
               <DialogFooter>
