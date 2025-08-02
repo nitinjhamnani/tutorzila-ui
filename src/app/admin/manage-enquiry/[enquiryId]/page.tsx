@@ -875,7 +875,6 @@ function ManageEnquiryContent() {
                 )}
               </div>
               </div>
-              <DialogFooter className="p-6 border-t" />
           </DialogContent>
         </Dialog>
         <Dialog open={isParentInfoModalOpen} onOpenChange={setIsParentInfoModalOpen}>
@@ -938,7 +937,6 @@ function ManageEnquiryContent() {
                         </div>
                     </div>
                 ) : null}
-                 <DialogFooter className="p-4 border-t" />
             </DialogContent>
         </Dialog>
     </div>
