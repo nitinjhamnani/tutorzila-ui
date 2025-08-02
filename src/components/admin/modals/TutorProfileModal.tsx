@@ -25,10 +25,11 @@ import {
   ShieldCheck,
   ShieldAlert,
   Building,
-  UserPlus
+  UserPlus,
+  Bookmark,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Bookmark } from "lucide-react";
 
 interface TutorProfileModalProps {
   isOpen: boolean;
@@ -87,44 +88,52 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, sourceTab = "re
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 bg-white">
-        <DialogHeader className="p-6 pb-4 border-b">
-          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-            <div className="flex items-center gap-4 flex-grow">
-                <Avatar className="h-16 w-16 border-2 border-primary/20">
-                <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-                <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
-                    {getInitials(tutor.displayName)}
-                </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0 pr-8">
-                  <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
-                  <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
-                   <div className="mt-2 flex items-center gap-2">
-                    <Badge variant={tutor.isActive ? "default" : "destructive"}>
-                        {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                        {tutor.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                    <Badge variant={tutor.isVerified ? "default" : "destructive"}>
-                        {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                        {tutor.isVerified ? 'Verified' : 'Not Verified'}
-                    </Badge>
-                  </div>
+        <DialogHeader className="p-6 pb-4 border-b relative">
+            {/* Wrapper for all content except the absolute close button */}
+            <div className="pr-8"> 
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                    <div className="flex items-center gap-4 flex-grow min-w-0">
+                        <Avatar className="h-16 w-16 border-2 border-primary/20">
+                            <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                            <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
+                                {getInitials(tutor.displayName)}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                            <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
+                            <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
+                            <div className="mt-2 flex items-center gap-2">
+                                <Badge variant={tutor.isActive ? "default" : "destructive"}>
+                                    {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                    {tutor.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                                <Badge variant={tutor.isVerified ? "default" : "destructive"}>
+                                    {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                                    {tutor.isVerified ? 'Verified' : 'Not Verified'}
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="w-full sm:w-auto flex-shrink-0">
+                        {sourceTab === "recommended" ? (
+                        <Button size="sm" className="w-full sm:w-auto">
+                            <Bookmark className="w-4 h-4 mr-2"/>
+                            Shortlist Tutor
+                        </Button>
+                        ) : (
+                        <Button size="sm" className="w-full sm:w-auto">
+                            <UserPlus className="w-4 h-4 mr-2"/>
+                            Assign Tutor
+                        </Button>
+                        )}
+                    </div>
                 </div>
             </div>
-            <div className="w-full sm:w-auto flex-shrink-0">
-                {sourceTab === "recommended" ? (
-                <Button size="sm" className="w-full sm:w-auto">
-                    <Bookmark className="w-4 h-4 mr-2"/>
-                    Shortlist Tutor
-                </Button>
-                ) : (
-                <Button size="sm" className="w-full sm:w-auto">
-                    <UserPlus className="w-4 h-4 mr-2"/>
-                    Assign Tutor
-                </Button>
-                )}
-            </div>
-          </div>
+             {/* The close button remains absolutely positioned but the content above has padding to avoid it */}
+            <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+            </DialogClose>
         </DialogHeader>
 
         <div className="max-h-[70vh] overflow-y-auto p-6 space-y-6">
