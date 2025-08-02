@@ -686,9 +686,14 @@ function ManageEnquiryContent() {
         <CardHeader className="p-4 sm:p-5 relative">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex-grow">
-                  <CardTitle className="text-xl font-semibold text-primary">
-                  {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
-                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-xl font-semibold text-primary">
+                    {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+                    </CardTitle>
+                    <Badge variant="default" className="text-xs">
+                        {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
+                    </Badge>
+                  </div>
                   <div className="space-y-2 pt-2">
                       <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
                           <UsersRound className="w-4 h-4"/> {enquiry.studentName}
@@ -859,4 +864,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
