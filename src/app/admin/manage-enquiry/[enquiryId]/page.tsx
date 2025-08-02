@@ -674,14 +674,14 @@ function ManageEnquiryContent() {
       <Card className="bg-card rounded-xl shadow-lg border-0">
         <CardHeader className="p-4 sm:p-5 relative">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="flex items-center gap-3 flex-grow">
-                <Avatar className="h-12 w-12 border-2 border-primary/20">
+              <div className="flex items-center gap-4 flex-grow">
+                <Avatar className="h-12 w-12 border-2 border-primary/20 shrink-0">
                   <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
                     {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-grow">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <CardTitle className="text-xl font-semibold text-primary">
                       {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
                       </CardTitle>
