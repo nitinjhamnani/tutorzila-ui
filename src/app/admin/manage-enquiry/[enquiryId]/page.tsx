@@ -373,32 +373,18 @@ function ManageEnquiryContent() {
   }, [sessionsPerWeek, hoursPerSession]);
 
    useEffect(() => {
-    if (!isEditingBudget) { // Only auto-calculate if not in edit mode
-        setTotalFees(Math.round(totalHours * perHourRate));
-    }
+    if (isEditingBudget) return;
+    setTotalFees(Math.round(totalHours * perHourRate));
    }, [totalHours, perHourRate, isEditingBudget]);
    
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
-    let newTotalFees, newPerHourRate;
     if (type === 'sessions') {
-        const newTotalHours = Math.round(value * (32 / 7)) * hoursPerSession;
-        newTotalFees = Math.round(newTotalHours * perHourRate);
         setSessionsPerWeek(value);
     } else { // hours
-        const newTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * value;
-        newTotalFees = Math.round(newTotalHours * perHourRate);
         setHoursPerSession(value);
     }
-    setTotalFees(newTotalFees);
   };
   
-  const handleTotalFeesChange = (newFees: number) => {
-      setTotalFees(newFees);
-      if (totalHours > 0) {
-        setPerHourRate(Math.round(newFees / totalHours));
-      }
-  };
-
   const handleEditBudget = () => {
     setIsEditingBudget(true);
     setTimeout(() => {
@@ -411,6 +397,7 @@ function ManageEnquiryContent() {
     if (totalHours > 0) {
         setPerHourRate(Math.round(totalFees / totalHours));
     }
+    setIsEditingBudget(false);
   };
   
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
@@ -510,9 +497,42 @@ function ManageEnquiryContent() {
   const updateMutation = useMutation({
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
-        toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], (oldData: any) => ({...oldData, ...updatedData}));
-        setIsEditModalOpen(false);
+      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+      const transformedData: TuitionRequirement = {
+        id: updatedData.enquirySummary.enquiryId,
+        parentName: updatedData.name || enquiry?.parentName || "A Parent",
+        parentEmail: updatedData.email,
+        parentPhone: updatedData.phone,
+        studentName: updatedData.studentName,
+        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+        gradeLevel: updatedData.enquirySummary.grade,
+        board: updatedData.enquirySummary.board,
+        location: {
+            name: updatedData.addressName || updatedData.address || "",
+            address: updatedData.address,
+            googleMapsUrl: updatedData.googleMapsLink,
+            city: updatedData.enquirySummary.city,
+            state: updatedData.enquirySummary.state,
+            country: updatedData.enquirySummary.country,
+            area: updatedData.enquirySummary.area,
+            pincode: updatedData.pincode,
+        },
+        teachingMode: [
+          ...(updatedData.enquirySummary.online ? ["Online"] : []),
+          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+        ],
+        scheduleDetails: updatedData.notes,
+        additionalNotes: updatedData.notes,
+        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+        status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
+        postedAt: updatedData.enquirySummary.createdOn,
+        applicantsCount: updatedData.enquirySummary.assignedTutors,
+        createdBy: updatedData.createdBy,
+      };
+
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+      setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
   });
@@ -521,7 +541,40 @@ function ManageEnquiryContent() {
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
       toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], (oldData: any) => ({...oldData, ...updatedData}));
+        const transformedData: TuitionRequirement = {
+        id: updatedData.enquirySummary.enquiryId,
+        parentName: updatedData.name || enquiry?.parentName || "A Parent",
+        parentEmail: updatedData.email,
+        parentPhone: updatedData.phone,
+        studentName: updatedData.studentName,
+        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+        gradeLevel: updatedData.enquirySummary.grade,
+        board: updatedData.enquirySummary.board,
+        location: {
+            name: updatedData.addressName || updatedData.address || "",
+            address: updatedData.address,
+            googleMapsUrl: updatedData.googleMapsLink,
+            city: updatedData.enquirySummary.city,
+            state: updatedData.enquirySummary.state,
+            country: updatedData.enquirySummary.country,
+            area: updatedData.enquirySummary.area,
+            pincode: updatedData.pincode,
+        },
+        teachingMode: [
+          ...(updatedData.enquirySummary.online ? ["Online"] : []),
+          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+        ],
+        scheduleDetails: updatedData.notes,
+        additionalNotes: updatedData.notes,
+        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+        status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
+        postedAt: updatedData.enquirySummary.createdOn,
+        applicantsCount: updatedData.enquirySummary.assignedTutors,
+        createdBy: updatedData.createdBy,
+      };
+      
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
       setIsAddNotesModalOpen(false);
       setNotes("");
     },
@@ -1143,11 +1196,11 @@ function ManageEnquiryContent() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="sessions-week">Sessions/Week</Label>
-                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange('sessions', Number(e.target.value))} onBlur={handleSessionDetailBlur} />
+                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange('sessions', Number(e.target.value))} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="hours-session">Hours/Session</Label>
-                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} onBlur={handleSessionDetailBlur} />
+                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} />
                     </div>
                 </div>
                 
@@ -1162,26 +1215,26 @@ function ManageEnquiryContent() {
                         </Button>
                     )}
                   </div>
-                  <div className="relative mt-2">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl font-bold">₹</span>
-                       {isEditingBudget ? (
-                           <Input 
-                                ref={totalFeesInputRef}
-                                id="total-fees-editable" 
-                                type="number" 
-                                value={totalFees} 
-                                onChange={(e) => handleTotalFeesChange(Number(e.target.value))}
-                                onBlur={() => setIsEditingBudget(false)}
-                                className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-1 focus-visible:ring-primary"
-                            />
-                       ) : (
-                          <p className="pl-8 text-2xl font-bold text-primary text-center h-auto p-1">
-                              {totalFees.toLocaleString()}
-                          </p>
-                       )}
+                   <div className="relative mt-2">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl font-bold">₹</span>
+                    {isEditingBudget ? (
+                      <Input
+                        ref={totalFeesInputRef}
+                        id="total-fees-editable"
+                        type="number"
+                        value={totalFees}
+                        onChange={(e) => setTotalFees(Number(e.target.value))}
+                        onBlur={handleSessionDetailBlur}
+                        className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-1 focus-visible:ring-primary"
+                      />
+                    ) : (
+                      <p className="pl-8 text-2xl font-bold text-primary text-center h-auto p-1">
+                        {totalFees.toLocaleString()}
+                      </p>
+                    )}
                   </div>
                    <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days & {totalHours} hours. (≈₹{perHourRate}/hr)
+                      Based on ~{totalDays} days & {totalHours} hours. (≈₹{perHourRate.toLocaleString()}/hr)
                     </div>
                 </div>
               </div>
