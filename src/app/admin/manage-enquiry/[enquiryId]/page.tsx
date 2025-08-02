@@ -942,7 +942,7 @@ function ManageEnquiryContent() {
                 ) : null}
                 <DialogFooter className="p-6 border-t">
                     <DialogClose asChild>
-                    <Button type="button" variant="outline">
+                    <Button type="button" variant="default">
                         Close
                     </Button>
                     </DialogClose>
