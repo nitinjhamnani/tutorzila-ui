@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send, Edit3, Settings, CheckCircle } from "lucide-react";
+import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send, Edit3, Settings, CheckCircle, XCircle } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -48,23 +48,35 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
   return (
     <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
-        <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
-              {subjectInitials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-grow min-w-0">
-            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
-               {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-            </CardTitle>
-            <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
-              <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
-            </CardDescription>
-          </div>
-          <Badge variant="default" className="absolute top-0 right-0 text-xs">
-            {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-          </Badge>
+        <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start space-x-3 flex-grow min-w-0">
+                <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
+                    {subjectInitials}
+                    </AvatarFallback>
+                </Avatar>
+                <div className="flex-grow min-w-0">
+                    <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words pr-16">
+                    {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                    </CardTitle>
+                    <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
+                    <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
+                    </CardDescription>
+                </div>
+            </div>
+
+             <div className="absolute top-0 right-0 flex items-center gap-1">
+                {requirement.status === 'open' && (
+                    <Button variant="default" size="sm" className="h-7 text-xs px-2 rounded-md">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Accept
+                    </Button>
+                )}
+                <Button variant="destructive" size="sm" className="h-7 text-xs px-2 rounded-md">
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Close
+                </Button>
+            </div>
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 text-xs flex-grow">
@@ -94,7 +106,7 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
             <Button
                 asChild
                 size="sm"
-                variant="default"
+                variant="outline"
                 className="text-xs py-1.5 px-3 h-auto"
                 >
                 <Link href={manageEnquiryUrl}>
