@@ -843,11 +843,6 @@ function ManageEnquiryContent() {
                 />
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline" disabled={addNoteMutation.isPending}>
-                    Cancel
-                  </Button>
-                </DialogClose>
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
