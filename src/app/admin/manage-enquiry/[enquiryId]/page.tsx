@@ -154,7 +154,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     additionalNotes: data.notes,
     preferredDays: typeof data.availabilityDays === 'string' ? data.availabilityDays.split(',').map((d:string) => d.trim()) : [],
     preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-    status: data.status?.toLowerCase() || 'open',
+    status: data.enquirySummary.status?.toLowerCase() || 'open',
     postedAt: data.enquirySummary.createdOn,
     applicantsCount: data.enquirySummary.assignedTutors,
   };
