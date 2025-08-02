@@ -89,7 +89,7 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, sourceTab = "re
       <DialogContent className="sm:max-w-3xl p-0 bg-white">
         <DialogHeader className="p-6 pb-4 border-b">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-grow pr-10">
                 <Avatar className="h-16 w-16 border-2 border-primary/20">
                 <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
                 <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
@@ -111,17 +111,19 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, sourceTab = "re
                   </div>
                 </div>
             </div>
-            {sourceTab === "recommended" ? (
-              <Button size="sm" className="w-full sm:w-auto mt-2 sm:mt-0">
-                <Bookmark className="w-4 h-4 mr-2"/>
-                Shortlist Tutor
-              </Button>
-            ) : (
-              <Button size="sm" className="w-full sm:w-auto mt-2 sm:mt-0">
-                  <UserPlus className="w-4 h-4 mr-2"/>
-                  Assign Tutor
-              </Button>
-            )}
+            <div className="w-full sm:w-auto flex-shrink-0">
+                {sourceTab === "recommended" ? (
+                <Button size="sm" className="w-full sm:w-auto">
+                    <Bookmark className="w-4 h-4 mr-2"/>
+                    Shortlist Tutor
+                </Button>
+                ) : (
+                <Button size="sm" className="w-full sm:w-auto">
+                    <UserPlus className="w-4 h-4 mr-2"/>
+                    Assign Tutor
+                </Button>
+                )}
+            </div>
           </div>
         </DialogHeader>
 
