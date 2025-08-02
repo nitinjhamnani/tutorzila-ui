@@ -50,6 +50,7 @@ export interface TuitionRequirement {
   mockIsAppliedByCurrentUser?: boolean;
   mockIsShortlistedByCurrentUser?: boolean;
   appliedTutorIds?: string[];
+  createdBy?: 'PARENT' | 'ADMIN';
 }
 
 export interface TutorProfile extends User {

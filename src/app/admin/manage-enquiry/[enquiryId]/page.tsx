@@ -41,6 +41,7 @@ import { AdminEnquiryModal, type AdminEnquiryEditFormValues } from "@/components
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import {
   Users,
@@ -158,6 +159,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     status: data.enquirySummary.status?.toLowerCase() || 'open',
     postedAt: data.enquirySummary.createdOn,
     applicantsCount: data.enquirySummary.assignedTutors,
+    createdBy: data.enquirySummary.createdBy,
   };
 };
 
@@ -672,43 +674,50 @@ function ManageEnquiryContent() {
       <Card className="bg-card rounded-xl shadow-lg border-0">
         <CardHeader className="p-4 sm:p-5 relative">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="flex-grow">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-xl font-semibold text-primary">
-                    {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
-                    </CardTitle>
-                    <Badge variant="default" className="text-xs">
-                        {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
-                    </Badge>
-                  </div>
-                  <div className="space-y-2 pt-2">
-                      <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                          <UsersRound className="w-4 h-4"/> {enquiry.studentName}
-                      </CardDescription>
-                      <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                          <Clock className="w-3.5 h-3.5" /> 
-                          Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
-                      </CardDescription>
-                       <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
-                                {enquiry.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>}
-                                <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
-                            </div>
-                            {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
-                                <div className="flex items-center gap-1.5 pt-1">
-                                    <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
-                                    {locationInfo.googleMapsUrl ? (
-                                        <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
-                                            {locationInfo.address}
-                                        </a>
-                                    ) : (
-                                        <span className="line-clamp-1">{locationInfo.address}</span>
-                                    )}
-                                </div>
-                            )}
-                      </div>
-                  </div>
+              <div className="flex items-center gap-3 flex-grow">
+                <Avatar className="h-12 w-12 border-2 border-primary/20">
+                  <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
+                    {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-grow">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-xl font-semibold text-primary">
+                      {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+                      </CardTitle>
+                      <Badge variant="default" className="text-xs">
+                          {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
+                      </Badge>
+                    </div>
+                    <div className="space-y-2 pt-2">
+                        <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                            <UsersRound className="w-4 h-4"/> {enquiry.studentName}
+                        </CardDescription>
+                        <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                            <Clock className="w-3.5 h-3.5" /> 
+                            Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
+                        </CardDescription>
+                        <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
+                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                  <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
+                                  {enquiry.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>}
+                                  <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
+                              </div>
+                              {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
+                                  <div className="flex items-center gap-1.5 pt-1">
+                                      <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
+                                      {locationInfo.googleMapsUrl ? (
+                                          <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
+                                              {locationInfo.address}
+                                          </a>
+                                      ) : (
+                                          <span className="line-clamp-1">{locationInfo.address}</span>
+                                      )}
+                                  </div>
+                              )}
+                        </div>
+                    </div>
+                </div>
               </div>
               <div className="hidden sm:flex sm:absolute sm:top-4 sm:right-4 flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {enquiry.status === "open" && (
@@ -883,3 +892,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
