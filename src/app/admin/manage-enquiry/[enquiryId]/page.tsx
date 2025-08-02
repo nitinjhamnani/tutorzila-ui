@@ -70,6 +70,7 @@ import {
   CalendarDays,
   User,
   Building,
+  CheckSquare,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -707,6 +708,16 @@ function ManageEnquiryContent() {
                             )}
                       </div>
                   </div>
+              </div>
+              <div className="sm:absolute sm:top-4 sm:right-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {enquiry.status === "open" && (
+                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md">
+                    <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
+                  </Button>
+                )}
+                <Button variant="destructive-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md">
+                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
+                </Button>
               </div>
           </div>
         </CardHeader>
