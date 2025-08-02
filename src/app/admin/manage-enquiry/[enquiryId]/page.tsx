@@ -103,6 +103,13 @@ const acceptReasons = [
     { id: 'other', label: "Other" }
 ];
 
+const closeReasons = [
+    { id: 'not-interested', label: "Parent is not interested anymore" },
+    { id: 'not-reachable', label: "Parent is not reachable" },
+    { id: 'no-tutors-available', label: "No suitable tutors available" },
+    { id: 'other', label: "Other" }
+];
+
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -339,9 +346,8 @@ function ManageEnquiryContent() {
   const [notes, setNotes] = useState("");
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isParentInfoModalOpen, setIsParentInfoModalOpen] = useState(false);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-  const [statusRemark, setStatusRemark] = useState("");
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [closeReason, setCloseReason] = useState<string | null>(null);
   const [isTutorQueryEnabled, setIsTutorQueryEnabled] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
@@ -464,16 +470,17 @@ function ManageEnquiryContent() {
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ status, remark }: { status: string, remark?: string }) => updateEnquiryStatus({ enquiryId, token, status, remark }),
-    onSuccess: () => {
-      toast({ title: "Status Updated", description: "The enquiry status has been updated." });
-      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
-      setIsStatusModalOpen(false);
-      setIsAcceptModalOpen(false);
-      setStatusRemark("");
-      setAcceptReason(null);
+    onSuccess: (_, variables) => {
+        const successMessage = variables.status === 'closed' ? 'Enquiry has been closed.' : `Status updated to ${variables.status}.`;
+        toast({ title: "Status Updated", description: successMessage });
+        queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+        setIsCloseModalOpen(false);
+        setIsAcceptModalOpen(false);
+        setCloseReason(null);
+        setAcceptReason(null);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Status Update Failed", description: error.message }),
-  });
+});
   
   const handleViewProfile = (tutor: ApiTutor) => {
     setSelectedTutor(tutor);
@@ -498,11 +505,18 @@ function ManageEnquiryContent() {
     addNoteMutation.mutate(notes);
   };
 
-  const handleOpenStatusModal = () => {
-    setSelectedStatus(enquiry?.status || null);
-    setStatusRemark("");
-    setIsStatusModalOpen(true);
-  }
+ const handleOpenCloseModal = () => {
+    setCloseReason(null);
+    setIsCloseModalOpen(true);
+  };
+
+  const handleConfirmClosure = () => {
+    if (!closeReason) {
+      toast({ variant: "destructive", title: "Reason Required", description: "Please select a reason for closing." });
+      return;
+    }
+    updateStatusMutation.mutate({ status: "closed", remark: closeReason });
+  };
 
   const handleOpenAcceptModal = () => {
     setAcceptReason(null);
@@ -515,14 +529,6 @@ function ManageEnquiryContent() {
       return;
     }
     updateStatusMutation.mutate({ status: "accepted", remark: acceptReason });
-  }
-
-  const handleConfirmStatusChange = () => {
-    if (!selectedStatus) {
-      toast({ variant: "destructive", title: "No Status Selected", description: "Please choose a new status." });
-      return;
-    }
-    updateStatusMutation.mutate({ status: selectedStatus, remark: statusRemark });
   }
 
   const handleCopyToClipboard = (text: string, fieldName: string) => {
@@ -778,13 +784,13 @@ function ManageEnquiryContent() {
                       </div>
                   </div>
               </div>
-               <div className="absolute top-4 right-4">
+              <div className="absolute top-4 right-4">
                   <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
                     <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
                       {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
                     </AvatarFallback>
                   </Avatar>
-                </div>
+              </div>
             </div>
             <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {enquiry.status === "open" && (
@@ -793,7 +799,7 @@ function ManageEnquiryContent() {
                   </Button>
                 )}
                 {enquiry.status !== "closed" && (
-                    <Button variant="destructive-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenStatusModal}>
+                    <Button variant="destructive-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenCloseModal}>
                         <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
                     </Button>
                 )}
@@ -818,7 +824,7 @@ function ManageEnquiryContent() {
                   </Button>
                 )}
                 {enquiry.status !== "closed" && (
-                    <Button variant="destructive-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenStatusModal}>
+                    <Button variant="destructive-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenCloseModal}>
                         <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
                     </Button>
                 )}
@@ -845,38 +851,38 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader className="p-6 pb-4 border-b">
-                <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
-                <DialogDescription>
-                  These notes will be visible to tutors viewing the enquiry details.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="p-6">
-                <Textarea
-                  placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="min-h-[120px]"
-                  disabled={addNoteMutation.isPending}
-                />
-              </div>
-              <DialogFooter className="p-6 pt-0 border-t">
-                <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
-                  {addNoteMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Note
-                    </>
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
+          <DialogContent className="sm:max-w-md bg-card">
+            <DialogHeader className="p-6 pb-4 border-b">
+              <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
+              <DialogDescription>
+                These notes will be visible to tutors viewing the enquiry details.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="p-6">
+              <Textarea
+                placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="min-h-[120px]"
+                disabled={addNoteMutation.isPending}
+              />
+            </div>
+            <DialogFooter className="p-6 pt-0 border-t">
+              <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
+                {addNoteMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Note
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
           <DialogContent className="sm:max-w-xl bg-card">
@@ -1020,6 +1026,43 @@ function ManageEnquiryContent() {
               </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        <Dialog open={isCloseModalOpen} onOpenChange={setIsCloseModalOpen}>
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader>
+                <DialogTitle>Close Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
+                <DialogDescription>
+                  Please select a reason for closing this requirement. This action cannot be undone immediately.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                  <RadioGroup
+                    onValueChange={(value: string) => setCloseReason(value)}
+                    value={closeReason || ""}
+                    className="flex flex-col space-y-2"
+                  >
+                    {closeReasons.map((reason) => (
+                      <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                        <RadioGroupItem value={reason.label} id={`admin-close-${reason.id}`} />
+                        <Label htmlFor={`admin-close-${reason.id}`} className="font-normal text-sm">{reason.label}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+              </div>
+              <DialogFooter>
+                 <Button 
+                  type="button" 
+                  onClick={handleConfirmClosure} 
+                  disabled={!closeReason || updateStatusMutation.isPending}
+                  variant="destructive"
+                >
+                  {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {updateStatusMutation.isPending ? "Closing..." : "Confirm Closure"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
     </div>
   );
 }
