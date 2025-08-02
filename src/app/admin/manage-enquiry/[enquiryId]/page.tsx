@@ -358,33 +358,35 @@ function ManageEnquiryContent() {
   const [acceptReason, setAcceptReason] = useState<string | null>(null);
   const [isSessionDetailsModalOpen, setIsSessionDetailsModalOpen] = useState(false);
   
-  const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
-  const [hoursPerSession, setHoursPerSession] = useState(1);
+  const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
+  const [hoursPerSession, setHoursPerSession] = useState(0);
   const [totalFees, setTotalFees] = useState(0); 
-  const [perHourRate, setPerHourRate] = useState(500); 
+  const [precisePerHourRate, setPrecisePerHourRate] = useState(500); 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
   const { totalDays, totalHours } = useMemo(() => {
+    if (sessionsPerWeek <= 0 || hoursPerSession <= 0) return { totalDays: 0, totalHours: 0 };
     const days = Math.round(sessionsPerWeek * (32 / 7));
     const hours = days * hoursPerSession;
     return { totalDays: days, totalHours: hours };
   }, [sessionsPerWeek, hoursPerSession]);
 
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
-    setIsEditingBudget(false);
-    let newTotalFees = 0;
     if (type === 'sessions') {
+      setSessionsPerWeek(value);
+      if (!isEditingBudget) {
         const newTotalHours = Math.round(value * (32 / 7)) * hoursPerSession;
-        newTotalFees = Math.round(newTotalHours * perHourRate);
-        setSessionsPerWeek(value);
+        setTotalFees(Math.round(newTotalHours * precisePerHourRate));
+      }
     }
     if (type === 'hours') {
+      setHoursPerSession(value);
+      if (!isEditingBudget) {
         const newTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * value;
-        newTotalFees = Math.round(newTotalHours * perHourRate);
-        setHoursPerSession(value);
+        setTotalFees(Math.round(newTotalHours * precisePerHourRate));
+      }
     }
-    setTotalFees(newTotalFees);
   };
 
   const handleEditBudget = () => {
@@ -394,13 +396,18 @@ function ManageEnquiryContent() {
         totalFeesInputRef.current?.select();
     }, 100);
   };
-
+  
   const handleTotalFeesChange = (newTotal: number) => {
     setTotalFees(newTotal);
     if (totalHours > 0) {
-      setPerHourRate(newTotal / totalHours);
+      setPrecisePerHourRate(newTotal / totalHours);
     }
   };
+  
+  const handleStopEditingBudget = () => {
+    setIsEditingBudget(false);
+  };
+
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -408,8 +415,10 @@ function ManageEnquiryContent() {
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
-        const initialTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * hoursPerSession;
-        setTotalFees(initialTotalHours * 500);
+        if (sessionsPerWeek > 0 && hoursPerSession > 0) {
+          const initialTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * hoursPerSession;
+          setTotalFees(initialTotalHours * 500);
+        }
     }
   });
 
@@ -504,7 +513,6 @@ function ManageEnquiryContent() {
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-      
       const transformedData: TuitionRequirement = {
         id: updatedData.enquirySummary.enquiryId,
         parentName: updatedData.name || enquiry?.parentName || "A Parent",
@@ -537,7 +545,6 @@ function ManageEnquiryContent() {
         applicantsCount: updatedData.enquirySummary.assignedTutors,
         createdBy: updatedData.createdBy,
       };
-
       queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
       setIsEditModalOpen(false);
     },
@@ -548,8 +555,7 @@ function ManageEnquiryContent() {
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
       toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-      
-      const transformedData: TuitionRequirement = {
+       const transformedData: TuitionRequirement = {
         id: updatedData.enquirySummary.enquiryId,
         parentName: updatedData.name || enquiry?.parentName || "A Parent",
         parentEmail: updatedData.email,
@@ -581,7 +587,6 @@ function ManageEnquiryContent() {
         applicantsCount: updatedData.enquirySummary.assignedTutors,
         createdBy: updatedData.createdBy,
       };
-      
       queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
       setIsAddNotesModalOpen(false);
       setNotes("");
@@ -1178,7 +1183,7 @@ function ManageEnquiryContent() {
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4 bg-muted/50">
+              <DialogFooter className="p-4">
                  <Button 
                   type="button" 
                   onClick={handleConfirmClosure} 
@@ -1226,8 +1231,11 @@ function ManageEnquiryContent() {
                         id="total-fees-editable"
                         type="number"
                         value={totalFees}
-                        onChange={(e) => handleTotalFeesChange(Number(e.target.value))}
-                        onBlur={() => setIsEditingBudget(false)}
+                        onChange={(e) => setTotalFees(Number(e.target.value))}
+                        onBlur={handleStopEditingBudget}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleStopEditingBudget();
+                        }}
                         className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-1 focus-visible:ring-primary"
                       />
                     ) : (
@@ -1242,7 +1250,7 @@ function ManageEnquiryContent() {
                     )}
                   </div>
                    <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{Math.round(totalHours > 0 ? perHourRate : 0).toLocaleString()}/hr)
+                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{Math.round(totalHours > 0 ? totalFees / totalHours : 0).toLocaleString()}/hr)
                     </div>
                 </div>
               </div>
@@ -1263,3 +1271,6 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+
+    
