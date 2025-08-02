@@ -74,6 +74,7 @@ import {
   CheckSquare,
   Archive,
   Mail,
+  Copy,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -499,6 +500,14 @@ function ManageEnquiryContent() {
     }
     updateStatusMutation.mutate({ status: selectedStatus, remark: statusRemark });
   }
+
+  const handleCopyToClipboard = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Copied to Clipboard", description: `${fieldName} has been copied.` });
+    }, (err) => {
+      toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy text." });
+    });
+  };
   
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -872,7 +881,7 @@ function ManageEnquiryContent() {
           </DialogContent>
         </Dialog>
         <Dialog open={isParentInfoModalOpen} onOpenChange={setIsParentInfoModalOpen}>
-            <DialogContent className="sm:max-w-md bg-card">
+            <DialogContent className="sm:max-w-md bg-white">
                 <DialogHeader>
                     <DialogTitle>Parent Information</DialogTitle>
                     <DialogDescription>
@@ -890,32 +899,44 @@ function ManageEnquiryContent() {
                     </div>
                 ) : parentContactQuery.data ? (
                     <div className="space-y-4 py-4">
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-muted rounded-full">
-                                <User className="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <div>
-                                <Label className="text-xs text-muted-foreground">Name</Label>
-                                <p className="font-medium text-foreground">{parentContactQuery.data.name}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-muted rounded-full">
-                                <Mail className="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <div>
-                                <Label className="text-xs text-muted-foreground">Email</Label>
-                                <p className="font-medium text-foreground">{parentContactQuery.data.email}</p>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-muted rounded-full">
+                                    <User className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                    <Label className="text-xs text-muted-foreground">Name</Label>
+                                    <p className="font-medium text-foreground">{parentContactQuery.data.name}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-muted rounded-full">
-                                <Phone className="h-5 w-5 text-muted-foreground" />
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-muted rounded-full">
+                                    <Mail className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                    <Label className="text-xs text-muted-foreground">Email</Label>
+                                    <p className="font-medium text-foreground">{parentContactQuery.data.email}</p>
+                                </div>
                             </div>
-                            <div>
-                                <Label className="text-xs text-muted-foreground">Phone</Label>
-                                <p className="font-medium text-foreground">{parentContactQuery.data.countryCode} {parentContactQuery.data.phone}</p>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyToClipboard(parentContactQuery.data!.email, 'Email')}>
+                                <Copy className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-4">
+                                <div className="p-2 bg-muted rounded-full">
+                                    <Phone className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                    <Label className="text-xs text-muted-foreground">Phone</Label>
+                                    <p className="font-medium text-foreground">{parentContactQuery.data.countryCode} {parentContactQuery.data.phone}</p>
+                                </div>
                             </div>
+                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyToClipboard(`${parentContactQuery.data!.countryCode} ${parentContactQuery.data!.phone}`, 'Phone number')}>
+                                <Copy className="h-4 w-4" />
+                            </Button>
                         </div>
                     </div>
                 ) : null}
