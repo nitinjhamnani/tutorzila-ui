@@ -491,9 +491,39 @@ function ManageEnquiryContent() {
 
   const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
-    onSuccess: () => {
+    onSuccess: (updatedData) => {
       toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+      const transformedData: TuitionRequirement = {
+        id: updatedData.enquirySummary.enquiryId,
+        parentName: updatedData.name || enquiry?.parentName || "A Parent",
+        studentName: updatedData.studentName,
+        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s: string) => s.trim()) : [],
+        gradeLevel: updatedData.enquirySummary.grade,
+        board: updatedData.enquirySummary.board,
+        location: {
+          name: updatedData.addressName || updatedData.address || "",
+          address: updatedData.address,
+          googleMapsUrl: updatedData.googleMapsLink,
+          city: updatedData.enquirySummary.city,
+          state: updatedData.enquirySummary.state,
+          country: updatedData.enquirySummary.country,
+          area: updatedData.enquirySummary.area,
+          pincode: updatedData.pincode,
+        },
+        teachingMode: [
+          ...(updatedData.enquirySummary.online ? ["Online"] : []),
+          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+        ],
+        scheduleDetails: updatedData.notes,
+        additionalNotes: updatedData.notes,
+        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d: string) => d.trim()) : [],
+        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t: string) => t.trim()) : [],
+        status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
+        postedAt: updatedData.enquirySummary.createdOn,
+        applicantsCount: updatedData.enquirySummary.assignedTutors,
+        createdBy: updatedData.createdBy,
+      };
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
       setIsAddNotesModalOpen(false);
       setNotes("");
     },
@@ -883,7 +913,7 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md bg-card">
+            <DialogContent className="sm:max-w-md bg-card p-0">
               <DialogHeader className="p-6 pb-4">
                 <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
                 <DialogDescription>
