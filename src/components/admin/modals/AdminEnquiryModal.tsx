@@ -143,7 +143,7 @@ export function AdminEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateE
         className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="p-6 pb-4 border-b relative">
+        <DialogHeader className="p-6 pb-4 relative">
           <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
           <DialogDescription className="text-xs">
             Update the details for enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
@@ -347,3 +347,5 @@ export function AdminEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateE
     </Dialog>
   );
 }
+
+    
