@@ -665,55 +665,62 @@ function ManageEnquiryContent() {
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
   const hasScheduleInfo = enquiry ? ((enquiry.preferredDays && enquiry.preferredDays.length > 0) || (enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0)) : false;
 
+  const actionButtons = (
+      <div className="flex items-center gap-1.5">
+          {enquiry.status === 'open' && (
+              <Button variant="default" size="sm" className="h-7 text-xs px-2 rounded-md">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Accept
+              </Button>
+          )}
+          <Button variant="destructive" size="sm" className="h-7 text-xs px-2 rounded-md">
+              <XCircle className="h-3 w-3 mr-1" />
+              Close
+          </Button>
+      </div>
+  );
+  
   return (
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg border-0">
-        <CardHeader className="p-4 sm:p-5 flex flex-col sm:flex-row items-start justify-between gap-4 relative">
-          <div className="flex-grow">
-            <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
-              <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
-            </CardTitle>
-            <div className="space-y-2 pt-2">
-                <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                    <UsersRound className="w-4 h-4"/> {enquiry.studentName}
-                </CardDescription>
-                <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                    <Clock className="w-3.5 h-3.5" /> 
-                    Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
-                </CardDescription>
-                 <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                          <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
-                          {enquiry.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>}
-                          <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
+        <CardHeader className="p-4 sm:p-5 relative">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div className="flex-grow">
+                  <CardTitle className="text-xl font-semibold text-primary">
+                  {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+                  </CardTitle>
+                  <div className="space-y-2 pt-2">
+                      <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                          <UsersRound className="w-4 h-4"/> {enquiry.studentName}
+                      </CardDescription>
+                      <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                          <Clock className="w-3.5 h-3.5" /> 
+                          Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
+                      </CardDescription>
+                       <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
+                                {enquiry.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>}
+                                <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
+                            </div>
+                            {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
+                                <div className="flex items-center gap-1.5 pt-1">
+                                    <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
+                                    {locationInfo.googleMapsUrl ? (
+                                        <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
+                                            {locationInfo.address}
+                                        </a>
+                                    ) : (
+                                        <span className="line-clamp-1">{locationInfo.address}</span>
+                                    )}
+                                </div>
+                            )}
                       </div>
-                      {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
-                          <div className="flex items-center gap-1.5 pt-1">
-                              <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
-                              {locationInfo.googleMapsUrl ? (
-                                  <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
-                                      {locationInfo.address}
-                                  </a>
-                              ) : (
-                                  <span className="line-clamp-1">{locationInfo.address}</span>
-                              )}
-                          </div>
-                      )}
                   </div>
-            </div>
+              </div>
+              <div className="hidden sm:block absolute top-4 right-4">{actionButtons}</div>
           </div>
-          <div className="absolute top-4 right-4 flex items-center gap-1">
-            {enquiry.status === 'open' && (
-                <Button variant="default" size="sm" className="h-7 text-xs px-2 rounded-md">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Accept
-                </Button>
-            )}
-            <Button variant="destructive" size="sm" className="h-7 text-xs px-2 rounded-md">
-                <XCircle className="h-3 w-3 mr-1" />
-                Close
-            </Button>
-          </div>
+           <div className="sm:hidden mt-4 flex justify-end">{actionButtons}</div>
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
            <Button variant="outline" size="sm" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
@@ -852,3 +859,4 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
