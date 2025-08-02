@@ -709,7 +709,7 @@ function ManageEnquiryContent() {
                       </div>
                   </div>
               </div>
-              <div className="sm:absolute sm:top-4 sm:right-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="hidden sm:flex sm:absolute sm:top-4 sm:right-4 flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {enquiry.status === "open" && (
                   <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md">
                     <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
@@ -720,12 +720,22 @@ function ManageEnquiryContent() {
                 </Button>
               </div>
           </div>
+            <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {enquiry.status === "open" && (
+                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md">
+                    <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
+                  </Button>
+                )}
+                <Button variant="destructive-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md">
+                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
+                </Button>
+            </div>
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
-           <Button variant="outline" size="sm" onClick={() => setIsParentInfoModalOpen(true)} className="text-xs h-7 px-2.5 rounded-md"><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
-           <Button variant="outline" size="sm" onClick={() => setIsDetailsModalOpen(true)} className="text-xs h-7 px-2.5 rounded-md"><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
-           <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)} className="text-xs h-7 px-2.5 rounded-md"><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
-           <Button variant="outline" size="sm" onClick={handleOpenNotesModal} className="text-xs h-7 px-2.5 rounded-md"><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
+           <Button variant="outline" size="xs" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
+           <Button variant="outline" size="xs" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
+           <Button variant="outline" size="xs" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
+           <Button variant="outline" size="xs" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
         </CardFooter>
       </Card>
       
