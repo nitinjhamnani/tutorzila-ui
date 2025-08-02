@@ -319,7 +319,7 @@ function ManageEnquiryContent() {
   });
 
   const getInitialFilters = useCallback(() => {
-    if (!enquiry) return {};
+    if (!enquiry) return { subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
     const location = (typeof enquiry.location === 'object' && enquiry.location) ? enquiry.location : { city: "", area: "" };
     return {
       subjects: enquiry.subject || [],
@@ -378,15 +378,7 @@ function ManageEnquiryContent() {
   };
   
   const handleClearFilters = () => {
-    const clearedFilters = {
-      subjects: [],
-      grade: '',
-      board: '',
-      isOnline: false,
-      isOffline: false,
-      city: "",
-      area: "",
-    };
+    const clearedFilters = { subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
     setFilters(clearedFilters);
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
@@ -680,50 +672,6 @@ function ManageEnquiryContent() {
           <div className="flex-grow">
             <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
               <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
-              <Dialog open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
-                <DialogTrigger asChild>
-                   <Badge variant="default" className="text-xs cursor-pointer hover:bg-primary/80 transition-colors">
-                        {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
-                  </Badge>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-sm">
-                  <DialogHeader>
-                    <DialogTitle>Change Enquiry Status</DialogTitle>
-                  </DialogHeader>
-                  <div className="py-4 space-y-4">
-                    <RadioGroup value={selectedStatus || enquiry.status} onValueChange={setSelectedStatus} className="py-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="open" id="status-open" />
-                        <Label htmlFor="status-open">Open</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="matched" id="status-matched" />
-                        <Label htmlFor="status-matched">Matched</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="closed" id="status-closed" />
-                        <Label htmlFor="status-closed">Closed</Label>
-                      </div>
-                    </RadioGroup>
-                    <div className="space-y-2">
-                      <Label htmlFor="status-remark">Add a Remark (Optional)</Label>
-                      <Textarea
-                        id="status-remark"
-                        placeholder="Add an internal note about this status change..."
-                        value={statusRemark}
-                        onChange={(e) => setStatusRemark(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                    <Button onClick={handleConfirmStatusChange} disabled={updateStatusMutation.isPending || selectedStatus === enquiry.status}>
-                      {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                      Save
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </CardTitle>
             <div className="space-y-2 pt-2">
                 <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
