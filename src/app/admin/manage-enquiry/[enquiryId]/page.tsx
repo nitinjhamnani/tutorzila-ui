@@ -668,7 +668,7 @@ function ManageEnquiryContent() {
   return (
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg border-0">
-        <CardHeader className="p-4 sm:p-5 flex flex-col sm:flex-row items-start justify-between gap-4">
+        <CardHeader className="p-4 sm:p-5 flex flex-col sm:flex-row items-start justify-between gap-4 relative">
           <div className="flex-grow">
             <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
               <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
@@ -701,6 +701,18 @@ function ManageEnquiryContent() {
                       )}
                   </div>
             </div>
+          </div>
+          <div className="absolute top-4 right-4 flex items-center gap-1">
+            {enquiry.status === 'open' && (
+                <Button variant="default" size="sm" className="h-7 text-xs px-2 rounded-md">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Accept
+                </Button>
+            )}
+            <Button variant="destructive" size="sm" className="h-7 text-xs px-2 rounded-md">
+                <XCircle className="h-3 w-3 mr-1" />
+                Close
+            </Button>
           </div>
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">

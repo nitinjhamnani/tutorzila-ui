@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send, Edit3, Settings, CheckCircle, XCircle } from "lucide-react";
+import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Building, Send, Edit3, Settings } from "lucide-react";
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -64,18 +64,10 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
                     </CardDescription>
                 </div>
             </div>
-
-             <div className="absolute top-0 right-0 flex items-center gap-1">
-                {requirement.status === 'open' && (
-                    <Button variant="default" size="sm" className="h-7 text-xs px-2 rounded-md">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Accept
-                    </Button>
-                )}
-                <Button variant="destructive" size="sm" className="h-7 text-xs px-2 rounded-md">
-                    <XCircle className="h-3 w-3 mr-1" />
-                    Close
-                </Button>
+            <div className="absolute top-0 right-0">
+              <Badge variant="default" className="text-xs">
+                {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+              </Badge>
             </div>
         </div>
       </CardHeader>
