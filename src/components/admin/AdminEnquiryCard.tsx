@@ -62,6 +62,9 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
               <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>
           </div>
+          <Badge variant="default" className="absolute top-0 right-0 text-xs">
+            {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 text-xs flex-grow">
