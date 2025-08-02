@@ -75,10 +75,12 @@ import {
   Archive,
   Mail,
   Copy,
+  DollarSign
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 
 interface ParentContact {
     name: string;
@@ -354,6 +356,17 @@ function ManageEnquiryContent() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
   const [acceptReason, setAcceptReason] = useState<string | null>(null);
+  const [isSessionDetailsModalOpen, setIsSessionDetailsModalOpen] = useState(false);
+  
+  // State for session details calculator
+  const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
+  const [hoursPerSession, setHoursPerSession] = useState(1);
+  const [pricePerSession, setPricePerSession] = useState(500);
+
+  const monthlyTotal = useMemo(() => {
+    const totalSessions = sessionsPerWeek * 4; // Assuming 4 weeks in a month
+    return totalSessions * pricePerSession;
+  }, [sessionsPerWeek, pricePerSession]);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -453,37 +466,7 @@ function ManageEnquiryContent() {
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
         toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-        const transformedData: TuitionRequirement = {
-            id: updatedData.enquirySummary.enquiryId,
-            parentName: updatedData.name || enquiry?.parentName || "A Parent", 
-            studentName: updatedData.studentName,
-            subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-            gradeLevel: updatedData.enquirySummary.grade,
-            board: updatedData.enquirySummary.board,
-            location: {
-                name: updatedData.addressName || updatedData.address || "",
-                address: updatedData.address,
-                googleMapsUrl: updatedData.googleMapsLink,
-                city: updatedData.enquirySummary.city,
-                state: updatedData.enquirySummary.state,
-                country: updatedData.enquirySummary.country,
-                area: updatedData.enquirySummary.area,
-                pincode: updatedData.pincode,
-            },
-            teachingMode: [
-            ...(updatedData.enquirySummary.online ? ["Online"] : []),
-            ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
-            ],
-            scheduleDetails: updatedData.notes, 
-            additionalNotes: updatedData.notes,
-            preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
-            preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-            status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
-            postedAt: updatedData.enquirySummary.createdOn,
-            applicantsCount: updatedData.enquirySummary.assignedTutors,
-            createdBy: updatedData.createdBy,
-        };
-        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
         setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
@@ -493,37 +476,7 @@ function ManageEnquiryContent() {
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
       toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-      const transformedData: TuitionRequirement = {
-        id: updatedData.enquirySummary.enquiryId,
-        parentName: updatedData.name || enquiry?.parentName || "A Parent",
-        studentName: updatedData.studentName,
-        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s: string) => s.trim()) : [],
-        gradeLevel: updatedData.enquirySummary.grade,
-        board: updatedData.enquirySummary.board,
-        location: {
-          name: updatedData.addressName || updatedData.address || "",
-          address: updatedData.address,
-          googleMapsUrl: updatedData.googleMapsLink,
-          city: updatedData.enquirySummary.city,
-          state: updatedData.enquirySummary.state,
-          country: updatedData.enquirySummary.country,
-          area: updatedData.enquirySummary.area,
-          pincode: updatedData.pincode,
-        },
-        teachingMode: [
-          ...(updatedData.enquirySummary.online ? ["Online"] : []),
-          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
-        ],
-        scheduleDetails: updatedData.notes,
-        additionalNotes: updatedData.notes,
-        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d: string) => d.trim()) : [],
-        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t: string) => t.trim()) : [],
-        status: updatedData.enquirySummary.status?.toLowerCase() || 'open',
-        postedAt: updatedData.enquirySummary.createdOn,
-        applicantsCount: updatedData.enquirySummary.assignedTutors,
-        createdBy: updatedData.createdBy,
-      };
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
       setIsAddNotesModalOpen(false);
       setNotes("");
     },
@@ -591,6 +544,14 @@ function ManageEnquiryContent() {
       return;
     }
     updateStatusMutation.mutate({ status: "accepted", remark: acceptReason });
+  }
+
+  const handleConfirmBudget = () => {
+    toast({
+        title: "Budget Confirmed (Mock)",
+        description: `Budget of ₹${monthlyTotal.toLocaleString()} for this enquiry has been noted.`
+    });
+    setIsSessionDetailsModalOpen(false);
   }
 
   const handleCopyToClipboard = (text: string, fieldName: string) => {
@@ -806,7 +767,7 @@ function ManageEnquiryContent() {
       <Card className="bg-card rounded-xl shadow-lg border-0">
         <CardHeader className="p-4 sm:p-5 relative">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="flex items-center gap-4 flex-grow">
+              <div className="flex items-center gap-4 flex-grow pr-12">
                   <div className="flex-grow">
                       <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-xl font-semibold text-primary">
@@ -846,13 +807,13 @@ function ManageEnquiryContent() {
                       </div>
                   </div>
               </div>
-              <div className="absolute top-4 right-4">
+               <div className="absolute top-4 right-4">
                   <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
                     <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
                       {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
                     </AvatarFallback>
                   </Avatar>
-              </div>
+                </div>
             </div>
             <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {enquiry.status === "open" && (
@@ -875,6 +836,7 @@ function ManageEnquiryContent() {
         <CardFooter className="flex flex-wrap justify-between gap-2 p-4 sm:p-5 border-t">
            <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
+            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsSessionDetailsModalOpen(true)}><DollarSign className="mr-1.5 h-3.5 w-3.5"/>Session Details</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
@@ -913,8 +875,8 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md bg-card p-0">
-              <DialogHeader className="p-6 pb-4">
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader>
                 <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
                 <DialogDescription>
                   These notes will be visible to tutors viewing the enquiry details.
@@ -929,7 +891,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-6 pt-0">
+              <DialogFooter>
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1121,6 +1083,39 @@ function ManageEnquiryContent() {
                   {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {updateStatusMutation.isPending ? "Closing..." : "Confirm Closure"}
                 </Button>
+              </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        
+        <Dialog open={isSessionDetailsModalOpen} onOpenChange={setIsSessionDetailsModalOpen}>
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader>
+                <DialogTitle>Capture Session & Budget</DialogTitle>
+                <DialogDescription>
+                  Finalize the session details to calculate the monthly budget for this enquiry.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sessions-week">Sessions in a Week</Label>
+                  <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => setSessionsPerWeek(Number(e.target.value))} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hours-session">Hours per Session</Label>
+                  <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => setHoursPerSession(Number(e.target.value))} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price-session">Price per Session (₹)</Label>
+                  <Input id="price-session" type="number" value={pricePerSession} onChange={(e) => setPricePerSession(Number(e.target.value))} />
+                </div>
+                <Separator />
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
+                  <p className="text-2xl font-bold text-primary">₹{monthlyTotal.toLocaleString()}</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" onClick={handleConfirmBudget}>Confirm Budget</Button>
               </DialogFooter>
             </DialogContent>
         </Dialog>
