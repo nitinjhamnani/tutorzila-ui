@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -360,7 +361,7 @@ function ManageEnquiryContent() {
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
   const [totalFees, setTotalFees] = useState(0);
-  const [precisePerHourRate, setPrecisePerHourRate] = useState(500);
+  const [precisePerHourRate, setPrecisePerHourRate] = useState(500); // For display only
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
@@ -372,9 +373,9 @@ function ManageEnquiryContent() {
   }, [sessionsPerWeek, hoursPerSession]);
 
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
-    let newTotalFees = totalFees;
     let newSessionsPerWeek = sessionsPerWeek;
     let newHoursPerSession = hoursPerSession;
+    const DEFAULT_PER_HOUR_RATE = 500;
 
     if (type === 'sessions') {
       newSessionsPerWeek = value;
@@ -385,10 +386,11 @@ function ManageEnquiryContent() {
       setHoursPerSession(newHoursPerSession);
     }
     
-    // Always recalculate total fees based on the per-hour rate when session details change
+    // Always recalculate total fees based on the default per-hour rate
     const newTotalHours = Math.round(newSessionsPerWeek * (30 / 7)) * newHoursPerSession;
-    newTotalFees = Math.round(newTotalHours * precisePerHourRate);
+    const newTotalFees = Math.round(newTotalHours * DEFAULT_PER_HOUR_RATE);
     setTotalFees(newTotalFees);
+    setPrecisePerHourRate(DEFAULT_PER_HOUR_RATE); // Reset precise rate as well
   };
 
   const handleEditBudget = () => {
@@ -402,9 +404,10 @@ function ManageEnquiryContent() {
   const handleTotalFeesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTotal = Number(e.target.value);
     setTotalFees(newTotal);
-    // When total fees are manually changed, update the per-hour rate
     if (totalHours > 0) {
       setPrecisePerHourRate(newTotal / totalHours);
+    } else {
+        setPrecisePerHourRate(0); // or some default if hours are zero
     }
   };
   
@@ -418,12 +421,6 @@ function ManageEnquiryContent() {
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
-    onSuccess: (data) => {
-        if (sessionsPerWeek > 0 || hoursPerSession > 0) {
-          const initialTotalHours = Math.round(sessionsPerWeek * (30 / 7)) * hoursPerSession;
-          setTotalFees(initialTotalHours * 500);
-        }
-    }
   });
 
   const parentContactQuery = useQuery({
@@ -526,10 +523,10 @@ function ManageEnquiryContent() {
   const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
-      toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
-      setIsAddNotesModalOpen(false);
-      setNotes("");
+        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], (oldData: any) => ({...oldData, ...updatedData}));
+        toast({ title: "Note Saved!", description: "The additional notes have been updated." });
+        setIsAddNotesModalOpen(false);
+        setNotes("");
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
   });
@@ -1192,11 +1189,11 @@ function ManageEnquiryContent() {
                     )}
                   </div>
                    <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{Math.round(totalHours > 0 ? totalFees / totalHours : 0).toLocaleString()}/hr)
+                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{Math.round(precisePerHourRate).toLocaleString()}/hr)
                     </div>
                 </div>
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter>
                 <Button type="button" onClick={handleConfirmBudget}>Confirm Budget</Button>
               </DialogFooter>
             </DialogContent>
