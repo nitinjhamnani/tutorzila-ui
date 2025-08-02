@@ -876,7 +876,6 @@ function ManageEnquiryContent() {
               </div>
               </div>
               <DialogFooter className="p-6 border-t">
-                  <Button type="button" onClick={() => setIsDetailsModalOpen(false)}>Close</Button>
               </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -940,6 +939,7 @@ function ManageEnquiryContent() {
                         </div>
                     </div>
                 ) : null}
+                 <DialogFooter className="p-4 border-t" />
             </DialogContent>
         </Dialog>
     </div>
