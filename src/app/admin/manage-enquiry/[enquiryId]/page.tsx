@@ -360,8 +360,8 @@ function ManageEnquiryContent() {
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
   const [hoursPerSession, setHoursPerSession] = useState(1);
-  const [perHourRate, setPerHourRate] = useState(500);
   const [totalFees, setTotalFees] = useState(0); 
+  const [perHourRate, setPerHourRate] = useState(500); 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
@@ -371,19 +371,22 @@ function ManageEnquiryContent() {
     return { totalDays: days, totalHours: hours };
   }, [sessionsPerWeek, hoursPerSession]);
 
-  useEffect(() => {
-    // Only auto-calculate if the budget field is not being edited.
-    if (!isEditingBudget) {
-      setTotalFees(Math.round(totalHours * perHourRate));
-    }
-  }, [totalHours, perHourRate, isEditingBudget]);
-   
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
-    setIsEditingBudget(false); // Turn off manual editing when session details change.
-    if (type === 'sessions') setSessionsPerWeek(value);
-    if (type === 'hours') setHoursPerSession(value);
+    setIsEditingBudget(false);
+    let newTotalFees = 0;
+    if (type === 'sessions') {
+        const newTotalHours = Math.round(value * (32 / 7)) * hoursPerSession;
+        newTotalFees = Math.round(newTotalHours * perHourRate);
+        setSessionsPerWeek(value);
+    }
+    if (type === 'hours') {
+        const newTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * value;
+        newTotalFees = Math.round(newTotalHours * perHourRate);
+        setHoursPerSession(value);
+    }
+    setTotalFees(newTotalFees);
   };
-  
+
   const handleEditBudget = () => {
     setIsEditingBudget(true);
     setTimeout(() => {
@@ -391,21 +394,23 @@ function ManageEnquiryContent() {
         totalFeesInputRef.current?.select();
     }, 100);
   };
-  
+
   const handleTotalFeesChange = (newTotal: number) => {
-      setTotalFees(newTotal);
-      if (totalHours > 0) {
-        setPerHourRate(newTotal / totalHours); // Keep this precise for recalculation
-      } else {
-        setPerHourRate(0);
-      }
+    setTotalFees(newTotal);
+    if (totalHours > 0) {
+      setPerHourRate(newTotal / totalHours);
+    }
   };
-  
+
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+        const initialTotalHours = Math.round(sessionsPerWeek * (32 / 7)) * hoursPerSession;
+        setTotalFees(initialTotalHours * 500);
+    }
   });
 
   const parentContactQuery = useQuery({
@@ -1212,11 +1217,6 @@ function ManageEnquiryContent() {
                 <div className="text-center p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-center gap-2">
                     <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
-                    {!isEditingBudget && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={handleEditBudget}>
-                            <Edit3 className="h-3.5 w-3.5" />
-                        </Button>
-                    )}
                   </div>
                    <div className="relative mt-2">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl font-bold">₹</span>
@@ -1231,17 +1231,22 @@ function ManageEnquiryContent() {
                         className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-1 focus-visible:ring-primary"
                       />
                     ) : (
-                      <p className="pl-8 text-2xl font-bold text-primary text-center h-auto p-1">
-                        {Math.round(totalFees).toLocaleString()}
-                      </p>
+                      <div className="flex items-center justify-center">
+                        <p className="pl-8 text-2xl font-bold text-primary text-center h-auto p-1">
+                          {Math.round(totalFees).toLocaleString()}
+                        </p>
+                         <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={handleEditBudget}>
+                            <Edit3 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                    <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{Math.round(totalHours > 0 ? totalFees / totalHours : 0).toLocaleString()}/hr)
+                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{Math.round(totalHours > 0 ? perHourRate : 0).toLocaleString()}/hr)
                     </div>
                 </div>
               </div>
-              <DialogFooter className="p-4 bg-muted/50">
+              <DialogFooter className="p-4">
                 <Button type="button" onClick={handleConfirmBudget}>Confirm Budget</Button>
               </DialogFooter>
             </DialogContent>
