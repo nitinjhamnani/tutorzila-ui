@@ -97,6 +97,13 @@ const gradeLevelsList = [
     "College Level", "Adult Learner", "Other"
 ];
 
+const acceptReasons = [
+    { id: 'confirmed-call', label: "Enquiry was confirmed over a call" },
+    { id: 'confirmed-whatsapp', label: "Enquiry was confirmed via WhatsApp" },
+    { id: 'other', label: "Other" }
+];
+
+
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -337,6 +344,8 @@ function ManageEnquiryContent() {
   const [statusRemark, setStatusRemark] = useState("");
   const [isTutorQueryEnabled, setIsTutorQueryEnabled] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
+  const [acceptReason, setAcceptReason] = useState<string | null>(null);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -459,7 +468,9 @@ function ManageEnquiryContent() {
       toast({ title: "Status Updated", description: "The enquiry status has been updated." });
       queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
       setIsStatusModalOpen(false);
+      setIsAcceptModalOpen(false);
       setStatusRemark("");
+      setAcceptReason(null);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Status Update Failed", description: error.message }),
   });
@@ -491,6 +502,19 @@ function ManageEnquiryContent() {
     setSelectedStatus(enquiry?.status || null);
     setStatusRemark("");
     setIsStatusModalOpen(true);
+  }
+
+  const handleOpenAcceptModal = () => {
+    setAcceptReason(null);
+    setIsAcceptModalOpen(true);
+  }
+
+  const handleConfirmAcceptance = () => {
+    if (!acceptReason) {
+      toast({ variant: "destructive", title: "Reason Required", description: "Please select a reason for acceptance." });
+      return;
+    }
+    updateStatusMutation.mutate({ status: "accepted", remark: acceptReason });
   }
 
   const handleConfirmStatusChange = () => {
@@ -764,7 +788,7 @@ function ManageEnquiryContent() {
             </div>
             <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {enquiry.status === "open" && (
-                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "accepted" })}>
+                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenAcceptModal}>
                     <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
                   </Button>
                 )}
@@ -789,7 +813,7 @@ function ManageEnquiryContent() {
            </div>
            <div className="hidden sm:flex sm:flex-row gap-2 w-full sm:w-auto justify-end">
                 {enquiry.status === "open" && (
-                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "accepted" })}>
+                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenAcceptModal}>
                     <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
                   </Button>
                 )}
@@ -822,13 +846,13 @@ function ManageEnquiryContent() {
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader>
-                <DialogTitle>Add Additional Notes</DialogTitle>
+              <DialogHeader className="p-6 pb-4 border-b">
+                <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
                 <DialogDescription>
-                  These notes will be visible to tutors viewing the enquiry details. Add any special instructions or requirements.
+                  These notes will be visible to tutors viewing the enquiry details.
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4">
+              <div className="p-6">
                 <Textarea
                   placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
                   value={notes}
@@ -837,7 +861,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter>
+              <DialogFooter className="p-6 pt-0 border-t">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -960,6 +984,45 @@ function ManageEnquiryContent() {
                         </div>
                     </div>
                 ) : null}
+            </DialogContent>
+        </Dialog>
+        <Dialog open={isAcceptModalOpen} onOpenChange={setIsAcceptModalOpen}>
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader>
+                <DialogTitle>Accept Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
+                <DialogDescription>
+                  Please select a reason for accepting this requirement. This helps in tracking.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                  <RadioGroup
+                    onValueChange={(value: string) => setAcceptReason(value)}
+                    value={acceptReason || ""}
+                    className="flex flex-col space-y-2"
+                  >
+                    {acceptReasons.map((reason) => (
+                      <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                        <RadioGroupItem value={reason.label} id={`admin-accept-${reason.id}`} />
+                        <Label htmlFor={`admin-accept-${reason.id}`} className="font-normal text-sm">{reason.label}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button 
+                  type="button" 
+                  onClick={handleConfirmAcceptance} 
+                  disabled={!acceptReason || updateStatusMutation.isPending}
+                >
+                  {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {updateStatusMutation.isPending ? "Accepting..." : "Confirm Acceptance"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
         </Dialog>
     </div>
