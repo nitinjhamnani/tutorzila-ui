@@ -754,16 +754,6 @@ function ManageEnquiryContent() {
                   </div>
             </div>
           </div>
-            {enquiry.status === "open" && (
-                <Button
-                    size="sm"
-                    className="text-xs bg-primary hover:bg-primary/90 h-9 shrink-0"
-                    onClick={() => updateStatusMutation.mutate({ status: "accepted" })}
-                >
-                    <CheckCircle className="mr-1.5 h-4 w-4" />
-                    Accept Enquiry
-                </Button>
-            )}
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
            <Button variant="outline" size="sm" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
