@@ -73,10 +73,18 @@ import {
   Building,
   CheckSquare,
   Archive,
+  Mail,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
 import { Separator } from "@/components/ui/separator";
+
+interface ParentContact {
+    name: string;
+    email: string;
+    countryCode: string;
+    phone: string;
+}
 
 const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
@@ -238,6 +246,20 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
   return response.json();
 };
 
+const fetchParentContact = async (enquiryId: string, token: string | null): Promise<ParentContact> => {
+    if (!token) throw new Error("Authentication token not found.");
+    if (!enquiryId) throw new Error("Enquiry ID is required.");
+
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/enquiry/contact/${enquiryId}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch parent contact details.");
+    
+    return response.json();
+};
+
 const EnquiryInfoItem = ({
   icon: Icon,
   label,
@@ -321,6 +343,15 @@ function ManageEnquiryContent() {
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
+
+  const parentContactQuery = useQuery({
+    queryKey: ['parentContact', enquiryId],
+    queryFn: () => fetchParentContact(enquiryId, token),
+    enabled: isParentInfoModalOpen, // Only fetch when the modal is open
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
 
   const getInitialFilters = useCallback(() => {
     if (!enquiry) return { subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
@@ -729,7 +760,7 @@ function ManageEnquiryContent() {
             </div>
             <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {enquiry.status === "open" && (
-                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md">
+                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "accepted" })}>
                     <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
                   </Button>
                 )}
@@ -739,7 +770,7 @@ function ManageEnquiryContent() {
                     </Button>
                 )}
                 {enquiry.status === "closed" && (
-                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenStatusModal}>
+                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "reopened" })}>
                         <Archive className="mr-1.5 h-3.5 w-3.5" /> Reopen
                     </Button>
                 )}
@@ -754,7 +785,7 @@ function ManageEnquiryContent() {
            </div>
            <div className="hidden sm:flex sm:flex-row gap-2 w-full sm:w-auto justify-end">
                 {enquiry.status === "open" && (
-                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md">
+                  <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "accepted" })}>
                     <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
                   </Button>
                 )}
@@ -764,7 +795,7 @@ function ManageEnquiryContent() {
                     </Button>
                 )}
                 {enquiry.status === "closed" && (
-                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenStatusModal}>
+                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "reopened" })}>
                         <Archive className="mr-1.5 h-3.5 w-3.5" /> Reopen
                     </Button>
                 )}
@@ -841,55 +872,62 @@ function ManageEnquiryContent() {
           </DialogContent>
         </Dialog>
         <Dialog open={isParentInfoModalOpen} onOpenChange={setIsParentInfoModalOpen}>
-        <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-            <DialogTitle>Parent Information</DialogTitle>
-            <DialogDescription>
-                Contact details for the parent who posted this enquiry.
-            </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-            <div className="flex items-center gap-4">
-                <div className="p-2 bg-muted rounded-full">
-                    <User className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div>
-                    <Label className="text-xs text-muted-foreground">Name</Label>
-                    <p className="font-medium text-foreground">{enquiry.parentName}</p>
-                </div>
-            </div>
-            {enquiry.parentEmail && (
-                <div className="flex items-center gap-4">
-                    <div className="p-2 bg-muted rounded-full">
-                        <Mail className="h-5 w-5 text-muted-foreground" />
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Parent Information</DialogTitle>
+                    <DialogDescription>
+                        Contact details for the parent who posted this enquiry.
+                    </DialogDescription>
+                </DialogHeader>
+                {parentContactQuery.isLoading ? (
+                    <div className="flex items-center justify-center h-24">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
-                    <div>
-                        <Label className="text-xs text-muted-foreground">Email</Label>
-                        <p className="font-medium text-foreground">{enquiry.parentEmail}</p>
+                ) : parentContactQuery.error ? (
+                    <div className="text-center text-destructive">
+                        <p>Failed to load contact details.</p>
+                        <p className="text-xs">{(parentContactQuery.error as Error).message}</p>
                     </div>
-                </div>
-            )}
-            {enquiry.parentPhone && (
-                <div className="flex items-center gap-4">
-                    <div className="p-2 bg-muted rounded-full">
-                        <Phone className="h-5 w-5 text-muted-foreground" />
+                ) : parentContactQuery.data ? (
+                    <div className="space-y-4 py-4">
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-muted rounded-full">
+                                <User className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                                <Label className="text-xs text-muted-foreground">Name</Label>
+                                <p className="font-medium text-foreground">{parentContactQuery.data.name}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-muted rounded-full">
+                                <Mail className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                                <Label className="text-xs text-muted-foreground">Email</Label>
+                                <p className="font-medium text-foreground">{parentContactQuery.data.email}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-muted rounded-full">
+                                <Phone className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                                <Label className="text-xs text-muted-foreground">Phone</Label>
+                                <p className="font-medium text-foreground">{parentContactQuery.data.countryCode} {parentContactQuery.data.phone}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <Label className="text-xs text-muted-foreground">Phone</Label>
-                        <p className="font-medium text-foreground">{enquiry.parentPhone}</p>
-                    </div>
-                </div>
-            )}
-        </div>
-        <DialogFooter>
-            <DialogClose asChild>
-            <Button type="button" variant="outline">
-                Close
-            </Button>
-            </DialogClose>
-        </DialogFooter>
-        </DialogContent>
-    </Dialog>
+                ) : null}
+                <DialogFooter>
+                    <DialogClose asChild>
+                    <Button type="button" variant="outline">
+                        Close
+                    </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </div>
   );
 }
