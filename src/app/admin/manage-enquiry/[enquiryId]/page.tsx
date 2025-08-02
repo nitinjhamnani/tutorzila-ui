@@ -901,7 +901,7 @@ function ManageEnquiryContent() {
                     <div className="space-y-4 py-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="p-2 bg-foreground rounded-full">
+                                <div className="p-2 bg-muted rounded-full">
                                     <User className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
@@ -912,7 +912,7 @@ function ManageEnquiryContent() {
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="p-2 bg-foreground rounded-full">
+                                <div className="p-2 bg-muted rounded-full">
                                     <Mail className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
@@ -926,7 +926,7 @@ function ManageEnquiryContent() {
                         </div>
                         <div className="flex items-center justify-between">
                              <div className="flex items-center gap-4">
-                                <div className="p-2 bg-foreground rounded-full">
+                                <div className="p-2 bg-muted rounded-full">
                                     <Phone className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
@@ -960,3 +960,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
