@@ -746,7 +746,7 @@ function ManageEnquiryContent() {
       <Card className="bg-card rounded-xl shadow-lg border-0">
         <CardHeader className="p-4 sm:p-5 relative">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="flex items-center gap-4 flex-grow pr-12">
+              <div className="flex items-center gap-4 flex-grow">
                   <div className="flex-grow">
                       <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-xl font-semibold text-primary">
@@ -854,13 +854,13 @@ function ManageEnquiryContent() {
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader className="p-6 pb-4 border-b">
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
                 <DialogDescription>
                   These notes will be visible to tutors viewing the enquiry details.
                 </DialogDescription>
               </DialogHeader>
-              <div className="p-6">
+              <div className="p-6 pt-0">
                 <Textarea
                   placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
                   value={notes}
@@ -869,7 +869,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-6 pt-0 border-t">
+              <DialogFooter className="p-6 pt-0">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
