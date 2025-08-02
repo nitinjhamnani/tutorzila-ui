@@ -91,15 +91,6 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
           )}
         </div>
         <div className="flex items-center gap-2 self-end">
-            {requirement.status === 'open' && (
-               <Button
-                size="sm"
-                variant="default"
-                className="text-xs py-1.5 px-3 h-auto bg-green-600 hover:bg-green-700"
-               >
-                <CheckCircle className="w-3 h-3 mr-1.5" /> Accept
-              </Button>
-            )}
             <Button
                 asChild
                 size="sm"
@@ -115,4 +106,3 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
     </Card>
   );
 }
-

@@ -676,82 +676,94 @@ function ManageEnquiryContent() {
   return (
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg border-0">
-        <CardHeader className="p-4 sm:p-5">
-          <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
-            <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
-            <Dialog open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
-              <DialogTrigger asChild>
-                 <Badge variant="default" className="text-xs cursor-pointer hover:bg-primary/80 transition-colors">
-                      {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
-                </Badge>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-sm">
-                <DialogHeader>
-                  <DialogTitle>Change Enquiry Status</DialogTitle>
-                </DialogHeader>
-                <div className="py-4 space-y-4">
-                  <RadioGroup value={selectedStatus || enquiry.status} onValueChange={setSelectedStatus} className="py-2">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="open" id="status-open" />
-                      <Label htmlFor="status-open">Open</Label>
+        <CardHeader className="p-4 sm:p-5 flex flex-row items-start justify-between gap-4">
+          <div className="flex-grow">
+            <CardTitle className="text-xl font-semibold text-primary flex items-center justify-between">
+              <span>{Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</span>
+              <Dialog open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
+                <DialogTrigger asChild>
+                   <Badge variant="default" className="text-xs cursor-pointer hover:bg-primary/80 transition-colors">
+                        {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
+                  </Badge>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle>Change Enquiry Status</DialogTitle>
+                  </DialogHeader>
+                  <div className="py-4 space-y-4">
+                    <RadioGroup value={selectedStatus || enquiry.status} onValueChange={setSelectedStatus} className="py-2">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="open" id="status-open" />
+                        <Label htmlFor="status-open">Open</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="matched" id="status-matched" />
+                        <Label htmlFor="status-matched">Matched</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="closed" id="status-closed" />
+                        <Label htmlFor="status-closed">Closed</Label>
+                      </div>
+                    </RadioGroup>
+                    <div className="space-y-2">
+                      <Label htmlFor="status-remark">Add a Remark (Optional)</Label>
+                      <Textarea
+                        id="status-remark"
+                        placeholder="Add an internal note about this status change..."
+                        value={statusRemark}
+                        onChange={(e) => setStatusRemark(e.target.value)}
+                      />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="matched" id="status-matched" />
-                      <Label htmlFor="status-matched">Matched</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="closed" id="status-closed" />
-                      <Label htmlFor="status-closed">Closed</Label>
-                    </div>
-                  </RadioGroup>
-                  <div className="space-y-2">
-                    <Label htmlFor="status-remark">Add a Remark (Optional)</Label>
-                    <Textarea
-                      id="status-remark"
-                      placeholder="Add an internal note about this status change..."
-                      value={statusRemark}
-                      onChange={(e) => setStatusRemark(e.target.value)}
-                    />
                   </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                  <Button onClick={handleConfirmStatusChange} disabled={updateStatusMutation.isPending || selectedStatus === enquiry.status}>
-                    {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                    Save
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </CardTitle>
-          <div className="space-y-2 pt-2">
-              <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                  <UsersRound className="w-4 h-4"/> {enquiry.studentName}
-              </CardDescription>
-              <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                  <Clock className="w-3.5 h-3.5" /> 
-                  Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
-              </CardDescription>
-               <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                        <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
-                        {enquiry.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>}
-                        <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
-                    </div>
-                    {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
-                        <div className="flex items-center gap-1.5 pt-1">
-                            <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
-                            {locationInfo.googleMapsUrl ? (
-                                <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
-                                    {locationInfo.address}
-                                </a>
-                            ) : (
-                                <span className="line-clamp-1">{locationInfo.address}</span>
-                            )}
-                        </div>
-                    )}
-                </div>
+                  <DialogFooter>
+                    <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+                    <Button onClick={handleConfirmStatusChange} disabled={updateStatusMutation.isPending || selectedStatus === enquiry.status}>
+                      {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </CardTitle>
+            <div className="space-y-2 pt-2">
+                <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                    <UsersRound className="w-4 h-4"/> {enquiry.studentName}
+                </CardDescription>
+                <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                    <Clock className="w-3.5 h-3.5" /> 
+                    Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
+                </CardDescription>
+                 <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                          <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{enquiry.gradeLevel}</span>
+                          {enquiry.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{enquiry.board}</span>}
+                          <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{enquiry.teachingMode?.join(', ')}</span>
+                      </div>
+                      {enquiry.teachingMode?.includes("Offline (In-person)") && locationInfo?.address && (
+                          <div className="flex items-center gap-1.5 pt-1">
+                              <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0"/>
+                              {locationInfo.googleMapsUrl ? (
+                                  <a href={locationInfo.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline line-clamp-1">
+                                      {locationInfo.address}
+                                  </a>
+                              ) : (
+                                  <span className="line-clamp-1">{locationInfo.address}</span>
+                              )}
+                          </div>
+                      )}
+                  </div>
+            </div>
           </div>
+           {enquiry.status === "open" && (
+                <Button
+                    size="sm"
+                    className="text-xs bg-green-600 hover:bg-green-700 h-9 shrink-0"
+                    onClick={() => updateStatusMutation.mutate({ status: "accepted" })}
+                >
+                    <CheckCircle className="mr-1.5 h-4 w-4" />
+                    Accept Enquiry
+                </Button>
+            )}
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
            <Button variant="outline" size="sm" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
