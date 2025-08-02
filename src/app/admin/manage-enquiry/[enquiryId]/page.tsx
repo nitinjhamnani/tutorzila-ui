@@ -939,7 +939,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-4 bg-muted/50">
+              <DialogFooter className="p-4">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1086,7 +1086,7 @@ function ManageEnquiryContent() {
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4 bg-muted/50">
+              <DialogFooter className="p-4">
                 <Button 
                   type="button" 
                   onClick={handleConfirmAcceptance} 
