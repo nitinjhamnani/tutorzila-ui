@@ -104,7 +104,7 @@ const acceptReasons = [
 ];
 
 const closeReasons = [
-    { id: 'found-tutor-tutorzila', label: "Found a tutor on Tutorzila" },
+    { id: 'found-tutorzila', label: "Found a tutor on Tutorzila" },
     { id: 'demo-not-liked', label: "Didn't like the tutor demo" },
     { id: 'not-interested', label: "Parent is not interested anymore" },
     { id: 'not-reachable', label: "Parent is not reachable" },
@@ -870,11 +870,6 @@ function ManageEnquiryContent() {
                 />
               </div>
               <DialogFooter className="p-6 pt-0 border-t">
-                 <DialogClose asChild>
-                    <Button type="button" variant="outline" disabled={addNoteMutation.isPending}>
-                        Cancel
-                    </Button>
-                </DialogClose>
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
