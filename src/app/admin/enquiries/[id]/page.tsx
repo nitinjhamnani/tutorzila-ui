@@ -646,7 +646,7 @@ export default function AdminEnquiryDetailsPage() {
       )}
 
       <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-card">
           <DialogHeader>
             <DialogTitle>Add Additional Notes</DialogTitle>
             <DialogDesc>
