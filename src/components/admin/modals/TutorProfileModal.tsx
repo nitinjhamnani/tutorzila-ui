@@ -89,14 +89,14 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, sourceTab = "re
       <DialogContent className="sm:max-w-3xl p-0 bg-white">
         <DialogHeader className="p-6 pb-4 border-b">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-            <div className="flex items-center gap-4 flex-grow pr-10">
+            <div className="flex items-center gap-4 flex-grow">
                 <Avatar className="h-16 w-16 border-2 border-primary/20">
                 <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
                 <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
                     {getInitials(tutor.displayName)}
                 </AvatarFallback>
                 </Avatar>
-                <div>
+                <div className="flex-1 min-w-0 pr-8">
                   <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
                   <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
                    <div className="mt-2 flex items-center gap-2">
