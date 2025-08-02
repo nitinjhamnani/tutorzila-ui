@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -373,16 +372,22 @@ function ManageEnquiryContent() {
   }, [sessionsPerWeek, hoursPerSession]);
 
    useEffect(() => {
-    if (isEditingBudget) return;
-    setTotalFees(Math.round(totalHours * perHourRate));
-   }, [totalHours, perHourRate, isEditingBudget]);
+    // Only auto-calculate total fees if not being manually edited.
+    if (!isEditingBudget) {
+      setTotalFees(Math.round(totalHours * perHourRate));
+    }
+  }, [totalHours, perHourRate, isEditingBudget]);
    
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
-    if (type === 'sessions') {
-        setSessionsPerWeek(value);
-    } else { // hours
-        setHoursPerSession(value);
-    }
+    const newSessions = type === 'sessions' ? value : sessionsPerWeek;
+    const newHoursPerSession = type === 'hours' ? value : hoursPerSession;
+
+    if (type === 'sessions') setSessionsPerWeek(value);
+    if (type === 'hours') setHoursPerSession(value);
+
+    // When session details change, always recalculate the total fee based on the current per-hour rate.
+    const newTotalHours = Math.round(newSessions * (32 / 7)) * newHoursPerSession;
+    setTotalFees(Math.round(newTotalHours * perHourRate));
   };
   
   const handleEditBudget = () => {
@@ -393,11 +398,13 @@ function ManageEnquiryContent() {
     }, 100);
   };
   
-  const handleSessionDetailBlur = () => {
-    if (totalHours > 0) {
-        setPerHourRate(Math.round(totalFees / totalHours));
-    }
-    setIsEditingBudget(false);
+  const handleTotalFeesChange = (newTotal: number) => {
+      setTotalFees(newTotal);
+      if (totalHours > 0) {
+        setPerHourRate(Math.round(newTotal / totalHours));
+      } else {
+        setPerHourRate(0);
+      }
   };
   
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
@@ -934,7 +941,7 @@ function ManageEnquiryContent() {
         <CardFooter className="flex flex-wrap justify-between gap-2 p-4 sm:p-5 border-t">
            <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsSessionDetailsModalOpen(true)}><DollarSign className="mr-1.5 h-3.5 w-3.5"/>Session & Budget</Button>
+            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsSessionDetailsModalOpen(true)}><DollarSign className="mr-1.5 h-3.5 w-3.5"/>Session &amp; Budget</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
@@ -1009,7 +1016,7 @@ function ManageEnquiryContent() {
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
           <DialogContent className="sm:max-w-xl bg-card">
               <DialogHeader className="p-6 pb-4 border-b">
-                  <DialogTitle className="text-xl font-semibold text-primary">Preferences & Notes</DialogTitle>
+                  <DialogTitle className="text-xl font-semibold text-primary">Preferences &amp; Notes</DialogTitle>
                   <DialogDescription>
                       Scheduling preferences and additional notes for this enquiry.
                   </DialogDescription>
@@ -1187,7 +1194,7 @@ function ManageEnquiryContent() {
         <Dialog open={isSessionDetailsModalOpen} onOpenChange={setIsSessionDetailsModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
               <DialogHeader className="p-6 pb-4">
-                <DialogTitle>Capture Session & Budget</DialogTitle>
+                <DialogTitle>Capture Session &amp; Budget</DialogTitle>
                 <DialogDescription>
                   Finalize the session details to calculate the monthly budget for this enquiry.
                 </DialogDescription>
@@ -1223,8 +1230,8 @@ function ManageEnquiryContent() {
                         id="total-fees-editable"
                         type="number"
                         value={totalFees}
-                        onChange={(e) => setTotalFees(Number(e.target.value))}
-                        onBlur={handleSessionDetailBlur}
+                        onChange={(e) => handleTotalFeesChange(Number(e.target.value))}
+                        onBlur={() => setIsEditingBudget(false)}
                         className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-1 focus-visible:ring-primary"
                       />
                     ) : (
@@ -1234,7 +1241,7 @@ function ManageEnquiryContent() {
                     )}
                   </div>
                    <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days & {totalHours} hours. (≈₹{perHourRate.toLocaleString()}/hr)
+                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{perHourRate.toLocaleString()}/hr)
                     </div>
                 </div>
               </div>
