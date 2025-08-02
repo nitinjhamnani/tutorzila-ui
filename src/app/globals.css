@@ -280,7 +280,7 @@ html, body {
 }
 
 .text-destructive {
-    color: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive));
 }
 
 /* Creative Loader Animation */
