@@ -754,7 +754,7 @@ function ManageEnquiryContent() {
                       </div>
                   </div>
               </div>
-               <div className="absolute top-4 right-4 hidden sm:block">
+               <div className="absolute top-4 right-4">
                   <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
                     <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
                       {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
