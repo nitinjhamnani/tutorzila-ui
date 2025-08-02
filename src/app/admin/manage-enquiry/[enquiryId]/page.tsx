@@ -358,15 +358,16 @@ function ManageEnquiryContent() {
   const [acceptReason, setAcceptReason] = useState<string | null>(null);
   const [isSessionDetailsModalOpen, setIsSessionDetailsModalOpen] = useState(false);
   
-  // State for session details calculator
   const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
   const [hoursPerSession, setHoursPerSession] = useState(1);
-  const [pricePerSession, setPricePerSession] = useState(500);
+  const [pricePerHour] = useState(500); // Default price per hour
 
-  const monthlyTotal = useMemo(() => {
-    const totalSessions = sessionsPerWeek * 4; // Assuming 4 weeks in a month
-    return totalSessions * pricePerSession;
-  }, [sessionsPerWeek, pricePerSession]);
+  const { totalDays, totalHours, monthlyTotal } = useMemo(() => {
+    const days = Math.round(sessionsPerWeek * (32 / 7));
+    const hours = days * hoursPerSession;
+    const total = hours * pricePerHour;
+    return { totalDays: days, totalHours: hours, monthlyTotal: total };
+  }, [sessionsPerWeek, hoursPerSession, pricePerHour]);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -910,7 +911,7 @@ function ManageEnquiryContent() {
         </Dialog>
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
           <DialogContent className="sm:max-w-xl bg-card">
-              <DialogHeader className="p-6 pb-4">
+              <DialogHeader className="p-6 pb-4 border-b">
                   <DialogTitle className="text-xl font-semibold text-primary">Preferences & Notes</DialogTitle>
                   <DialogDescription>
                       Scheduling preferences and additional notes for this enquiry.
@@ -1044,7 +1045,6 @@ function ManageEnquiryContent() {
                   onClick={handleConfirmAcceptance} 
                   disabled={!acceptReason || updateStatusMutation.isPending}
                 >
-                  {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {updateStatusMutation.isPending ? "Accepting..." : "Confirm Acceptance"}
                 </Button>
               </DialogFooter>
@@ -1104,14 +1104,19 @@ function ManageEnquiryContent() {
                   <Label htmlFor="hours-session">Hours per Session</Label>
                   <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => setHoursPerSession(Number(e.target.value))} />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price-session">Price per Session (₹)</Label>
-                  <Input id="price-session" type="number" value={pricePerSession} onChange={(e) => setPricePerSession(Number(e.target.value))} />
-                </div>
                 <Separator />
                 <div className="text-center p-4 bg-muted/50 rounded-lg">
                   <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
                   <p className="text-2xl font-bold text-primary">₹{monthlyTotal.toLocaleString()}</p>
+                   <div className="text-xs text-muted-foreground mt-1">
+                      Based on ~{totalDays} days & {totalHours} hours over 32 days.
+                    </div>
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="total-fees">Total Fees</Label>
+                   <p id="total-fees" className="text-lg font-semibold text-foreground p-2 bg-input rounded-md border">
+                    ₹{monthlyTotal.toLocaleString()}
+                  </p>
                 </div>
               </div>
               <DialogFooter>
@@ -1131,3 +1136,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
