@@ -673,7 +673,7 @@ function ManageEnquiryContent() {
                   Accept
               </Button>
           )}
-          <Button variant="primary-outline" size="sm" className="h-7 text-xs px-2 rounded-md border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
+          <Button variant="destructive-outline" size="sm" className="h-7 text-xs px-2 rounded-md">
               <XCircle className="h-3 w-3 mr-1" />
               Close
           </Button>
