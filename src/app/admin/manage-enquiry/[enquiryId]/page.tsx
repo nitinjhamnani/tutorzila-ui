@@ -826,9 +826,42 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Add Additional Notes</DialogTitle><DialogDescription>These notes will be visible to tutors viewing the enquiry details.</DialogDescription></DialogHeader>
-            <div className="py-4"><Textarea placeholder="e.g., Student requires special attention..." value={notes} onChange={(e) => setNotes(e.target.value)} className="min-h-[120px]" disabled={addNoteMutation.isPending}/></div>
-            <DialogFooter><DialogClose asChild><Button type="button" variant="outline" disabled={addNoteMutation.isPending}>Cancel</Button></DialogClose><Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>{addNoteMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : <><Save className="mr-2 h-4 w-4" />Save Note</>}</Button></DialogFooter>
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader>
+                <DialogTitle>Add Additional Notes</DialogTitle>
+                <DialogDescription>
+                  These notes will be visible to tutors viewing the enquiry details. Add any special instructions or requirements.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Textarea
+                  placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="min-h-[120px]"
+                  disabled={addNoteMutation.isPending}
+                />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline" disabled={addNoteMutation.isPending}>
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
+                  {addNoteMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Note
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
             </DialogContent>
         </Dialog>
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
