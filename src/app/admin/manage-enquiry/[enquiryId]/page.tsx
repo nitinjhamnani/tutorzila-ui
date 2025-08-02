@@ -360,8 +360,8 @@ function ManageEnquiryContent() {
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
   const [hoursPerSession, setHoursPerSession] = useState(1);
-  const [totalFees, setTotalFees] = useState(0); 
   const [perHourRate, setPerHourRate] = useState(500);
+  const [totalFees, setTotalFees] = useState(0); 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
@@ -371,23 +371,17 @@ function ManageEnquiryContent() {
     return { totalDays: days, totalHours: hours };
   }, [sessionsPerWeek, hoursPerSession]);
 
-   useEffect(() => {
-    // Only auto-calculate total fees if not being manually edited.
+  useEffect(() => {
+    // Only auto-calculate if the budget field is not being edited.
     if (!isEditingBudget) {
       setTotalFees(Math.round(totalHours * perHourRate));
     }
   }, [totalHours, perHourRate, isEditingBudget]);
    
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
-    const newSessions = type === 'sessions' ? value : sessionsPerWeek;
-    const newHoursPerSession = type === 'hours' ? value : hoursPerSession;
-
+    setIsEditingBudget(false); // Turn off manual editing when session details change.
     if (type === 'sessions') setSessionsPerWeek(value);
     if (type === 'hours') setHoursPerSession(value);
-
-    // When session details change, always recalculate the total fee based on the current per-hour rate.
-    const newTotalHours = Math.round(newSessions * (32 / 7)) * newHoursPerSession;
-    setTotalFees(Math.round(newTotalHours * perHourRate));
   };
   
   const handleEditBudget = () => {
@@ -401,7 +395,7 @@ function ManageEnquiryContent() {
   const handleTotalFeesChange = (newTotal: number) => {
       setTotalFees(newTotal);
       if (totalHours > 0) {
-        setPerHourRate(Math.round(newTotal / totalHours));
+        setPerHourRate(newTotal / totalHours); // Keep this precise for recalculation
       } else {
         setPerHourRate(0);
       }
@@ -505,6 +499,7 @@ function ManageEnquiryContent() {
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+      
       const transformedData: TuitionRequirement = {
         id: updatedData.enquirySummary.enquiryId,
         parentName: updatedData.name || enquiry?.parentName || "A Parent",
@@ -548,7 +543,8 @@ function ManageEnquiryContent() {
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
       toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-        const transformedData: TuitionRequirement = {
+      
+      const transformedData: TuitionRequirement = {
         id: updatedData.enquirySummary.enquiryId,
         parentName: updatedData.name || enquiry?.parentName || "A Parent",
         parentEmail: updatedData.email,
@@ -1236,12 +1232,12 @@ function ManageEnquiryContent() {
                       />
                     ) : (
                       <p className="pl-8 text-2xl font-bold text-primary text-center h-auto p-1">
-                        {totalFees.toLocaleString()}
+                        {Math.round(totalFees).toLocaleString()}
                       </p>
                     )}
                   </div>
                    <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{perHourRate.toLocaleString()}/hr)
+                      Based on ~{totalDays} days &amp; {totalHours} hours. (≈₹{Math.round(totalHours > 0 ? totalFees / totalHours : 0).toLocaleString()}/hr)
                     </div>
                 </div>
               </div>
