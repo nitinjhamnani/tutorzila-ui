@@ -361,29 +361,26 @@ function ManageEnquiryContent() {
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
   const [hoursPerSession, setHoursPerSession] = useState(1);
-  const [perHourRate, setPerHourRate] = useState(500); 
-  const [totalFees, setTotalFees] = useState(0);
+  const [totalFees, setTotalFees] = useState(0); 
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
-  const { totalDays, totalHours, monthlyTotal } = useMemo(() => {
+  const { totalDays, totalHours } = useMemo(() => {
     const days = Math.round(sessionsPerWeek * (32 / 7));
     const hours = days * hoursPerSession;
-    const total = hours * perHourRate;
-    return { totalDays: days, totalHours: hours, monthlyTotal: total };
-  }, [sessionsPerWeek, hoursPerSession, perHourRate]);
-  
+    return { totalDays: days, totalHours: hours };
+  }, [sessionsPerWeek, hoursPerSession]);
+
+  useEffect(() => {
+      const defaultRate = 500;
+      setTotalFees(Math.round(totalHours * defaultRate));
+  }, [totalHours]);
+
+
   const handleEditBudget = () => {
     totalFeesInputRef.current?.focus();
     totalFeesInputRef.current?.select();
   };
-
-  const handleTotalFeesChange = (newTotal: number) => {
-    setTotalFees(newTotal);
-    if (totalHours > 0) {
-      setPerHourRate(Math.round(newTotal / totalHours));
-    }
-  };
-
+  
   const handleSessionDetailChange = (
     type: 'sessions' | 'hours',
     value: number
@@ -394,9 +391,11 @@ function ManageEnquiryContent() {
     if (type === 'sessions') setSessionsPerWeek(value);
     if (type === 'hours') setHoursPerSession(value);
 
+    // Recalculate total fees based on a default per-hour rate when session details change
+    const defaultRate = 500;
     const newTotalDays = Math.round(newSessions * (32 / 7));
     const newTotalHours = newTotalDays * newHoursPer;
-    setTotalFees(Math.round(newTotalHours * perHourRate));
+    setTotalFees(Math.round(newTotalHours * defaultRate));
   };
 
 
@@ -924,9 +923,6 @@ function ManageEnquiryContent() {
                 />
               </div>
               <DialogFooter className="p-4 bg-muted/50">
-                <Button type="button" variant="outline" onClick={() => setIsAddNotesModalOpen(false)} disabled={addNoteMutation.isPending}>
-                  Cancel
-                </Button>
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1140,23 +1136,9 @@ function ManageEnquiryContent() {
                         <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} />
                     </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="total-fees">Total Fees</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
-                      <Input ref={totalFeesInputRef} id="total-fees" type="number" value={totalFees} onChange={(e) => handleTotalFeesChange(Number(e.target.value))} className="pl-6 text-base font-semibold text-foreground bg-input rounded-md border" />
-                    </div>
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="per-hour-fees">Per Hour Fees (auto-calculated)</Label>
-                    <div className="relative">
-                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
-                       <Input id="per-hour-fees" type="number" value={perHourRate} readOnly className="pl-6 text-sm font-medium text-muted-foreground bg-muted/50 rounded-md border" />
-                    </div>
-                </div>
-
+                
                 <Separator />
+                
                 <div className="text-center p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-center gap-2">
                     <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
@@ -1164,7 +1146,17 @@ function ManageEnquiryContent() {
                       <Edit3 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  <p className="text-2xl font-bold text-primary">₹{totalFees.toLocaleString()}</p>
+                  <div className="relative mt-2">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl font-bold">₹</span>
+                      <Input 
+                        ref={totalFeesInputRef}
+                        id="total-fees-editable" 
+                        type="number" 
+                        value={totalFees} 
+                        onChange={(e) => setTotalFees(Number(e.target.value))} 
+                        className="pl-8 text-2xl font-bold text-primary bg-transparent border-0 text-center h-auto p-1 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                  </div>
                    <div className="text-xs text-muted-foreground mt-1">
                       Based on ~{totalDays} days & {totalHours} hours over 32 days.
                     </div>
