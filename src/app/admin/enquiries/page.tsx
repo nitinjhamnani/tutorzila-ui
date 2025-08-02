@@ -45,7 +45,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
       city: item.city,
       country: item.country,
     },
-    status: "open", 
+    status: item.status?.toLowerCase() || 'open', 
     postedAt: item.createdOn || new Date().toISOString(),
     board: item.board,
     teachingMode: [
