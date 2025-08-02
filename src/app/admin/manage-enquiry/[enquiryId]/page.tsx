@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from 'date-fns';
@@ -362,6 +363,7 @@ function ManageEnquiryContent() {
   const [hoursPerSession, setHoursPerSession] = useState(1);
   const [perHourRate, setPerHourRate] = useState(500); 
   const [totalFees, setTotalFees] = useState(0);
+  const totalFeesInputRef = useRef<HTMLInputElement>(null);
 
   const { totalDays, totalHours, monthlyTotal } = useMemo(() => {
     const days = Math.round(sessionsPerWeek * (32 / 7));
@@ -369,27 +371,32 @@ function ManageEnquiryContent() {
     const total = hours * perHourRate;
     return { totalDays: days, totalHours: hours, monthlyTotal: total };
   }, [sessionsPerWeek, hoursPerSession, perHourRate]);
+  
+  const handleEditBudget = () => {
+    totalFeesInputRef.current?.focus();
+    totalFeesInputRef.current?.select();
+  };
 
-  useEffect(() => {
-    setTotalFees(monthlyTotal);
-  }, [monthlyTotal]);
-
-  const handleTotalFeesChange = (newTotalFees: number) => {
-    setTotalFees(newTotalFees);
+  const handleTotalFeesChange = (newTotal: number) => {
+    setTotalFees(newTotal);
     if (totalHours > 0) {
-      setPerHourRate(Math.round(newTotalFees / totalHours));
+      setPerHourRate(Math.round(newTotal / totalHours));
     }
   };
 
   const handleSessionDetailChange = (
-    setter: React.Dispatch<React.SetStateAction<number>>,
+    type: 'sessions' | 'hours',
     value: number
   ) => {
-    setter(value);
-    // Recalculate total fees based on the new session details and existing per-hour rate
-    const newDays = Math.round((setter === setSessionsPerWeek ? value : sessionsPerWeek) * (32 / 7));
-    const newHours = newDays * (setter === setHoursPerSession ? value : hoursPerSession);
-    setTotalFees(Math.round(newHours * perHourRate));
+    const newSessions = type === 'sessions' ? value : sessionsPerWeek;
+    const newHoursPer = type === 'hours' ? value : hoursPerSession;
+
+    if (type === 'sessions') setSessionsPerWeek(value);
+    if (type === 'hours') setHoursPerSession(value);
+
+    const newTotalDays = Math.round(newSessions * (32 / 7));
+    const newTotalHours = newTotalDays * newHoursPer;
+    setTotalFees(Math.round(newTotalHours * perHourRate));
   };
 
 
@@ -916,7 +923,10 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-4 sm:p-5 bg-muted/50">
+              <DialogFooter className="p-4 bg-muted/50">
+                <Button type="button" variant="outline" onClick={() => setIsAddNotesModalOpen(false)} disabled={addNoteMutation.isPending}>
+                  Cancel
+                </Button>
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1123,11 +1133,11 @@ function ManageEnquiryContent() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="sessions-week">Sessions/Week</Label>
-                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange(setSessionsPerWeek, Number(e.target.value))} />
+                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange('sessions', Number(e.target.value))} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="hours-session">Hours/Session</Label>
-                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange(setHoursPerSession, Number(e.target.value))} />
+                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} />
                     </div>
                 </div>
 
@@ -1135,7 +1145,7 @@ function ManageEnquiryContent() {
                   <Label htmlFor="total-fees">Total Fees</Label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
-                      <Input id="total-fees" type="number" value={totalFees} onChange={(e) => handleTotalFeesChange(Number(e.target.value))} className="pl-6 text-base font-semibold text-foreground bg-input rounded-md border" />
+                      <Input ref={totalFeesInputRef} id="total-fees" type="number" value={totalFees} onChange={(e) => handleTotalFeesChange(Number(e.target.value))} className="pl-6 text-base font-semibold text-foreground bg-input rounded-md border" />
                     </div>
                 </div>
                  <div className="space-y-2">
@@ -1148,7 +1158,12 @@ function ManageEnquiryContent() {
 
                 <Separator />
                 <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
+                  <div className="flex items-center justify-center gap-2">
+                    <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={handleEditBudget}>
+                      <Edit3 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                   <p className="text-2xl font-bold text-primary">₹{totalFees.toLocaleString()}</p>
                    <div className="text-xs text-muted-foreground mt-1">
                       Based on ~{totalDays} days & {totalHours} hours over 32 days.
@@ -1172,5 +1187,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
