@@ -715,11 +715,6 @@ function ManageEnquiryContent() {
         <CardHeader className="p-4 sm:p-5 relative">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex items-center gap-4 flex-grow pr-12">
-                  <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0 hidden sm:flex">
-                    <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
-                      {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
-                    </AvatarFallback>
-                  </Avatar>
                   <div className="flex-grow">
                       <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-xl font-semibold text-primary">
