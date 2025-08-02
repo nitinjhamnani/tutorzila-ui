@@ -360,19 +360,26 @@ function ManageEnquiryContent() {
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(3);
   const [hoursPerSession, setHoursPerSession] = useState(1);
-  const [pricePerHour] = useState(500); // Default price per hour
+  const [perHourRate, setPerHourRate] = useState(500); 
   const [totalFees, setTotalFees] = useState(0);
 
   const { totalDays, totalHours, monthlyTotal } = useMemo(() => {
     const days = Math.round(sessionsPerWeek * (32 / 7));
     const hours = days * hoursPerSession;
-    const total = hours * pricePerHour;
+    const total = hours * perHourRate;
     return { totalDays: days, totalHours: hours, monthlyTotal: total };
-  }, [sessionsPerWeek, hoursPerSession, pricePerHour]);
+  }, [sessionsPerWeek, hoursPerSession, perHourRate]);
 
   useEffect(() => {
     setTotalFees(monthlyTotal);
   }, [monthlyTotal]);
+  
+  useEffect(() => {
+    if (totalHours > 0) {
+      setPerHourRate(Math.round(totalFees / totalHours));
+    }
+  }, [totalFees, totalHours]);
+
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -773,7 +780,7 @@ function ManageEnquiryContent() {
       <Card className="bg-card rounded-xl shadow-lg border-0">
         <CardHeader className="p-4 sm:p-5 relative">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="flex items-center gap-4 flex-grow pr-12">
+              <div className="flex items-center gap-4 flex-grow">
                   <div className="flex-grow">
                       <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-xl font-semibold text-primary">
@@ -842,7 +849,7 @@ function ManageEnquiryContent() {
         <CardFooter className="flex flex-wrap justify-between gap-2 p-4 sm:p-5 border-t">
            <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5"/>Parent</Button>
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsSessionDetailsModalOpen(true)}><DollarSign className="mr-1.5 h-3.5 w-3.5"/>Session Details</Button>
+            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsSessionDetailsModalOpen(true)}><DollarSign className="mr-1.5 h-3.5 w-3.5"/>Session & Budget</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
@@ -1101,25 +1108,39 @@ function ManageEnquiryContent() {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sessions-week">Sessions in a Week</Label>
-                  <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => setSessionsPerWeek(Number(e.target.value))} />
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="sessions-week">Sessions/Week</Label>
+                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => setSessionsPerWeek(Number(e.target.value))} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="hours-session">Hours/Session</Label>
+                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => setHoursPerSession(Number(e.target.value))} />
+                    </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="hours-session">Hours per Session</Label>
-                  <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => setHoursPerSession(Number(e.target.value))} />
-                </div>
-                <Separator />
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
-                  <p className="text-2xl font-bold text-primary">₹{monthlyTotal.toLocaleString()}</p>
-                   <div className="text-xs text-muted-foreground mt-1">
-                      Based on ~{totalDays} days & {totalHours} hours over 32 days.
+                  <Label htmlFor="total-fees">Total Fees</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
+                      <Input id="total-fees" type="number" value={totalFees} onChange={(e) => setTotalFees(Number(e.target.value))} className="pl-6 text-base font-semibold text-foreground bg-input rounded-md border" />
                     </div>
                 </div>
                  <div className="space-y-2">
-                  <Label htmlFor="total-fees">Total Fees</Label>
-                    <Input id="total-fees" type="number" value={totalFees} onChange={(e) => setTotalFees(Number(e.target.value))} className="text-lg font-semibold text-foreground p-2 bg-input rounded-md border" />
+                  <Label htmlFor="per-hour-fees">Per Hour Fees (auto-calculated)</Label>
+                    <div className="relative">
+                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
+                       <Input id="per-hour-fees" type="number" value={perHourRate} readOnly className="pl-6 text-sm font-medium text-muted-foreground bg-muted/50 rounded-md border" />
+                    </div>
+                </div>
+
+                <Separator />
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <Label className="text-sm text-muted-foreground">Estimated Monthly Budget</Label>
+                  <p className="text-2xl font-bold text-primary">₹{totalFees.toLocaleString()}</p>
+                   <div className="text-xs text-muted-foreground mt-1">
+                      Based on ~{totalDays} days & {totalHours} hours over 32 days.
+                    </div>
                 </div>
               </div>
               <DialogFooter>
