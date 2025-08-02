@@ -373,12 +373,24 @@ function ManageEnquiryContent() {
   useEffect(() => {
     setTotalFees(monthlyTotal);
   }, [monthlyTotal]);
-  
-  useEffect(() => {
+
+  const handleTotalFeesChange = (newTotalFees: number) => {
+    setTotalFees(newTotalFees);
     if (totalHours > 0) {
-      setPerHourRate(Math.round(totalFees / totalHours));
+      setPerHourRate(Math.round(newTotalFees / totalHours));
     }
-  }, [totalFees, totalHours]);
+  };
+
+  const handleSessionDetailChange = (
+    setter: React.Dispatch<React.SetStateAction<number>>,
+    value: number
+  ) => {
+    setter(value);
+    // Recalculate total fees based on the new session details and existing per-hour rate
+    const newDays = Math.round((setter === setSessionsPerWeek ? value : sessionsPerWeek) * (32 / 7));
+    const newHours = newDays * (setter === setHoursPerSession ? value : hoursPerSession);
+    setTotalFees(Math.round(newHours * perHourRate));
+  };
 
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
@@ -888,14 +900,14 @@ function ManageEnquiryContent() {
             <AdminEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
-            <DialogContent className="sm:max-w-md bg-card p-0">
-              <DialogHeader className="p-6">
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle className="text-lg font-semibold text-primary">Add Additional Notes</DialogTitle>
                 <DialogDescription>
                   These notes will be visible to tutors viewing the enquiry details.
                 </DialogDescription>
               </DialogHeader>
-              <div className="p-6 pt-0">
+              <div className="px-6 pt-0 pb-6">
                 <Textarea
                   placeholder="e.g., Student requires special attention for calculus, focus on exam preparation..."
                   value={notes}
@@ -904,7 +916,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-4 sm:p-5">
+              <DialogFooter className="p-4 sm:p-5 bg-muted/50">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1031,13 +1043,13 @@ function ManageEnquiryContent() {
         </Dialog>
         <Dialog open={isAcceptModalOpen} onOpenChange={setIsAcceptModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader>
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle>Accept Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
                 <DialogDescription>
                   Please select a reason for accepting this requirement. This helps in tracking.
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4 space-y-4">
+              <div className="py-4 space-y-4 px-6">
                   <RadioGroup
                     onValueChange={(value: string) => setAcceptReason(value)}
                     value={acceptReason || ""}
@@ -1051,7 +1063,7 @@ function ManageEnquiryContent() {
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter>
+              <DialogFooter className="p-4 bg-muted/50">
                 <Button 
                   type="button" 
                   onClick={handleConfirmAcceptance} 
@@ -1065,13 +1077,13 @@ function ManageEnquiryContent() {
 
         <Dialog open={isCloseModalOpen} onOpenChange={setIsCloseModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader>
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle>Close Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
                 <DialogDescription>
                   Please select a reason for closing this requirement. This action cannot be undone immediately.
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4 space-y-4">
+              <div className="py-4 space-y-4 px-6">
                   <RadioGroup
                     onValueChange={(value: string) => setCloseReason(value)}
                     value={closeReason || ""}
@@ -1085,7 +1097,7 @@ function ManageEnquiryContent() {
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter>
+              <DialogFooter className="p-4 bg-muted/50">
                  <Button 
                   type="button" 
                   onClick={handleConfirmClosure} 
@@ -1101,21 +1113,21 @@ function ManageEnquiryContent() {
         
         <Dialog open={isSessionDetailsModalOpen} onOpenChange={setIsSessionDetailsModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader>
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle>Capture Session & Budget</DialogTitle>
                 <DialogDescription>
                   Finalize the session details to calculate the monthly budget for this enquiry.
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
+              <div className="space-y-4 py-4 px-6">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="sessions-week">Sessions/Week</Label>
-                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => setSessionsPerWeek(Number(e.target.value))} />
+                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange(setSessionsPerWeek, Number(e.target.value))} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="hours-session">Hours/Session</Label>
-                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => setHoursPerSession(Number(e.target.value))} />
+                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange(setHoursPerSession, Number(e.target.value))} />
                     </div>
                 </div>
 
@@ -1123,7 +1135,7 @@ function ManageEnquiryContent() {
                   <Label htmlFor="total-fees">Total Fees</Label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
-                      <Input id="total-fees" type="number" value={totalFees} onChange={(e) => setTotalFees(Number(e.target.value))} className="pl-6 text-base font-semibold text-foreground bg-input rounded-md border" />
+                      <Input id="total-fees" type="number" value={totalFees} onChange={(e) => handleTotalFeesChange(Number(e.target.value))} className="pl-6 text-base font-semibold text-foreground bg-input rounded-md border" />
                     </div>
                 </div>
                  <div className="space-y-2">
@@ -1143,7 +1155,7 @@ function ManageEnquiryContent() {
                     </div>
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="p-4 bg-muted/50">
                 <Button type="button" onClick={handleConfirmBudget}>Confirm Budget</Button>
               </DialogFooter>
             </DialogContent>
