@@ -115,3 +115,4 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
     </Card>
   );
 }
+
