@@ -668,12 +668,12 @@ function ManageEnquiryContent() {
   const actionButtons = (
       <div className="flex items-center gap-1.5">
           {enquiry.status === 'open' && (
-              <Button variant="default" size="sm" className="h-7 text-xs px-2 rounded-md">
+              <Button variant="primary-outline" size="sm" className="h-7 text-xs px-2 rounded-md">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Accept
               </Button>
           )}
-          <Button variant="destructive" size="sm" className="h-7 text-xs px-2 rounded-md">
+          <Button variant="primary-outline" size="sm" className="h-7 text-xs px-2 rounded-md border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
               <XCircle className="h-3 w-3 mr-1" />
               Close
           </Button>
