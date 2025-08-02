@@ -1009,11 +1009,6 @@ function ManageEnquiryContent() {
                   </RadioGroup>
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </DialogClose>
                 <Button 
                   type="button" 
                   onClick={handleConfirmAcceptance} 
