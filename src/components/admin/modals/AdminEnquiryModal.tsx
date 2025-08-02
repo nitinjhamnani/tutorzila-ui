@@ -327,9 +327,6 @@ export function AdminEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateE
             </div>
             
             <DialogFooter className="pt-4">
-              <DialogClose asChild>
-                <Button type="button" variant="outline" disabled={isUpdating}>Cancel</Button>
-              </DialogClose>
               <Button type="submit" disabled={isUpdating}>
                 {isUpdating ? (
                   <>
