@@ -940,7 +940,6 @@ function ManageEnquiryContent() {
                         </div>
                     </div>
                 ) : null}
-                <DialogFooter className="p-6 border-t" />
             </DialogContent>
         </Dialog>
     </div>
