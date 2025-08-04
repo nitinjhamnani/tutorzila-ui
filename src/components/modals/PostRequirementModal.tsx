@@ -167,8 +167,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       board: "",
       teachingMode: [],
       location: null,
-      tutorGenderPreference: "any",
-      startDatePreference: "immediately",
+      tutorGenderPreference: undefined,
+      startDatePreference: undefined,
       preferredDays: [],
       preferredTimeSlots: [],
       whatsAppNotifications: true,
@@ -456,7 +456,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender (Optional)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || undefined}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
                             <SelectValue placeholder="Select tutor gender" />
@@ -478,7 +478,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date (Optional)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || undefined}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
                             <SelectValue placeholder="Select start time" />
@@ -700,3 +700,4 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     </div>
   );
 }
+
