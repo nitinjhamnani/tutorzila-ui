@@ -36,7 +36,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone, Mail, X, GraduationCap, Building, RadioTower } from "lucide-react";
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone, Mail, X, GraduationCap, Building, RadioTower, VenetianMask } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -113,6 +113,8 @@ const postRequirementSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
+  tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
+  startDatePreference: z.enum(["immediately", "within_month", "exploring"]).optional(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   // Step 3
@@ -165,6 +167,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       board: "",
       teachingMode: [],
       location: null,
+      tutorGenderPreference: "any",
+      startDatePreference: "immediately",
       preferredDays: [],
       preferredTimeSlots: [],
       whatsAppNotifications: true,
@@ -177,7 +181,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
     } else if (currentStep === 2) {
-      fieldsToValidate = ['teachingMode', 'location', 'preferredDays', 'preferredTimeSlots'];
+      fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference', 'preferredDays', 'preferredTimeSlots'];
     } else if (currentStep === 3) {
       fieldsToValidate = ['name', 'email', 'country', 'localPhoneNumber', 'acceptTerms', 'whatsAppNotifications'];
     }
@@ -219,6 +223,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         availabilityTime: data.preferredTimeSlots || [],
         online: data.teachingMode.includes("Online"),
         offline: data.teachingMode.includes("Offline (In-person)"),
+        tutorGenderPreference: data.tutorGenderPreference,
+        startDatePreference: data.startDatePreference,
     };
 
     let apiRequestBody: any = {
@@ -442,6 +448,53 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   )}
                 />
               )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <FormField
+                  control={form.control}
+                  name="tutorGenderPreference"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Tutor Gender</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || "any"}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
+                            <SelectValue placeholder="No preference" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="any">No Preference</SelectItem>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="startDatePreference"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || "immediately"}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
+                            <SelectValue placeholder="Select start time" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="immediately">Immediately</SelectItem>
+                          <SelectItem value="within_month">Within a month</SelectItem>
+                          <SelectItem value="exploring">Just exploring</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <FormField
