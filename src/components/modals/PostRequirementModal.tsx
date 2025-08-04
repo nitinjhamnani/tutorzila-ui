@@ -455,11 +455,11 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="tutorGenderPreference"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Tutor Gender</FormLabel>
+                      <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender (Optional)</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value || "any"}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
-                            <SelectValue placeholder="No preference" />
+                            <SelectValue placeholder="Select tutor gender" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -477,7 +477,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="startDatePreference"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date</FormLabel>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date (Optional)</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value || "immediately"}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
