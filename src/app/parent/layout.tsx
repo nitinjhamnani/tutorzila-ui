@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "../../hooks/use-mobile";
 import { Logo } from "@/components/shared/Logo";
 import {
   LayoutDashboard,

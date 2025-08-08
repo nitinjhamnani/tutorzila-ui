@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/shared/Logo";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import type { User, TutorProfile } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useEffect, useState } from "react";
