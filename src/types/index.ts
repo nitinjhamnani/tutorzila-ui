@@ -51,6 +51,8 @@ export interface TuitionRequirement {
   mockIsShortlistedByCurrentUser?: boolean;
   appliedTutorIds?: string[];
   createdBy?: 'PARENT' | 'ADMIN';
+  tutorGenderPreference?: 'male' | 'female' | 'any';
+  startDatePreference?: 'immediately' | 'within_month' | 'exploring';
 }
 
 export interface TutorProfile extends User {
@@ -250,5 +252,3 @@ export interface AdminDashboardData {
     totalEnquiries: number;
     noOfDemos: number;
 }
-
-    

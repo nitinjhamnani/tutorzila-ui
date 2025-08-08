@@ -38,7 +38,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User, Loader2 } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User, Loader2, VenetianMask } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -77,6 +77,8 @@ const parentEnquiryEditSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
+  tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
+  startDatePreference: z.enum(["immediately", "within_month", "exploring"]).optional(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
 }).refine(data => {
@@ -109,6 +111,8 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
       board: "",
       teachingMode: [],
       location: null,
+      tutorGenderPreference: undefined,
+      startDatePreference: undefined,
       preferredDays: [],
       preferredTimeSlots: [],
     },
@@ -125,6 +129,8 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
         location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: enquiryData.location || "" },
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
+        tutorGenderPreference: undefined,
+        startDatePreference: undefined,
       });
     }
   }, [enquiryData, isOpen, form]);
@@ -293,6 +299,54 @@ export function ParentEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdate
                 )}
             />
             )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="tutorGenderPreference"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender (Optional)</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
+                            <SelectValue placeholder="Select tutor gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="any">No Preference</SelectItem>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="startDatePreference"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date (Optional)</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
+                            <SelectValue placeholder="Select start time" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="immediately">Immediately</SelectItem>
+                          <SelectItem value="within_month">Within a month</SelectItem>
+                          <SelectItem value="exploring">Just exploring</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <FormField

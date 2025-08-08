@@ -171,6 +171,22 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
   if (!token) throw new Error("Authentication token is required.");
   
   const locationDetails = formData.location;
+  
+  let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
+  switch(formData.tutorGenderPreference) {
+      case 'male':
+          genderPreferenceApiValue = 'MALE';
+          break;
+      case 'female':
+          genderPreferenceApiValue = 'FEMALE';
+          break;
+      case 'any':
+          genderPreferenceApiValue = 'NO_PREFERENCE';
+          break;
+      default:
+          genderPreferenceApiValue = undefined;
+  }
+  
   const requestBody = {
     studentName: formData.studentName,
     subjects: formData.subject,
@@ -188,6 +204,8 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
     availabilityTime: formData.preferredTimeSlots,
     online: formData.teachingMode.includes("Online"),
     offline: formData.teachingMode.includes("Offline (In-person)"),
+    genderPreference: genderPreferenceApiValue,
+    startPreference: formData.startDatePreference,
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -394,7 +412,6 @@ export default function ParentEnquiryDetailsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           <div className="lg:col-span-3 space-y-6">
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
