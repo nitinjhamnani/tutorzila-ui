@@ -400,8 +400,8 @@ export default function ParentEnquiryDetailsPage() {
           <div className="lg:col-span-3 space-y-6">
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
               <CardHeader className="bg-muted/30 p-4 md:p-5 border-b">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-start justify-between">
+                  <div className="flex-grow">
                     <CardTitle className="text-lg md:text-xl font-semibold text-primary tracking-tight">
                       {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                     </CardTitle>
@@ -410,6 +410,10 @@ export default function ParentEnquiryDetailsPage() {
                            <User className="w-4 h-4 mr-1.5 text-primary/80" /> {requirement.studentName}
                         </p>
                     )}
+                     <p className="text-xs text-muted-foreground mt-1 flex items-center">
+                        <Clock className="w-3.5 h-3.5 mr-1.5" />
+                        Posted on {formattedPostedDate}
+                    </p>
                   </div>
                    <Badge variant="default">
                     {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
@@ -483,11 +487,7 @@ export default function ParentEnquiryDetailsPage() {
                    </>
                 )}
               </CardContent>
-              <CardFooter className="p-4 md:p-5 border-t flex-wrap justify-between items-center gap-2">
-                <div className="text-xs text-muted-foreground flex items-center">
-                    <Clock className="w-3.5 h-3.5 mr-1.5" />
-                    Posted on {formattedPostedDate}
-                </div>
+              <CardFooter className="p-4 md:p-5 border-t flex flex-wrap justify-end items-center gap-2">
                 <div className="flex flex-wrap justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
                       <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit

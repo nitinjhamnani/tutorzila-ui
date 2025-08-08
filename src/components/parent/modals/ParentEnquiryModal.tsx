@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect } from "react";
@@ -37,7 +38,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Save, X, User, Loader2 } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User, Loader2 } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
