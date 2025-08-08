@@ -3,7 +3,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { Logo } from "./Logo";
+// import { Logo } from "./Logo"; // Removed incorrect Logo import
+import Image from "next/image"; // Ensure Image is imported
+import logoAsset from '@/assets/images/logo.png';
 import { Github, Twitter, Facebook, Instagram, Home, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"; 
@@ -58,7 +60,14 @@ export function AppFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div className="space-y-3 md:col-span-2 lg:col-span-1">
             <Link href="/">
-              <Logo className="h-[var(--logo-height)] w-auto" />
+              {/* Replaced Logo component with direct Image import */}
+              <Image
+                src={logoAsset}
+                alt="Tutorzila Logo"
+                width={405} // Intrinsic width of the logo image
+                height={96} // Intrinsic height of the logo image
+                className="h-[var(--logo-height)] w-auto" // Keep className for styling
+              />
             </Link>
             <div className="flex space-x-3">
               {socialLinks.map((social) => (

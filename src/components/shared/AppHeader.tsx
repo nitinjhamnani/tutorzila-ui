@@ -11,7 +11,8 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 import { Menu, LogIn, GraduationCap } from "lucide-react";
-import { Logo } from "./Logo";
+import Image from 'next/image';
+import logoAsset from '@/assets/images/logo.png';
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -68,7 +69,14 @@ export function AppHeader() {
     <header className={cn(headerBaseClasses, headerDynamicClasses)}>
       <div className="container mx-auto flex h-[var(--header-height)] items-center justify-between px-4 md:px-6">
         <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-          <Logo className="h-[var(--logo-height)] w-auto" />
+          <Image
+            src={logoAsset}
+            alt="Tutorzila Logo"
+            width={405} // Intrinsic width of the logo image
+            height={96} // Intrinsic height of the logo image
+            className={cn("h-[var(--logo-height)] w-auto")} // Allows overriding or extending styles from parent
+            priority
+          />
         </Link>
 
         <div className="flex items-center gap-4">          
@@ -94,7 +102,14 @@ export function AppHeader() {
                 <SheetHeader className="p-4 border-b flex-shrink-0">
                   <SheetTitleComponent> 
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                      <Logo className="h-[calc(var(--logo-height)_/_1.5)] w-auto" />
+                      <Image
+                        src={logoAsset}
+                        alt="Tutorzila Logo"
+                        width={405} // Intrinsic width of the logo image
+                        height={96} // Intrinsic height of the logo image
+                        className={cn("h-[calc(var(--logo-height)_/_1.5)] w-auto")} // Allows overriding or extending styles from parent
+                        priority
+                      />
                     </Link>
                   </SheetTitleComponent>
                 </SheetHeader>
