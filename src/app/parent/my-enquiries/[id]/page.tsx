@@ -54,6 +54,7 @@ import {
   ArrowLeft,
   MapPinned,
   Loader2,
+  UsersRound,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -350,7 +351,6 @@ export default function ParentEnquiryDetailsPage() {
   };
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
-  const formattedPostedDate = requirement?.postedAt ? format(postedDate, "MMMM d, yyyy 'at' h:mm a") : "";
 
   if (isLoading || isCheckingAuth) {
     return (
@@ -389,7 +389,6 @@ export default function ParentEnquiryDetailsPage() {
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
-
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
 
   return (
@@ -399,42 +398,37 @@ export default function ParentEnquiryDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           <div className="lg:col-span-3 space-y-6">
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-              <CardHeader className="bg-muted/30 p-4 md:p-5 border-b">
-                <div className="flex items-start justify-between">
+               <CardHeader className="bg-card p-4 sm:p-5 relative">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="flex-grow">
-                    <CardTitle className="text-lg md:text-xl font-semibold text-primary tracking-tight">
-                      {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-                    </CardTitle>
-                    {requirement.studentName && (
-                        <p className="text-sm font-medium text-foreground/80 mt-1 flex items-center">
-                           <User className="w-4 h-4 mr-1.5 text-primary/80" /> {requirement.studentName}
-                        </p>
-                    )}
-                     <p className="text-xs text-muted-foreground mt-1 flex items-center">
-                        <Clock className="w-3.5 h-3.5 mr-1.5" />
-                        Posted on {formattedPostedDate}
-                    </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-xl font-semibold text-primary">
+                        {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                        </CardTitle>
+                        <Badge variant="default" className="text-xs">
+                            {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+                        </Badge>
+                      </div>
+                      <div className="space-y-2 pt-2">
+                          <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                              <UsersRound className="w-4 h-4"/> {requirement.studentName}
+                          </CardDescription>
+                          <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                              <Clock className="w-3.5 h-3.5" /> 
+                              Posted on {format(postedDate, "MMM d, yyyy")}
+                          </CardDescription>
+                          <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                    <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
+                                    {requirement.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{requirement.board}</span>}
+                                    <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{requirement.teachingMode?.join(', ')}</span>
+                                </div>
+                          </div>
+                      </div>
                   </div>
-                   <Badge variant="default">
-                    {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="p-4 md:p-5 space-y-5">
-                <section className="space-y-3">
-                  <h3 className="text-base font-semibold text-foreground flex items-center">
-                    <Briefcase className="w-4 h-4 mr-2 text-primary/80" />
-                    Requirement Details
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                    <EnquiryInfoItem label="Grade Level" value={requirement.gradeLevel} icon={GraduationCap} />
-                    {requirement.board && <EnquiryInfoItem label="Board" value={requirement.board} icon={Building} />}
-                    {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-                        <EnquiryInfoItem label="Teaching Mode(s)" value={requirement.teachingMode} icon={RadioTower} />
-                    )}
-                  </div>
-                </section>
-                
                 {hasScheduleInfo && (
                   <>
                     <Separator />
