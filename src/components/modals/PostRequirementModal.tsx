@@ -206,6 +206,21 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
     const locationDetails = data.location;
     
+    let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
+    switch(data.tutorGenderPreference) {
+        case 'male':
+            genderPreferenceApiValue = 'MALE';
+            break;
+        case 'female':
+            genderPreferenceApiValue = 'FEMALE';
+            break;
+        case 'any':
+            genderPreferenceApiValue = 'NO_PREFERENCE';
+            break;
+        default:
+            genderPreferenceApiValue = undefined;
+    }
+    
     const enquiryRequest = {
         studentName: data.studentName,
         subjects: data.subject,
@@ -223,8 +238,8 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         availabilityTime: data.preferredTimeSlots || [],
         online: data.teachingMode.includes("Online"),
         offline: data.teachingMode.includes("Offline (In-person)"),
-        tutorGenderPreference: data.tutorGenderPreference,
-        startDatePreference: data.startDatePreference,
+        genderPreference: genderPreferenceApiValue,
+        startPreference: data.startDatePreference,
     };
 
     let apiRequestBody: any = {
@@ -455,7 +470,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="tutorGenderPreference"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
@@ -477,7 +492,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
                   name="startDatePreference"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date (Optional)</FormLabel>
+                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30">
@@ -700,4 +715,3 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     </div>
   );
 }
-
