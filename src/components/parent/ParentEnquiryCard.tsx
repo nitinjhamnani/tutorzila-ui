@@ -98,7 +98,7 @@ export function ParentEnquiryCard({
               </AvatarFallback>
             </Avatar>
             <div className="flex-grow min-w-0 space-y-0.5">
-              <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+              <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words pr-16">
                 {Array.isArray(requirement.subject)
                   ? requirement.subject.join(", ")
                   : requirement.subject}
@@ -108,17 +108,11 @@ export function ParentEnquiryCard({
                 Posted {timeAgo}
               </CardDescription>
             </div>
-            {(requirement.status === 'open' || requirement.status === 'matched') && (
-                 <Button
-                    variant="default"
-                    size="icon"
-                    className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
-                    title="Edit Enquiry"
-                    onClick={() => onEdit(requirement)}
-                  >
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-            )}
+            <div className="absolute top-0 right-0">
+              <Badge variant="default" className="text-xs">
+                {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
 
@@ -134,31 +128,28 @@ export function ParentEnquiryCard({
               value={requirement.teachingMode.join(", ")}
             />
           )}
-          {locationString && requirement.teachingMode?.includes('Offline (In-person)') && (
-            <InfoItem icon={MapPin} label="Location" value={locationString} />
-          )}
         </CardContent>
 
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
             <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
-                {requirement.assignedTutors !== undefined && requirement.assignedTutors >= 0 && (
+                {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
                     <Badge
                         variant="outline"
                         className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal"
                     >
                         <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-                        {requirement.assignedTutors} Tutor
-                        {requirement.assignedTutors === 1 ? " Assigned" : "s Assigned"}
+                        {requirement.applicantsCount} Tutor
+                        {requirement.applicantsCount === 1 ? " Assigned" : "s Assigned"}
                     </Badge>
                 )}
-                {locationString && (
+                {locationString && requirement.teachingMode?.includes('Offline (In-person)') && (
                   <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
                     <MapPin className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
                     {locationString}
                   </Badge>
                 )}
             </div>
-           <div className="flex items-center gap-2">
+           <div className="flex items-center gap-2 self-end sm:self-center">
             {isPastEnquiry && onReopen && (
               <Button
                 variant="outline"
@@ -172,21 +163,20 @@ export function ParentEnquiryCard({
                 <Archive className="mr-1.5 h-3 w-3" /> Reopen
               </Button>
             )}
-            {requirement.assignedTutors !== undefined && requirement.assignedTutors > 0 && (
-              <Button
-                  asChild
-                  size="sm"
-                  className={cn(
-                  "text-xs py-1.5 px-3 h-auto",
-                  "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
-                  )}
-              >
-                  <Link href={`/parent/my-tutors/${requirement.id}`}>
-                    <UsersIcon className="w-3 h-3 mr-1.5" />
-                    View Tutors
-                  </Link>
-              </Button>
-            )}
+            <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className={cn(
+                "text-xs py-1.5 px-3 h-auto",
+                "bg-primary/5 text-primary border-primary/30 hover:bg-primary/10"
+                )}
+            >
+                <Link href={`/parent/my-enquiries/${requirement.id}`}>
+                    <Eye className="w-3 h-3 mr-1.5" />
+                    View Details
+                </Link>
+            </Button>
           </div>
         </CardFooter>
       </Card>
