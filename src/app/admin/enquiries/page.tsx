@@ -64,7 +64,7 @@ export default function AdminAllEnquiriesPage() {
     queryKey: ['adminAllEnquiries', token],
     queryFn: () => fetchAdminEnquiries(token),
     enabled: !!token && !!user && user.role === 'admin',
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     refetchOnWindowFocus: false,
   });
 
