@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,13 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Clock, Loader2, Send } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Loader2, Send, BookOpen } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { ApiTutor, TuitionRequirement } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
 const scheduleDemoSchema = z.object({
+  subject: z.string().min(1, { message: "Please select a subject." }),
   date: z.date({ required_error: "A date for the demo is required." }),
   time: z.string().min(1, { message: "Please select a time." }),
   duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
@@ -58,15 +59,37 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
+      subject: enquiry.subject?.[0] || "",
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
     },
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        subject: enquiry.subject?.[0] || "",
+        date: new Date(),
+        time: "04:00 PM",
+        duration: 30,
+      });
+    }
+  }, [isOpen, enquiry, form]);
+
+
   const onSubmit: SubmitHandler<ScheduleDemoFormValues> = async (data) => {
     setIsSubmitting(true);
-    console.log("Scheduling demo with data:", { ...data, tutorId: tutor.id, enquiryId: enquiry.id });
+    const samplePayload = {
+      enquiryId: enquiry.id,
+      tutorId: tutor.id,
+      subject: data.subject,
+      demoDate: format(data.date, 'yyyy-MM-dd'),
+      demoTime: data.time,
+      durationInMinutes: data.duration,
+    };
+    console.log("Scheduling demo with JSON payload:", JSON.stringify(samplePayload, null, 2));
+    
     // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     toast({
@@ -88,6 +111,28 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+             <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80" />Select Subject</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a subject for the demo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(Array.isArray(enquiry.subject) ? enquiry.subject : [enquiry.subject]).map(s => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
              <FormField
               control={form.control}
               name="date"
