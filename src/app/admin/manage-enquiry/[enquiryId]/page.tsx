@@ -1150,7 +1150,7 @@ const addNoteMutation = useMutation({
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-4 border-t">
+              <DialogFooter className="p-4">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
