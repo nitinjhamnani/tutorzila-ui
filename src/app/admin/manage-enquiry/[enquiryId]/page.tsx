@@ -870,6 +870,7 @@ function ManageEnquiryContent() {
 
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
   const hasScheduleInfo = enquiry ? ((enquiry.preferredDays && enquiry.preferredDays.length > 0) || (enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0)) : false;
+  const budgetInfo = enquiry?.budget;
 
   return (
     <div className="space-y-6">
@@ -911,6 +912,13 @@ function ManageEnquiryContent() {
                                             <span className="line-clamp-1">{locationInfo.address}</span>
                                         )}
                                     </div>
+                                )}
+                                {budgetInfo && (budgetInfo.totalDays || 0) > 0 && (
+                                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 border-t mt-2">
+                                      {budgetInfo.totalDays && <span className="flex items-center gap-1.5 font-medium"><CalendarDays className="w-3.5 h-3.5 text-primary/80"/>{budgetInfo.totalDays} Days/Month</span>}
+                                      {budgetInfo.totalHours && <span className="flex items-center gap-1.5 font-medium"><Clock className="w-3.5 h-3.5 text-primary/80"/>{budgetInfo.totalHours} Hrs/Month</span>}
+                                      {budgetInfo.totalFees && <span className="flex items-center gap-1.5 font-medium"><DollarSign className="w-3.5 h-3.5 text-primary/80"/>₹{budgetInfo.totalFees.toLocaleString()}/Month</span>}
+                                  </div>
                                 )}
                           </div>
                       </div>
