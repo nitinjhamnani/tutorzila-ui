@@ -627,8 +627,8 @@ function ManageEnquiryContent() {
           ...(updatedData.online ? ["Online"] : []),
           ...(updatedData.offline ? ["Offline (In-person)"] : []),
         ],
-        preferredDays: updatedData.availabilityDays,
-        preferredTimeSlots: updatedData.availabilityTime,
+        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',') : updatedData.availabilityDays || [],
+        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',') : updatedData.availabilityTime || [],
         tutorGenderPreference: mappedGenderPreference,
         startDatePreference: updatedData.startPreference,
         // Keep fields not in the update response from the old data
