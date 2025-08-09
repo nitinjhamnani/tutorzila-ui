@@ -595,49 +595,38 @@ function ManageEnquiryContent() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedDetails) => {
-      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-      
-      queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
-          if (!oldData) return;
+        toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+        
+        queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
+            if (!oldData) return;
 
-          let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-          switch (updatedDetails.genderPreference) {
-            case 'MALE': mappedGenderPreference = 'male'; break;
-            case 'FEMALE': mappedGenderPreference = 'female'; break;
-            case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
-            default: mappedGenderPreference = undefined;
-          }
-          
-          return {
-            ...oldData,
-            studentName: updatedDetails.studentName,
-            subject: updatedDetails.subjects,
-            gradeLevel: updatedDetails.grade,
-            board: updatedDetails.board,
-            teachingMode: [
-                ...(updatedDetails.online ? ["Online"] : []),
-                ...(updatedDetails.offline ? ["Offline (In-person)"] : []),
-            ],
-            location: {
-              ...oldData.location,
-              name: updatedDetails.addressName || updatedDetails.address || "",
-              address: updatedDetails.address,
-              city: updatedDetails.city,
-              state: updatedDetails.state,
-              country: updatedDetails.country,
-              area: updatedDetails.area,
-              pincode: updatedDetails.pincode,
-              googleMapsUrl: updatedDetails.googleMapsLink,
-            },
-            preferredDays: updatedDetails.availabilityDays,
-            preferredTimeSlots: updatedDetails.availabilityTime,
-            tutorGenderPreference: mappedGenderPreference,
-            startDatePreference: updatedDetails.startPreference,
-            scheduleDetails: updatedDetails.notes,
-            additionalNotes: updatedDetails.notes,
-          };
-      });
-      setIsEditModalOpen(false);
+            let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+            switch (updatedDetails.tutorGenderPreference) {
+                case 'MALE': mappedGenderPreference = 'male'; break;
+                case 'FEMALE': mappedGenderPreference = 'female'; break;
+                case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
+                default: mappedGenderPreference = undefined;
+            }
+
+            return {
+                ...oldData,
+                studentName: updatedDetails.studentName,
+                additionalNotes: updatedDetails.additionalNotes,
+                scheduleDetails: updatedDetails.notes,
+                preferredDays: typeof updatedDetails.availabilityDays === 'string' ? updatedDetails.availabilityDays.split(',').map(d => d.trim()) : [],
+                preferredTimeSlots: typeof updatedDetails.availabilityTime === 'string' ? updatedDetails.availabilityTime.split(',').map(t => t.trim()) : [],
+                location: {
+                    ...oldData.location,
+                    name: updatedDetails.addressName || updatedDetails.address,
+                    address: updatedDetails.address,
+                    googleMapsUrl: updatedDetails.googleMapsLink,
+                    pincode: updatedDetails.pincode,
+                },
+                tutorGenderPreference: mappedGenderPreference,
+                startDatePreference: updatedDetails.startDatePreference,
+            };
+        });
+        setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
   });
@@ -1417,3 +1406,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
