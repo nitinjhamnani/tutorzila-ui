@@ -188,6 +188,8 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     applicantsCount: enquirySummary.assignedTutors,
     createdBy: data.createdBy,
     budget: data.budget,
+    tutorGenderPreference: enquiryDetails.genderPreference,
+    startDatePreference: enquiryDetails.startPreference,
   };
 };
 
@@ -195,6 +197,22 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
   if (!token) throw new Error("Authentication token is required.");
   
   const locationDetails = formData.location;
+  
+  let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
+  switch(formData.tutorGenderPreference) {
+      case 'male':
+          genderPreferenceApiValue = 'MALE';
+          break;
+      case 'female':
+          genderPreferenceApiValue = 'FEMALE';
+          break;
+      case 'any':
+          genderPreferenceApiValue = 'NO_PREFERENCE';
+          break;
+      default:
+          genderPreferenceApiValue = undefined;
+  }
+  
   const requestBody = {
     studentName: formData.studentName,
     subjects: formData.subject,
@@ -212,6 +230,8 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
     availabilityTime: formData.preferredTimeSlots,
     online: formData.teachingMode.includes("Online"),
     offline: formData.teachingMode.includes("Offline (In-person)"),
+    genderPreference: genderPreferenceApiValue,
+    startPreference: formData.startDatePreference,
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
