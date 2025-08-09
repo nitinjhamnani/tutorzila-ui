@@ -66,7 +66,7 @@ const timeSlotsOptions: MultiSelectOption[] = [
   { value: "2000-2200", label: "8:00 PM - 10:00 PM" }, { value: "Flexible", label: "Flexible"},
 ];
 
-const adminEnquiryEditSchema = z.object({
+const editEnquirySchema = z.object({
   studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   gradeLevel: z.string().min(1, { message: "Grade level is required." }),
@@ -88,19 +88,19 @@ const adminEnquiryEditSchema = z.object({
   path: ["location"],
 });
 
-export type AdminEnquiryEditFormValues = z.infer<typeof adminEnquiryEditSchema>;
+export type EditEnquiryFormValues = z.infer<typeof editEnquirySchema>;
 
-interface AdminEnquiryModalProps {
+interface EditEnquiryModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   enquiryData: TuitionRequirement | null;
-  onUpdateEnquiry: (updatedData: AdminEnquiryEditFormValues) => void;
+  onUpdateEnquiry: (updatedData: EditEnquiryFormValues) => void;
   isUpdating: boolean;
 }
 
-export function AdminEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: AdminEnquiryModalProps) {
-  const form = useForm<AdminEnquiryEditFormValues>({
-    resolver: zodResolver(adminEnquiryEditSchema),
+export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: EditEnquiryModalProps) {
+  const form = useForm<EditEnquiryFormValues>({
+    resolver: zodResolver(editEnquirySchema),
     defaultValues: {
       studentName: "",
       subject: [],
@@ -128,7 +128,7 @@ export function AdminEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateE
     }
   }, [enquiryData, isOpen, form]);
 
-  const onSubmit: SubmitHandler<AdminEnquiryEditFormValues> = (data) => {
+  const onSubmit: SubmitHandler<EditEnquiryFormValues> = (data) => {
     if (!enquiryData) return;
     onUpdateEnquiry(data);
   };
@@ -347,4 +347,3 @@ export function AdminEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateE
     </Dialog>
   );
 }
-
