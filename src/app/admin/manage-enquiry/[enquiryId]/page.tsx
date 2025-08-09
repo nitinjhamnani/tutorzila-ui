@@ -270,7 +270,9 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
   if (status === 'accepted') {
     apiUrl = `${apiBaseUrl}/api/manage/enquiry/accept`;
   } else if (status === 'closed') {
-      apiUrl = `${apiBaseUrl}/api/enquiry/close`;
+    apiUrl = `${apiBaseUrl}/api/enquiry/close`;
+  } else if (status === 'reopened') {
+    apiUrl = `${apiBaseUrl}/api/manage/enquiry/reopen`;
   }
 
   const response = await fetch(apiUrl, {
@@ -1290,7 +1292,7 @@ const closeEnquiryMutation = useMutation({
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter>
                 <Button type="button" onClick={handleSaveNotes} disabled={addNoteMutation.isPending || !notes.trim()}>
                   {addNoteMutation.isPending ? (
                     <>
