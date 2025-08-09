@@ -242,7 +242,7 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   if (!note) throw new Error("Note content cannot be empty.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/notes`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/notes`, {
     method: 'PUT', 
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' },
     body: JSON.stringify({ message: note }),
@@ -611,16 +611,56 @@ function ManageEnquiryContent() {
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
 });
 
-  const addNoteMutation = useMutation({
+const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
-        queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
         toast({ title: "Note Saved!", description: "The additional notes have been updated." });
+        const { enquirySummary, enquiryDetails } = updatedData;
+        queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
+            if (!oldData) return undefined;
+            const transformStringToArray = (str: string | null | undefined): string[] => {
+                if (typeof str === 'string' && str.trim() !== '') {
+                    return str.split(',').map(s => s.trim());
+                }
+                return [];
+            };
+            return {
+                ...oldData,
+                id: enquirySummary.enquiryId,
+                studentName: enquiryDetails.studentName,
+                subject: transformStringToArray(enquirySummary.subjects),
+                gradeLevel: enquirySummary.grade,
+                board: enquirySummary.board,
+                location: {
+                    ...oldData.location,
+                    name: enquiryDetails.addressName || enquiryDetails.address,
+                    address: enquiryDetails.address,
+                    googleMapsUrl: enquiryDetails.googleMapsLink,
+                    city: enquirySummary.city,
+                    state: enquirySummary.state,
+                    country: enquirySummary.country,
+                    area: enquirySummary.area,
+                    pincode: enquiryDetails.pincode,
+                },
+                teachingMode: [
+                    ...(enquirySummary.online ? ["Online"] : []),
+                    ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+                ],
+                scheduleDetails: enquiryDetails.notes,
+                additionalNotes: enquiryDetails.additionalNotes,
+                preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+                preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+                status: enquirySummary.status?.toLowerCase() || oldData.status,
+                tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase(),
+                startDatePreference: enquiryDetails.startDatePreference,
+            };
+        });
         setIsAddNotesModalOpen(false);
         setNotes("");
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
-  });
+});
+
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ status, remark }: { status: string, remark?: string }) => updateEnquiryStatus({ enquiryId, token, status, remark }),
@@ -1386,4 +1426,3 @@ export default function ManageEnquiryPage() {
     )
 }
 
-    
