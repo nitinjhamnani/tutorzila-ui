@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
-import type { ApiTutor, TuitionRequirement, LocationDetails } from "@/types";
+import type { ApiTutor, TuitionRequirement, LocationDetails, BudgetDetails } from "@/types";
 import {
     Table,
     TableBody,
@@ -159,7 +159,6 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
 
   return {
     id: enquirySummary.enquiryId,
-    // Note: Parent name is fetched separately. We set a placeholder here.
     parentName: "A Parent", 
     studentName: enquiryDetails.studentName,
     subject: typeof enquirySummary.subjects === 'string' ? enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
@@ -185,8 +184,9 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     preferredTimeSlots: typeof enquiryDetails.availabilityTime === 'string' ? enquiryDetails.availabilityTime.split(',').map((t:string) => t.trim()) : [],
     status: enquirySummary.status?.toLowerCase() || 'open',
     postedAt: enquirySummary.createdOn,
-    applicantsCount: enquirySummary.assignedTutors, // Assuming this field exists, might need to adjust
+    applicantsCount: enquirySummary.assignedTutors,
     createdBy: data.createdBy,
+    budget: data.budget,
   };
 };
 
@@ -361,9 +361,44 @@ function ManageEnquiryContent() {
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
   const [totalFees, setTotalFees] = useState(0);
-  const [precisePerHourRate, setPrecisePerHourRate] = useState(500); // For display only
+  const [precisePerHourRate, setPrecisePerHourRate] = useState(0);
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
+    queryKey: ['adminEnquiryDetails', enquiryId],
+    queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
+    enabled: !!enquiryId && !!token,
+    refetchOnWindowFocus: false,
+  });
+
+  const parentContactQuery = useQuery({
+    queryKey: ['parentContact', enquiryId],
+    queryFn: () => fetchParentContact(enquiryId, token),
+    enabled: isParentInfoModalOpen, // Only fetch when the modal is open
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
+
+  useEffect(() => {
+    if (enquiry?.budget) {
+      const budget = enquiry.budget;
+      setSessionsPerWeek(budget.daysPerWeek || 0);
+      setHoursPerSession(budget.hoursPerDay || 0);
+      setTotalFees(budget.totalFees || 0);
+      
+      const rate = budget.finalRate || budget.defaultRate || 0;
+      setPrecisePerHourRate(rate);
+
+      if (budget.totalFees === 0 && budget.daysPerWeek && budget.hoursPerDay && rate > 0) {
+        const calculatedDays = Math.round((budget.daysPerWeek || 0) * (30 / 7));
+        const calculatedHours = calculatedDays * (budget.hoursPerDay || 0);
+        setTotalFees(Math.round(calculatedHours * rate));
+      }
+    }
+  }, [enquiry?.budget]);
+
 
   const { totalDays, totalHours } = useMemo(() => {
     if (sessionsPerWeek <= 0 || hoursPerSession <= 0) return { totalDays: 0, totalHours: 0 };
@@ -375,7 +410,7 @@ function ManageEnquiryContent() {
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
     let newSessionsPerWeek = sessionsPerWeek;
     let newHoursPerSession = hoursPerSession;
-    const DEFAULT_PER_HOUR_RATE = 500;
+    const defaultRate = enquiry?.budget?.defaultRate || 500;
 
     if (type === 'sessions') {
       newSessionsPerWeek = value;
@@ -388,9 +423,9 @@ function ManageEnquiryContent() {
     
     // Always recalculate total fees based on the default per-hour rate
     const newTotalHours = Math.round(newSessionsPerWeek * (30 / 7)) * newHoursPerSession;
-    const newTotalFees = Math.round(newTotalHours * DEFAULT_PER_HOUR_RATE);
+    const newTotalFees = Math.round(newTotalHours * defaultRate);
     setTotalFees(newTotalFees);
-    setPrecisePerHourRate(DEFAULT_PER_HOUR_RATE); // Reset precise rate as well
+    setPrecisePerHourRate(defaultRate);
   };
 
   const handleEditBudget = () => {
@@ -414,22 +449,6 @@ function ManageEnquiryContent() {
   const handleStopEditingBudget = () => {
     setIsEditingBudget(false);
   };
-
-
-  const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
-    queryKey: ['adminEnquiryDetails', enquiryId],
-    queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
-    enabled: !!enquiryId && !!token,
-    refetchOnWindowFocus: false,
-  });
-
-  const parentContactQuery = useQuery({
-    queryKey: ['parentContact', enquiryId],
-    queryFn: () => fetchParentContact(enquiryId, token),
-    enabled: isParentInfoModalOpen, // Only fetch when the modal is open
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000,
-  });
 
 
   const getInitialFilters = useCallback(() => {
@@ -1210,5 +1229,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    

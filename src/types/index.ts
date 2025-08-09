@@ -27,6 +27,16 @@ export interface LocationDetails {
   googleMapsUrl?: string;
 }
 
+export interface BudgetDetails {
+  defaultRate?: number;
+  finalRate?: number;
+  daysPerWeek?: number;
+  hoursPerDay?: number;
+  totalFees?: number;
+  totalHours?: number;
+  totalDays?: number;
+}
+
 export interface TuitionRequirement {
   id:string;
   parentName?: string;
@@ -41,7 +51,7 @@ export interface TuitionRequirement {
   location?: LocationDetails | null;
   address?: string; 
   additionalNotes?: string | null;
-  status: "open" | "matched" | "closed";
+  status: "open" | "matched" | "closed" | "accepted" | "reopened";
   postedAt: string; // ISO date string
   board?: string;
   teachingMode?: string[];
@@ -53,6 +63,7 @@ export interface TuitionRequirement {
   createdBy?: 'PARENT' | 'ADMIN';
   tutorGenderPreference?: 'male' | 'female' | 'any';
   startDatePreference?: 'immediately' | 'within_month' | 'exploring';
+  budget?: BudgetDetails;
 }
 
 export interface TutorProfile extends User {
