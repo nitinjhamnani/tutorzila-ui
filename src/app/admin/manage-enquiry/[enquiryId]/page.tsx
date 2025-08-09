@@ -594,7 +594,39 @@ function ManageEnquiryContent() {
     mutationFn: (budget: BudgetDetails) => updateEnquiryBudget({ enquiryId, token, budget }),
     onSuccess: (updatedEnquiryData) => {
         toast({ title: "Budget Saved", description: "The enquiry budget has been successfully updated." });
-        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedEnquiryData);
+        const { enquiryResponse } = updatedEnquiryData;
+        const transformedData: TuitionRequirement = {
+          id: enquiryResponse.enquirySummary.enquiryId,
+          parentName: "A Parent", 
+          studentName: enquiryResponse.enquiryDetails.studentName,
+          subject: typeof enquiryResponse.enquirySummary.subjects === 'string' ? enquiryResponse.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+          gradeLevel: enquiryResponse.enquirySummary.grade,
+          board: enquiryResponse.enquirySummary.board,
+          location: {
+              name: enquiryResponse.enquiryDetails.addressName || enquiryResponse.enquiryDetails.address || "",
+              address: enquiryResponse.enquiryDetails.address,
+              googleMapsUrl: enquiryResponse.enquiryDetails.googleMapsLink,
+              city: enquiryResponse.enquirySummary.city,
+              state: enquiryResponse.enquirySummary.state,
+              country: enquiryResponse.enquirySummary.country,
+              area: enquiryResponse.enquirySummary.area,
+              pincode: enquiryResponse.enquiryDetails.pincode,
+          },
+          teachingMode: [
+            ...(enquiryResponse.enquirySummary.online ? ["Online"] : []),
+            ...(enquiryResponse.enquirySummary.offline ? ["Offline (In-person)"] : []),
+          ],
+          scheduleDetails: enquiryResponse.enquiryDetails.notes, 
+          additionalNotes: updatedEnquiryData.remarks || enquiryResponse.enquiryDetails.additionalNotes,
+          preferredDays: typeof enquiryResponse.enquiryDetails.availabilityDays === 'string' ? enquiryResponse.enquiryDetails.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+          preferredTimeSlots: typeof enquiryResponse.enquiryDetails.availabilityTime === 'string' ? enquiryResponse.enquiryDetails.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+          status: enquiryResponse.enquirySummary.status?.toLowerCase() || 'open',
+          postedAt: enquiryResponse.enquirySummary.createdOn,
+          applicantsCount: enquiryResponse.enquirySummary.assignedTutors,
+          createdBy: updatedEnquiryData.createdBy,
+          budget: updatedEnquiryData.budget,
+        };
+        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
         setIsSessionDetailsModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Budget Update Failed", description: error.message }),
