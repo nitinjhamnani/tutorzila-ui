@@ -158,22 +158,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
 
   const data = await response.json();
   const { enquirySummary, enquiryDetails } = data.enquiryResponse;
-
-  let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-  switch (enquiryDetails.tutorGenderPreference) {
-    case 'MALE':
-      mappedGenderPreference = 'male';
-      break;
-    case 'FEMALE':
-      mappedGenderPreference = 'female';
-      break;
-    case 'NO_PREFERENCE':
-      mappedGenderPreference = 'any';
-      break;
-    default:
-      mappedGenderPreference = undefined;
-  }
-
+  
   return {
     id: enquirySummary.enquiryId,
     parentName: "A Parent", 
@@ -204,7 +189,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     applicantsCount: enquirySummary.assignedTutors,
     createdBy: data.createdBy,
     budget: data.budget,
-    tutorGenderPreference: mappedGenderPreference,
+    tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toLowerCase(),
     startDatePreference: enquiryDetails.startDatePreference,
   };
 };
@@ -213,21 +198,6 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
   if (!token) throw new Error("Authentication token is required.");
   
   const locationDetails = formData.location;
-  
-  let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
-  switch(formData.tutorGenderPreference) {
-      case 'male':
-          genderPreferenceApiValue = 'MALE';
-          break;
-      case 'female':
-          genderPreferenceApiValue = 'FEMALE';
-          break;
-      case 'any':
-          genderPreferenceApiValue = 'NO_PREFERENCE';
-          break;
-      default:
-          genderPreferenceApiValue = undefined;
-  }
   
   const requestBody = {
     studentName: formData.studentName,
@@ -246,7 +216,7 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
     availabilityTime: formData.preferredTimeSlots,
     online: formData.teachingMode.includes("Online"),
     offline: formData.teachingMode.includes("Offline (In-person)"),
-    genderPreference: genderPreferenceApiValue,
+    genderPreference: formData.tutorGenderPreference,
     startPreference: formData.startDatePreference,
   };
 
@@ -602,14 +572,6 @@ function ManageEnquiryContent() {
       queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
         if (!oldData) return undefined;
   
-        let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-        switch (enquiryDetails.tutorGenderPreference) {
-          case 'MALE': mappedGenderPreference = 'male'; break;
-          case 'FEMALE': mappedGenderPreference = 'female'; break;
-          case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
-          default: mappedGenderPreference = undefined;
-        }
-
         const transformStringToArray = (str: string | null | undefined): string[] => {
             if (typeof str === 'string' && str.trim() !== '') {
                 return str.split(',').map(s => s.trim());
@@ -618,7 +580,7 @@ function ManageEnquiryContent() {
         };
   
         return {
-          ...oldData, // Keep non-updated fields like budget, createdBy, etc. from old data
+          ...oldData,
           id: enquirySummary.enquiryId,
           studentName: enquiryDetails.studentName,
           subject: transformStringToArray(enquirySummary.subjects),
@@ -644,8 +606,8 @@ function ManageEnquiryContent() {
           preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
           preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
           status: enquirySummary.status?.toLowerCase() || oldData.status,
-          tutorGenderPreference: mappedGenderPreference,
-          startDatePreference: enquiryDetails.startDatePreference as 'immediately' | 'within_month' | 'exploring' | undefined,
+          tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toLowerCase(),
+          startDatePreference: enquiryDetails.startDatePreference,
         };
       });
       setIsEditModalOpen(false);
@@ -686,14 +648,6 @@ function ManageEnquiryContent() {
         const { enquiryResponse } = updatedEnquiryData;
         const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
         if (!oldData) return;
-        
-        let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-        switch (enquiryResponse?.enquiryDetails?.tutorGenderPreference) {
-            case 'MALE': mappedGenderPreference = 'male'; break;
-            case 'FEMALE': mappedGenderPreference = 'female'; break;
-            case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
-            default: mappedGenderPreference = undefined;
-        }
 
         const transformedData: TuitionRequirement = {
           ...oldData,
@@ -726,7 +680,7 @@ function ManageEnquiryContent() {
           applicantsCount: enquiryResponse.enquirySummary.assignedTutors,
           createdBy: updatedEnquiryData.createdBy,
           budget: updatedEnquiryData.budget,
-          tutorGenderPreference: mappedGenderPreference,
+          tutorGenderPreference: enquiryResponse.enquiryDetails.tutorGenderPreference,
           startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
         };
         queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
@@ -1428,4 +1382,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-

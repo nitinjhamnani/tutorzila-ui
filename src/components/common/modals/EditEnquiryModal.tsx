@@ -78,7 +78,7 @@ const editEnquirySchema = z.object({
   ).nullable(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
-  tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
   startDatePreference: z.enum(["Immediately", "Within a month", "Just exploring"]).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
@@ -112,13 +112,20 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
       location: null,
       preferredDays: [],
       preferredTimeSlots: [],
-      tutorGenderPreference: "any",
+      tutorGenderPreference: "NO_PREFERENCE",
       startDatePreference: "Immediately",
     },
   });
 
   useEffect(() => {
     if (enquiryData && isOpen) {
+      let genderPref: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
+      switch(enquiryData.tutorGenderPreference) {
+        case 'male': genderPref = 'MALE'; break;
+        case 'female': genderPref = 'FEMALE'; break;
+        default: genderPref = 'NO_PREFERENCE';
+      }
+
       form.reset({
         studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [enquiryData.subject],
@@ -128,7 +135,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
         location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" }, // Ensure location is an object
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference || "any",
+        tutorGenderPreference: genderPref,
         startDatePreference: enquiryData.startDatePreference ? (enquiryData.startDatePreference.charAt(0).toUpperCase() + enquiryData.startDatePreference.slice(1).replace(/_/g, ' ')) as any : "Immediately",
       });
     }
@@ -309,9 +316,9 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="any">No Preference</SelectItem>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="NO_PREFERENCE">No Preference</SelectItem>
+                          <SelectItem value="MALE">Male</SelectItem>
+                          <SelectItem value="FEMALE">Female</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -401,5 +408,3 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
     </Dialog>
   );
 }
-
-    
