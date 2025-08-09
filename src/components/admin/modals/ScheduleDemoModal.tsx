@@ -17,9 +17,10 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { ApiTutor, TuitionRequirement } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 
 const scheduleDemoSchema = z.object({
-  subject: z.string().min(1, { message: "Please select a subject." }),
+  subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   date: z.date({ required_error: "A date for the demo is required." }),
   time: z.string().min(1, { message: "Please select a time." }),
   duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
@@ -56,10 +57,15 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const subjectOptions: MultiSelectOption[] = Array.isArray(enquiry.subject) 
+    ? enquiry.subject.map(s => ({ value: s, label: s })) 
+    : [{ value: enquiry.subject, label: enquiry.subject }];
+
+
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
-      subject: enquiry.subject?.[0] || "",
+      subject: Array.isArray(enquiry.subject) ? [enquiry.subject[0]] : [enquiry.subject],
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
@@ -69,7 +75,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        subject: enquiry.subject?.[0] || "",
+        subject: Array.isArray(enquiry.subject) ? [enquiry.subject[0]] : [enquiry.subject],
         date: new Date(),
         time: "04:00 PM",
         duration: 30,
@@ -83,7 +89,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
     const samplePayload = {
       enquiryId: enquiry.id,
       tutorId: tutor.id,
-      subject: data.subject,
+      subjects: data.subject, // Changed to plural to reflect array
       demoDate: format(data.date, 'yyyy-MM-dd'),
       demoTime: data.time,
       durationInMinutes: data.duration,
@@ -116,19 +122,14 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                 name="subject"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80" />Select Subject</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a subject for the demo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {(Array.isArray(enquiry.subject) ? enquiry.subject : [enquiry.subject]).map(s => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80" />Select Subject(s)</FormLabel>
+                    <MultiSelectCommand
+                      options={subjectOptions}
+                      selectedValues={field.value || []}
+                      onValueChange={field.onChange}
+                      placeholder="Select subjects..."
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
