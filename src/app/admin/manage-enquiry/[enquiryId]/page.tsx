@@ -143,7 +143,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   if (!enquiryId) throw new Error("Enquiry ID is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/details/${enquiryId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/${enquiryId}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
 
@@ -155,37 +155,37 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   }
 
   const data = await response.json();
+  const { enquirySummary, enquiryDetails } = data.enquiryResponse;
 
   return {
-    id: data.enquirySummary.enquiryId,
-    parentName: data.name || "A Parent", 
-    parentEmail: data.email,
-    parentPhone: data.phone,
-    studentName: data.studentName,
-    subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-    gradeLevel: data.enquirySummary.grade,
-    board: data.enquirySummary.board,
+    id: enquirySummary.enquiryId,
+    // Note: Parent name is fetched separately. We set a placeholder here.
+    parentName: "A Parent", 
+    studentName: enquiryDetails.studentName,
+    subject: typeof enquirySummary.subjects === 'string' ? enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+    gradeLevel: enquirySummary.grade,
+    board: enquirySummary.board,
     location: {
-        name: data.addressName || data.address || "",
-        address: data.address,
-        googleMapsUrl: data.googleMapsLink,
-        city: data.enquirySummary.city,
-        state: data.enquirySummary.state,
-        country: data.enquirySummary.country,
-        area: data.enquirySummary.area,
-        pincode: data.pincode,
+        name: enquiryDetails.addressName || enquiryDetails.address || "",
+        address: enquiryDetails.address,
+        googleMapsUrl: enquiryDetails.googleMapsLink,
+        city: enquirySummary.city,
+        state: enquirySummary.state,
+        country: enquirySummary.country,
+        area: enquirySummary.area,
+        pincode: enquiryDetails.pincode,
     },
     teachingMode: [
-      ...(data.enquirySummary.online ? ["Online"] : []),
-      ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
+      ...(enquirySummary.online ? ["Online"] : []),
+      ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
     ],
-    scheduleDetails: data.notes, 
-    additionalNotes: data.notes,
-    preferredDays: typeof data.availabilityDays === 'string' ? data.availabilityDays.split(',').map((d:string) => d.trim()) : [],
-    preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-    status: data.enquirySummary.status?.toLowerCase() || 'open',
-    postedAt: data.enquirySummary.createdOn,
-    applicantsCount: data.enquirySummary.assignedTutors,
+    scheduleDetails: enquiryDetails.notes, 
+    additionalNotes: data.remarks || enquiryDetails.additionalNotes, // Prefer top-level remarks
+    preferredDays: typeof enquiryDetails.availabilityDays === 'string' ? enquiryDetails.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+    preferredTimeSlots: typeof enquiryDetails.availabilityTime === 'string' ? enquiryDetails.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+    status: enquirySummary.status?.toLowerCase() || 'open',
+    postedAt: enquirySummary.createdOn,
+    applicantsCount: enquirySummary.assignedTutors, // Assuming this field exists, might need to adjust
     createdBy: data.createdBy,
   };
 };
@@ -514,7 +514,7 @@ function ManageEnquiryContent() {
     mutationFn: (formData: AdminEnquiryEditFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedData);
+      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
       setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
@@ -523,7 +523,7 @@ function ManageEnquiryContent() {
   const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
-        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], (oldData: any) => ({...oldData, ...updatedData}));
+        queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
         toast({ title: "Note Saved!", description: "The additional notes have been updated." });
         setIsAddNotesModalOpen(false);
         setNotes("");
@@ -939,7 +939,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter className="p-4 bg-muted/50 border-t">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1086,7 +1086,7 @@ function ManageEnquiryContent() {
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter className="p-4 bg-muted/50 border-t">
                 <Button 
                   type="button" 
                   onClick={handleConfirmAcceptance} 
@@ -1120,7 +1120,7 @@ function ManageEnquiryContent() {
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter className="p-4 bg-muted/50 border-t">
                  <Button 
                   type="button" 
                   onClick={handleConfirmClosure} 
