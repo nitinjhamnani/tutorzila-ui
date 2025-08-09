@@ -78,11 +78,13 @@ import {
   DollarSign,
   Coins,
   VenetianMask,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { ScheduleDemoModal } from "@/components/admin/modals/ScheduleDemoModal";
 
 interface ParentContact {
     name: string;
@@ -439,6 +441,7 @@ function ManageEnquiryContent() {
   const [isSessionDetailsModalOpen, setIsSessionDetailsModalOpen] = useState(false);
   const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
   const [reopenReason, setReopenReason] = useState<string | null>(null);
+  const [isScheduleDemoModalOpen, setIsScheduleDemoModalOpen] = useState(false);
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
@@ -961,6 +964,11 @@ const closeEnquiryMutation = useMutation({
     updateStatusMutation.mutate({ status: "reopened", remark: reopenReason });
   };
   
+  const handleScheduleDemo = (tutor: ApiTutor) => {
+    setSelectedTutor(tutor);
+    setIsScheduleDemoModalOpen(true);
+  }
+
   const genderDisplayMap: Record<string, string> = {
     "MALE": "Male",
     "FEMALE": "Female",
@@ -996,7 +1004,11 @@ const closeEnquiryMutation = useMutation({
                                 <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
                                 <TableCell><div className="flex items-center gap-2">{tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}{tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}</div></TableCell>
                                 <TableCell><div className="flex items-center gap-2"><Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip><Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip></div></TableCell>
-                                <TableCell><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor, tabName)}><Eye className="w-4 h-4" /></Button><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button></div></TableCell>
+                                <TableCell><div className="flex items-center gap-1.5">
+                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor, tabName)}><Eye className="w-4 h-4" /></Button>
+                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button>
+                                    {tabName === "assigned" && <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleScheduleDemo(tutor)}><CalendarIcon className="w-4 h-4" /></Button>}
+                                </div></TableCell>
                             </TableRow>
                         )))}
                     </TableBody>
@@ -1305,6 +1317,7 @@ const closeEnquiryMutation = useMutation({
         {enquiry && (
             <EditEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
         )}
+        {selectedTutor && <ScheduleDemoModal isOpen={isScheduleDemoModalOpen} onOpenChange={setIsScheduleDemoModalOpen} tutor={selectedTutor} enquiry={enquiry} />}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
               <DialogHeader className="p-6 pb-4">
