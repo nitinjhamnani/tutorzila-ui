@@ -265,6 +265,31 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
   return response.json();
 };
 
+const updateEnquiryBudget = async ({ enquiryId, token, budget }: { enquiryId: string, token: string | null, budget: BudgetDetails }) => {
+  if (!token) throw new Error("Authentication token not found.");
+  if (!enquiryId) throw new Error("Enquiry ID is required.");
+  if (!budget) throw new Error("Budget details are required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/budget`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'Content-Type': 'application/json',
+      'accept': '*/*',
+    },
+    body: JSON.stringify(budget),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to update budget." }));
+    throw new Error(errorData.message);
+  }
+  return response.json();
+};
+
+
 const fetchParentContact = async (enquiryId: string, token: string | null): Promise<ParentContact> => {
     if (!token) throw new Error("Authentication token not found.");
     if (!enquiryId) throw new Error("Enquiry ID is required.");
@@ -563,7 +588,18 @@ function ManageEnquiryContent() {
         setAcceptReason(null);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Status Update Failed", description: error.message }),
-});
+  });
+
+  const updateBudgetMutation = useMutation({
+    mutationFn: (budget: BudgetDetails) => updateEnquiryBudget({ enquiryId, token, budget }),
+    onSuccess: (updatedEnquiryData) => {
+        toast({ title: "Budget Saved", description: "The enquiry budget has been successfully updated." });
+        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], updatedEnquiryData);
+        setIsSessionDetailsModalOpen(false);
+    },
+    onError: (error: any) => toast({ variant: "destructive", title: "Budget Update Failed", description: error.message }),
+  });
+
   
   const handleViewProfile = (tutor: ApiTutor) => {
     setSelectedTutor(tutor);
@@ -615,11 +651,16 @@ function ManageEnquiryContent() {
   }
 
   const handleConfirmBudget = () => {
-    toast({
-        title: "Budget Confirmed (Mock)",
-        description: `Budget of ₹${totalFees.toLocaleString()} for this enquiry has been noted.`
-    });
-    setIsSessionDetailsModalOpen(false);
+    const budgetPayload: BudgetDetails = {
+      defaultRate: enquiry?.budget?.defaultRate || 0,
+      finalRate: precisePerHourRate,
+      daysPerWeek: sessionsPerWeek,
+      hoursPerDay: hoursPerSession,
+      totalFees: totalFees,
+      totalHours: totalHours,
+      totalDays: totalDays,
+    };
+    updateBudgetMutation.mutate(budgetPayload);
   }
 
   const handleCopyToClipboard = (text: string, fieldName: string) => {
@@ -1214,7 +1255,9 @@ function ManageEnquiryContent() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" onClick={handleConfirmBudget}>Confirm Budget</Button>
+                <Button type="button" onClick={handleConfirmBudget} disabled={updateBudgetMutation.isPending}>
+                    {updateBudgetMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Confirm Budget"}
+                </Button>
               </DialogFooter>
             </DialogContent>
         </Dialog>
