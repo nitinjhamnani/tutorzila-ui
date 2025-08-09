@@ -446,6 +446,7 @@ function ManageEnquiryContent() {
   const [precisePerHourRate, setPrecisePerHourRate] = useState(0);
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
+  const [sourceTab, setSourceTab] = useState("recommended");
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
@@ -872,8 +873,9 @@ const closeEnquiryMutation = useMutation({
   });
 
   
-  const handleViewProfile = (tutor: ApiTutor) => {
+  const handleViewProfile = (tutor: ApiTutor, currentTab: string) => {
     setSelectedTutor(tutor);
+    setSourceTab(currentTab);
     setIsProfileModalOpen(true);
   }
   
@@ -978,7 +980,7 @@ const closeEnquiryMutation = useMutation({
       return <div className="text-center py-10 text-muted-foreground">Enquiry not found.</div>
   }
 
-  const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null) => (
+  const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null, tabName: string) => (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
         <CardContent className="p-0">
             <TooltipProvider>
@@ -994,7 +996,7 @@ const closeEnquiryMutation = useMutation({
                                 <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
                                 <TableCell><div className="flex items-center gap-2">{tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}{tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}</div></TableCell>
                                 <TableCell><div className="flex items-center gap-2"><Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip><Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip></div></TableCell>
-                                <TableCell><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor)}><Eye className="w-4 h-4" /></Button><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button></div></TableCell>
+                                <TableCell><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor, tabName)}><Eye className="w-4 h-4" /></Button><Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button></div></TableCell>
                             </TableRow>
                         )))}
                     </TableBody>
@@ -1158,7 +1160,7 @@ const closeEnquiryMutation = useMutation({
             </DialogContent>
           </Dialog>
         </div>
-        {renderTutorTable(allTutorsData, isLoadingAllTutors, allTutorsError)}
+        {renderTutorTable(allTutorsData, isLoadingAllTutors, allTutorsError, "recommended")}
       </div>
     );
   };
@@ -1281,24 +1283,24 @@ const closeEnquiryMutation = useMutation({
       
       <div className="mt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Assigned Tutors ({enquiryTutorsData?.ASSIGNED?.length ?? 0})</h3>
-        {renderTutorTable(enquiryTutorsData?.ASSIGNED, isLoadingEnquiryTutors, enquiryTutorsError)}
+        {renderTutorTable(enquiryTutorsData?.ASSIGNED, isLoadingEnquiryTutors, enquiryTutorsError, "assigned")}
       </div>
 
       <div className="mt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Applied Tutors ({enquiryTutorsData?.APPLIED?.length ?? 0})</h3>
-        {renderTutorTable(enquiryTutorsData?.APPLIED, isLoadingEnquiryTutors, enquiryTutorsError)}
+        {renderTutorTable(enquiryTutorsData?.APPLIED, isLoadingEnquiryTutors, enquiryTutorsError, "applied")}
       </div>
       
       <div className="mt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Shortlisted Tutors ({enquiryTutorsData?.SHORTLISTED?.length ?? 0})</h3>
-        {renderTutorTable(enquiryTutorsData?.SHORTLISTED, isLoadingEnquiryTutors, enquiryTutorsError)}
+        {renderTutorTable(enquiryTutorsData?.SHORTLISTED, isLoadingEnquiryTutors, enquiryTutorsError, "shortlisted")}
       </div>
 
       <div className="mt-6">
         {renderRecommendedTutorContent()}
       </div>
       
-       {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} enquiryId={enquiryId} />}
+       {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} enquiryId={enquiryId} sourceTab={sourceTab} />}
        {selectedTutor && <TutorContactModal isOpen={isContactModalOpen} onOpenChange={setIsContactModalOpen} tutor={selectedTutor} />}
         {enquiry && (
             <EditEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>

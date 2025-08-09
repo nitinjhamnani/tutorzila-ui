@@ -184,17 +184,17 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, enquiryId, sour
                         </div>
                     </div>
                     <div className="w-full sm:w-auto flex-shrink-0">
-                        {sourceTab === "recommended" ? (
+                        {sourceTab === "recommended" || sourceTab === "applied" ? (
                         <Button size="sm" className="w-full sm:w-auto" onClick={handleShortlistTutor} disabled={shortlistMutation.isPending}>
                            {shortlistMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Bookmark className="w-4 h-4 mr-2"/>}
                            {shortlistMutation.isPending ? "Shortlisting..." : "Shortlist Tutor"}
                         </Button>
-                        ) : (
+                        ) : sourceTab === 'shortlisted' ? (
                         <Button size="sm" className="w-full sm:w-auto">
                             <UserPlus className="w-4 h-4 mr-2"/>
                             Assign Tutor
                         </Button>
-                        )}
+                        ): null}
                     </div>
                 </div>
             </div>
