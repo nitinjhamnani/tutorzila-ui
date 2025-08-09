@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 const scheduleDemoSchema = z.object({
   date: z.date({ required_error: "A date for the demo is required." }),
   time: z.string().min(1, { message: "Please select a time." }),
+  duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
 });
 
 type ScheduleDemoFormValues = z.infer<typeof scheduleDemoSchema>;
@@ -40,6 +41,15 @@ const timeSlots = Array.from({ length: 2 * (21 - 7) + 1 }, (_, i) => {
     return format(date, "hh:mm a");
 });
 
+const durationOptions = [
+  { value: 30, label: "30 minutes" },
+  { value: 45, label: "45 minutes" },
+  { value: 60, label: "60 minutes" },
+  { value: 75, label: "75 minutes" },
+  { value: 90, label: "90 minutes" },
+  { value: 120, label: "120 minutes" },
+];
+
 
 export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: ScheduleDemoModalProps) {
   const { toast } = useToast();
@@ -50,6 +60,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
     defaultValues: {
       date: new Date(),
       time: "04:00 PM",
+      duration: 30,
     },
   });
 
@@ -77,7 +88,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-            <FormField
+             <FormField
               control={form.control}
               name="date"
               render={({ field }) => (
@@ -112,28 +123,52 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Time</FormLabel>
-                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Select Time</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a time slot" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {timeSlots.map(time => (
+                                <SelectItem key={time} value={time}>{time}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                  control={form.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Duration</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a time slot" />
+                            <SelectValue placeholder="Duration" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {timeSlots.map(time => (
-                            <SelectItem key={time} value={time}>{time}</SelectItem>
+                          {durationOptions.map(option => (
+                            <SelectItem key={option.value} value={String(option.value)}>{option.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
