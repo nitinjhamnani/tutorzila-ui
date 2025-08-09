@@ -147,6 +147,16 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
   }));
 };
 
+const fetchEnquiryTutors = async (enquiryId: string, token: string | null): Promise<Record<string, ApiTutor[]>> => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/tutors`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' }
+    });
+    if (!response.ok) throw new Error("Failed to fetch enquiry tutors.");
+    return response.json();
+}
+
 const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
   if (!token) throw new Error("Authentication token is required.");
   if (!enquiryId) throw new Error("Enquiry ID is required.");
@@ -440,6 +450,13 @@ function ManageEnquiryContent() {
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
     queryFn: () => fetchAdminEnquiryDetails(enquiryId, token),
+    enabled: !!enquiryId && !!token,
+    refetchOnWindowFocus: false,
+  });
+  
+  const { data: enquiryTutorsData, isLoading: isLoadingEnquiryTutors, error: enquiryTutorsError } = useQuery({
+    queryKey: ['enquiryTutors', enquiryId],
+    queryFn: () => fetchEnquiryTutors(enquiryId, token),
     enabled: !!enquiryId && !!token,
     refetchOnWindowFocus: false,
   });
@@ -961,14 +978,14 @@ const closeEnquiryMutation = useMutation({
       return <div className="text-center py-10 text-muted-foreground">Enquiry not found.</div>
   }
 
-  const renderTutorTable = (tutors: ApiTutor[], isLoading: boolean, error: Error | null) => (
+  const renderTutorTable = (tutors: ApiTutor[] | undefined, isLoading: boolean, error: Error | null) => (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
         <CardContent className="p-0">
             <TooltipProvider>
                 <Table>
                     <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Subjects</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
                     <TableBody>
-                        {isLoading ? ([...Array(5)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
+                        {isLoading ? ([...Array(3)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
                         : error ? (<TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>) 
                         : !tutors || tutors.length === 0 ? (<TableRow><TableCell colSpan={5} className="text-center py-8">No tutors found.</TableCell></TableRow>) 
                         : (tutors.map(tutor => (
@@ -1262,9 +1279,20 @@ const closeEnquiryMutation = useMutation({
         </CardFooter>
       </Card>
       
-      {renderPlaceholderTable("Assigned Tutors", 0)}
-      {renderPlaceholderTable("Applied Tutors", 0)}
-      {renderPlaceholderTable("Shortlisted Tutors", 0)}
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Assigned Tutors ({enquiryTutorsData?.ASSIGNED?.length ?? 0})</h3>
+        {renderTutorTable(enquiryTutorsData?.ASSIGNED, isLoadingEnquiryTutors, enquiryTutorsError)}
+      </div>
+
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Applied Tutors ({enquiryTutorsData?.APPLIED?.length ?? 0})</h3>
+        {renderTutorTable(enquiryTutorsData?.APPLIED, isLoadingEnquiryTutors, enquiryTutorsError)}
+      </div>
+      
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Shortlisted Tutors ({enquiryTutorsData?.SHORTLISTED?.length ?? 0})</h3>
+        {renderTutorTable(enquiryTutorsData?.SHORTLISTED, isLoadingEnquiryTutors, enquiryTutorsError)}
+      </div>
 
       <div className="mt-6">
         {renderRecommendedTutorContent()}
@@ -1445,7 +1473,7 @@ const closeEnquiryMutation = useMutation({
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter className="p-4 border-t-0">
                 <Button 
                   type="button" 
                   onClick={handleConfirmAcceptance} 
@@ -1479,7 +1507,7 @@ const closeEnquiryMutation = useMutation({
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter className="p-4 border-t-0">
                  <Button 
                   type="button" 
                   onClick={handleConfirmClosure} 
@@ -1514,7 +1542,7 @@ const closeEnquiryMutation = useMutation({
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter className="p-4 border-t-0">
                  <Button 
                   type="button" 
                   onClick={handleConfirmReopen} 
@@ -1586,7 +1614,7 @@ const closeEnquiryMutation = useMutation({
                     </div>
                 </div>
               </div>
-              <DialogFooter className="p-4">
+              <DialogFooter className="p-4 border-t-0">
                 <Button type="button" onClick={handleConfirmBudget} disabled={updateBudgetMutation.isPending}>
                     {updateBudgetMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Confirm Budget"}
                 </Button>
