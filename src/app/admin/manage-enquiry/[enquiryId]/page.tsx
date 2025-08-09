@@ -75,7 +75,8 @@ import {
   Archive,
   Mail,
   Copy,
-  DollarSign
+  DollarSign,
+  Coins
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -953,8 +954,8 @@ function ManageEnquiryContent() {
                                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 border-t mt-2">
                                       {budgetInfo.totalDays && <span className="flex items-center gap-1.5 font-medium"><CalendarDays className="w-3.5 h-3.5 text-primary/80"/>{budgetInfo.totalDays} Days/Month</span>}
                                       {budgetInfo.totalHours && <span className="flex items-center gap-1.5 font-medium"><Clock className="w-3.5 h-3.5 text-primary/80"/>{budgetInfo.totalHours} Hrs/Month</span>}
-                                      {budgetInfo.totalFees && <span className="flex items-center gap-1.5 font-medium"><DollarSign className="w-3.5 h-3.5 text-primary/80"/>₹{budgetInfo.totalFees.toLocaleString()}/Month</span>}
-                                      {budgetInfo.finalRate && <span className="flex items-center gap-1.5 font-medium"><DollarSign className="w-3.5 h-3.5 text-primary/80"/> (₹{Math.round(budgetInfo.finalRate).toLocaleString()}/hr)</span>}
+                                      {budgetInfo.totalFees && <span className="flex items-center gap-1.5 font-medium"><Coins className="w-3.5 h-3.5 text-primary/80"/>₹{budgetInfo.totalFees.toLocaleString()}/Month</span>}
+                                      {budgetInfo.finalRate && <span className="flex items-center gap-1.5 font-medium"><DollarSign className="w-3.5 h-3.5 text-primary/80"/> ₹{Math.round(budgetInfo.finalRate).toLocaleString()}/hr</span>}
                                   </div>
                                 )}
                           </div>
