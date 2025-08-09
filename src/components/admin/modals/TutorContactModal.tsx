@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Mail, Phone, Copy, X, Loader2 } from "lucide-react";
+import { Mail, Phone, Copy, X, Loader2, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface TutorContactModalProps {
@@ -57,9 +57,9 @@ export function TutorContactModal({ isOpen, onOpenChange, tutor }: TutorContactM
   const { data: contactDetails, isLoading, error } = useQuery({
       queryKey: ['tutorContact', tutor?.id],
       queryFn: () => fetchTutorContact(tutor!.id, token),
-      enabled: !!tutor && isOpen, // Only fetch when modal is open and tutor is selected
+      enabled: !!tutor && isOpen,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      staleTime: 5 * 60 * 1000,
   });
 
   if (!tutor) return null;
@@ -83,53 +83,63 @@ export function TutorContactModal({ isOpen, onOpenChange, tutor }: TutorContactM
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm bg-card p-0 rounded-lg overflow-hidden">
-        <DialogHeader className="p-6 pb-4 text-center items-center">
-            <Avatar className="h-20 w-20 border-2 border-primary/20 mb-3">
-                <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-                <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                    {getInitials(tutor.displayName)}
-                </AvatarFallback>
-            </Avatar>
-            <DialogTitle className="text-xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">Tutor Contact Information</DialogDescription>
-            <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-            </DialogClose>
+        <DialogHeader className="p-6 pb-4">
+            <DialogTitle>Tutor Information</DialogTitle>
+            <DialogDescription>
+                Contact details for the selected tutor.
+            </DialogDescription>
         </DialogHeader>
-
-        <div className="px-6 pb-6 space-y-4">
-           {isLoading ? (
-                <div className="flex items-center justify-center h-24">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
-            ) : error ? (
-                <div className="text-center text-sm text-destructive">
-                    <p>Failed to load contact details.</p>
-                </div>
-            ) : contactDetails ? (
-                <>
-                    <div className="space-y-1">
-                        <Label htmlFor="tutor-email" className="text-xs text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3"/> Email Address</Label>
-                        <div className="flex items-center gap-2">
-                            <Input id="tutor-email" value={contactDetails.email} readOnly className="h-9 bg-muted/50 text-sm"/>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleCopy(contactDetails.email, "Email")}>
-                                <Copy className="w-4 h-4"/>
-                            </Button>
+        {isLoading ? (
+            <div className="flex items-center justify-center h-24">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+        ) : error ? (
+            <div className="text-center text-sm text-destructive px-6 pb-6">
+                <p>Failed to load contact details.</p>
+            </div>
+        ) : contactDetails ? (
+            <div className="space-y-4 py-4 px-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-secondary rounded-full">
+                            <User className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <Label className="text-xs text-muted-foreground">Name</Label>
+                            <p className="font-medium text-foreground">{contactDetails.name}</p>
                         </div>
                     </div>
-                     <div className="space-y-1">
-                        <Label htmlFor="tutor-phone" className="text-xs text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3"/> Phone Number</Label>
-                        <div className="flex items-center gap-2">
-                            <Input id="tutor-phone" value={`${contactDetails.countryCode} ${contactDetails.phone}`} readOnly className="h-9 bg-muted/50 text-sm"/>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleCopy(`${contactDetails.countryCode} ${contactDetails.phone}`, "Phone Number")}>
-                                <Copy className="w-4 h-4"/>
-                            </Button>
+                </div>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-secondary rounded-full">
+                            <Mail className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <Label className="text-xs text-muted-foreground">Email</Label>
+                            <p className="font-medium text-foreground">{contactDetails.email}</p>
                         </div>
                     </div>
-                </>
-            ) : null}
-        </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(contactDetails.email, 'Email')}>
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                </div>
+                <div className="flex items-center justify-between">
+                     <div className="flex items-center gap-4">
+                        <div className="p-2 bg-secondary rounded-full">
+                            <Phone className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <Label className="text-xs text-muted-foreground">Phone</Label>
+                            <p className="font-medium text-foreground">{contactDetails.countryCode} {contactDetails.phone}</p>
+                        </div>
+                    </div>
+                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(`${contactDetails.countryCode} ${contactDetails.phone}`, 'Phone number')}>
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+        ) : null}
       </DialogContent>
     </Dialog>
   );
