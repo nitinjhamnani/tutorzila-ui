@@ -615,9 +615,10 @@ const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
         toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-        const { enquirySummary, enquiryDetails } = updatedData;
+        const { enquiryResponse } = updatedData;
         queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
             if (!oldData) return undefined;
+            const { enquirySummary, enquiryDetails } = enquiryResponse;
             const transformStringToArray = (str: string | null | undefined): string[] => {
                 if (typeof str === 'string' && str.trim() !== '') {
                     return str.split(',').map(s => s.trim());
@@ -647,7 +648,7 @@ const addNoteMutation = useMutation({
                     ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
                 ],
                 scheduleDetails: enquiryDetails.notes,
-                additionalNotes: enquiryDetails.additionalNotes,
+                additionalNotes: updatedData.remarks || enquiryDetails.additionalNotes,
                 preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
                 preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
                 status: enquirySummary.status?.toLowerCase() || oldData.status,
@@ -660,6 +661,7 @@ const addNoteMutation = useMutation({
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
 });
+
 
 
   const updateStatusMutation = useMutation({
@@ -1333,7 +1335,7 @@ const addNoteMutation = useMutation({
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4 bg-muted/50 border-t">
+              <DialogFooter className="p-4 border-t">
                  <Button 
                   type="button" 
                   onClick={handleConfirmClosure} 
