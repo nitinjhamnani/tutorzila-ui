@@ -1299,7 +1299,7 @@ const addNoteMutation = useMutation({
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4 bg-muted/50 border-t">
+              <DialogFooter className="p-4 border-t">
                 <Button 
                   type="button" 
                   onClick={handleConfirmAcceptance} 
