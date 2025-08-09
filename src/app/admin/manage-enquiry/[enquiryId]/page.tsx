@@ -1217,7 +1217,7 @@ const closeEnquiryMutation = useMutation({
                 </div>
             </div>
             <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                {enquiry.status === "open" && (
+                {(enquiry.status === "open" || enquiry.status === "reopened") && (
                   <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenAcceptModal}>
                     <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
                   </Button>
@@ -1243,7 +1243,7 @@ const closeEnquiryMutation = useMutation({
             <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
            </div>
            <div className="hidden sm:flex sm:flex-row gap-2 w-full sm:w-auto justify-end">
-                {enquiry.status === "open" && (
+                {(enquiry.status === "open" || enquiry.status === "reopened") && (
                   <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenAcceptModal}>
                     <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
                   </Button>
@@ -1425,7 +1425,7 @@ const closeEnquiryMutation = useMutation({
         </Dialog>
         <Dialog open={isAcceptModalOpen} onOpenChange={setIsAcceptModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader className="p-6 pb-4 border-b">
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle>Accept Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
                 <DialogDescription>
                   Please select a reason for accepting this requirement. This helps in tracking.
@@ -1459,7 +1459,7 @@ const closeEnquiryMutation = useMutation({
 
         <Dialog open={isCloseModalOpen} onOpenChange={setIsCloseModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader className="p-6 pb-4 border-b">
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle>Close Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
                 <DialogDescription>
                   Please select a reason for closing this requirement. This action cannot be undone immediately.
@@ -1494,7 +1494,7 @@ const closeEnquiryMutation = useMutation({
 
         <Dialog open={isReopenModalOpen} onOpenChange={setIsReopenModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader className="p-6 pb-4 border-b">
+              <DialogHeader className="p-6 pb-4">
                 <DialogTitle>Reopen Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
                 <DialogDescription>
                   Please select a reason for reopening this requirement. This will change the status back to 'Open'.
@@ -1586,7 +1586,7 @@ const closeEnquiryMutation = useMutation({
                     </div>
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="p-4">
                 <Button type="button" onClick={handleConfirmBudget} disabled={updateBudgetMutation.isPending}>
                     {updateBudgetMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Confirm Budget"}
                 </Button>
