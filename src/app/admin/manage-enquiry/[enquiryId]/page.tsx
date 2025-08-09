@@ -893,7 +893,7 @@ function ManageEnquiryContent() {
                           </CardDescription>
                           <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
                               <Clock className="w-3.5 h-3.5" /> 
-                              Posted on {format(parseISO(enquiry.postedAt), "MMM d, yyyy")}
+                              Posted on {enquiry.postedAt ? format(parseISO(enquiry.postedAt), "MMM d, yyyy") : 'N/A'}
                           </CardDescription>
                           <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
