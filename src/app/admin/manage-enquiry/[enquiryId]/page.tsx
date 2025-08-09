@@ -189,7 +189,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     applicantsCount: enquirySummary.assignedTutors,
     createdBy: data.createdBy,
     budget: data.budget,
-    tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toLowerCase(),
+    tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase(),
     startDatePreference: enquiryDetails.startDatePreference,
   };
 };
@@ -565,55 +565,51 @@ function ManageEnquiryContent() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
-      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-  
-      const { enquirySummary, enquiryDetails } = updatedData;
-  
-      queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
-        if (!oldData) return undefined;
-  
-        const transformStringToArray = (str: string | null | undefined): string[] => {
-            if (typeof str === 'string' && str.trim() !== '') {
-                return str.split(',').map(s => s.trim());
-            }
-            return [];
-        };
-  
-        return {
-          ...oldData,
-          id: enquirySummary.enquiryId,
-          studentName: enquiryDetails.studentName,
-          subject: transformStringToArray(enquirySummary.subjects),
-          gradeLevel: enquirySummary.grade,
-          board: enquirySummary.board,
-          location: {
-            ...oldData.location,
-            name: enquiryDetails.addressName || enquiryDetails.address,
-            address: enquiryDetails.address,
-            googleMapsUrl: enquiryDetails.googleMapsLink,
-            city: enquirySummary.city,
-            state: enquirySummary.state,
-            country: enquirySummary.country,
-            area: enquirySummary.area,
-            pincode: enquiryDetails.pincode,
-          },
-          teachingMode: [
-            ...(enquirySummary.online ? ["Online"] : []),
-            ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
-          ],
-          scheduleDetails: enquiryDetails.notes,
-          additionalNotes: enquiryDetails.additionalNotes,
-          preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
-          preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
-          status: enquirySummary.status?.toLowerCase() || oldData.status,
-          tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toLowerCase(),
-          startDatePreference: enquiryDetails.startDatePreference,
-        };
-      });
-      setIsEditModalOpen(false);
+        toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+        const { enquirySummary, enquiryDetails } = updatedData;
+        queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
+            if (!oldData) return undefined;
+            const transformStringToArray = (str: string | null | undefined): string[] => {
+                if (typeof str === 'string' && str.trim() !== '') {
+                    return str.split(',').map(s => s.trim());
+                }
+                return [];
+            };
+            return {
+                ...oldData,
+                id: enquirySummary.enquiryId,
+                studentName: enquiryDetails.studentName,
+                subject: transformStringToArray(enquirySummary.subjects),
+                gradeLevel: enquirySummary.grade,
+                board: enquirySummary.board,
+                location: {
+                    ...oldData.location,
+                    name: enquiryDetails.addressName || enquiryDetails.address,
+                    address: enquiryDetails.address,
+                    googleMapsUrl: enquiryDetails.googleMapsLink,
+                    city: enquirySummary.city,
+                    state: enquirySummary.state,
+                    country: enquirySummary.country,
+                    area: enquirySummary.area,
+                    pincode: enquiryDetails.pincode,
+                },
+                teachingMode: [
+                    ...(enquirySummary.online ? ["Online"] : []),
+                    ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+                ],
+                scheduleDetails: enquiryDetails.notes,
+                additionalNotes: enquiryDetails.additionalNotes,
+                preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+                preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+                status: enquirySummary.status?.toLowerCase() || oldData.status,
+                tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase(),
+                startDatePreference: enquiryDetails.startDatePreference,
+            };
+        });
+        setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
-  });
+});
 
   const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
