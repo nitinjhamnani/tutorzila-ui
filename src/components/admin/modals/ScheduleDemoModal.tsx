@@ -65,7 +65,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
-      subject: Array.isArray(enquiry.subject) ? [enquiry.subject[0]] : [enquiry.subject],
+      subject: Array.isArray(enquiry.subject) ? enquiry.subject : [enquiry.subject],
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
@@ -75,7 +75,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        subject: Array.isArray(enquiry.subject) ? [enquiry.subject[0]] : [enquiry.subject],
+        subject: Array.isArray(enquiry.subject) ? enquiry.subject : [enquiry.subject],
         date: new Date(),
         time: "04:00 PM",
         duration: 30,
