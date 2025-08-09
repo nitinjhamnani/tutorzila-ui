@@ -144,10 +144,35 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, enquiryId, sour
       });
     },
   });
+  
+  const assignMutation = useMutation({
+    mutationFn: (tutorId: string) => assignTutorToEnquiry({ enquiryId, tutorId, status: "ASSIGNED", token }),
+    onSuccess: () => {
+      toast({
+        title: "Tutor Assigned",
+        description: `${tutor?.displayName} has been assigned to this enquiry.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['enquiryTutors', enquiryId] });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Assignment Failed",
+        description: error.message || "An unexpected error occurred.",
+      });
+    },
+  });
 
   const handleShortlistTutor = () => {
     if (tutor) {
       shortlistMutation.mutate(tutor.id);
+    }
+  };
+  
+  const handleAssignTutor = () => {
+    if (tutor) {
+      assignMutation.mutate(tutor.id);
     }
   };
 
@@ -190,9 +215,9 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, enquiryId, sour
                            {shortlistMutation.isPending ? "Shortlisting..." : "Shortlist Tutor"}
                         </Button>
                         ) : sourceTab === 'shortlisted' ? (
-                        <Button size="sm" className="w-full sm:w-auto">
-                            <UserPlus className="w-4 h-4 mr-2"/>
-                            Assign Tutor
+                        <Button size="sm" className="w-full sm:w-auto" onClick={handleAssignTutor} disabled={assignMutation.isPending}>
+                            {assignMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UserPlus className="w-4 h-4 mr-2"/>}
+                            {assignMutation.isPending ? "Assigning..." : "Assign Tutor"}
                         </Button>
                         ): null}
                     </div>
