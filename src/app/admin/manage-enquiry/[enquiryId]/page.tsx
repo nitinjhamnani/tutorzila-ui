@@ -76,7 +76,8 @@ import {
   Mail,
   Copy,
   DollarSign,
-  Coins
+  Coins,
+  VenetianMask,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -594,21 +595,21 @@ function ManageEnquiryContent() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
-        toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-        
-        const { enquiryResponse } = updatedData;
-        const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
-        
-        let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-        switch (enquiryResponse.enquiryDetails.tutorGenderPreference) {
-            case 'MALE': mappedGenderPreference = 'male'; break;
-            case 'FEMALE': mappedGenderPreference = 'female'; break;
-            case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
-            default: mappedGenderPreference = undefined;
-        }
-
-        const transformedData: TuitionRequirement = {
-          ...(oldData || {}),
+      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+      
+      const { enquiryResponse } = updatedData;
+      const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
+      
+      let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+      switch (enquiryResponse?.enquiryDetails?.tutorGenderPreference) {
+          case 'MALE': mappedGenderPreference = 'male'; break;
+          case 'FEMALE': mappedGenderPreference = 'female'; break;
+          case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
+          default: mappedGenderPreference = undefined;
+      }
+      
+      const transformedData: TuitionRequirement = {
+          ...oldData,
           id: enquiryResponse.enquirySummary.enquiryId,
           parentName: "A Parent", 
           studentName: enquiryResponse.enquiryDetails.studentName,
@@ -640,13 +641,13 @@ function ManageEnquiryContent() {
           budget: updatedData.budget,
           tutorGenderPreference: mappedGenderPreference,
           startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
-        };
-        
-        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
-        setIsEditModalOpen(false);
+      };
+
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+      setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
-  });
+});
 
   const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
@@ -998,7 +999,8 @@ function ManageEnquiryContent() {
   };
 
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
-  const hasScheduleInfo = enquiry ? ((enquiry.preferredDays && enquiry.preferredDays.length > 0) || (enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0)) : false;
+  const hasScheduleInfo = enquiry ? ((Array.isArray(enquiry.preferredDays) && enquiry.preferredDays.length > 0) || (Array.isArray(enquiry.preferredTimeSlots) && enquiry.preferredTimeSlots.length > 0)) : false;
+  const hasExtraPrefs = !!enquiry.tutorGenderPreference || !!enquiry.startDatePreference;
   const budgetInfo = enquiry?.budget;
 
   return (
@@ -1169,26 +1171,32 @@ function ManageEnquiryContent() {
               </DialogHeader>
               <div className="max-h-[60vh] overflow-y-auto pr-2">
               <div className="p-6 pt-0 space-y-5">
-                {hasScheduleInfo && (
+                {(hasScheduleInfo || hasExtraPrefs) && (
                   <section className="space-y-3">
                       <h3 className="text-base font-semibold text-foreground flex items-center">
                           <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                          Schedule Preferences
+                          Schedule & Tutor Preferences
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
                           {enquiry.preferredDays && enquiry.preferredDays.length > 0 && (
-                          <EnquiryInfoItem label="Preferred Days" value={enquiry.preferredDays.join(', ')} icon={CalendarDays} />
+                            <EnquiryInfoItem label="Preferred Days" value={enquiry.preferredDays.join(', ')} icon={CalendarDays} />
                           )}
                           {enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0 && (
-                          <EnquiryInfoItem label="Preferred Time" value={enquiry.preferredTimeSlots.join(', ')} icon={Clock} />
+                            <EnquiryInfoItem label="Preferred Time" value={enquiry.preferredTimeSlots.join(', ')} icon={Clock} />
                           )}
+                           {enquiry.tutorGenderPreference && (
+                                <EnquiryInfoItem label="Tutor Gender" value={enquiry.tutorGenderPreference.charAt(0).toUpperCase() + enquiry.tutorGenderPreference.slice(1)} icon={VenetianMask} />
+                           )}
+                           {enquiry.startDatePreference && (
+                                <EnquiryInfoItem label="Start Date" value={enquiry.startDatePreference.replace(/_/g, ' ')} icon={CalendarDays} />
+                           )}
                       </div>
                   </section>
                 )}
 
                 {enquiry.additionalNotes && (
                    <>
-                    {hasScheduleInfo && <Separator />}
+                    {(hasScheduleInfo || hasExtraPrefs) && <Separator />}
                     <section className="space-y-3">
                         <h3 className="text-base font-semibold text-foreground flex items-center">
                             <Info className="w-4 h-4 mr-2 text-primary/80" />
@@ -1198,7 +1206,7 @@ function ManageEnquiryContent() {
                     </section>
                    </>
                 )}
-                {!hasScheduleInfo && !enquiry.additionalNotes && (
+                {!(hasScheduleInfo || hasExtraPrefs) && !enquiry.additionalNotes && (
                     <p className="text-center text-sm text-muted-foreground py-8">No specific preferences or notes were provided for this enquiry.</p>
                 )}
               </div>
