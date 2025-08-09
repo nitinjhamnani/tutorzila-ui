@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -57,15 +57,19 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subjectOptions: MultiSelectOption[] = Array.isArray(enquiry.subject) 
-    ? enquiry.subject.map(s => ({ value: s, label: s })) 
-    : [{ value: enquiry.subject, label: enquiry.subject }];
+  const commonSubjects = useMemo(() => {
+    if (!tutor?.subjectsList || !enquiry?.subject) return [];
+    const tutorSubjects = new Set(tutor.subjectsList.map(s => s.toLowerCase()));
+    return enquiry.subject.filter(s => tutorSubjects.has(s.toLowerCase()));
+  }, [tutor, enquiry]);
+
+  const subjectOptions: MultiSelectOption[] = commonSubjects.map(s => ({ value: s, label: s }));
 
 
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
-      subject: Array.isArray(enquiry.subject) ? enquiry.subject : [enquiry.subject],
+      subject: commonSubjects,
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
@@ -74,14 +78,17 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
 
   useEffect(() => {
     if (isOpen) {
+      const newCommonSubjects = enquiry.subject.filter(s => 
+        new Set(tutor.subjectsList.map(ts => ts.toLowerCase())).has(s.toLowerCase())
+      );
       form.reset({
-        subject: Array.isArray(enquiry.subject) ? enquiry.subject : [enquiry.subject],
+        subject: newCommonSubjects,
         date: new Date(),
         time: "04:00 PM",
         duration: 30,
       });
     }
-  }, [isOpen, enquiry, form]);
+  }, [isOpen, enquiry, tutor, form]);
 
 
   const onSubmit: SubmitHandler<ScheduleDemoFormValues> = async (data) => {
@@ -89,7 +96,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
     const samplePayload = {
       enquiryId: enquiry.id,
       tutorId: tutor.id,
-      subjects: data.subject, // Changed to plural to reflect array
+      subjects: data.subject,
       demoDate: format(data.date, 'yyyy-MM-dd'),
       demoTime: data.time,
       durationInMinutes: data.duration,
@@ -127,7 +134,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                       options={subjectOptions}
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
-                      placeholder="Select subjects..."
+                      placeholder="Select common subjects..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
