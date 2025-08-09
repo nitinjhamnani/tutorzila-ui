@@ -263,3 +263,5 @@ export interface AdminDashboardData {
     totalEnquiries: number;
     noOfDemos: number;
 }
+
+    

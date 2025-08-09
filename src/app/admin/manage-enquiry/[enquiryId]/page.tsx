@@ -595,7 +595,52 @@ function ManageEnquiryContent() {
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+  
+      const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
+      
+      let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+      switch (updatedData.genderPreference) {
+          case 'MALE': mappedGenderPreference = 'male'; break;
+          case 'FEMALE': mappedGenderPreference = 'female'; break;
+          case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
+          default: mappedGenderPreference = undefined;
+      }
+
+      const transformedData: TuitionRequirement = {
+        ...(oldData || {}),
+        id: enquiryId,
+        studentName: updatedData.studentName,
+        subject: updatedData.subjects,
+        gradeLevel: updatedData.grade,
+        board: updatedData.board,
+        location: {
+            name: updatedData.addressName || updatedData.address || "",
+            address: updatedData.address,
+            googleMapsUrl: updatedData.googleMapsLink,
+            city: updatedData.city,
+            state: updatedData.state,
+            country: updatedData.country,
+            area: updatedData.area,
+            pincode: updatedData.pincode,
+        },
+        teachingMode: [
+          ...(updatedData.online ? ["Online"] : []),
+          ...(updatedData.offline ? ["Offline (In-person)"] : []),
+        ],
+        preferredDays: updatedData.availabilityDays,
+        preferredTimeSlots: updatedData.availabilityTime,
+        tutorGenderPreference: mappedGenderPreference,
+        startDatePreference: updatedData.startPreference,
+        // Keep fields not in the update response from the old data
+        parentName: oldData?.parentName,
+        status: oldData?.status || 'open',
+        postedAt: oldData?.postedAt || new Date().toISOString(),
+        applicantsCount: oldData?.applicantsCount,
+        createdBy: oldData?.createdBy,
+        budget: oldData?.budget,
+      };
+      
+      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
       setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
@@ -632,6 +677,7 @@ function ManageEnquiryContent() {
         toast({ title: "Budget Saved", description: "The enquiry budget has been successfully updated." });
         
         const { enquiryResponse } = updatedEnquiryData;
+        const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
         
         let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
         switch (enquiryResponse?.enquiryDetails?.tutorGenderPreference) {
@@ -642,6 +688,7 @@ function ManageEnquiryContent() {
         }
 
         const transformedData: TuitionRequirement = {
+          ...(oldData || {}),
           id: enquiryResponse.enquirySummary.enquiryId,
           parentName: "A Parent", 
           studentName: enquiryResponse.enquiryDetails.studentName,
@@ -1366,3 +1413,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
