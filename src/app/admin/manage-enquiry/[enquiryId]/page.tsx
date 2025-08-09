@@ -274,7 +274,7 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const response = await fetch(`${apiBaseUrl}/api/enquiry/notes`, {
     method: 'PUT', 
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*', },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' },
     body: JSON.stringify({ message: note }),
   });
 
@@ -597,47 +597,46 @@ function ManageEnquiryContent() {
     onSuccess: (updatedDetails) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
       
-      const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
-      if (!oldData) return;
+      queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
+          if (!oldData) return;
 
-      let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-      switch (updatedDetails.tutorGenderPreference) {
-          case 'MALE': mappedGenderPreference = 'male'; break;
-          case 'FEMALE': mappedGenderPreference = 'female'; break;
-          case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
-          default: mappedGenderPreference = undefined;
-      }
-      
-      const transformedData: TuitionRequirement = {
-          ...oldData, // Keep existing data like id, parentName, status, etc.
-          studentName: updatedDetails.studentName,
-          subject: updatedDetails.subjects,
-          gradeLevel: updatedDetails.grade,
-          board: updatedDetails.board,
-          location: {
+          let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+          switch (updatedDetails.genderPreference) {
+            case 'MALE': mappedGenderPreference = 'male'; break;
+            case 'FEMALE': mappedGenderPreference = 'female'; break;
+            case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
+            default: mappedGenderPreference = undefined;
+          }
+          
+          return {
+            ...oldData,
+            studentName: updatedDetails.studentName,
+            subject: updatedDetails.subjects,
+            gradeLevel: updatedDetails.grade,
+            board: updatedDetails.board,
+            teachingMode: [
+                ...(updatedDetails.online ? ["Online"] : []),
+                ...(updatedDetails.offline ? ["Offline (In-person)"] : []),
+            ],
+            location: {
               ...oldData.location,
               name: updatedDetails.addressName || updatedDetails.address || "",
               address: updatedDetails.address,
-              googleMapsUrl: updatedDetails.googleMapsLink,
               city: updatedDetails.city,
               state: updatedDetails.state,
               country: updatedDetails.country,
               area: updatedDetails.area,
               pincode: updatedDetails.pincode,
-          },
-          teachingMode: [
-            ...(updatedDetails.online ? ["Online"] : []),
-            ...(updatedDetails.offline ? ["Offline (In-person)"] : []),
-          ],
-          scheduleDetails: updatedDetails.notes,
-          additionalNotes: updatedDetails.notes, // Assuming notes and additionalNotes are the same for now
-          preferredDays: Array.isArray(updatedDetails.availabilityDays) ? updatedDetails.availabilityDays : (updatedDetails.availabilityDays || '').split(',').map((d:string) => d.trim()),
-          preferredTimeSlots: Array.isArray(updatedDetails.availabilityTime) ? updatedDetails.availabilityTime : (updatedDetails.availabilityTime || '').split(',').map((t:string) => t.trim()),
-          tutorGenderPreference: mappedGenderPreference,
-          startDatePreference: updatedDetails.startPreference,
-      };
-
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+              googleMapsUrl: updatedDetails.googleMapsLink,
+            },
+            preferredDays: updatedDetails.availabilityDays,
+            preferredTimeSlots: updatedDetails.availabilityTime,
+            tutorGenderPreference: mappedGenderPreference,
+            startDatePreference: updatedDetails.startPreference,
+            scheduleDetails: updatedDetails.notes,
+            additionalNotes: updatedDetails.notes,
+          };
+      });
       setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
