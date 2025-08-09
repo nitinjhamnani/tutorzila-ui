@@ -249,9 +249,7 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   });
 
   if (!response.ok) { throw new Error("Failed to add note to the enquiry."); }
-  const data = await response.json();
-  const { enquiryResponse } = data;
-  return enquiryResponse;
+  return response.json();
 };
 
 const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enquiryId: string, token: string | null, status: string, remark?: string }) => {
@@ -259,7 +257,13 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
   if (!status) throw new Error("Status is required.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/admin/enquiry/status?status=${status.toUpperCase()}`, {
+  let apiUrl = `${apiBaseUrl}/api/admin/enquiry/status?status=${status.toUpperCase()}`;
+
+  if (status === 'accepted') {
+    apiUrl = `${apiBaseUrl}/api/manage/enquiry/accept`;
+  }
+
+  const response = await fetch(apiUrl, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -620,7 +624,7 @@ const addNoteMutation = useMutation({
         
         queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
             if (!oldData) return undefined;
-            const { enquirySummary, enquiryDetails } = updatedData;
+            const { enquirySummary, enquiryDetails } = updatedData.enquiryResponse;
             const transformStringToArray = (str: string | null | undefined): string[] => {
                 if (typeof str === 'string' && str.trim() !== '') {
                     return str.split(',').map(s => s.trim());
@@ -668,10 +672,52 @@ const addNoteMutation = useMutation({
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ status, remark }: { status: string, remark?: string }) => updateEnquiryStatus({ enquiryId, token, status, remark }),
-    onSuccess: (_, variables) => {
-        const successMessage = variables.status === 'closed' ? 'Enquiry has been closed.' : `Status updated to ${variables.status}.`;
+    onSuccess: (updatedData, variables) => {
+        const successMessage = variables.status === 'closed' 
+            ? 'Enquiry has been closed.' 
+            : `Status updated to ${variables.status}.`;
         toast({ title: "Status Updated", description: successMessage });
-        queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiryId] });
+        
+        const { enquirySummary, enquiryDetails } = updatedData;
+
+        queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], oldData => {
+            if (!oldData) return undefined;
+            const transformStringToArray = (str: string | null | undefined): string[] => {
+                if (typeof str === 'string' && str.trim() !== '') {
+                    return str.split(',').map(s => s.trim());
+                }
+                return [];
+            };
+            return {
+                ...oldData,
+                id: enquirySummary.enquiryId,
+                studentName: enquiryDetails.studentName,
+                subject: transformStringToArray(enquirySummary.subjects),
+                gradeLevel: enquirySummary.grade,
+                board: enquirySummary.board,
+                location: {
+                    ...oldData.location,
+                    name: enquiryDetails.addressName || enquiryDetails.address,
+                    address: enquiryDetails.address,
+                    googleMapsUrl: enquiryDetails.googleMapsLink,
+                    city: enquirySummary.city,
+                    state: enquirySummary.state,
+                    country: enquirySummary.country,
+                    area: enquirySummary.area,
+                    pincode: enquiryDetails.pincode,
+                },
+                teachingMode: [
+                    ...(enquirySummary.online ? ["Online"] : []),
+                    ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+                ],
+                scheduleDetails: enquiryDetails.notes,
+                additionalNotes: updatedData.remarks || enquiryDetails.additionalNotes,
+                preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+                preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+                status: enquirySummary.status?.toLowerCase() || oldData.status,
+            };
+        });
+
         setIsCloseModalOpen(false);
         setIsAcceptModalOpen(false);
         setCloseReason(null);
@@ -1151,7 +1197,7 @@ const addNoteMutation = useMutation({
                 />
               </div>
               <DialogFooter className="p-4">
-                <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
+                <Button type="button" onClick={handleSaveNotes} disabled={addNoteMutation.isPending || !notes.trim()}>
                   {addNoteMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1283,7 +1329,7 @@ const addNoteMutation = useMutation({
         </Dialog>
         <Dialog open={isAcceptModalOpen} onOpenChange={setIsAcceptModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader className="p-6 pb-4">
+              <DialogHeader className="p-6 pb-4 border-b">
                 <DialogTitle>Accept Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
                 <DialogDescription>
                   Please select a reason for accepting this requirement. This helps in tracking.
@@ -1317,7 +1363,7 @@ const addNoteMutation = useMutation({
 
         <Dialog open={isCloseModalOpen} onOpenChange={setIsCloseModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
-              <DialogHeader className="p-6 pb-4">
+              <DialogHeader className="p-6 pb-4 border-b">
                 <DialogTitle>Close Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
                 <DialogDescription>
                   Please select a reason for closing this requirement. This action cannot be undone immediately.
