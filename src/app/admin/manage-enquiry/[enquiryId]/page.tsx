@@ -116,6 +116,13 @@ const closeReasons = [
     { id: 'other', label: "Other" }
 ];
 
+const reopenReasons = [
+    { id: 'parent-request', label: "Parent requested to reopen" },
+    { id: 'tutor-assignment-failed', label: "Tutor assignment failed" },
+    { id: 'incorrectly-closed', label: "Incorrectly closed" },
+    { id: 'other', label: "Other" }
+];
+
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -262,6 +269,8 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
 
   if (status === 'accepted') {
     apiUrl = `${apiBaseUrl}/api/manage/enquiry/accept`;
+  } else if (status === 'closed') {
+      apiUrl = `${apiBaseUrl}/api/enquiry/close`;
   }
 
   const response = await fetch(apiUrl, {
@@ -416,6 +425,8 @@ function ManageEnquiryContent() {
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
   const [acceptReason, setAcceptReason] = useState<string | null>(null);
   const [isSessionDetailsModalOpen, setIsSessionDetailsModalOpen] = useState(false);
+  const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
+  const [reopenReason, setReopenReason] = useState<string | null>(null);
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
@@ -786,6 +797,8 @@ const closeEnquiryMutation = useMutation({
 
         setIsAcceptModalOpen(false);
         setAcceptReason(null);
+        setIsReopenModalOpen(false);
+        setReopenReason(null);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Status Update Failed", description: error.message }),
   });
@@ -908,6 +921,23 @@ const closeEnquiryMutation = useMutation({
     }, (err) => {
       toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy text." });
     });
+  };
+  
+  const handleOpenReopenModal = () => {
+    setReopenReason(null);
+    setIsReopenModalOpen(true);
+  };
+
+  const handleConfirmReopen = () => {
+    if (!reopenReason) {
+        toast({
+            variant: "destructive",
+            title: "Reason Required",
+            description: "Please select a reason for reopening the enquiry.",
+        });
+        return;
+    }
+    updateStatusMutation.mutate({ status: "reopened", remark: reopenReason });
   };
   
   const genderDisplayMap: Record<string, string> = {
@@ -1196,7 +1226,7 @@ const closeEnquiryMutation = useMutation({
                     </Button>
                 )}
                 {enquiry.status === "closed" && (
-                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "reopened" })}>
+                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenReopenModal}>
                         <Archive className="mr-1.5 h-3.5 w-3.5" /> Reopen
                     </Button>
                 )}
@@ -1222,7 +1252,7 @@ const closeEnquiryMutation = useMutation({
                     </Button>
                 )}
                 {enquiry.status === "closed" && (
-                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={() => updateStatusMutation.mutate({ status: "reopened" })}>
+                    <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenReopenModal}>
                         <Archive className="mr-1.5 h-3.5 w-3.5" /> Reopen
                     </Button>
                 )}
@@ -1455,6 +1485,41 @@ const closeEnquiryMutation = useMutation({
                   variant="destructive"
                 >
                   {closeEnquiryMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Closing...</> : "Confirm Closure"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={isReopenModalOpen} onOpenChange={setIsReopenModalOpen}>
+            <DialogContent className="sm:max-w-md bg-card">
+              <DialogHeader className="p-6 pb-4 border-b">
+                <DialogTitle>Reopen Enquiry: {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}</DialogTitle>
+                <DialogDescription>
+                  Please select a reason for reopening this requirement. This will change the status back to 'Open'.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-4 px-6">
+                  <RadioGroup
+                    onValueChange={(value: string) => setReopenReason(value)}
+                    value={reopenReason || ""}
+                    className="flex flex-col space-y-2"
+                  >
+                    {reopenReasons.map((reason) => (
+                      <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                        <RadioGroupItem value={reason.label} id={`admin-reopen-${reason.id}`} />
+                        <Label htmlFor={`admin-reopen-${reason.id}`} className="font-normal text-sm">{reason.label}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+              </div>
+              <DialogFooter className="p-4">
+                 <Button 
+                  type="button" 
+                  onClick={handleConfirmReopen} 
+                  disabled={!reopenReason || updateStatusMutation.isPending}
+                  variant="default"
+                >
+                  {updateStatusMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Reopening...</> : "Confirm Reopen"}
                 </Button>
               </DialogFooter>
             </DialogContent>
