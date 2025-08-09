@@ -595,53 +595,53 @@ function ManageEnquiryContent() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
-        toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-
-        const { enquirySummary, enquiryDetails } = updatedData.enquiryResponse;
-
-        queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
-            if (!oldData) return undefined;
-
-            let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-            switch (enquiryDetails.tutorGenderPreference) {
-                case 'MALE': mappedGenderPreference = 'male'; break;
-                case 'FEMALE': mappedGenderPreference = 'female'; break;
-                case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
-                default: mappedGenderPreference = undefined;
-            }
-
-            return {
-                ...oldData, // Keep non-updated fields like budget, createdBy, etc. from old data
-                id: enquirySummary.enquiryId,
-                studentName: enquiryDetails.studentName,
-                subject: typeof enquirySummary.subjects === 'string' ? enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-                gradeLevel: enquirySummary.grade,
-                board: enquirySummary.board,
-                location: {
-                    ...oldData.location,
-                    name: enquiryDetails.addressName || enquiryDetails.address,
-                    address: enquiryDetails.address,
-                    googleMapsUrl: enquiryDetails.googleMapsLink,
-                    city: enquirySummary.city,
-                    state: enquirySummary.state,
-                    country: enquirySummary.country,
-                    area: enquirySummary.area,
-                    pincode: enquiryDetails.pincode,
-                },
-                teachingMode: [
-                    ...(enquirySummary.online ? ["Online"] : []),
-                    ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
-                ],
-                scheduleDetails: enquiryDetails.notes, 
-                additionalNotes: enquiryDetails.additionalNotes || updatedData.remarks,
-                preferredDays: typeof enquiryDetails.availabilityDays === 'string' ? enquiryDetails.availabilityDays.split(',').map(d => d.trim()) : [],
-                preferredTimeSlots: typeof enquiryDetails.availabilityTime === 'string' ? enquiryDetails.availabilityTime.split(',').map(t => t.trim()) : [],
-                status: enquirySummary.status?.toLowerCase() || oldData.status,
-                tutorGenderPreference: mappedGenderPreference,
-                startDatePreference: enquiryDetails.startDatePreference as 'immediately' | 'within_month' | 'exploring' | undefined,
-            };
-        });
-        setIsEditModalOpen(false);
+      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+  
+      const { enquirySummary, enquiryDetails } = updatedData.enquiryResponse;
+  
+      queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
+        if (!oldData) return undefined;
+  
+        let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+        switch (enquiryDetails.tutorGenderPreference) {
+          case 'MALE': mappedGenderPreference = 'male'; break;
+          case 'FEMALE': mappedGenderPreference = 'female'; break;
+          case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
+          default: mappedGenderPreference = undefined;
+        }
+  
+        return {
+          ...oldData, // Keep non-updated fields like budget, createdBy, etc. from old data
+          id: enquirySummary.enquiryId,
+          studentName: enquiryDetails.studentName,
+          subject: typeof enquirySummary.subjects === 'string' ? enquirySummary.subjects.split(',').map((s: string) => s.trim()) : [],
+          gradeLevel: enquirySummary.grade,
+          board: enquirySummary.board,
+          location: {
+            ...oldData.location,
+            name: enquiryDetails.addressName || enquiryDetails.address,
+            address: enquiryDetails.address,
+            googleMapsUrl: enquiryDetails.googleMapsLink,
+            city: enquirySummary.city,
+            state: enquirySummary.state,
+            country: enquirySummary.country,
+            area: enquirySummary.area,
+            pincode: enquiryDetails.pincode,
+          },
+          teachingMode: [
+            ...(enquirySummary.online ? ["Online"] : []),
+            ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+          ],
+          scheduleDetails: enquiryDetails.notes,
+          additionalNotes: enquiryDetails.additionalNotes,
+          preferredDays: typeof enquiryDetails.availabilityDays === 'string' ? enquiryDetails.availabilityDays.split(',').map(d => d.trim()) : [],
+          preferredTimeSlots: typeof enquiryDetails.availabilityTime === 'string' ? enquiryDetails.availabilityTime.split(',').map(t => t.trim()) : [],
+          status: enquirySummary.status?.toLowerCase() || oldData.status,
+          tutorGenderPreference: mappedGenderPreference,
+          startDatePreference: enquiryDetails.startDatePreference as 'immediately' | 'within_month' | 'exploring' | undefined,
+        };
+      });
+      setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
   });
