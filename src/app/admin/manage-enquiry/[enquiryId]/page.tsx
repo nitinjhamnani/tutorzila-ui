@@ -158,6 +158,21 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   const data = await response.json();
   const { enquirySummary, enquiryDetails } = data.enquiryResponse;
 
+  let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+  switch (enquiryDetails.tutorGenderPreference) {
+    case 'MALE':
+      mappedGenderPreference = 'male';
+      break;
+    case 'FEMALE':
+      mappedGenderPreference = 'female';
+      break;
+    case 'NO_PREFERENCE':
+      mappedGenderPreference = 'any';
+      break;
+    default:
+      mappedGenderPreference = undefined;
+  }
+
   return {
     id: enquirySummary.enquiryId,
     parentName: "A Parent", 
@@ -180,7 +195,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
       ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
     ],
     scheduleDetails: enquiryDetails.notes, 
-    additionalNotes: data.remarks || enquiryDetails.additionalNotes, // Prefer top-level remarks
+    additionalNotes: data.remarks || enquiryDetails.additionalNotes,
     preferredDays: typeof enquiryDetails.availabilityDays === 'string' ? enquiryDetails.availabilityDays.split(',').map((d:string) => d.trim()) : [],
     preferredTimeSlots: typeof enquiryDetails.availabilityTime === 'string' ? enquiryDetails.availabilityTime.split(',').map((t:string) => t.trim()) : [],
     status: enquirySummary.status?.toLowerCase() || 'open',
@@ -188,8 +203,8 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     applicantsCount: enquirySummary.assignedTutors,
     createdBy: data.createdBy,
     budget: data.budget,
-    tutorGenderPreference: enquiryDetails.genderPreference,
-    startDatePreference: enquiryDetails.startPreference,
+    tutorGenderPreference: mappedGenderPreference,
+    startDatePreference: enquiryDetails.startDatePreference,
   };
 };
 
@@ -615,7 +630,17 @@ function ManageEnquiryContent() {
     mutationFn: (budget: BudgetDetails) => updateEnquiryBudget({ enquiryId, token, budget }),
     onSuccess: (updatedEnquiryData) => {
         toast({ title: "Budget Saved", description: "The enquiry budget has been successfully updated." });
+        
         const { enquiryResponse } = updatedEnquiryData;
+        
+        let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+        switch (enquiryResponse?.enquiryDetails?.tutorGenderPreference) {
+            case 'MALE': mappedGenderPreference = 'male'; break;
+            case 'FEMALE': mappedGenderPreference = 'female'; break;
+            case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
+            default: mappedGenderPreference = undefined;
+        }
+
         const transformedData: TuitionRequirement = {
           id: enquiryResponse.enquirySummary.enquiryId,
           parentName: "A Parent", 
@@ -646,6 +671,8 @@ function ManageEnquiryContent() {
           applicantsCount: enquiryResponse.enquirySummary.assignedTutors,
           createdBy: updatedEnquiryData.createdBy,
           budget: updatedEnquiryData.budget,
+          tutorGenderPreference: mappedGenderPreference,
+          startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
         };
         queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
         setIsSessionDetailsModalOpen(false);
