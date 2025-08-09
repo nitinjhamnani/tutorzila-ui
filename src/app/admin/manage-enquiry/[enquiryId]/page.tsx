@@ -594,53 +594,56 @@ function ManageEnquiryContent() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
-      toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-  
-      const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
-      
-      let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-      switch (updatedData.genderPreference) {
-          case 'MALE': mappedGenderPreference = 'male'; break;
-          case 'FEMALE': mappedGenderPreference = 'female'; break;
-          case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
-          default: mappedGenderPreference = undefined;
-      }
+        toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
+        
+        const { enquiryResponse } = updatedData;
+        const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
+        
+        let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
+        switch (enquiryResponse.enquiryDetails.tutorGenderPreference) {
+            case 'MALE': mappedGenderPreference = 'male'; break;
+            case 'FEMALE': mappedGenderPreference = 'female'; break;
+            case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
+            default: mappedGenderPreference = undefined;
+        }
 
-      const transformedData: TuitionRequirement = {
-        ...(oldData || {}),
-        id: enquiryId,
-        studentName: updatedData.studentName,
-        subject: Array.isArray(updatedData.subjects) ? updatedData.subjects : [],
-        gradeLevel: updatedData.grade,
-        board: updatedData.board,
-        location: {
-            name: updatedData.addressName || updatedData.address || "",
-            address: updatedData.address || "",
-            googleMapsUrl: updatedData.googleMapsLink || "",
-            city: updatedData.city || "",
-            state: updatedData.state || "",
-            country: updatedData.country || "",
-            area: updatedData.area || "",
-            pincode: updatedData.pincode || "",
-        },
-        teachingMode: [
-          ...(updatedData.online ? ["Online"] : []),
-          ...(updatedData.offline ? ["Offline (In-person)"] : []),
-        ],
-        preferredDays: Array.isArray(updatedData.availabilityDays) ? updatedData.availabilityDays : (typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',') : []),
-        preferredTimeSlots: Array.isArray(updatedData.availabilityTime) ? updatedData.availabilityTime : (typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',') : []),
-        tutorGenderPreference: mappedGenderPreference,
-        startDatePreference: updatedData.startPreference,
-        parentName: oldData?.parentName,
-        status: oldData?.status || 'open',
-        postedAt: oldData?.postedAt || new Date().toISOString(),
-        applicantsCount: oldData?.applicantsCount,
-        createdBy: oldData?.createdBy,
-        budget: oldData?.budget,
-      };
-      
-      queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
-      setIsEditModalOpen(false);
+        const transformedData: TuitionRequirement = {
+          ...(oldData || {}),
+          id: enquiryResponse.enquirySummary.enquiryId,
+          parentName: "A Parent", 
+          studentName: enquiryResponse.enquiryDetails.studentName,
+          subject: typeof enquiryResponse.enquirySummary.subjects === 'string' ? enquiryResponse.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+          gradeLevel: enquiryResponse.enquirySummary.grade,
+          board: enquiryResponse.enquirySummary.board,
+          location: {
+              name: enquiryResponse.enquiryDetails.addressName || enquiryResponse.enquiryDetails.address || "",
+              address: enquiryResponse.enquiryDetails.address,
+              googleMapsUrl: enquiryResponse.enquiryDetails.googleMapsLink,
+              city: enquiryResponse.enquirySummary.city,
+              state: enquiryResponse.enquirySummary.state,
+              country: enquiryResponse.enquirySummary.country,
+              area: enquiryResponse.enquirySummary.area,
+              pincode: enquiryResponse.enquiryDetails.pincode,
+          },
+          teachingMode: [
+            ...(enquiryResponse.enquirySummary.online ? ["Online"] : []),
+            ...(enquiryResponse.enquirySummary.offline ? ["Offline (In-person)"] : []),
+          ],
+          scheduleDetails: enquiryResponse.enquiryDetails.notes, 
+          additionalNotes: updatedData.remarks || enquiryResponse.enquiryDetails.additionalNotes,
+          preferredDays: typeof enquiryResponse.enquiryDetails.availabilityDays === 'string' ? enquiryResponse.enquiryDetails.availabilityDays.split(',').map((d:string) => d.trim()) : [],
+          preferredTimeSlots: typeof enquiryResponse.enquiryDetails.availabilityTime === 'string' ? enquiryResponse.enquiryDetails.availabilityTime.split(',').map((t:string) => t.trim()) : [],
+          status: enquiryResponse.enquirySummary.status?.toLowerCase() || oldData?.status || 'open',
+          postedAt: enquiryResponse.enquirySummary.createdOn,
+          applicantsCount: enquiryResponse.enquirySummary.assignedTutors,
+          createdBy: updatedData.createdBy,
+          budget: updatedData.budget,
+          tutorGenderPreference: mappedGenderPreference,
+          startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
+        };
+        
+        queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
+        setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
   });
@@ -1412,5 +1415,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
