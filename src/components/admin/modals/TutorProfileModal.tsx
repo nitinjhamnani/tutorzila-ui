@@ -27,16 +27,55 @@ import {
   Building,
   UserPlus,
   Bookmark,
-  X
+  X,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useToast } from "@/hooks/use-toast";
 
 interface TutorProfileModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   tutor: ApiTutor | null;
+  enquiryId: string;
   sourceTab?: string;
 }
+
+const assignTutorToEnquiry = async ({
+  enquiryId,
+  tutorId,
+  status,
+  token,
+}: {
+  enquiryId: string;
+  tutorId: string;
+  status: "SHORTLISTED" | "ASSIGNED";
+  token: string | null;
+}) => {
+  if (!token) throw new Error("Authentication token not found.");
+  if (!enquiryId) throw new Error("Enquiry ID is missing.");
+  if (!tutorId) throw new Error("Tutor ID is missing.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/assign/${status}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'TZ-TUTOR-ID': tutorId,
+      'accept': '*/*',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to ${status.toLowerCase()} tutor.`);
+  }
+  // The API returns only a status, so we return true on success.
+  return true;
+};
+
 
 const getInitials = (name: string): string => {
   if (!name) return "?";
@@ -82,7 +121,37 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
   );
 };
 
-export function TutorProfileModal({ isOpen, onOpenChange, tutor, sourceTab = "recommended" }: TutorProfileModalProps) {
+export function TutorProfileModal({ isOpen, onOpenChange, tutor, enquiryId, sourceTab = "recommended" }: TutorProfileModalProps) {
+  const { token } = useAuthMock();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const shortlistMutation = useMutation({
+    mutationFn: (tutorId: string) => assignTutorToEnquiry({ enquiryId, tutorId, status: "SHORTLISTED", token }),
+    onSuccess: () => {
+      toast({
+        title: "Tutor Shortlisted",
+        description: `${tutor?.displayName} has been added to the shortlist for this enquiry.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['enquiryTutors', enquiryId] });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Shortlist Failed",
+        description: error.message || "An unexpected error occurred.",
+      });
+    },
+  });
+
+  const handleShortlistTutor = () => {
+    if (tutor) {
+      shortlistMutation.mutate(tutor.id);
+    }
+  };
+
+
   if (!tutor) return null;
 
   return (
@@ -116,9 +185,9 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, sourceTab = "re
                     </div>
                     <div className="w-full sm:w-auto flex-shrink-0">
                         {sourceTab === "recommended" ? (
-                        <Button size="sm" className="w-full sm:w-auto">
-                            <Bookmark className="w-4 h-4 mr-2"/>
-                            Shortlist Tutor
+                        <Button size="sm" className="w-full sm:w-auto" onClick={handleShortlistTutor} disabled={shortlistMutation.isPending}>
+                           {shortlistMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Bookmark className="w-4 h-4 mr-2"/>}
+                           {shortlistMutation.isPending ? "Shortlisting..." : "Shortlist Tutor"}
                         </Button>
                         ) : (
                         <Button size="sm" className="w-full sm:w-auto">
