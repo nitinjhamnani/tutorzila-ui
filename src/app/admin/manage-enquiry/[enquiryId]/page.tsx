@@ -270,7 +270,7 @@ const fetchParentContact = async (enquiryId: string, token: string | null): Prom
     if (!enquiryId) throw new Error("Enquiry ID is required.");
 
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    const response = await fetch(`${apiBaseUrl}/api/enquiry/contact/${enquiryId}`, {
+    const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/contact/${enquiryId}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
     });
 
@@ -939,7 +939,7 @@ function ManageEnquiryContent() {
                   disabled={addNoteMutation.isPending}
                 />
               </div>
-              <DialogFooter className="p-4 bg-muted/50 border-t">
+              <DialogFooter className="p-4 border-t">
                 <Button type="button" onClick={handleSaveNotes} disabled={!notes.trim() || addNoteMutation.isPending}>
                   {addNoteMutation.isPending ? (
                     <>
@@ -1210,3 +1210,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
