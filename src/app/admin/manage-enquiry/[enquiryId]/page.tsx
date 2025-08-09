@@ -258,6 +258,7 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   let apiUrl = `${apiBaseUrl}/api/admin/enquiry/status?status=${status.toUpperCase()}`;
+  let requestBody = JSON.stringify({ message: remark });
 
   if (status === 'accepted') {
     apiUrl = `${apiBaseUrl}/api/manage/enquiry/accept`;
@@ -271,10 +272,30 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
       'Content-Type': 'application/json',
       'accept': '*/*',
     },
-    body: JSON.stringify({ message: remark }),
+    body: requestBody,
   });
 
   if (!response.ok) { throw new Error("Failed to update enquiry status."); }
+  return response.json();
+};
+
+const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, token: string | null, reason: string }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!reason) throw new Error("A reason for closing is required.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/close`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'Content-Type': 'application/json',
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) { throw new Error("Failed to close enquiry."); }
   return response.json();
 };
 
@@ -668,14 +689,59 @@ const addNoteMutation = useMutation({
     onError: (error: any) => toast({ variant: "destructive", title: "Failed to Save Note", description: error.message }),
 });
 
+const closeEnquiryMutation = useMutation({
+    mutationFn: (reason: string) => closeEnquiry({ enquiryId, token, reason }),
+    onSuccess: (updatedData) => {
+        toast({ title: "Enquiry Closed", description: "The enquiry has been successfully closed." });
+        const { enquirySummary, enquiryDetails } = updatedData;
+        queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
+            if (!oldData) return undefined;
+            const transformStringToArray = (str: string | null | undefined): string[] => {
+                if (typeof str === 'string' && str.trim() !== '') {
+                    return str.split(',').map(s => s.trim());
+                }
+                return [];
+            };
+            return {
+                ...oldData,
+                id: enquirySummary.enquiryId,
+                studentName: enquiryDetails.studentName,
+                subject: transformStringToArray(enquirySummary.subjects),
+                gradeLevel: enquirySummary.grade,
+                board: enquirySummary.board,
+                location: {
+                    ...oldData.location,
+                    name: enquiryDetails.addressName || enquiryDetails.address,
+                    address: enquiryDetails.address,
+                    googleMapsUrl: enquiryDetails.googleMapsLink,
+                    city: enquirySummary.city,
+                    state: enquirySummary.state,
+                    country: enquirySummary.country,
+                    area: enquirySummary.area,
+                    pincode: enquiryDetails.pincode,
+                },
+                teachingMode: [
+                    ...(enquirySummary.online ? ["Online"] : []),
+                    ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+                ],
+                scheduleDetails: enquiryDetails.notes,
+                additionalNotes: updatedData.remarks || enquiryDetails.additionalNotes,
+                preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+                preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+                status: enquirySummary.status?.toLowerCase() || oldData.status,
+            };
+        });
+        setIsCloseModalOpen(false);
+        setCloseReason(null);
+    },
+    onError: (error: any) => toast({ variant: "destructive", title: "Closure Failed", description: error.message }),
+});
 
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ status, remark }: { status: string, remark?: string }) => updateEnquiryStatus({ enquiryId, token, status, remark }),
     onSuccess: (updatedData, variables) => {
-        const successMessage = variables.status === 'closed' 
-            ? 'Enquiry has been closed.' 
-            : `Status updated to ${variables.status}.`;
+        const successMessage = `Status updated to ${variables.status}.`;
         toast({ title: "Status Updated", description: successMessage });
         
         const { enquirySummary, enquiryDetails } = updatedData;
@@ -718,9 +784,7 @@ const addNoteMutation = useMutation({
             };
         });
 
-        setIsCloseModalOpen(false);
         setIsAcceptModalOpen(false);
-        setCloseReason(null);
         setAcceptReason(null);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Status Update Failed", description: error.message }),
@@ -809,7 +873,7 @@ const addNoteMutation = useMutation({
       toast({ variant: "destructive", title: "Reason Required", description: "Please select a reason for closing." });
       return;
     }
-    updateStatusMutation.mutate({ status: "closed", remark: closeReason });
+    closeEnquiryMutation.mutate(closeReason);
   };
 
   const handleOpenAcceptModal = () => {
@@ -1387,11 +1451,10 @@ const addNoteMutation = useMutation({
                  <Button 
                   type="button" 
                   onClick={handleConfirmClosure} 
-                  disabled={!closeReason || updateStatusMutation.isPending}
+                  disabled={!closeReason || closeEnquiryMutation.isPending}
                   variant="destructive"
                 >
-                  {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {updateStatusMutation.isPending ? "Closing..." : "Confirm Closure"}
+                  {closeEnquiryMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Closing...</> : "Confirm Closure"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -1475,6 +1538,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-
-    
