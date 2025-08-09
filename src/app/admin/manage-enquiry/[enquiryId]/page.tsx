@@ -597,7 +597,7 @@ function ManageEnquiryContent() {
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
   
-      const { enquirySummary, enquiryDetails } = updatedData.enquiryResponse;
+      const { enquirySummary, enquiryDetails } = updatedData;
   
       queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
         if (!oldData) return undefined;
@@ -609,12 +609,19 @@ function ManageEnquiryContent() {
           case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
           default: mappedGenderPreference = undefined;
         }
+
+        const transformStringToArray = (str: string | null | undefined): string[] => {
+            if (typeof str === 'string' && str.trim() !== '') {
+                return str.split(',').map(s => s.trim());
+            }
+            return [];
+        };
   
         return {
           ...oldData, // Keep non-updated fields like budget, createdBy, etc. from old data
           id: enquirySummary.enquiryId,
           studentName: enquiryDetails.studentName,
-          subject: typeof enquirySummary.subjects === 'string' ? enquirySummary.subjects.split(',').map((s: string) => s.trim()) : [],
+          subject: transformStringToArray(enquirySummary.subjects),
           gradeLevel: enquirySummary.grade,
           board: enquirySummary.board,
           location: {
@@ -634,8 +641,8 @@ function ManageEnquiryContent() {
           ],
           scheduleDetails: enquiryDetails.notes,
           additionalNotes: enquiryDetails.additionalNotes,
-          preferredDays: typeof enquiryDetails.availabilityDays === 'string' ? enquiryDetails.availabilityDays.split(',').map(d => d.trim()) : [],
-          preferredTimeSlots: typeof enquiryDetails.availabilityTime === 'string' ? enquiryDetails.availabilityTime.split(',').map(t => t.trim()) : [],
+          preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+          preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
           status: enquirySummary.status?.toLowerCase() || oldData.status,
           tutorGenderPreference: mappedGenderPreference,
           startDatePreference: enquiryDetails.startDatePreference as 'immediately' | 'within_month' | 'exploring' | undefined,
