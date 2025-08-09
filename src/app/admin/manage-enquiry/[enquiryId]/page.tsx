@@ -756,6 +756,13 @@ function ManageEnquiryContent() {
     });
   };
   
+  const genderDisplayMap: Record<string, string> = {
+    "MALE": "Male",
+    "FEMALE": "Female",
+    "NO_PREFERENCE": "No Preference",
+  };
+  const genderValue = enquiry?.tutorGenderPreference ? genderDisplayMap[enquiry.tutorGenderPreference] : undefined;
+
   if (isLoadingEnquiry) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -1140,7 +1147,7 @@ function ManageEnquiryContent() {
                             <EnquiryInfoItem label="Preferred Time" value={enquiry.preferredTimeSlots.join(', ')} icon={Clock} />
                           )}
                            {enquiry.tutorGenderPreference && (
-                                <EnquiryInfoItem label="Tutor Gender" value={enquiry.tutorGenderPreference.charAt(0).toUpperCase() + enquiry.tutorGenderPreference.slice(1)} icon={VenetianMask} />
+                                <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />
                            )}
                            {enquiry.startDatePreference && (
                                 <EnquiryInfoItem label="Start Date" value={enquiry.startDatePreference.replace(/_/g, ' ')} icon={CalendarDays} />
@@ -1378,3 +1385,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
