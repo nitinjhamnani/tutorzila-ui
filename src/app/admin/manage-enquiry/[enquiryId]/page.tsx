@@ -274,7 +274,7 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const response = await fetch(`${apiBaseUrl}/api/enquiry/notes`, {
     method: 'PUT', 
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*', },
     body: JSON.stringify({ message: note }),
   });
 
@@ -594,14 +594,14 @@ function ManageEnquiryContent() {
   
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
-    onSuccess: (updatedData) => {
+    onSuccess: (updatedDetails) => {
       toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
       
-      const { enquiryResponse } = updatedData;
       const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
-      
+      if (!oldData) return;
+
       let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-      switch (enquiryResponse?.enquiryDetails?.tutorGenderPreference) {
+      switch (updatedDetails.tutorGenderPreference) {
           case 'MALE': mappedGenderPreference = 'male'; break;
           case 'FEMALE': mappedGenderPreference = 'female'; break;
           case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
@@ -609,45 +609,39 @@ function ManageEnquiryContent() {
       }
       
       const transformedData: TuitionRequirement = {
-          ...oldData,
-          id: enquiryResponse.enquirySummary.enquiryId,
-          parentName: "A Parent", 
-          studentName: enquiryResponse.enquiryDetails.studentName,
-          subject: typeof enquiryResponse.enquirySummary.subjects === 'string' ? enquiryResponse.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-          gradeLevel: enquiryResponse.enquirySummary.grade,
-          board: enquiryResponse.enquirySummary.board,
+          ...oldData, // Keep existing data like id, parentName, status, etc.
+          studentName: updatedDetails.studentName,
+          subject: updatedDetails.subjects,
+          gradeLevel: updatedDetails.grade,
+          board: updatedDetails.board,
           location: {
-              name: enquiryResponse.enquiryDetails.addressName || enquiryResponse.enquiryDetails.address || "",
-              address: enquiryResponse.enquiryDetails.address,
-              googleMapsUrl: enquiryResponse.enquiryDetails.googleMapsLink,
-              city: enquiryResponse.enquirySummary.city,
-              state: enquiryResponse.enquirySummary.state,
-              country: enquiryResponse.enquirySummary.country,
-              area: enquiryResponse.enquirySummary.area,
-              pincode: enquiryResponse.enquiryDetails.pincode,
+              ...oldData.location,
+              name: updatedDetails.addressName || updatedDetails.address || "",
+              address: updatedDetails.address,
+              googleMapsUrl: updatedDetails.googleMapsLink,
+              city: updatedDetails.city,
+              state: updatedDetails.state,
+              country: updatedDetails.country,
+              area: updatedDetails.area,
+              pincode: updatedDetails.pincode,
           },
           teachingMode: [
-            ...(enquiryResponse.enquirySummary.online ? ["Online"] : []),
-            ...(enquiryResponse.enquirySummary.offline ? ["Offline (In-person)"] : []),
+            ...(updatedDetails.online ? ["Online"] : []),
+            ...(updatedDetails.offline ? ["Offline (In-person)"] : []),
           ],
-          scheduleDetails: enquiryResponse.enquiryDetails.notes, 
-          additionalNotes: updatedData.remarks || enquiryResponse.enquiryDetails.additionalNotes,
-          preferredDays: typeof enquiryResponse.enquiryDetails.availabilityDays === 'string' ? enquiryResponse.enquiryDetails.availabilityDays.split(',').map((d:string) => d.trim()) : [],
-          preferredTimeSlots: typeof enquiryResponse.enquiryDetails.availabilityTime === 'string' ? enquiryResponse.enquiryDetails.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-          status: enquiryResponse.enquirySummary.status?.toLowerCase() || oldData?.status || 'open',
-          postedAt: enquiryResponse.enquirySummary.createdOn,
-          applicantsCount: enquiryResponse.enquirySummary.assignedTutors,
-          createdBy: updatedData.createdBy,
-          budget: updatedData.budget,
+          scheduleDetails: updatedDetails.notes,
+          additionalNotes: updatedDetails.notes, // Assuming notes and additionalNotes are the same for now
+          preferredDays: Array.isArray(updatedDetails.availabilityDays) ? updatedDetails.availabilityDays : (updatedDetails.availabilityDays || '').split(',').map((d:string) => d.trim()),
+          preferredTimeSlots: Array.isArray(updatedDetails.availabilityTime) ? updatedDetails.availabilityTime : (updatedDetails.availabilityTime || '').split(',').map((t:string) => t.trim()),
           tutorGenderPreference: mappedGenderPreference,
-          startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
+          startDatePreference: updatedDetails.startPreference,
       };
 
       queryClient.setQueryData(['adminEnquiryDetails', enquiryId], transformedData);
       setIsEditModalOpen(false);
     },
     onError: (error: any) => toast({ variant: "destructive", title: "Update Failed", description: error.message }),
-});
+  });
 
   const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
@@ -681,6 +675,7 @@ function ManageEnquiryContent() {
         
         const { enquiryResponse } = updatedEnquiryData;
         const oldData = queryClient.getQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId]);
+        if (!oldData) return;
         
         let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
         switch (enquiryResponse?.enquiryDetails?.tutorGenderPreference) {
@@ -691,7 +686,7 @@ function ManageEnquiryContent() {
         }
 
         const transformedData: TuitionRequirement = {
-          ...(oldData || {}),
+          ...oldData,
           id: enquiryResponse.enquirySummary.enquiryId,
           parentName: "A Parent", 
           studentName: enquiryResponse.enquiryDetails.studentName,
@@ -1053,7 +1048,7 @@ function ManageEnquiryContent() {
                                       {budgetInfo.totalDays && <span className="flex items-center gap-1.5 font-medium"><CalendarDays className="w-3.5 h-3.5 text-primary/80"/>{budgetInfo.totalDays} Days/Month</span>}
                                       {budgetInfo.totalHours && <span className="flex items-center gap-1.5 font-medium"><Clock className="w-3.5 h-3.5 text-primary/80"/>{budgetInfo.totalHours} Hrs/Month</span>}
                                       {budgetInfo.totalFees && <span className="flex items-center gap-1.5 font-medium"><Coins className="w-3.5 h-3.5 text-primary/80"/>₹{budgetInfo.totalFees.toLocaleString()}/Month</span>}
-                                      {budgetInfo.finalRate && <span className="flex items-center gap-1.5 font-medium"><DollarSign className="w-3.5 h-3.5 text-primary/80"/> ₹{Math.round(budgetInfo.finalRate).toLocaleString()}/hr</span>}
+                                      <span className="flex items-center gap-1.5 font-medium"><DollarSign className="w-3.5 h-3.5 text-primary/80"/>₹{Math.round(precisePerHourRate).toLocaleString()}/hr</span>
                                   </div>
                                 )}
                           </div>
