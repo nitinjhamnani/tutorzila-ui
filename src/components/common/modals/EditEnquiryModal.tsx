@@ -79,7 +79,7 @@ const editEnquirySchema = z.object({
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
-  startDatePreference: z.enum(["immediately", "within_month", "exploring"]).optional(),
+  startDatePreference: z.enum(["Immediately", "Within a month", "Just exploring"]).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -113,7 +113,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
       preferredDays: [],
       preferredTimeSlots: [],
       tutorGenderPreference: "any",
-      startDatePreference: "immediately",
+      startDatePreference: "Immediately",
     },
   });
 
@@ -129,7 +129,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
         tutorGenderPreference: enquiryData.tutorGenderPreference || "any",
-        startDatePreference: enquiryData.startDatePreference || "immediately",
+        startDatePreference: enquiryData.startDatePreference ? (enquiryData.startDatePreference.charAt(0).toUpperCase() + enquiryData.startDatePreference.slice(1).replace(/_/g, ' ')) as any : "Immediately",
       });
     }
   }, [enquiryData, isOpen, form]);
@@ -331,9 +331,9 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="immediately">Immediately</SelectItem>
-                          <SelectItem value="within_month">Within a month</SelectItem>
-                          <SelectItem value="exploring">Just exploring</SelectItem>
+                          <SelectItem value="Immediately">Immediately</SelectItem>
+                          <SelectItem value="Within a month">Within a month</SelectItem>
+                          <SelectItem value="Just exploring">Just exploring</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -401,3 +401,5 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
     </Dialog>
   );
 }
+
+    
