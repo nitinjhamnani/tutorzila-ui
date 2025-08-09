@@ -884,7 +884,7 @@ function ManageEnquiryContent() {
                         {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
                         </CardTitle>
                         <Badge variant="default" className="text-xs">
-                            {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
+                            {enquiry.status && (enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1))}
                         </Badge>
                       </div>
                       <div className="space-y-2 pt-2">
