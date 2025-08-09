@@ -1,14 +1,16 @@
 
 "use client";
 
+import { useState } from "react";
 import type { ApiTutor } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Copy, X } from "lucide-react";
+import { Mail, Phone, Copy, X, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface TutorContactModalProps {
@@ -16,6 +18,29 @@ interface TutorContactModalProps {
   onOpenChange: (isOpen: boolean) => void;
   tutor: ApiTutor | null;
 }
+
+interface TutorContactDetails {
+    name: string;
+    email: string;
+    countryCode: string;
+    phone: string;
+}
+
+const fetchTutorContact = async (tutorId: string, token: string | null): Promise<TutorContactDetails> => {
+    if (!token) throw new Error("Authentication token not found.");
+    if (!tutorId) throw new Error("Tutor ID is required.");
+
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/admin/user/contact/${tutorId}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch tutor contact details.");
+    }
+    return response.json();
+};
+
 
 const getInitials = (name: string): string => {
   if (!name) return "?";
@@ -27,6 +52,15 @@ const getInitials = (name: string): string => {
 
 export function TutorContactModal({ isOpen, onOpenChange, tutor }: TutorContactModalProps) {
   const { toast } = useToast();
+  const { token } = useAuthMock();
+
+  const { data: contactDetails, isLoading, error } = useQuery({
+      queryKey: ['tutorContact', tutor?.id],
+      queryFn: () => fetchTutorContact(tutor!.id, token),
+      enabled: !!tutor && isOpen, // Only fetch when modal is open and tutor is selected
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
 
   if (!tutor) return null;
 
@@ -65,24 +99,36 @@ export function TutorContactModal({ isOpen, onOpenChange, tutor }: TutorContactM
         </DialogHeader>
 
         <div className="px-6 pb-6 space-y-4">
-            <div className="space-y-1">
-                <Label htmlFor="tutor-email" className="text-xs text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3"/> Email Address</Label>
-                <div className="flex items-center gap-2">
-                    <Input id="tutor-email" value={tutor.email} readOnly className="h-9 bg-muted/50 text-sm"/>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleCopy(tutor.email, "Email")}>
-                        <Copy className="w-4 h-4"/>
-                    </Button>
+           {isLoading ? (
+                <div className="flex items-center justify-center h-24">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
-            </div>
-             <div className="space-y-1">
-                <Label htmlFor="tutor-phone" className="text-xs text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3"/> Phone Number</Label>
-                <div className="flex items-center gap-2">
-                    <Input id="tutor-phone" value={`${tutor.countryCode} ${tutor.phone}`} readOnly className="h-9 bg-muted/50 text-sm"/>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleCopy(`${tutor.countryCode} ${tutor.phone}`, "Phone Number")}>
-                        <Copy className="w-4 h-4"/>
-                    </Button>
+            ) : error ? (
+                <div className="text-center text-sm text-destructive">
+                    <p>Failed to load contact details.</p>
                 </div>
-            </div>
+            ) : contactDetails ? (
+                <>
+                    <div className="space-y-1">
+                        <Label htmlFor="tutor-email" className="text-xs text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3"/> Email Address</Label>
+                        <div className="flex items-center gap-2">
+                            <Input id="tutor-email" value={contactDetails.email} readOnly className="h-9 bg-muted/50 text-sm"/>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleCopy(contactDetails.email, "Email")}>
+                                <Copy className="w-4 h-4"/>
+                            </Button>
+                        </div>
+                    </div>
+                     <div className="space-y-1">
+                        <Label htmlFor="tutor-phone" className="text-xs text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3"/> Phone Number</Label>
+                        <div className="flex items-center gap-2">
+                            <Input id="tutor-phone" value={`${contactDetails.countryCode} ${contactDetails.phone}`} readOnly className="h-9 bg-muted/50 text-sm"/>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleCopy(`${contactDetails.countryCode} ${contactDetails.phone}`, "Phone Number")}>
+                                <Copy className="w-4 h-4"/>
+                            </Button>
+                        </div>
+                    </div>
+                </>
+            ) : null}
         </div>
       </DialogContent>
     </Dialog>
