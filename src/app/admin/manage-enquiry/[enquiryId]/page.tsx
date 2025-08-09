@@ -249,7 +249,9 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   });
 
   if (!response.ok) { throw new Error("Failed to add note to the enquiry."); }
-  return response.json();
+  const data = await response.json();
+  const { enquiryResponse } = data;
+  return enquiryResponse;
 };
 
 const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enquiryId: string, token: string | null, status: string, remark?: string }) => {
@@ -615,10 +617,10 @@ const addNoteMutation = useMutation({
     mutationFn: (note: string) => addNoteToEnquiry({ enquiryId, token, note }),
     onSuccess: (updatedData) => {
         toast({ title: "Note Saved!", description: "The additional notes have been updated." });
-        const { enquiryResponse } = updatedData;
+        
         queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
             if (!oldData) return undefined;
-            const { enquirySummary, enquiryDetails } = enquiryResponse;
+            const { enquirySummary, enquiryDetails } = updatedData;
             const transformStringToArray = (str: string | null | undefined): string[] => {
                 if (typeof str === 'string' && str.trim() !== '') {
                     return str.split(',').map(s => s.trim());
@@ -1335,7 +1337,7 @@ const addNoteMutation = useMutation({
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter className="p-4 border-t">
+              <DialogFooter className="p-4">
                  <Button 
                   type="button" 
                   onClick={handleConfirmClosure} 
@@ -1428,3 +1430,5 @@ export default function ManageEnquiryPage() {
     )
 }
 
+
+    
