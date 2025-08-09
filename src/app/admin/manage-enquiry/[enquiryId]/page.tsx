@@ -408,16 +408,17 @@ function ManageEnquiryContent() {
   }, [sessionsPerWeek, hoursPerSession]);
 
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
+    const sanitizedValue = Math.max(0, value); // Ensure value is not negative
     let newSessionsPerWeek = sessionsPerWeek;
     let newHoursPerSession = hoursPerSession;
     const defaultRate = enquiry?.budget?.defaultRate || 500;
 
     if (type === 'sessions') {
-      newSessionsPerWeek = value;
+      newSessionsPerWeek = sanitizedValue;
       setSessionsPerWeek(newSessionsPerWeek);
     }
     if (type === 'hours') {
-      newHoursPerSession = value;
+      newHoursPerSession = sanitizedValue;
       setHoursPerSession(newHoursPerSession);
     }
     
@@ -1165,11 +1166,11 @@ function ManageEnquiryContent() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="sessions-week">Sessions/Week</Label>
-                        <Input id="sessions-week" type="number" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange('sessions', Number(e.target.value))} />
+                        <Input id="sessions-week" type="number" min="0" value={sessionsPerWeek} onChange={(e) => handleSessionDetailChange('sessions', Number(e.target.value))} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="hours-session">Hours/Session</Label>
-                        <Input id="hours-session" type="number" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} />
+                        <Input id="hours-session" type="number" min="0" value={hoursPerSession} onChange={(e) => handleSessionDetailChange('hours', Number(e.target.value))} />
                     </div>
                 </div>
                 
