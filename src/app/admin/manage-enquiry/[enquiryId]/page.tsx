@@ -594,14 +594,16 @@ function ManageEnquiryContent() {
   
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
-    onSuccess: (updatedDetails) => {
+    onSuccess: (updatedData) => {
         toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-        
+
+        const { enquirySummary, enquiryDetails } = updatedData.enquiryResponse;
+
         queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
-            if (!oldData) return;
+            if (!oldData) return undefined;
 
             let mappedGenderPreference: 'male' | 'female' | 'any' | undefined;
-            switch (updatedDetails.tutorGenderPreference) {
+            switch (enquiryDetails.tutorGenderPreference) {
                 case 'MALE': mappedGenderPreference = 'male'; break;
                 case 'FEMALE': mappedGenderPreference = 'female'; break;
                 case 'NO_PREFERENCE': mappedGenderPreference = 'any'; break;
@@ -609,21 +611,34 @@ function ManageEnquiryContent() {
             }
 
             return {
-                ...oldData,
-                studentName: updatedDetails.studentName,
-                additionalNotes: updatedDetails.additionalNotes,
-                scheduleDetails: updatedDetails.notes,
-                preferredDays: typeof updatedDetails.availabilityDays === 'string' ? updatedDetails.availabilityDays.split(',').map(d => d.trim()) : [],
-                preferredTimeSlots: typeof updatedDetails.availabilityTime === 'string' ? updatedDetails.availabilityTime.split(',').map(t => t.trim()) : [],
+                ...oldData, // Keep non-updated fields like budget, createdBy, etc. from old data
+                id: enquirySummary.enquiryId,
+                studentName: enquiryDetails.studentName,
+                subject: typeof enquirySummary.subjects === 'string' ? enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
+                gradeLevel: enquirySummary.grade,
+                board: enquirySummary.board,
                 location: {
                     ...oldData.location,
-                    name: updatedDetails.addressName || updatedDetails.address,
-                    address: updatedDetails.address,
-                    googleMapsUrl: updatedDetails.googleMapsLink,
-                    pincode: updatedDetails.pincode,
+                    name: enquiryDetails.addressName || enquiryDetails.address,
+                    address: enquiryDetails.address,
+                    googleMapsUrl: enquiryDetails.googleMapsLink,
+                    city: enquirySummary.city,
+                    state: enquirySummary.state,
+                    country: enquirySummary.country,
+                    area: enquirySummary.area,
+                    pincode: enquiryDetails.pincode,
                 },
+                teachingMode: [
+                    ...(enquirySummary.online ? ["Online"] : []),
+                    ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+                ],
+                scheduleDetails: enquiryDetails.notes, 
+                additionalNotes: enquiryDetails.additionalNotes || updatedData.remarks,
+                preferredDays: typeof enquiryDetails.availabilityDays === 'string' ? enquiryDetails.availabilityDays.split(',').map(d => d.trim()) : [],
+                preferredTimeSlots: typeof enquiryDetails.availabilityTime === 'string' ? enquiryDetails.availabilityTime.split(',').map(t => t.trim()) : [],
+                status: enquirySummary.status?.toLowerCase() || oldData.status,
                 tutorGenderPreference: mappedGenderPreference,
-                startDatePreference: updatedDetails.startDatePreference,
+                startDatePreference: enquiryDetails.startDatePreference as 'immediately' | 'within_month' | 'exploring' | undefined,
             };
         });
         setIsEditModalOpen(false);
@@ -1407,4 +1422,3 @@ export default function ManageEnquiryPage() {
     )
 }
 
-    
