@@ -112,6 +112,15 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
     }
   }, [isOpen, enquiry, form, isOnlineOnly, isOfflineOnly]);
 
+  useEffect(() => {
+    if (isPaidDemo) {
+      const defaultFee = enquiry.budget?.defaultRate || 0;
+      form.setValue("demoFee", defaultFee, { shouldValidate: true });
+    } else {
+      form.setValue("demoFee", 0);
+    }
+  }, [isPaidDemo, form, enquiry.budget?.defaultRate]);
+
 
   const onSubmit: SubmitHandler<ScheduleDemoFormValues> = async (data) => {
     setIsSubmitting(true);
