@@ -180,6 +180,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   
   return {
     id: enquirySummary.enquiryId,
+    parentId: data.parentId,
     parentName: "A Parent", 
     studentName: enquiryDetails.studentName,
     subject: typeof enquirySummary.subjects === 'string' ? enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],

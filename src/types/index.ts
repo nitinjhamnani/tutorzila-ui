@@ -39,6 +39,7 @@ export interface BudgetDetails {
 
 export interface TuitionRequirement {
   id:string;
+  parentId?: string;
   parentName?: string;
   parentEmail?: string;
   parentPhone?: string;
@@ -263,5 +264,3 @@ export interface AdminDashboardData {
     totalEnquiries: number;
     noOfDemos: number;
 }
-
-    
