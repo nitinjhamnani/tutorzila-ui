@@ -1186,7 +1186,6 @@ const closeEnquiryMutation = useMutation({
               <TableHead>Subject</TableHead>
               <TableHead>Date & Time</TableHead>
               <TableHead>Mode</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -1198,18 +1197,22 @@ const closeEnquiryMutation = useMutation({
                   <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-16" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
                 </TableRow>
               ))
             ) : enquiryDemosError ? (
-              <TableRow><TableCell colSpan={6} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
             ) : !enquiryDemos || enquiryDemos.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={5} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
             ) : (
               enquiryDemos.map(demo => (
                 <TableRow key={demo.demoId}>
-                  <TableCell className="text-xs font-medium">{demo.demoDetails.tutorName}</TableCell>
+                  <TableCell>
+                    <div className="font-medium text-foreground">{demo.demoDetails.tutorName}</div>
+                    <Badge variant="default" className="text-xs mt-1">
+                      {demo.demoStatus}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-xs">{demo.demoDetails.subjects}</TableCell>
                   <TableCell className="text-xs">{format(parseISO(demo.demoDetails.date), "MMM d, yyyy")} at {demo.demoDetails.startTime}</TableCell>
                   <TableCell>
@@ -1230,7 +1233,6 @@ const closeEnquiryMutation = useMutation({
                         </div>
                       </TooltipProvider>
                   </TableCell>
-                  <TableCell><Badge variant="outline" className="text-xs">{demo.demoStatus}</Badge></TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" className="h-7 text-xs">
                       Manage
