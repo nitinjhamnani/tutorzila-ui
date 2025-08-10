@@ -1219,42 +1219,48 @@ const closeEnquiryMutation = useMutation({
             ) : !enquiryDemos || enquiryDemos.length === 0 ? (
               <TableRow><TableCell colSpan={6} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
             ) : (
-              enquiryDemos.map(demo => (
-                <TableRow key={demo.demoId}>
-                  <TableCell>
-                    <div className="font-medium text-foreground">{demo.demoDetails.tutorName}</div>
-                     <Badge className={cn("text-xs mt-1", getStatusBadgeClasses(demo.demoStatus))}>
-                      {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs">{demo.demoDetails.subjects}</TableCell>
-                  <TableCell className="text-xs">{demo.demoDetails.day}, {format(parseISO(demo.demoDetails.date), "MMM d, yyyy")}</TableCell>
-                  <TableCell className="text-xs">{demo.demoDetails.startTime} ({demo.demoDetails.duration} mins)</TableCell>
-                  <TableCell>
-                      <TooltipProvider>
-                        <div className="flex items-center gap-2">
-                            {demo.demoDetails.online && (
-                            <Tooltip>
-                                <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger>
-                                <TooltipContent><p>Online</p></TooltipContent>
-                            </Tooltip>
-                            )}
-                            {demo.demoDetails.offline && (
-                            <Tooltip>
-                                <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger>
-                                <TooltipContent><p>Offline</p></TooltipContent>
-                            </Tooltip>
-                            )}
-                        </div>
-                      </TooltipProvider>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm" className="h-7 text-xs">
-                      Manage
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              enquiryDemos.map(demo => {
+                if (!demo || !demo.demoDetails) {
+                    return null; 
+                }
+                const { demoDetails } = demo;
+                return (
+                    <TableRow key={demo.demoId}>
+                    <TableCell>
+                        <div className="font-medium text-foreground">{demoDetails.tutorName}</div>
+                        <Badge className={cn("text-xs mt-1", getStatusBadgeClasses(demo.demoStatus))}>
+                        {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
+                        </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs">{demoDetails.subjects}</TableCell>
+                    <TableCell className="text-xs">{demoDetails.day}, {format(parseISO(demoDetails.date), "MMM d, yyyy")}</TableCell>
+                    <TableCell className="text-xs">{demoDetails.startTime} ({demoDetails.duration} mins)</TableCell>
+                    <TableCell>
+                        <TooltipProvider>
+                            <div className="flex items-center gap-2">
+                                {demoDetails.online && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger>
+                                    <TooltipContent><p>Online</p></TooltipContent>
+                                </Tooltip>
+                                )}
+                                {demoDetails.offline && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger>
+                                    <TooltipContent><p>Offline</p></TooltipContent>
+                                </Tooltip>
+                                )}
+                            </div>
+                        </TooltipProvider>
+                    </TableCell>
+                    <TableCell>
+                        <Button variant="outline" size="sm" className="h-7 text-xs">
+                        Manage
+                        </Button>
+                    </TableCell>
+                    </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>
@@ -1736,5 +1742,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
