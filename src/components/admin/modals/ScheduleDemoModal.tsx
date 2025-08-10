@@ -57,19 +57,15 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const commonSubjects = useMemo(() => {
-    if (!tutor?.subjectsList || !enquiry?.subject) return [];
-    const tutorSubjects = new Set(tutor.subjectsList.map(s => s.toLowerCase()));
-    return enquiry.subject.filter(s => tutorSubjects.has(s.toLowerCase()));
-  }, [tutor, enquiry]);
-
-  const subjectOptions: MultiSelectOption[] = commonSubjects.map(s => ({ value: s, label: s }));
-
+  const subjectOptions: MultiSelectOption[] = useMemo(() => {
+    if (!enquiry?.subject) return [];
+    return enquiry.subject.map(s => ({ value: s, label: s }));
+  }, [enquiry]);
 
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
-      subject: commonSubjects,
+      subject: enquiry?.subject || [],
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
@@ -78,17 +74,14 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
 
   useEffect(() => {
     if (isOpen) {
-      const newCommonSubjects = enquiry.subject.filter(s => 
-        new Set(tutor.subjectsList.map(ts => ts.toLowerCase())).has(s.toLowerCase())
-      );
       form.reset({
-        subject: newCommonSubjects,
+        subject: enquiry?.subject || [],
         date: new Date(),
         time: "04:00 PM",
         duration: 30,
       });
     }
-  }, [isOpen, enquiry, tutor, form]);
+  }, [isOpen, enquiry, form]);
 
 
   const onSubmit: SubmitHandler<ScheduleDemoFormValues> = async (data) => {
@@ -134,7 +127,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                       options={subjectOptions}
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
-                      placeholder="Select common subjects..."
+                      placeholder="Select subjects for demo..."
                       className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
