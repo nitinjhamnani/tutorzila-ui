@@ -1297,7 +1297,7 @@ const closeEnquiryMutation = useMutation({
                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
                           <Edit2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
                           <XCircle className="w-4 h-4" />
                         </Button>
                       </div>
@@ -1325,7 +1325,13 @@ const closeEnquiryMutation = useMutation({
                         {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
                         </CardTitle>
                          {enquiry.status && (
-                            <Badge variant="default" className="text-xs">
+                            <Badge variant="default" className={cn(
+                                "text-xs",
+                                enquiry.status === 'open' && "bg-blue-600",
+                                enquiry.status === 'accepted' && "bg-green-600",
+                                enquiry.status === 'closed' && "bg-red-600",
+                                enquiry.status === 'reopened' && "bg-yellow-500",
+                            )}>
                                 {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
                             </Badge>
                          )}
