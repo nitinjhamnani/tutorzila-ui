@@ -1176,6 +1176,61 @@ const closeEnquiryMutation = useMutation({
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
   const budgetInfo = enquiry?.budget;
 
+  const renderDemoTable = () => (
+    <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Tutor</TableHead>
+              <TableHead>Student</TableHead>
+              <TableHead>Subject</TableHead>
+              <TableHead>Date & Time</TableHead>
+              <TableHead>Mode</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoadingEnquiryDemos ? (
+              [...Array(2)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
+                </TableRow>
+              ))
+            ) : enquiryDemosError ? (
+              <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
+            ) : !enquiryDemos || enquiryDemos.length === 0 ? (
+              <TableRow><TableCell colSpan={7} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
+            ) : (
+              enquiryDemos.map(demo => (
+                <TableRow key={demo.demoId}>
+                  <TableCell className="text-xs font-medium">{demo.demoDetails.tutorName}</TableCell>
+                  <TableCell className="text-xs">{demo.demoDetails.studentName}</TableCell>
+                  <TableCell className="text-xs">{demo.demoDetails.subjects}</TableCell>
+                  <TableCell className="text-xs">{format(parseISO(demo.demoDetails.date), "MMM d, yyyy")} at {demo.demoDetails.startTime}</TableCell>
+                  <TableCell className="text-xs">{demo.demoDetails.online ? 'Online' : 'Offline'}</TableCell>
+                  <TableCell><Badge variant="outline" className="text-xs">{demo.demoStatus}</Badge></TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      Manage
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg border-0">
@@ -1289,21 +1344,9 @@ const closeEnquiryMutation = useMutation({
       
       <div className="mt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <MessageSquareQuote className="w-5 h-5 text-primary"/> Scheduled Demos ({enquiryDemos?.length ?? 0})
+            <MessageSquareQuote className="w-5 h-5 text-primary"/> Demos ({enquiryDemos?.length ?? 0})
         </h3>
-        {isLoadingEnquiryDemos ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40 w-full rounded-xl" />)}
-            </div>
-        ) : enquiryDemosError ? (
-            <Card className="text-center py-10 text-destructive bg-destructive/5"><p>Failed to load demos.</p></Card>
-        ) : !enquiryDemos || enquiryDemos.length === 0 ? (
-            <Card className="text-center py-10"><p className="text-muted-foreground">No demos scheduled for this enquiry yet.</p></Card>
-        ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {enquiryDemos.map(demo => <AdminDemoCard key={demo.demoId} demo={demo} />)}
-            </div>
-        )}
+        {renderDemoTable()}
       </div>
 
       <div className="mt-6">

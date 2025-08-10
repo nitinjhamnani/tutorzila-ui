@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { EnquiryDemo } from "@/types";
 import { cn } from "@/lib/utils";
 import { CalendarDays, Clock, User, Video, XCircle, CheckCircle, MessageSquareQuote, RadioTower, Users as UsersIcon, Settings, DollarSign, Info } from "lucide-react";
@@ -15,7 +15,7 @@ interface AdminDemoCardProps {
 }
 
 export function AdminDemoCard({ demo }: AdminDemoCardProps) {
-  const demoDate = new Date(demo.demoDetails.date);
+  const demoDate = parseISO(demo.demoDetails.date);
 
   const getStatusBadgeClasses = () => {
     switch (demo.demoStatus) {
