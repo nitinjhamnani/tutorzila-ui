@@ -182,6 +182,9 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   }
 
   const data = await response.json();
+  if (!data.enquiryResponse) {
+    throw new Error("Invalid response structure from the server.");
+  }
   const { enquirySummary, enquiryDetails } = data.enquiryResponse;
   
   return {
@@ -576,7 +579,7 @@ function ManageEnquiryContent() {
   }, [enquiry]);
 
   const [filters, setFilters] = useState(getInitialFilters);
-  const [appliedFilters, setAppliedFilters] useState(getInitialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
 
   useEffect(() => {
       const initial = getInitialFilters();
@@ -1742,3 +1745,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
