@@ -348,16 +348,19 @@ const updateEnquiryBudget = async ({ enquiryId, token, budget }: { enquiryId: st
 };
 
 
-const fetchParentContact = async (enquiryId: string, token: string | null): Promise<ParentContact> => {
+const fetchParentContact = async (parentId: string, token: string | null): Promise<ParentContact> => {
     if (!token) throw new Error("Authentication token not found.");
-    if (!enquiryId) throw new Error("Enquiry ID is required.");
+    if (!parentId) throw new Error("Parent ID is required.");
 
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/contact/${enquiryId}`, {
+    const response = await fetch(`${apiBaseUrl}/api/admin/user/contact/${parentId}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
     });
 
-    if (!response.ok) throw new Error("Failed to fetch parent contact details.");
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Failed to fetch parent contact details." }));
+        throw new Error(errorData.message);
+    }
     
     return response.json();
 };
@@ -467,9 +470,9 @@ function ManageEnquiryContent() {
   });
 
   const parentContactQuery = useQuery({
-    queryKey: ['parentContact', enquiryId],
-    queryFn: () => fetchParentContact(enquiryId, token),
-    enabled: isParentInfoModalOpen, // Only fetch when the modal is open
+    queryKey: ['parentContact', enquiry?.parentId],
+    queryFn: () => fetchParentContact(enquiry!.parentId!, token),
+    enabled: isParentInfoModalOpen && !!enquiry?.parentId && !!token,
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000,
   });
@@ -839,6 +842,7 @@ const closeEnquiryMutation = useMutation({
         const transformedData: TuitionRequirement = {
           ...oldData,
           id: enquiryResponse.enquirySummary.enquiryId,
+          parentId: oldData.parentId,
           parentName: "A Parent", 
           studentName: enquiryResponse.enquiryDetails.studentName,
           subject: typeof enquiryResponse.enquirySummary.subjects === 'string' ? enquiryResponse.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
@@ -1420,7 +1424,7 @@ const closeEnquiryMutation = useMutation({
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
                 ) : parentContactQuery.error ? (
-                    <div className="text-center text-destructive">
+                    <div className="text-center text-destructive px-6 pb-6">
                         <p>Failed to load contact details.</p>
                         <p className="text-xs">{(parentContactQuery.error as Error).message}</p>
                     </div>
