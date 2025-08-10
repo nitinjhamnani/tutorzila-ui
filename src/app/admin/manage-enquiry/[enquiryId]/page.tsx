@@ -1183,7 +1183,6 @@ const closeEnquiryMutation = useMutation({
           <TableHeader>
             <TableRow>
               <TableHead>Tutor</TableHead>
-              <TableHead>Student</TableHead>
               <TableHead>Subject</TableHead>
               <TableHead>Date & Time</TableHead>
               <TableHead>Mode</TableHead>
@@ -1196,7 +1195,6 @@ const closeEnquiryMutation = useMutation({
               [...Array(2)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-16" /></TableCell>
@@ -1205,17 +1203,33 @@ const closeEnquiryMutation = useMutation({
                 </TableRow>
               ))
             ) : enquiryDemosError ? (
-              <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
             ) : !enquiryDemos || enquiryDemos.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
             ) : (
               enquiryDemos.map(demo => (
                 <TableRow key={demo.demoId}>
                   <TableCell className="text-xs font-medium">{demo.demoDetails.tutorName}</TableCell>
-                  <TableCell className="text-xs">{demo.demoDetails.studentName}</TableCell>
                   <TableCell className="text-xs">{demo.demoDetails.subjects}</TableCell>
                   <TableCell className="text-xs">{format(parseISO(demo.demoDetails.date), "MMM d, yyyy")} at {demo.demoDetails.startTime}</TableCell>
-                  <TableCell className="text-xs">{demo.demoDetails.online ? 'Online' : 'Offline'}</TableCell>
+                  <TableCell>
+                      <TooltipProvider>
+                        <div className="flex items-center gap-2">
+                            {demo.demoDetails.online && (
+                            <Tooltip>
+                                <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger>
+                                <TooltipContent><p>Online</p></TooltipContent>
+                            </Tooltip>
+                            )}
+                            {demo.demoDetails.offline && (
+                            <Tooltip>
+                                <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger>
+                                <TooltipContent><p>Offline</p></TooltipContent>
+                            </Tooltip>
+                            )}
+                        </div>
+                      </TooltipProvider>
+                  </TableCell>
                   <TableCell><Badge variant="outline" className="text-xs">{demo.demoStatus}</Badge></TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" className="h-7 text-xs">
