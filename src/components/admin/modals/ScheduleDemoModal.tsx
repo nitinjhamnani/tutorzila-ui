@@ -12,18 +12,29 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Clock, Loader2, Send, BookOpen } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Loader2, Send, BookOpen, Link as LinkIcon, MapPin, RadioTower } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { ApiTutor, TuitionRequirement } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const scheduleDemoSchema = z.object({
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
   date: z.date({ required_error: "A date for the demo is required." }),
   time: z.string().min(1, { message: "Please select a time." }),
   duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
+  demoMode: z.enum(["Online", "Offline (In-person)"]),
+  demoLink: z.string().optional(),
+}).refine(data => {
+  if (data.demoMode === 'Online' && (!data.demoLink || data.demoLink.trim() === '')) {
+    return false;
+  }
+  return true;
+}, {
+  message: "A meeting link is required for an online demo.",
+  path: ["demoLink"],
 });
 
 type ScheduleDemoFormValues = z.infer<typeof scheduleDemoSchema>;
@@ -52,7 +63,6 @@ const durationOptions = [
   { value: 120, label: "120 minutes" },
 ];
 
-
 export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: ScheduleDemoModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,23 +75,33 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
-      subject: enquiry?.subject || [],
+      subject: [],
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
+      demoMode: enquiry.teachingMode?.[0] as "Online" | "Offline (In-person)" | undefined,
+      demoLink: "",
     },
   });
 
+  const selectedDemoMode = form.watch("demoMode");
+  const isHybrid = enquiry.teachingMode?.length === 2;
+  const isOnlineOnly = enquiry.teachingMode?.length === 1 && enquiry.teachingMode[0] === "Online";
+  const isOfflineOnly = enquiry.teachingMode?.length === 1 && enquiry.teachingMode[0] === "Offline (In-person)";
+
   useEffect(() => {
     if (isOpen) {
+      const defaultMode = isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined;
       form.reset({
         subject: enquiry?.subject || [],
         date: new Date(),
         time: "04:00 PM",
         duration: 30,
+        demoMode: defaultMode,
+        demoLink: "",
       });
     }
-  }, [isOpen, enquiry, form]);
+  }, [isOpen, enquiry, form, isOnlineOnly, isOfflineOnly]);
 
 
   const onSubmit: SubmitHandler<ScheduleDemoFormValues> = async (data) => {
@@ -93,10 +113,12 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
       demoDate: format(data.date, 'yyyy-MM-dd'),
       demoTime: data.time,
       durationInMinutes: data.duration,
+      demoMode: data.demoMode,
+      demoLink: data.demoMode === 'Online' ? data.demoLink : undefined,
+      demoLocation: data.demoMode === 'Offline (In-person)' ? enquiry.location?.address : undefined,
     };
     console.log("Scheduling demo with JSON payload:", JSON.stringify(samplePayload, null, 2));
     
-    // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     toast({
       title: "Demo Scheduled!",
@@ -215,6 +237,61 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                   )}
                 />
             </div>
+
+            {isHybrid && (
+                <FormField
+                control={form.control}
+                name="demoMode"
+                render={({ field }) => (
+                    <FormItem className="space-y-2">
+                        <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Demo Mode</FormLabel>
+                        <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="grid grid-cols-2 gap-4"
+                        >
+                            <FormItem>
+                                <FormControl>
+                                <RadioGroupItem value="Online" id="demo-mode-online" className="sr-only"/>
+                                </FormControl>
+                                <FormLabel htmlFor="demo-mode-online" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Online' && 'border-primary')}>Online</FormLabel>
+                            </FormItem>
+                            <FormItem>
+                                <FormControl>
+                                <RadioGroupItem value="Offline (In-person)" id="demo-mode-offline" className="sr-only"/>
+                                </FormControl>
+                                <FormLabel htmlFor="demo-mode-offline" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Offline (In-person)' && 'border-primary')}>Offline</FormLabel>
+                            </FormItem>
+                        </RadioGroup>
+                         <FormMessage />
+                    </FormItem>
+                )}
+                />
+            )}
+
+            {selectedDemoMode === 'Online' && (
+                 <FormField
+                  control={form.control}
+                  name="demoLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><LinkIcon className="mr-2 h-4 w-4 text-primary/80"/>Demo Link</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://zoom.us/j/12345..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            )}
+
+             {selectedDemoMode === 'Offline (In-person)' && enquiry.location?.address && (
+                <div className="space-y-1">
+                  <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Demo Location</FormLabel>
+                  <p className="text-sm p-3 bg-muted rounded-md">{enquiry.location.address}</p>
+                </div>
+            )}
+            
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
