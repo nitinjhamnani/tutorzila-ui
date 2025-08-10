@@ -1184,7 +1184,7 @@ const closeEnquiryMutation = useMutation({
             <TableRow>
               <TableHead>Tutor</TableHead>
               <TableHead>Subject</TableHead>
-              <TableHead>Date & Time</TableHead>
+              <TableHead>Date &amp; Time</TableHead>
               <TableHead>Mode</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -1210,7 +1210,7 @@ const closeEnquiryMutation = useMutation({
                   <TableCell>
                     <div className="font-medium text-foreground">{demo.demoDetails.tutorName}</div>
                     <Badge variant="default" className="text-xs mt-1">
-                      {demo.demoStatus}
+                      {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs">{demo.demoDetails.subjects}</TableCell>
@@ -1438,7 +1438,7 @@ const closeEnquiryMutation = useMutation({
                   <section className="space-y-3">
                       <h3 className="text-base font-semibold text-foreground flex items-center">
                           <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                          Schedule & Tutor Preferences
+                          Schedule &amp; Tutor Preferences
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
                           {enquiry.preferredDays && enquiry.preferredDays.length > 0 && (
@@ -1720,3 +1720,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
