@@ -38,9 +38,9 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const subjectInitials = getInitials(requirement.subject);
-  const locationString = typeof requirement.location === 'object' && requirement.location !== null
-    ? [requirement.location.area, requirement.location.city, requirement.location.country].filter(Boolean).join(', ')
-    : requirement.location;
+  
+  const locationObject = typeof requirement.location === 'object' && requirement.location;
+  const locationString = locationObject ? [locationObject.area, locationObject.city].filter(Boolean).join(', ') : requirement.location;
 
   const manageEnquiryUrl = `/admin/manage-enquiry/${requirement.id}`;
 
@@ -57,7 +57,9 @@ export function AdminEnquiryCard({ requirement }: AdminEnquiryCardProps) {
                 </Avatar>
                 <div className="flex-grow min-w-0">
                     <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words pr-16">
-                    {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                    <Link href={manageEnquiryUrl} className="hover:underline">
+                      {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                    </Link>
                     </CardTitle>
                     <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
                     <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
