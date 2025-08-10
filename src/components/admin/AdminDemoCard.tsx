@@ -81,4 +81,3 @@ export function AdminDemoCard({ demo }: AdminDemoCardProps) {
       </Card>
   );
 }
-
