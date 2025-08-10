@@ -173,7 +173,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   useEffect(() => {
     if (isPaidDemo) {
       const defaultFee = enquiry.budget?.defaultRate || 0;
-      form.setValue("demoFee", defaultFee, { shouldValidate: true });
+      form.setValue("demoFee", defaultFee > 0 ? defaultFee : 0, { shouldValidate: true });
     } else {
       form.setValue("demoFee", 0);
     }
@@ -192,6 +192,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
       subjects: data.subject.join(', '),
       grade: enquiry.gradeLevel,
       board: enquiry.board || "N/A",
+      day: format(data.date, 'EEEE'), // e.g., "Monday"
       date: format(data.date, 'yyyy-MM-dd'),
       startTime: data.time,
       duration: String(data.duration),
