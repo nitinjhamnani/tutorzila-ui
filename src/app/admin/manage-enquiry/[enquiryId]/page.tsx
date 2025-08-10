@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -36,6 +37,16 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { EditEnquiryModal, type EditEnquiryFormValues } from "@/components/common/modals/EditEnquiryModal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -80,6 +91,7 @@ import {
   VenetianMask,
   Calendar as CalendarIcon,
   MessageSquareQuote,
+  Edit2
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -455,6 +467,8 @@ function ManageEnquiryContent() {
   const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
   const [reopenReason, setReopenReason] = useState<string | null>(null);
   const [isScheduleDemoModalOpen, setIsScheduleDemoModalOpen] = useState(false);
+  const [demoToReschedule, setDemoToReschedule] = useState<EnquiryDemo | null>(null);
+  const [demoToCancel, setDemoToCancel] = useState<EnquiryDemo | null>(null);
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
@@ -988,6 +1002,29 @@ const closeEnquiryMutation = useMutation({
     setSelectedTutor(tutor);
     setIsScheduleDemoModalOpen(true);
   }
+  
+  const handleRescheduleDemo = (demo: EnquiryDemo) => {
+    setDemoToReschedule(demo);
+    // You might need to find the tutor associated with this demo if the modal needs it
+    const tutorForDemo = [...(enquiryTutorsData?.ASSIGNED || []), ...(allTutorsData || [])].find(t => t.displayName === demo.demoDetails.tutorName);
+    if(tutorForDemo) {
+        setSelectedTutor(tutorForDemo);
+    }
+    setIsScheduleDemoModalOpen(true); // Re-use the same modal for rescheduling
+  };
+
+  const handleCancelDemo = (demo: EnquiryDemo) => {
+    setDemoToCancel(demo);
+  };
+
+  const confirmCancelDemo = () => {
+    if (!demoToCancel) return;
+    // TODO: Implement API call to cancel demo
+    console.log("Cancelling demo:", demoToCancel.demoId);
+    toast({ title: "Demo Cancelled (Mock)", description: `Demo with ${demoToCancel.demoDetails.tutorName} has been cancelled.`});
+    queryClient.invalidateQueries({ queryKey: ['enquiryDemos', enquiryId] });
+    setDemoToCancel(null);
+  };
 
   const genderDisplayMap: Record<string, string> = {
     "MALE": "Male",
@@ -1199,8 +1236,8 @@ const closeEnquiryMutation = useMutation({
             <TableRow>
               <TableHead>Tutor</TableHead>
               <TableHead>Subject</TableHead>
-              <TableHead>Day &amp; Date</TableHead>
-              <TableHead>Time &amp; Duration</TableHead>
+              <TableHead>Day & Date</TableHead>
+              <TableHead>Time & Duration</TableHead>
               <TableHead>Mode</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -1232,7 +1269,7 @@ const closeEnquiryMutation = useMutation({
                     <TableCell>
                         <div className="font-medium text-foreground">{demoDetails.tutorName}</div>
                         <Badge className={cn("text-xs mt-1", getStatusBadgeClasses(demo.demoStatus))}>
-                        {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
+                          {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
                         </Badge>
                     </TableCell>
                     <TableCell className="text-xs">{demoDetails.subjects}</TableCell>
@@ -1257,9 +1294,14 @@ const closeEnquiryMutation = useMutation({
                         </TooltipProvider>
                     </TableCell>
                     <TableCell>
-                        <Button variant="outline" size="sm" className="h-7 text-xs">
-                        Manage
+                      <div className="flex items-center gap-1.5">
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleRescheduleDemo(demo)}>
+                          <Edit2 className="w-3 h-3 mr-1" /> Reschedule
                         </Button>
+                        <Button variant="destructive-outline" size="sm" className="h-7 text-xs" onClick={() => handleCancelDemo(demo)}>
+                          <XCircle className="w-3 h-3 mr-1" /> Cancel
+                        </Button>
+                      </div>
                     </TableCell>
                     </TableRow>
                 )
@@ -1631,6 +1673,21 @@ const closeEnquiryMutation = useMutation({
               </DialogFooter>
             </DialogContent>
         </Dialog>
+        
+        <AlertDialog open={!!demoToCancel} onOpenChange={(open) => !open && setDemoToCancel(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will cancel the demo session scheduled with {demoToCancel?.demoDetails.tutorName}. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Back</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmCancelDemo}>Confirm Cancellation</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <Dialog open={isReopenModalOpen} onOpenChange={setIsReopenModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
