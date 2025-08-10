@@ -576,7 +576,7 @@ function ManageEnquiryContent() {
   }, [enquiry]);
 
   const [filters, setFilters] = useState(getInitialFilters);
-  const [appliedFilters, setAppliedFilters] = useState(getInitialFilters);
+  const [appliedFilters, setAppliedFilters] useState(getInitialFilters);
 
   useEffect(() => {
       const initial = getInitialFilters();
@@ -1177,7 +1177,18 @@ const closeEnquiryMutation = useMutation({
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
   const budgetInfo = enquiry?.budget;
 
-  const renderDemoTable = () => (
+  const renderDemoTable = () => {
+    const getStatusBadgeClasses = (status: string) => {
+        const lowerStatus = status.toLowerCase();
+        switch (lowerStatus) {
+            case "scheduled": return "bg-blue-600 text-white";
+            case "completed": return "bg-green-600 text-white";
+            case "cancelled": return "bg-red-600 text-white";
+            case "requested": return "bg-yellow-500 text-white";
+            default: return "bg-gray-500 text-white";
+        }
+    };
+    return (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
       <CardContent className="p-0">
         <Table>
@@ -1212,7 +1223,7 @@ const closeEnquiryMutation = useMutation({
                 <TableRow key={demo.demoId}>
                   <TableCell>
                     <div className="font-medium text-foreground">{demo.demoDetails.tutorName}</div>
-                    <Badge variant="default" className="text-xs mt-1 bg-blue-100 text-blue-700 hover:bg-blue-100">
+                     <Badge className={cn("text-xs mt-1", getStatusBadgeClasses(demo.demoStatus))}>
                       {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
                     </Badge>
                   </TableCell>
@@ -1249,7 +1260,8 @@ const closeEnquiryMutation = useMutation({
         </Table>
       </CardContent>
     </Card>
-  );
+    )
+  };
 
   return (
     <div className="space-y-6">
@@ -1724,3 +1736,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
