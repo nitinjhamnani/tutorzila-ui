@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
-import type { ApiTutor, TuitionRequirement, LocationDetails, BudgetDetails } from "@/types";
+import type { ApiTutor, TuitionRequirement, LocationDetails, BudgetDetails, EnquiryDemo } from "@/types";
 import {
     Table,
     TableBody,
@@ -79,12 +79,14 @@ import {
   Coins,
   VenetianMask,
   Calendar as CalendarIcon,
+  MessageSquareQuote,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { ScheduleDemoModal } from "@/components/admin/modals/ScheduleDemoModal";
+import { AdminDemoCard } from "@/components/admin/AdminDemoCard";
 
 interface ParentContact {
     name: string;
@@ -130,13 +132,7 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
   if (!token) throw new Error("Authentication token not found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   
-  // Create a new URLSearchParams object to avoid modifying the original
   const fetchParams = new URLSearchParams(params.toString());
-
-  // If no specific filters are applied, don't pass any to the API
-  if (fetchParams.toString() === "") {
-    // This logic ensures that if we call with no filters, we don't send empty params
-  }
 
   const response = await fetch(`${apiBaseUrl}/api/search/tutors?${fetchParams.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
@@ -158,6 +154,16 @@ const fetchEnquiryTutors = async (enquiryId: string, token: string | null): Prom
     if (!response.ok) throw new Error("Failed to fetch enquiry tutors.");
     return response.json();
 }
+
+const fetchEnquiryDemos = async (enquiryId: string, token: string | null): Promise<EnquiryDemo[]> => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/demo/enquiry`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' }
+    });
+    if (!response.ok) throw new Error("Failed to fetch enquiry demos.");
+    return response.json();
+};
 
 const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null): Promise<TuitionRequirement> => {
   if (!token) throw new Error("Authentication token is required.");
@@ -469,6 +475,13 @@ function ManageEnquiryContent() {
     refetchOnWindowFocus: false,
   });
 
+  const { data: enquiryDemos, isLoading: isLoadingEnquiryDemos, error: enquiryDemosError } = useQuery({
+    queryKey: ['enquiryDemos', enquiryId],
+    queryFn: () => fetchEnquiryDemos(enquiryId, token),
+    enabled: !!enquiryId && !!token,
+    refetchOnWindowFocus: false,
+  });
+
   const parentContactQuery = useQuery({
     queryKey: ['parentContact', enquiry?.parentId],
     queryFn: () => fetchParentContact(enquiry!.parentId!, token),
@@ -505,7 +518,7 @@ function ManageEnquiryContent() {
   }, [sessionsPerWeek, hoursPerSession]);
 
   const handleSessionDetailChange = (type: 'sessions' | 'hours', value: number) => {
-    const sanitizedValue = Math.max(0, value); // Ensure value is not negative
+    const sanitizedValue = Math.max(0, value); 
     let newSessionsPerWeek = sessionsPerWeek;
     let newHoursPerSession = hoursPerSession;
     const defaultRate = enquiry?.budget?.defaultRate || 500;
@@ -519,7 +532,6 @@ function ManageEnquiryContent() {
       setHoursPerSession(newHoursPerSession);
     }
     
-    // Always recalculate total fees based on the default per-hour rate
     const newTotalHours = Math.round(newSessionsPerWeek * (30 / 7)) * newHoursPerSession;
     const newTotalFees = Math.round(newTotalHours * defaultRate);
     setTotalFees(newTotalFees);
@@ -540,7 +552,7 @@ function ManageEnquiryContent() {
     if (totalHours > 0) {
       setPrecisePerHourRate(newTotal / totalHours);
     } else {
-        setPrecisePerHourRate(0); // or some default if hours are zero
+        setPrecisePerHourRate(0);
     }
   };
   
@@ -998,15 +1010,14 @@ const closeEnquiryMutation = useMutation({
         <CardContent className="p-0">
             <TooltipProvider>
                 <Table>
-                    <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Subjects</TableHead><TableHead>Grade</TableHead><TableHead>Board</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
+                    <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Grade</TableHead><TableHead>Board</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
                     <TableBody>
-                        {isLoading ? ([...Array(3)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
+                        {isLoading ? ([...Array(3)].map((_, i) => (<TableRow key={i}><TableCell><Skeleton className="h-10 w-48" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-32" /></TableCell><TableCell><Skeleton className="h-6 w-24" /></TableCell><TableCell><Skeleton className="h-6 w-20" /></TableCell><TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell></TableRow>))) 
                         : error ? (<TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load tutors.</TableCell></TableRow>) 
                         : !tutors || tutors.length === 0 ? (<TableRow><TableCell colSpan={7} className="text-center py-8">No tutors found.</TableCell></TableRow>) 
                         : (tutors.map(tutor => (
                             <TableRow key={tutor.id}>
                                 <TableCell><div><div className="font-medium text-foreground">{tutor.displayName}</div><div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div></div></TableCell>
-                                <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
                                 <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
                                 <TableCell className="text-xs">{tutor.boardsList.join(', ')}</TableCell>
                                 <TableCell><div className="flex items-center gap-2">{tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}{tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}</div></TableCell>
@@ -1023,28 +1034,6 @@ const closeEnquiryMutation = useMutation({
             </TooltipProvider>
         </CardContent>
     </Card>
-  );
-
-  const renderPlaceholderTable = (title: string, count: number) => (
-    <div className="mt-6">
-      <h3 className="text-lg font-semibold text-foreground mb-4">
-        {title} ({count})
-      </h3>
-      <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader><TableRow><TableHead>Tutor</TableHead><TableHead>Subjects</TableHead><TableHead>Grade</TableHead><TableHead>Board</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  No {title.toLowerCase()} found for this enquiry yet.
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
   );
 
   const renderRecommendedTutorContent = () => {
@@ -1185,8 +1174,6 @@ const closeEnquiryMutation = useMutation({
   };
 
   const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
-  const hasScheduleInfo = enquiry ? ((Array.isArray(enquiry.preferredDays) && enquiry.preferredDays.length > 0) || (Array.isArray(enquiry.preferredTimeSlots) && enquiry.preferredTimeSlots.length > 0)) : false;
-  const hasExtraPrefs = !!enquiry.tutorGenderPreference || !!enquiry.startDatePreference;
   const budgetInfo = enquiry?.budget;
 
   return (
@@ -1301,6 +1288,25 @@ const closeEnquiryMutation = useMutation({
       </Card>
       
       <div className="mt-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <MessageSquareQuote className="w-5 h-5 text-primary"/> Scheduled Demos ({enquiryDemos?.length ?? 0})
+        </h3>
+        {isLoadingEnquiryDemos ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40 w-full rounded-xl" />)}
+            </div>
+        ) : enquiryDemosError ? (
+            <Card className="text-center py-10 text-destructive bg-destructive/5"><p>Failed to load demos.</p></Card>
+        ) : !enquiryDemos || enquiryDemos.length === 0 ? (
+            <Card className="text-center py-10"><p className="text-muted-foreground">No demos scheduled for this enquiry yet.</p></Card>
+        ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {enquiryDemos.map(demo => <AdminDemoCard key={demo.demoId} demo={demo} />)}
+            </div>
+        )}
+      </div>
+
+      <div className="mt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Assigned Tutors ({enquiryTutorsData?.ASSIGNED?.length ?? 0})</h3>
         {renderTutorTable(enquiryTutorsData?.ASSIGNED, isLoadingEnquiryTutors, enquiryTutorsError, "assigned")}
       </div>
@@ -1369,7 +1375,7 @@ const closeEnquiryMutation = useMutation({
               </DialogHeader>
               <div className="max-h-[60vh] overflow-y-auto pr-2">
               <div className="p-6 pt-0 space-y-5">
-                {(hasScheduleInfo || hasExtraPrefs) && (
+                {(enquiry.preferredDays && enquiry.preferredDays.length > 0 || enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0 || enquiry.tutorGenderPreference || enquiry.startDatePreference) && (
                   <section className="space-y-3">
                       <h3 className="text-base font-semibold text-foreground flex items-center">
                           <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
@@ -1394,7 +1400,7 @@ const closeEnquiryMutation = useMutation({
 
                 {enquiry.additionalNotes && (
                    <>
-                    {(hasScheduleInfo || hasExtraPrefs) && <Separator />}
+                    {(enquiry.preferredDays && enquiry.preferredDays.length > 0 || enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0 || enquiry.tutorGenderPreference || enquiry.startDatePreference) && <Separator />}
                     <section className="space-y-3">
                         <h3 className="text-base font-semibold text-foreground flex items-center">
                             <Info className="w-4 h-4 mr-2 text-primary/80" />
@@ -1404,7 +1410,7 @@ const closeEnquiryMutation = useMutation({
                     </section>
                    </>
                 )}
-                {!(hasScheduleInfo || hasExtraPrefs) && !enquiry.additionalNotes && (
+                {!(enquiry.preferredDays && enquiry.preferredDays.length > 0 || enquiry.preferredTimeSlots && enquiry.preferredTimeSlots.length > 0 || enquiry.tutorGenderPreference || enquiry.startDatePreference) && !enquiry.additionalNotes && (
                     <p className="text-center text-sm text-muted-foreground py-8">No specific preferences or notes were provided for this enquiry.</p>
                 )}
               </div>

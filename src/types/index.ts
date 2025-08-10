@@ -67,23 +67,6 @@ export interface TuitionRequirement {
   budget?: BudgetDetails;
 }
 
-export interface TutorProfile extends User {
-  subjects: string[];
-  grade?: string;
-  experience: string;
-  hourlyRate?: string;
-  isRateNegotiable?: boolean;
-  bio?: string;
-  qualifications?: string[];
-  teachingMode?: string[];
-  gradeLevelsTaught?: string[];
-  boardsTaught?: string[];
-  preferredDays?: string[];
-  preferredTimeSlots?: string[];
-  location?: string;
-  rating?: number;
-}
-
 export interface ApiTutor {
   id: string;
   displayName: string;
@@ -157,6 +140,27 @@ export interface DemoSession {
   rescheduleStatus?: 'idle' | 'pending' | 'confirmed';
   rating?: number; 
   parentComment?: string; 
+}
+
+export interface EnquiryDemo {
+  demoId: string;
+  demoStatus: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "REQUESTED";
+  demoDetails: {
+    studentName: string;
+    tutorName: string;
+    subjects: string;
+    grade: string;
+    board: string;
+    day: string;
+    date: string;
+    startTime: string;
+    duration: string;
+    demoLink: string;
+    demoFees: number;
+    online: boolean;
+    offline: boolean;
+    paid: boolean;
+  }
 }
 
 export interface MyClass {
