@@ -21,6 +21,9 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 
 const scheduleDemoSchema = z.object({
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
@@ -68,9 +71,65 @@ const durationOptions = [
   { value: 120, label: "120 minutes" },
 ];
 
+const scheduleDemoApi = async ({
+  enquiryId,
+  tutorId,
+  parentId,
+  body,
+  token,
+}: {
+  enquiryId: string;
+  tutorId: string;
+  parentId: string;
+  body: any;
+  token: string | null;
+}) => {
+  if (!token) throw new Error("Authentication failed.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/demo/schedule`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'TZ-XTU-ID': tutorId,
+      'TZ-XPU-ID': parentId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to schedule demo. Please try again.");
+  }
+
+  return response.ok;
+};
+
 export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: ScheduleDemoModalProps) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
+
+  const scheduleMutation = useMutation({
+    mutationFn: scheduleDemoApi,
+    onSuccess: () => {
+      toast({
+        title: "Demo Scheduled!",
+        description: `A demo has been scheduled with ${tutor.displayName} for ${enquiry.studentName}.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['enquiryTutors', enquiry.id] });
+      queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiry.id] });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Scheduling Failed",
+        description: error.message || "An unexpected error occurred.",
+      });
+    },
+  });
 
   const subjectOptions: MultiSelectOption[] = useMemo(() => {
     if (!enquiry?.subject) return [];
@@ -83,11 +142,10 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
-      subject: enquiry?.subject || [],
+      subject: [],
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
-      demoMode: isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined,
       demoLink: "",
       isPaidDemo: false,
       demoFee: 0,
@@ -123,29 +181,34 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
 
 
   const onSubmit: SubmitHandler<ScheduleDemoFormValues> = async (data) => {
-    setIsSubmitting(true);
-    const samplePayload = {
+    if (!enquiry.parentId) {
+      toast({ variant: "destructive", title: "Error", description: "Parent ID is missing from the enquiry."});
+      return;
+    }
+
+    const requestBody = {
+      studentName: enquiry.studentName || "Student",
+      tutorName: tutor.displayName,
+      subjects: data.subject.join(', '),
+      grade: enquiry.gradeLevel,
+      board: enquiry.board || "N/A",
+      date: format(data.date, 'yyyy-MM-dd'),
+      startTime: data.time,
+      duration: String(data.duration),
+      demoLink: data.demoLink || "",
+      demoFees: data.demoFee || 0,
+      online: data.demoMode === 'Online',
+      offline: data.demoMode === 'Offline (In-person)',
+      paid: data.isPaidDemo,
+    };
+    
+    scheduleMutation.mutate({
       enquiryId: enquiry.id,
       tutorId: tutor.id,
-      subjects: data.subject,
-      demoDate: format(data.date, 'yyyy-MM-dd'),
-      demoTime: data.time,
-      durationInMinutes: data.duration,
-      demoMode: data.demoMode,
-      demoLink: data.demoMode === 'Online' ? data.demoLink : undefined,
-      demoLocation: data.demoMode === 'Offline (In-person)' ? enquiry.location?.address : undefined,
-      isPaidDemo: data.isPaidDemo,
-      demoFee: data.isPaidDemo ? data.demoFee : undefined,
-    };
-    console.log("Scheduling demo with JSON payload:", JSON.stringify(samplePayload, null, 2));
-    
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    toast({
-      title: "Demo Scheduled!",
-      description: `A demo has been scheduled with ${tutor.displayName} for ${enquiry.studentName}.`,
+      parentId: enquiry.parentId,
+      body: requestBody,
+      token,
     });
-    setIsSubmitting(false);
-    onOpenChange(false);
   };
 
   return (
@@ -346,9 +409,9 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
             )}
 
             <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                {isSubmitting ? "Scheduling..." : "Schedule Demo"}
+              <Button type="submit" disabled={scheduleMutation.isPending}>
+                {scheduleMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                {scheduleMutation.isPending ? "Scheduling..." : "Schedule Demo"}
               </Button>
             </DialogFooter>
           </form>
