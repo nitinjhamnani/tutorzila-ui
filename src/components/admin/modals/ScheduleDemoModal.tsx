@@ -28,7 +28,7 @@ const scheduleDemoSchema = z.object({
   time: z.string().min(1, { message: "Please select a time." }),
   duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
   demoMode: z.enum(["Online", "Offline (In-person)"], { required_error: "Please select a demo mode."}),
-  demoLink: z.string().optional(),
+  demoLink: z.string().url("Please enter a valid URL.").optional().or(z.literal("")),
   isPaidDemo: z.boolean().default(false),
   demoFee: z.number({ coerce: true }).optional(),
 }).refine(data => {
@@ -90,7 +90,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
       demoMode: isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined,
       demoLink: "",
       isPaidDemo: false,
-      demoFee: undefined,
+      demoFee: 0,
     },
   });
   
@@ -107,7 +107,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
         demoMode: isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined,
         demoLink: "",
         isPaidDemo: false,
-        demoFee: undefined,
+        demoFee: 0,
       });
     }
   }, [isOpen, enquiry, form, isOnlineOnly, isOfflineOnly]);
