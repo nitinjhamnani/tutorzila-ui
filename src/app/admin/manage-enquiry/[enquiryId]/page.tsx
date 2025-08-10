@@ -1185,7 +1185,8 @@ const closeEnquiryMutation = useMutation({
             <TableRow>
               <TableHead>Tutor</TableHead>
               <TableHead>Subject</TableHead>
-              <TableHead>Date &amp; Time</TableHead>
+              <TableHead>Day &amp; Date</TableHead>
+              <TableHead>Time &amp; Duration</TableHead>
               <TableHead>Mode</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -1197,25 +1198,27 @@ const closeEnquiryMutation = useMutation({
                   <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-8 w-20 rounded-md" /></TableCell>
                 </TableRow>
               ))
             ) : enquiryDemosError ? (
-              <TableRow><TableCell colSpan={5} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
             ) : !enquiryDemos || enquiryDemos.length === 0 ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
             ) : (
               enquiryDemos.map(demo => (
                 <TableRow key={demo.demoId}>
                   <TableCell>
                     <div className="font-medium text-foreground">{demo.demoDetails.tutorName}</div>
-                    <Badge variant="default" className="text-xs mt-1">
+                    <Badge variant="default" className="text-xs mt-1 bg-blue-100 text-blue-700 hover:bg-blue-100">
                       {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs">{demo.demoDetails.subjects}</TableCell>
-                  <TableCell className="text-xs">{format(parseISO(demo.demoDetails.date), "MMM d, yyyy")} at {demo.demoDetails.startTime}</TableCell>
+                  <TableCell className="text-xs">{demo.demoDetails.day}, {format(parseISO(demo.demoDetails.date), "MMM d, yyyy")}</TableCell>
+                  <TableCell className="text-xs">{demo.demoDetails.startTime} ({demo.demoDetails.duration} mins)</TableCell>
                   <TableCell>
                       <TooltipProvider>
                         <div className="flex items-center gap-2">
