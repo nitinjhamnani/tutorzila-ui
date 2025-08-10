@@ -15,7 +15,12 @@ interface AdminDemoCardProps {
 }
 
 export function AdminDemoCard({ demo }: AdminDemoCardProps) {
-  const demoDate = parseISO(demo.demoDetails.date);
+  if (!demo) {
+    return null; // or a loading skeleton
+  }
+
+  const { demoDetails } = demo;
+  const demoDate = parseISO(demoDetails.date);
 
   const getStatusBadgeClasses = () => {
     switch (demo.demoStatus) {
@@ -40,8 +45,8 @@ export function AdminDemoCard({ demo }: AdminDemoCardProps) {
 
   const ModeIcon = () => {
     const iconProps = "w-3 h-3 mr-1";
-    if (demo.demoDetails.online) return <RadioTower className={iconProps} />;
-    if (demo.demoDetails.offline) return <UsersIcon className={iconProps} />;
+    if (demoDetails.online) return <RadioTower className={iconProps} />;
+    if (demoDetails.offline) return <UsersIcon className={iconProps} />;
     return null;
   };
 
@@ -49,9 +54,9 @@ export function AdminDemoCard({ demo }: AdminDemoCardProps) {
     <Card className="shadow border p-4 sm:p-5">
         <CardHeader className="flex flex-row justify-between items-start space-x-4 p-0 mb-2">
           <div className="space-y-0.5">
-            <CardTitle className="text-base font-semibold">{demo.demoDetails.tutorName}</CardTitle>
+            <CardTitle className="text-base font-semibold">{demoDetails.tutorName}</CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              Demo with {demo.demoDetails.studentName} for {demo.demoDetails.subjects}
+              Demo with {demoDetails.studentName} for {demoDetails.subjects}
             </CardDescription>
           </div>
           <Badge className={cn("text-[10px] px-2 py-0.5", getStatusBadgeClasses())}>
@@ -62,15 +67,15 @@ export function AdminDemoCard({ demo }: AdminDemoCardProps) {
 
         <CardContent className="text-xs space-y-2">
             <div className="flex items-center"><CalendarDays className="w-3.5 h-3.5 mr-1 text-primary/70" />Date: {format(demoDate, "PPP")}</div>
-            <div className="flex items-center"><Clock className="w-3.5 h-3.5 mr-1 text-primary/70" />Time: {demo.demoDetails.startTime} ({demo.demoDetails.duration} mins)</div>
-            {demo.demoDetails.paid && <div className="flex items-center"><DollarSign className="w-3.5 h-3.5 mr-1 text-primary/70" />Fee: ₹{demo.demoDetails.demoFees}</div>}
+            <div className="flex items-center"><Clock className="w-3.5 h-3.5 mr-1 text-primary/70" />Time: {demoDetails.startTime} ({demoDetails.duration} mins)</div>
+            {demoDetails.paid && <div className="flex items-center"><DollarSign className="w-3.5 h-3.5 mr-1 text-primary/70" />Fee: ₹{demoDetails.demoFees}</div>}
         </CardContent>
 
         <CardFooter className="flex justify-between items-center border-t pt-3 mt-2">
            <div className="flex items-center gap-2">
             <Badge className="text-[10px] px-2 py-0.5 bg-muted text-muted-foreground">
               <ModeIcon />
-              {demo.demoDetails.online ? 'Online' : 'Offline'}
+              {demoDetails.online ? 'Online' : 'Offline'}
             </Badge>
           </div>
           <Button size="sm" variant="outline" className="text-xs px-3 py-1.5 h-auto">
