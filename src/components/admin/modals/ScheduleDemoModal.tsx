@@ -25,7 +25,7 @@ const scheduleDemoSchema = z.object({
   date: z.date({ required_error: "A date for the demo is required." }),
   time: z.string().min(1, { message: "Please select a time." }),
   duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
-  demoMode: z.enum(["Online", "Offline (In-person)"]),
+  demoMode: z.enum(["Online", "Offline (In-person)"], { required_error: "Please select a demo mode."}),
   demoLink: z.string().optional(),
 }).refine(data => {
   if (data.demoMode === 'Online' && (!data.demoLink || data.demoLink.trim() === '')) {
@@ -71,6 +71,9 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
     if (!enquiry?.subject) return [];
     return enquiry.subject.map(s => ({ value: s, label: s }));
   }, [enquiry]);
+  
+  const isOnlineOnly = enquiry.teachingMode?.includes("Online") && enquiry.teachingMode.length === 1;
+  const isOfflineOnly = enquiry.teachingMode?.includes("Offline (In-person)") && enquiry.teachingMode.length === 1;
 
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
@@ -79,25 +82,21 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
-      demoMode: enquiry.teachingMode?.[0] as "Online" | "Offline (In-person)" | undefined,
+      demoMode: isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined,
       demoLink: "",
     },
   });
-
+  
   const selectedDemoMode = form.watch("demoMode");
-  const isHybrid = enquiry.teachingMode?.length === 2;
-  const isOnlineOnly = enquiry.teachingMode?.length === 1 && enquiry.teachingMode[0] === "Online";
-  const isOfflineOnly = enquiry.teachingMode?.length === 1 && enquiry.teachingMode[0] === "Offline (In-person)";
 
   useEffect(() => {
     if (isOpen) {
-      const defaultMode = isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined;
       form.reset({
         subject: enquiry?.subject || [],
         date: new Date(),
         time: "04:00 PM",
         duration: 30,
-        demoMode: defaultMode,
+        demoMode: isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined,
         demoLink: "",
       });
     }
@@ -238,36 +237,34 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                 />
             </div>
 
-            {isHybrid && (
-                <FormField
-                control={form.control}
-                name="demoMode"
-                render={({ field }) => (
-                    <FormItem className="space-y-2">
-                        <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Demo Mode</FormLabel>
-                        <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="grid grid-cols-2 gap-4"
-                        >
-                            <FormItem>
-                                <FormControl>
-                                <RadioGroupItem value="Online" id="demo-mode-online" className="sr-only"/>
-                                </FormControl>
-                                <FormLabel htmlFor="demo-mode-online" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Online' && 'border-primary')}>Online</FormLabel>
-                            </FormItem>
-                            <FormItem>
-                                <FormControl>
-                                <RadioGroupItem value="Offline (In-person)" id="demo-mode-offline" className="sr-only"/>
-                                </FormControl>
-                                <FormLabel htmlFor="demo-mode-offline" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Offline (In-person)' && 'border-primary')}>Offline</FormLabel>
-                            </FormItem>
-                        </RadioGroup>
-                         <FormMessage />
-                    </FormItem>
-                )}
-                />
-            )}
+            <FormField
+              control={form.control}
+              name="demoMode"
+              render={({ field }) => (
+                  <FormItem className="space-y-2">
+                      <FormLabel className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Demo Mode</FormLabel>
+                      <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="grid grid-cols-2 gap-4"
+                      >
+                          <FormItem>
+                              <FormControl>
+                              <RadioGroupItem value="Online" id="demo-mode-online" className="sr-only"/>
+                              </FormControl>
+                              <FormLabel htmlFor="demo-mode-online" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Online' && 'border-primary')}>Online</FormLabel>
+                          </FormItem>
+                          <FormItem>
+                              <FormControl>
+                              <RadioGroupItem value="Offline (In-person)" id="demo-mode-offline" className="sr-only"/>
+                              </FormControl>
+                              <FormLabel htmlFor="demo-mode-offline" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Offline (In-person)' && 'border-primary')}>Offline</FormLabel>
+                          </FormItem>
+                      </RadioGroup>
+                        <FormMessage />
+                  </FormItem>
+              )}
+            />
 
             {selectedDemoMode === 'Online' && (
                  <FormField
@@ -304,3 +301,4 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
     </Dialog>
   );
 }
+
