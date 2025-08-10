@@ -12,13 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Clock, Loader2, Send, BookOpen, Link as LinkIcon, MapPin, RadioTower } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Loader2, Send, BookOpen, Link as LinkIcon, MapPin, RadioTower, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { ApiTutor, TuitionRequirement } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 const scheduleDemoSchema = z.object({
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
@@ -27,15 +29,18 @@ const scheduleDemoSchema = z.object({
   duration: z.number({ coerce: true }).min(30, "Duration must be at least 30 minutes.").max(120, "Duration cannot exceed 120 minutes."),
   demoMode: z.enum(["Online", "Offline (In-person)"], { required_error: "Please select a demo mode."}),
   demoLink: z.string().optional(),
+  isPaidDemo: z.boolean().default(false),
+  demoFee: z.number({ coerce: true }).optional(),
 }).refine(data => {
-  if (data.demoMode === 'Online' && (!data.demoLink || data.demoLink.trim() === '')) {
+  if (data.isPaidDemo && (data.demoFee === undefined || data.demoFee <= 0)) {
     return false;
   }
   return true;
 }, {
-  message: "A meeting link is required for an online demo.",
-  path: ["demoLink"],
+  message: "A fee is required for a paid demo.",
+  path: ["demoFee"],
 });
+
 
 type ScheduleDemoFormValues = z.infer<typeof scheduleDemoSchema>;
 
@@ -78,16 +83,19 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const form = useForm<ScheduleDemoFormValues>({
     resolver: zodResolver(scheduleDemoSchema),
     defaultValues: {
-      subject: [],
+      subject: enquiry?.subject || [],
       date: new Date(),
       time: "04:00 PM",
       duration: 30,
       demoMode: isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined,
       demoLink: "",
+      isPaidDemo: false,
+      demoFee: undefined,
     },
   });
   
   const selectedDemoMode = form.watch("demoMode");
+  const isPaidDemo = form.watch("isPaidDemo");
 
   useEffect(() => {
     if (isOpen) {
@@ -98,6 +106,8 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
         duration: 30,
         demoMode: isOnlineOnly ? "Online" : isOfflineOnly ? "Offline (In-person)" : undefined,
         demoLink: "",
+        isPaidDemo: false,
+        demoFee: undefined,
       });
     }
   }, [isOpen, enquiry, form, isOnlineOnly, isOfflineOnly]);
@@ -115,6 +125,8 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
       demoMode: data.demoMode,
       demoLink: data.demoMode === 'Online' ? data.demoLink : undefined,
       demoLocation: data.demoMode === 'Offline (In-person)' ? enquiry.location?.address : undefined,
+      isPaidDemo: data.isPaidDemo,
+      demoFee: data.isPaidDemo ? data.demoFee : undefined,
     };
     console.log("Scheduling demo with JSON payload:", JSON.stringify(samplePayload, null, 2));
     
@@ -272,7 +284,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                   name="demoLink"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><LinkIcon className="mr-2 h-4 w-4 text-primary/80"/>Demo Link</FormLabel>
+                      <FormLabel className="flex items-center"><LinkIcon className="mr-2 h-4 w-4 text-primary/80"/>Demo Link (Optional)</FormLabel>
                       <FormControl>
                         <Input placeholder="https://zoom.us/j/12345..." {...field} />
                       </FormControl>
@@ -289,6 +301,41 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                 </div>
             )}
             
+            <FormField
+              control={form.control}
+              name="isPaidDemo"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-2 rounded-lg border p-3 shadow-sm bg-input/50">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="is-paid-demo-checkbox"
+                    />
+                  </FormControl>
+                  <Label htmlFor="is-paid-demo-checkbox" className="text-sm font-medium leading-none cursor-pointer">
+                    This is a paid demo session.
+                  </Label>
+                </FormItem>
+              )}
+            />
+
+            {isPaidDemo && (
+              <FormField
+                control={form.control}
+                name="demoFee"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Demo Fee (₹)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Enter amount" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
@@ -301,4 +348,3 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
     </Dialog>
   );
 }
-
