@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -1236,8 +1235,8 @@ const closeEnquiryMutation = useMutation({
             <TableRow>
               <TableHead>Tutor</TableHead>
               <TableHead>Subject</TableHead>
-              <TableHead>Day & Date</TableHead>
-              <TableHead>Time & Duration</TableHead>
+              <TableHead>Day &amp; Date</TableHead>
+              <TableHead>Time &amp; Duration</TableHead>
               <TableHead>Mode</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -1295,11 +1294,11 @@ const closeEnquiryMutation = useMutation({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
-                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleRescheduleDemo(demo)}>
-                          <Edit2 className="w-3 h-3 mr-1" /> Reschedule
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
+                          <Edit2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="destructive-outline" size="sm" className="h-7 text-xs" onClick={() => handleCancelDemo(demo)}>
-                          <XCircle className="w-3 h-3 mr-1" /> Cancel
+                        <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
+                          <XCircle className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -1802,5 +1801,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
