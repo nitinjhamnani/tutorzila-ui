@@ -90,7 +90,8 @@ import {
   VenetianMask,
   Calendar as CalendarIcon,
   MessageSquareQuote,
-  Edit2
+  Edit2,
+  CalendarClock
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -207,7 +208,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
     gradeLevel: enquirySummary.grade,
     board: enquirySummary.board,
     location: {
-        name: enquiryDetails.addressName || enquiryDetails.address || "",
+        name: enquiryDetails.addressName || enquiryDetails.address,
         address: enquiryDetails.address,
         googleMapsUrl: enquiryDetails.googleMapsLink,
         city: enquirySummary.city,
@@ -1004,12 +1005,11 @@ const closeEnquiryMutation = useMutation({
   
   const handleRescheduleDemo = (demo: EnquiryDemo) => {
     setDemoToReschedule(demo);
-    // You might need to find the tutor associated with this demo if the modal needs it
     const tutorForDemo = [...(enquiryTutorsData?.ASSIGNED || []), ...(allTutorsData || [])].find(t => t.displayName === demo.demoDetails.tutorName);
     if(tutorForDemo) {
         setSelectedTutor(tutorForDemo);
     }
-    setIsScheduleDemoModalOpen(true); // Re-use the same modal for rescheduling
+    setIsScheduleDemoModalOpen(true);
   };
 
   const handleCancelDemo = (demo: EnquiryDemo) => {
@@ -1018,7 +1018,6 @@ const closeEnquiryMutation = useMutation({
 
   const confirmCancelDemo = () => {
     if (!demoToCancel) return;
-    // TODO: Implement API call to cancel demo
     console.log("Cancelling demo:", demoToCancel.demoId);
     toast({ title: "Demo Cancelled (Mock)", description: `Demo with ${demoToCancel.demoDetails.tutorName} has been cancelled.`});
     queryClient.invalidateQueries({ queryKey: ['enquiryDemos', enquiryId] });
@@ -1289,7 +1288,7 @@ const closeEnquiryMutation = useMutation({
                     <TableCell>
                       <div className="flex items-center gap-1.5">
                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
-                          <Edit2 className="w-4 h-4" />
+                          <CalendarClock className="w-4 h-4" />
                         </Button>
                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
                           <XCircle className="w-4 h-4" />
