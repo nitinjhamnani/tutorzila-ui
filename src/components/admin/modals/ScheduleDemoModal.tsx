@@ -120,6 +120,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
       });
       queryClient.invalidateQueries({ queryKey: ['enquiryTutors', enquiry.id] });
       queryClient.invalidateQueries({ queryKey: ['adminEnquiryDetails', enquiry.id] });
+      queryClient.invalidateQueries({ queryKey: ['enquiryDemos', enquiry.id] });
       onOpenChange(false);
     },
     onError: (error: any) => {
