@@ -1223,6 +1223,7 @@ const closeEnquiryMutation = useMutation({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Status</TableHead>
               <TableHead>Tutor</TableHead>
               <TableHead>Subject</TableHead>
               <TableHead>Day &amp; Date</TableHead>
@@ -1236,6 +1237,7 @@ const closeEnquiryMutation = useMutation({
               [...Array(2)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-32" /></TableCell>
@@ -1244,9 +1246,9 @@ const closeEnquiryMutation = useMutation({
                 </TableRow>
               ))
             ) : enquiryDemosError ? (
-              <TableRow><TableCell colSpan={6} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center text-destructive">Failed to load demos.</TableCell></TableRow>
             ) : !enquiryDemos || enquiryDemos.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center py-8">No demos scheduled for this enquiry yet.</TableCell></TableRow>
             ) : (
               enquiryDemos.map(demo => {
                 if (!demo || !demo.demoDetails) {
@@ -1256,10 +1258,12 @@ const closeEnquiryMutation = useMutation({
                 return (
                     <TableRow key={demo.demoId}>
                     <TableCell>
-                        <div className="font-medium text-foreground">{demoDetails.tutorName}</div>
-                        <Badge variant="default" className="text-xs mt-1">
+                        <Badge variant="default" className="text-xs">
                           {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
                         </Badge>
+                    </TableCell>
+                    <TableCell>
+                        <div className="font-medium text-foreground">{demoDetails.tutorName}</div>
                     </TableCell>
                     <TableCell className="text-xs">{demoDetails.subjects}</TableCell>
                     <TableCell className="text-xs">{demoDetails.day}, {format(parseISO(demoDetails.date), "MMM d, yyyy")}</TableCell>
