@@ -659,7 +659,7 @@ function ManageEnquiryContent() {
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
         toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-        const { enquirySummary, enquiryDetails } = updatedData;
+        const { enquirySummary, enquiryDetails } = updatedData.enquiryResponse;
         queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
             if (!oldData) return undefined;
             const transformStringToArray = (str: string | null | undefined): string[] => {
@@ -1217,16 +1217,6 @@ const closeEnquiryMutation = useMutation({
   const budgetInfo = enquiry?.budget;
 
   const renderDemoTable = () => {
-    const getStatusBadgeClasses = (status: string) => {
-        const lowerStatus = status.toLowerCase();
-        switch (lowerStatus) {
-            case "scheduled": return "bg-blue-600 text-white";
-            case "completed": return "bg-green-600 text-white";
-            case "cancelled": return "bg-red-600 text-white";
-            case "requested": return "bg-yellow-500 text-white";
-            default: return "bg-gray-500 text-white";
-        }
-    };
     return (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
       <CardContent className="p-0">
@@ -1267,7 +1257,7 @@ const closeEnquiryMutation = useMutation({
                     <TableRow key={demo.demoId}>
                     <TableCell>
                         <div className="font-medium text-foreground">{demoDetails.tutorName}</div>
-                        <Badge className={cn("text-xs mt-1", getStatusBadgeClasses(demo.demoStatus))}>
+                        <Badge variant="default" className="text-xs mt-1">
                           {demo.demoStatus.charAt(0).toUpperCase() + demo.demoStatus.slice(1).toLowerCase()}
                         </Badge>
                     </TableCell>
@@ -1325,13 +1315,7 @@ const closeEnquiryMutation = useMutation({
                         {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
                         </CardTitle>
                          {enquiry.status && (
-                            <Badge variant="default" className={cn(
-                                "text-xs",
-                                enquiry.status === 'open' && "bg-blue-600",
-                                enquiry.status === 'accepted' && "bg-green-600",
-                                enquiry.status === 'closed' && "bg-red-600",
-                                enquiry.status === 'reopened' && "bg-yellow-500",
-                            )}>
+                            <Badge variant="default" className="text-xs">
                                 {enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}
                             </Badge>
                          )}
