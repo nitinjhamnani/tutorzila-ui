@@ -175,7 +175,7 @@ export default function AdminTutorProfilePage() {
                                 </Badge>
                             </div>
                         </div>
-                        <div className="w-full sm:w-auto flex-shrink-0">
+                        <div className="w-full sm:w-auto flex flex-col gap-2">
                            {tutor.documentsUrl && (
                              <Button asChild variant="outline">
                                <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
@@ -183,6 +183,11 @@ export default function AdminTutorProfilePage() {
                                </a>
                              </Button>
                            )}
+                            {!tutor.isActive && (
+                                <Button>
+                                    <CheckCircle className="mr-2 h-4 w-4" /> Activate Profile
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </CardHeader>
@@ -191,12 +196,22 @@ export default function AdminTutorProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>About</CardTitle>
+                            <Badge variant={tutor.isBioReviewed ? "default" : "destructive"}>
+                                {tutor.isBioReviewed ? "Reviewed" : "Pending Review"}
+                            </Badge>
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
                         </CardContent>
+                        {!tutor.isBioReviewed && (
+                            <CardFooter>
+                                <Button size="sm">
+                                    <CheckCircle className="mr-2 h-4 w-4" /> Approve Bio
+                                </Button>
+                            </CardFooter>
+                        )}
                     </Card>
                     <Card>
                         <CardHeader>
