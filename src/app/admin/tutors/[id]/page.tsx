@@ -188,10 +188,10 @@ export default function AdminTutorProfilePage() {
                     )}
                     <div className="flex flex-wrap gap-2">
                         <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto">
-                            <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Edit Profile
+                            <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
                         </Button>
                         {!tutor.isActive && (
-                            <Button size="sm" variant="destructive-outline" className="text-xs py-1.5 px-3 h-auto">
+                            <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto">
                                 <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
                             </Button>
                         )}
