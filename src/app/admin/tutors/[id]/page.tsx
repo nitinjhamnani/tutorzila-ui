@@ -41,12 +41,15 @@ import {
   Loader2,
   FileText,
   Edit3,
+  Star,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 import { ActivationModal } from "@/components/admin/modals/ActivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
+import { cn } from "@/lib/utils";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -106,6 +109,28 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
   );
 };
 
+interface MetricCardProps {
+  title: string;
+  value: string;
+  IconEl: ElementType;
+}
+
+function MetricCard({ title, value, IconEl }: MetricCardProps) {
+  return (
+    <Card className="bg-card rounded-lg p-4 border-0 shadow-sm">
+      <div className="flex items-center gap-3">
+         <div className="w-9 h-9 flex items-center justify-center bg-primary/10 rounded-lg text-primary shrink-0">
+            <IconEl className="w-5 h-5" />
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">{title}</p>
+          <h3 className="text-lg font-bold text-primary">{value}</h3>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 
 export default function AdminTutorProfilePage() {
     const params = useParams();
@@ -153,6 +178,13 @@ export default function AdminTutorProfilePage() {
     if (!tutor) {
         return <div className="text-center py-10 text-muted-foreground">Tutor not found.</div>;
     }
+    
+    // Mock data for insights
+    const tutorInsights = {
+        enquiriesAssigned: 12,
+        demosScheduled: 5,
+        averageRating: 4.8
+    };
 
     return (
         <div className="space-y-6">
@@ -209,6 +241,17 @@ export default function AdminTutorProfilePage() {
                         )}
                     </div>
                 </CardFooter>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Insights</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <MetricCard title="Enquiries Assigned" value={String(tutorInsights.enquiriesAssigned)} IconEl={Briefcase} />
+                    <MetricCard title="Demos Scheduled" value={String(tutorInsights.demosScheduled)} IconEl={CalendarDays} />
+                    <MetricCard title="Average Rating" value={String(tutorInsights.averageRating)} IconEl={Star} />
+                </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -297,4 +340,3 @@ export default function AdminTutorProfilePage() {
         </div>
     );
 }
-
