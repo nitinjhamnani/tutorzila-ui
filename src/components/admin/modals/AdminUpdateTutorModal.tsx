@@ -184,7 +184,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                       selectedValues={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select subjects..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
                   </FormItem>
@@ -201,7 +201,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                       selectedValues={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select grade levels..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
                   </FormItem>
@@ -218,7 +218,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                       selectedValues={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select boards..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
                   </FormItem>
@@ -337,18 +337,30 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                   />
                   <FormItem>
                       <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
-                      <FormField
-                      control={form.control}
-                      name="hourlyRate"
-                      render={({ field }) => (
-                          <FormItem className="flex-grow">
-                          <FormControl>
-                              <Input type="number" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                      />
+                      <div className="flex flex-col gap-2">
+                          <FormField
+                          control={form.control}
+                          name="hourlyRate"
+                          render={({ field }) => (
+                              <FormItem className="flex-grow">
+                              <FormControl>
+                                  <Input type="number" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
+                              </FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="isRateNegotiable"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-2 mt-2">
+                                <FormControl><Checkbox id="isRateNegotiableCheckbox-admin" checked={field.value} onCheckedChange={field.onChange} className="h-3.5 w-3.5" /></FormControl>
+                                <Label htmlFor="isRateNegotiableCheckbox-admin" className="text-xs font-semibold text-muted-foreground">Rate is Negotiable</Label>
+                                </FormItem>
+                            )}
+                            />
+                      </div>
                   </FormItem>
               </div>
 
