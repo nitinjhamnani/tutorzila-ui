@@ -39,7 +39,8 @@ import {
   User,
   ArrowLeft,
   Loader2,
-  FileText
+  FileText,
+  Edit3,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -183,6 +184,9 @@ export default function AdminTutorProfilePage() {
                                </a>
                              </Button>
                            )}
+                           <Button size="sm" variant="outline">
+                             <Edit3 className="mr-2 h-4 w-4"/> Edit Profile
+                           </Button>
                             {!tutor.isActive && (
                                 <Button size="sm" variant="destructive-outline">
                                     <CheckCircle className="mr-2 h-4 w-4" /> Activate
@@ -267,3 +271,4 @@ export default function AdminTutorProfilePage() {
         </div>
     );
 }
+
