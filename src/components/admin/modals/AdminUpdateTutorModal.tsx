@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Save, Loader2 } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -318,7 +318,17 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
               </div>
               <CardFooter className="p-0 pt-6 flex justify-end">
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
+                    {form.formState.isSubmitting ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save Changes
+                        </>
+                    )}
                 </Button>
               </CardFooter>
             </CardContent>
@@ -328,4 +338,3 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     </Dialog>
   );
 }
-
