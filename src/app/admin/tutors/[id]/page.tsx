@@ -42,6 +42,7 @@ import {
   Edit3,
   Star,
   Eye,
+  Percent,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -189,7 +190,7 @@ export default function AdminTutorProfilePage() {
         <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4 relative">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                         <div className="flex items-center gap-4 flex-grow min-w-0">
                             <Avatar className="h-24 w-24 border-2 border-primary/30">
                                 <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
@@ -211,13 +212,6 @@ export default function AdminTutorProfilePage() {
                                     </Badge>
                                 </div>
                             </div>
-                        </div>
-                        <div className="absolute top-0 right-0">
-                           <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
-                                <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
-                                    {tutor.profileCompletion}%
-                                </AvatarFallback>
-                            </Avatar>
                         </div>
                     </div>
                 </CardHeader>
@@ -242,10 +236,11 @@ export default function AdminTutorProfilePage() {
                 </CardFooter>
             </Card>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard title="Enquiries Assigned" value={String(tutorInsights.enquiriesAssigned)} IconEl={Briefcase} />
                 <MetricCard title="Demos Scheduled" value={String(tutorInsights.demosScheduled)} IconEl={CalendarDays} />
                 <MetricCard title="Average Rating" value={String(tutorInsights.averageRating)} IconEl={Star} />
+                <MetricCard title="Profile Completion" value={`${tutor.profileCompletion}%`} IconEl={Percent} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
