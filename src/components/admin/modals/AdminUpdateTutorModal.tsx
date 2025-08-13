@@ -139,7 +139,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
       <DialogContent className="sm:max-w-3xl p-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader className="p-6 pb-4 border-b">
+            <DialogHeader className="p-6 pb-4">
               <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
             </DialogHeader>
             <CardContent className="p-6 max-h-[70vh] overflow-y-auto">
@@ -317,9 +317,8 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
 
               </div>
             </CardContent>
-            <DialogFooter className="p-6 border-t">
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">Save Changes</Button>
+            <DialogFooter className="p-6">
+              <Button type="submit" className="w-full">Save Changes</Button>
             </DialogFooter>
           </form>
         </Form>
@@ -327,4 +326,3 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     </Dialog>
   );
 }
-
