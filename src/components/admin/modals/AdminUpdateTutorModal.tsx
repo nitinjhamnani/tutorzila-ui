@@ -136,7 +136,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl p-0">
+      <DialogContent className="sm:max-w-3xl p-0 bg-card">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader className="p-6 pb-4">
