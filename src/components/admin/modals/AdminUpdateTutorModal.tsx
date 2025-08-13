@@ -66,6 +66,7 @@ const timeSlotsOptionsList: MultiSelectOption[] = [
   { value: "Flexible", label: "Flexible" },
 ];
 
+
 const adminTutorUpdateSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters."),
   gender: z.string().min(1, "Gender is required."),
@@ -316,7 +317,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="p-6">
+            <CardFooter className="p-6 flex justify-end">
                 <Button type="submit" className="w-auto" disabled={form.formState.isSubmitting}>
                     {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
