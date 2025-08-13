@@ -181,9 +181,8 @@ export default function AdminTutorsPage() {
                </Badge>
             </TableCell>
             <TableCell>
-              <Button variant="outline" size="sm" className="text-xs h-8">
-                <Eye className="mr-1.5 h-3.5 w-3.5" />
-                View
+              <Button variant="outline" size="icon" className="h-8 w-8">
+                <Eye className="h-4 w-4" />
               </Button>
             </TableCell>
           </TableRow>
