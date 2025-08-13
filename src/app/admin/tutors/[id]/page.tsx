@@ -44,6 +44,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { useState } from "react";
+import { ActivationModal } from "@/components/admin/modals/ActivationModal";
+import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -109,6 +112,9 @@ export default function AdminTutorProfilePage() {
     const router = useRouter();
     const { token } = useAuthMock();
     const tutorId = params.id as string;
+
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
@@ -187,11 +193,11 @@ export default function AdminTutorProfilePage() {
                         </Button>
                     )}
                     <div className="flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto">
+                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)}>
                             <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
                         </Button>
                         {!tutor.isActive && (
-                            <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto">
+                            <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsActivationModalOpen(true)}>
                                 <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
                             </Button>
                         )}
@@ -270,6 +276,19 @@ export default function AdminTutorProfilePage() {
                     </Card>
                 </div>
             </div>
+            
+            <ActivationModal
+                isOpen={isActivationModalOpen}
+                onOpenChange={setIsActivationModalOpen}
+                tutorName={tutor.displayName}
+            />
+            
+            <AdminUpdateTutorModal
+                isOpen={isUpdateModalOpen}
+                onOpenChange={setIsUpdateModalOpen}
+                tutor={tutor}
+            />
         </div>
     );
 }
+
