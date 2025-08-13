@@ -184,7 +184,7 @@ export default function AdminTutorProfilePage() {
                              </Button>
                            )}
                             {!tutor.isActive && (
-                                <Button>
+                                <Button variant="destructive-outline">
                                     <CheckCircle className="mr-2 h-4 w-4" /> Activate Profile
                                 </Button>
                             )}
