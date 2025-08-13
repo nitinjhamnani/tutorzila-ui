@@ -180,19 +180,19 @@ export default function AdminTutorProfilePage() {
                 </CardHeader>
                 <CardFooter className="flex-wrap justify-between gap-2 p-4 border-t">
                     {tutor.documentsUrl && (
-                        <Button asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
                         <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
-                        <FileText className="mr-2 h-4 w-4"/> View Documents
+                        <FileText className="mr-1.5 h-3.5 w-3.5"/> View Documents
                         </a>
                         </Button>
                     )}
                     <div className="flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline">
-                            <Edit3 className="mr-2 h-4 w-4"/> Edit Profile
+                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto">
+                            <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Edit Profile
                         </Button>
                         {!tutor.isActive && (
-                            <Button size="sm" variant="destructive-outline">
-                                <CheckCircle className="mr-2 h-4 w-4" /> Activate
+                            <Button size="sm" variant="destructive-outline" className="text-xs py-1.5 px-3 h-auto">
+                                <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
                             </Button>
                         )}
                     </div>
