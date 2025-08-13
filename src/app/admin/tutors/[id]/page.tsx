@@ -158,29 +158,35 @@ export default function AdminTutorProfilePage() {
         <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <div className="flex flex-col sm:flex-row items-start gap-4">
-                        <Avatar className="h-24 w-24 border-2 border-primary/30">
-                            <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-                            <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                                {getInitials(tutor.displayName)}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-grow">
-                            <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
-                            <CardDescription className="text-sm text-muted-foreground">{tutor.gender}</CardDescription>
-                            <div className="mt-2 flex flex-wrap items-center gap-2">
-                                <Badge variant={tutor.isActive ? "default" : "destructive"}>
-                                    {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                    {tutor.isActive ? 'Active' : 'Inactive'}
-                                </Badge>
-                                <Badge variant={tutor.isVerified ? "default" : "destructive"}>
-                                    {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                                    {tutor.isVerified ? 'Verified' : 'Not Verified'}
-                                </Badge>
-                                 <Badge variant="outline">
-                                    Profile: {tutor.profileCompletion}%
-                                </Badge>
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4 relative">
+                        <div className="flex items-center gap-4 flex-grow min-w-0">
+                            <Avatar className="h-24 w-24 border-2 border-primary/30">
+                                <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                                <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
+                                    {getInitials(tutor.displayName)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-grow">
+                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
+                                <CardDescription className="text-sm text-muted-foreground">{tutor.gender}</CardDescription>
+                                <div className="mt-2 flex flex-wrap items-center gap-2">
+                                    <Badge variant={tutor.isActive ? "default" : "destructive"}>
+                                        {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                        {tutor.isActive ? 'Active' : 'Inactive'}
+                                    </Badge>
+                                    <Badge variant={tutor.isVerified ? "default" : "destructive"}>
+                                        {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                                        {tutor.isVerified ? 'Verified' : 'Not Verified'}
+                                    </Badge>
+                                </div>
                             </div>
+                        </div>
+                        <div className="absolute top-0 right-0">
+                           <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
+                                <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
+                                    {tutor.profileCompletion}%
+                                </AvatarFallback>
+                            </Avatar>
                         </div>
                     </div>
                 </CardHeader>
