@@ -180,7 +180,7 @@ export default function AdminTutorProfilePage() {
                 </CardHeader>
                 <CardFooter className="flex-wrap justify-between gap-2 p-4 border-t">
                     {tutor.documentsUrl && (
-                        <Button asChild variant="outline">
+                        <Button asChild variant="outline" size="sm">
                         <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
                         <FileText className="mr-2 h-4 w-4"/> View Documents
                         </a>
