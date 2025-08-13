@@ -24,7 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -316,15 +316,16 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                     />
                 </div>
               </div>
-            </CardContent>
-            <CardFooter className="p-6 flex justify-end">
-                <Button type="submit" className="w-auto" disabled={form.formState.isSubmitting}>
+              <CardFooter className="p-0 pt-6 flex justify-end">
+                <Button type="submit" disabled={form.formState.isSubmitting}>
                     {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
-            </CardFooter>
+              </CardFooter>
+            </CardContent>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
   );
 }
+
