@@ -157,6 +157,164 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                     </FormItem>
                   )}
                 />
+                 <FormField
+                  control={form.control}
+                  name="subjects"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects Taught</FormLabel>
+                      <MultiSelectCommand
+                        options={subjectsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select subjects..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="grades"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Levels Taught</FormLabel>
+                      <MultiSelectCommand
+                        options={gradeLevelsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select grade levels..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="boards"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-primary/80"/>Boards</FormLabel>
+                      <MultiSelectCommand
+                        options={boardsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select boards..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="qualifications"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications</FormLabel>
+                      <MultiSelectCommand
+                        options={qualificationsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select qualifications..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="languages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><Languages className="mr-2 h-4 w-4 text-primary/80"/>Languages Spoken</FormLabel>
+                      <MultiSelectCommand
+                        options={languagesList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select languages..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                    control={form.control}
+                    name="experienceYears"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80" />Experience</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                            <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormItem>
+                        <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
+                        <FormField
+                        control={form.control}
+                        name="hourlyRate"
+                        render={({ field }) => (
+                            <FormItem className="flex-grow">
+                            <FormControl>
+                                <Input type="number" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    </FormItem>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                    control={form.control}
+                    name="availabilityDays"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Available Days</FormLabel>
+                        <MultiSelectCommand
+                            options={daysOptionsList}
+                            selectedValues={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select days..."
+                            className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        />
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                     <FormField
+                    control={form.control}
+                    name="availabilityTime"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Available Time Slots</FormLabel>
+                        <MultiSelectCommand
+                            options={timeSlotsOptionsList}
+                            selectedValues={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select time slots..."
+                            className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        />
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+
               </div>
             </CardContent>
             <DialogFooter className="p-6 border-t">
@@ -169,3 +327,4 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     </Dialog>
   );
 }
+
