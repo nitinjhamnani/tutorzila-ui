@@ -314,12 +314,11 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                     )}
                     />
                 </div>
-
+                <DialogFooter className="p-0 pt-6">
+                  <Button type="submit" className="w-full">Save Changes</Button>
+                </DialogFooter>
               </div>
             </CardContent>
-            <DialogFooter className="p-6">
-              <Button type="submit" className="w-full">Save Changes</Button>
-            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
