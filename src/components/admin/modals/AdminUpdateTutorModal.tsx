@@ -84,6 +84,10 @@ const adminTutorUpdateSchema = z.object({
   online: z.boolean().default(false),
   offline: z.boolean().default(false),
   isHybrid: z.boolean().default(false),
+  location: z.custom<LocationDetails | null>((val) => val === null || (typeof val === 'object' && val !== null && 'address' in val), "Invalid location format.").nullable().optional(),
+}).refine(data => data.online || data.offline, {
+  message: "At least one teaching mode (Online or Offline) must be selected.",
+  path: ["online"], // You can attach the error to one of the checkboxes
 });
 
 type AdminTutorUpdateFormValues = z.infer<typeof adminTutorUpdateSchema>;
@@ -120,6 +124,16 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         online: tutor.online,
         offline: tutor.offline,
         isHybrid: tutor.isHybrid,
+        location: {
+            name: tutor.addressName || tutor.address,
+            address: tutor.address,
+            area: tutor.area,
+            city: tutor.city,
+            state: tutor.state,
+            country: tutor.country,
+            pincode: tutor.pincode,
+            googleMapsLink: tutor.googleMapsLink,
+        },
       });
     }
   }, [tutor, isOpen, form]);
@@ -132,6 +146,8 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     });
     onOpenChange(false);
   };
+  
+  const isOfflineModeSelected = form.watch("offline");
 
   if (!tutor) return null;
 
@@ -143,7 +159,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         </DialogHeader>
         <div className="flex-grow overflow-y-auto">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} id="admin-tutor-update-form" className="p-6 space-y-6">
               <FormField
                 control={form.control}
                 name="bio"
@@ -208,6 +224,64 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                   </FormItem>
                 )}
               />
+              <div className="space-y-2">
+                <Label className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Teaching Mode</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                    <FormField
+                    control={form.control}
+                    name="online"
+                    render={({ field }) => (
+                        <FormItem>
+                        <Label htmlFor="mode-online" className={cn("flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md cursor-pointer", field.value && "bg-primary/10 border-primary")}>
+                            <FormControl><Checkbox id="mode-online" checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                            <span className="font-normal text-sm">Online</span>
+                        </Label>
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="offline"
+                    render={({ field }) => (
+                        <FormItem>
+                        <Label htmlFor="mode-offline" className={cn("flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md cursor-pointer", field.value && "bg-primary/10 border-primary")}>
+                            <FormControl><Checkbox id="mode-offline" checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                            <span className="font-normal text-sm">Offline (In-person)</span>
+                        </Label>
+                        </FormItem>
+                    )}
+                    />
+                </div>
+                 <FormField
+                    control={form.control}
+                    name="isHybrid"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 mt-2">
+                        <FormControl><Checkbox id="isHybridCheckbox-admin" checked={field.value} onCheckedChange={field.onChange} className="h-3.5 w-3.5" /></FormControl>
+                        <Label htmlFor="isHybridCheckbox-admin" className="text-xs font-semibold text-muted-foreground">Also available for Hybrid classes.</Label>
+                        </FormItem>
+                    )}
+                    />
+              </div>
+              {isOfflineModeSelected && (
+                <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Location for Offline Classes</FormLabel>
+                        <FormControl>
+                        <LocationAutocompleteInput
+                            initialValue={field.value}
+                            onValueChange={(details) => field.onChange(details)}
+                            placeholder="Search for tutor's primary city or area..."
+                        />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="qualifications"
