@@ -140,10 +140,10 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
       <DialogContent className="sm:max-w-3xl p-0 bg-card">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader className="p-6 pb-4">
-              <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
-            </DialogHeader>
-            <CardContent className="p-6 max-h-[70vh] overflow-y-auto">
+            <div className="max-h-[80vh] overflow-y-auto p-6">
+              <DialogHeader className="pb-4">
+                <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
+              </DialogHeader>
               <div className="space-y-6">
                 <FormField
                   control={form.control}
@@ -317,7 +317,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                 </div>
               </div>
               <CardFooter className="p-0 pt-6 flex justify-end">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                 <Button type="submit" disabled={form.formState.isSubmitting}>
                     {form.formState.isSubmitting ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -331,7 +331,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                     )}
                 </Button>
               </CardFooter>
-            </CardContent>
+            </div>
           </form>
         </Form>
       </DialogContent>
