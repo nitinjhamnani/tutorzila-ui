@@ -176,25 +176,27 @@ export default function AdminTutorProfilePage() {
                                 </Badge>
                             </div>
                         </div>
-                        <div className="w-full sm:w-auto flex flex-col gap-2">
-                           {tutor.documentsUrl && (
-                             <Button asChild variant="outline">
-                               <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
-                                <FileText className="mr-2 h-4 w-4"/> View Documents
-                               </a>
-                             </Button>
-                           )}
-                           <Button size="sm" variant="outline">
-                             <Edit3 className="mr-2 h-4 w-4"/> Edit Profile
-                           </Button>
-                            {!tutor.isActive && (
-                                <Button size="sm" variant="destructive-outline">
-                                    <CheckCircle className="mr-2 h-4 w-4" /> Activate
-                                </Button>
-                            )}
-                        </div>
                     </div>
                 </CardHeader>
+                <CardFooter className="flex-wrap justify-between gap-2 p-4 border-t">
+                    {tutor.documentsUrl && (
+                        <Button asChild variant="outline">
+                        <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
+                        <FileText className="mr-2 h-4 w-4"/> View Documents
+                        </a>
+                        </Button>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline">
+                            <Edit3 className="mr-2 h-4 w-4"/> Edit Profile
+                        </Button>
+                        {!tutor.isActive && (
+                            <Button size="sm" variant="destructive-outline">
+                                <CheckCircle className="mr-2 h-4 w-4" /> Activate
+                            </Button>
+                        )}
+                    </div>
+                </CardFooter>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -271,4 +273,3 @@ export default function AdminTutorProfilePage() {
         </div>
     );
 }
-
