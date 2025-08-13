@@ -314,11 +314,13 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                     )}
                     />
                 </div>
-                <DialogFooter className="p-0 pt-6">
-                  <Button type="submit" className="w-full">Save Changes</Button>
-                </DialogFooter>
               </div>
             </CardContent>
+            <CardFooter className="p-6">
+                <Button type="submit" className="w-auto" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
+                </Button>
+            </CardFooter>
           </form>
         </Form>
       </DialogContent>
