@@ -27,12 +27,6 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
     <Card className="group bg-card border border-border/50 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full min-h-[18rem] p-1 transform hover:-translate-y-1">
       <CardHeader className="pt-6 pb-4 px-6">
         <div className="flex items-center gap-4">
-          <Avatar className="w-14 h-14 border-2 border-primary/40 group-hover:border-primary transition-all duration-300 shadow-sm">
-            <AvatarImage src={`https://picsum.photos/seed/${testimonial.avatarSeed}/128`} alt={testimonial.name} />
-            <AvatarFallback className="text-lg bg-primary/20 text-primary font-semibold">
-              {testimonial.name.split(' ').map(n => n[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
           <div>
             <CardTitle className="text-md font-semibold text-foreground">{testimonial.name}</CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
