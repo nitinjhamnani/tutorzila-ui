@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
              <p>In accordance with the Information Technology Act, 2000, and the rules made thereunder, the name and contact details of the Grievance Officer for Zilics Ventures Private Limited are provided below:
             </p>
              <p className="mt-2">
-                 Name: [Grievance Officer Name]<br/>
+                 Name: Annu Jhamnani<br/>
                  Email: zilicsventures@gmail.com
             </p>
           </section>
