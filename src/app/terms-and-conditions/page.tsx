@@ -65,21 +65,28 @@ export default function TermsAndConditionsPage() {
           </section>
           
            <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">5. Limitation of Liability</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">5. Refunds and Cancellations</h2>
+            <p>
+              All payments made on the Tutorzila platform are final. The tutor registration fee and the first month's tuition fee collected from parents are strictly non-refundable and non-cancellable under any circumstances.
+            </p>
+          </section>
+
+           <section>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">6. Limitation of Liability</h2>
             <p>
               Zilics Ventures Private Limited provides a facilitator platform (Tutorzila). We are not responsible for the conduct, quality of teaching, or actions of any Tutor or Parent. We do not guarantee academic results. Any disputes arising after the first month of tuition, including but not limited to payments and scheduling, are to be resolved directly between the Parent and the Tutor.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">6. Governing Law & Jurisdiction</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">7. Governing Law & Jurisdiction</h2>
             <p>
               These Terms will be governed by and interpreted in accordance with the laws of India. You agree to submit to the exclusive jurisdiction of the courts located in Delhi for the resolution of any disputes.
             </p>
           </section>
 
            <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">7. Changes to Terms</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">8. Changes to Terms</h2>
             <p>
              We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new Terms and Conditions on this page. Your continued use of the Platform after such changes constitutes your acceptance of the new terms.
             </p>

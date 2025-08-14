@@ -17,7 +17,7 @@ const faqItems = [
   {
     question: "What are the fees for parents?",
     answer:
-      "Posting a requirement is free. To start classes with a tutor, you must pay the first month's fee in advance to Tutorzila. This fee is calculated dynamically based on the number of classes, hours, grade level, and subject. Please note, this advance payment is non-refundable.",
+      "Posting a requirement is free. To start classes with a tutor, you must pay the first month's fee in advance to Tutorzila. This fee is calculated dynamically based on the number of classes, hours, grade level, and subject. Please note, this advance payment is strictly non-refundable and non-cancellable.",
   },
   {
     question: "How do payments work after the first month?",
@@ -42,7 +42,7 @@ const faqItems = [
   {
     question: "Is the first month's fee refundable for parents?",
     answer:
-      "No, the first month's fee, paid in advance to Tutorzila, is strictly non-refundable once paid. This policy helps secure the tutor's commitment and covers our platform services.",
+      "No, the first month's fee, paid in advance to Tutorzila, is strictly non-refundable and non-cancellable once paid. This policy helps secure the tutor's commitment and covers our platform services.",
   },
 ];
 
