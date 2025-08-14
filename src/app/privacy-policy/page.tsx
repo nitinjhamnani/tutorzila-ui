@@ -90,10 +90,6 @@ export default function PrivacyPolicyPage() {
              We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date.
             </p>
           </section>
-
-           <p className="text-sm text-muted-foreground mt-8">
-            <b>Disclaimer:</b> This is a template document. It is strongly recommended to consult with a legal professional to ensure this policy is complete, compliant, and accurately reflects your data handling practices.
-          </p>
         </CardContent>
       </Card>
     </div>

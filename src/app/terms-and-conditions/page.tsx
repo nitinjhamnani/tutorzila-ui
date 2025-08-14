@@ -84,10 +84,6 @@ export default function TermsAndConditionsPage() {
              We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new Terms and Conditions on this page. Your continued use of the Platform after such changes constitutes your acceptance of the new terms.
             </p>
           </section>
-
-          <p className="text-sm text-muted-foreground mt-8">
-            <b>Disclaimer:</b> This is a template document. It is strongly recommended to consult with a legal professional to ensure these terms are complete and compliant with all applicable laws for your business.
-          </p>
         </CardContent>
       </Card>
     </div>
