@@ -10,39 +10,39 @@ import { HelpCircle } from "lucide-react";
 
 const faqItems = [
   {
-    question: "How do I sign up as a parent?",
+    question: "How does Tutorzila work for parents?",
     answer:
-      "Click on the 'Sign Up' button in the header. Select the 'Parent' role during registration, fill in your details, and you're all set to find tutors.",
+      "Parents can sign up for free and post their tuition requirements, specifying details like subject, grade, and schedule. We then match and assign a qualified tutor to you. You can then schedule a demo with the assigned tutor to see if they are a good fit.",
   },
   {
-    question: "How do I sign up as a tutor?",
+    question: "What are the fees for parents?",
     answer:
-      "Click on the 'Sign Up' button. Choose the 'Tutor' role, complete your profile with your expertise, qualifications, and availability to start connecting with students.",
+      "Posting a requirement is free. To start classes with a tutor, you must pay the first month's fee in advance to Tutorzila. This fee is calculated dynamically based on the number of classes, hours, grade level, and subject. Please note, this advance payment is non-refundable.",
   },
   {
-    question: "How can I find a tutor?",
+    question: "How do payments work after the first month?",
     answer:
-      "Once logged in as a parent, you can either post your tuition requirement for tutors to find you, or you can browse tutor profiles using our search and filter options.",
+      "After the first month, you are responsible for paying the tuition fees directly to the tutor based on your mutual agreement. Tutorzila is not involved in transactions from the second month onwards.",
   },
   {
-    question: "How do I post a tuition requirement?",
+    question: "What are the requirements to become a tutor?",
     answer:
-      "After signing up as a parent, navigate to your dashboard and click on 'Post Requirement'. Fill in the details about the subject, grade level, and preferred schedule.",
+      "Tutors need to sign up and complete their profile. There is a one-time, non-refundable registration fee of ₹199 for profile verification and platform access. This fee does not guarantee tuition assignments.",
   },
   {
-    question: "What are the charges for using Tutorzila?",
+    question: "How do tutors get paid?",
     answer:
-      "Signing up and browsing on Tutorzila is free for both parents and tutors. Tutors set their own hourly rates, which are displayed on their profiles. We may introduce premium features in the future.",
+      "Tutorzila collects the first month's fee from the parent. We retain a 50% commission from this first month's fee. The tutor's remaining 50% share is disbursed to their registered bank account at the end of a successful first month of tuition.",
   },
   {
-    question: "How is payment handled?",
+    question: "Who is responsible for fee collection after the first month?",
     answer:
-      "Currently, payment arrangements are made directly between the parent and the tutor. Tutorzila does not process payments at this stage.",
+      "From the second month onwards, the tutor is solely responsible for collecting fees directly from the parent. Tutorzila is not liable for any fee disputes or collection issues after the initial month.",
   },
   {
-    question: "Can I teach multiple subjects?",
+    question: "Is the first month's fee refundable for parents?",
     answer:
-      "Yes, as a tutor, you can list all the subjects you are proficient in teaching on your profile.",
+      "No, the first month's fee, paid in advance to Tutorzila, is strictly non-refundable once paid. This policy helps secure the tutor's commitment and covers our platform services.",
   },
 ];
 
@@ -78,5 +78,3 @@ export default function FAQPage() {
     </div>
   );
 }
-
-    
