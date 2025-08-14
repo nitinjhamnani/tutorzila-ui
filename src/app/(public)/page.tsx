@@ -89,11 +89,17 @@ export default function HomePage() {
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialName, setAuthModalInitialName] = useState<string | undefined>(undefined);
+  const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
 
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
     setIsAuthModalOpen(true);
+  };
+  
+  const handleOpenRequirementModal = (subjectName?: string) => {
+    setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
+    setIsPostRequirementModalOpen(true);
   };
 
   return (
@@ -117,7 +123,7 @@ export default function HomePage() {
                 </Button>
                  <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                   <DialogTrigger asChild>
-                     <Button size="sm" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:text-primary border-primary/40 hover:border-primary hover:bg-card">
+                     <Button size="sm" variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-card text-primary hover:text-primary border-primary/40 hover:border-primary hover:bg-card" onClick={() => handleOpenRequirementModal()}>
                       <SquarePen className="mr-2.5 h-5 w-5" /> Post Your Requirement
                     </Button>
                   </DialogTrigger>
@@ -129,6 +135,7 @@ export default function HomePage() {
                       startFromStep={1} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
                       onTriggerSignIn={handleTriggerSignIn}
+                      initialSubject={initialSubjectForModal}
                     />
                   </DialogContent>
                 </Dialog>
@@ -167,7 +174,7 @@ export default function HomePage() {
               <CarouselContent className="-ml-3 md:-ml-4">
                 {popularSubjects.map((subject, index) => (
                   <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 pl-3 md:pl-4">
-                    <div className="p-1.5" onClick={() => setIsPostRequirementModalOpen(true)}>
+                    <div className="p-1.5" onClick={() => handleOpenRequirementModal(subject.name)}>
                         <Card className="group bg-card hover:shadow-xl transition-all duration-300 rounded-full aspect-square flex flex-col items-center justify-center text-center p-3 md:p-2 shadow-md border hover:border-primary/50 w-[130px] h-[130px] md:w-[140px] md:h-[140px] mx-auto transform hover:scale-105 cursor-pointer">
                           <CardContent className="p-0 flex flex-col items-center justify-center gap-2 md:gap-1.5">
                             <subject.icon className="w-8 h-8 md:w-9 md:h-9 text-primary transition-transform duration-300 group-hover:scale-110" />
@@ -222,7 +229,7 @@ export default function HomePage() {
                 <div className="flex justify-center lg:justify-start mt-6">
                   <Dialog open={isPostRequirementModalOpen} onOpenChange={setIsPostRequirementModalOpen}>
                     <DialogTrigger asChild>
-                       <Button size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
+                       <Button size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95" onClick={() => handleOpenRequirementModal()}>
                         <PlusCircle className="mr-2.5 h-5 w-5" /> Request A Tutor
                       </Button>
                     </DialogTrigger>
@@ -234,6 +241,7 @@ export default function HomePage() {
                          startFromStep={1} 
                          onSuccess={() => setIsPostRequirementModalOpen(false)}
                          onTriggerSignIn={handleTriggerSignIn}
+                         initialSubject={initialSubjectForModal}
                        />
                      </DialogContent>
                   </Dialog>
@@ -385,3 +393,4 @@ export default function HomePage() {
     
   );
 }
+

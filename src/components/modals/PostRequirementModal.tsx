@@ -143,9 +143,10 @@ interface PostRequirementModalProps {
   onSuccess: () => void;
   startFromStep?: 1 | 2 | 3;
   onTriggerSignIn?: (name?: string) => void;
+  initialSubject?: string[];
 }
 
-export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSignIn }: PostRequirementModalProps) {
+export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSignIn, initialSubject }: PostRequirementModalProps) {
   const [currentStep, setCurrentStep] = useState(startFromStep);
   const totalSteps = 3;
 
@@ -162,7 +163,7 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       email: "",
       country: "IN",
       localPhoneNumber: "",
-      subject: [],
+      subject: initialSubject || [],
       gradeLevel: "",
       board: "",
       teachingMode: [],
@@ -175,6 +176,12 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       acceptTerms: false,
     },
   });
+
+  useEffect(() => {
+    if (initialSubject) {
+      form.setValue('subject', initialSubject);
+    }
+  }, [initialSubject, form]);
 
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
