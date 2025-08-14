@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, School, Phone, CheckCircle } from "lucide-react";
+import { Mail, User, School, Phone, CheckCircle, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -268,6 +268,18 @@ export default function BecomeTutorPage() {
                       </FormItem>
                     )}
                   />
+
+                  <div className="rounded-lg border bg-primary/5 border-primary/20 p-4">
+                      <div className="flex items-start gap-3">
+                          <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5"/>
+                          <div>
+                            <h4 className="font-semibold text-sm text-foreground">Registration Fee</h4>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                A one-time, non-refundable registration fee of <strong className="font-bold text-primary">₹199</strong> is required for profile verification and platform access. This does not guarantee tuition assignments.
+                            </p>
+                          </div>
+                      </div>
+                  </div>
                   
                   <FormField
                     control={form.control}
@@ -324,3 +336,6 @@ export default function BecomeTutorPage() {
     </>
   );
 }
+
+
+    
