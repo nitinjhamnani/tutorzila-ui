@@ -20,8 +20,8 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">1. Introduction</h2>
             <p>
-              Tutorzila ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains
-              how your personal information is collected, used, and disclosed by Tutorzila. This policy applies to our website and services and is compliant with the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011, under the Information Technology Act, 2000 of India.
+              Zilics Ventures Private Limited ("we", "our", or "us") operates the Tutorzila platform and is committed to protecting your privacy. This Privacy Policy explains
+              how your personal information is collected, used, and disclosed by Zilics Ventures Private Limited. This policy applies to our website (Tutorzila) and its services and is compliant with the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011, under the Information Technology Act, 2000 of India.
             </p>
           </section>
 
@@ -76,11 +76,11 @@ export default function PrivacyPolicyPage() {
            
            <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">7. Grievance Officer</h2>
-             <p>In accordance with the Information Technology Act, 2000, and the rules made thereunder, the name and contact details of the Grievance Officer are provided below:
+             <p>In accordance with the Information Technology Act, 2000, and the rules made thereunder, the name and contact details of the Grievance Officer for Zilics Ventures Private Limited are provided below:
             </p>
              <p className="mt-2">
                  Name: [Grievance Officer Name]<br/>
-                 Email: [grievance@tutorzila.com]
+                 Email: zilicsventures@gmail.com
             </p>
           </section>
 

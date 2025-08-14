@@ -20,7 +20,7 @@ export default function TermsAndConditionsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">1. Introduction & Acceptance of Terms</h2>
             <p>
-              Welcome to Tutorzila! These Terms and Conditions govern your use of the Tutorzila website and services ("Platform"). By registering an account or using our Platform, you agree to be bound by these Terms and our Privacy Policy. If you do not agree, you must not use our services. These terms constitute a legally binding agreement between you and Tutorzila.
+              Welcome to Tutorzila! These Terms and Conditions govern your use of the Tutorzila website and services ("Platform"), which is owned and operated by Zilics Ventures Private Limited. By registering an account or using our Platform, you agree to be bound by these Terms and our Privacy Policy. If you do not agree, you must not use our services. These terms constitute a legally binding agreement between you and Zilics Ventures Private Limited.
             </p>
           </section>
 
@@ -39,10 +39,10 @@ export default function TermsAndConditionsPage() {
             </p>
             <p className="font-semibold text-foreground mt-4">3.2. First Month's Fee & Commission</p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>Tutorzila will collect the entire first month's tuition fee from the Parent in advance.</li>
+              <li>Zilics Ventures Private Limited (via Tutorzila) will collect the entire first month's tuition fee from the Parent in advance.</li>
               <li>Our platform commission is 50% of the first month's fee.</li>
               <li>Your share (50% of the first month's fee) will be disbursed to your registered bank account at the end of the first successful month of tuition.</li>
-              <li>From the second month onwards, you are responsible for collecting tuition fees directly from the Parent. Tutorzila holds no responsibility for fee collection or disputes after the first month.</li>
+              <li>From the second month onwards, you are responsible for collecting tuition fees directly from the Parent. Zilics Ventures Private Limited holds no responsibility for fee collection or disputes after the first month.</li>
             </ul>
           </section>
 
@@ -54,20 +54,20 @@ export default function TermsAndConditionsPage() {
             </p>
             <p className="font-semibold text-foreground mt-4">4.2. First Month's Fee Payment</p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>To confirm a tutor and start classes, you must pay the entire first month's tuition fee to Tutorzila in advance.</li>
+              <li>To confirm a tutor and start classes, you must pay the entire first month's tuition fee to Zilics Ventures Private Limited (via Tutorzila) in advance.</li>
               <li>This fee is strictly non-refundable once paid, irrespective of whether the tuition is completed or discontinued by either party.</li>
               <li>This policy is in place to secure the tutor's commitment and our platform services.</li>
             </ul>
             <p className="font-semibold text-foreground mt-4">4.3. Subsequent Payments</p>
             <p>
-              From the second month onwards, you are required to pay the tuition fees directly to the tutor as per your mutual agreement. Tutorzila is not involved in any transactions or disputes after the first month.
+              From the second month onwards, you are required to pay the tuition fees directly to the tutor as per your mutual agreement. Zilics Ventures Private Limited is not involved in any transactions or disputes after the first month.
             </p>
           </section>
           
            <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">5. Limitation of Liability</h2>
             <p>
-              Tutorzila is a facilitator platform. We are not responsible for the conduct, quality of teaching, or actions of any Tutor or Parent. We do not guarantee academic results. Any disputes arising after the first month of tuition, including but not limited to payments and scheduling, are to be resolved directly between the Parent and the Tutor.
+              Zilics Ventures Private Limited provides a facilitator platform (Tutorzila). We are not responsible for the conduct, quality of teaching, or actions of any Tutor or Parent. We do not guarantee academic results. Any disputes arising after the first month of tuition, including but not limited to payments and scheduling, are to be resolved directly between the Parent and the Tutor.
             </p>
           </section>
 
