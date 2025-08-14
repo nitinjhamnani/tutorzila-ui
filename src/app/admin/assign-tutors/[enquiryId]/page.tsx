@@ -5,6 +5,8 @@ import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { format } from 'date-fns';
+import Link from 'next/link';
+
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import type { ApiTutor, TuitionRequirement } from "@/types";
@@ -62,6 +64,7 @@ import {
   Phone,
   Star,
   Bookmark,
+  ArrowLeft,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -366,6 +369,12 @@ function AssignTutorsContent() {
 
   return (
     <div className="space-y-6">
+       <Button asChild variant="outline" size="sm">
+          <Link href={`/admin/manage-enquiry/${enquiryId}`}>
+            <ArrowLeft className="mr-2 h-4 w-4"/>
+            Back to Enquiry Management
+          </Link>
+        </Button>
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
         <CardHeader className="p-0">
             <>
@@ -513,6 +522,7 @@ function AssignTutorsContent() {
             onOpenChange={setIsProfileModalOpen}
             tutor={selectedTutor}
             sourceTab={activeTab}
+            enquiryId={enquiryId}
           />
         )}
         {selectedTutor && (
@@ -533,5 +543,3 @@ export default function AssignTutorsToEnquiryPage() {
         </Suspense>
     )
 }
-
-    

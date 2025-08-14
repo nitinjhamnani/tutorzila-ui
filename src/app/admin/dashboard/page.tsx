@@ -173,8 +173,8 @@ export default function AdminDashboardPage() {
   ];
   
   const adminQuickActions: AdminQuickActionCardProps[] = [
-      { title: "Tutor Management", description: "Approve, view, or manage tutor profiles.", IconEl: Users, href: "#", disabled: true },
-      { title: "Parent Management", description: "View and manage parent accounts.", IconEl: UsersRound, href: "#", disabled: true },
+      { title: "Tutor Management", description: "Approve, view, or manage tutor profiles.", IconEl: Users, href: "/admin/tutors" },
+      { title: "Parent Management", description: "View and manage parent accounts.", IconEl: UsersRound, href: "/admin/parents" },
       { title: "Enquiry Management", description: "Oversee all posted tuition enquiries.", IconEl: Briefcase, href: "/admin/enquiries" },
       { title: "Approval Queue", description: "Review pending tutor applications.", IconEl: ShieldCheck, href: "#", disabled: true },
       { title: "System Settings", description: "Configure platform settings and fees.", IconEl: Settings, href: "#", disabled: true },
