@@ -250,39 +250,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Meet Our Tutors Section */}
-        <section className={`w-full ${sectionPadding} bg-background`}>
-          <div className={`${containerPadding}`}>
-            <div className="text-center mb-12 md:mb-16 animate-in fade-in duration-500 ease-out">
-                <div className="inline-block p-3.5 bg-primary/10 rounded-full mb-4 shadow-sm">
-                    <UsersRoundIcon className="w-8 h-8 text-primary"/>
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Meet Our Tutors</h2>
-            </div>
-            <Carousel
-              opts={{
-                align: "start",
-                loop: MOCK_TUTOR_PROFILES.length > 3, 
-              }}
-              className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
-            >
-              <CarouselContent className="-ml-3.5 md:-ml-4.5">
-                {MOCK_TUTOR_PROFILES.slice(0, 5).map((tutor, index) => (
-                  <CarouselItem key={tutor.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/3 xl:basis-1/3 pl-3.5 md:pl-4.5">
-                    <div className="p-1.5 h-full">
-                      <TutorProfileCard tutor={tutor} parentContextBaseUrl={parentContextBaseUrl} />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <div className="flex justify-center items-center mt-10 space-x-4">
-                <CarouselPrevious className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
-                <CarouselNext className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
-              </div>
-            </Carousel>
-          </div>
-        </section>
-
         {/* Become A Tutor Section */}
         <section className={`w-full bg-secondary ${sectionPadding}`}>
           <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${containerPadding}`}>
@@ -393,4 +360,5 @@ export default function HomePage() {
     
   );
 }
+
 
