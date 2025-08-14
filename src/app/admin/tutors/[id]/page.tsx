@@ -44,6 +44,7 @@ import {
   Star,
   Eye,
   Percent,
+  Share2,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -51,6 +52,7 @@ import { useState, type ElementType } from "react";
 import { ActivationModal } from "@/components/admin/modals/ActivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -137,6 +139,7 @@ export default function AdminTutorProfilePage() {
     const params = useParams();
     const router = useRouter();
     const { token } = useAuthMock();
+    const { toast } = useToast();
     const tutorId = params.id as string;
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -147,6 +150,17 @@ export default function AdminTutorProfilePage() {
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
     });
+    
+    const handleShareProfile = async () => {
+        if (!tutor) return;
+        const profileUrl = `${window.location.origin}/tutors/${tutor.id}`;
+        try {
+            await navigator.clipboard.writeText(profileUrl);
+            toast({ title: "Profile Link Copied!", description: "Tutor's public profile link copied to clipboard." });
+        } catch (err) {
+            toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link." });
+        }
+    };
     
     if (isLoading) {
       return (
@@ -217,13 +231,23 @@ export default function AdminTutorProfilePage() {
                     </div>
                 </CardHeader>
                 <CardFooter className="flex-wrap justify-between gap-2 p-4 border-t">
-                    {tutor.documentsUrl && (
+                    <div className="flex flex-wrap gap-2">
+                         {tutor.documentsUrl && (
+                            <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
+                            <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
+                            <FileText className="mr-1.5 h-3.5 w-3.5"/> View Documents
+                            </a>
+                            </Button>
+                        )}
                         <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
-                        <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
-                        <FileText className="mr-1.5 h-3.5 w-3.5"/> View Documents
-                        </a>
+                            <Link href={`/tutors/${tutor.id}`} target="_blank">
+                                <Eye className="mr-1.5 h-3.5 w-3.5" /> View Public Profile
+                            </Link>
                         </Button>
-                    )}
+                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleShareProfile}>
+                            <Share2 className="mr-1.5 h-3.5 w-3.5" /> Share Profile
+                        </Button>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                         <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)}>
                             <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
