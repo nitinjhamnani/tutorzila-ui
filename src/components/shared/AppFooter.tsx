@@ -35,7 +35,7 @@ const footerLinks = [
   {
     title: "Connect",
     links: [
-      { label: "Contact Us", href: "mailto:support@tutorzila.com", icon: Mail },
+      { label: "Contact Us", href: "/contact-us", icon: Mail },
       { label: "Become a Tutor", href: "/become-a-tutor", icon: GraduationCap },
       { label: "Sign In", href: "/?signin=true", icon: LogIn }, 
     ],
