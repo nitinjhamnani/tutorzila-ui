@@ -90,10 +90,17 @@ export default function HomePage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialName, setAuthModalInitialName] = useState<string | undefined>(undefined);
   const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
+  const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
 
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
+    setAuthModalInitialView('signin');
+    setIsAuthModalOpen(true);
+  };
+
+  const handleTriggerSignUp = () => {
+    setAuthModalInitialView('signup');
     setIsAuthModalOpen(true);
   };
   
@@ -307,10 +314,8 @@ export default function HomePage() {
               Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
             </p>
             <div className="mt-10">
-              <Button asChild size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base">
-                <Link href="/auth/signup">
+              <Button size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
                    Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
-                </Link>
               </Button>
             </div>
           </div>
@@ -354,11 +359,13 @@ export default function HomePage() {
           isOpen={isAuthModalOpen} 
           onOpenChange={setIsAuthModalOpen} 
           initialName={authModalInitialName}
+          initialForm={authModalInitialView}
         />
       )}
       </div>
     
   );
 }
+
 
 

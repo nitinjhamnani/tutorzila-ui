@@ -17,7 +17,7 @@ import type { TutorProfile, Testimonial, User } from "@/types"; // Added User
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import { useState } from "react"; 
-import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"; 
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
 import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
@@ -90,13 +90,20 @@ export default function HomePage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialName, setAuthModalInitialName] = useState<string | undefined>(undefined);
   const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
+  const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
 
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
+    setAuthModalInitialView('signin');
     setIsAuthModalOpen(true);
   };
   
+  const handleTriggerSignUp = () => {
+    setAuthModalInitialView('signup');
+    setIsAuthModalOpen(true);
+  };
+
   const handleOpenRequirementModal = (subjectName?: string) => {
     setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
     setIsPostRequirementModalOpen(true);
@@ -129,8 +136,8 @@ export default function HomePage() {
                   </DialogTrigger>
                   <DialogContent 
                     className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+                    onPointerDownOutside={(e) => e.preventDefault()}
                   >
-                    <DialogTitle className="sr-only">Post Your Requirement</DialogTitle>
                     <PostRequirementModal 
                       startFromStep={1} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
@@ -235,11 +242,11 @@ export default function HomePage() {
                     </DialogTrigger>
                      <DialogContent 
                        className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+                       onPointerDownOutside={(e) => e.preventDefault()}
                      >
-                       <DialogTitle className="sr-only">Post Your Requirement</DialogTitle>
                        <PostRequirementModal 
                          startFromStep={1} 
-                         onSuccess={() => setIsPostRequirementModalOpen(false)}
+                         onSuccess={() => setIsPostRequirementModalOpen(false)} 
                          onTriggerSignIn={handleTriggerSignIn}
                          initialSubject={initialSubjectForModal}
                        />
@@ -307,10 +314,8 @@ export default function HomePage() {
               Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
             </p>
             <div className="mt-10">
-              <Button asChild size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base">
-                <Link href="/sign-up">
+               <Button size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
                    Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
-                </Link>
               </Button>
             </div>
           </div>
@@ -354,12 +359,10 @@ export default function HomePage() {
           isOpen={isAuthModalOpen} 
           onOpenChange={setIsAuthModalOpen} 
           initialName={authModalInitialName}
+          initialForm={authModalInitialView}
         />
       )}
       </div>
     
   );
 }
-
-
-    

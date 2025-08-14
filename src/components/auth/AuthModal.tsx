@@ -1,10 +1,9 @@
 
 "use client";
 
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"; // Added DialogHeader, DialogTitle, DialogDescription
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SignInForm } from "@/components/auth/SignInForm";
-// X icon import removed as DialogContent now handles its own close button by default from ui/dialog.tsx
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { Button } from "@/components/ui/button";
 
@@ -12,10 +11,17 @@ interface AuthModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   initialName?: string;
+  initialForm?: 'signin' | 'signup';
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName }) => {
-  const [currentForm, setCurrentForm] = useState<'signin' | 'signup'>('signin');
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName, initialForm = 'signin' }) => {
+  const [currentForm, setCurrentForm] = useState<'signin' | 'signup'>(initialForm);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentForm(initialForm);
+    }
+  }, [isOpen, initialForm]);
 
   const handleSwitchForm = (formType: 'signin' | 'signup') => {
     setCurrentForm(formType);
