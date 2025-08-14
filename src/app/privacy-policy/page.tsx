@@ -20,83 +20,82 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">1. Introduction</h2>
             <p>
-              Tutorzila (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains
-              how your personal information is collected, used, and disclosed by Tutorzila.
-            </p>
-            <p className="mt-2">
-              This Privacy Policy applies to our website, and its associated subdomains (collectively, our
-              &quot;Service&quot;) alongside our application, Tutorzila. By accessing or using our Service, you signify
-              that you have read, understood, and agree to our collection, storage, use, and disclosure of your
-              personal information as described in this Privacy Policy and our Terms of Service.
+              Tutorzila ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains
+              how your personal information is collected, used, and disclosed by Tutorzila. This policy applies to our website and services and is compliant with the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011, under the Information Technology Act, 2000 of India.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">2. Information We Collect</h2>
-            <p>We collect information from you when you visit our service, register, place an order, subscribe to
-              our newsletter, respond to a survey or fill out a form.</p>
+            <p>We collect information that you provide directly to us when you register, post a requirement, or communicate with us. This information may include:</p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>Name / Username</li>
-              <li>Email Addresses</li>
-              <li>Password</li>
-              <li>User role (Parent/Tutor)</li>
-              <li>Other information you provide voluntarily (e.g., profile details, tuition requirements)</li>
+              <li><b>Personal Information:</b> Name, email address, phone number, location (city, area).</li>
+              <li><b>Tutor Specific Information:</b> Qualifications, experience, subjects, boards taught, bank account details for payment processing.</li>
+              <li><b>Parent Specific Information:</b> Student's name, grade level, and specific tuition requirements.</li>
+              <li><b>Financial Information:</b> We collect first-month fees from Parents and process payments to Tutors. We may use third-party payment gateways, and your payment information is handled securely by them. We do not store your full card details.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">3. How We Use Your Information</h2>
-            <p>Any of the information we collect from you may be used in one of the following ways:</p>
+            <p>Your information is used for the following purposes:</p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>To personalize your experience (your information helps us to better respond to your individual
-                needs).</li>
-              <li>To improve our service (we continually strive to improve our service offerings based on the
-                information and feedback we receive from you).</li>
-              <li>To improve customer service (your information helps us to more effectively respond to your
-                customer service requests and support needs).</li>
-              <li>To process transactions.</li>
-              <li>To administer a contest, promotion, survey or other site feature.</li>
-              <li>To send periodic emails.</li>
+              <li>To create and manage your account on our Platform.</li>
+              <li>To connect Parents with suitable Tutors based on requirements.</li>
+              <li>To facilitate communication between users.</li>
+              <li>To process payments, including the tutor registration fee and the first month's tuition fee.</li>
+              <li>To improve our services, and for internal analytics and research.</li>
+              <li>To send you transactional emails, service announcements, and promotional communications (from which you can opt-out).</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">4. How We Protect Your Information</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">4. Information Sharing and Disclosure</h2>
             <p>
-              We implement a variety of security measures to maintain the safety of your personal information when
-              you place an order or enter, submit, or access your personal information. We offer the use of a
-              secure server. All supplied sensitive/credit information is transmitted via Secure Socket Layer (SSL)
-              technology and then encrypted into our Payment gateway providers database only to be accessible by
-              those authorized with special access rights to such systems, and are required to keep the
-              information confidential.
+              We do not sell or rent your personal information. We may share your information with:
             </p>
+            <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
+                <li><b>Tutors and Parents:</b> We share necessary information between Tutors and Parents to facilitate the tutoring engagement. For example, a Parent's requirement details are shared with potential Tutors.</li>
+                <li><b>Service Providers:</b> We work with third-party service providers for payment processing and website hosting. These providers have access to your information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.</li>
+                <li><b>Legal Requirements:</b> We may disclose your information if required by law or in response to valid requests by public authorities (e.g., a court or a government agency).</li>
+            </ul>
           </section>
           
           <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">5. Cookies</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">5. Data Security</h2>
             <p>
-              We use cookies to help us remember and process the items in your shopping cart, understand and save
-              your preferences for future visits and compile aggregate data about site traffic and site interaction
-              so that we can offer better site experiences and tools in the future.
+              We implement reasonable security practices and procedures including administrative, physical, and technical controls to protect your personal information from unauthorized access, use, or disclosure.
             </p>
           </section>
 
            <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">6. Changes to Our Privacy Policy</h2>
-            <p>
-             If we decide to change our privacy policy, we will post those changes on this page, and/or update the Privacy Policy modification date above.
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">6. Your Rights</h2>
+             <p>You have the right to access, correct, or delete your personal information. You can update your profile information through your dashboard or by contacting us directly.
+            </p>
+          </section>
+           
+           <section>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">7. Grievance Officer</h2>
+             <p>In accordance with the Information Technology Act, 2000, and the rules made thereunder, the name and contact details of the Grievance Officer are provided below:
+            </p>
+             <p className="mt-2">
+                 Name: [Grievance Officer Name]<br/>
+                 Email: [grievance@tutorzila.com]
             </p>
           </section>
 
-          <p className="text-sm text-muted-foreground mt-8">
-            This is a placeholder document. Please replace this with your actual Privacy Policy.
+          <section>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">8. Changes to Our Privacy Policy</h2>
+            <p>
+             We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date.
+            </p>
+          </section>
+
+           <p className="text-sm text-muted-foreground mt-8">
+            <b>Disclaimer:</b> This is a template document. It is strongly recommended to consult with a legal professional to ensure this policy is complete, compliant, and accurately reflects your data handling practices.
           </p>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-
-
-    

@@ -18,81 +18,78 @@ export default function TermsAndConditionsPage() {
         </CardHeader>
         <CardContent className="p-6 md:p-8 space-y-6 text-foreground/90 leading-relaxed">
           <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">1. Introduction</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">1. Introduction & Acceptance of Terms</h2>
             <p>
-              Welcome to Tutorzila! These terms and conditions outline the rules and regulations for the use of
-              Tutorzila&apos;s Website, located at [Your Website URL].
-            </p>
-            <p className="mt-2">
-              By accessing this website we assume you accept these terms and conditions. Do not continue to use
-              Tutorzila if you do not agree to take all of the terms and conditions stated on this page.
+              Welcome to Tutorzila! These Terms and Conditions govern your use of the Tutorzila website and services ("Platform"). By registering an account or using our Platform, you agree to be bound by these Terms and our Privacy Policy. If you do not agree, you must not use our services. These terms constitute a legally binding agreement between you and Tutorzila.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">2. Intellectual Property Rights</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">2. Description of Service</h2>
             <p>
-              Other than the content you own, under these Terms, Tutorzila and/or its licensors own all the
-              intellectual property rights and materials contained in this Website. You are granted limited license
-              only for purposes of viewing the material contained on this Website.
+              Tutorzila is a platform that connects Parents seeking tutoring services with Tutors who provide these services. We facilitate the posting of tuition requirements, the assignment of tutors, and the management of initial interactions, including the collection of the first month's fee.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">3. Restrictions</h2>
-            <p>You are specifically restricted from all of the following:</p>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">3. For Tutors</h2>
+            <p className="font-semibold text-foreground">3.1. Registration Fee</p>
+            <p>
+              To join Tutorzila as a tutor, you are required to pay a one-time, non-refundable registration fee of ₹199. This fee covers the cost of profile verification and platform access. Payment of this fee does not guarantee placement or a minimum number of tuitions.
+            </p>
+            <p className="font-semibold text-foreground mt-4">3.2. First Month's Fee & Commission</p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>Publishing any Website material in any other media.</li>
-              <li>Selling, sublicensing and/or otherwise commercializing any Website material.</li>
-              <li>Publicly performing and/or showing any Website material.</li>
-              <li>Using this Website in any way that is or may be damaging to this Website.</li>
-              <li>Using this Website in any way that impacts user access to this Website.</li>
+              <li>Tutorzila will collect the entire first month's tuition fee from the Parent in advance.</li>
+              <li>Our platform commission is 50% of the first month's fee.</li>
+              <li>Your share (50% of the first month's fee) will be disbursed to your registered bank account at the end of the first successful month of tuition.</li>
+              <li>From the second month onwards, you are responsible for collecting tuition fees directly from the Parent. Tutorzila holds no responsibility for fee collection or disputes after the first month.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-3 text-primary/90">4. User Content</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">4. For Parents</h2>
+            <p className="font-semibold text-foreground">4.1. Posting Requirements</p>
             <p>
-              In these Website Standard Terms and Conditions, “Your Content” shall mean any audio, video text,
-              images or other material you choose to display on this Website. By displaying Your Content, you grant
-              Tutorzila a non-exclusive, worldwide irrevocable, sub licensable license to use, reproduce, adapt,
-              publish, translate and distribute it in any and all media.
+              You may post your tuition requirements on the Platform. The fee for the tuition will be dynamically calculated based on the number of days, hours per month, grade level, subjects, and the mode of tuition (online/offline).
             </p>
-            <p className="mt-2">
-              Your Content must be your own and must not be invading any third-party’s rights. Tutorzila reserves
-              the right to remove any of Your Content from this Website at any time without notice.
+            <p className="font-semibold text-foreground mt-4">4.2. First Month's Fee Payment</p>
+            <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
+              <li>To confirm a tutor and start classes, you must pay the entire first month's tuition fee to Tutorzila in advance.</li>
+              <li>This fee is strictly non-refundable once paid, irrespective of whether the tuition is completed or discontinued by either party.</li>
+              <li>This policy is in place to secure the tutor's commitment and our platform services.</li>
+            </ul>
+            <p className="font-semibold text-foreground mt-4">4.3. Subsequent Payments</p>
+            <p>
+              From the second month onwards, you are required to pay the tuition fees directly to the tutor as per your mutual agreement. Tutorzila is not involved in any transactions or disputes after the first month.
             </p>
           </section>
           
-          <section>
+           <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">5. Limitation of Liability</h2>
             <p>
-              In no event shall Tutorzila, nor any of its officers, directors and employees, be held liable for
-              anything arising out of or in any way connected with your use of this Website whether such liability
-              is under contract. Tutorzila, including its officers, directors and employees shall not be held
-              liable for any indirect, consequential or special liability arising out of or in any way related to
-              your use of this Website.
+              Tutorzila is a facilitator platform. We are not responsible for the conduct, quality of teaching, or actions of any Tutor or Parent. We do not guarantee academic results. Any disputes arising after the first month of tuition, including but not limited to payments and scheduling, are to be resolved directly between the Parent and the Tutor.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-3 text-primary/90">6. Governing Law & Jurisdiction</h2>
             <p>
-              These Terms will be governed by and interpreted in accordance with the laws of [Your State/Country],
-              and you submit to the non-exclusive jurisdiction of the state and federal courts located in
-              [Your City/State] for the resolution of any disputes.
+              These Terms will be governed by and interpreted in accordance with the laws of India. You agree to submit to the exclusive jurisdiction of the courts located in Delhi for the resolution of any disputes.
+            </p>
+          </section>
+
+           <section>
+            <h2 className="text-2xl font-semibold mb-3 text-primary/90">7. Changes to Terms</h2>
+            <p>
+             We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new Terms and Conditions on this page. Your continued use of the Platform after such changes constitutes your acceptance of the new terms.
             </p>
           </section>
 
           <p className="text-sm text-muted-foreground mt-8">
-            This is a placeholder document. Please replace this with your actual Terms and Conditions.
+            <b>Disclaimer:</b> This is a template document. It is strongly recommended to consult with a legal professional to ensure these terms are complete and compliant with all applicable laws for your business.
           </p>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-
-
-    
