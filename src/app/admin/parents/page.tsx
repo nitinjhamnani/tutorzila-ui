@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from 'date-fns';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 import {
     Table,
@@ -182,8 +183,10 @@ export default function AdminParentsPage() {
                </Badge>
             </TableCell>
             <TableCell>
-              <Button variant="outline" size="icon" className="h-8 w-8">
-                <Eye className="h-4 w-4" />
+              <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                <Link href={`/admin/parents/${parent.id}`}>
+                  <Eye className="h-4 w-4" />
+                </Link>
               </Button>
             </TableCell>
           </TableRow>
