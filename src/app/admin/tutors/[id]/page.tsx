@@ -203,7 +203,7 @@ export default function AdminTutorProfilePage() {
 
     return (
         <div className="space-y-6">
-            <Card>
+            <Card className="relative">
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                         <div className="flex items-center gap-4 flex-grow min-w-0">
@@ -230,6 +230,16 @@ export default function AdminTutorProfilePage() {
                         </div>
                     </div>
                 </CardHeader>
+                 <div className="absolute top-4 right-4 flex items-center gap-2">
+                    <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                        <Link href={`/tutors/${tutor.id}`} target="_blank">
+                            <Eye className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleShareProfile}>
+                        <Share2 className="h-4 w-4" />
+                    </Button>
+                </div>
                 <CardFooter className="flex-wrap justify-between gap-2 p-4 border-t">
                     <div className="flex flex-wrap gap-2">
                          {tutor.documentsUrl && (
@@ -239,14 +249,6 @@ export default function AdminTutorProfilePage() {
                             </a>
                             </Button>
                         )}
-                        <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
-                            <Link href={`/tutors/${tutor.id}`} target="_blank">
-                                <Eye className="mr-1.5 h-3.5 w-3.5" /> View Public Profile
-                            </Link>
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleShareProfile}>
-                            <Share2 className="mr-1.5 h-3.5 w-3.5" /> Share Profile
-                        </Button>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)}>
