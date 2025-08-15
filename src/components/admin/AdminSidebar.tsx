@@ -50,7 +50,7 @@ export function AdminSidebar({
         isMobile
           ? cn(
               "fixed inset-y-0 left-0 z-40 w-60 transform",
-              `top-[var(--header-height,0px)] h-[calc(100vh_-_var(--header-height,0px))]`,
+              `top-[var(--header-height)] h-[calc(100vh_-_var(--header-height))]`,
               isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
             )
           : cn(
