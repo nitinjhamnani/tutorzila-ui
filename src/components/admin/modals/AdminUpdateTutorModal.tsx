@@ -226,7 +226,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
         <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
-          <DialogTitle>Update Tutor: {tutor?.displayName || 'Tutor'}</DialogTitle>
+          <DialogTitle>Update Tutor: {tutor?.name || 'Tutor'}</DialogTitle>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto">
           <Form {...form}>

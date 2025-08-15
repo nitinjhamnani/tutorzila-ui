@@ -70,9 +70,9 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
     }
     const data = await response.json();
     
-    // API returns only professional details. Personal info comes from the atom state.
+    // API returns only professional details. Personal info comes from other sources.
     return {
-      id: tutorId,
+      id: tutorId, // Keep the passed-in ID
       displayName: data.displayName,
       gender: data.gender || "Not specified",
       subjectsList: data.tutoringDetails.subjects || [],
@@ -178,24 +178,32 @@ export default function AdminTutorProfilePage() {
     const { toast } = useToast();
     const tutorId = params.id as string;
     
-    // Atom data is a fallback, but primary source of truth is the API call
     const initialTutorData = useAtomValue(selectedTutorAtom);
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
-    const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
+    const { data: fetchedTutorDetails, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
-        refetchOnWindowFocus: false, // Keep this to prevent unnecessary refetches
+        refetchOnWindowFocus: false,
     });
     
     // Combine initial (for contact info) and fetched data (for professional details)
-    const displayTutor = {
-        ...initialTutorData,
-        ...tutor,
-    };
+    const displayTutor = React.useMemo(() => {
+        if (!initialTutorData && !fetchedTutorDetails) return null;
+        return {
+            ...initialTutorData,
+            ...fetchedTutorDetails,
+            // Ensure essential personal details from initial data are not overwritten by undefined from fetched data
+            id: initialTutorData?.id || tutorId,
+            name: initialTutorData?.name,
+            email: initialTutorData?.email,
+            phone: initialTutorData?.phone,
+            countryCode: initialTutorData?.countryCode,
+        };
+    }, [initialTutorData, fetchedTutorDetails, tutorId]);
 
     const handleShareProfile = async () => {
         if (!tutorId) return;
@@ -227,7 +235,7 @@ export default function AdminTutorProfilePage() {
       )
     }
 
-    if (!tutor) {
+    if (!displayTutor) {
       return (
         <div className="text-center py-10">
             <p className="text-destructive">Tutor data not available. Please go back to the list and select a tutor.</p>
@@ -239,7 +247,7 @@ export default function AdminTutorProfilePage() {
     }
     
     const tutorInsights = {
-        enquiriesAssigned: tutor?.profileCompletion || 12, 
+        enquiriesAssigned: displayTutor?.profileCompletion || 12, 
         demosScheduled: 5,
         averageRating: 4.8
     };
@@ -257,7 +265,7 @@ export default function AdminTutorProfilePage() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{displayTutor?.name || "Tutor Details"}</CardTitle>
+                                <CardTitle className="text-2xl font-bold text-foreground">{displayTutor?.name || "Not Available"}</CardTitle>
                                 <CardDescription className="text-sm text-muted-foreground">{displayTutor?.gender || "Not Specified"}</CardDescription>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
                                     <Badge variant={displayTutor?.isActive ? "default" : "destructive"}>
@@ -291,10 +299,10 @@ export default function AdminTutorProfilePage() {
                         </a>
                         </Button>
                     ) : isLoading && <Skeleton className="h-8 w-32 rounded-md" />}
-                    <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)} disabled={!tutor}>
+                    <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)} disabled={isLoading}>
                         <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
                     </Button>
-                    {tutor && !tutor.isActive && (
+                    {displayTutor && !displayTutor.isActive && (
                         <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsActivationModalOpen(true)}>
                             <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
                         </Button>
@@ -308,7 +316,7 @@ export default function AdminTutorProfilePage() {
                         <MetricCard title="Enquiries Assigned" value={String(tutorInsights.enquiriesAssigned)} IconEl={Briefcase} />
                         <MetricCard title="Demos Scheduled" value={String(tutorInsights.demosScheduled)} IconEl={CalendarDays} />
                         <MetricCard title="Average Rating" value={String(tutorInsights.averageRating)} IconEl={Star} />
-                        <MetricCard title="Profile Completion" value={`${tutor?.profileCompletion || 0}%`} IconEl={Percent} />
+                        <MetricCard title="Profile Completion" value={`${displayTutor?.profileCompletion || 0}%`} IconEl={Percent} />
                     </>
                 )}
             </div>
@@ -319,15 +327,15 @@ export default function AdminTutorProfilePage() {
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>About</CardTitle>
                             {isLoading ? <Skeleton className="h-6 w-24 rounded-full"/> : 
-                            <Badge variant={tutor?.isBioReviewed ? "default" : "destructive"}>
-                                {tutor?.isBioReviewed ? "Reviewed" : "Pending Review"}
+                            <Badge variant={displayTutor?.isBioReviewed ? "default" : "destructive"}>
+                                {displayTutor?.isBioReviewed ? "Reviewed" : "Pending Review"}
                             </Badge>}
                         </CardHeader>
                         <CardContent>
                            {isLoading ? <Skeleton className="h-20 w-full"/> : 
-                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>}
+                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{displayTutor?.bio || "No biography provided."}</p>}
                         </CardContent>
-                        {!isLoading && tutor && !tutor.isBioReviewed && (
+                        {!isLoading && displayTutor && !displayTutor.isBioReviewed && (
                             <CardFooter>
                                 <Button size="sm">
                                     <CheckCircle className="mr-2 h-4 w-4" /> Approve Bio
@@ -341,12 +349,12 @@ export default function AdminTutorProfilePage() {
                         </CardHeader>
                          <CardContent className="space-y-4">
                             {isLoading ? <Skeleton className="h-32 w-full"/> : <>
-                            <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
-                            <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
-                            <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
+                            <InfoBadgeList icon={BookOpen} label="Subjects" items={displayTutor?.subjectsList || []}/>
+                            <InfoBadgeList icon={GraduationCap} label="Grades" items={displayTutor?.gradesList || []}/>
+                            <InfoBadgeList icon={Building} label="Boards" items={displayTutor?.boardsList || []}/>
                              <Separator />
-                            <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
-                            <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
+                            <InfoBadgeList icon={CalendarDays} label="Available Days" items={displayTutor?.availabilityDaysList || []}/>
+                            <InfoBadgeList icon={Clock} label="Available Times" items={displayTutor?.availabilityTimeList || []}/>
                             </>}
                         </CardContent>
                     </Card>
@@ -367,10 +375,10 @@ export default function AdminTutorProfilePage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                              {isLoading ? <Skeleton className="h-24 w-full"/> : <>
-                            <InfoItem icon={Briefcase} label="Experience">{tutor?.experienceYears}</InfoItem>
-                            <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
-                            <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
-                            <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
+                            <InfoItem icon={Briefcase} label="Experience">{displayTutor?.experienceYears}</InfoItem>
+                            <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${displayTutor?.hourlyRate} ${displayTutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                            <InfoItem icon={GraduationCap} label="Qualifications">{displayTutor?.qualificationList?.join(', ')}</InfoItem>
+                            <InfoItem icon={Languages} label="Languages">{displayTutor?.languagesList?.join(', ')}</InfoItem>
                             </>}
                         </CardContent>
                     </Card>
@@ -381,18 +389,18 @@ export default function AdminTutorProfilePage() {
                         <CardContent className="space-y-4">
                              {isLoading ? <Skeleton className="h-16 w-full"/> : <>
                              <div className="flex items-center gap-2">
-                                {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
-                                {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
-                                {tutor?.isHybrid && <Badge>Hybrid</Badge>}
+                                {displayTutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
+                                {displayTutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
+                                {displayTutor?.isHybrid && <Badge>Hybrid</Badge>}
                              </div>
-                             {tutor?.offline && (
+                             {displayTutor?.offline && (
                                 <InfoItem icon={MapPin} label="Address">
-                                  {tutor.googleMapsLink ? (
-                                    <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                      {tutor.addressName || tutor.address}
+                                  {displayTutor.googleMapsLink ? (
+                                    <a href={displayTutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                      {displayTutor.addressName || displayTutor.address}
                                     </a>
                                   ) : (
-                                    <span>{tutor.addressName || tutor.address || "Not specified"}</span>
+                                    <span>{displayTutor.addressName || displayTutor.address || "Not specified"}</span>
                                   )}
                                 </InfoItem>
                               )}
@@ -411,7 +419,7 @@ export default function AdminTutorProfilePage() {
             <AdminUpdateTutorModal
                 isOpen={isUpdateModalOpen}
                 onOpenChange={setIsUpdateModalOpen}
-                tutor={tutor}
+                tutor={displayTutor}
             />
         </div>
     );
