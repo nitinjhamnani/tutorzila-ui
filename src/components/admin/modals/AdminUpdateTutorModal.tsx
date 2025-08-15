@@ -166,6 +166,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         title: "Tutor Updated!",
         description: "The tutor's details have been updated successfully.",
       });
+      // Directly update the query cache with the response from the update API
       queryClient.setQueryData(['tutorProfile', variables.tutorId], data);
       onOpenChange(false);
     },
@@ -180,9 +181,6 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
 
   React.useEffect(() => {
     if (tutor && isOpen) {
-      const modes = [];
-      if (tutor.online) modes.push("Online");
-      if (tutor.offline) modes.push("Offline");
       form.reset({
         displayName: tutor.displayName,
         gender: tutor.gender,
@@ -223,8 +221,6 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   };
   
   const isOfflineModeSelected = form.watch("offline");
-
-  if (!tutor) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -452,7 +448,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                             selectedValues={field.value}
                             onValueChange={field.onChange}
                             placeholder="Select days..."
-                            className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                            className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                         />
                         <FormMessage />
                         </FormItem>
@@ -469,7 +465,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                             selectedValues={field.value}
                             onValueChange={field.onChange}
                             placeholder="Select time slots..."
-                            className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                            className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                         />
                         <FormMessage />
                         </FormItem>
