@@ -165,28 +165,6 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
   );
 };
 
-interface MetricCardProps {
-  title: string;
-  value: string;
-  IconEl: React.ElementType;
-}
-
-function MetricCard({ title, value, IconEl }: MetricCardProps) {
-  return (
-    <Card className="bg-card rounded-lg p-4 border-0 shadow-lg transform transition-all hover:-translate-y-1 hover:shadow-xl">
-      <div className="flex items-center gap-3">
-         <div className="w-9 h-9 flex items-center justify-center bg-primary/10 rounded-lg text-primary shrink-0">
-            <IconEl className="w-5 h-5" />
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">{title}</p>
-          <h3 className="text-lg font-bold text-primary">{value}</h3>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
 
 export default function AdminTutorProfilePage() {
     const params = useParams();
@@ -245,12 +223,6 @@ export default function AdminTutorProfilePage() {
         </div>
       )
     }
-    
-    const tutorInsights = {
-        enquiriesAssigned: 12, 
-        demosScheduled: 5,
-        averageRating: 4.8
-    };
 
     return (
       <TooltipProvider>
@@ -308,17 +280,6 @@ export default function AdminTutorProfilePage() {
                     )}
                 </CardFooter>
             </Card>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {isLoading ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-lg" />) : (
-                    <>
-                        <MetricCard title="Enquiries Assigned" value={String(tutorInsights.enquiriesAssigned)} IconEl={Briefcase} />
-                        <MetricCard title="Demos Scheduled" value={String(tutorInsights.demosScheduled)} IconEl={CalendarDays} />
-                        <MetricCard title="Average Rating" value={String(tutorInsights.averageRating)} IconEl={Star} />
-                        <MetricCard title="Profile Completion" value={`${tutor?.profileCompletion || 0}%`} IconEl={Percent} />
-                    </>
-                )}
-            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
