@@ -194,10 +194,10 @@ export default function AdminTutorProfilePage() {
         if (fetchedTutorDetails) {
             return {
                 ...fetchedTutorDetails, // Fetched details
-                name: initialTutorData?.name,
-                email: initialTutorData?.email,
-                phone: initialTutorData?.phone,
-                countryCode: initialTutorData?.countryCode,
+                name: initialTutorData?.name, // Use name from atom
+                email: initialTutorData?.email, // Use email from atom
+                phone: initialTutorData?.phone, // Use phone from atom
+                countryCode: initialTutorData?.countryCode, // use countryCode from atom
                 profilePicUrl: fetchedTutorDetails.profilePicUrl || initialTutorData?.profilePicUrl, // Prioritize fetched URL
             };
         }
@@ -410,4 +410,3 @@ export default function AdminTutorProfilePage() {
     );
 }
 
-    
