@@ -39,6 +39,7 @@ import {
   UserPlus,
   RadioTower,
   Users as UsersIcon,
+  ShieldCheck,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -78,6 +79,7 @@ const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
     online: tutor.online,
     offline: tutor.offline,
     profilePicUrl: tutor.profilePicUrl,
+    isVerified: tutor.isVerified, // Added from API response
     // Fields from old type that are still needed for other parts of the app
     // They will be populated from other sources or have defaults.
     name: tutor.tutorName,
@@ -179,7 +181,28 @@ export default function AdminTutorsPage() {
                   </Avatar>
                 )}
                 <div>
-                    <div className="font-medium text-foreground">{tutor.displayName}</div>
+                    <div className="font-medium text-foreground flex items-center gap-1.5">
+                       {tutor.isVerified ? (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <ShieldCheck className="h-4 w-4 text-green-500"/>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Verified</p></TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        ) : (
+                             <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <ShieldAlert className="h-4 w-4 text-yellow-500"/>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Not Verified</p></TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
+                      {tutor.displayName}
+                    </div>
                     <div className="text-xs text-muted-foreground">{tutor.city}, {tutor.state}</div>
                 </div>
               </div>
