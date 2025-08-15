@@ -276,7 +276,7 @@ export default function AdminTutorsPage() {
                         )}
                       {tutor.displayName}
                     </div>
-                    <div className="text-xs text-muted-foreground">{tutor.city}, {tutor.state}</div>
+                    <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
                 </div>
               </div>
             </TableCell>
