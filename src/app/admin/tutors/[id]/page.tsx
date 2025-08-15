@@ -107,7 +107,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
 };
 
 
-const getInitials = (name: string): string => {
+const getInitials = (name?: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
   return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
@@ -208,7 +208,7 @@ export default function AdminTutorProfilePage() {
       );
     }
 
-    if (error && !initialTutorData) {
+    if (error) {
       return (
         <div className="text-center py-10 text-destructive">
           <p>Error loading tutor details: {(error as Error).message}</p>
@@ -217,17 +217,6 @@ export default function AdminTutorProfilePage() {
            </Button>
         </div>
       )
-    }
-    
-    if (!initialTutorData && !isLoading) {
-        return (
-            <div className="text-center py-10 text-muted-foreground">
-                Tutor data not available. Please go back to the list and select a tutor.
-                <Button asChild variant="outline" size="sm" className="mt-4 block mx-auto">
-                    <Link href="/admin/tutors"><ArrowLeft className="mr-2 h-4 w-4"/> Back to Tutors</Link>
-                </Button>
-            </div>
-        );
     }
     
     const tutorInsights = {
@@ -249,7 +238,7 @@ export default function AdminTutorProfilePage() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{initialTutorData?.name}</CardTitle>
+                                <CardTitle className="text-2xl font-bold text-foreground">{initialTutorData?.name || "Not Available"}</CardTitle>
                                 <CardDescription className="text-sm text-muted-foreground">{fetchedTutorDetails?.gender || "Not Specified"}</CardDescription>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
                                     {isLoading ? <Skeleton className="h-5 w-20 rounded-full" /> : (
@@ -353,8 +342,8 @@ export default function AdminTutorProfilePage() {
                             <CardTitle>Personal & Contact</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <InfoItem icon={Mail} label="Email">{initialTutorData?.email}</InfoItem>
-                            <InfoItem icon={Phone} label="Phone">{initialTutorData?.countryCode ? `${initialTutorData.countryCode} ${initialTutorData.phone}` : initialTutorData?.phone}</InfoItem>
+                            <InfoItem icon={Mail} label="Email">{initialTutorData?.email || "Not Available"}</InfoItem>
+                            <InfoItem icon={Phone} label="Phone">{initialTutorData?.countryCode ? `${initialTutorData.countryCode} ${initialTutorData.phone}` : (initialTutorData?.phone || "Not Available")}</InfoItem>
                         </CardContent>
                     </Card>
                     <Card>
