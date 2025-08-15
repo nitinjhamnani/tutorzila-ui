@@ -258,26 +258,30 @@ export default function AdminTutorProfilePage() {
             <Card className="relative">
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                        <div className="flex items-center gap-4 flex-grow min-w-0">
-                            <Avatar className="h-24 w-24 border-2 border-primary/30">
-                                <AvatarImage src={tutor?.profilePicUrl} alt={tutor?.name || ""} />
-                                <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                                    {getInitials(tutor?.name)}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{tutor?.name || "Not Available"}</CardTitle>
-                                <CardDescription className="text-sm text-muted-foreground">{tutor?.gender || "Not Specified"}</CardDescription>
-                                <div className="mt-2 flex flex-wrap items-center gap-2">
-                                    <Badge variant={tutor?.isActive ? "default" : "destructive"}>
-                                        {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                        {tutor?.isActive ? 'Active' : 'Inactive'}
-                                    </Badge>
-                                     <Badge variant={tutor?.isVerified ? "default" : "destructive"}>
-                                        {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                                        {tutor?.isVerified ? 'Verified' : 'Not Verified'}
-                                    </Badge>
-                                </div>
+                        <div className="flex-grow min-w-0">
+                             <div className="flex flex-wrap items-center gap-2">
+                                <Badge variant="default" className="text-sm bg-primary/10 text-primary border-primary/20">
+                                    <BookOpen className="w-3.5 h-3.5 mr-1.5"/>
+                                    {tutor.subjectsList?.[0] || 'N/A'}
+                                </Badge>
+                                <Badge variant="secondary" className="text-sm">
+                                    <GraduationCap className="w-3.5 h-3.5 mr-1.5"/>
+                                    {tutor.gradesList?.[0] || 'N/A'}
+                                </Badge>
+                                 <Badge variant="outline" className="text-sm">
+                                    <Building className="w-3.5 h-3.5 mr-1.5"/>
+                                    {tutor.boardsList?.[0] || 'N/A'}
+                                </Badge>
+                            </div>
+                            <div className="mt-4 flex flex-wrap items-center gap-2">
+                                <Badge variant={tutor?.isActive ? "default" : "destructive"}>
+                                    {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                    {tutor?.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                                 <Badge variant={tutor?.isVerified ? "default" : "destructive"}>
+                                    {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                                    {tutor?.isVerified ? 'Verified' : 'Not Verified'}
+                                </Badge>
                             </div>
                         </div>
                     </div>
@@ -346,7 +350,7 @@ export default function AdminTutorProfilePage() {
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Specialization & Availability</CardTitle>
+                            <CardTitle>Specialization &amp; Availability</CardTitle>
                         </CardHeader>
                          <CardContent className="space-y-4">
                             {isLoading ? <Skeleton className="h-32 w-full"/> : <>
@@ -363,9 +367,11 @@ export default function AdminTutorProfilePage() {
                 <div className="lg:col-span-1 space-y-6">
                      <Card>
                         <CardHeader>
-                            <CardTitle>Personal & Contact</CardTitle>
+                            <CardTitle>Personal &amp; Contact</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
+                           <InfoItem icon={User} label="Full Name">{tutor?.displayName || "Not Available"}</InfoItem>
+                           <InfoItem icon={User} label="Gender">{tutor?.gender || "Not Specified"}</InfoItem>
                             <InfoItem 
                                 icon={Mail} 
                                 label="Email" 
@@ -423,7 +429,7 @@ export default function AdminTutorProfilePage() {
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Location & Mode</CardTitle>
+                            <CardTitle>Location &amp; Mode</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              {isLoading ? <Skeleton className="h-16 w-full"/> : <>
