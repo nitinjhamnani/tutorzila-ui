@@ -20,7 +20,7 @@ import {
   CalendarCheck,
   Camera,
 } from "lucide-react";
-import React, { useEffect, useState, useRef, ChangeEvent } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AdminDashboardData, User } from "@/types";
@@ -115,7 +115,6 @@ export default function AdminDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { hideLoader } = useGlobalLoader();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
   const { data: dashboardData, isLoading, error } = useQuery<AdminDashboardData>({
@@ -134,16 +133,6 @@ export default function AdminDashboardPage() {
     }
   }, [isAuthenticated, isCheckingAuth, user, router, hideLoader]);
   
-  const handleAvatarUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
-    }
-  };
 
 
   if (isCheckingAuth || isLoading || !user) {
@@ -187,24 +176,12 @@ export default function AdminDashboardPage() {
         <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 border-0">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="relative group shrink-0">
+              <div className="relative shrink-0">
                 <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                  <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
                     {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <button
-                  onClick={handleAvatarUploadClick}
-                  className={cn(
-                    "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
-                    "bg-primary/20 hover:bg-primary/30 text-primary"
-                  )}
-                  aria-label="Update profile picture"
-                >
-                  <Camera className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                </button>
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {user.name} <span className="inline-block ml-1">👋</span></h1>
