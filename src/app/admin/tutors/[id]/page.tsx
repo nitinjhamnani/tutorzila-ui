@@ -201,20 +201,6 @@ export default function AdminTutorProfilePage() {
         }
     };
     
-    if (!initialTutorData) {
-        return (
-          <div className="flex h-screen items-center justify-center text-center">
-            <div>
-              <p className="text-destructive text-lg font-semibold">Tutor data not available.</p>
-              <p className="text-muted-foreground mt-2">Please go back to the list and select a tutor again.</p>
-              <Button asChild variant="outline" size="sm" className="mt-4">
-                  <Link href="/admin/tutors"><ArrowLeft className="mr-2 h-4 w-4"/> Go Back</Link>
-              </Button>
-            </div>
-          </div>
-        );
-    }
-    
     if (isLoading) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
@@ -223,7 +209,7 @@ export default function AdminTutorProfilePage() {
       );
     }
 
-    if (error) {
+    if (error && !initialTutorData) {
       return (
         <div className="text-center py-10 text-destructive">
           <p>Error loading tutor details: {(error as Error).message}</p>
@@ -418,3 +404,4 @@ export default function AdminTutorProfilePage() {
         </div>
     );
 }
+
