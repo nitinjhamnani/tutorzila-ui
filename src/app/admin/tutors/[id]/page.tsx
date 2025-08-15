@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useState, type ElementType } from "react";
+import React, { useState, type ElementType } from "react";
 import { ActivationModal } from "@/components/admin/modals/ActivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { cn } from "@/lib/utils";
