@@ -187,6 +187,8 @@ export default function AdminTutorProfilePage() {
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
+        refetchOnWindowFocus: false,
+        staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
     });
     
     const handleShareProfile = async () => {
@@ -204,6 +206,18 @@ export default function AdminTutorProfilePage() {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      );
+    }
+    
+    if (!initialTutorData) {
+      return (
+        <div className="text-center py-10">
+          <p className="text-lg font-semibold text-destructive">Tutor data not available.</p>
+          <p className="text-sm text-muted-foreground">Please go back to the list and select a tutor.</p>
+           <Button asChild variant="outline" size="sm" className="mt-4">
+              <Link href="/admin/tutors"><ArrowLeft className="mr-2 h-4 w-4"/> Go Back</Link>
+           </Button>
         </div>
       );
     }
@@ -238,7 +252,7 @@ export default function AdminTutorProfilePage() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{initialTutorData?.name || "Not Available"}</CardTitle>
+                                <CardTitle className="text-2xl font-bold text-foreground">{initialTutorData.name}</CardTitle>
                                 <CardDescription className="text-sm text-muted-foreground">{fetchedTutorDetails?.gender || "Not Specified"}</CardDescription>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
                                     {isLoading ? <Skeleton className="h-5 w-20 rounded-full" /> : (
