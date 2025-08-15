@@ -116,6 +116,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       isHybrid: tutoringDetails.hybrid,
       
       gender: userDetails.gender,
+      isVerified: userDetails.emailVerified && userDetails.phoneVerified, // Derived isVerified
     } as ApiTutor;
 };
 
@@ -261,15 +262,22 @@ export default function AdminTutorProfilePage() {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0 self-start sm:self-center">
-                            <Button asChild variant="outline" size="sm" className="h-8">
-                                <Link href={`/tutors/${tutorId}`} target="_blank"><Eye className="h-4 w-4 mr-1.5" /> Public</Link>
-                            </Button>
-                            <Button variant="outline" size="sm" className="h-8" onClick={handleShareProfile}><Share2 className="h-4 w-4 mr-1.5" /> Share</Button>
-                             <Button size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)} disabled={isLoading}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
-                        </div>
                     </div>
                 </CardContent>
+                 <CardFooter className="p-5 md:p-6 border-t flex flex-wrap justify-between items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      {!tutor?.isActive && (
+                          <Button size="sm" className="h-8 bg-green-600 hover:bg-green-700" onClick={() => setIsActivationModalOpen(true)}>Activate Tutor</Button>
+                      )}
+                      <Button size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)} disabled={isLoading}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href={`/tutors/${tutorId}`} target="_blank"><Eye className="h-4 w-4 mr-1.5" /> Public View</Link>
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8" onClick={handleShareProfile}><Share2 className="h-4 w-4 mr-1.5" /> Share</Button>
+                    </div>
+                </CardFooter>
             </Card>
 
             <Card>
