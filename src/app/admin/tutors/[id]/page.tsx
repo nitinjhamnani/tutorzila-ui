@@ -72,9 +72,9 @@ const fetchTutorProfile = async (tutorId: string, token: string | null, baseTuto
     
     // Merge fetched data with base details from the list page
     return {
-      ...baseTutorDetails, // Use base details as the foundation
+      ...baseTutorDetails, 
       id: tutorId,
-      displayName: data.displayName || baseTutorDetails.name || "N/A", // Prioritize API displayName, fallback to name from list
+      displayName: data.displayName || baseTutorDetails.name || "N/A",
       gender: data.gender || "Not specified",
       subjectsList: data.tutoringDetails.subjects || [],
       hourlyRate: data.tutoringDetails.hourlyRate || 0,
@@ -104,6 +104,11 @@ const fetchTutorProfile = async (tutorId: string, token: string | null, baseTuto
       online: data.tutoringDetails.online || false,
       offline: data.tutoringDetails.offline || false,
       profilePicUrl: data.profilePicUrl || baseTutorDetails.profilePicUrl,
+      // Ensure personal details from listing are preserved
+      name: baseTutorDetails.name,
+      email: baseTutorDetails.email,
+      phone: baseTutorDetails.phone,
+      countryCode: baseTutorDetails.countryCode,
     };
 };
 
@@ -186,7 +191,7 @@ export default function AdminTutorProfilePage() {
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token, initialTutorData || {}),
-        enabled: !!tutorId && !!token,
+        enabled: !!tutorId && !!token && !!initialTutorData,
     });
     
     const displayTutor = tutor || initialTutorData;
@@ -240,13 +245,13 @@ export default function AdminTutorProfilePage() {
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                         <div className="flex items-center gap-4 flex-grow min-w-0">
                             <Avatar className="h-24 w-24 border-2 border-primary/30">
-                                <AvatarImage src={displayTutor.profilePicUrl} alt={displayTutor.displayName} />
+                                <AvatarImage src={displayTutor.profilePicUrl} alt={displayTutor.displayName || displayTutor.name} />
                                 <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                                    {getInitials(displayTutor.displayName)}
+                                    {getInitials(displayTutor.displayName || displayTutor.name || "")}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{displayTutor.displayName}</CardTitle>
+                                <CardTitle className="text-2xl font-bold text-foreground">{displayTutor.displayName || displayTutor.name}</CardTitle>
                                 <CardDescription className="text-sm text-muted-foreground">{displayTutor.gender}</CardDescription>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
                                     <Badge variant={displayTutor.isActive ? "default" : "destructive"}>
@@ -377,7 +382,7 @@ export default function AdminTutorProfilePage() {
             <ActivationModal
                 isOpen={isActivationModalOpen}
                 onOpenChange={setIsActivationModalOpen}
-                tutorName={displayTutor.displayName}
+                tutorName={displayTutor.displayName || displayTutor.name || ""}
             />
             
             <AdminUpdateTutorModal

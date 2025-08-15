@@ -88,7 +88,7 @@ export default function AdminTutorsPage() {
   };
   
   const handleViewTutor = (tutor: ApiTutor) => {
-    setSelectedTutor(tutor);
+    setSelectedTutor(tutor); // Pass the full tutor object
     router.push(`/admin/tutors/${tutor.id}`);
   };
 
