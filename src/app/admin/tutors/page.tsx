@@ -330,7 +330,7 @@ export default function AdminTutorsPage() {
     <>
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
-        <CardHeader className="p-0">
+        <CardHeader className="p-0 flex flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex-grow min-w-0">
             <CardTitle className="text-xl font-semibold text-primary flex items-center">
               <Users className="w-5 h-5 mr-2.5" />
@@ -340,6 +340,10 @@ export default function AdminTutorsPage() {
               View, manage, and approve tutors on the platform.
             </CardDescription>
           </div>
+          <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Tutor
+          </Button>
         </CardHeader>
       </Card>
       
@@ -439,11 +443,6 @@ export default function AdminTutorsPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-
-        <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Tutor
-        </Button>
       </div>
 
       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
