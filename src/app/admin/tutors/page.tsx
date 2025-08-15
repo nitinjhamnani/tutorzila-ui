@@ -79,7 +79,7 @@ const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
     online: tutor.online,
     offline: tutor.offline,
     profilePicUrl: tutor.profilePicUrl,
-    isVerified: tutor.isVerified, // Added from API response
+    isVerified: tutor.verified, 
     // Fields from old type that are still needed for other parts of the app
     // They will be populated from other sources or have defaults.
     name: tutor.tutorName,

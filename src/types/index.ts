@@ -82,7 +82,7 @@ export interface ApiTutor {
   isBioReviewed: boolean; // Was bioReviewed
   online: boolean;
   offline: boolean;
-  isVerified?: boolean;
+  isVerified: boolean; // Changed from optional
   
   // Fields from old type that are still needed for other parts of the app
   name?: string; // Alias for displayName
