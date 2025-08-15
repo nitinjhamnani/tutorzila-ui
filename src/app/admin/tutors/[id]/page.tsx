@@ -230,130 +230,162 @@ export default function AdminTutorProfilePage() {
 
     return (
       <TooltipProvider>
-        <div className="space-y-6">
-            <Card className="relative bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-                <CardContent className="p-5 md:p-6">
-                    <div className="flex flex-col sm:flex-row items-start justify-between gap-6">
-                        <div className="flex items-center gap-4 flex-grow min-w-0">
-                            <Avatar className="h-20 w-20 border-2 border-primary/20">
-                                <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-                                <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                                    {getInitials(tutor.displayName)}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1.5">
-                                  <span className="flex items-center gap-1.5"><Mail className="w-4 h-4"/> {tutor.email}</span>
-                                  {tutor.phone && <span className="flex items-center gap-1.5"><Phone className="w-4 h-4"/> {tutor.countryCode} {tutor.phone}</span>}
-                                </div>
-                                <div className="mt-2.5 flex items-center gap-2">
-                                    <Badge variant={tutor?.isActive ? "default" : "destructive"}>
-                                        {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                        {tutor?.isActive ? 'Active' : 'Inactive'}
-                                    </Badge>
-                                     <Badge variant={tutor?.isVerified ? "default" : "destructive"}>
-                                        {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                                        {tutor?.isVerified ? 'Verified' : 'Not Verified'}
-                                    </Badge>
-                                </div>
-                            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Left Column */}
+            <div className="md:col-span-1 space-y-6">
+                <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                    <CardContent className="p-5 md:p-6 text-center">
+                        <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
+                            <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                            <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
+                                {getInitials(tutor.displayName)}
+                            </AvatarFallback>
+                        </Avatar>
+                        <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
+                        <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
+                            <Badge variant={tutor?.isActive ? "default" : "destructive"}>
+                                {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                {tutor?.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                             <Badge variant={tutor?.isVerified ? "default" : "destructive"}>
+                                {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                                {tutor?.isVerified ? 'Verified' : 'Not Verified'}
+                            </Badge>
                         </div>
-                    </div>
-                </CardContent>
-                 <CardFooter className="p-5 md:p-6 border-t flex flex-wrap justify-between items-center gap-3">
-                    <div className="flex items-center gap-2">
+                    </CardContent>
+                    <CardFooter className="p-3 border-t flex flex-wrap justify-center gap-2">
                       {!tutor?.isActive && (
                           <Button variant="outline" size="sm" className="h-8" onClick={() => setIsActivationModalOpen(true)}>
                             <Unlock className="h-4 w-4 mr-1.5" /> Activate
                           </Button>
                       )}
                       <Button variant="outline" size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
-                    </div>
-                    <div className="flex items-center gap-2">
                       <Button asChild variant="outline" size="sm" className="h-8">
                           <Link href={`/tutors/${tutorId}`} target="_blank"><Eye className="h-4 w-4 mr-1.5" /> Public View</Link>
                       </Button>
                       <Button variant="outline" size="sm" className="h-8" onClick={handleShareProfile}><Share2 className="h-4 w-4 mr-1.5" /> Share</Button>
-                    </div>
-                </CardFooter>
-            </Card>
+                    </CardFooter>
+                </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 {/* Main Content Column */}
-                <div className="md:col-span-2 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>About</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Specialization & Availability</CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                           <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
-                           <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
-                           <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
-                           <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
-                           <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
-                        </CardContent>
-                    </Card>
-                </div>
-                {/* Right Sidebar Column */}
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Professional Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <InfoItem icon={Briefcase} label="Experience">{tutor?.yearOfExperience}</InfoItem>
-                            <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
-                            <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
-                            <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Location & Mode</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Personal & Contact</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <InfoItem icon={User} label="Name">{tutor.displayName}</InfoItem>
+                         <InfoItem icon={Mail} label="Email">
                             <div className="flex items-center gap-2">
-                                {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
-                                {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
-                                {tutor?.isHybrid && <Badge>Hybrid</Badge>}
-                            </div>
-                            {tutor?.offline && (
-                                <InfoItem icon={MapPin} label="Address">
-                                {tutor.googleMapsLink ? (
-                                    <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                    {tutor.addressName || tutor.address}
-                                    </a>
+                                <span>{tutor.email}</span>
+                                {tutor.emailVerified ? (
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100"><MailCheck className="h-3 w-3"/></Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Email Verified</p></TooltipContent>
+                                </Tooltip>
                                 ) : (
-                                    <span>{tutor.addressName || tutor.address || "Not specified"}</span>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <XCircle className="h-4 w-4 text-destructive"/>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Email Not Verified</p></TooltipContent>
+                                </Tooltip>
                                 )}
-                                </InfoItem>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
+                            </div>
+                        </InfoItem>
+                        <InfoItem icon={Phone} label="Phone">
+                             <div className="flex items-center gap-2">
+                                <span>{tutor.countryCode} {tutor.phone}</span>
+                                {tutor.phoneVerified ? (
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100"><PhoneCall className="h-3 w-3"/></Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Phone Verified</p></TooltipContent>
+                                </Tooltip>
+                                ) : (
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <XCircle className="h-4 w-4 text-destructive"/>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Phone Not Verified</p></TooltipContent>
+                                </Tooltip>
+                                )}
+                            </div>
+                        </InfoItem>
+                    </CardContent>
+                </Card>
             </div>
-            
-            <ActivationModal
-                isOpen={isActivationModalOpen}
-                onOpenChange={setIsActivationModalOpen}
-                tutorName={tutor?.name || ""}
-            />
-            
-            <AdminUpdateTutorModal
-                isOpen={isUpdateModalOpen}
-                onOpenChange={setIsUpdateModalOpen}
-                tutor={tutor}
-            />
+             {/* Main Content Column */}
+            <div className="md:col-span-2 space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>About</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Specialization & Availability</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                       <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
+                       <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
+                       <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
+                       <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
+                       <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Professional Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                       <InfoItem icon={Briefcase} label="Experience">{tutor?.yearOfExperience}</InfoItem>
+                        <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                        <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
+                        <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Location & Mode</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
+                            {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
+                            {tutor?.isHybrid && <Badge>Hybrid</Badge>}
+                        </div>
+                        {tutor?.offline && (
+                            <InfoItem icon={MapPin} label="Address">
+                            {tutor.googleMapsLink ? (
+                                <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                {tutor.addressName || tutor.address}
+                                </a>
+                            ) : (
+                                <span>{tutor.addressName || tutor.address || "Not specified"}</span>
+                            )}
+                            </InfoItem>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
         </div>
+        
+        <ActivationModal
+            isOpen={isActivationModalOpen}
+            onOpenChange={setIsActivationModalOpen}
+            tutorName={tutor?.name || ""}
+        />
+        
+        <AdminUpdateTutorModal
+            isOpen={isUpdateModalOpen}
+            onOpenChange={setIsUpdateModalOpen}
+            tutor={tutor}
+        />
       </TooltipProvider>
     );
 }
