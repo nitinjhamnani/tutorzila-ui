@@ -56,7 +56,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAtomValue } from "jotai";
 import { selectedTutorAtom } from "@/lib/state/admin";
 
-const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
+const fetchTutorProfile = async (tutorId: string, token: string | null, baseTutorDetails: Partial<ApiTutor>): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
     const response = await fetch(`${apiBaseUrl}/api/manage/tutor/${tutorId}`, {
@@ -70,10 +70,11 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
     }
     const data = await response.json();
     
-    // Transform the new API response to the existing ApiTutor structure
+    // Merge fetched data with base details from the list page
     return {
+      ...baseTutorDetails, // Use base details as the foundation
       id: tutorId,
-      displayName: data.displayName || "N/A",
+      displayName: data.displayName || baseTutorDetails.name || "N/A", // Prioritize API displayName, fallback to name from list
       gender: data.gender || "Not specified",
       subjectsList: data.tutoringDetails.subjects || [],
       hourlyRate: data.tutoringDetails.hourlyRate || 0,
@@ -93,16 +94,16 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       languagesList: data.tutoringDetails.languages || [],
       gradesList: data.tutoringDetails.grades || [],
       boardsList: data.tutoringDetails.boards || [],
-      documentsUrl: data.documentsUrl || "", // Assuming this is still top-level
+      documentsUrl: data.documentsUrl || "",
       profileCompletion: data.profileCompletion || 0,
-      isVerified: data.isVerified || false, // Assuming this is still top-level
+      isVerified: data.isVerified || false,
       isActive: data.tutorActive,
       isRateNegotiable: data.tutoringDetails.rateNegotiable || false,
       isHybrid: data.tutoringDetails.hybrid || false,
       isBioReviewed: data.tutoringDetails.bioReviewed || false,
       online: data.tutoringDetails.online || false,
       offline: data.tutoringDetails.offline || false,
-      profilePicUrl: data.profilePicUrl, // Assuming this is still top-level
+      profilePicUrl: data.profilePicUrl || baseTutorDetails.profilePicUrl,
     };
 };
 
@@ -177,26 +178,22 @@ export default function AdminTutorProfilePage() {
     const { toast } = useToast();
     const tutorId = params.id as string;
     
-    // Read the initially selected tutor data from Jotai state
     const initialTutorData = useAtomValue(selectedTutorAtom);
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
-    const { data: queryTutor, isLoading, error } = useQuery<ApiTutor>({
+    const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
-        queryFn: () => fetchTutorProfile(tutorId, token),
+        queryFn: () => fetchTutorProfile(tutorId, token, initialTutorData || {}),
         enabled: !!tutorId && !!token,
-        initialData: initialTutorData && initialTutorData.id === tutorId ? initialTutorData : undefined,
     });
     
-    // Determine which tutor object to display.
-    // Use the fetched data (`queryTutor`) if it's available, otherwise fall back to the initial data from the atom.
-    const tutor = queryTutor || initialTutorData;
+    const displayTutor = tutor || initialTutorData;
 
     const handleShareProfile = async () => {
-        if (!tutor) return;
-        const profileUrl = `${window.location.origin}/tutors/${tutor.id}`;
+        if (!displayTutor) return;
+        const profileUrl = `${window.location.origin}/tutors/${displayTutor.id}`;
         try {
             await navigator.clipboard.writeText(profileUrl);
             toast({ title: "Profile Link Copied!", description: "Tutor's public profile link copied to clipboard." });
@@ -205,7 +202,7 @@ export default function AdminTutorProfilePage() {
         }
     };
     
-    if (isLoading && !tutor) {
+    if (isLoading && !displayTutor) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -213,7 +210,7 @@ export default function AdminTutorProfilePage() {
       );
     }
 
-    if (error) {
+    if (error && !displayTutor) {
         return (
             <div className="text-center py-10 text-destructive">
                 <p>Error loading tutor profile: {(error as Error).message}</p>
@@ -225,13 +222,13 @@ export default function AdminTutorProfilePage() {
         )
     }
 
-    if (!tutor) {
+    if (!displayTutor) {
         return <div className="text-center py-10 text-muted-foreground">Tutor not found.</div>;
     }
     
     // Mock data for insights
     const tutorInsights = {
-        enquiriesAssigned: tutor?.profileCompletion || 12, // Using profile completion as a mock value
+        enquiriesAssigned: displayTutor.profileCompletion || 12, // Using profile completion as a mock value
         demosScheduled: 5,
         averageRating: 4.8
     };
@@ -243,22 +240,22 @@ export default function AdminTutorProfilePage() {
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                         <div className="flex items-center gap-4 flex-grow min-w-0">
                             <Avatar className="h-24 w-24 border-2 border-primary/30">
-                                <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                                <AvatarImage src={displayTutor.profilePicUrl} alt={displayTutor.displayName} />
                                 <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                                    {getInitials(tutor.displayName)}
+                                    {getInitials(displayTutor.displayName)}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
-                                <CardDescription className="text-sm text-muted-foreground">{tutor.gender}</CardDescription>
+                                <CardTitle className="text-2xl font-bold text-foreground">{displayTutor.displayName}</CardTitle>
+                                <CardDescription className="text-sm text-muted-foreground">{displayTutor.gender}</CardDescription>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                                    <Badge variant={tutor.isActive ? "default" : "destructive"}>
-                                        {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                        {tutor.isActive ? 'Active' : 'Inactive'}
+                                    <Badge variant={displayTutor.isActive ? "default" : "destructive"}>
+                                        {displayTutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                        {displayTutor.isActive ? 'Active' : 'Inactive'}
                                     </Badge>
-                                    <Badge variant={tutor.isVerified ? "default" : "destructive"}>
-                                        {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                                        {tutor.isVerified ? 'Verified' : 'Not Verified'}
+                                    <Badge variant={displayTutor.isVerified ? "default" : "destructive"}>
+                                        {displayTutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                                        {displayTutor.isVerified ? 'Verified' : 'Not Verified'}
                                     </Badge>
                                 </div>
                             </div>
@@ -267,7 +264,7 @@ export default function AdminTutorProfilePage() {
                 </CardHeader>
                  <div className="absolute top-4 right-4 flex items-center gap-2">
                     <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                        <Link href={`/tutors/${tutor.id}`} target="_blank">
+                        <Link href={`/tutors/${displayTutor.id}`} target="_blank">
                             <Eye className="h-4 w-4" />
                         </Link>
                     </Button>
@@ -277,9 +274,9 @@ export default function AdminTutorProfilePage() {
                 </div>
                 <CardFooter className="flex-wrap justify-between gap-2 p-4 border-t">
                     <div className="flex flex-wrap gap-2">
-                         {tutor.documentsUrl && (
+                         {displayTutor.documentsUrl && (
                             <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
-                            <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
+                            <a href={displayTutor.documentsUrl} target="_blank" rel="noopener noreferrer">
                             <FileText className="mr-1.5 h-3.5 w-3.5"/> View Documents
                             </a>
                             </Button>
@@ -289,7 +286,7 @@ export default function AdminTutorProfilePage() {
                         <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)}>
                             <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
                         </Button>
-                        {!tutor.isActive && (
+                        {!displayTutor.isActive && (
                             <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsActivationModalOpen(true)}>
                                 <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
                             </Button>
@@ -302,7 +299,7 @@ export default function AdminTutorProfilePage() {
                 <MetricCard title="Enquiries Assigned" value={String(tutorInsights.enquiriesAssigned)} IconEl={Briefcase} />
                 <MetricCard title="Demos Scheduled" value={String(tutorInsights.demosScheduled)} IconEl={CalendarDays} />
                 <MetricCard title="Average Rating" value={String(tutorInsights.averageRating)} IconEl={Star} />
-                <MetricCard title="Profile Completion" value={`${tutor.profileCompletion}%`} IconEl={Percent} />
+                <MetricCard title="Profile Completion" value={`${displayTutor.profileCompletion}%`} IconEl={Percent} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -310,14 +307,14 @@ export default function AdminTutorProfilePage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>About</CardTitle>
-                            <Badge variant={tutor.isBioReviewed ? "default" : "destructive"}>
-                                {tutor.isBioReviewed ? "Reviewed" : "Pending Review"}
+                            <Badge variant={displayTutor.isBioReviewed ? "default" : "destructive"}>
+                                {displayTutor.isBioReviewed ? "Reviewed" : "Pending Review"}
                             </Badge>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
+                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{displayTutor.bio || "No biography provided."}</p>
                         </CardContent>
-                        {!tutor.isBioReviewed && (
+                        {!displayTutor.isBioReviewed && (
                             <CardFooter>
                                 <Button size="sm">
                                     <CheckCircle className="mr-2 h-4 w-4" /> Approve Bio
@@ -330,12 +327,12 @@ export default function AdminTutorProfilePage() {
                             <CardTitle>Specialization & Availability</CardTitle>
                         </CardHeader>
                          <CardContent className="space-y-4">
-                            <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjectsList}/>
-                            <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradesList}/>
-                            <InfoBadgeList icon={Building} label="Boards" items={tutor.boardsList}/>
+                            <InfoBadgeList icon={BookOpen} label="Subjects" items={displayTutor.subjectsList}/>
+                            <InfoBadgeList icon={GraduationCap} label="Grades" items={displayTutor.gradesList}/>
+                            <InfoBadgeList icon={Building} label="Boards" items={displayTutor.boardsList}/>
                              <Separator />
-                            <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor.availabilityDaysList}/>
-                            <InfoBadgeList icon={Clock} label="Available Times" items={tutor.availabilityTimeList}/>
+                            <InfoBadgeList icon={CalendarDays} label="Available Days" items={displayTutor.availabilityDaysList}/>
+                            <InfoBadgeList icon={Clock} label="Available Times" items={displayTutor.availabilityTimeList}/>
                         </CardContent>
                     </Card>
                 </div>
@@ -345,10 +342,10 @@ export default function AdminTutorProfilePage() {
                             <CardTitle>Professional Details</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <InfoItem icon={Briefcase} label="Experience">{tutor.experienceYears}</InfoItem>
-                            <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
-                            <InfoItem icon={GraduationCap} label="Qualifications">{tutor.qualificationList?.join(', ')}</InfoItem>
-                            <InfoItem icon={Languages} label="Languages">{tutor.languagesList?.join(', ')}</InfoItem>
+                            <InfoItem icon={Briefcase} label="Experience">{displayTutor.experienceYears}</InfoItem>
+                            <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${displayTutor.hourlyRate} ${displayTutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                            <InfoItem icon={GraduationCap} label="Qualifications">{displayTutor.qualificationList?.join(', ')}</InfoItem>
+                            <InfoItem icon={Languages} label="Languages">{displayTutor.languagesList?.join(', ')}</InfoItem>
                         </CardContent>
                     </Card>
                     <Card>
@@ -357,18 +354,18 @@ export default function AdminTutorProfilePage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <div className="flex items-center gap-2">
-                                {tutor.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
-                                {tutor.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
-                                {tutor.isHybrid && <Badge>Hybrid</Badge>}
+                                {displayTutor.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
+                                {displayTutor.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
+                                {displayTutor.isHybrid && <Badge>Hybrid</Badge>}
                              </div>
-                             {tutor.offline && (
+                             {displayTutor.offline && (
                                 <InfoItem icon={MapPin} label="Address">
-                                  {tutor.googleMapsLink ? (
-                                    <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                      {tutor.addressName || tutor.address}
+                                  {displayTutor.googleMapsLink ? (
+                                    <a href={displayTutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                      {displayTutor.addressName || displayTutor.address}
                                     </a>
                                   ) : (
-                                    <span>{tutor.addressName || tutor.address || "Not specified"}</span>
+                                    <span>{displayTutor.addressName || displayTutor.address || "Not specified"}</span>
                                   )}
                                 </InfoItem>
                               )}
@@ -380,13 +377,13 @@ export default function AdminTutorProfilePage() {
             <ActivationModal
                 isOpen={isActivationModalOpen}
                 onOpenChange={setIsActivationModalOpen}
-                tutorName={tutor.displayName}
+                tutorName={displayTutor.displayName}
             />
             
             <AdminUpdateTutorModal
                 isOpen={isUpdateModalOpen}
                 onOpenChange={setIsUpdateModalOpen}
-                tutor={tutor}
+                tutor={displayTutor}
             />
         </div>
     );
