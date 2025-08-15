@@ -241,7 +241,7 @@ export default function AdminTutorProfilePage() {
                                     </span>
                                 </div>
                             }
-                            { tutor.offline && (tutor.area || tutor.city) &&
+                            { (tutor.area || tutor.city) &&
                                 <div className="flex items-center justify-center gap-1.5">
                                     <MapPin className="w-3.5 h-3.5 text-primary"/>
                                     <span>{[tutor.area, tutor.city].filter(Boolean).join(', ')}</span>
