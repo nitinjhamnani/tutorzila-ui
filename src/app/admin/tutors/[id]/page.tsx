@@ -325,21 +325,23 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <div className="flex flex-col items-end gap-2 text-right">
-                                <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-destructive/10 text-destructive border-destructive/20">
-                                    <ShieldAlert className="mr-1 h-3 w-3"/>
-                                    Pending Review
-                                </Badge>
-                                <Button variant="outline" size="sm" className="h-7 text-xs">
-                                    <CheckSquare className="mr-1.5 h-3.5 w-3.5" />
-                                    Approve Bio
-                                </Button>
-                            </div>
+                            <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-destructive/10 text-destructive border-destructive/20">
+                                <ShieldAlert className="mr-1 h-3 w-3"/>
+                                Pending Review
+                            </Badge>
                         )}
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
                     </CardContent>
+                    {!tutor.isBioReviewed && (
+                        <CardFooter className="flex justify-end p-3 border-t">
+                            <Button variant="outline" size="sm" className="h-7 text-xs">
+                                <CheckSquare className="mr-1.5 h-3.5 w-3.5" />
+                                Approve Bio
+                            </Button>
+                        </CardFooter>
+                    )}
                 </Card>
                  <Card>
                     <CardHeader>
