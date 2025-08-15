@@ -320,8 +320,13 @@ export default function AdminTutorProfilePage() {
              {/* Main Content Column */}
             <div className="md:col-span-2 space-y-6">
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>About</CardTitle>
+                        {!tutor.isBioReviewed && (
+                            <Badge variant="outline" className="bg-yellow-100 border-yellow-300 text-yellow-800">
+                                Pending Review
+                            </Badge>
+                        )}
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
