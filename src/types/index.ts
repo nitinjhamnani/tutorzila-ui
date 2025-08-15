@@ -68,50 +68,53 @@ export interface TuitionRequirement {
 }
 
 export interface ApiTutor {
-  id: string; // Was tutorId
-  displayName: string; // Was tutorName
-  subjectsList: string[]; // Was subjects (string)
-  gradesList: string[]; // Was grades (string)
-  boardsList: string[]; // Was boards (string)
+  // Fields for list view from /api/search/tutors/all
+  id: string; 
+  displayName: string;
+  subjectsList: string[];
+  gradesList: string[];
+  boardsList: string[];
   area: string;
   city: string;
   state: string;
-  googleMapsLink?: string; // Was googleMapLink
+  googleMapsLink?: string;
   createdAt: string;
-  isActive: boolean; // Was active
-  isBioReviewed: boolean; // Was bioReviewed
+  isActive: boolean;
+  isBioReviewed: boolean;
   online: boolean;
   offline: boolean;
-  isVerified: boolean; // Changed from optional
-  
-  // Fields from old type that are still needed for other parts of the app
-  name?: string; // Alias for displayName
-  email?: string;
-  phone?: string;
-  countryCode?: string;
-  gender?: string;
-  hourlyRate?: number;
-  bio?: string;
+  isVerified: boolean;
+  profilePicUrl?: string;
+
+  // Additional fields for detail view from /api/manage/tutor/{id}
   qualificationList?: string[];
-  experienceYears?: string;
   availabilityDaysList?: string[];
   availabilityTimeList?: string[];
+  yearOfExperience?: string;
+  bio?: string;
   addressName?: string;
   address?: string;
   pincode?: string;
   country?: string;
+  hourlyRate?: number;
   languagesList?: string[];
-  documentsUrl?: string;
   profileCompletion?: number;
   isRateNegotiable?: boolean;
   isHybrid?: boolean;
+
+  // Fields that might come from other sources (like initial user data)
+  name?: string; 
+  email?: string;
+  phone?: string;
+  countryCode?: string;
+  gender?: string;
+  documentsUrl?: string;
   updatedAt?: string;
-  profilePicUrl?: string;
   whatsappEnabled?: boolean;
-  active?: boolean; // Keep for compatibility if needed
+  active?: boolean; 
   emailVerified?: boolean;
   phoneVerified?: boolean;
-  registeredDate?: string; // Keep for compatibility
+  registeredDate?: string;
 }
 
 

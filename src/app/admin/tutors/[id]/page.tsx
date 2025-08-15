@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import type { ApiTutor } from "@/types";
 import {
@@ -70,38 +70,36 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
     }
     const data = await response.json();
     
-    // API returns only professional details. Personal info comes from other sources.
+    // The new API response structure from the prompt
     return {
-      id: tutorId, // Keep the passed-in ID
-      displayName: data.displayName,
-      gender: data.gender || "Not specified",
-      subjectsList: data.tutoringDetails.subjects || [],
-      hourlyRate: data.tutoringDetails.hourlyRate || 0,
-      bio: data.tutoringDetails.tutorBio || "",
-      qualificationList: data.tutoringDetails.qualifications || [],
-      experienceYears: data.tutoringDetails.yearOfExperience || "",
-      availabilityDaysList: data.tutoringDetails.availabilityDays || [],
-      availabilityTimeList: data.tutoringDetails.availabilityTime || [],
-      addressName: data.tutoringDetails.addressName || "",
-      address: data.tutoringDetails.address || "",
-      city: data.tutoringDetails.city || "",
-      state: data.tutoringDetails.state || "",
-      area: data.tutoringDetails.area || "",
-      pincode: data.tutoringDetails.pincode || "",
-      country: data.tutoringDetails.country || "",
-      googleMapsLink: data.tutoringDetails.googleMapsLink || "",
-      languagesList: data.tutoringDetails.languages || [],
-      gradesList: data.tutoringDetails.grades || [],
-      boardsList: data.tutoringDetails.boards || [],
-      documentsUrl: data.documentsUrl || "",
-      profileCompletion: data.profileCompletion || 0,
-      isVerified: data.isVerified || false,
-      isActive: data.tutorActive,
-      isRateNegotiable: data.tutoringDetails.rateNegotiable || false,
-      isHybrid: data.tutoringDetails.hybrid || false,
-      isBioReviewed: data.tutoringDetails.bioReviewed || false,
-      online: data.tutoringDetails.online || false,
-      offline: data.tutoringDetails.offline || false,
+      id: tutorId,
+      displayName: data.displayName, // Assuming this might come from another source or is added
+      gender: data.gender,
+      subjectsList: data.subjects,
+      gradesList: data.grades,
+      boardsList: data.boards,
+      qualificationList: data.qualifications,
+      availabilityDaysList: data.availabilityDays,
+      availabilityTimeList: data.availabilityTime,
+      yearOfExperience: data.yearOfExperience,
+      bio: data.tutorBio,
+      addressName: data.addressName,
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      area: data.area,
+      pincode: data.pincode,
+      country: data.country,
+      googleMapsLink: data.googleMapsLink,
+      hourlyRate: data.hourlyRate,
+      languagesList: data.languages,
+      profileCompletion: data.profileCompletion,
+      isActive: data.active,
+      isRateNegotiable: data.rateNegotiable,
+      isBioReviewed: data.bioReviewed,
+      online: data.online,
+      offline: data.offline,
+      isHybrid: data.hybrid,
       profilePicUrl: data.profilePicUrl,
     } as ApiTutor;
 };
@@ -190,13 +188,11 @@ export default function AdminTutorProfilePage() {
         refetchOnWindowFocus: false,
     });
     
-    // Combine initial (for contact info) and fetched data (for professional details)
     const displayTutor = React.useMemo(() => {
         if (!initialTutorData && !fetchedTutorDetails) return null;
         return {
             ...initialTutorData,
             ...fetchedTutorDetails,
-            // Ensure essential personal details from initial data are not overwritten by undefined from fetched data
             id: initialTutorData?.id || tutorId,
             name: initialTutorData?.name,
             email: initialTutorData?.email,
