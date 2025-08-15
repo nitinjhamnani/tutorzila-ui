@@ -51,6 +51,7 @@ import {
   PhoneCall,
   Unlock,
   VenetianMask,
+  CheckSquare,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -259,13 +260,13 @@ export default function AdminTutorProfilePage() {
                             </Badge>
                         </div>
                     </CardContent>
-                    <CardFooter className="p-3 border-t flex flex-wrap justify-center gap-2">
+                    <CardFooter className="p-3 border-t flex flex-wrap justify-start gap-2">
                       {!tutor?.isActive && (
-                          <Button variant="outline" size="sm" className="h-8" onClick={() => setIsActivationModalOpen(true)}>
-                            <Unlock className="h-4 w-4 mr-1.5" /> Activate
+                          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsActivationModalOpen(true)}>
+                            <Unlock className="h-3.5 w-3.5 mr-1.5" /> Activate
                           </Button>
                       )}
-                      <Button variant="outline" size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
+                      <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsUpdateModalOpen(true)}><Edit3 className="h-3.5 w-3.5 mr-1.5" /> Update</Button>
                     </CardFooter>
                 </Card>
 
@@ -321,13 +322,19 @@ export default function AdminTutorProfilePage() {
              {/* Main Content Column */}
             <div className="md:col-span-2 space-y-6">
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
+                    <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-destructive/10 text-destructive border-destructive/20">
-                                <ShieldAlert className="mr-1 h-3 w-3"/>
-                                Pending Review
-                            </Badge>
+                            <div className="flex flex-col items-end gap-2 text-right">
+                                <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-destructive/10 text-destructive border-destructive/20">
+                                    <ShieldAlert className="mr-1 h-3 w-3"/>
+                                    Pending Review
+                                </Badge>
+                                <Button variant="outline" size="sm" className="h-7 text-xs">
+                                    <CheckSquare className="mr-1.5 h-3.5 w-3.5" />
+                                    Approve Bio
+                                </Button>
+                            </div>
                         )}
                     </CardHeader>
                     <CardContent>
@@ -397,3 +404,5 @@ export default function AdminTutorProfilePage() {
       </TooltipProvider>
     );
 }
+
+    
