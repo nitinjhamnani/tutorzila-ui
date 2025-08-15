@@ -109,7 +109,6 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       languagesList: tutoringDetails.languages,
       profileCompletion: tutoringDetails.profileCompletion,
       isActive: tutoringDetails.active,
-      isVerified: tutoringDetails.verified,
       isRateNegotiable: tutoringDetails.rateNegotiable,
       isBioReviewed: tutoringDetails.bioReviewed,
       online: tutoringDetails.online,
@@ -127,9 +126,12 @@ const getInitials = (name?: string): string => {
   return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
 };
 
-const InfoSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div>
-    <h4 className="text-sm font-semibold text-primary mb-2">{title}</h4>
+const InfoSection = ({ icon: Icon, title, children, className }: { icon: React.ElementType; title: string; children: React.ReactNode; className?:string }) => (
+  <div className={className}>
+    <h4 className="text-sm font-semibold text-primary mb-2 flex items-center">
+      <Icon className="w-4 h-4 mr-2"/>
+      {title}
+    </h4>
     <div className="space-y-3 text-sm">{children}</div>
   </div>
 );
@@ -142,7 +144,6 @@ const InfoItem = ({ icon: Icon, label, children, verificationBadge }: { icon: Re
       <div className="flex flex-col flex-grow">
         <div className="flex justify-between items-center">
             <span className="font-medium text-foreground">{label}</span>
-            {verificationBadge}
         </div>
         <div className="text-muted-foreground text-xs">{children}</div>
       </div>
@@ -224,12 +225,17 @@ export default function AdminTutorProfilePage() {
       )
     }
 
+    const firstSubject = tutor.subjectsList?.[0];
+    const firstGrade = tutor.gradesList?.[0];
+    const firstBoard = tutor.boardsList?.[0];
+
+
     return (
       <TooltipProvider>
         <div className="space-y-6">
-            <Card className="relative bg-card rounded-xl shadow-lg border-0">
-                <CardHeader>
-                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+            <Card className="relative bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                <CardContent className="p-5 md:p-6">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-6">
                         <div className="flex items-center gap-4 flex-grow min-w-0">
                             <Avatar className="h-20 w-20 border-2 border-primary/20">
                                 <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
@@ -239,11 +245,11 @@ export default function AdminTutorProfilePage() {
                             </Avatar>
                             <div className="flex-1 min-w-0">
                                 <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1.5">
                                   <span className="flex items-center gap-1.5"><Mail className="w-4 h-4"/> {tutor.email}</span>
                                   {tutor.phone && <span className="flex items-center gap-1.5"><Phone className="w-4 h-4"/> {tutor.countryCode} {tutor.phone}</span>}
                                 </div>
-                                <div className="mt-2 flex items-center gap-2">
+                                <div className="mt-2.5 flex items-center gap-2">
                                     <Badge variant={tutor?.isActive ? "default" : "destructive"}>
                                         {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                         {tutor?.isActive ? 'Active' : 'Inactive'}
@@ -263,87 +269,65 @@ export default function AdminTutorProfilePage() {
                              <Button size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)} disabled={isLoading}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
                         </div>
                     </div>
-                </CardHeader>
+                </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>About</CardTitle>
-                            {isLoading ? <Skeleton className="h-6 w-24 rounded-full"/> : 
-                            <Badge variant={tutor?.isBioReviewed ? "default" : "destructive"}>
-                                {tutor?.isBioReviewed ? "Reviewed" : "Pending Review"}
-                            </Badge>}
-                        </CardHeader>
-                        <CardContent>
-                           {isLoading ? <Skeleton className="h-20 w-full"/> : 
-                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>}
-                        </CardContent>
-                        {!isLoading && tutor && !tutor.isBioReviewed && (
-                            <CardFooter>
-                                <Button size="sm">
-                                    <CheckCircle className="mr-2 h-4 w-4" /> Approve Bio
-                                </Button>
-                            </CardFooter>
-                        )}
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Specialization &amp; Availability</CardTitle>
-                        </CardHeader>
-                         <CardContent className="space-y-4">
-                            {isLoading ? <Skeleton className="h-32 w-full"/> : <>
-                            <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
-                            <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
-                            <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
-                             <Separator />
-                            <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
-                            <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
-                            </>}
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className="lg:col-span-1 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Professional Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                             {isLoading ? <Skeleton className="h-24 w-full"/> : <>
-                            <InfoItem icon={Briefcase} label="Experience">{tutor?.yearOfExperience}</InfoItem>
-                            <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
-                            <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
-                            <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
-                            </>}
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Location &amp; Mode</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                             {isLoading ? <Skeleton className="h-16 w-full"/> : <>
-                             <div className="flex items-center gap-2">
-                                {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
-                                {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
-                                {tutor?.isHybrid && <Badge>Hybrid</Badge>}
-                             </div>
-                             {tutor?.offline && (
-                                <InfoItem icon={MapPin} label="Address">
-                                  {tutor.googleMapsLink ? (
-                                    <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                      {tutor.addressName || tutor.address}
-                                    </a>
-                                  ) : (
-                                    <span>{tutor.addressName || tutor.address || "Not specified"}</span>
-                                  )}
-                                </InfoItem>
+            <Card>
+                <CardHeader>
+                    <CardTitle>About</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Specialization</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
+                        <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
+                        <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Professional Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <InfoItem icon={Briefcase} label="Experience">{tutor?.yearOfExperience}</InfoItem>
+                        <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                        <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
+                        <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Availability & Mode</CardTitle>
+                    </CardHeader>
+                     <CardContent className="space-y-4">
+                         <div className="flex items-center gap-2">
+                            {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
+                            {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
+                            {tutor?.isHybrid && <Badge>Hybrid</Badge>}
+                         </div>
+                         <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
+                         <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
+                         {tutor?.offline && (
+                            <InfoItem icon={MapPin} label="Address">
+                              {tutor.googleMapsLink ? (
+                                <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                  {tutor.addressName || tutor.address}
+                                </a>
+                              ) : (
+                                <span>{tutor.addressName || tutor.address || "Not specified"}</span>
                               )}
-                              </>}
-                        </CardContent>
-                    </Card>
-                </div>
+                            </InfoItem>
+                          )}
+                    </CardContent>
+                </Card>
             </div>
             
             <ActivationModal
@@ -362,5 +346,3 @@ export default function AdminTutorProfilePage() {
     );
 }
 
-
-    
