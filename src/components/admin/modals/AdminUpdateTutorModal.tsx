@@ -44,16 +44,16 @@ const teachingModeItems = [
 ];
 
 const daysOptionsList: MultiSelectOption[] = [
-  { value: "Monday", label: "Monday" },
-  { value: "Tuesday", label: "Tuesday" },
-  { value: "Wednesday", label: "Wednesday" },
-  { value: "Thursday", label: "Thursday" },
-  { value: "Friday", label: "Friday" },
-  { value: "Saturday", label: "Saturday" },
-  { value: "Sunday", label: "Sunday" },
-  { value: "Weekdays", label: "Weekdays" },
-  { value: "Weekends", label: "Weekends" },
-  { value: "Flexible", label: "Flexible" },
+    { value: "Monday", label: "Monday" },
+    { value: "Tuesday", label: "Tuesday" },
+    { value: "Wednesday", label: "Wednesday" },
+    { value: "Thursday", label: "Thursday" },
+    { value: "Friday", label: "Friday" },
+    { value: "Saturday", label: "Saturday" },
+    { value: "Sunday", label: "Sunday" },
+    { value: "Weekdays", label: "Weekdays" },
+    { value: "Weekends", label: "Weekends" },
+    { value: "Flexible", label: "Flexible" },
 ];
 
 const timeSlotsOptionsList: MultiSelectOption[] = [
@@ -101,6 +101,7 @@ interface AdminUpdateTutorModalProps {
 
 const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: string; token: string | null; formData: AdminTutorUpdateFormValues }) => {
   if (!token) throw new Error("Authentication token not found.");
+  if (!tutorId) throw new Error("Tutor ID is missing.");
 
   const locationDetails = formData.location;
   const requestBody = {
@@ -126,7 +127,6 @@ const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: strin
     online: formData.online,
     offline: formData.offline,
     hybrid: formData.isHybrid,
-    bioReviewed: true, 
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -159,13 +159,14 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   });
 
   const mutation = useMutation({
-    mutationFn: (formData: AdminTutorUpdateFormValues) => updateTutorDetails({ tutorId: tutor!.id, token, formData }),
-    onSuccess: (data) => {
+    mutationFn: (variables: { tutorId: string; formData: AdminTutorUpdateFormValues }) =>
+      updateTutorDetails({ tutorId: variables.tutorId, token, formData: variables.formData }),
+    onSuccess: (data, variables) => {
       toast({
         title: "Tutor Updated!",
         description: "The tutor's details have been updated successfully.",
       });
-      queryClient.setQueryData(['tutorProfile', tutor!.id], data);
+      queryClient.setQueryData(['tutorProfile', variables.tutorId], data);
       onOpenChange(false);
     },
     onError: (error: Error) => {
@@ -179,6 +180,9 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
 
   React.useEffect(() => {
     if (tutor && isOpen) {
+      const modes = [];
+      if (tutor.online) modes.push("Online");
+      if (tutor.offline) modes.push("Offline");
       form.reset({
         displayName: tutor.displayName,
         gender: tutor.gender,
@@ -211,7 +215,11 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   }, [tutor, isOpen, form]);
 
   const onSubmit = (data: AdminTutorUpdateFormValues) => {
-    mutation.mutate(data);
+    if (!tutor?.id) {
+        toast({ variant: "destructive", title: "Error", description: "Tutor ID is missing." });
+        return;
+    }
+    mutation.mutate({ tutorId: tutor.id, formData: data });
   };
   
   const isOfflineModeSelected = form.watch("offline");
@@ -222,7 +230,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
         <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
-          <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
+          <DialogTitle>Update Tutor: {tutor?.displayName || 'Tutor'}</DialogTitle>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto">
           <Form {...form}>
@@ -361,7 +369,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                         selectedValues={field.value}
                         onValueChange={field.onChange}
                         placeholder="Select qualifications..."
-                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                       />
                       <FormMessage />
                     </FormItem>
@@ -378,7 +386,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                         selectedValues={field.value}
                         onValueChange={field.onChange}
                         placeholder="Select languages..."
-                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                       />
                       <FormMessage />
                     </FormItem>

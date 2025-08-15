@@ -190,9 +190,20 @@ export default function AdminTutorProfilePage() {
         refetchOnWindowFocus: false,
     });
 
+    if (!initialTutorData && !isLoading) {
+      return (
+        <div className="text-center py-10">
+            <p className="text-destructive">Tutor data not available. Please go back to the list and select a tutor.</p>
+            <Button asChild variant="outline" size="sm" className="mt-4">
+              <Link href="/admin/tutors"><ArrowLeft className="mr-2 h-4 w-4"/> Go Back</Link>
+           </Button>
+        </div>
+      )
+    }
+
     const handleShareProfile = async () => {
-        if (!initialTutorData) return;
-        const profileUrl = `${window.location.origin}/tutors/${initialTutorData.id}`;
+        if (!tutorId) return;
+        const profileUrl = `${window.location.origin}/tutors/${tutorId}`;
         try {
             await navigator.clipboard.writeText(profileUrl);
             toast({ title: "Profile Link Copied!", description: "Tutor's public profile link copied to clipboard." });
@@ -209,7 +220,7 @@ export default function AdminTutorProfilePage() {
       );
     }
 
-    if (error && !initialTutorData) {
+    if (error) {
       return (
         <div className="text-center py-10 text-destructive">
           <p>Error loading tutor details: {(error as Error).message}</p>
@@ -394,14 +405,11 @@ export default function AdminTutorProfilePage() {
                 tutorName={initialTutorData?.name || fetchedTutorDetails?.displayName || ""}
             />
             
-            {fetchedTutorDetails && (
-              <AdminUpdateTutorModal
-                  isOpen={isUpdateModalOpen}
-                  onOpenChange={setIsUpdateModalOpen}
-                  tutor={fetchedTutorDetails}
-              />
-            )}
+            <AdminUpdateTutorModal
+                isOpen={isUpdateModalOpen}
+                onOpenChange={setIsUpdateModalOpen}
+                tutor={fetchedTutorDetails ?? null}
+            />
         </div>
     );
 }
-
