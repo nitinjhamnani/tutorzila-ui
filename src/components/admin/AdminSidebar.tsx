@@ -49,7 +49,7 @@ export function AdminSidebar({
         "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out",
         isMobile
           ? cn(
-              "fixed inset-y-0 left-0 z-30 w-60 transform",
+              "fixed inset-y-0 left-0 z-40 w-60 transform",
               "top-[var(--header-height)] h-[calc(100vh_-_var(--header-height))]",
               isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
             )
@@ -57,7 +57,7 @@ export function AdminSidebar({
               "relative md:flex md:flex-col",
               isNavbarCollapsed ? "w-20" : "w-60"
             ),
-        isMobile ? "md:hidden" : "hidden md:flex"
+        isMobile ? "md:block" : "hidden md:flex"
       )}
       aria-label="Admin Navigation"
     >
@@ -107,4 +107,3 @@ export function AdminSidebar({
     </nav>
   );
 }
-
