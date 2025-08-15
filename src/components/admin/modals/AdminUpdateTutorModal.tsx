@@ -28,7 +28,7 @@ import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogFo
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ApiTutor } from "@/types";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -84,6 +84,7 @@ const adminTutorUpdateSchema = z.object({
   online: z.boolean().default(false),
   offline: z.boolean().default(false),
   isHybrid: z.boolean().default(false),
+  bioReviewed: z.boolean().default(false),
   location: z.custom<LocationDetails | null>((val) => val === null || (typeof val === 'object' && val !== null && 'address' in val), "Invalid location format.").nullable().optional(),
 }).refine(data => data.online || data.offline, {
   message: "At least one teaching mode (Online or Offline) must be selected.",
@@ -98,11 +99,82 @@ interface AdminUpdateTutorModalProps {
   tutor: ApiTutor | null;
 }
 
+const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: string; token: string | null; formData: AdminTutorUpdateFormValues }) => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  const locationDetails = formData.location;
+  const requestBody = {
+    subjects: formData.subjects,
+    grades: formData.grades,
+    boards: formData.boards,
+    qualifications: formData.qualifications,
+    availabilityDays: formData.availabilityDays,
+    availabilityTime: formData.availabilityTime,
+    yearOfExperience: formData.experienceYears,
+    tutorBio: formData.bio,
+    addressName: locationDetails?.name || "",
+    address: locationDetails?.address || "",
+    city: locationDetails?.city || "",
+    state: locationDetails?.state || "",
+    area: locationDetails?.area || "",
+    pincode: locationDetails?.pincode || "",
+    country: locationDetails?.country || "",
+    googleMapsLink: locationDetails?.googleMapsUrl || "",
+    hourlyRate: formData.hourlyRate || 0,
+    languages: formData.languages,
+    bioReviewed: formData.bioReviewed,
+    rateNegotiable: formData.isRateNegotiable,
+    online: formData.online,
+    offline: formData.offline,
+    hybrid: formData.isHybrid,
+  };
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/update/${tutorId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to update tutor." }));
+    throw new Error(errorData.message);
+  }
+
+  return response.json();
+};
+
 export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpdateTutorModalProps) {
   const { toast } = useToast();
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
+
   const form = useForm<AdminTutorUpdateFormValues>({
     resolver: zodResolver(adminTutorUpdateSchema),
     defaultValues: {},
+  });
+
+  const mutation = useMutation({
+    mutationFn: (formData: AdminTutorUpdateFormValues) => updateTutorDetails({ tutorId: tutor!.id, token, formData }),
+    onSuccess: (data) => {
+      toast({
+        title: "Tutor Updated!",
+        description: "The tutor's details have been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['tutorProfile', tutor!.id] });
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message,
+      });
+    },
   });
 
   React.useEffect(() => {
@@ -124,6 +196,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         online: tutor.online,
         offline: tutor.offline,
         isHybrid: tutor.isHybrid,
+        bioReviewed: tutor.isBioReviewed,
         location: {
             name: tutor.addressName || tutor.address,
             address: tutor.address,
@@ -139,12 +212,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   }, [tutor, isOpen, form]);
 
   const onSubmit = (data: AdminTutorUpdateFormValues) => {
-    console.log("Submitting admin tutor update:", data);
-    toast({
-      title: "Tutor Updated (Mock)",
-      description: "The tutor's details have been updated successfully.",
-    });
-    onOpenChange(false);
+    mutation.mutate(data);
   };
   
   const isOfflineModeSelected = form.watch("offline");
@@ -400,12 +468,35 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                   )}
                   />
               </div>
+              <FormField
+                control={form.control}
+                name="bioReviewed"
+                render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 rounded-lg border p-3 shadow-sm bg-input/50">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            id="bio-reviewed-checkbox"
+                            />
+                        </FormControl>
+                        <div className="space-y-0.5">
+                            <FormLabel className="text-sm font-medium leading-none cursor-pointer" htmlFor="bio-reviewed-checkbox">
+                                Bio Reviewed
+                            </FormLabel>
+                             <FormDescription className="text-xs">
+                                Mark this if the tutor's bio has been reviewed and approved.
+                            </FormDescription>
+                        </div>
+                    </FormItem>
+                )}
+            />
             </form>
           </Form>
         </div>
         <DialogFooter className="p-6 pt-4 border-t flex justify-end">
-            <Button type="submit" form="admin-tutor-update-form" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
+            <Button type="submit" form="admin-tutor-update-form" disabled={mutation.isPending}>
+                {mutation.isPending ? (
                     <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Saving...
