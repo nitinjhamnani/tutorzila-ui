@@ -187,9 +187,37 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
       queryClient.setQueryData(['tutorProfile', tutor?.id], (oldData: ApiTutor | undefined) => {
         // Merge the old data (which has personal info) with the new data from the update API
         if (!oldData) return data;
+        
+        // Assuming the response `data` from the update endpoint
+        // has the same structure as the `tutoringDetails` part of the GET response.
+        // We will merge this with the existing `userDetails`.
         return {
           ...oldData, // Keeps personal details like name, email, phone from initial load
-          ...data,    // Overwrites professional details with the fresh API response
+          subjectsList: data.subjects,
+          gradesList: data.grades,
+          boardsList: data.boards,
+          qualificationList: data.qualifications,
+          availabilityDaysList: data.availabilityDays,
+          availabilityTimeList: data.availabilityTime,
+          yearOfExperience: data.yearOfExperience,
+          bio: data.tutorBio,
+          addressName: data.addressName,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          area: data.area,
+          pincode: data.pincode,
+          country: data.country,
+          googleMapsLink: data.googleMapsLink,
+          hourlyRate: data.hourlyRate,
+          languagesList: data.languages,
+          profileCompletion: data.profileCompletion,
+          isActive: data.active,
+          isRateNegotiable: data.rateNegotiable,
+          isBioReviewed: data.bioReviewed,
+          online: data.online,
+          offline: data.offline,
+          isHybrid: data.hybrid,
         };
       });
       toast({
@@ -215,7 +243,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         bio: tutor.bio || "",
         hourlyRate: tutor.hourlyRate || 0,
         isRateNegotiable: tutor.isRateNegotiable || false,
-        experienceYears: tutor.experienceYears || "",
+        experienceYears: tutor.yearOfExperience || "",
         qualifications: ensureArray(tutor.qualificationList),
         languages: ensureArray(tutor.languagesList),
         subjects: ensureArray(tutor.subjectsList),
@@ -250,7 +278,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
             <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
-                <DialogTitle>Update Tutor: {tutor?.displayName} ({tutor?.id})</DialogTitle>
+                <DialogTitle>Update Tutor: {tutor?.displayName}</DialogTitle>
             </DialogHeader>
             <div className="flex-grow overflow-y-auto">
                 <Form {...form}>
