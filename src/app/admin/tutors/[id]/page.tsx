@@ -109,9 +109,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
 const getInitials = (name: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
-  return parts.length > 1
-    ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-    : name.slice(0, 2);
+  return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
 };
 
 const InfoSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
