@@ -323,7 +323,8 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <Badge variant="outline" className="bg-yellow-100 border-yellow-300 text-yellow-800">
+                            <Badge variant="destructive" className="text-xs py-1 px-2.5">
+                                <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
                             </Badge>
                         )}
