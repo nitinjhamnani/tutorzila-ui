@@ -126,7 +126,7 @@ const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: strin
     online: formData.online,
     offline: formData.offline,
     hybrid: formData.isHybrid,
-    bioReviewed: true, // As per API spec
+    bioReviewed: true, 
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -165,13 +165,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         title: "Tutor Updated!",
         description: "The tutor's details have been updated successfully.",
       });
-      queryClient.setQueryData(['tutorProfile', tutor!.id], (oldData: ApiTutor | undefined) => {
-        if (!oldData) return data;
-        return {
-          ...oldData, 
-          ...data, 
-        };
-      });
+      queryClient.setQueryData(['tutorProfile', tutor!.id], data);
       onOpenChange(false);
     },
     onError: (error: Error) => {
@@ -227,12 +221,12 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
-        <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
-        </DialogHeader>
-        <div className="flex-grow overflow-y-auto">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader className="p-6 pb-4 border-b">
+              <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-grow overflow-y-auto p-6 space-y-6">
               <FormField
                 control={form.control}
                 name="bio"
@@ -383,7 +377,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                       selectedValues={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select languages..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
                   </FormItem>
@@ -466,31 +460,31 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                           selectedValues={field.value}
                           onValueChange={field.onChange}
                           placeholder="Select time slots..."
-                          className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
+                          className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
                       />
                       <FormMessage />
                       </FormItem>
                   )}
                   />
               </div>
-               <DialogFooter className="p-6 pt-4 border-t flex justify-end">
-                <Button type="submit" disabled={mutation.isPending}>
-                    {mutation.isPending ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Saving...
-                        </>
-                    ) : (
-                        <>
-                            <Save className="mr-2 h-4 w-4" />
-                            Save Changes
-                        </>
-                    )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </div>
+            </div>
+            <DialogFooter className="p-6 pt-4 border-t flex justify-end">
+              <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? (
+                      <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                      </>
+                  ) : (
+                      <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save Changes
+                      </>
+                  )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

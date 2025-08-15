@@ -187,9 +187,9 @@ export default function AdminTutorProfilePage() {
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
-        refetchOnWindowFocus: false, // Prevents refetching just on window focus
+        refetchOnWindowFocus: false,
     });
-    
+
     const handleShareProfile = async () => {
         if (!initialTutorData) return;
         const profileUrl = `${window.location.origin}/tutors/${initialTutorData.id}`;
@@ -200,6 +200,20 @@ export default function AdminTutorProfilePage() {
             toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link." });
         }
     };
+    
+    if (!initialTutorData) {
+        return (
+          <div className="flex h-screen items-center justify-center text-center">
+            <div>
+              <p className="text-destructive text-lg font-semibold">Tutor data not available.</p>
+              <p className="text-muted-foreground mt-2">Please go back to the list and select a tutor again.</p>
+              <Button asChild variant="outline" size="sm" className="mt-4">
+                  <Link href="/admin/tutors"><ArrowLeft className="mr-2 h-4 w-4"/> Go Back</Link>
+              </Button>
+            </div>
+          </div>
+        );
+    }
     
     if (isLoading) {
       return (
@@ -394,14 +408,13 @@ export default function AdminTutorProfilePage() {
                 tutorName={initialTutorData?.name || fetchedTutorDetails?.displayName || ""}
             />
             
-            <AdminUpdateTutorModal
-                isOpen={isUpdateModalOpen}
-                onOpenChange={setIsUpdateModalOpen}
-                tutor={fetchedTutorDetails}
-            />
+            {fetchedTutorDetails && (
+              <AdminUpdateTutorModal
+                  isOpen={isUpdateModalOpen}
+                  onOpenChange={setIsUpdateModalOpen}
+                  tutor={fetchedTutorDetails}
+              />
+            )}
         </div>
     );
 }
-
-
-    
