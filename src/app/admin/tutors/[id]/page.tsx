@@ -56,7 +56,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAtomValue } from "jotai";
 import { selectedTutorAtom } from "@/lib/state/admin";
 
-const fetchTutorProfile = async (tutorId: string, token: string | null, baseTutorDetails: Partial<ApiTutor>): Promise<ApiTutor> => {
+const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
     const response = await fetch(`${apiBaseUrl}/api/manage/tutor/${tutorId}`, {
@@ -70,11 +70,10 @@ const fetchTutorProfile = async (tutorId: string, token: string | null, baseTuto
     }
     const data = await response.json();
     
-    // Merge fetched data with base details from the list page
+    // The API response for details doesn't include personal info, so we will merge it later
     return {
-      ...baseTutorDetails, 
       id: tutorId,
-      displayName: data.displayName || baseTutorDetails.name || "N/A",
+      displayName: data.displayName,
       gender: data.gender || "Not specified",
       subjectsList: data.tutoringDetails.subjects || [],
       hourlyRate: data.tutoringDetails.hourlyRate || 0,
@@ -103,14 +102,10 @@ const fetchTutorProfile = async (tutorId: string, token: string | null, baseTuto
       isBioReviewed: data.tutoringDetails.bioReviewed || false,
       online: data.tutoringDetails.online || false,
       offline: data.tutoringDetails.offline || false,
-      profilePicUrl: data.profilePicUrl || baseTutorDetails.profilePicUrl,
-      // Ensure personal details from listing are preserved
-      name: baseTutorDetails.name,
-      email: baseTutorDetails.email,
-      phone: baseTutorDetails.phone,
-      countryCode: baseTutorDetails.countryCode,
-    };
+      profilePicUrl: data.profilePicUrl,
+    } as ApiTutor;
 };
+
 
 const getInitials = (name: string): string => {
   if (!name) return "?";
@@ -126,7 +121,7 @@ const InfoSection = ({ title, children }: { title: string; children: React.React
 );
 
 const InfoItem = ({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children?: React.ReactNode }) => {
-  if (!children) return null;
+  if (!children && typeof children !== 'number') return null;
   return (
     <div className="flex items-start">
       <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
@@ -188,13 +183,26 @@ export default function AdminTutorProfilePage() {
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
-    const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
+    const { data: fetchedTutorDetails, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
-        queryFn: () => fetchTutorProfile(tutorId, token, initialTutorData || {}),
-        enabled: !!tutorId && !!token && !!initialTutorData,
+        queryFn: () => fetchTutorProfile(tutorId, token),
+        enabled: !!tutorId && !!token,
     });
     
-    const displayTutor = tutor || initialTutorData;
+    // Merge initial data (source of truth for personal info) with fetched data
+    const displayTutor = React.useMemo(() => {
+        if (fetchedTutorDetails) {
+            return {
+                ...fetchedTutorDetails, // Fetched details
+                name: initialTutorData?.name,
+                email: initialTutorData?.email,
+                phone: initialTutorData?.phone,
+                countryCode: initialTutorData?.countryCode,
+                profilePicUrl: fetchedTutorDetails.profilePicUrl || initialTutorData?.profilePicUrl, // Prioritize fetched URL
+            };
+        }
+        return initialTutorData;
+    }, [initialTutorData, fetchedTutorDetails]);
 
     const handleShareProfile = async () => {
         if (!displayTutor) return;
@@ -207,7 +215,7 @@ export default function AdminTutorProfilePage() {
         }
     };
     
-    if (isLoading && !displayTutor) {
+    if (isLoading && !initialTutorData) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -215,7 +223,7 @@ export default function AdminTutorProfilePage() {
       );
     }
 
-    if (error && !displayTutor) {
+    if (error && !initialTutorData) {
         return (
             <div className="text-center py-10 text-destructive">
                 <p>Error loading tutor profile: {(error as Error).message}</p>
@@ -231,9 +239,8 @@ export default function AdminTutorProfilePage() {
         return <div className="text-center py-10 text-muted-foreground">Tutor not found.</div>;
     }
     
-    // Mock data for insights
     const tutorInsights = {
-        enquiriesAssigned: displayTutor.profileCompletion || 12, // Using profile completion as a mock value
+        enquiriesAssigned: fetchedTutorDetails?.profileCompletion || 12, 
         demosScheduled: 5,
         averageRating: 4.8
     };
@@ -304,7 +311,7 @@ export default function AdminTutorProfilePage() {
                 <MetricCard title="Enquiries Assigned" value={String(tutorInsights.enquiriesAssigned)} IconEl={Briefcase} />
                 <MetricCard title="Demos Scheduled" value={String(tutorInsights.demosScheduled)} IconEl={CalendarDays} />
                 <MetricCard title="Average Rating" value={String(tutorInsights.averageRating)} IconEl={Star} />
-                <MetricCard title="Profile Completion" value={`${displayTutor.profileCompletion}%`} IconEl={Percent} />
+                <MetricCard title="Profile Completion" value={`${displayTutor.profileCompletion || 0}%`} IconEl={Percent} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -342,6 +349,15 @@ export default function AdminTutorProfilePage() {
                     </Card>
                 </div>
                 <div className="lg:col-span-1 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Personal & Contact</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <InfoItem icon={Mail} label="Email">{displayTutor.email}</InfoItem>
+                            <InfoItem icon={Phone} label="Phone">{displayTutor.countryCode ? `${displayTutor.countryCode} ${displayTutor.phone}` : displayTutor.phone}</InfoItem>
+                        </CardContent>
+                    </Card>
                     <Card>
                         <CardHeader>
                             <CardTitle>Professional Details</CardTitle>
@@ -393,3 +409,5 @@ export default function AdminTutorProfilePage() {
         </div>
     );
 }
+
+    
