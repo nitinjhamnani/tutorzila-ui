@@ -49,8 +49,8 @@ export function AdminSidebar({
         "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out",
         isMobile
           ? cn(
-              "fixed inset-y-0 left-0 z-40 w-60 transform",
-              "top-[var(--header-height)] h-[calc(100vh_-_var(--header-height))]",
+              "fixed left-0 z-40 w-60 transform",
+              "top-[var(--header-height)] bottom-0", // Applied the requested fix
               isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
             )
           : cn(
