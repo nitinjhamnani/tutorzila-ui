@@ -50,6 +50,7 @@ import {
   MailCheck,
   PhoneCall,
   Unlock,
+  VenetianMask,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -269,10 +270,10 @@ export default function AdminTutorProfilePage() {
 
                  <Card>
                     <CardHeader>
-                        <CardTitle>Personal & Contact</CardTitle>
+                        <CardTitle>Personal &amp; Contact</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoItem icon={User} label="Name">{tutor.displayName}</InfoItem>
+                        <InfoItem icon={VenetianMask} label="Gender">{tutor.gender || 'Not Specified'}</InfoItem>
                          <InfoItem icon={Mail} label="Email">
                             <div className="flex items-center gap-2">
                                 <span>{tutor.email}</span>
@@ -328,7 +329,7 @@ export default function AdminTutorProfilePage() {
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Specialization & Availability</CardTitle>
+                        <CardTitle>Specialization &amp; Availability</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                        <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
@@ -351,7 +352,7 @@ export default function AdminTutorProfilePage() {
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Location & Mode</CardTitle>
+                        <CardTitle>Location &amp; Mode</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center gap-2">
@@ -389,4 +390,3 @@ export default function AdminTutorProfilePage() {
       </TooltipProvider>
     );
 }
-
