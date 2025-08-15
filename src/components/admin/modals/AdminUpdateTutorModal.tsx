@@ -69,19 +69,19 @@ const timeSlotsOptionsList: MultiSelectOption[] = [
 
 
 const adminTutorUpdateSchema = z.object({
-  displayName: z.string().min(2, "Name must be at least 2 characters."),
-  gender: z.string().min(1, "Gender is required."),
+  displayName: z.string().min(2, "Name must be at least 2 characters.").optional().or(z.literal("")),
+  gender: z.string().optional(),
   bio: z.string().max(500, "Bio should not exceed 500 characters.").optional().or(z.literal("")),
   hourlyRate: z.number({ coerce: true }).min(0, "Rate must be a positive number.").optional(),
   isRateNegotiable: z.boolean().default(false).optional(),
-  experienceYears: z.string().min(1, "Experience level is required."),
-  qualifications: z.array(z.string()).min(1, "Please select at least one qualification."),
-  languages: z.array(z.string()).min(1, "Please select at least one language you speak."),
+  experienceYears: z.string().optional().or(z.literal("")),
+  qualifications: z.array(z.string()).default([]),
+  languages: z.array(z.string()).default([]),
   subjects: z.array(z.string()).min(1, "Please select at least one subject."),
   grades: z.array(z.string()).min(1, "Please select at least one grade level."),
-  boards: z.array(z.string()).min(1, "Please select at least one board."),
-  availabilityDays: z.array(z.string()).min(1, "Please select at least one available day."),
-  availabilityTime: z.array(z.string()).min(1, "Please select at least one available time slot."),
+  boards: z.array(z.string()).default([]),
+  availabilityDays: z.array(z.string()).default([]),
+  availabilityTime: z.array(z.string()).default([]),
   online: z.boolean().default(false),
   offline: z.boolean().default(false),
   isHybrid: z.boolean().default(false).optional(),
@@ -98,6 +98,8 @@ interface AdminUpdateTutorModalProps {
   onOpenChange: (isOpen: boolean) => void;
   tutor: ApiTutor | null;
 }
+
+const ensureArray = (value: any): string[] => Array.isArray(value) ? value : [];
 
 const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: string; token: string | null; formData: AdminTutorUpdateFormValues }) => {
   if (!token) throw new Error("Authentication token not found.");
@@ -155,18 +157,38 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
 
   const form = useForm<AdminTutorUpdateFormValues>({
     resolver: zodResolver(adminTutorUpdateSchema),
-    defaultValues: {},
+    defaultValues: {
+      bio: "",
+      hourlyRate: 0,
+      isRateNegotiable: false,
+      experienceYears: "",
+      qualifications: [],
+      languages: [],
+      subjects: [],
+      grades: [],
+      boards: [],
+      availabilityDays: [],
+      availabilityTime: [],
+      online: false,
+      offline: false,
+      isHybrid: false,
+      location: null,
+    },
   });
 
   const mutation = useMutation({
-    mutationFn: (variables: { tutorId: string; formData: AdminTutorUpdateFormValues }) =>
-      updateTutorDetails({ tutorId: variables.tutorId, token, formData: variables.formData }),
-    onSuccess: (data, variables) => {
+    mutationFn: (formData: AdminTutorUpdateFormValues) => {
+        if (!tutor?.id) {
+            throw new Error("Tutor ID is missing. Cannot update.");
+        }
+        return updateTutorDetails({ tutorId: tutor.id, token, formData });
+    },
+    onSuccess: (data) => {
       toast({
         title: "Tutor Updated!",
         description: "The tutor's details have been updated successfully.",
       });
-      queryClient.setQueryData(['tutorProfile', variables.tutorId], data);
+      queryClient.setQueryData(['tutorProfile', tutor?.id], data);
       onOpenChange(false);
     },
     onError: (error: Error) => {
@@ -181,42 +203,38 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   React.useEffect(() => {
     if (tutor && isOpen) {
       form.reset({
-        displayName: tutor.displayName,
-        gender: tutor.gender,
-        bio: tutor.bio,
-        hourlyRate: tutor.hourlyRate,
-        isRateNegotiable: tutor.isRateNegotiable,
-        experienceYears: tutor.experienceYears,
-        qualifications: tutor.qualificationList,
-        languages: tutor.languagesList,
-        subjects: tutor.subjectsList,
-        grades: tutor.gradesList,
-        boards: tutor.boardsList,
-        availabilityDays: tutor.availabilityDaysList,
-        availabilityTime: tutor.availabilityTimeList,
-        online: tutor.online,
-        offline: tutor.offline,
-        isHybrid: tutor.isHybrid,
+        displayName: tutor.displayName || "",
+        gender: tutor.gender || "",
+        bio: tutor.bio || "",
+        hourlyRate: tutor.hourlyRate || 0,
+        isRateNegotiable: tutor.isRateNegotiable || false,
+        experienceYears: tutor.experienceYears || "",
+        qualifications: ensureArray(tutor.qualificationList),
+        languages: ensureArray(tutor.languagesList),
+        subjects: ensureArray(tutor.subjectsList),
+        grades: ensureArray(tutor.gradesList),
+        boards: ensureArray(tutor.boardsList),
+        availabilityDays: ensureArray(tutor.availabilityDaysList),
+        availabilityTime: ensureArray(tutor.availabilityTimeList),
+        online: tutor.online || false,
+        offline: tutor.offline || false,
+        isHybrid: tutor.isHybrid || false,
         location: {
-            name: tutor.addressName || tutor.address,
-            address: tutor.address,
-            area: tutor.area,
-            city: tutor.city,
-            state: tutor.state,
-            country: tutor.country,
-            pincode: tutor.pincode,
-            googleMapsLink: tutor.googleMapsLink,
+            name: tutor.addressName || tutor.address || "",
+            address: tutor.address || "",
+            area: tutor.area || "",
+            city: tutor.city || "",
+            state: tutor.state || "",
+            country: tutor.country || "",
+            pincode: tutor.pincode || "",
+            googleMapsLink: tutor.googleMapsLink || "",
         },
       });
     }
   }, [tutor, isOpen, form]);
 
   const onSubmit = (data: AdminTutorUpdateFormValues) => {
-    if (!tutor?.id) {
-        toast({ variant: "destructive", title: "Error", description: "Tutor ID is missing." });
-        return;
-    }
-    mutation.mutate({ tutorId: tutor.id, formData: data });
+    mutation.mutate(data);
   };
   
   const isOfflineModeSelected = form.watch("offline");
@@ -225,7 +243,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
         <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
-          <DialogTitle>Update Tutor: {tutor?.name} ({tutor?.id})</DialogTitle>
+          <DialogTitle>Update Tutor: {tutor?.displayName} ({tutor?.id})</DialogTitle>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto">
           <Form {...form}>
@@ -492,3 +510,5 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     </Dialog>
   );
 }
+
+    
