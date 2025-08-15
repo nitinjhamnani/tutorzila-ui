@@ -188,6 +188,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         title: "Tutor Updated!",
         description: "The tutor's details have been updated successfully.",
       });
+      // Manually update the query cache with the new data from the API response
       queryClient.setQueryData(['tutorProfile', tutor?.id], data);
       onOpenChange(false);
     },
@@ -511,4 +512,3 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   );
 }
 
-    
