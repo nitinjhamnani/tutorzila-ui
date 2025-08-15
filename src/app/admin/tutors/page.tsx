@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from 'date-fns';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
@@ -31,8 +31,10 @@ import {
   PhoneCall,
   Loader2,
   ShieldAlert,
-  ListFilter
+  ListFilter,
+  UserPlus
 } from "lucide-react";
+import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 
 interface ApiTutor {
   id: string;
@@ -80,6 +82,9 @@ const getInitials = (name: string): string => {
 
 export default function AdminTutorsPage() {
   const { token } = useAuthMock();
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+
   const { data: tutors = [], isLoading, error } = useQuery<ApiTutor[]>({
     queryKey: ['adminAllTutors', token],
     queryFn: () => fetchAdminTutors(token),
@@ -87,6 +92,10 @@ export default function AdminTutorsPage() {
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+
+  const handleAddUserSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['adminAllTutors'] });
+  };
 
   const renderTableContent = () => {
     if (isLoading) {
@@ -193,6 +202,7 @@ export default function AdminTutorsPage() {
   };
 
   return (
+    <>
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
         <CardHeader className="p-0 flex flex-row items-start sm:items-center justify-between gap-3">
@@ -205,8 +215,8 @@ export default function AdminTutorsPage() {
               View, manage, and approve tutors on the platform.
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" className="h-9">
-            <ListFilter className="mr-2 h-4 w-4" /> Filter
+          <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9">
+            <UserPlus className="mr-2 h-4 w-4" /> Add Tutor
           </Button>
         </CardHeader>
       </Card>
@@ -229,5 +239,12 @@ export default function AdminTutorsPage() {
         </CardContent>
       </Card>
     </div>
+     <AddUserModal
+        isOpen={isAddUserModalOpen}
+        onOpenChange={setIsAddUserModalOpen}
+        userType="TUTOR"
+        onSuccess={handleAddUserSuccess}
+      />
+    </>
   );
 }
