@@ -225,12 +225,11 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
         <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
-          <DialogTitle>Update Tutor: {tutor?.displayName} ({tutor?.id})</DialogTitle>
+          <DialogTitle>Update Tutor: {tutor?.name} ({tutor?.id})</DialogTitle>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} id="update-tutor-form">
-              <div className="p-6 space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} id="update-tutor-form" className="p-6 space-y-6">
                 <FormField
                   control={form.control}
                   name="bio"
@@ -471,7 +470,6 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                     )}
                     />
                 </div>
-              </div>
             </form>
           </Form>
         </div>
