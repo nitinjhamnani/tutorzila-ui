@@ -51,7 +51,8 @@ const daysOptionsList: MultiSelectOption[] = [
   { value: "Friday", label: "Friday" },
   { value: "Saturday", label: "Saturday" },
   { value: "Sunday", label: "Sunday" },
-  { value: "Weekdays", label: "Weekends" },
+  { value: "Weekdays", label: "Weekdays" },
+  { value: "Weekends", label: "Weekends" },
   { value: "Flexible", label: "Flexible" },
 ];
 
