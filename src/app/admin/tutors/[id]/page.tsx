@@ -187,17 +187,6 @@ export default function AdminTutorProfilePage() {
         refetchOnWindowFocus: false,
     });
     
-    const handleShareProfile = async () => {
-        if (!tutorId) return;
-        const profileUrl = `${window.location.origin}/tutors/${tutorId}`;
-        try {
-            await navigator.clipboard.writeText(profileUrl);
-            toast({ title: "Profile Link Copied!", description: "Tutor's public profile link copied to clipboard." });
-        } catch (err) {
-            toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link." });
-        }
-    };
-    
     if (isLoading) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
@@ -319,7 +308,7 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-yellow-100 text-yellow-700 border-yellow-500/50">
+                            <Badge variant="destructive" className="text-xs py-1 px-2.5">
                                 <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
                             </Badge>
