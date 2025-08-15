@@ -88,7 +88,7 @@ const adminTutorUpdateSchema = z.object({
   location: z.custom<LocationDetails | null>((val) => val === null || (typeof val === 'object' && val !== null && 'address' in val), "Invalid location format.").nullable().optional(),
 }).refine(data => data.online || data.offline, {
   message: "At least one teaching mode (Online or Offline) must be selected.",
-  path: ["online"], // You can attach the error to one of the checkboxes
+  path: ["online"], 
 });
 
 type AdminTutorUpdateFormValues = z.infer<typeof adminTutorUpdateSchema>;
@@ -126,6 +126,7 @@ const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: strin
     online: formData.online,
     offline: formData.offline,
     hybrid: formData.isHybrid,
+    bioReviewed: true, // As per API spec
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -164,7 +165,13 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         title: "Tutor Updated!",
         description: "The tutor's details have been updated successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ['tutorProfile', tutor!.id] });
+      queryClient.setQueryData(['tutorProfile', tutor!.id], (oldData: ApiTutor | undefined) => {
+        if (!oldData) return data;
+        return {
+          ...oldData, // Keep existing fields like name, email from initial data
+          ...data, // Overwrite with new professional details
+        };
+      });
       onOpenChange(false);
     },
     onError: (error: Error) => {
@@ -353,7 +360,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                 name="qualifications"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications</FormLabel>
+                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
                     <MultiSelectCommand
                       options={qualificationsList}
                       selectedValues={field.value}
