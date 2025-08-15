@@ -259,20 +259,14 @@ export default function AdminTutorProfilePage() {
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                         <div className="flex-grow min-w-0">
-                             <div className="flex flex-wrap items-center gap-2">
-                                <Badge variant="default" className="text-sm bg-primary/10 text-primary border-primary/20">
-                                    <BookOpen className="w-3.5 h-3.5 mr-1.5"/>
-                                    {tutor.subjectsList?.[0] || 'N/A'}
-                                </Badge>
-                                <Badge variant="secondary" className="text-sm">
-                                    <GraduationCap className="w-3.5 h-3.5 mr-1.5"/>
-                                    {tutor.gradesList?.[0] || 'N/A'}
-                                </Badge>
-                                 <Badge variant="outline" className="text-sm">
-                                    <Building className="w-3.5 h-3.5 mr-1.5"/>
-                                    {tutor.boardsList?.[0] || 'N/A'}
-                                </Badge>
-                            </div>
+                            <CardTitle className="text-xl font-semibold text-primary">
+                                Tutoring Specialization
+                            </CardTitle>
+                             <CardDescription className="text-sm text-foreground/70 mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-primary/80"/>{tutor.subjectsList?.join(', ') || 'N/A'}</span>
+                                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{tutor.gradesList?.join(', ') || 'N/A'}</span>
+                                <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{tutor.boardsList?.join(', ') || 'N/A'}</span>
+                            </CardDescription>
                             <div className="mt-4 flex flex-wrap items-center gap-2">
                                 <Badge variant={tutor?.isActive ? "default" : "destructive"}>
                                     {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
