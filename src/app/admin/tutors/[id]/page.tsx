@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import type { ApiTutor } from "@/types";
@@ -119,7 +119,7 @@ const getInitials = (name: string): string => {
   const parts = name.split(" ");
   return parts.length > 1
     ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-    : parts[0].slice(0, 2);
+    : name.slice(0, 2);
 };
 
 const InfoSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -182,10 +182,16 @@ function MetricCard({ title, value, IconEl }: MetricCardProps) {
 
 export default function AdminTutorProfilePage() {
     const params = useParams();
+    const searchParams = useSearchParams();
     const router = useRouter();
     const { token } = useAuthMock();
     const { toast } = useToast();
     const tutorId = params.id as string;
+    
+    // Get initial data from query params
+    const initialName = searchParams.get('name');
+    const initialEmail = searchParams.get('email');
+    const initialPhone = searchParams.get('phone');
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
@@ -207,7 +213,7 @@ export default function AdminTutorProfilePage() {
         }
     };
     
-    if (isLoading) {
+    if (isLoading && !tutor) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -233,7 +239,7 @@ export default function AdminTutorProfilePage() {
     
     // Mock data for insights
     const tutorInsights = {
-        enquiriesAssigned: 12,
+        enquiriesAssigned: tutor?.profileCompletion || 12, // Using profile completion as a mock value
         demosScheduled: 5,
         averageRating: 4.8
     };
@@ -251,7 +257,7 @@ export default function AdminTutorProfilePage() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
+                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName || initialName}</CardTitle>
                                 <CardDescription className="text-sm text-muted-foreground">{tutor.gender}</CardDescription>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
                                     <Badge variant={tutor.isActive ? "default" : "destructive"}>

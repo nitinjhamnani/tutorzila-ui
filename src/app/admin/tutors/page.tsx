@@ -190,7 +190,14 @@ export default function AdminTutorsPage() {
             </TableCell>
             <TableCell>
               <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                <Link href={`/admin/tutors/${tutor.id}`}>
+                <Link href={{
+                  pathname: `/admin/tutors/${tutor.id}`,
+                  query: {
+                    name: tutor.name,
+                    email: tutor.email,
+                    phone: `${tutor.countryCode} ${tutor.phone}`
+                  }
+                }}>
                   <Eye className="h-4 w-4" />
                 </Link>
               </Button>
