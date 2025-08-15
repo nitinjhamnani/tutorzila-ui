@@ -39,8 +39,8 @@ const qualificationsList: MultiSelectOption[] = ["Bachelor's Degree", "Master's 
 const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
 
 const teachingModeItems = [
-  { id: "online", label: "Online" },
-  { id: "offline", label: "Offline (In-person)" },
+  { id: "Online", label: "Online" },
+  { id: "Offline", label: "Offline (In-person)" },
 ];
 
 const daysOptionsList: MultiSelectOption[] = [
@@ -84,7 +84,7 @@ const adminTutorUpdateSchema = z.object({
   availabilityTime: z.array(z.string()).min(1, "Please select at least one available time slot."),
   online: z.boolean().default(false),
   offline: z.boolean().default(false),
-  isHybrid: z.boolean().default(false),
+  isHybrid: z.boolean().default(false).optional(),
   location: z.custom<LocationDetails | null>((val) => val === null || (typeof val === 'object' && val !== null && 'address' in val), "Invalid location format.").nullable().optional(),
 }).refine(data => data.online || data.offline, {
   message: "At least one teaching mode (Online or Offline) must be selected.",
@@ -221,270 +221,272 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader className="p-6 pb-4 border-b">
-              <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
-            </DialogHeader>
-            <div className="flex-grow overflow-y-auto p-6 space-y-6">
-              <FormField
-                control={form.control}
-                name="bio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Bio / Teaching Philosophy</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Max 500 characters..." {...field} rows={4} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+        <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
+          <DialogTitle>Update Tutor: {tutor.displayName}</DialogTitle>
+        </DialogHeader>
+        <div className="flex-grow overflow-y-auto">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} id="update-tutor-form">
+              <div className="p-6 space-y-6">
+                <FormField
+                  control={form.control}
+                  name="bio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><Info className="mr-2 h-4 w-4 text-primary/80"/>Bio / Teaching Philosophy</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Max 500 characters..." {...field} rows={4} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="subjects"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects Taught</FormLabel>
+                      <MultiSelectCommand
+                        options={subjectsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select subjects..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="grades"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Levels Taught</FormLabel>
+                      <MultiSelectCommand
+                        options={gradeLevelsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select grade levels..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="boards"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-primary/80"/>Boards</FormLabel>
+                      <MultiSelectCommand
+                        options={boardsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select boards..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="space-y-2">
+                  <Label className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Teaching Mode</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                      <FormField
+                      control={form.control}
+                      name="online"
+                      render={({ field }) => (
+                          <FormItem>
+                          <Label htmlFor="mode-online" className={cn("flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md cursor-pointer", field.value && "bg-primary/10 border-primary")}>
+                              <FormControl><Checkbox id="mode-online" checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                              <span className="font-normal text-sm">Online</span>
+                          </Label>
+                          </FormItem>
+                      )}
+                      />
+                      <FormField
+                      control={form.control}
+                      name="offline"
+                      render={({ field }) => (
+                          <FormItem>
+                          <Label htmlFor="mode-offline" className={cn("flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md cursor-pointer", field.value && "bg-primary/10 border-primary")}>
+                              <FormControl><Checkbox id="mode-offline" checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                              <span className="font-normal text-sm">Offline (In-person)</span>
+                          </Label>
+                          </FormItem>
+                      )}
+                      />
+                  </div>
+                   <FormField
+                      control={form.control}
+                      name="isHybrid"
+                      render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-2 mt-2">
+                          <FormControl><Checkbox id="isHybridCheckbox-admin" checked={field.value} onCheckedChange={field.onChange} className="h-3.5 w-3.5" /></FormControl>
+                          <Label htmlFor="isHybridCheckbox-admin" className="text-xs font-semibold text-muted-foreground">Also available for Hybrid classes.</Label>
+                          </FormItem>
+                      )}
+                      />
+                </div>
+                {isOfflineModeSelected && (
+                  <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                      <FormItem>
+                          <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Location for Offline Classes</FormLabel>
+                          <FormControl>
+                          <LocationAutocompleteInput
+                              initialValue={field.value}
+                              onValueChange={(details) => field.onChange(details)}
+                              placeholder="Search for tutor's primary city or area..."
+                          />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                      )}
+                  />
                 )}
-              />
-               <FormField
-                control={form.control}
-                name="subjects"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects Taught</FormLabel>
-                    <MultiSelectCommand
-                      options={subjectsList}
-                      selectedValues={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Select subjects..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="grades"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Levels Taught</FormLabel>
-                    <MultiSelectCommand
-                      options={gradeLevelsList}
-                      selectedValues={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Select grade levels..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="boards"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-primary/80"/>Boards</FormLabel>
-                    <MultiSelectCommand
-                      options={boardsList}
-                      selectedValues={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Select boards..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="space-y-2">
-                <Label className="flex items-center"><RadioTower className="mr-2 h-4 w-4 text-primary/80" />Teaching Mode</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                <FormField
+                  control={form.control}
+                  name="qualifications"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
+                      <MultiSelectCommand
+                        options={qualificationsList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select qualifications..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="languages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><Languages className="mr-2 h-4 w-4 text-primary/80"/>Languages Spoken</FormLabel>
+                      <MultiSelectCommand
+                        options={languagesList}
+                        selectedValues={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select languages..."
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                     control={form.control}
-                    name="online"
+                    name="experienceYears"
                     render={({ field }) => (
                         <FormItem>
-                        <Label htmlFor="mode-online" className={cn("flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md cursor-pointer", field.value && "bg-primary/10 border-primary")}>
-                            <FormControl><Checkbox id="mode-online" checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                            <span className="font-normal text-sm">Online</span>
-                        </Label>
+                        <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80" />Experience</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                            <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
                         </FormItem>
                     )}
                     />
+                    <FormItem>
+                        <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
+                        <div className="flex flex-col gap-2">
+                            <FormField
+                            control={form.control}
+                            name="hourlyRate"
+                            render={({ field }) => (
+                                <FormItem className="flex-grow">
+                                <FormControl>
+                                    <Input type="number" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="isRateNegotiable"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center space-x-2 mt-2">
+                                  <FormControl><Checkbox id="isRateNegotiableCheckbox-admin" checked={field.value} onCheckedChange={field.onChange} className="h-3.5 w-3.5" /></FormControl>
+                                  <Label htmlFor="isRateNegotiableCheckbox-admin" className="text-xs font-semibold text-muted-foreground">Rate is Negotiable</Label>
+                                  </FormItem>
+                              )}
+                              />
+                        </div>
+                    </FormItem>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                     control={form.control}
-                    name="offline"
+                    name="availabilityDays"
                     render={({ field }) => (
                         <FormItem>
-                        <Label htmlFor="mode-offline" className={cn("flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md cursor-pointer", field.value && "bg-primary/10 border-primary")}>
-                            <FormControl><Checkbox id="mode-offline" checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                            <span className="font-normal text-sm">Offline (In-person)</span>
-                        </Label>
+                        <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Available Days</FormLabel>
+                        <MultiSelectCommand
+                            options={daysOptionsList}
+                            selectedValues={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select days..."
+                            className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        />
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                     <FormField
+                    control={form.control}
+                    name="availabilityTime"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Available Time Slots</FormLabel>
+                        <MultiSelectCommand
+                            options={timeSlotsOptionsList}
+                            selectedValues={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select time slots..."
+                            className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        />
+                        <FormMessage />
                         </FormItem>
                     )}
                     />
                 </div>
-                 <FormField
-                    control={form.control}
-                    name="isHybrid"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 mt-2">
-                        <FormControl><Checkbox id="isHybridCheckbox-admin" checked={field.value} onCheckedChange={field.onChange} className="h-3.5 w-3.5" /></FormControl>
-                        <Label htmlFor="isHybridCheckbox-admin" className="text-xs font-semibold text-muted-foreground">Also available for Hybrid classes.</Label>
-                        </FormItem>
-                    )}
-                    />
               </div>
-              {isOfflineModeSelected && (
-                <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4 text-primary/80"/>Primary Location for Offline Classes</FormLabel>
-                        <FormControl>
-                        <LocationAutocompleteInput
-                            initialValue={field.value}
-                            onValueChange={(details) => field.onChange(details)}
-                            placeholder="Search for tutor's primary city or area..."
-                        />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
+            </form>
+          </Form>
+        </div>
+        <DialogFooter className="p-6 pt-4 border-t flex justify-end flex-shrink-0">
+          <Button type="submit" form="update-tutor-form" disabled={mutation.isPending}>
+              {mutation.isPending ? (
+                  <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                  </>
+              ) : (
+                  <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                  </>
               )}
-              <FormField
-                control={form.control}
-                name="qualifications"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
-                    <MultiSelectCommand
-                      options={qualificationsList}
-                      selectedValues={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Select qualifications..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="languages"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Languages className="mr-2 h-4 w-4 text-primary/80"/>Languages Spoken</FormLabel>
-                    <MultiSelectCommand
-                      options={languagesList}
-                      selectedValues={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Select languages..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                  control={form.control}
-                  name="experienceYears"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel className="flex items-center"><Briefcase className="mr-2 h-4 w-4 text-primary/80" />Experience</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select experience" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                          {experienceLevels.map(exp => <SelectItem key={exp} value={exp}>{exp}</SelectItem>)}
-                          </SelectContent>
-                      </Select>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-                  <FormItem>
-                      <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-primary/80"/>Hourly Rate (₹)</FormLabel>
-                      <div className="flex flex-col gap-2">
-                          <FormField
-                          control={form.control}
-                          name="hourlyRate"
-                          render={({ field }) => (
-                              <FormItem className="flex-grow">
-                              <FormControl>
-                                  <Input type="number" placeholder="e.g., 800" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
-                              </FormControl>
-                              <FormMessage />
-                              </FormItem>
-                          )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="isRateNegotiable"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-2 mt-2">
-                                <FormControl><Checkbox id="isRateNegotiableCheckbox-admin" checked={field.value} onCheckedChange={field.onChange} className="h-3.5 w-3.5" /></FormControl>
-                                <Label htmlFor="isRateNegotiableCheckbox-admin" className="text-xs font-semibold text-muted-foreground">Rate is Negotiable</Label>
-                                </FormItem>
-                            )}
-                            />
-                      </div>
-                  </FormItem>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                  control={form.control}
-                  name="availabilityDays"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Available Days</FormLabel>
-                      <MultiSelectCommand
-                          options={daysOptionsList}
-                          selectedValues={field.value}
-                          onValueChange={field.onChange}
-                          placeholder="Select days..."
-                          className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                      />
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-                   <FormField
-                  control={form.control}
-                  name="availabilityTime"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Available Time Slots</FormLabel>
-                      <MultiSelectCommand
-                          options={timeSlotsOptionsList}
-                          selectedValues={field.value}
-                          onValueChange={field.onChange}
-                          placeholder="Select time slots..."
-                          className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
-                      />
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-              </div>
-            </div>
-            <DialogFooter className="p-6 pt-4 border-t flex justify-end">
-              <Button type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? (
-                      <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
-                      </>
-                  ) : (
-                      <>
-                          <Save className="mr-2 h-4 w-4" />
-                          Save Changes
-                      </>
-                  )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
