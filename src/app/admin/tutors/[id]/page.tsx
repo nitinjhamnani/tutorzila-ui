@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from "react";
@@ -252,26 +253,22 @@ export default function AdminTutorProfilePage() {
                         <Share2 className="h-4 w-4" />
                     </Button>
                 </div>
-                <CardFooter className="flex-wrap justify-between gap-2 p-4 border-t">
-                    <div className="flex flex-wrap gap-2">
-                         {fetchedTutorDetails?.documentsUrl && (
-                            <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
-                            <a href={fetchedTutorDetails.documentsUrl} target="_blank" rel="noopener noreferrer">
-                            <FileText className="mr-1.5 h-3.5 w-3.5"/> View Documents
-                            </a>
-                            </Button>
-                        )}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)}>
-                            <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
+                <CardFooter className="flex-wrap justify-start gap-2 p-4 border-t">
+                    {fetchedTutorDetails?.documentsUrl && (
+                        <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
+                        <a href={fetchedTutorDetails.documentsUrl} target="_blank" rel="noopener noreferrer">
+                        <FileText className="mr-1.5 h-3.5 w-3.5"/> View Documents
+                        </a>
                         </Button>
-                        {fetchedTutorDetails && !fetchedTutorDetails.isActive && (
-                            <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsActivationModalOpen(true)}>
-                                <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
-                            </Button>
-                        )}
-                    </div>
+                    )}
+                    <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)}>
+                        <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
+                    </Button>
+                    {fetchedTutorDetails && !fetchedTutorDetails.isActive && (
+                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsActivationModalOpen(true)}>
+                            <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
+                        </Button>
+                    )}
                 </CardFooter>
             </Card>
 
