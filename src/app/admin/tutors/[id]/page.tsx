@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Briefcase,
   BookOpen,
@@ -116,7 +117,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       offline: tutoringDetails.offline,
       isHybrid: tutoringDetails.hybrid,
       
-      // Fallbacks or properties that might not be in the new response but are in the type
+      // Fallbacks or properties that might not be in the type
       active: userDetails.active,
       gender: userDetails.gender,
     } as ApiTutor;
@@ -255,6 +256,7 @@ export default function AdminTutorProfilePage() {
     };
 
     return (
+      <TooltipProvider>
         <div className="space-y-6">
             <Card className="relative">
                 <CardHeader>
@@ -371,10 +373,18 @@ export default function AdminTutorProfilePage() {
                                 icon={Mail} 
                                 label="Email" 
                                 verificationBadge={
-                                    <Badge variant={tutor?.emailVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor?.emailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                                      {tutor?.emailVerified ? <MailCheck className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                                      {tutor?.emailVerified ? 'Verified' : 'Not Verified'}
+                                  tutor?.emailVerified ? (
+                                    <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
+                                      <MailCheck className="mr-1 h-3 w-3" /> Verified
                                     </Badge>
+                                  ) : (
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <ShieldAlert className="h-4 w-4 text-destructive"/>
+                                      </TooltipTrigger>
+                                      <TooltipContent><p>Not Verified</p></TooltipContent>
+                                    </Tooltip>
+                                  )
                                 }
                             >
                                 {tutor?.email || "Not Available"}
@@ -383,10 +393,18 @@ export default function AdminTutorProfilePage() {
                                 icon={Phone} 
                                 label="Phone" 
                                 verificationBadge={
-                                    <Badge variant={tutor?.phoneVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor?.phoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                                      {tutor?.phoneVerified ? <PhoneCall className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                                      {tutor?.phoneVerified ? 'Verified' : 'Not Verified'}
+                                  tutor?.phoneVerified ? (
+                                    <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
+                                      <PhoneCall className="mr-1 h-3 w-3" /> Verified
                                     </Badge>
+                                  ) : (
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <ShieldAlert className="h-4 w-4 text-destructive"/>
+                                      </TooltipTrigger>
+                                      <TooltipContent><p>Not Verified</p></TooltipContent>
+                                    </Tooltip>
+                                  )
                                 }
                              >
                                {tutor?.countryCode ? `${tutor.countryCode} ${tutor.phone}` : (tutor?.phone || "Not Available")}
@@ -446,5 +464,6 @@ export default function AdminTutorProfilePage() {
                 tutor={tutor}
             />
         </div>
+      </TooltipProvider>
     );
 }
