@@ -340,9 +340,9 @@ export default function AdminTutorsPage() {
               View, manage, and approve tutors on the platform.
             </CardDescription>
           </div>
-          <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9">
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Tutor
+           <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9 w-9 p-0 sm:w-auto sm:px-4 sm:py-1.5">
+            <UserPlus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Tutor</span>
           </Button>
         </CardHeader>
       </Card>
@@ -350,8 +350,9 @@ export default function AdminTutorsPage() {
       <div className="flex justify-end gap-2">
         <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 bg-card text-primary border-primary hover:bg-primary/10">
-                <ListFilter className="mr-2 h-4 w-4" /> Filter
+              <Button variant="outline" size="sm" className="h-9 w-9 p-0 sm:w-auto sm:px-4 sm:py-1.5 bg-card text-primary border-primary">
+                <ListFilter className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Filter</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-card sm:max-w-lg">
