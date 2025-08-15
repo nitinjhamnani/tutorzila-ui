@@ -8,8 +8,6 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSetAtom } from "jotai";
-import { selectedTutorAtom } from "@/lib/state/admin";
 import type { ApiTutor } from "@/types";
 
 import {
@@ -96,17 +94,7 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
     profilePicUrl: tutor.profilePicUrl,
     isVerified: tutor.verified, 
     name: tutor.tutorName,
-    email: "email_from_other_source@example.com",
-    phone: "9999999999",
   }));
-};
-
-const getInitials = (name: string): string => {
-    if (!name) return "?";
-    const parts = name.split(" ");
-    return parts.length > 1
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-      : parts[0].slice(0, 2);
 };
 
 
@@ -115,7 +103,6 @@ export default function AdminTutorsPage() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
-  const setSelectedTutor = useSetAtom(selectedTutorAtom);
   
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
@@ -157,7 +144,6 @@ export default function AdminTutorsPage() {
   };
   
   const handleViewTutor = (tutor: ApiTutor) => {
-    setSelectedTutor(tutor);
     router.push(`/admin/tutors/${tutor.id}`);
   };
 

@@ -78,12 +78,10 @@ export interface ApiTutor {
   city: string;
   state: string;
   googleMapsLink?: string;
-  createdAt: string;
-  isActive: boolean;
+  createdAt: string; // This was from the list view API
   isBioReviewed: boolean;
   online: boolean;
   offline: boolean;
-  isVerified: boolean;
   profilePicUrl?: string;
 
   // Additional fields for detail view from /api/manage/tutor/{id}
@@ -102,7 +100,7 @@ export interface ApiTutor {
   isRateNegotiable?: boolean;
   isHybrid?: boolean;
 
-  // Fields that might come from other sources (like initial user data)
+  // Fields that might come from other sources (like initial user data or userDetails in detail view)
   name?: string; 
   email?: string;
   phone?: string;
@@ -111,10 +109,13 @@ export interface ApiTutor {
   documentsUrl?: string;
   updatedAt?: string;
   whatsappEnabled?: boolean;
-  active?: boolean; 
+  isActive: boolean; // Both list and detail responses have this
+  isVerified: boolean; // Both list and detail responses should have this
   emailVerified?: boolean;
   phoneVerified?: boolean;
   registeredDate?: string;
+  createdBy?: string;
+  active?: boolean; // Can be deprecated if isActive is used consistently
 }
 
 
