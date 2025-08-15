@@ -71,7 +71,6 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
     }
     const data = await response.json();
     
-    // The new API response has userDetails and tutoringDetails
     const { userDetails, tutoringDetails } = data;
 
     return {
@@ -83,8 +82,6 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       countryCode: userDetails.countryCode,
       phone: userDetails.phone,
       profilePicUrl: userDetails.profilePicUrl,
-      isActive: userDetails.active,
-      isVerified: userDetails.verified, // Assuming this comes from userDetails now
       emailVerified: userDetails.emailVerified,
       phoneVerified: userDetails.phoneVerified,
       whatsappEnabled: userDetails.whatsappEnabled,
@@ -111,14 +108,14 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       hourlyRate: tutoringDetails.hourlyRate,
       languagesList: tutoringDetails.languages,
       profileCompletion: tutoringDetails.profileCompletion,
+      isActive: tutoringDetails.active,
+      isVerified: tutoringDetails.verified,
       isRateNegotiable: tutoringDetails.rateNegotiable,
       isBioReviewed: tutoringDetails.bioReviewed,
       online: tutoringDetails.online,
       offline: tutoringDetails.offline,
       isHybrid: tutoringDetails.hybrid,
       
-      // Fallbacks or properties that might not be in the type
-      active: userDetails.active,
       gender: userDetails.gender,
     } as ApiTutor;
 };
