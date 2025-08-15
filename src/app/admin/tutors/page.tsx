@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from 'date-fns';
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -43,13 +43,27 @@ import {
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
+const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
+const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
+const gradeLevelsList = [
+    "Nursery", "LKG", "UKG",
+    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
+    "Grade 11", "Grade 12",
+    "College Level", "Adult Learner", "Other"
+];
 
-const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
+const fetchAdminTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/search/tutors/all`, {
+  const response = await fetch(`${apiBaseUrl}/api/search/tutors/all?${params.toString()}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -80,11 +94,9 @@ const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
     offline: tutor.offline,
     profilePicUrl: tutor.profilePicUrl,
     isVerified: tutor.verified, 
-    // Fields from old type that are still needed for other parts of the app
-    // They will be populated from other sources or have defaults.
     name: tutor.tutorName,
-    email: "email_from_other_source@example.com", // Placeholder
-    phone: "9999999999", // Placeholder
+    email: "email_from_other_source@example.com",
+    phone: "9999999999",
   }));
 };
 
@@ -103,10 +115,37 @@ export default function AdminTutorsPage() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const setSelectedTutor = useSetAtom(selectedTutorAtom);
+  
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  
+  const initialFilters = {
+    subjects: [],
+    grade: '',
+    board: '',
+    isOnline: false,
+    isOffline: false,
+    city: "",
+    area: "",
+  };
+
+  const [filters, setFilters] = useState(initialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
+
+  const tutorSearchParams = useMemo(() => {
+    const params = new URLSearchParams();
+    if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+    if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
+    if(appliedFilters.board) params.append('boards', appliedFilters.board);
+    if(appliedFilters.isOnline) params.append('isOnline', 'true');
+    if(appliedFilters.isOffline) params.append('isOffline', 'true');
+    if(appliedFilters.city) params.append('location', appliedFilters.city);
+    if(appliedFilters.area) params.append('location', `${appliedFilters.area}, ${appliedFilters.city}`);
+    return params;
+  }, [appliedFilters]);
 
   const { data: tutors = [], isLoading, error } = useQuery<ApiTutor[]>({
-    queryKey: ['adminAllTutors', token],
-    queryFn: () => fetchAdminTutors(token),
+    queryKey: ['adminAllTutors', token, tutorSearchParams.toString()],
+    queryFn: () => fetchAdminTutors(token, tutorSearchParams),
     enabled: !!token,
     staleTime: 0,
     refetchOnWindowFocus: false,
@@ -120,6 +159,40 @@ export default function AdminTutorsPage() {
     setSelectedTutor(tutor);
     router.push(`/admin/tutors/${tutor.id}`);
   };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setIsFilterModalOpen(false);
+  };
+  
+  const handleClearFilters = () => {
+    setFilters(initialFilters);
+    setAppliedFilters(initialFilters);
+    setIsFilterModalOpen(false);
+  };
+
+  const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
+      setFilters(prev => ({ ...prev, [key]: value }));
+  };
+  
+  const handleCityChange = (city: string) => {
+    setFilters(prev => ({ ...prev, city: city === 'all-cities' ? '' : city, area: '' }));
+  };
+
+  const handleAreaChange = (area: string) => {
+      setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
+  };
+
+  const uniqueCities = useMemo(() => {
+    if (!tutors) return [];
+    return Array.from(new Set(tutors.map(tutor => tutor.city).filter(Boolean))).sort();
+  }, [tutors]);
+
+  const uniqueAreasInCity = useMemo(() => {
+    if (!filters.city || !tutors) return [];
+    return Array.from(new Set(tutors.filter(tutor => tutor.city === filters.city).map(tutor => tutor.area).filter(Boolean))).sort();
+  }, [tutors, filters.city]);
+
 
   const renderTableContent = () => {
     if (isLoading) {
@@ -161,7 +234,7 @@ export default function AdminTutorsPage() {
                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <Users className="h-8 w-8" />
                 <span className="font-semibold">No Tutors Found</span>
-                <span className="text-sm">There are no tutors registered on the platform yet.</span>
+                <span className="text-sm">There are no tutors that match the current filters.</span>
               </div>
             </TableCell>
           </TableRow>
@@ -267,10 +340,108 @@ export default function AdminTutorsPage() {
               View, manage, and approve tutors on the platform.
             </CardDescription>
           </div>
-          <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9 sm:w-auto w-9 sm:px-3 p-0">
-            <UserPlus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Add Tutor</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-9">
+                    <ListFilter className="mr-2 h-4 w-4" /> Filter
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-card sm:max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle>Filter Tutors</DialogTitle>
+                    <DialogDescription>
+                      Refine the list of tutors based on specific criteria.
+                    </DialogDescription>
+                  </DialogHeader>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+                      <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="subjects-filter-modal">Subjects</Label>
+                           <MultiSelectCommand
+                              options={allSubjectsList}
+                              selectedValues={filters.subjects}
+                              onValueChange={(value) => handleFilterChange('subjects', value)}
+                              placeholder="Select subjects..."
+                              className="w-full"
+                           />
+                      </div>
+                       <div className="space-y-2">
+                          <Label htmlFor="grade-filter-modal">Grade</Label>
+                          <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
+                               <SelectTrigger id="grade-filter-modal">
+                                  <SelectValue placeholder="Select Grade" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  {gradeLevelsList.map(grade => (
+                                      <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                      </div>
+                       <div className="space-y-2">
+                          <Label htmlFor="board-filter-modal">Board</Label>
+                           <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
+                              <SelectTrigger id="board-filter-modal">
+                                  <SelectValue placeholder="Select Board" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  {boardsList.map(board => (
+                                      <SelectItem key={board} value={board}>{board}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="city-filter-modal">City</Label>
+                          <Select onValueChange={handleCityChange} value={filters.city}>
+                              <SelectTrigger id="city-filter-modal">
+                                  <SelectValue placeholder="Select City" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all-cities">All Cities</SelectItem>
+                                  {uniqueCities.map(loc => (
+                                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="area-filter-modal">Area</Label>
+                          <Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}>
+                              <SelectTrigger id="area-filter-modal">
+                                  <SelectValue placeholder="Select Area" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all-areas">All Areas</SelectItem>
+                                  {uniqueAreasInCity.map(loc => (
+                                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                      </div>
+                      <div className="flex items-center space-x-4 pt-5 md:col-span-2">
+                           <div className="flex items-center space-x-2">
+                              <Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
+                              <Label htmlFor="online-filter-modal" className="font-medium">Online</Label>
+                          </div>
+                           <div className="flex items-center space-x-2">
+                              <Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
+                              <Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label>
+                          </div>
+                      </div>
+                  </div>
+                  <DialogFooter className="gap-2 sm:justify-between">
+                      <Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
+                      <Button type="button" onClick={handleApplyFilters}>Apply Filters</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+            <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9 sm:w-auto w-9 sm:px-3 p-0">
+              <UserPlus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add Tutor</span>
+            </Button>
+          </div>
         </CardHeader>
       </Card>
 
