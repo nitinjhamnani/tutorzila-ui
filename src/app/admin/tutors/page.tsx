@@ -21,7 +21,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,7 @@ const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
     isBioReviewed: tutor.bioReviewed,
     online: tutor.online,
     offline: tutor.offline,
+    profilePicUrl: tutor.profilePicUrl,
     // Fields from old type that are still needed for other parts of the app
     // They will be populated from other sources or have defaults.
     name: tutor.tutorName,
@@ -172,9 +173,11 @@ export default function AdminTutorsPage() {
           <TableRow key={tutor.id}>
             <TableCell>
               <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 border">
-                    <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-                </Avatar>
+                {tutor.profilePicUrl && (
+                  <Avatar className="h-10 w-10 border">
+                      <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                  </Avatar>
+                )}
                 <div>
                     <div className="font-medium text-foreground">{tutor.displayName}</div>
                     <div className="text-xs text-muted-foreground">{tutor.city}, {tutor.state}</div>
