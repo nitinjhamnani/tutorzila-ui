@@ -232,6 +232,22 @@ export default function AdminTutorProfilePage() {
                             </AvatarFallback>
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
+                        <div className="mt-1.5 space-y-1 text-xs text-muted-foreground">
+                            { (tutor.online || tutor.offline) &&
+                                <div className="flex items-center justify-center gap-1.5">
+                                    <RadioTower className="w-3.5 h-3.5 text-primary"/>
+                                    <span>
+                                        {tutor.online && tutor.offline ? "Online & Offline" : tutor.online ? "Online" : "Offline"}
+                                    </span>
+                                </div>
+                            }
+                            { tutor.offline && (tutor.area || tutor.city) &&
+                                <div className="flex items-center justify-center gap-1.5">
+                                    <MapPin className="w-3.5 h-3.5 text-primary"/>
+                                    <span>{[tutor.area, tutor.city].filter(Boolean).join(', ')}</span>
+                                </div>
+                            }
+                        </div>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor?.isActive ? "default" : "destructive"}>
                                 {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
@@ -308,7 +324,7 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <Badge variant="destructive" className="text-xs py-1 px-2.5">
+                            <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-destructive/10 text-destructive border-destructive/20">
                                 <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
                             </Badge>
