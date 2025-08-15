@@ -183,14 +183,17 @@ export default function AdminTutorProfilePage() {
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
-    const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
+    const { data: queryTutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
-        // Use the passed-in data as initial data
-        initialData: initialTutorData || undefined,
+        initialData: initialTutorData && initialTutorData.id === tutorId ? initialTutorData : undefined,
     });
     
+    // Determine which tutor object to display.
+    // Use the fetched data (`queryTutor`) if it's available, otherwise fall back to the initial data from the atom.
+    const tutor = queryTutor || initialTutorData;
+
     const handleShareProfile = async () => {
         if (!tutor) return;
         const profileUrl = `${window.location.origin}/tutors/${tutor.id}`;
