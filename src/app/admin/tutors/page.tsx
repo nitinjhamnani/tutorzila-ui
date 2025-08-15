@@ -84,7 +84,7 @@ export default function AdminTutorsPage() {
     queryKey: ['adminAllTutors', token],
     queryFn: () => fetchAdminTutors(token),
     enabled: !!token,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     refetchOnWindowFocus: false,
   });
 
