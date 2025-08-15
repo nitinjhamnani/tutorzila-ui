@@ -40,6 +40,7 @@ import {
   RadioTower,
   Users as UsersIcon,
   ShieldCheck,
+  Settings,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -309,6 +310,7 @@ export default function AdminTutorsPage() {
                 </div>
               </TooltipProvider>
             </TableCell>
+            <TableCell className="text-xs">{format(new Date(tutor.createdAt), "MMM d, yyyy")}</TableCell>
              <TableCell>
                <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
@@ -317,7 +319,7 @@ export default function AdminTutorsPage() {
             </TableCell>
             <TableCell>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
-                  <Eye className="h-4 w-4" />
+                  <Settings className="h-4 w-4" />
               </Button>
             </TableCell>
           </TableRow>
@@ -454,8 +456,9 @@ export default function AdminTutorsPage() {
                 <TableHead>Tutor Details</TableHead>
                 <TableHead>Subjects</TableHead>
                 <TableHead>Grades</TableHead>
-                <TableHead>Board</TableHead>
+                <TableHead>Boards</TableHead>
                 <TableHead>Mode</TableHead>
+                <TableHead>Registered</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
