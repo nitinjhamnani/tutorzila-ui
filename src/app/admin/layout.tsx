@@ -102,7 +102,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {hasMounted && (
         <header
           className={cn(
-            "bg-card shadow-sm w-full p-4 flex items-center justify-between sticky top-0 z-30",
+            "bg-card shadow-sm w-full p-3 flex items-center justify-between sticky top-0 z-30",
             `h-[${headerHeight}]`
           )}
         >
