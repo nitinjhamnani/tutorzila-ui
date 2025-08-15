@@ -124,7 +124,7 @@ export default function AdminTutorsPage() {
       return (
         <TableBody>
           <TableRow>
-            <TableCell colSpan={6} className="h-64 text-center">
+            <TableCell colSpan={7} className="h-64 text-center">
               <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <span className="font-semibold">Loading Tutors...</span>
@@ -139,7 +139,7 @@ export default function AdminTutorsPage() {
       return (
         <TableBody>
           <TableRow>
-            <TableCell colSpan={6} className="h-24 text-center">
+            <TableCell colSpan={7} className="h-24 text-center">
               <div className="flex flex-col items-center justify-center gap-2 text-destructive">
                 <ShieldAlert className="h-8 w-8" />
                 <span className="font-semibold">Failed to load tutors</span>
@@ -155,7 +155,7 @@ export default function AdminTutorsPage() {
       return (
          <TableBody>
           <TableRow>
-            <TableCell colSpan={6} className="h-24 text-center">
+            <TableCell colSpan={7} className="h-24 text-center">
                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <Users className="h-8 w-8" />
                 <span className="font-semibold">No Tutors Found</span>
@@ -186,6 +186,7 @@ export default function AdminTutorsPage() {
             </TableCell>
             <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
             <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
+            <TableCell className="text-xs">{tutor.boardsList.join(', ')}</TableCell>
             <TableCell>
               <TooltipProvider>
                 <div className="flex items-center gap-2">
@@ -258,6 +259,7 @@ export default function AdminTutorsPage() {
                 <TableHead>Tutor Details</TableHead>
                 <TableHead>Subjects</TableHead>
                 <TableHead>Grades</TableHead>
+                <TableHead>Board</TableHead>
                 <TableHead>Mode</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
