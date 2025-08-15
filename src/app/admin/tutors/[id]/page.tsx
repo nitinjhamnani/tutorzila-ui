@@ -164,16 +164,8 @@ export default function AdminTutorProfilePage() {
     
     if (isLoading) {
       return (
-         <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 space-y-6">
-                    <Skeleton className="h-[250px] w-full rounded-xl" />
-                </div>
-                <div className="lg:col-span-2 space-y-6">
-                    <Skeleton className="h-[200px] w-full rounded-xl" />
-                    <Skeleton className="h-[250px] w-full rounded-xl" />
-                </div>
-            </div>
+         <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
       );
     }
