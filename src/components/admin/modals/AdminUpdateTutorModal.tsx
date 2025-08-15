@@ -84,7 +84,6 @@ const adminTutorUpdateSchema = z.object({
   online: z.boolean().default(false),
   offline: z.boolean().default(false),
   isHybrid: z.boolean().default(false),
-  bioReviewed: z.boolean().default(false),
   location: z.custom<LocationDetails | null>((val) => val === null || (typeof val === 'object' && val !== null && 'address' in val), "Invalid location format.").nullable().optional(),
 }).refine(data => data.online || data.offline, {
   message: "At least one teaching mode (Online or Offline) must be selected.",
@@ -122,7 +121,6 @@ const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: strin
     googleMapsLink: locationDetails?.googleMapsUrl || "",
     hourlyRate: formData.hourlyRate || 0,
     languages: formData.languages,
-    bioReviewed: formData.bioReviewed,
     rateNegotiable: formData.isRateNegotiable,
     online: formData.online,
     offline: formData.offline,
@@ -196,7 +194,6 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         online: tutor.online,
         offline: tutor.offline,
         isHybrid: tutor.isHybrid,
-        bioReviewed: tutor.isBioReviewed,
         location: {
             name: tutor.addressName || tutor.address,
             address: tutor.address,
@@ -468,29 +465,6 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                   )}
                   />
               </div>
-              <FormField
-                control={form.control}
-                name="bioReviewed"
-                render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-2 rounded-lg border p-3 shadow-sm bg-input/50">
-                        <FormControl>
-                            <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            id="bio-reviewed-checkbox"
-                            />
-                        </FormControl>
-                        <div className="space-y-0.5">
-                            <FormLabel className="text-sm font-medium leading-none cursor-pointer" htmlFor="bio-reviewed-checkbox">
-                                Bio Reviewed
-                            </FormLabel>
-                             <FormDescription className="text-xs">
-                                Mark this if the tutor's bio has been reviewed and approved.
-                            </FormDescription>
-                        </div>
-                    </FormItem>
-                )}
-            />
             </form>
           </Form>
         </div>
