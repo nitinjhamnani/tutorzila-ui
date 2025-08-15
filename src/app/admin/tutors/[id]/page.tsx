@@ -261,10 +261,6 @@ export default function AdminTutorProfilePage() {
                           </Button>
                       )}
                       <Button variant="outline" size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
-                      <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href={`/tutors/${tutorId}`} target="_blank"><Eye className="h-4 w-4 mr-1.5" /> Public View</Link>
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8" onClick={handleShareProfile}><Share2 className="h-4 w-4 mr-1.5" /> Share</Button>
                     </CardFooter>
                 </Card>
 
@@ -323,7 +319,7 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <Badge variant="destructive" className="text-xs py-1 px-2.5">
+                            <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-yellow-100 text-yellow-700 border-yellow-500/50">
                                 <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
                             </Badge>
