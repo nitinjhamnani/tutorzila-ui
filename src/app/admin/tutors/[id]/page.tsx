@@ -272,7 +272,7 @@ export default function AdminTutorProfilePage() {
 
                  <Card>
                     <CardHeader>
-                        <CardTitle>Personal &amp; Contact</CardTitle>
+                        <CardTitle>Personal & Contact</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <InfoItem icon={VenetianMask} label="Gender">{tutor.gender || 'Not Specified'}</InfoItem>
@@ -345,7 +345,7 @@ export default function AdminTutorProfilePage() {
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Specialization &amp; Availability</CardTitle>
+                        <CardTitle>Specialization & Availability</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                        <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
@@ -364,29 +364,6 @@ export default function AdminTutorProfilePage() {
                         <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
                         <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Location &amp; Mode</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
-                            {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
-                            {tutor?.isHybrid && <Badge>Hybrid</Badge>}
-                        </div>
-                        {tutor?.offline && (
-                            <InfoItem icon={MapPin} label="Address">
-                            {tutor.googleMapsLink ? (
-                                <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                {tutor.addressName || tutor.address}
-                                </a>
-                            ) : (
-                                <span>{tutor.addressName || tutor.address || "Not specified"}</span>
-                            )}
-                            </InfoItem>
-                        )}
                     </CardContent>
                 </Card>
             </div>
