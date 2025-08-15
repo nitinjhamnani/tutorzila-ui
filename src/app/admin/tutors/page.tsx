@@ -36,9 +36,13 @@ import {
   Loader2,
   ShieldAlert,
   ListFilter,
-  UserPlus
+  UserPlus,
+  RadioTower,
+  Users as UsersIcon,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -73,7 +77,7 @@ const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
     isBioReviewed: tutor.bioReviewed,
     online: tutor.online,
     offline: tutor.offline,
-    // These fields are not in the new API but are part of the type. 
+    // Fields from old type that are still needed for other parts of the app
     // They will be populated from other sources or have defaults.
     name: tutor.tutorName,
     email: "email_from_other_source@example.com", // Placeholder
@@ -170,9 +174,6 @@ export default function AdminTutorsPage() {
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border">
                     <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                        {getInitials(tutor.displayName)}
-                    </AvatarFallback>
                 </Avatar>
                 <div>
                     <div className="font-medium text-foreground">{tutor.displayName}</div>
@@ -183,14 +184,30 @@ export default function AdminTutorsPage() {
             <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
             <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
             <TableCell>
-              <div className="flex flex-col items-start gap-1.5">
-                  <Badge variant={tutor.online ? "default" : "secondary"} className={cn("text-xs py-0.5 px-2", tutor.online ? "bg-blue-100 text-blue-700" : "")}>
-                    Online
-                  </Badge>
-                  <Badge variant={tutor.offline ? "default" : "secondary"} className={cn("text-xs py-0.5 px-2", tutor.offline ? "bg-green-100 text-green-700" : "")}>
-                    Offline
-                  </Badge>
-              </div>
+              <TooltipProvider>
+                <div className="flex items-center gap-2">
+                  {tutor.online && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="p-1.5 bg-primary/10 rounded-full">
+                           <RadioTower className="w-4 h-4 text-primary" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Available for Online</p></TooltipContent>
+                    </Tooltip>
+                  )}
+                  {tutor.offline && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="p-1.5 bg-primary/10 rounded-full">
+                           <UsersIcon className="w-4 h-4 text-primary" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Available for Offline</p></TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              </TooltipProvider>
             </TableCell>
              <TableCell>
                <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
