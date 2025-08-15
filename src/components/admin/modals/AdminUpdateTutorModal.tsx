@@ -168,8 +168,8 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
       queryClient.setQueryData(['tutorProfile', tutor!.id], (oldData: ApiTutor | undefined) => {
         if (!oldData) return data;
         return {
-          ...oldData, // Keep existing fields like name, email from initial data
-          ...data, // Overwrite with new professional details
+          ...oldData, 
+          ...data, 
         };
       });
       onOpenChange(false);
@@ -232,7 +232,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         </DialogHeader>
         <div className="flex-grow overflow-y-auto">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} id="admin-tutor-update-form" className="p-6 space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
               <FormField
                 control={form.control}
                 name="bio"
@@ -383,7 +383,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                       selectedValues={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select languages..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
                   </FormItem>
@@ -466,31 +466,31 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                           selectedValues={field.value}
                           onValueChange={field.onChange}
                           placeholder="Select time slots..."
-                          className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                          className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                       />
                       <FormMessage />
                       </FormItem>
                   )}
                   />
               </div>
+               <DialogFooter className="p-6 pt-4 border-t flex justify-end">
+                <Button type="submit" disabled={mutation.isPending}>
+                    {mutation.isPending ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save Changes
+                        </>
+                    )}
+                </Button>
+              </DialogFooter>
             </form>
           </Form>
         </div>
-        <DialogFooter className="p-6 pt-4 border-t flex justify-end">
-            <Button type="submit" form="admin-tutor-update-form" disabled={mutation.isPending}>
-                {mutation.isPending ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                    </>
-                ) : (
-                    <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Changes
-                    </>
-                )}
-            </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
