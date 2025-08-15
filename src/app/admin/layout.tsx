@@ -117,7 +117,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <MenuIcon className="h-6 w-6" />
             </Button>
             <Link href="/admin/dashboard">
-              <Logo className="h-10 w-auto" />
+              <Logo className="h-12 w-auto" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
