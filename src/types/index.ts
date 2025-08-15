@@ -62,8 +62,8 @@ export interface TuitionRequirement {
   mockIsShortlistedByCurrentUser?: boolean;
   appliedTutorIds?: string[];
   createdBy?: 'PARENT' | 'ADMIN';
-  tutorGenderPreference?: 'male' | 'female' | 'any';
-  startDatePreference?: 'immediately' | 'within_month' | 'exploring';
+  tutorGenderPreference?: 'MALE' | 'FEMALE' | 'NO_PREFERENCE';
+  startDatePreference?: 'IMMEDIATELY' | 'WITHIN_A_MONTH' | 'JUST_EXPLORING';
   budget?: BudgetDetails;
 }
 
@@ -101,6 +101,16 @@ export interface ApiTutor {
   online: boolean;
   offline: boolean;
   profilePicUrl?: string;
+  // Deprecated fields from old structure - keep for compatibility if needed during transition
+  name?: string;
+  email?: string;
+  phone?: string;
+  countryCode?: string;
+  whatsappEnabled?: boolean;
+  active?: boolean;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  registeredDate?: string;
 }
 
 

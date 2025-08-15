@@ -7,6 +7,10 @@ import { format } from 'date-fns';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSetAtom } from "jotai";
+import { selectedTutorAtom } from "@/lib/state/admin";
+import type { ApiTutor } from "@/types";
 
 import {
     Table,
@@ -35,22 +39,6 @@ import {
   UserPlus
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
-
-interface ApiTutor {
-  id: string;
-  name: string;
-  email: string;
-  country: string;
-  countryCode: string;
-  phone: string;
-  userType: "PARENT" | "TUTOR";
-  registeredDate: string;
-  profilePicUrl?: string;
-  active: boolean;
-  emailVerified: boolean;
-  phoneVerified: boolean;
-  whatsappEnabled: boolean;
-}
 
 const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -84,6 +72,8 @@ export default function AdminTutorsPage() {
   const { token } = useAuthMock();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const setSelectedTutor = useSetAtom(selectedTutorAtom);
 
   const { data: tutors = [], isLoading, error } = useQuery<ApiTutor[]>({
     queryKey: ['adminAllTutors', token],
@@ -95,6 +85,11 @@ export default function AdminTutorsPage() {
 
   const handleAddUserSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['adminAllTutors'] });
+  };
+  
+  const handleViewTutor = (tutor: ApiTutor) => {
+    setSelectedTutor(tutor);
+    router.push(`/admin/tutors/${tutor.id}`);
   };
 
   const renderTableContent = () => {
@@ -147,7 +142,7 @@ export default function AdminTutorsPage() {
 
     return (
       <TableBody>
-        {tutors.map((tutor) => (
+        {tutors.map((tutor: any) => ( // Using any here because the mock data might not match ApiTutor perfectly
           <TableRow key={tutor.id}>
             <TableCell>
               <div className="flex items-center gap-3">
@@ -189,17 +184,8 @@ export default function AdminTutorsPage() {
                </Badge>
             </TableCell>
             <TableCell>
-              <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                <Link href={{
-                  pathname: `/admin/tutors/${tutor.id}`,
-                  query: {
-                    name: tutor.name,
-                    email: tutor.email,
-                    phone: `${tutor.countryCode} ${tutor.phone}`
-                  }
-                }}>
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
                   <Eye className="h-4 w-4" />
-                </Link>
               </Button>
             </TableCell>
           </TableRow>

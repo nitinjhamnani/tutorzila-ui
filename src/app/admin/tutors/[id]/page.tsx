@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import type { ApiTutor } from "@/types";
@@ -53,6 +53,8 @@ import { ActivationModal } from "@/components/admin/modals/ActivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useAtomValue } from "jotai";
+import { selectedTutorAtom } from "@/lib/state/admin";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -101,16 +103,6 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       online: data.tutoringDetails.online || false,
       offline: data.tutoringDetails.offline || false,
       profilePicUrl: data.profilePicUrl, // Assuming this is still top-level
-      // Fields from old ApiTutor that are not in the new response need to be handled
-      subjects: (data.tutoringDetails.subjects || []).join(', '),
-      qualification: (data.tutoringDetails.qualifications || []).join(', '),
-      availabilityDays: (data.tutoringDetails.availabilityDays || []).join(', '),
-      availabilityTime: (data.tutoringDetails.availabilityTime || []).join(', '),
-      languages: (data.tutoringDetails.languages || []).join(', '),
-      grades: (data.tutoringDetails.grades || []).join(', '),
-      boards: (data.tutoringDetails.boards || []).join(', '),
-      createdAt: data.createdAt || new Date().toISOString(),
-      updatedAt: data.updatedAt || new Date().toISOString(),
     };
 };
 
@@ -182,16 +174,13 @@ function MetricCard({ title, value, IconEl }: MetricCardProps) {
 
 export default function AdminTutorProfilePage() {
     const params = useParams();
-    const searchParams = useSearchParams();
     const router = useRouter();
     const { token } = useAuthMock();
     const { toast } = useToast();
     const tutorId = params.id as string;
     
-    // Get initial data from query params
-    const initialName = searchParams.get('name');
-    const initialEmail = searchParams.get('email');
-    const initialPhone = searchParams.get('phone');
+    // Read the initially selected tutor data from Jotai state
+    const initialTutorData = useAtomValue(selectedTutorAtom);
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
@@ -200,6 +189,8 @@ export default function AdminTutorProfilePage() {
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
+        // Use the passed-in data as initial data
+        initialData: initialTutorData || undefined,
     });
     
     const handleShareProfile = async () => {
@@ -257,7 +248,7 @@ export default function AdminTutorProfilePage() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-grow">
-                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName || initialName}</CardTitle>
+                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
                                 <CardDescription className="text-sm text-muted-foreground">{tutor.gender}</CardDescription>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
                                     <Badge variant={tutor.isActive ? "default" : "destructive"}>
@@ -399,3 +390,4 @@ export default function AdminTutorProfilePage() {
         </div>
     );
 }
+
