@@ -46,6 +46,8 @@ import {
   Eye,
   Percent,
   Share2,
+  MailCheck,
+  PhoneCall,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -134,13 +136,16 @@ const InfoSection = ({ title, children }: { title: string; children: React.React
   </div>
 );
 
-const InfoItem = ({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children?: React.ReactNode }) => {
+const InfoItem = ({ icon: Icon, label, children, verificationBadge }: { icon: React.ElementType; label: string; children?: React.ReactNode, verificationBadge?: React.ReactNode }) => {
   if (!children && typeof children !== 'number') return null;
   return (
     <div className="flex items-start">
       <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
-      <div className="flex flex-col">
-        <span className="font-medium text-foreground">{label}</span>
+      <div className="flex flex-col flex-grow">
+        <div className="flex justify-between items-center">
+            <span className="font-medium text-foreground">{label}</span>
+            {verificationBadge}
+        </div>
         <div className="text-muted-foreground text-xs">{children}</div>
       </div>
     </div>
@@ -362,8 +367,30 @@ export default function AdminTutorProfilePage() {
                             <CardTitle>Personal & Contact</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <InfoItem icon={Mail} label="Email">{tutor?.email || "Not Available"}</InfoItem>
-                            <InfoItem icon={Phone} label="Phone">{tutor?.countryCode ? `${tutor.countryCode} ${tutor.phone}` : (tutor?.phone || "Not Available")}</InfoItem>
+                            <InfoItem 
+                                icon={Mail} 
+                                label="Email" 
+                                verificationBadge={
+                                    <Badge variant={tutor?.emailVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor?.emailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
+                                      {tutor?.emailVerified ? <MailCheck className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                                      {tutor?.emailVerified ? 'Verified' : 'Not Verified'}
+                                    </Badge>
+                                }
+                            >
+                                {tutor?.email || "Not Available"}
+                            </InfoItem>
+                             <InfoItem 
+                                icon={Phone} 
+                                label="Phone" 
+                                verificationBadge={
+                                    <Badge variant={tutor?.phoneVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor?.phoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
+                                      {tutor?.phoneVerified ? <PhoneCall className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                                      {tutor?.phoneVerified ? 'Verified' : 'Not Verified'}
+                                    </Badge>
+                                }
+                             >
+                               {tutor?.countryCode ? `${tutor.countryCode} ${tutor.phone}` : (tutor?.phone || "Not Available")}
+                             </InfoItem>
                         </CardContent>
                     </Card>
                     <Card>
