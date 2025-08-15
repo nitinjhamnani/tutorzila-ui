@@ -49,6 +49,7 @@ import {
   Share2,
   MailCheck,
   PhoneCall,
+  Unlock,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -226,10 +227,6 @@ export default function AdminTutorProfilePage() {
       )
     }
 
-    const firstSubject = tutor.subjectsList?.[0];
-    const firstGrade = tutor.gradesList?.[0];
-    const firstBoard = tutor.boardsList?.[0];
-
 
     return (
       <TooltipProvider>
@@ -267,7 +264,9 @@ export default function AdminTutorProfilePage() {
                  <CardFooter className="p-5 md:p-6 border-t flex flex-wrap justify-between items-center gap-3">
                     <div className="flex items-center gap-2">
                       {!tutor?.isActive && (
-                          <Button variant="outline" size="sm" className="h-8" onClick={() => setIsActivationModalOpen(true)}>Activate Tutor</Button>
+                          <Button variant="outline" size="sm" className="h-8" onClick={() => setIsActivationModalOpen(true)}>
+                            <Unlock className="h-4 w-4 mr-1.5" /> Activate
+                          </Button>
                       )}
                       <Button variant="outline" size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
                     </div>
