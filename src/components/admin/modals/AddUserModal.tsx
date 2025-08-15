@@ -26,11 +26,14 @@ import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Mail, Phone, User, Loader2 } from "lucide-react";
 import { useState } from 'react';
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 const addUserSchema = z.object({
   name: z.string().min(2, "Full name is required."),
   email: z.string().email("Invalid email address."),
-  phone: z.string().min(10, "Phone number must be at least 10 digits.").regex(/^\d+$/, "Phone number must contain only digits."),
+  country: z.string().min(1, "Country is required."),
+  localPhoneNumber: z.string().min(10, "Phone number must be at least 10 digits.").regex(/^\d+$/, "Phone number must contain only digits."),
 });
 
 type AddUserFormValues = z.infer<typeof addUserSchema>;
@@ -42,6 +45,15 @@ interface AddUserModalProps {
   onSuccess: () => void;
 }
 
+const MOCK_COUNTRIES = [
+  { country: "IN", countryCode: "+91", label: "India (+91)" },
+  { country: "US", countryCode: "+1", label: "USA (+1)" },
+  { country: "GB", countryCode: "+44", label: "UK (+44)" },
+  { country: "AU", countryCode: "+61", label: "Australia (+61)" },
+  { country: "JP", countryCode: "+81", label: "Japan (+81)" },
+];
+
+
 export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddUserModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,12 +64,15 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
     defaultValues: {
       name: "",
       email: "",
-      phone: "",
+      country: "IN",
+      localPhoneNumber: "",
     },
   });
 
   const handleCreateUser = async (data: AddUserFormValues) => {
     setIsSubmitting(true);
+    const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
+
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
       const response = await fetch(`${apiBaseUrl}/api/admin/user/create`, {
@@ -67,7 +82,14 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
           'Authorization': `Bearer ${token}`,
           'accept': '*/*',
         },
-        body: JSON.stringify({ ...data, userType }),
+        body: JSON.stringify({ 
+            name: data.name,
+            email: data.email,
+            userType,
+            country: data.country,
+            countryCode: selectedCountryData?.countryCode || '',
+            phone: data.localPhoneNumber,
+         }),
       });
       
       const responseData = await response.json();
@@ -135,19 +157,44 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80"/>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input type="tel" placeholder="9876543210" {...field} disabled={isSubmitting}/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormItem>
+                <FormLabel className="text-foreground">Phone Number</FormLabel>
+                <div className="flex gap-2">
+                    <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                        <FormItem className="w-auto min-w-[120px]"> 
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Country" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {MOCK_COUNTRIES.map(c => (
+                                <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="localPhoneNumber"
+                    render={({ field }) => (
+                        <FormItem className="flex-1">
+                        <FormControl>
+                            <Input type="tel" placeholder="XXXXXXXXXX" {...field} disabled={isSubmitting}/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+            </FormItem>
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
@@ -164,3 +211,4 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
     </Dialog>
   );
 }
+
