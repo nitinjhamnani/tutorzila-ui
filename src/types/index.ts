@@ -71,13 +71,13 @@ export interface ApiTutor {
   id: string;
   displayName: string;
   gender: string;
-  subjects: string;
+  subjectsList: string[];
   hourlyRate: number;
   bio: string;
-  qualification: string;
+  qualificationList: string[];
   experienceYears: string;
-  availabilityDays: string;
-  availabilityTime: string;
+  availabilityDaysList: string[];
+  availabilityTimeList: string[];
   addressName: string;
   address: string;
   city: string;
@@ -86,9 +86,9 @@ export interface ApiTutor {
   pincode: string;
   country: string;
   googleMapsLink: string;
-  languages: string;
-  grades: string;
-  boards: string;
+  languagesList: string[];
+  gradesList: string[];
+  boardsList: string[];
   documentsUrl: string;
   profileCompletion: number;
   isVerified: boolean;
@@ -98,16 +98,9 @@ export interface ApiTutor {
   createdAt: string;
   updatedAt: string;
   isBioReviewed: boolean;
-  subjectsList: string[];
-  availabilityDaysList: string[];
-  availabilityTimeList: string[];
-  languagesList: string[];
-  gradesList: string[];
-  boardsList: string[];
-  qualificationList: string[];
   online: boolean;
   offline: boolean;
-  profilePicUrl?: string; // Adding optional profile pic
+  profilePicUrl?: string;
 }
 
 

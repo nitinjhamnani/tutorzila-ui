@@ -66,7 +66,52 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
     if (!response.ok) {
         throw new Error("Failed to fetch tutor profile.");
     }
-    return response.json();
+    const data = await response.json();
+    
+    // Transform the new API response to the existing ApiTutor structure
+    return {
+      id: tutorId,
+      displayName: data.displayName || "N/A",
+      gender: data.gender || "Not specified",
+      subjectsList: data.tutoringDetails.subjects || [],
+      hourlyRate: data.tutoringDetails.hourlyRate || 0,
+      bio: data.tutoringDetails.tutorBio || "",
+      qualificationList: data.tutoringDetails.qualifications || [],
+      experienceYears: data.tutoringDetails.yearOfExperience || "",
+      availabilityDaysList: data.tutoringDetails.availabilityDays || [],
+      availabilityTimeList: data.tutoringDetails.availabilityTime || [],
+      addressName: data.tutoringDetails.addressName || "",
+      address: data.tutoringDetails.address || "",
+      city: data.tutoringDetails.city || "",
+      state: data.tutoringDetails.state || "",
+      area: data.tutoringDetails.area || "",
+      pincode: data.tutoringDetails.pincode || "",
+      country: data.tutoringDetails.country || "",
+      googleMapsLink: data.tutoringDetails.googleMapsLink || "",
+      languagesList: data.tutoringDetails.languages || [],
+      gradesList: data.tutoringDetails.grades || [],
+      boardsList: data.tutoringDetails.boards || [],
+      documentsUrl: data.documentsUrl || "", // Assuming this is still top-level
+      profileCompletion: data.profileCompletion || 0,
+      isVerified: data.isVerified || false, // Assuming this is still top-level
+      isActive: data.tutorActive,
+      isRateNegotiable: data.tutoringDetails.rateNegotiable || false,
+      isHybrid: data.tutoringDetails.hybrid || false,
+      isBioReviewed: data.tutoringDetails.bioReviewed || false,
+      online: data.tutoringDetails.online || false,
+      offline: data.tutoringDetails.offline || false,
+      profilePicUrl: data.profilePicUrl, // Assuming this is still top-level
+      // Fields from old ApiTutor that are not in the new response need to be handled
+      subjects: (data.tutoringDetails.subjects || []).join(', '),
+      qualification: (data.tutoringDetails.qualifications || []).join(', '),
+      availabilityDays: (data.tutoringDetails.availabilityDays || []).join(', '),
+      availabilityTime: (data.tutoringDetails.availabilityTime || []).join(', '),
+      languages: (data.tutoringDetails.languages || []).join(', '),
+      grades: (data.tutoringDetails.grades || []).join(', '),
+      boards: (data.tutoringDetails.boards || []).join(', '),
+      createdAt: data.createdAt || new Date().toISOString(),
+      updatedAt: data.updatedAt || new Date().toISOString(),
+    };
 };
 
 const getInitials = (name: string): string => {
