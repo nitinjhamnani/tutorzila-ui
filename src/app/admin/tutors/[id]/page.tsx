@@ -267,9 +267,9 @@ export default function AdminTutorProfilePage() {
                  <CardFooter className="p-5 md:p-6 border-t flex flex-wrap justify-between items-center gap-3">
                     <div className="flex items-center gap-2">
                       {!tutor?.isActive && (
-                          <Button size="sm" className="h-8 bg-green-600 hover:bg-green-700" onClick={() => setIsActivationModalOpen(true)}>Activate Tutor</Button>
+                          <Button variant="outline" size="sm" className="h-8" onClick={() => setIsActivationModalOpen(true)}>Activate Tutor</Button>
                       )}
-                      <Button size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)} disabled={isLoading}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
+                      <Button variant="outline" size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button asChild variant="outline" size="sm" className="h-8">
@@ -280,62 +280,67 @@ export default function AdminTutorProfilePage() {
                 </CardFooter>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>About</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
-                </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Specialization</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
-                        <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
-                        <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Professional Details</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <InfoItem icon={Briefcase} label="Experience">{tutor?.yearOfExperience}</InfoItem>
-                        <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
-                        <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
-                        <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Availability & Mode</CardTitle>
-                    </CardHeader>
-                     <CardContent className="space-y-4">
-                         <div className="flex items-center gap-2">
-                            {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
-                            {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
-                            {tutor?.isHybrid && <Badge>Hybrid</Badge>}
-                         </div>
-                         <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
-                         <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
-                         {tutor?.offline && (
-                            <InfoItem icon={MapPin} label="Address">
-                              {tutor.googleMapsLink ? (
-                                <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                  {tutor.addressName || tutor.address}
-                                </a>
-                              ) : (
-                                <span>{tutor.addressName || tutor.address || "Not specified"}</span>
-                              )}
-                            </InfoItem>
-                          )}
-                    </CardContent>
-                </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 {/* Main Content Column */}
+                <div className="md:col-span-2 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>About</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Specialization & Availability</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                           <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
+                           <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
+                           <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
+                           <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
+                           <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
+                        </CardContent>
+                    </Card>
+                </div>
+                {/* Right Sidebar Column */}
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Professional Details</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <InfoItem icon={Briefcase} label="Experience">{tutor?.yearOfExperience}</InfoItem>
+                            <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                            <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
+                            <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Location & Mode</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                {tutor?.online && <Badge><RadioTower className="w-3 h-3 mr-1.5"/> Online</Badge>}
+                                {tutor?.offline && <Badge><UsersIcon className="w-3 h-3 mr-1.5"/> Offline</Badge>}
+                                {tutor?.isHybrid && <Badge>Hybrid</Badge>}
+                            </div>
+                            {tutor?.offline && (
+                                <InfoItem icon={MapPin} label="Address">
+                                {tutor.googleMapsLink ? (
+                                    <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                    {tutor.addressName || tutor.address}
+                                    </a>
+                                ) : (
+                                    <span>{tutor.addressName || tutor.address || "Not specified"}</span>
+                                )}
+                                </InfoItem>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
             
             <ActivationModal
