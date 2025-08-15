@@ -215,8 +215,9 @@ export default function AdminTutorsPage() {
               View, manage, and approve tutors on the platform.
             </CardDescription>
           </div>
-          <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9">
-            <UserPlus className="mr-2 h-4 w-4" /> Add Tutor
+          <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9 sm:w-auto w-9 sm:px-3 p-0">
+            <UserPlus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Tutor</span>
           </Button>
         </CardHeader>
       </Card>
