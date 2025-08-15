@@ -227,58 +227,43 @@ export default function AdminTutorProfilePage() {
     return (
       <TooltipProvider>
         <div className="space-y-6">
-            <Card className="relative">
+            <Card className="relative bg-card rounded-xl shadow-lg border-0">
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                        <div className="flex-grow min-w-0">
-                            <CardTitle className="text-xl font-semibold text-primary">
-                                Tutoring Specialization
-                            </CardTitle>
-                             <CardDescription className="text-sm text-foreground/70 mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-primary/80"/>{tutor.subjectsList?.join(', ') || 'N/A'}</span>
-                                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{tutor.gradesList?.join(', ') || 'N/A'}</span>
-                                <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{tutor.boardsList?.join(', ') || 'N/A'}</span>
-                            </CardDescription>
-                            <div className="mt-4 flex flex-wrap items-center gap-2">
-                                <Badge variant={tutor?.isActive ? "default" : "destructive"}>
-                                    {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                    {tutor?.isActive ? 'Active' : 'Inactive'}
-                                </Badge>
-                                 <Badge variant={tutor?.isVerified ? "default" : "destructive"}>
-                                    {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                                    {tutor?.isVerified ? 'Verified' : 'Not Verified'}
-                                </Badge>
+                        <div className="flex items-center gap-4 flex-grow min-w-0">
+                            <Avatar className="h-20 w-20 border-2 border-primary/20">
+                                <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                                <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
+                                    {getInitials(tutor.displayName)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                                <CardTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</CardTitle>
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
+                                  <span className="flex items-center gap-1.5"><Mail className="w-4 h-4"/> {tutor.email}</span>
+                                  {tutor.phone && <span className="flex items-center gap-1.5"><Phone className="w-4 h-4"/> {tutor.countryCode} {tutor.phone}</span>}
+                                </div>
+                                <div className="mt-2 flex items-center gap-2">
+                                    <Badge variant={tutor?.isActive ? "default" : "destructive"}>
+                                        {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                        {tutor?.isActive ? 'Active' : 'Inactive'}
+                                    </Badge>
+                                     <Badge variant={tutor?.isVerified ? "default" : "destructive"}>
+                                        {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                                        {tutor?.isVerified ? 'Verified' : 'Not Verified'}
+                                    </Badge>
+                                </div>
                             </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0 self-start sm:self-center">
+                            <Button asChild variant="outline" size="sm" className="h-8">
+                                <Link href={`/tutors/${tutorId}`} target="_blank"><Eye className="h-4 w-4 mr-1.5" /> Public</Link>
+                            </Button>
+                            <Button variant="outline" size="sm" className="h-8" onClick={handleShareProfile}><Share2 className="h-4 w-4 mr-1.5" /> Share</Button>
+                             <Button size="sm" className="h-8" onClick={() => setIsUpdateModalOpen(true)} disabled={isLoading}><Edit3 className="h-4 w-4 mr-1.5" /> Update</Button>
                         </div>
                     </div>
                 </CardHeader>
-                 <div className="absolute top-4 right-4 flex items-center gap-2">
-                    <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                        <Link href={`/tutors/${tutorId}`} target="_blank">
-                            <Eye className="h-4 w-4" />
-                        </Link>
-                    </Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleShareProfile}>
-                        <Share2 className="h-4 w-4" />
-                    </Button>
-                </div>
-                <CardFooter className="flex-wrap justify-start gap-2 p-4 border-t">
-                    {tutor?.documentsUrl ? (
-                        <Button asChild variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto">
-                        <a href={tutor.documentsUrl} target="_blank" rel="noopener noreferrer">
-                        <FileText className="mr-1.5 h-3.5 w-3.5"/> View Documents
-                        </a>
-                        </Button>
-                    ) : isLoading && <Skeleton className="h-8 w-32 rounded-md" />}
-                    <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsUpdateModalOpen(true)} disabled={isLoading}>
-                        <Edit3 className="mr-1.5 h-3.5 w-3.5"/> Update
-                    </Button>
-                    {tutor && !tutor.isActive && (
-                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsActivationModalOpen(true)}>
-                            <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Activate
-                        </Button>
-                    )}
-                </CardFooter>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -320,55 +305,6 @@ export default function AdminTutorProfilePage() {
                     </Card>
                 </div>
                 <div className="lg:col-span-1 space-y-6">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Personal &amp; Contact</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                           <InfoItem icon={User} label="Full Name">{tutor?.displayName || "Not Available"}</InfoItem>
-                           <InfoItem icon={User} label="Gender">{tutor?.gender || "Not Specified"}</InfoItem>
-                            <InfoItem 
-                                icon={Mail} 
-                                label="Email" 
-                                verificationBadge={
-                                  tutor?.emailVerified ? (
-                                    <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
-                                      <MailCheck className="mr-1 h-3 w-3" /> Verified
-                                    </Badge>
-                                  ) : (
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <ShieldAlert className="h-4 w-4 text-destructive"/>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Not Verified</p></TooltipContent>
-                                    </Tooltip>
-                                  )
-                                }
-                            >
-                                {tutor?.email || "Not Available"}
-                            </InfoItem>
-                             <InfoItem 
-                                icon={Phone} 
-                                label="Phone" 
-                                verificationBadge={
-                                  tutor?.phoneVerified ? (
-                                    <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
-                                      <PhoneCall className="mr-1 h-3 w-3" /> Verified
-                                    </Badge>
-                                  ) : (
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <ShieldAlert className="h-4 w-4 text-destructive"/>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Not Verified</p></TooltipContent>
-                                    </Tooltip>
-                                  )
-                                }
-                             >
-                               {tutor?.countryCode ? `${tutor.countryCode} ${tutor.phone}` : (tutor?.phone || "Not Available")}
-                             </InfoItem>
-                        </CardContent>
-                    </Card>
                     <Card>
                         <CardHeader>
                             <CardTitle>Professional Details</CardTitle>
@@ -425,3 +361,6 @@ export default function AdminTutorProfilePage() {
       </TooltipProvider>
     );
 }
+
+
+    
