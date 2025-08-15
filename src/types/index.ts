@@ -68,49 +68,50 @@ export interface TuitionRequirement {
 }
 
 export interface ApiTutor {
-  id: string;
-  displayName: string;
-  gender: string;
-  subjectsList: string[];
-  hourlyRate: number;
-  bio: string;
-  qualificationList: string[];
-  experienceYears: string;
-  availabilityDaysList: string[];
-  availabilityTimeList: string[];
-  addressName: string;
-  address: string;
+  id: string; // Was tutorId
+  displayName: string; // Was tutorName
+  subjectsList: string[]; // Was subjects (string)
+  gradesList: string[]; // Was grades (string)
+  boardsList: string[]; // Was boards (string)
+  area: string;
   city: string;
   state: string;
-  area: string;
-  pincode: string;
-  country: string;
-  googleMapsLink: string;
-  languagesList: string[];
-  gradesList: string[];
-  boardsList: string[];
-  documentsUrl: string;
-  profileCompletion: number;
-  isVerified: boolean;
-  isActive: boolean;
-  isRateNegotiable: boolean;
-  isHybrid: boolean;
+  googleMapsLink?: string; // Was googleMapLink
   createdAt: string;
-  updatedAt: string;
-  isBioReviewed: boolean;
+  isActive: boolean; // Was active
+  isBioReviewed: boolean; // Was bioReviewed
   online: boolean;
   offline: boolean;
-  profilePicUrl?: string;
-  // Deprecated fields from old structure - keep for compatibility if needed during transition
-  name?: string;
+  
+  // Fields from old type that are still needed for other parts of the app
+  name?: string; // Alias for displayName
   email?: string;
   phone?: string;
   countryCode?: string;
+  gender?: string;
+  hourlyRate?: number;
+  bio?: string;
+  qualificationList?: string[];
+  experienceYears?: string;
+  availabilityDaysList?: string[];
+  availabilityTimeList?: string[];
+  addressName?: string;
+  address?: string;
+  pincode?: string;
+  country?: string;
+  languagesList?: string[];
+  documentsUrl?: string;
+  profileCompletion?: number;
+  isVerified?: boolean;
+  isRateNegotiable?: boolean;
+  isHybrid?: boolean;
+  updatedAt?: string;
+  profilePicUrl?: string;
   whatsappEnabled?: boolean;
-  active?: boolean;
+  active?: boolean; // Keep for compatibility if needed
   emailVerified?: boolean;
   phoneVerified?: boolean;
-  registeredDate?: string;
+  registeredDate?: string; // Keep for compatibility
 }
 
 

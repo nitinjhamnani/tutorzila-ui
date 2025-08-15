@@ -44,7 +44,7 @@ const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/admin/users?userType=TUTOR`, {
+  const response = await fetch(`${apiBaseUrl}/api/search/tutors/all`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -56,7 +56,29 @@ const fetchAdminTutors = async (token: string | null): Promise<ApiTutor[]> => {
     throw new Error(errorData.message);
   }
   
-  return response.json();
+  const data = await response.json();
+  // Transform the new API response to match the existing ApiTutor type structure
+  return data.map((tutor: any) => ({
+    id: tutor.tutorId,
+    displayName: tutor.tutorName,
+    subjectsList: tutor.subjects ? tutor.subjects.split(',').map((s:string) => s.trim()) : [],
+    gradesList: tutor.grades ? tutor.grades.split(',').map((g:string) => g.trim()) : [],
+    boardsList: tutor.boards ? tutor.boards.split(',').map((b:string) => b.trim()) : [],
+    area: tutor.area,
+    city: tutor.city,
+    state: tutor.state,
+    googleMapsLink: tutor.googleMapLink,
+    createdAt: tutor.createdAt,
+    isActive: tutor.active,
+    isBioReviewed: tutor.bioReviewed,
+    online: tutor.online,
+    offline: tutor.offline,
+    // These fields are not in the new API but are part of the type. 
+    // They will be populated from other sources or have defaults.
+    name: tutor.tutorName,
+    email: "email_from_other_source@example.com", // Placeholder
+    phone: "9999999999", // Placeholder
+  }));
 };
 
 const getInitials = (name: string): string => {
@@ -88,7 +110,7 @@ export default function AdminTutorsPage() {
   };
   
   const handleViewTutor = (tutor: ApiTutor) => {
-    setSelectedTutor(tutor); // Pass the full tutor object
+    setSelectedTutor(tutor);
     router.push(`/admin/tutors/${tutor.id}`);
   };
 
@@ -142,45 +164,38 @@ export default function AdminTutorsPage() {
 
     return (
       <TableBody>
-        {tutors.map((tutor: any) => ( // Using any here because the mock data might not match ApiTutor perfectly
+        {tutors.map((tutor) => (
           <TableRow key={tutor.id}>
             <TableCell>
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border">
-                    <AvatarImage src={tutor.profilePicUrl} alt={tutor.name} />
+                    <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
                     <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                        {getInitials(tutor.name)}
+                        {getInitials(tutor.displayName)}
                     </AvatarFallback>
                 </Avatar>
                 <div>
-                    <div className="font-medium text-foreground">{tutor.name}</div>
-                    <div className="text-xs text-muted-foreground">{tutor.email}</div>
+                    <div className="font-medium text-foreground">{tutor.displayName}</div>
+                    <div className="text-xs text-muted-foreground">{tutor.city}, {tutor.state}</div>
                 </div>
               </div>
             </TableCell>
-            <TableCell className="text-xs">
-              <div className="flex flex-col">
-                <span className="font-medium text-foreground">{`${tutor.countryCode} ${tutor.phone}`}</span>
-                {tutor.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit bg-green-100 text-green-700">WhatsApp</Badge>}
-              </div>
-            </TableCell>
-            <TableCell className="text-xs">{format(new Date(tutor.registeredDate), "MMM d, yyyy")}</TableCell>
+            <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
+            <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
             <TableCell>
               <div className="flex flex-col items-start gap-1.5">
-                  <Badge variant={tutor.emailVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor.emailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                    {tutor.emailVerified ? <MailCheck className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                    Email
+                  <Badge variant={tutor.online ? "default" : "secondary"} className={cn("text-xs py-0.5 px-2", tutor.online ? "bg-blue-100 text-blue-700" : "")}>
+                    Online
                   </Badge>
-                  <Badge variant={tutor.phoneVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", tutor.phoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                    {tutor.phoneVerified ? <PhoneCall className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                    Phone
+                  <Badge variant={tutor.offline ? "default" : "secondary"} className={cn("text-xs py-0.5 px-2", tutor.offline ? "bg-green-100 text-green-700" : "")}>
+                    Offline
                   </Badge>
               </div>
             </TableCell>
              <TableCell>
-               <Badge variant={tutor.active ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                {tutor.active ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                {tutor.active ? 'Active' : 'Inactive'}
+               <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                {tutor.isActive ? 'Active' : 'Inactive'}
                </Badge>
             </TableCell>
             <TableCell>
@@ -221,9 +236,9 @@ export default function AdminTutorsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Tutor Details</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Registered</TableHead>
-                <TableHead>Verification</TableHead>
+                <TableHead>Subjects</TableHead>
+                <TableHead>Grades</TableHead>
+                <TableHead>Mode</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
