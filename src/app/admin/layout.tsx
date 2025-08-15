@@ -98,11 +98,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary">
+    <div className="flex flex-col h-screen bg-secondary">
       {hasMounted && (
         <header
           className={cn(
-            "bg-card shadow-sm w-full px-2 flex items-center justify-between sticky top-0 z-40",
+            "bg-card shadow-sm w-full px-2 flex items-center justify-between sticky top-0 z-40 shrink-0",
             "h-[var(--header-height)]"
           )}
         >
@@ -117,7 +117,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <MenuIcon className="h-6 w-6" />
             </Button>
             <Link href="/admin/dashboard">
-              <Logo className="h-16 w-auto" />
+              <Logo className="h-16 w-auto p-0" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
