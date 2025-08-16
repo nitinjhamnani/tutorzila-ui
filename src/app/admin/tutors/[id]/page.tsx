@@ -252,14 +252,14 @@ export default function AdminTutorProfilePage() {
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor?.isActive ? "default" : "destructive"} className={cn(
                                 "text-xs py-1 px-2.5",
-                                tutor?.isActive ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-700 border-red-200"
+                                tutor?.isActive ? "bg-green-100 text-green-700 border-green-200" : "bg-primary text-primary-foreground"
                             )}>
                                 {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor?.isActive ? 'Active' : 'Inactive'}
                             </Badge>
                              <Badge variant={tutor?.isVerified ? "default" : "destructive"} className={cn(
                                  "text-xs py-1 px-2.5",
-                                 tutor?.isVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-yellow-100 text-yellow-700 border-yellow-200"
+                                 tutor?.isVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-primary text-primary-foreground"
                              )}>
                                 {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor?.isVerified ? 'Verified' : 'Not Verified'}
@@ -331,7 +331,7 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <Badge variant="destructive" className="bg-yellow-100 text-yellow-700 border-yellow-200 text-xs py-1 px-2.5">
+                            <Badge variant="destructive" className="bg-primary text-primary-foreground text-xs py-1 px-2.5">
                                 <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
                             </Badge>
