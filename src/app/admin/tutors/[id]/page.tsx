@@ -363,7 +363,7 @@ export default function AdminTutorProfilePage() {
                             </Badge>
                              <Badge variant={tutor.isVerified ? "default" : "destructive"} className={cn(
                                  "text-xs py-1 px-2.5",
-                                 tutor.isVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-primary text-primary-foreground"
+                                 tutor.isVerified ? "bg-white text-primary border border-primary" : "bg-primary text-primary-foreground"
                              )}>
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
