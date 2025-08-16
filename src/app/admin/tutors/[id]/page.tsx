@@ -270,6 +270,11 @@ export default function AdminTutorProfilePage() {
                                 {tutor?.isVerified ? 'Verified' : 'Not Verified'}
                             </Badge>
                         </div>
+                        <Separator className="my-4" />
+                        <div className="text-left space-y-3">
+                          <InfoItem icon={Briefcase} label="Experience">{tutor.yearOfExperience}</InfoItem>
+                          <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                        </div>
                     </CardContent>
                      <div className="absolute top-4 right-4">
                         <DropdownMenu>
