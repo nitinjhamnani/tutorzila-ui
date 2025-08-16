@@ -244,7 +244,7 @@ export default function AdminTutorProfilePage() {
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor?.isActive ? "default" : "destructive"} className={cn(
                                 "text-xs py-1 px-2.5",
-                                tutor?.isActive ? "bg-green-100 text-green-700 border-green-200" : "bg-primary text-primary-foreground"
+                                tutor?.isActive ? "bg-white text-primary border border-primary hover:bg-white" : "bg-primary text-primary-foreground"
                             )}>
                                 {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor?.isActive ? 'Active' : 'Inactive'}
@@ -271,10 +271,12 @@ export default function AdminTutorProfilePage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                {!tutor.isActive && (
                                 <DropdownMenuItem onClick={() => setIsActivationModalOpen(true)}>
                                     <Unlock className="mr-2 h-4 w-4" />
                                     <span>Activate</span>
                                 </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
                                     <Edit3 className="mr-2 h-4 w-4" />
                                     <span>Update</span>
@@ -422,3 +424,4 @@ export default function AdminTutorProfilePage() {
       </TooltipProvider>
     );
 }
+
