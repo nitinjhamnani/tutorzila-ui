@@ -67,6 +67,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ActivationModal } from "@/components/admin/modals/ActivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
+import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -127,7 +128,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       isHybrid: tutoringDetails.hybrid,
       
       gender: userDetails.gender,
-      isVerified: userDetails.emailVerified && userDetails.phoneVerified,
+      isVerified: userDetails.emailVerified && userDetails.phoneVerified, // Derived isVerified
     } as ApiTutor;
 };
 
@@ -201,6 +202,7 @@ export default function AdminTutorProfilePage() {
     
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
+    const [isApproveBioModalOpen, setIsApproveBioModalOpen] = useState(false);
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
@@ -368,7 +370,7 @@ export default function AdminTutorProfilePage() {
                     </CardContent>
                     {!tutor.isBioReviewed && (
                         <CardFooter className="flex justify-end p-3 border-t">
-                            <Button variant="outline" size="sm" className="h-7 text-xs">
+                            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setIsApproveBioModalOpen(true)}>
                                 <CheckSquare className="mr-1.5 h-3.5 w-3.5" />
                                 Approve Bio
                             </Button>
@@ -424,6 +426,12 @@ export default function AdminTutorProfilePage() {
             isOpen={isUpdateModalOpen}
             onOpenChange={setIsUpdateModalOpen}
             tutor={tutor}
+        />
+
+        <ApproveBioModal
+            isOpen={isApproveBioModalOpen}
+            onOpenChange={setIsApproveBioModalOpen}
+            tutorName={tutor?.name || ""}
         />
       </TooltipProvider>
     );
