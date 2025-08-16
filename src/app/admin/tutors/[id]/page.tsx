@@ -254,7 +254,7 @@ export default function AdminTutorProfilePage() {
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor?.isActive ? "default" : "destructive"} className={cn(
                                 "text-xs py-1 px-2.5",
-                                tutor?.isActive ? "bg-white text-primary border border-primary" : "bg-primary text-primary-foreground"
+                                tutor?.isActive ? "bg-white text-primary border border-primary hover:bg-white" : "bg-primary text-primary-foreground"
                             )}>
                                 {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor?.isActive ? 'Active' : 'Inactive'}
@@ -353,7 +353,7 @@ export default function AdminTutorProfilePage() {
                                   )}
                                 </div>
                                 {tutor.whatsappEnabled && (
-                                    <Badge variant="default" className="mt-1 w-fit bg-white text-primary border border-primary text-xs flex items-center gap-1.5">
+                                    <Badge variant="default" className={cn("mt-1 w-fit bg-white text-primary border border-primary text-xs flex items-center gap-1.5", "hover:bg-white")}>
                                         <WhatsAppIcon className="h-3 w-3"/>
                                         WhatsApp
                                     </Badge>
