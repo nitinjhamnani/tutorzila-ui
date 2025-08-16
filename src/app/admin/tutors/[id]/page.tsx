@@ -273,8 +273,8 @@ export default function AdminTutorProfilePage() {
 
     const emailVerificationMutation = useMutation({
         mutationFn: () => verifyTutorEmailApi({ tutorId, token }),
-        onSuccess: (newUserDetails) => {
-            updateTutorState(newUserDetails);
+        onSuccess: (data) => {
+            updateTutorState(data);
             toast({
                 title: "Email Verified!",
                 description: `The email for ${tutor?.displayName} has been successfully verified.`,
@@ -288,8 +288,8 @@ export default function AdminTutorProfilePage() {
 
     const phoneVerificationMutation = useMutation({
         mutationFn: () => verifyTutorPhoneApi({ tutorId, token }),
-        onSuccess: (newUserDetails) => {
-            updateTutorState(newUserDetails);
+        onSuccess: (data) => {
+            updateTutorState(data);
             toast({
                 title: "Phone Verified!",
                 description: `The phone number for ${tutor?.displayName} has been successfully verified.`,
@@ -357,7 +357,7 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5", !tutor.isActive && "bg-primary text-primary-foreground", tutor.isActive && "bg-white text-primary border border-primary hover:bg-white")}>
+                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5", !tutor.isActive && "bg-primary text-primary-foreground", tutor.isActive && "bg-white text-primary border border-primary")}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
@@ -413,16 +413,14 @@ export default function AdminTutorProfilePage() {
                             <div className="flex items-center gap-2">
                                 <span>{tutor.email}</span>
                                 {tutor.emailVerified ? (
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <Badge variant="default" className="bg-white text-primary border border-primary"><MailCheck className="h-3 w-3"/></Badge>
-                                    </TooltipTrigger>
-                                    <TooltipContent><p>Email Verified</p></TooltipContent>
-                                </Tooltip>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <Badge variant="default" className="bg-white text-primary border border-primary"><MailCheck className="h-3 w-3"/></Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent><p>Email Verified</p></TooltipContent>
+                                    </Tooltip>
                                 ) : (
-                                    <AlertDialogTrigger asChild>
-                                        <button className="text-xs text-primary hover:underline" onClick={() => setVerificationType('email')}>Verify</button>
-                                    </AlertDialogTrigger>
+                                    <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>Verify</button>
                                 )}
                             </div>
                         </InfoItem>
@@ -438,9 +436,7 @@ export default function AdminTutorProfilePage() {
                                         <TooltipContent><p>Phone Verified</p></TooltipContent>
                                     </Tooltip>
                                   ) : (
-                                      <AlertDialogTrigger asChild>
-                                        <button className="text-xs text-primary hover:underline" onClick={() => setVerificationType('phone')}>Verify</button>
-                                      </AlertDialogTrigger>
+                                      <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>
                                   )}
                                 </div>
                                 {tutor.whatsappEnabled && (
@@ -540,6 +536,7 @@ export default function AdminTutorProfilePage() {
         <ApproveBioModal
             isOpen={isApproveBioModalOpen}
             onOpenChange={setIsApproveBioModalOpen}
+            tutorId={tutorId}
             tutorName={tutor?.name || ""}
         />
       </TooltipProvider>

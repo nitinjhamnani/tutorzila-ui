@@ -9,18 +9,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { CheckSquare } from "lucide-react";
+import { CheckSquare, Loader2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import type { ApiTutor } from "@/types";
 
 interface ApproveBioModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   tutorName: string;
+  tutorId: string;
 }
 
 const approvalReasons = [
@@ -30,9 +33,96 @@ const approvalReasons = [
   { id: "other", label: "Other (Manual check)" },
 ];
 
-export function ApproveBioModal({ isOpen, onOpenChange, tutorName }: ApproveBioModalProps) {
+const approveTutorBioApi = async ({
+  tutorId,
+  reason,
+  token,
+}: {
+  tutorId: string;
+  reason: string;
+  token: string | null;
+}) => {
+  if (!token) throw new Error("Authentication token not found.");
+  if (!tutorId) throw new Error("Tutor ID is missing.");
+  if (!reason) throw new Error("An approval reason is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/bio/${tutorId}?approved=true`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to approve bio." }));
+    throw new Error(errorData.message);
+  }
+  return response.json();
+};
+
+export function ApproveBioModal({ isOpen, onOpenChange, tutorName, tutorId }: ApproveBioModalProps) {
   const { toast } = useToast();
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
   const [reason, setReason] = useState<string | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: (approvalReason: string) => approveTutorBioApi({ tutorId, reason: approvalReason, token }),
+    onSuccess: (updatedTutoringDetails) => {
+      queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
+        if (!oldData) return undefined;
+        return {
+          ...oldData,
+          ...updatedTutoringDetails, // This should spread the fields from the tutoringDetails response
+          subjectsList: updatedTutoringDetails.subjects,
+          gradesList: updatedTutoringDetails.grades,
+          boardsList: updatedTutoringDetails.boards,
+          qualificationList: updatedTutoringDetails.qualifications,
+          availabilityDaysList: updatedTutoringDetails.availabilityDays,
+          availabilityTimeList: updatedTutoringDetails.availabilityTime,
+          yearOfExperience: updatedTutoringDetails.yearOfExperience,
+          bio: updatedTutoringDetails.tutorBio,
+          addressName: updatedTutoringDetails.addressName,
+          address: updatedTutoringDetails.address,
+          city: updatedTutoringDetails.city,
+          state: updatedTutoringDetails.state,
+          area: updatedTutoringDetails.area,
+          pincode: updatedTutoringDetails.pincode,
+          country: updatedTutoringDetails.country,
+          googleMapsLink: updatedTutoringDetails.googleMapsLink,
+          hourlyRate: updatedTutoringDetails.hourlyRate,
+          languagesList: updatedTutoringDetails.languages,
+          profileCompletion: updatedTutoringDetails.profileCompletion,
+          isActive: updatedTutoringDetails.active,
+          isRateNegotiable: updatedTutoringDetails.rateNegotiable,
+          isBioReviewed: updatedTutoringDetails.bioReviewed,
+          online: updatedTutoringDetails.online,
+          offline: updatedTutoringDetails.offline,
+          isHybrid: updatedTutoringDetails.hybrid,
+        };
+      });
+      toast({
+        title: "Bio Approved!",
+        description: `The bio for ${tutorName} has been successfully approved.`,
+      });
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Approval Failed",
+        description: error.message,
+      });
+    },
+    onSettled: () => {
+      setReason(null);
+    }
+  });
+
 
   const handleConfirmApproval = () => {
     if (!reason) {
@@ -43,16 +133,11 @@ export function ApproveBioModal({ isOpen, onOpenChange, tutorName }: ApproveBioM
       });
       return;
     }
-    console.log("Approving bio with reason:", reason);
-    toast({
-      title: "Bio Approved (Mock)",
-      description: `The bio for ${tutorName} has been approved. Reason: ${reason}`,
-    });
-    onOpenChange(false);
+    mutation.mutate(reason);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => { onOpenChange(open); if(!open) setReason(null); }}>
       <DialogContent className="sm:max-w-md bg-card">
         <DialogHeader>
           <DialogTitle>Approve Bio for {tutorName}</DialogTitle>
@@ -67,6 +152,7 @@ export function ApproveBioModal({ isOpen, onOpenChange, tutorName }: ApproveBioM
             onValueChange={setReason}
             value={reason || ""}
             className="flex flex-col space-y-2"
+            disabled={mutation.isPending}
           >
             {approvalReasons.map((option) => (
               <div key={option.id} className="flex items-center space-x-3 space-y-0">
@@ -77,8 +163,9 @@ export function ApproveBioModal({ isOpen, onOpenChange, tutorName }: ApproveBioM
           </RadioGroup>
         </div>
         <DialogFooter>
-          <Button type="button" onClick={handleConfirmApproval} disabled={!reason}>
-            <CheckSquare className="mr-2 h-4 w-4" /> Confirm Approval
+          <Button type="button" onClick={handleConfirmApproval} disabled={!reason || mutation.isPending}>
+            {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <CheckSquare className="mr-2 h-4 w-4" />}
+            {mutation.isPending ? "Approving..." : "Confirm Approval"}
           </Button>
         </DialogFooter>
       </DialogContent>
