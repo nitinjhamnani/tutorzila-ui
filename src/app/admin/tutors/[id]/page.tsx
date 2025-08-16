@@ -325,7 +325,7 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
                         {!tutor.isBioReviewed && (
-                            <Badge variant="destructive" className="text-xs py-1 px-2.5 bg-destructive/10 text-destructive border-destructive/20">
+                            <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 text-xs py-1 px-2.5">
                                 <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
                             </Badge>
@@ -348,17 +348,13 @@ export default function AdminTutorProfilePage() {
                         <CardTitle>Tutoring Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                       <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
-                       <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
-                       <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
-                       <InfoItem icon={RadioTower} label="Teaching Mode">
-                          <div className="flex items-center gap-2 mt-1">
-                            {tutor.online && <Badge>Online</Badge>}
-                            {tutor.offline && <Badge>Offline</Badge>}
-                            {tutor.isHybrid && <Badge>Hybrid</Badge>}
-                          </div>
-                       </InfoItem>
-                       {tutor.offline && (
+                        <InfoItem icon={BookOpen} label="Subjects">{tutor.subjectsList.join(', ')}</InfoItem>
+                        <InfoItem icon={GraduationCap} label="Grades">{tutor.gradesList.join(', ')}</InfoItem>
+                        <InfoItem icon={Building} label="Boards">{tutor.boardsList.join(', ')}</InfoItem>
+                        <InfoItem icon={RadioTower} label="Teaching Mode">
+                            {[tutor.online && 'Online', tutor.offline && 'Offline', tutor.isHybrid && 'Hybrid'].filter(Boolean).join(' & ')}
+                        </InfoItem>
+                        {tutor.offline && (
                         <InfoItem icon={MapPin} label="Address">
                             {tutor.googleMapsLink ? (
                                 <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
