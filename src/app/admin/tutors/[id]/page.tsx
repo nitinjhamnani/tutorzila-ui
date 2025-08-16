@@ -362,13 +362,17 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                             <Badge variant="default" className={cn("text-xs py-1 px-2.5 border bg-white text-primary border-primary")}>
+                            <Badge variant="default" className={cn(
+                                "text-xs py-1 px-2.5", 
+                                tutor.isActive ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20"
+                            )}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                             <Badge variant="default" className={cn(
-                                 "text-xs py-1 px-2.5 border bg-white text-primary border-primary"
-                             )}>
+                            <Badge variant="default" className={cn(
+                                "text-xs py-1 px-2.5", 
+                                tutor.isVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20"
+                            )}>
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
                             </Badge>
@@ -419,7 +423,7 @@ export default function AdminTutorProfilePage() {
                                 {tutor.emailVerified ? (
                                     <Tooltip>
                                         <TooltipTrigger>
-                                            <Badge variant="default" className="bg-white text-primary border border-primary"><MailCheck className="h-3 w-3"/></Badge>
+                                            <Badge variant="default" className="bg-primary/10 text-primary border-primary/20"><MailCheck className="h-3 w-3"/></Badge>
                                         </TooltipTrigger>
                                         <TooltipContent><p>Email Verified</p></TooltipContent>
                                     </Tooltip>
@@ -435,7 +439,7 @@ export default function AdminTutorProfilePage() {
                                   {tutor.phoneVerified ? (
                                     <Tooltip>
                                         <TooltipTrigger>
-                                            <Badge variant="default" className="bg-white text-primary border border-primary"><PhoneCall className="h-3 w-3"/></Badge>
+                                            <Badge variant="default" className="bg-primary/10 text-primary border-primary/20"><PhoneCall className="h-3 w-3"/></Badge>
                                         </TooltipTrigger>
                                         <TooltipContent><p>Phone Verified</p></TooltipContent>
                                     </Tooltip>
@@ -444,7 +448,7 @@ export default function AdminTutorProfilePage() {
                                   )}
                                 </div>
                                 {tutor.whatsappEnabled && (
-                                    <Badge variant="default" className={cn("mt-1 w-fit bg-white text-primary border border-primary text-xs flex items-center gap-1.5")}>
+                                    <Badge variant="default" className={cn("mt-1 w-fit bg-primary/10 text-primary border-primary/20 text-xs flex items-center gap-1.5")}>
                                         <WhatsAppIcon className="h-3 w-3"/>
                                         WhatsApp
                                     </Badge>
@@ -460,7 +464,7 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
                         {tutor.isBioReviewed ? (
-                             <Badge variant="default" className="bg-white text-primary border border-primary">
+                            <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">
                                 <CheckCircle className="mr-1 h-3 w-3"/> Approved
                             </Badge>
                         ) : (
