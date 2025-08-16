@@ -82,6 +82,7 @@ import { ActivationModal } from "@/components/admin/modals/ActivationModal";
 import { DeactivationModal } from "@/components/admin/modals/DeactivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
+import { AdminUpdateBioModal } from "@/components/admin/modals/AdminUpdateBioModal";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -251,6 +252,7 @@ export default function AdminTutorProfilePage() {
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
     const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
     const [isApproveBioModalOpen, setIsApproveBioModalOpen] = useState(false);
+    const [isUpdateBioModalOpen, setIsUpdateBioModalOpen] = useState(false);
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
 
@@ -358,14 +360,13 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5", "bg-white text-primary border border-primary", !tutor.isActive && "bg-primary text-primary-foreground")}>
+                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5 border", tutor.isActive ? "bg-white text-primary border-primary" : "bg-primary text-primary-foreground")}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
                              <Badge variant={tutor.isVerified ? "default" : "destructive"} className={cn(
-                                 "text-xs py-1 px-2.5",
-                                 "bg-white text-primary border border-primary",
-                                 !tutor.isVerified && "bg-primary text-primary-foreground"
+                                 "text-xs py-1 px-2.5 border",
+                                 tutor.isVerified ? "bg-white text-primary border-primary" : "bg-primary text-primary-foreground"
                              )}>
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
@@ -473,7 +474,7 @@ export default function AdminTutorProfilePage() {
                         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
                     </CardContent>
                     <CardFooter className="flex justify-end p-3 border-t gap-2">
-                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setIsUpdateModalOpen(true)}>
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setIsUpdateBioModalOpen(true)}>
                             <Edit3 className="mr-1.5 h-3.5 w-3.5" />
                             Change Bio
                         </Button>
@@ -554,6 +555,14 @@ export default function AdminTutorProfilePage() {
             onOpenChange={setIsApproveBioModalOpen}
             tutorId={tutorId}
             tutorName={tutor?.name || ""}
+        />
+
+        <AdminUpdateBioModal
+            isOpen={isUpdateBioModalOpen}
+            onOpenChange={setIsUpdateBioModalOpen}
+            tutorId={tutorId}
+            tutorName={tutor?.name || ""}
+            initialBio={tutor?.bio || ""}
         />
       </TooltipProvider>
 
