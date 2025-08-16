@@ -28,6 +28,17 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Briefcase,
   BookOpen,
   GraduationCap,
@@ -198,13 +209,24 @@ export default function AdminTutorProfilePage() {
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
     const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
     const [isApproveBioModalOpen, setIsApproveBioModalOpen] = useState(false);
+    const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+    const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
 
-    const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
+    const { data: tutor, isLoading, error, refetch } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
         refetchOnWindowFocus: false,
     });
+    
+    const handleConfirmVerification = () => {
+        // Mock API call to verify email/phone
+        toast({
+            title: `Mock Verification Success`,
+            description: `The tutor's ${verificationType} has been marked as verified.`,
+        });
+        refetch(); // Refetch the profile to show updated status
+    };
     
     if (isLoading) {
       return (
@@ -238,6 +260,7 @@ export default function AdminTutorProfilePage() {
 
 
     return (
+      <AlertDialog open={isVerificationModalOpen} onOpenChange={setIsVerificationModalOpen}>
       <TooltipProvider>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Left Column */}
@@ -318,7 +341,9 @@ export default function AdminTutorProfilePage() {
                                     <TooltipContent><p>Email Verified</p></TooltipContent>
                                 </Tooltip>
                                 ) : (
-                                    <button className="text-xs text-primary hover:underline">Verify</button>
+                                    <AlertDialogTrigger asChild>
+                                        <button className="text-xs text-primary hover:underline" onClick={() => setVerificationType('email')}>Verify</button>
+                                    </AlertDialogTrigger>
                                 )}
                             </div>
                         </InfoItem>
@@ -334,7 +359,9 @@ export default function AdminTutorProfilePage() {
                                         <TooltipContent><p>Phone Verified</p></TooltipContent>
                                     </Tooltip>
                                   ) : (
-                                      <button className="text-xs text-primary hover:underline">Verify</button>
+                                      <AlertDialogTrigger asChild>
+                                        <button className="text-xs text-primary hover:underline" onClick={() => setVerificationType('phone')}>Verify</button>
+                                      </AlertDialogTrigger>
                                   )}
                                 </div>
                                 {tutor.whatsappEnabled && (
@@ -437,6 +464,20 @@ export default function AdminTutorProfilePage() {
             tutorName={tutor?.name || ""}
         />
       </TooltipProvider>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirm Verification</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to manually mark this {verificationType} as verified? This action should only be taken if you have externally confirmed its validity.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setVerificationType(null)}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmVerification}>Confirm</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+      </AlertDialog>
     );
 }
 
