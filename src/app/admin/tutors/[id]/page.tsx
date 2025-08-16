@@ -362,16 +362,16 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                            <Badge variant="default" className={cn(
+                            <Badge variant={tutor.isActive ? "secondary" : "default"} className={cn(
                                 "text-xs py-1 px-2.5", 
-                                tutor.isActive ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20"
+                                tutor.isActive ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary"
                             )}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                            <Badge variant="default" className={cn(
+                             <Badge variant={tutor.isVerified ? "secondary" : "default"} className={cn(
                                 "text-xs py-1 px-2.5", 
-                                tutor.isVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20"
+                                tutor.isVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary"
                             )}>
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
@@ -420,32 +420,30 @@ export default function AdminTutorProfilePage() {
                          <InfoItem icon={Mail} label="Email">
                             <div className="flex items-center gap-2">
                                 <span>{tutor.email}</span>
-                                {tutor.emailVerified ? (
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <Badge variant="default" className="bg-primary/10 text-primary border-primary/20"><MailCheck className="h-3 w-3"/></Badge>
-                                        </TooltipTrigger>
-                                        <TooltipContent><p>Email Verified</p></TooltipContent>
-                                    </Tooltip>
-                                ) : (
-                                    <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>Verify</button>
-                                )}
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Badge variant={tutor.emailVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.emailVerified ? 'bg-card text-primary border-primary/20' : 'bg-primary text-primary-foreground border-primary')}>
+                                            {tutor.emailVerified ? <MailCheck className="h-3 w-3"/> : <XCircle className="h-3 w-3"/>}
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>{tutor.emailVerified ? 'Email Verified' : 'Email Not Verified'}</p></TooltipContent>
+                                </Tooltip>
+                                {!tutor.emailVerified && <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>Verify</button>}
                             </div>
                         </InfoItem>
                         <InfoItem icon={Phone} label="Phone">
                            <div className="flex flex-col items-start gap-1.5">
                                 <div className="flex items-center gap-2">
                                   <span>{tutor.countryCode} {tutor.phone}</span>
-                                  {tutor.phoneVerified ? (
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <Badge variant="default" className="bg-primary/10 text-primary border-primary/20"><PhoneCall className="h-3 w-3"/></Badge>
-                                        </TooltipTrigger>
-                                        <TooltipContent><p>Phone Verified</p></TooltipContent>
-                                    </Tooltip>
-                                  ) : (
-                                      <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>
-                                  )}
+                                  <Tooltip>
+                                      <TooltipTrigger>
+                                          <Badge variant={tutor.phoneVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.phoneVerified ? 'bg-card text-primary border-primary/20' : 'bg-primary text-primary-foreground border-primary')}>
+                                              {tutor.phoneVerified ? <PhoneCall className="h-3 w-3"/> : <XCircle className="h-3 w-3"/>}
+                                          </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent><p>{tutor.phoneVerified ? 'Phone Verified' : 'Phone Not Verified'}</p></TooltipContent>
+                                  </Tooltip>
+                                  {!tutor.phoneVerified && <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>}
                                 </div>
                                 {tutor.whatsappEnabled && (
                                     <Badge variant="default" className={cn("mt-1 w-fit bg-primary/10 text-primary border-primary/20 text-xs flex items-center gap-1.5")}>
@@ -463,15 +461,13 @@ export default function AdminTutorProfilePage() {
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
-                        {tutor.isBioReviewed ? (
-                            <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">
-                                <CheckCircle className="mr-1 h-3 w-3"/> Approved
-                            </Badge>
-                        ) : (
-                            <Badge variant="destructive" className="bg-yellow-100 text-yellow-700 border-yellow-500/50">
-                                <ShieldAlert className="mr-1 h-3 w-3"/> Pending Approval
-                            </Badge>
-                        )}
+                         <Badge variant={tutor.isBioReviewed ? "secondary" : "default"} className={cn(
+                            "text-xs py-1 px-2.5", 
+                            tutor.isBioReviewed ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary"
+                        )}>
+                            {tutor.isBioReviewed ? <CheckCircle className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                            {tutor.isBioReviewed ? 'Approved' : 'Pending Approval'}
+                        </Badge>
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
