@@ -34,21 +34,23 @@ const activationReasons = [
   { id: "other", label: "Other" },
 ];
 
-const activateTutor = async ({
+const updateTutorActivation = async ({
   tutorId,
   reason,
   token,
+  activate,
 }: {
   tutorId: string;
   reason: string;
   token: string | null;
+  activate: boolean;
 }) => {
   if (!token) throw new Error("Authentication token not found.");
   if (!tutorId) throw new Error("Tutor ID is missing.");
   if (!reason) throw new Error("An activation reason is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/activate/${tutorId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/activate/${tutorId}?activated=${activate}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ const activateTutor = async ({
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: "Failed to activate tutor." }));
+    const errorData = await response.json().catch(() => ({ message: "Failed to update tutor status." }));
     throw new Error(errorData.message);
   }
 
@@ -73,7 +75,7 @@ export function ActivationModal({ isOpen, onOpenChange, tutorName, tutorId }: Ac
   const [reason, setReason] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (activationReason: string) => activateTutor({ tutorId, reason: activationReason, token }),
+    mutationFn: (activationReason: string) => updateTutorActivation({ tutorId, reason: activationReason, token, activate: true }),
     onSuccess: (updatedTutoringDetails) => {
       queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
         if (!oldData) return undefined;
