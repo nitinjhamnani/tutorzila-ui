@@ -24,7 +24,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
@@ -415,7 +416,7 @@ export default function AdminTutorProfilePage() {
                                 <span>{tutor.email}</span>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <Badge variant={tutor.emailVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.emailVerified ? 'bg-card text-primary border-primary/20' : 'bg-primary text-primary-foreground border-primary')}>
+                                        <Badge variant={tutor.emailVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.emailVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
                                           {tutor.emailVerified && <MailCheck className="h-3 w-3"/>}
                                         </Badge>
                                     </TooltipTrigger>
@@ -430,7 +431,7 @@ export default function AdminTutorProfilePage() {
                                   <span>{tutor.countryCode} {tutor.phone}</span>
                                   <Tooltip>
                                       <TooltipTrigger>
-                                          <Badge variant={tutor.phoneVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.phoneVerified ? 'bg-card text-primary border-primary/20' : 'bg-primary text-primary-foreground border-primary')}>
+                                          <Badge variant={tutor.phoneVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.phoneVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
                                               {tutor.phoneVerified && <PhoneCall className="h-3 w-3"/>}
                                           </Badge>
                                       </TooltipTrigger>
@@ -454,10 +455,17 @@ export default function AdminTutorProfilePage() {
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
-                         <Badge variant={tutor.isBioReviewed ? "secondary" : "default"} className={cn("text-xs py-1 px-2.5", tutor.isBioReviewed ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
-                           {tutor.isBioReviewed ? <CheckCircle className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                           {tutor.isBioReviewed ? 'Approved' : 'Pending Approval'}
-                         </Badge>
+                         {tutor.isBioReviewed ? (
+                           <Badge variant="secondary" className="text-xs py-1 px-2.5 bg-card text-primary border-primary/20">
+                             <CheckCircle className="mr-1 h-3 w-3"/>
+                             Approved
+                           </Badge>
+                         ) : (
+                           <Badge variant="default" className="text-xs py-1 px-2.5 bg-primary text-primary-foreground border-primary">
+                             <ShieldAlert className="mr-1 h-3 w-3"/>
+                             Pending Approval
+                           </Badge>
+                         )}
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
@@ -580,4 +588,3 @@ export default function AdminTutorProfilePage() {
       </AlertDialog>
     );
 }
-
