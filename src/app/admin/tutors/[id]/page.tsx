@@ -353,9 +353,9 @@ export default function AdminTutorProfilePage() {
                                   )}
                                 </div>
                                 {tutor.whatsappEnabled && (
-                                    <Badge variant="secondary" className="mt-1 w-fit bg-green-100 text-green-700 text-xs flex items-center gap-1.5">
+                                    <Badge variant="default" className="mt-1 w-fit bg-white text-primary border border-primary text-xs flex items-center gap-1.5">
                                         <WhatsAppIcon className="h-3 w-3"/>
-                                        WhatsApp Enabled
+                                        WhatsApp
                                     </Badge>
                                 )}
                             </div>
