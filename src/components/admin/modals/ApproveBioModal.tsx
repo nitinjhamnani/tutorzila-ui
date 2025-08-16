@@ -47,7 +47,7 @@ const approveTutorBioApi = async ({
   if (!reason) throw new Error("An approval reason is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/bio/${tutorId}?approved=true`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/bio/approve/${tutorId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
