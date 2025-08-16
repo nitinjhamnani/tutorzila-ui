@@ -292,7 +292,7 @@ export default function AdminTutorProfilePage() {
     if (error) {
       return (
         <div className="text-center py-10 text-destructive">
-          <p>Error loading tutor details: {(error as Error).message}</p>
+          <p>Error loading tutor details: ${(error as Error).message}</p>
            <Button asChild variant="outline" size="sm" className="mt-4">
               <Link href="/admin/tutors"><ArrowLeft className="mr-2 h-4 w-4"/> Go Back</Link>
            </Button>
@@ -386,7 +386,7 @@ export default function AdminTutorProfilePage() {
                                 {tutor.emailVerified ? (
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100"><MailCheck className="h-3 w-3"/></Badge>
+                                        <Badge variant="default" className="bg-white text-primary border border-primary hover:bg-white"><MailCheck className="h-3 w-3"/></Badge>
                                     </TooltipTrigger>
                                     <TooltipContent><p>Email Verified</p></TooltipContent>
                                 </Tooltip>
