@@ -119,7 +119,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       isHybrid: tutoringDetails.hybrid,
       
       gender: userDetails.gender,
-      isVerified: userDetails.emailVerified && userDetails.phoneVerified, // Derived isVerified
+      isVerified: userDetails.emailVerified && userDetails.phoneVerified,
     } as ApiTutor;
 };
 
@@ -345,14 +345,33 @@ export default function AdminTutorProfilePage() {
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Specialization & Availability</CardTitle>
+                        <CardTitle>Tutoring Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                        <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor?.subjectsList || []}/>
                        <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor?.gradesList || []}/>
                        <InfoBadgeList icon={Building} label="Boards" items={tutor?.boardsList || []}/>
-                       <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
-                       <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
+                       <InfoItem icon={RadioTower} label="Teaching Mode">
+                          <div className="flex items-center gap-2 mt-1">
+                            {tutor.online && <Badge>Online</Badge>}
+                            {tutor.offline && <Badge>Offline</Badge>}
+                            {tutor.isHybrid && <Badge>Hybrid</Badge>}
+                          </div>
+                       </InfoItem>
+                       {tutor.offline && (
+                        <InfoItem icon={MapPin} label="Address">
+                            {tutor.googleMapsLink ? (
+                                <a href={tutor.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                {tutor.addressName || tutor.address}
+                                </a>
+                            ) : (
+                                <span>{tutor.addressName || tutor.address || "Not specified"}</span>
+                            )}
+                            {(tutor.addressName && tutor.address && tutor.addressName !== tutor.address) && (
+                                <div className="text-xs text-muted-foreground mt-1">{tutor.address}</div>
+                            )}
+                        </InfoItem>
+                        )}
                     </CardContent>
                 </Card>
                  <Card>
@@ -364,6 +383,8 @@ export default function AdminTutorProfilePage() {
                         <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
                         <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
+                        <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
+                       <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
                     </CardContent>
                 </Card>
             </div>
