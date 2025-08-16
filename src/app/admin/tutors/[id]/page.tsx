@@ -83,6 +83,7 @@ import { DeactivationModal } from "@/components/admin/modals/DeactivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
 import { AdminUpdateBioModal } from "@/components/admin/modals/AdminUpdateBioModal";
+import { DisapproveBioModal } from "@/components/admin/modals/DisapproveBioModal";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -252,6 +253,7 @@ export default function AdminTutorProfilePage() {
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
     const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
     const [isApproveBioModalOpen, setIsApproveBioModalOpen] = useState(false);
+    const [isDisapproveBioModalOpen, setIsDisapproveBioModalOpen] = useState(false);
     const [isUpdateBioModalOpen, setIsUpdateBioModalOpen] = useState(false);
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
@@ -360,13 +362,12 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                             <Badge variant="default" className={cn("text-xs py-1 px-2.5 border", tutor.isActive ? "bg-white text-primary border-primary" : "bg-primary text-primary-foreground")}>
+                             <Badge variant="default" className={cn("text-xs py-1 px-2.5 border bg-white text-primary border-primary")}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
                              <Badge variant="default" className={cn(
-                                 "text-xs py-1 px-2.5 border",
-                                 tutor.isVerified ? "bg-white text-primary border-primary" : "bg-primary text-primary-foreground"
+                                 "text-xs py-1 px-2.5 border bg-white text-primary border-primary"
                              )}>
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
@@ -458,14 +459,9 @@ export default function AdminTutorProfilePage() {
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
-                        {tutor.isBioReviewed ? (
+                        {tutor.isBioReviewed && (
                              <Badge variant="default" className="bg-white text-primary border border-primary">
                                 <CheckCircle className="mr-1 h-3 w-3"/> Approved
-                            </Badge>
-                        ) : (
-                            <Badge variant="destructive" className="bg-primary text-primary-foreground">
-                                <ShieldAlert className="mr-1 h-3 w-3"/>
-                                Pending Review
                             </Badge>
                         )}
                     </CardHeader>
@@ -478,7 +474,7 @@ export default function AdminTutorProfilePage() {
                             Change Bio
                         </Button>
                         {tutor.isBioReviewed ? (
-                             <Button variant="outline" size="sm" className="h-7 text-xs">
+                             <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setIsDisapproveBioModalOpen(true)}>
                                 <Ban className="mr-1.5 h-3.5 w-3.5" />
                                 Disapprove
                             </Button>
@@ -552,6 +548,13 @@ export default function AdminTutorProfilePage() {
         <ApproveBioModal
             isOpen={isApproveBioModalOpen}
             onOpenChange={setIsApproveBioModalOpen}
+            tutorId={tutorId}
+            tutorName={tutor?.name || ""}
+        />
+
+        <DisapproveBioModal
+            isOpen={isDisapproveBioModalOpen}
+            onOpenChange={setIsDisapproveBioModalOpen}
             tutorId={tutorId}
             tutorName={tutor?.name || ""}
         />
