@@ -266,14 +266,6 @@ export default function AdminTutorProfilePage() {
                             </Badge>
                         </div>
                     </CardContent>
-                    <CardFooter className="p-3 border-t flex flex-wrap justify-start gap-2">
-                      {!tutor?.isActive && (
-                          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsActivationModalOpen(true)}>
-                            <Unlock className="h-3.5 w-3.5 mr-1.5" /> Activate
-                          </Button>
-                      )}
-                      <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsUpdateModalOpen(true)}><Edit3 className="h-3.5 w-3.5 mr-1.5" /> Update</Button>
-                    </CardFooter>
                 </Card>
 
                  <Card>
