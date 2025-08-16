@@ -296,11 +296,6 @@ export default function AdminTutorProfilePage() {
                                     <Edit3 className="mr-2 h-4 w-4" />
                                     <span>Update</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <ShieldCheck className="mr-2 h-4 w-4" />
-                                    <span>Verify Profile</span>
-                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -323,12 +318,7 @@ export default function AdminTutorProfilePage() {
                                     <TooltipContent><p>Email Verified</p></TooltipContent>
                                 </Tooltip>
                                 ) : (
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <XCircle className="h-4 w-4 text-destructive"/>
-                                    </TooltipTrigger>
-                                    <TooltipContent><p>Email Not Verified</p></TooltipContent>
-                                </Tooltip>
+                                    <button className="text-xs text-primary hover:underline">Verify</button>
                                 )}
                             </div>
                         </InfoItem>
@@ -344,12 +334,7 @@ export default function AdminTutorProfilePage() {
                                         <TooltipContent><p>Phone Verified</p></TooltipContent>
                                     </Tooltip>
                                   ) : (
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <XCircle className="h-4 w-4 text-destructive"/>
-                                        </TooltipTrigger>
-                                        <TooltipContent><p>Phone Not Verified</p></TooltipContent>
-                                    </Tooltip>
+                                      <button className="text-xs text-primary hover:underline">Verify</button>
                                   )}
                                 </div>
                                 {tutor.whatsappEnabled && (
