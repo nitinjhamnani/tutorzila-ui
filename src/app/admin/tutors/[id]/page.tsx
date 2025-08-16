@@ -415,7 +415,7 @@ export default function AdminTutorProfilePage() {
                                 {tutor.emailVerified ? (
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <Badge variant="default" className="bg-white text-primary border border-primary hover:bg-white"><MailCheck className="h-3 w-3"/></Badge>
+                                        <Badge variant="default" className="bg-white text-primary border border-primary"><MailCheck className="h-3 w-3"/></Badge>
                                     </TooltipTrigger>
                                     <TooltipContent><p>Email Verified</p></TooltipContent>
                                 </Tooltip>
@@ -433,7 +433,7 @@ export default function AdminTutorProfilePage() {
                                   {tutor.phoneVerified ? (
                                     <Tooltip>
                                         <TooltipTrigger>
-                                            <Badge variant="default" className="bg-white text-primary border border-primary hover:bg-white"><PhoneCall className="h-3 w-3"/></Badge>
+                                            <Badge variant="default" className="bg-white text-primary border border-primary"><PhoneCall className="h-3 w-3"/></Badge>
                                         </TooltipTrigger>
                                         <TooltipContent><p>Phone Verified</p></TooltipContent>
                                     </Tooltip>
@@ -444,7 +444,7 @@ export default function AdminTutorProfilePage() {
                                   )}
                                 </div>
                                 {tutor.whatsappEnabled && (
-                                    <Badge variant="default" className={cn("mt-1 w-fit bg-white text-primary border border-primary text-xs flex items-center gap-1.5", "hover:bg-white")}>
+                                    <Badge variant="default" className={cn("mt-1 w-fit bg-white text-primary border border-primary text-xs flex items-center gap-1.5")}>
                                         <WhatsAppIcon className="h-3 w-3"/>
                                         WhatsApp
                                     </Badge>
@@ -473,7 +473,7 @@ export default function AdminTutorProfilePage() {
                         <CardFooter className="flex justify-end p-3 border-t">
                             <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setIsApproveBioModalOpen(true)}>
                                 <CheckSquare className="mr-1.5 h-3.5 w-3.5" />
-                                Approve Bio
+                                Approve
                             </Button>
                         </CardFooter>
                     )}
