@@ -347,7 +347,7 @@ export default function AdminTutorProfilePage() {
                     <CardHeader>
                         <CardTitle>Tutoring Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <CardContent className="space-y-3">
                         <InfoItem icon={BookOpen} label="Subjects">{tutor.subjectsList.join(', ')}</InfoItem>
                         <InfoItem icon={GraduationCap} label="Grades">{tutor.gradesList.join(', ')}</InfoItem>
                         <InfoItem icon={Building} label="Boards">{tutor.boardsList.join(', ')}</InfoItem>
@@ -379,6 +379,13 @@ export default function AdminTutorProfilePage() {
                         <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
                         <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Availability</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList || []}/>
                        <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList || []}/>
                     </CardContent>
