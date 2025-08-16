@@ -72,6 +72,7 @@ import {
   CheckSquare,
   MoreVertical,
   Lock,
+  Ban,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -357,13 +358,14 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5", !tutor.isActive && "bg-primary text-primary-foreground", tutor.isActive && "bg-white text-primary border border-primary")}>
+                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5", "bg-white text-primary border border-primary", !tutor.isActive && "bg-primary text-primary-foreground")}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
                              <Badge variant={tutor.isVerified ? "default" : "destructive"} className={cn(
                                  "text-xs py-1 px-2.5",
-                                 tutor.isVerified ? "bg-white text-primary border border-primary" : "bg-primary text-primary-foreground"
+                                 "bg-white text-primary border border-primary",
+                                 !tutor.isVerified && "bg-primary text-primary-foreground"
                              )}>
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
@@ -455,11 +457,12 @@ export default function AdminTutorProfilePage() {
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
-                        {tutor.isBioReviewed ? (
+                        {tutor.isBioReviewed && (
                             <Badge variant="default" className="bg-white text-primary border border-primary text-xs py-1 px-2.5">
                                 <CheckCircle className="mr-1 h-3 w-3"/> Approved
                             </Badge>
-                        ) : (
+                        )}
+                        {!tutor.isBioReviewed && (
                             <Badge variant="destructive" className="bg-primary text-primary-foreground text-xs py-1 px-2.5">
                                 <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
@@ -469,14 +472,23 @@ export default function AdminTutorProfilePage() {
                     <CardContent>
                         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
                     </CardContent>
-                    {!tutor.isBioReviewed && (
-                        <CardFooter className="flex justify-end p-3 border-t">
+                    <CardFooter className="flex justify-end p-3 border-t gap-2">
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setIsUpdateModalOpen(true)}>
+                            <Edit3 className="mr-1.5 h-3.5 w-3.5" />
+                            Change Bio
+                        </Button>
+                        {tutor.isBioReviewed ? (
+                            <Button variant="destructive-outline" size="sm" className="h-7 text-xs">
+                                <Ban className="mr-1.5 h-3.5 w-3.5" />
+                                Disapprove
+                            </Button>
+                        ) : (
                             <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setIsApproveBioModalOpen(true)}>
                                 <CheckSquare className="mr-1.5 h-3.5 w-3.5" />
                                 Approve
                             </Button>
-                        </CardFooter>
-                    )}
+                        )}
+                    </CardFooter>
                 </Card>
                  <Card>
                     <CardHeader>
