@@ -56,7 +56,7 @@ const updateTutorBioApi = async ({
   if (!tutorId) throw new Error("Tutor ID is missing.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/bio/${tutorId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/bio/change/${tutorId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -98,7 +98,31 @@ export function AdminUpdateBioModal({ isOpen, onOpenChange, tutorName, tutorId, 
         if (!oldData) return undefined;
         return {
           ...oldData,
-          ...updatedTutoringDetails,
+          subjectsList: updatedTutoringDetails.subjects,
+          gradesList: updatedTutoringDetails.grades,
+          boardsList: updatedTutoringDetails.boards,
+          qualificationList: updatedTutoringDetails.qualifications,
+          availabilityDaysList: updatedTutoringDetails.availabilityDays,
+          availabilityTimeList: updatedTutoringDetails.availabilityTime,
+          yearOfExperience: updatedTutoringDetails.yearOfExperience,
+          bio: updatedTutoringDetails.tutorBio,
+          addressName: updatedTutoringDetails.addressName,
+          address: updatedTutoringDetails.address,
+          city: updatedTutoringDetails.city,
+          state: updatedTutoringDetails.state,
+          area: updatedTutoringDetails.area,
+          pincode: updatedTutoringDetails.pincode,
+          country: updatedTutoringDetails.country,
+          googleMapsLink: updatedTutoringDetails.googleMapsLink,
+          hourlyRate: updatedTutoringDetails.hourlyRate,
+          languagesList: updatedTutoringDetails.languages,
+          profileCompletion: updatedTutoringDetails.profileCompletion,
+          isActive: updatedTutoringDetails.active,
+          isRateNegotiable: updatedTutoringDetails.rateNegotiable,
+          isBioReviewed: updatedTutoringDetails.bioReviewed,
+          online: updatedTutoringDetails.online,
+          offline: updatedTutoringDetails.offline,
+          isHybrid: updatedTutoringDetails.hybrid,
         };
       });
       toast({
