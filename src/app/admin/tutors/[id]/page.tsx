@@ -333,31 +333,30 @@ export default function AdminTutorProfilePage() {
                             </div>
                         </InfoItem>
                         <InfoItem icon={Phone} label="Phone">
-                             <div className="flex items-center gap-2">
-                                <span>{tutor.countryCode} {tutor.phone}</span>
-                                {tutor.phoneVerified && (
-                                  <Tooltip>
-                                      <TooltipTrigger>
-                                          <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100"><PhoneCall className="h-3 w-3"/></Badge>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Phone Verified</p></TooltipContent>
-                                  </Tooltip>
-                                )}
+                           <div className="flex flex-col items-start gap-1.5">
+                                <div className="flex items-center gap-2">
+                                  <span>{tutor.countryCode} {tutor.phone}</span>
+                                  {tutor.phoneVerified ? (
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100"><PhoneCall className="h-3 w-3"/></Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent><p>Phone Verified</p></TooltipContent>
+                                    </Tooltip>
+                                  ) : (
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <XCircle className="h-4 w-4 text-destructive"/>
+                                        </TooltipTrigger>
+                                        <TooltipContent><p>Phone Not Verified</p></TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                </div>
                                 {tutor.whatsappEnabled && (
-                                  <Tooltip>
-                                      <TooltipTrigger>
-                                          <WhatsAppIcon className="h-4 w-4 text-green-600" />
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>WhatsApp Enabled</p></TooltipContent>
-                                  </Tooltip>
-                                )}
-                                {!tutor.phoneVerified && (
-                                  <Tooltip>
-                                      <TooltipTrigger>
-                                          <XCircle className="h-4 w-4 text-destructive"/>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Phone Not Verified</p></TooltipContent>
-                                  </Tooltip>
+                                    <Badge variant="secondary" className="mt-1 w-fit bg-green-100 text-green-700 text-xs flex items-center gap-1.5">
+                                        <WhatsAppIcon className="h-3 w-3"/>
+                                        WhatsApp Enabled
+                                    </Badge>
                                 )}
                             </div>
                         </InfoItem>
