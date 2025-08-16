@@ -145,6 +145,26 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
     } as ApiTutor;
 };
 
+const verifyTutorEmailApi = async ({ tutorId, token }: { tutorId: string; token: string | null }) => {
+    if (!token) throw new Error("Authentication token not found.");
+    if (!tutorId) throw new Error("Tutor ID is required for verification.");
+    
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/admin/user/verify/email/${tutorId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'accept': '*/*',
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Failed to verify email." }));
+        throw new Error(errorData.message);
+    }
+    return response.json();
+};
+
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
         <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.885-.002 2.024.63 3.965 1.739 5.618l-1.187 4.349 4.443-1.152z" />
@@ -203,6 +223,7 @@ export default function AdminTutorProfilePage() {
     const router = useRouter();
     const { token } = useAuthMock();
     const { toast } = useToast();
+    const queryClient = useQueryClient();
     const tutorId = params.id as string;
     
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -219,13 +240,45 @@ export default function AdminTutorProfilePage() {
         refetchOnWindowFocus: false,
     });
     
+    const emailVerificationMutation = useMutation({
+        mutationFn: () => verifyTutorEmailApi({ tutorId, token }),
+        onSuccess: (newUserDetails) => {
+            queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
+                if (!oldData) return undefined;
+                return { 
+                    ...oldData, 
+                    emailVerified: newUserDetails.emailVerified,
+                    phoneVerified: newUserDetails.phoneVerified,
+                    isVerified: newUserDetails.emailVerified && newUserDetails.phoneVerified
+                };
+            });
+            toast({
+                title: "Email Verified!",
+                description: `The email for ${tutor?.displayName} has been successfully verified.`,
+            });
+            setIsVerificationModalOpen(false);
+        },
+        onError: (error: Error) => {
+            toast({
+                variant: "destructive",
+                title: "Verification Failed",
+                description: error.message,
+            });
+        },
+    });
+
+
     const handleConfirmVerification = () => {
-        // Mock API call to verify email/phone
-        toast({
-            title: `Mock Verification Success`,
-            description: `The tutor's ${verificationType} has been marked as verified.`,
-        });
-        refetch(); // Refetch the profile to show updated status
+        if (verificationType === 'email') {
+            emailVerificationMutation.mutate();
+        } else if (verificationType === 'phone') {
+            // Placeholder for phone verification API call
+            toast({
+                title: `Mock Phone Verification`,
+                description: `The tutor's phone has been marked as verified.`,
+            });
+            refetch(); // For now, just refetch to update status from mock data
+        }
     };
     
     if (isLoading) {
@@ -275,19 +328,16 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                            <Badge variant={tutor?.isActive ? "default" : "destructive"} className={cn(
-                                "text-xs py-1 px-2.5",
-                                tutor?.isActive ? "bg-white text-primary border border-primary hover:bg-white" : "bg-primary text-primary-foreground"
-                            )}>
-                                {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                {tutor?.isActive ? 'Active' : 'Inactive'}
+                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5", !tutor.isActive && "bg-primary text-primary-foreground", tutor.isActive && "bg-white text-primary border border-primary hover:bg-white")}>
+                                {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                             <Badge variant={tutor?.isVerified ? "default" : "destructive"} className={cn(
+                             <Badge variant={tutor.isVerified ? "default" : "destructive"} className={cn(
                                  "text-xs py-1 px-2.5",
-                                 tutor?.isVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-primary text-primary-foreground"
+                                 tutor.isVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-primary text-primary-foreground"
                              )}>
-                                {tutor?.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                                {tutor?.isVerified ? 'Verified' : 'Not Verified'}
+                                {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                                {tutor.isVerified ? 'Verified' : 'Not Verified'}
                             </Badge>
                         </div>
                         <Separator className="my-4" />
@@ -474,10 +524,12 @@ export default function AdminTutorProfilePage() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setVerificationType(null)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirmVerification}>Confirm</AlertDialogAction>
+          <AlertDialogAction onClick={handleConfirmVerification} disabled={emailVerificationMutation.isPending}>
+            {emailVerificationMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {emailVerificationMutation.isPending ? 'Verifying...' : 'Confirm'}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
       </AlertDialog>
     );
 }
-
