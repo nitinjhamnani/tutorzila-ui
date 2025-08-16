@@ -21,6 +21,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+import {
   Briefcase,
   BookOpen,
   GraduationCap,
@@ -52,6 +59,7 @@ import {
   Unlock,
   VenetianMask,
   CheckSquare,
+  MoreVertical
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -237,7 +245,7 @@ export default function AdminTutorProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Left Column */}
             <div className="md:col-span-1 space-y-6">
-                <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden relative">
                     <CardContent className="p-5 md:p-6 text-center">
                         <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
                             <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
@@ -246,9 +254,6 @@ export default function AdminTutorProfilePage() {
                             </AvatarFallback>
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
-                        <div className="mt-1.5 space-y-1 text-xs text-muted-foreground">
-                            
-                        </div>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor?.isActive ? "default" : "destructive"} className={cn(
                                 "text-xs py-1 px-2.5",
@@ -266,6 +271,30 @@ export default function AdminTutorProfilePage() {
                             </Badge>
                         </div>
                     </CardContent>
+                     <div className="absolute top-4 right-4">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setIsActivationModalOpen(true)}>
+                                    <Unlock className="mr-2 h-4 w-4" />
+                                    <span>Activate</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
+                                    <Edit3 className="mr-2 h-4 w-4" />
+                                    <span>Update</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <ShieldCheck className="mr-2 h-4 w-4" />
+                                    <span>Verify Profile</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </Card>
 
                  <Card>
