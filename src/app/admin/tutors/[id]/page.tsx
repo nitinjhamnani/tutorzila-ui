@@ -177,21 +177,6 @@ const InfoTextItem = ({ icon: Icon, label, value }: { icon: React.ElementType; l
     );
 };
 
-const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items: string[] }) => {
-  if (!items || items.length === 0) return null;
-  return (
-    <div className="flex items-start">
-       <Icon className="w-4 h-4 mr-2.5 mt-1 text-muted-foreground shrink-0" />
-      <div className="flex flex-col">
-        <span className="font-medium text-foreground mb-1">{label}</span>
-        <div className="flex flex-wrap gap-1.5">
-          {items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>)}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 
 export default function AdminTutorProfilePage() {
     const params = useParams();
@@ -420,6 +405,7 @@ export default function AdminTutorProfilePage() {
             isOpen={isActivationModalOpen}
             onOpenChange={setIsActivationModalOpen}
             tutorName={tutor?.name || ""}
+            tutorId={tutorId}
         />
         
         <AdminUpdateTutorModal
