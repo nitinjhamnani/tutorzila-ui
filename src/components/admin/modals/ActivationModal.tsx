@@ -152,6 +152,7 @@ export function ActivationModal({ isOpen, onOpenChange, tutorName, tutorId }: Ac
             onValueChange={setReason}
             value={reason || ""}
             className="flex flex-col space-y-2"
+            disabled={mutation.isPending}
           >
             {activationReasons.map((option) => (
               <div key={option.id} className="flex items-center space-x-3 space-y-0">
