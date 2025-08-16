@@ -24,7 +24,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import {
@@ -362,17 +361,11 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                            <Badge variant={tutor.isActive ? "secondary" : "default"} className={cn(
-                                "text-xs py-1 px-2.5", 
-                                tutor.isActive ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary"
-                            )}>
+                            <Badge variant={tutor.isActive ? "secondary" : "default"} className={cn("text-xs py-1 px-2.5", tutor.isActive ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                             <Badge variant={tutor.isVerified ? "secondary" : "default"} className={cn(
-                                "text-xs py-1 px-2.5", 
-                                tutor.isVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary"
-                            )}>
+                             <Badge variant={tutor.isVerified ? "secondary" : "default"} className={cn("text-xs py-1 px-2.5", tutor.isVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
                             </Badge>
@@ -423,7 +416,7 @@ export default function AdminTutorProfilePage() {
                                 <Tooltip>
                                     <TooltipTrigger>
                                         <Badge variant={tutor.emailVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.emailVerified ? 'bg-card text-primary border-primary/20' : 'bg-primary text-primary-foreground border-primary')}>
-                                            {tutor.emailVerified ? <MailCheck className="h-3 w-3"/> : <XCircle className="h-3 w-3"/>}
+                                          {tutor.emailVerified && <MailCheck className="h-3 w-3"/>}
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent><p>{tutor.emailVerified ? 'Email Verified' : 'Email Not Verified'}</p></TooltipContent>
@@ -438,7 +431,7 @@ export default function AdminTutorProfilePage() {
                                   <Tooltip>
                                       <TooltipTrigger>
                                           <Badge variant={tutor.phoneVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.phoneVerified ? 'bg-card text-primary border-primary/20' : 'bg-primary text-primary-foreground border-primary')}>
-                                              {tutor.phoneVerified ? <PhoneCall className="h-3 w-3"/> : <XCircle className="h-3 w-3"/>}
+                                              {tutor.phoneVerified && <PhoneCall className="h-3 w-3"/>}
                                           </Badge>
                                       </TooltipTrigger>
                                       <TooltipContent><p>{tutor.phoneVerified ? 'Phone Verified' : 'Phone Not Verified'}</p></TooltipContent>
@@ -461,13 +454,10 @@ export default function AdminTutorProfilePage() {
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
-                         <Badge variant={tutor.isBioReviewed ? "secondary" : "default"} className={cn(
-                            "text-xs py-1 px-2.5", 
-                            tutor.isBioReviewed ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary"
-                        )}>
-                            {tutor.isBioReviewed ? <CheckCircle className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                            {tutor.isBioReviewed ? 'Approved' : 'Pending Approval'}
-                        </Badge>
+                         <Badge variant={tutor.isBioReviewed ? "secondary" : "default"} className={cn("text-xs py-1 px-2.5", tutor.isBioReviewed ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
+                           {tutor.isBioReviewed ? <CheckCircle className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
+                           {tutor.isBioReviewed ? 'Approved' : 'Pending Approval'}
+                         </Badge>
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor?.bio || "No biography provided."}</p>
@@ -590,3 +580,4 @@ export default function AdminTutorProfilePage() {
       </AlertDialog>
     );
 }
+
