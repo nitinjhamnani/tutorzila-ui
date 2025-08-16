@@ -402,18 +402,11 @@ export default function AdminTutorProfilePage() {
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Professional Details</CardTitle>
+                        <CardTitle>Other Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
-                        <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Availability</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <InfoTextItem icon={GraduationCap} label="Qualifications" value={tutor?.qualificationList?.join(', ')} />
+                        <InfoTextItem icon={Languages} label="Languages" value={tutor?.languagesList?.join(', ')} />
                         <InfoTextItem icon={CalendarDays} label="Available Days" value={tutor?.availabilityDaysList?.join(', ')} />
                         <InfoTextItem icon={Clock} label="Available Times" value={tutor?.availabilityTimeList?.join(', ')} />
                     </CardContent>
