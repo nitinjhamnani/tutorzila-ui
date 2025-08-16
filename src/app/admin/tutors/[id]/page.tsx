@@ -360,11 +360,11 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                             <Badge variant={tutor.isActive ? "default" : "destructive"} className={cn("text-xs py-1 px-2.5 border", tutor.isActive ? "bg-white text-primary border-primary" : "bg-primary text-primary-foreground")}>
+                             <Badge variant="default" className={cn("text-xs py-1 px-2.5 border", tutor.isActive ? "bg-white text-primary border-primary" : "bg-primary text-primary-foreground")}>
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                             <Badge variant={tutor.isVerified ? "default" : "destructive"} className={cn(
+                             <Badge variant="default" className={cn(
                                  "text-xs py-1 px-2.5 border",
                                  tutor.isVerified ? "bg-white text-primary border-primary" : "bg-primary text-primary-foreground"
                              )}>
@@ -458,13 +458,12 @@ export default function AdminTutorProfilePage() {
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
-                        {tutor.isBioReviewed && (
-                            <Badge variant="default" className="bg-white text-primary border border-primary text-xs py-1 px-2.5">
+                        {tutor.isBioReviewed ? (
+                             <Badge variant="default" className="bg-white text-primary border border-primary">
                                 <CheckCircle className="mr-1 h-3 w-3"/> Approved
                             </Badge>
-                        )}
-                        {!tutor.isBioReviewed && (
-                            <Badge variant="destructive" className="bg-primary text-primary-foreground text-xs py-1 px-2.5">
+                        ) : (
+                            <Badge variant="destructive" className="bg-primary text-primary-foreground">
                                 <ShieldAlert className="mr-1 h-3 w-3"/>
                                 Pending Review
                             </Badge>
@@ -479,7 +478,7 @@ export default function AdminTutorProfilePage() {
                             Change Bio
                         </Button>
                         {tutor.isBioReviewed ? (
-                            <Button variant="destructive-outline" size="sm" className="h-7 text-xs">
+                             <Button variant="outline" size="sm" className="h-7 text-xs">
                                 <Ban className="mr-1.5 h-3.5 w-3.5" />
                                 Disapprove
                             </Button>
