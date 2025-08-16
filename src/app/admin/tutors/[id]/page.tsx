@@ -405,8 +405,6 @@ export default function AdminTutorProfilePage() {
                         <CardTitle>Professional Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                       <InfoItem icon={Briefcase} label="Experience">{tutor?.yearOfExperience}</InfoItem>
-                        <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor?.hourlyRate} ${tutor?.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         <InfoItem icon={GraduationCap} label="Qualifications">{tutor?.qualificationList?.join(', ')}</InfoItem>
                         <InfoItem icon={Languages} label="Languages">{tutor?.languagesList?.join(', ')}</InfoItem>
                     </CardContent>
