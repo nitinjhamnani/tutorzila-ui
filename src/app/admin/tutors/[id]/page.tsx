@@ -140,7 +140,7 @@ const InfoSection = ({ icon: Icon, title, children, className }: { icon: React.E
   </div>
 );
 
-const InfoItem = ({ icon: Icon, label, children, verificationBadge }: { icon: React.ElementType; label: string; children?: React.ReactNode, verificationBadge?: React.ReactNode }) => {
+const InfoItem = ({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children?: React.ReactNode }) => {
   if (!children && typeof children !== 'number') return null;
   return (
     <div className="flex items-start">
@@ -153,6 +153,19 @@ const InfoItem = ({ icon: Icon, label, children, verificationBadge }: { icon: Re
       </div>
     </div>
   );
+};
+
+const InfoTextItem = ({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value?: string }) => {
+    if (!value) return null;
+    return (
+        <div className="flex items-start">
+        <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
+        <div className="flex flex-col">
+            <span className="font-medium text-foreground">{label}</span>
+            <p className="text-muted-foreground text-xs">{value}</p>
+        </div>
+        </div>
+    );
 };
 
 const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items: string[] }) => {
@@ -234,20 +247,7 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-1.5 space-y-1 text-xs text-muted-foreground">
-                            { (tutor.online || tutor.offline) &&
-                                <div className="flex items-center justify-center gap-1.5">
-                                    <RadioTower className="w-3.5 h-3.5 text-primary"/>
-                                    <span>
-                                        {tutor.online && tutor.offline ? "Online & Offline" : tutor.online ? "Online" : "Offline"}
-                                    </span>
-                                </div>
-                            }
-                            { (tutor.area || tutor.city) &&
-                                <div className="flex items-center justify-center gap-1.5">
-                                    <MapPin className="w-3.5 h-3.5 text-primary"/>
-                                    <span>{[tutor.area, tutor.city].filter(Boolean).join(', ')}</span>
-                                </div>
-                            }
+                            
                         </div>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor?.isActive ? "default" : "destructive"} className={cn(
@@ -354,12 +354,10 @@ export default function AdminTutorProfilePage() {
                         <CardTitle>Tutoring Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <InfoItem icon={BookOpen} label="Subjects">{tutor.subjectsList.join(', ')}</InfoItem>
-                        <InfoItem icon={GraduationCap} label="Grades">{tutor.gradesList.join(', ')}</InfoItem>
-                        <InfoItem icon={Building} label="Boards">{tutor.boardsList.join(', ')}</InfoItem>
-                        <InfoItem icon={RadioTower} label="Teaching Mode">
-                            {[tutor.online && 'Online', tutor.offline && 'Offline', tutor.isHybrid && 'Hybrid'].filter(Boolean).join(' & ')}
-                        </InfoItem>
+                        <InfoTextItem icon={BookOpen} label="Subjects" value={tutor.subjectsList.join(', ')} />
+                        <InfoTextItem icon={GraduationCap} label="Grades" value={tutor.gradesList.join(', ')} />
+                        <InfoTextItem icon={Building} label="Boards" value={tutor.boardsList.join(', ')} />
+                        <InfoTextItem icon={RadioTower} label="Teaching Mode" value={[tutor.online && 'Online', tutor.offline && 'Offline', tutor.isHybrid && 'Hybrid'].filter(Boolean).join(' & ')} />
                         {tutor.offline && (
                         <InfoItem icon={MapPin} label="Address">
                             {tutor.googleMapsLink ? (
@@ -392,8 +390,8 @@ export default function AdminTutorProfilePage() {
                         <CardTitle>Availability</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <InfoItem icon={CalendarDays} label="Available Days">{tutor?.availabilityDaysList?.join(', ')}</InfoItem>
-                        <InfoItem icon={Clock} label="Available Times">{tutor?.availabilityTimeList?.join(', ')}</InfoItem>
+                        <InfoTextItem icon={CalendarDays} label="Available Days" value={tutor?.availabilityDaysList?.join(', ')} />
+                        <InfoTextItem icon={Clock} label="Available Times" value={tutor?.availabilityTimeList?.join(', ')} />
                     </CardContent>
                 </Card>
             </div>
@@ -413,5 +411,3 @@ export default function AdminTutorProfilePage() {
       </TooltipProvider>
     );
 }
-
-    
