@@ -141,7 +141,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       isHybrid: tutoringDetails.hybrid,
       
       gender: userDetails.gender,
-      isVerified: userDetails.emailVerified && userDetails.phoneVerified, // Derived isVerified
+      isVerified: tutoringDetails.verified,
     } as ApiTutor;
 };
 
@@ -267,7 +267,6 @@ export default function AdminTutorProfilePage() {
                 ...oldData, 
                 emailVerified: newUserDetails.emailVerified,
                 phoneVerified: newUserDetails.phoneVerified,
-                isVerified: newUserDetails.emailVerified && newUserDetails.phoneVerified
             };
         });
     };
