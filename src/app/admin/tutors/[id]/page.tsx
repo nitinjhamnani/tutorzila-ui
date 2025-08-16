@@ -59,13 +59,15 @@ import {
   Unlock,
   VenetianMask,
   CheckSquare,
-  MoreVertical
+  MoreVertical,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ActivationModal } from "@/components/admin/modals/ActivationModal";
+import { DeactivationModal } from "@/components/admin/modals/DeactivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
 
@@ -187,6 +189,7 @@ export default function AdminTutorProfilePage() {
     
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
+    const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
     const [isApproveBioModalOpen, setIsApproveBioModalOpen] = useState(false);
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
@@ -244,7 +247,7 @@ export default function AdminTutorProfilePage() {
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor?.isActive ? "default" : "destructive"} className={cn(
                                 "text-xs py-1 px-2.5",
-                                tutor?.isActive ? "bg-white text-primary border border-primary hover:bg-white" : "bg-primary text-primary-foreground"
+                                tutor?.isActive ? "bg-white text-primary border border-primary" : "bg-primary text-primary-foreground"
                             )}>
                                 {tutor?.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor?.isActive ? 'Active' : 'Inactive'}
@@ -271,11 +274,16 @@ export default function AdminTutorProfilePage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                {!tutor.isActive && (
-                                <DropdownMenuItem onClick={() => setIsActivationModalOpen(true)}>
-                                    <Unlock className="mr-2 h-4 w-4" />
-                                    <span>Activate</span>
-                                </DropdownMenuItem>
+                                {tutor.isActive ? (
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
+                                        <Lock className="mr-2 h-4 w-4" />
+                                        <span>Deactivate</span>
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <DropdownMenuItem onClick={() => setIsActivationModalOpen(true)}>
+                                        <Unlock className="mr-2 h-4 w-4" />
+                                        <span>Activate</span>
+                                    </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
                                     <Edit3 className="mr-2 h-4 w-4" />
@@ -410,6 +418,13 @@ export default function AdminTutorProfilePage() {
             tutorId={tutorId}
         />
         
+        <DeactivationModal
+            isOpen={isDeactivationModalOpen}
+            onOpenChange={setIsDeactivationModalOpen}
+            tutorName={tutor?.name || ""}
+            tutorId={tutorId}
+        />
+
         <AdminUpdateTutorModal
             isOpen={isUpdateModalOpen}
             onOpenChange={setIsUpdateModalOpen}
