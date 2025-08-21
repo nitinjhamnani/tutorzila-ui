@@ -35,7 +35,8 @@ import {
   ShieldAlert,
   ListFilter,
   UsersRound,
-  UserPlus
+  UserPlus,
+  Settings,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 
@@ -196,7 +197,7 @@ export default function AdminParentsPage() {
             <TableCell>
               <Button asChild variant="outline" size="icon" className="h-8 w-8">
                 <Link href={`/admin/parents/${parent.id}`}>
-                  <Eye className="h-4 w-4" />
+                  <Settings className="h-4 w-4" />
                 </Link>
               </Button>
             </TableCell>
