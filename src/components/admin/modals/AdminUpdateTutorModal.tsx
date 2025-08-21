@@ -57,13 +57,13 @@ const daysOptionsList: MultiSelectOption[] = [
 ];
 
 const timeSlotsOptionsList: MultiSelectOption[] = [
-  { value: "0700-0900", label: "7:00 AM - 9:00 AM" },
-  { value: "0900-1100", label: "9:00 AM - 11:00 AM" },
-  { value: "1100-1300", label: "11:00 AM - 1:00 PM" },
-  { value: "1300-1500", label: "1:00 PM - 3:00 PM" },
-  { value: "1500-1700", label: "3:00 PM - 5:00 PM" },
-  { value: "1700-1900", label: "5:00 PM - 7:00 PM" },
-  { value: "1900-2100", label: "7:00 PM - 9:00 PM" },
+  { value: "7:00 AM - 9:00 AM", label: "7:00 AM - 9:00 AM" },
+  { value: "9:00 AM - 11:00 AM", label: "9:00 AM - 11:00 AM" },
+  { value: "11:00 AM - 1:00 PM", label: "11:00 AM - 1:00 PM" },
+  { value: "1:00 PM - 3:00 PM", label: "1:00 PM - 3:00 PM" },
+  { value: "3:00 PM - 5:00 PM", label: "3:00 PM - 5:00 PM" },
+  { value: "5:00 PM - 7:00 PM", label: "5:00 PM - 7:00 PM" },
+  { value: "7:00 PM - 9:00 PM", label: "7:00 PM - 9:00 PM" },
   { value: "Flexible", label: "Flexible" },
 ];
 
