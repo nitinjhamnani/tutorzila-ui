@@ -7,6 +7,8 @@ import { format } from 'date-fns';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 import {
     Table,
@@ -32,8 +34,10 @@ import {
   Loader2,
   ShieldAlert,
   ListFilter,
-  UsersRound
+  UsersRound,
+  UserPlus
 } from "lucide-react";
+import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 
 interface ApiParent {
   id: string;
@@ -81,6 +85,9 @@ const getInitials = (name: string): string => {
 
 export default function AdminParentsPage() {
   const { token } = useAuthMock();
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+
   const { data: parents = [], isLoading, error } = useQuery<ApiParent[]>({
     queryKey: ['adminAllParents', token],
     queryFn: () => fetchAdminParents(token),
@@ -88,6 +95,10 @@ export default function AdminParentsPage() {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  const handleAddUserSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['adminAllParents'] });
+  };
 
   const renderTableContent = () => {
     if (isLoading) {
@@ -196,41 +207,50 @@ export default function AdminParentsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
-        <CardHeader className="p-0 flex flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex-grow min-w-0">
-            <CardTitle className="text-xl font-semibold text-primary flex items-center">
-              <UsersRound className="w-5 h-5 mr-2.5" />
-              Parent Management
-            </CardTitle>
-            <CardDescription className="text-sm text-foreground/70 mt-1">
-              View and manage parent accounts on the platform.
-            </CardDescription>
-          </div>
-          <Button variant="outline" size="sm" className="h-9">
-            <ListFilter className="mr-2 h-4 w-4" /> Filter
-          </Button>
-        </CardHeader>
-      </Card>
+    <>
+      <div className="space-y-6">
+        <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
+          <CardHeader className="p-0 flex flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-grow min-w-0">
+              <CardTitle className="text-xl font-semibold text-primary flex items-center">
+                <UsersRound className="w-5 h-5 mr-2.5" />
+                Parent Management
+              </CardTitle>
+              <CardDescription className="text-sm text-foreground/70 mt-1">
+                View and manage parent accounts on the platform.
+              </CardDescription>
+            </div>
+            <Button onClick={() => setIsAddUserModalOpen(true)} size="sm" className="h-9 w-9 p-0 sm:w-auto sm:px-4 sm:py-1.5">
+              <UserPlus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add Parent</span>
+            </Button>
+          </CardHeader>
+        </Card>
 
-      <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Parent Details</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Registered</TableHead>
-                <TableHead>Verification</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            {renderTableContent()}
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Parent Details</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Registered</TableHead>
+                  <TableHead>Verification</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              {renderTableContent()}
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+      <AddUserModal
+        isOpen={isAddUserModalOpen}
+        onOpenChange={setIsAddUserModalOpen}
+        userType="PARENT"
+        onSuccess={handleAddUserSuccess}
+      />
+    </>
   );
 }
