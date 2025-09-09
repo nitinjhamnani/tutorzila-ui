@@ -268,18 +268,6 @@ export default function BecomeTutorPage() {
                       </FormItem>
                     )}
                   />
-
-                  <div className="rounded-lg border bg-primary/5 border-primary/20 p-4">
-                      <div className="flex items-start gap-3">
-                          <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5"/>
-                          <div>
-                            <h4 className="font-semibold text-sm text-foreground">Registration Fee</h4>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                A one-time, non-refundable registration fee of <strong className="font-bold text-primary">₹199</strong> is required for profile verification and platform access. This does not guarantee tuition assignments.
-                            </p>
-                          </div>
-                      </div>
-                  </div>
                   
                   <FormField
                     control={form.control}
