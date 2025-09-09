@@ -19,6 +19,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { PhonePePaymentModal } from "@/components/modals/PhonePePaymentModal";
 
 interface ActivationStatusCardProps {
   onActivate: () => void;
@@ -29,6 +30,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const { toast } = useToast();
   const [referralCode, setReferralCode] = useState("");
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const handleApplyReferral = () => {
     if (!referralCode.trim()) {
@@ -47,7 +49,17 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     setIsReferralModalOpen(false); // Close modal on success
   };
 
+  const handlePaymentSuccess = () => {
+    setIsPaymentModalOpen(false);
+    toast({
+        title: "Payment Successful!",
+        description: "Your account has been activated.",
+    });
+    onActivate(); // This would typically refetch user status
+  };
+
   return (
+    <>
     <Dialog open={isReferralModalOpen} onOpenChange={setIsReferralModalOpen}>
       <Card className={cn(
           "bg-destructive/10 border-destructive/20 text-destructive-foreground animate-in fade-in duration-500 ease-out",
@@ -86,7 +98,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
                     variant="destructive" 
                     size="default" 
                     className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95"
-                    onClick={onActivate}
+                    onClick={() => setIsPaymentModalOpen(true)}
                 >
                   <Unlock className="mr-2 h-4 w-4" />
                   Activate My Account Now
@@ -130,5 +142,20 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <PhonePePaymentModal 
+        isOpen={isPaymentModalOpen}
+        onOpenChange={setIsPaymentModalOpen}
+        onPaymentSuccess={handlePaymentSuccess}
+        onPaymentFailure={() => {
+            setIsPaymentModalOpen(false);
+            toast({
+                variant: "destructive",
+                title: "Payment Failed",
+                description: "Your payment could not be completed. Please try again.",
+            });
+        }}
+    />
+    </>
   );
 }
