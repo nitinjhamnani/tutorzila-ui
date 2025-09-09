@@ -101,7 +101,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
                         merchantTransactionId: `TXN_${Date.now()}`,
                         amount: 19900,
                         redirectUrl: `${window.location.origin}/tutor/dashboard?status=success`,
-                        redirectMode: 'POST',
+                        redirectMode: 'POST' as 'POST' | 'GET',
                         callbackUrl: `https://webhook.site/callback-url`, // Your server's callback
                         mobileNumber: user.phone || '9999999999',
                     },
@@ -139,7 +139,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
                     title: "Payment Initiation Failed",
                     description: "We couldn't start the payment process. Please try again.",
                 });
-                onFailure();
+                onPaymentFailure();
             } finally {
                 setIsLoading(false);
             }
@@ -147,7 +147,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
 
         initiatePayment();
     }
-  }, [isOpen, scriptLoaded, user, toast, onPaymentSuccess, onFailure]);
+  }, [isOpen, scriptLoaded, user, toast, onPaymentSuccess, onPaymentFailure]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
