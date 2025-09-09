@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -244,16 +243,6 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
               Edit Tutoring Details
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground mt-1">Showcase your expertise and preferences to students.</CardDescription>
-            <DialogClose asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-3 right-3 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </Button>
-            </DialogClose>
           </CardHeader>
           
           <CardContent className="p-6">
@@ -373,7 +362,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                               htmlFor="isHybridCheckbox"
                               className="text-xs font-semibold text-muted-foreground"
                             >
-                              Also available for Hybrid (mix of Online & Offline) classes.
+                              Also available for Hybrid (mix of Online &amp; Offline) classes.
                             </Label>
                           </FormItem>
                         )}
@@ -454,7 +443,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   name="qualifications"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications &amp; Certifications</FormLabel>
                       <MultiSelectCommand
                         options={qualificationsList}
                         selectedValues={field.value || []}
