@@ -7,32 +7,6 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthMock } from '@/hooks/use-auth-mock';
 
-// Define the structure of the PhonePeCheckout object that will be available on the window
-declare global {
-  interface Window {
-    PhonePeCheckout: {
-      transact: (options: {
-        method: 'IFRAME';
-        data: {
-          merchantId: string;
-          merchantTransactionId: string;
-          amount: number;
-          redirectUrl: string;
-          redirectMode: 'POST' | 'GET';
-          callbackUrl: string;
-          mobileNumber?: string;
-          paymentInstrument: {
-            type: 'PAY_PAGE';
-          };
-        };
-        checksum: string;
-        apiEndPoint: string;
-      }) => void;
-      closePage: () => void;
-    };
-  }
-}
-
 interface PhonePePaymentModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,112 +17,20 @@ interface PhonePePaymentModalProps {
 export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, onPaymentFailure }: PhonePePaymentModalProps) {
   const { toast } = useToast();
   const { user } = useAuthMock();
-  const [scriptLoaded, setScriptLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const iframeContainerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Dynamically load the PhonePe script
+  // Directly use the provided UAT URL
+  const paymentUrl = "https://mercury-uat.phonepe.com/transact/uat_v2?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzT24iOjE3NTc1MzAzNTEzNTAsIm1lcmNoYW50SWQiOiJURVNULU0yM1VRR0cwMjROSVMiLCJtZXJjaGFudE9yZGVySWQiOiJUVVRPUlpJTEFURVNUU0FOREJPWDAwMSJ9.wSzkDfd5LRj6FmIgWOzw2odXTTjG4hPKmGgcCyfW6uQ";
+
   useEffect(() => {
-    if (isOpen && !scriptLoaded) {
-      const script = document.createElement('script');
-      script.src = 'https://mercury.phonepe.com/web/bundle/checkout.js';
-      script.onload = () => {
-        setScriptLoaded(true);
-        console.log("PhonePe script loaded successfully.");
-      };
-      script.onerror = () => {
-        console.error("Failed to load PhonePe script.");
-        toast({
-          variant: "destructive",
-          title: "Payment Error",
-          description: "Could not load payment gateway. Please try again later.",
-        });
-        onOpenChange(false);
-      };
-      document.body.appendChild(script);
-
-      return () => {
-        // Clean up the script tag if the component unmounts or the modal closes
-        const existingScript = document.querySelector('script[src="https://mercury.phonepe.com/web/bundle/checkout.js"]');
-        if (existingScript) {
-          document.body.removeChild(existingScript);
-        }
-      };
+    if (isOpen) {
+      setIsLoading(true);
+      // Simulate loading time for the iframe to appear
+      const timer = setTimeout(() => setIsLoading(false), 1500);
+      return () => clearTimeout(timer);
     }
-  }, [isOpen, scriptLoaded, onOpenChange, toast]);
-
-  // Initiate the transaction once the script is loaded
-  useEffect(() => {
-    if (isOpen && scriptLoaded && user) {
-        setIsLoading(true);
-        // TODO: Replace with actual API call to your backend
-        // This endpoint should generate the payload and checksum on the server
-        const initiatePayment = async () => {
-            try {
-                // const response = await fetch('/api/payments/initiate-phonepe', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({ userId: user.id, amount: 19900 }) // amount in paise
-                // });
-                // const paymentData = await response.json();
-
-                // MOCKING the response for now
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                const paymentData = {
-                    success: true,
-                    data: {
-                        merchantId: 'MOCK_MERCHANT_ID',
-                        merchantTransactionId: `TXN_${Date.now()}`,
-                        amount: 19900,
-                        redirectUrl: `${window.location.origin}/tutor/dashboard?status=success`,
-                        redirectMode: 'POST' as 'POST' | 'GET',
-                        callbackUrl: `https://webhook.site/callback-url`, // Your server's callback
-                        mobileNumber: user.phone || '9999999999',
-                    },
-                    checksum: 'mock-checksum-string', // This will be the SHA256 hash
-                    apiEndPoint: '/pg/v1/pay',
-                };
-                
-                if (!paymentData.success) {
-                    throw new Error('Failed to initiate payment.');
-                }
-                
-                window.PhonePeCheckout.transact({
-                    method: 'IFRAME',
-                    data: {
-                        ...paymentData.data,
-                        paymentInstrument: {
-                            type: 'PAY_PAGE'
-                        }
-                    },
-                    checksum: paymentData.checksum,
-                    apiEndPoint: paymentData.apiEndPoint
-                });
-
-                // This is a placeholder. In a real scenario, you'd rely on the callbackUrl
-                // to get the final status from your backend. For this demo, we'll simulate it.
-                setTimeout(() => {
-                    console.log("Simulating payment success callback.");
-                    onPaymentSuccess();
-                }, 8000); // Simulate an 8-second payment process
-
-            } catch (error) {
-                console.error("Payment initiation failed", error);
-                toast({
-                    variant: "destructive",
-                    title: "Payment Initiation Failed",
-                    description: "We couldn't start the payment process. Please try again.",
-                });
-                onPaymentFailure();
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        initiatePayment();
-    }
-  }, [isOpen, scriptLoaded, user, toast, onPaymentSuccess, onPaymentFailure]);
-
+  }, [isOpen]);
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card p-0 flex flex-col" style={{ height: '80vh', maxHeight: '600px' }}>
@@ -158,14 +40,19 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
             You are being redirected to our secure payment gateway.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-grow flex items-center justify-center relative" ref={iframeContainerRef}>
+        <div className="flex-grow flex items-center justify-center relative">
           {isLoading && (
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p>Connecting to payment gateway...</p>
+              <p>Loading payment page...</p>
             </div>
           )}
-          {/* The PhonePe iframe will be mounted here by their script */}
+           <iframe
+            src={paymentUrl}
+            className={`w-full h-full border-0 transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            allow="payment"
+            title="PhonePe Payment Gateway"
+          ></iframe>
         </div>
       </DialogContent>
     </Dialog>
