@@ -35,54 +35,49 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
       return;
     }
 
-    const scriptUrl = 'https://api-preprod.phonepe.com/apis/pg-sandbox/v2/checkout-v2.js';
+    const scriptUrl = 'https://mercury-stg.phonepe.com/web/bundle/checkout.js';
     const existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
 
     const initializePhonePe = () => {
-      if (window.PhonePeCheckout && paymentContainerRef.current) {
-        setIsLoading(false);
-        try {
-          window.PhonePeCheckout.transact({
-            paymentUrl: mockPaymentUrl,
-            callback: (response: any) => {
-              console.log("PhonePe callback received:", response);
-              if (response?.code === 'PAYMENT_SUCCESS') {
-                onPaymentSuccess();
-              } else {
-                toast({ title: "Payment Not Completed", description: response.description || "The payment process was not successfully completed." });
-                onPaymentFailure();
-              }
-              if (window.PhonePeCheckout.closePage) {
-                window.PhonePeCheckout.closePage();
-              }
-              onOpenChange(false);
-            },
-            type: "IFRAME",
-            containerId: "phonepe-checkout-container"
-          });
-        } catch (e) {
-          const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
-          console.error("PhonePe transact error:", errorMessage);
-          setError(`Could not initiate PhonePe checkout. ${errorMessage}`);
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (window.PhonePeCheckout) {
+          clearInterval(interval);
           setIsLoading(false);
-        }
-      } else {
-        // Poll for SDK readiness
-        let attempts = 0;
-        const interval = setInterval(() => {
-          attempts++;
-          if (window.PhonePeCheckout) {
-            clearInterval(interval);
-            initializePhonePe();
-          } else if (attempts > 50) { // Timeout after 5 seconds
-            clearInterval(interval);
-            setError("Failed to initialize payment SDK. Please try again.");
+          try {
+            window.PhonePeCheckout.transact({
+              tokenUrl: mockPaymentUrl, // Corrected from paymentUrl to tokenUrl
+              callback: (response: any) => {
+                console.log("PhonePe callback received:", response);
+                if (response?.code === 'PAYMENT_SUCCESS') {
+                  onPaymentSuccess();
+                } else {
+                  toast({ title: "Payment Not Completed", description: response.description || "The payment process was not successfully completed." });
+                  onPaymentFailure();
+                }
+                if (window.PhonePeCheckout.closePage) {
+                  window.PhonePeCheckout.closePage();
+                }
+                onOpenChange(false);
+              },
+              type: "IFRAME",
+              containerId: "phonepe-checkout-container"
+            });
+          } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
+            console.error("PhonePe transact error:", errorMessage);
+            setError(`Could not initiate PhonePe checkout. ${errorMessage}`);
             setIsLoading(false);
           }
-        }, 100);
-      }
+        } else if (attempts > 50) { // Timeout after 5 seconds
+          clearInterval(interval);
+          setError("Failed to initialize payment SDK. Please try again.");
+          setIsLoading(false);
+        }
+      }, 100);
     };
-
+    
     const handleScriptError = () => {
       console.error("Failed to load PhonePe script.");
       setError("Failed to load the payment SDK. Please check your network or browser settings.");
@@ -105,7 +100,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
         }
       };
     }
-  }, [isOpen, onOpenChange, onPaymentFailure, onPaymentSuccess, toast]);
+  }, [isOpen, onOpenChange, onPaymentFailure, onPaymentSuccess, toast, mockPaymentUrl]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
