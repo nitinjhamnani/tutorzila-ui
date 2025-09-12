@@ -35,6 +35,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
   const { token } = useAuthMock();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -42,9 +43,37 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
     const scriptId = 'phonepe-checkout-script';
     let script = document.getElementById(scriptId) as HTMLScriptElement | null;
 
+    if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
+        script.async = true;
+        
+        script.onload = () => {
+            console.log("PhonePe script loaded.");
+            setScriptLoaded(true);
+        };
+
+        script.onerror = () => {
+            console.error("Failed to load PhonePe script.");
+            setError("Failed to load payment script. Please check your connection.");
+            setIsLoading(false);
+        };
+        document.body.appendChild(script);
+    } else {
+        // If script is already there, we assume it's loaded.
+        setScriptLoaded(true);
+    }
+
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !scriptLoaded) return;
+
     const initiatePayment = async () => {
         setIsLoading(true);
         setError(null);
+
         if (!token) {
           setError("Authentication failed. Please log in again.");
           setIsLoading(false);
@@ -61,9 +90,12 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           if (!response.ok) throw new Error("Failed to initialize payment from the server.");
           
           const data = await response.json();
+          const paymentUrl = data.paymentUrl;
 
-          if (data.paymentUrl && window.PhonePeCheckout) {
+          if (paymentUrl && window.PhonePeCheckout) {
             const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
+              window.PhonePeCheckout.closePage();
+              onOpenChange(false);
               if (response === 'USER_CANCEL') {
                 toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
                 onPaymentFailure();
@@ -71,12 +103,10 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
                 // Here you might want to call another API to verify the payment status
                 onPaymentSuccess();
               }
-              window.PhonePeCheckout.closePage();
-              onOpenChange(false);
             };
 
             window.PhonePeCheckout.transact({
-              paymentUrl: data.paymentUrl,
+              paymentUrl: paymentUrl,
               type: "IFRAME",
               containerId: "phonepe-checkout-container",
               callback: handlePaymentCallback
@@ -93,26 +123,9 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
         }
     };
     
-    if (!script) {
-        script = document.createElement('script');
-        script.id = scriptId;
-        script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
-        script.async = true;
-        
-        script.onload = () => {
-            initiatePayment();
-        };
+    initiatePayment();
 
-        script.onerror = () => {
-            setError("Failed to load payment script. Please check your connection.");
-            setIsLoading(false);
-        };
-        document.body.appendChild(script);
-    } else {
-        initiatePayment();
-    }
-
-  }, [isOpen, token, amount, toast, onPaymentSuccess, onPaymentFailure, onOpenChange]);
+  }, [isOpen, scriptLoaded, token, amount, toast, onPaymentSuccess, onPaymentFailure, onOpenChange]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -124,7 +137,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow flex items-center justify-center relative">
-          {isLoading && (
+          {(isLoading || !scriptLoaded) && (
             <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground h-full">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p>Initializing secure payment...</p>
