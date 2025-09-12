@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthMock } from '@/hooks/use-auth-mock';
-import { useScript } from '@/hooks/use-script';
 
 declare global {
   interface Window {
@@ -14,6 +13,7 @@ declare global {
       transact: (options: {
         paymentUrl: string;
         type: "IFRAME";
+        containerId: string;
         callback: (response: 'USER_CANCEL' | 'CONCLUDED') => void;
       }) => void;
       closePage: () => void;
@@ -32,17 +32,19 @@ interface PhonePePaymentModalProps {
 export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, onPaymentFailure, amount }: PhonePePaymentModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
-  const scriptStatus = useScript("https://mercury.phonepe.com/web/bundle/checkout.js");
-  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen && scriptStatus === 'ready') {
-      const initiatePayment = async () => {
+    if (!isOpen) return;
+
+    const script = document.createElement('script');
+    script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
+    script.async = true;
+
+    const initiatePayment = async () => {
         setIsLoading(true);
         setError(null);
-
         if (!token) {
           setError("Authentication failed. Please log in again.");
           setIsLoading(false);
@@ -53,87 +55,58 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
           const response = await fetch(`${apiBaseUrl}/api/tutor/payment?amount=${amount}`, {
             method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'accept': '*/*',
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' },
           });
 
-          if (!response.ok) {
-            throw new Error("Failed to initialize payment from the server.");
-          }
-
+          if (!response.ok) throw new Error("Failed to initialize payment from the server.");
+          
           const data = await response.json();
-          if (data.paymentUrl) {
-              const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
-                  console.log('PhonePe Callback Response:', response);
-                  if (response === 'USER_CANCEL') {
-                      toast({
-                          title: "Payment Cancelled",
-                          description: "You have cancelled the payment process.",
-                          variant: "destructive"
-                      });
-                      onPaymentFailure();
-                  } else if (response === 'CONCLUDED') {
-                      // Note: Final success/failure should be confirmed via server-side webhook.
-                      // This callback indicates the user has completed the flow on the PhonePe page.
-                      // We optimistically call onPaymentSuccess here.
-                      onPaymentSuccess();
-                  }
-                  window.PhonePeCheckout.closePage();
-                  onOpenChange(false); // Close the modal
-              };
 
-              window.PhonePeCheckout.transact({
-                paymentUrl: data.paymentUrl,
-                type: "IFRAME",
-                callback: handlePaymentCallback
-              });
+          if (data.paymentUrl && window.PhonePeCheckout) {
+            const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
+              if (response === 'USER_CANCEL') {
+                toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
+                onPaymentFailure();
+              } else if (response === 'CONCLUDED') {
+                onPaymentSuccess();
+              }
+              window.PhonePeCheckout.closePage();
+              onOpenChange(false);
+            };
+
+            window.PhonePeCheckout.transact({
+              paymentUrl: data.paymentUrl,
+              type: "IFRAME",
+              containerId: "phonepe-checkout-container",
+              callback: handlePaymentCallback
+            });
+            setIsLoading(false);
           } else {
-            throw new Error("Payment URL not received from the server.");
+            throw new Error("PhonePe SDK not available or payment URL not received.");
           }
         } catch (err) {
-          const errorMessage = (err as Error).message || "An unexpected error occurred.";
-          console.error("Payment initiation failed:", err);
-          setError(errorMessage);
-        } finally {
-          setIsLoading(false);
+            console.error("Payment initiation failed:", err);
+            const errorMessage = (err as Error).message || "An unexpected error occurred.";
+            setError(errorMessage);
+            setIsLoading(false);
         }
-      };
+    };
+    
+    script.onload = () => {
+        initiatePayment();
+    };
 
-      initiatePayment();
-    } else if (isOpen && scriptStatus === 'error') {
-        setError("Failed to load payment script. Please check your connection and try again.");
+    script.onerror = () => {
+        setError("Failed to load payment script. Please check your connection.");
         setIsLoading(false);
-    }
-  }, [isOpen, scriptStatus, token, amount, toast, onPaymentSuccess, onPaymentFailure, onOpenChange]);
+    };
 
-  let content;
+    document.body.appendChild(script);
 
-  if (isLoading || scriptStatus === 'loading') {
-    content = (
-      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p>Initializing secure payment...</p>
-      </div>
-    );
-  } else if (error) {
-    content = (
-      <div className="text-center text-destructive h-full flex flex-col items-center justify-center">
-        <p className="font-semibold">Payment Error</p>
-        <p className="text-sm">{error}</p>
-      </div>
-    );
-  } else {
-    content = (
-        <div id="phonepe-checkout-container" className="w-full h-full">
-          <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground h-full">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p>Loading payment page...</p>
-          </div>
-        </div>
-    );
-  }
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [isOpen, token, amount, toast, onPaymentSuccess, onPaymentFailure, onOpenChange]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -145,7 +118,19 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow flex items-center justify-center relative">
-          {content}
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground h-full">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p>Initializing secure payment...</p>
+            </div>
+          )}
+          {error && (
+             <div className="text-center text-destructive h-full flex flex-col items-center justify-center">
+                <p className="font-semibold">Payment Error</p>
+                <p className="text-sm">{error}</p>
+             </div>
+          )}
+          <div id="phonepe-checkout-container" className={cn("w-full h-full", isLoading || error ? 'hidden' : 'block')} />
         </div>
       </DialogContent>
     </Dialog>
