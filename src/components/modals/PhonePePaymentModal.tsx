@@ -33,60 +33,49 @@ interface PhonePePaymentModalProps {
 export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, onPaymentFailure, amount }: PhonePePaymentModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [isFetchingUrl, setIsFetchingUrl] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Effect to load and clean up the PhonePe script
+  // Effect to load the PhonePe script
   useEffect(() => {
     if (!isOpen) return;
 
     const scriptId = 'phonepe-checkout-script';
     if (document.getElementById(scriptId)) {
-        setScriptLoaded(true);
-        return;
+      setScriptLoaded(true);
+      return;
     }
 
     const script = document.createElement('script');
     script.id = scriptId;
     script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
     script.async = true;
-    
+
     script.onload = () => {
-        console.log("PhonePe script loaded.");
-        setScriptLoaded(true);
+      console.log("PhonePe script loaded.");
+      setScriptLoaded(true);
+    };
+    script.onerror = () => {
+      console.error("Failed to load PhonePe script.");
+      setError("Payment provider script failed to load. Please check your network or ad-blocker.");
     };
 
-    script.onerror = () => {
-        console.error("Failed to load PhonePe script.");
-        setError("Failed to load payment script. Please check your connection and ad-blockers.");
-        setIsLoading(false);
-    };
-    
     document.body.appendChild(script);
 
-    return () => {
-      const existingScript = document.getElementById(scriptId);
-      if (existingScript) {
-        // Not removing script on close to avoid re-loading if modal is re-opened quickly
-        // and to prevent issues if SDK cleans up its own resources.
-      }
-    };
   }, [isOpen]);
 
-  // Effect to initiate payment once the modal is open AND the script is loaded
+  // Effect to fetch the payment URL once the script is loaded
   useEffect(() => {
-    if (!isOpen || !scriptLoaded) {
-      return;
-    }
-
-    const initiatePayment = async () => {
-        setIsLoading(true);
+    if (isOpen && scriptLoaded && !paymentUrl && !isFetchingUrl && !error) {
+      const initiatePayment = async () => {
+        setIsFetchingUrl(true);
         setError(null);
 
         if (!token) {
           setError("Authentication failed. Please log in again.");
-          setIsLoading(false);
+          setIsFetchingUrl(false);
           return;
         }
 
@@ -102,50 +91,58 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           }
           
           const data = await response.json();
-          const paymentUrl = data.paymentUrl;
-
-          const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
-            if (window.PhonePeCheckout) {
-              window.PhonePeCheckout.closePage();
-            }
-            onOpenChange(false);
-            if (response === 'USER_CANCEL') {
-              toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
-              onPaymentFailure();
-            } else if (response === 'CONCLUDED') {
-              // In a real app, you must verify the payment status on your backend here.
-              onPaymentSuccess();
-            }
-          };
-
-          // Crucial: Set loading to false BEFORE calling transact to ensure container is visible
-          setIsLoading(false);
-
-          // Wait a brief moment for React to render the visible container
-          setTimeout(() => {
-            if (paymentUrl && window.PhonePeCheckout) {
-              window.PhonePeCheckout.transact({
-                paymentUrl: paymentUrl,
-                type: "IFRAME",
-                containerId: "phonepe-checkout-container",
-                callback: handlePaymentCallback
-              });
-            } else {
-              throw new Error("PhonePe SDK not available or payment URL not received.");
-            }
-          }, 100); // Small delay to ensure DOM is ready
-
+          if (data.paymentUrl) {
+            setPaymentUrl(data.paymentUrl);
+          } else {
+            throw new Error("Payment URL not received from the server.");
+          }
         } catch (err) {
-            console.error("Payment initiation failed:", err);
-            const errorMessage = (err as Error).message || "An unexpected error occurred.";
-            setError(errorMessage);
-            setIsLoading(false);
+          console.error("Payment initiation API failed:", err);
+          const errorMessage = (err as Error).message || "An unexpected error occurred.";
+          setError(errorMessage);
+        } finally {
+          setIsFetchingUrl(false);
         }
-    };
-    
-    initiatePayment();
+      };
 
-  }, [isOpen, scriptLoaded, token, amount, toast, onPaymentSuccess, onPaymentFailure, onOpenChange]);
+      initiatePayment();
+    }
+  }, [isOpen, scriptLoaded, token, amount, paymentUrl, isFetchingUrl, error]);
+
+  // Effect to transact once the payment URL is available and the container is rendered
+  useEffect(() => {
+    if (paymentUrl && !isFetchingUrl && !error) {
+      
+      const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
+        if (window.PhonePeCheckout) {
+          window.PhonePeCheckout.closePage();
+        }
+        onOpenChange(false);
+        if (response === 'USER_CANCEL') {
+          toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
+          onPaymentFailure();
+        } else if (response === 'CONCLUDED') {
+          onPaymentSuccess();
+        }
+      };
+
+      try {
+        if (window.PhonePeCheckout) {
+          window.PhonePeCheckout.transact({
+            paymentUrl: paymentUrl,
+            type: "IFRAME",
+            containerId: "phonepe-checkout-container",
+            callback: handlePaymentCallback
+          });
+        } else {
+          throw new Error("PhonePe SDK is not available on the window object.");
+        }
+      } catch (e) {
+        console.error("Error during transact call:", e);
+        setError((e as Error).message || "An error occurred while launching the payment page.");
+      }
+    }
+  }, [paymentUrl, isFetchingUrl, error, onOpenChange, onPaymentSuccess, onPaymentFailure, toast]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -153,23 +150,30 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle>Complete Your Payment</DialogTitle>
           <DialogDescription>
-            Please follow the instructions on the payment page.
+            Please follow the instructions on the payment page. Do not close this window.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow flex items-center justify-center relative">
-          {isLoading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-10">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p>Initializing secure payment...</p>
+          {(isFetchingUrl || error) && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-10 p-4 text-center">
+              {isFetchingUrl && (
+                <>
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p>Initializing secure payment...</p>
+                </>
+              )}
+              {error && !isFetchingUrl && (
+                <>
+                  <p className="font-semibold text-destructive">Payment Error</p>
+                  <p className="text-sm text-destructive/80">{error}</p>
+                </>
+              )}
             </div>
           )}
-          {error && (
-             <div className="absolute inset-0 text-center text-destructive h-full flex flex-col items-center justify-center p-4 bg-background z-10">
-                <p className="font-semibold">Payment Error</p>
-                <p className="text-sm">{error}</p>
-             </div>
+          {/* This container is now only rendered when we have the payment URL */}
+          {paymentUrl && !isFetchingUrl && !error && (
+            <div id="phonepe-checkout-container" className="w-full h-full" />
           )}
-          <div id="phonepe-checkout-container" className={cn("w-full h-full", isLoading || error ? 'hidden' : 'block')} />
         </div>
       </DialogContent>
     </Dialog>
