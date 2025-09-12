@@ -50,13 +50,8 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
 
           const data = await response.json();
           if (data.paymentUrl && (window as any).PhonePeCheckout) {
-            const paymentToken = new URL(data.paymentUrl).searchParams.get('token');
-            if (!paymentToken) {
-              throw new Error("Payment token not found in URL.");
-            }
-
             (window as any).PhonePeCheckout.transact({
-              token: paymentToken,
+              url: data.paymentUrl,
               onTransactionCompleted: () => {
                 toast({ title: "Payment Completed", description: "Verifying payment status..." });
                 // In a real app, you would verify the transaction status with your backend here.
