@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthMock } from '@/hooks/use-auth-mock';
+import { cn } from "@/lib/utils";
 
 declare global {
   interface Window {
@@ -38,9 +39,8 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
   useEffect(() => {
     if (!isOpen) return;
 
-    const script = document.createElement('script');
-    script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
-    script.async = true;
+    const scriptId = 'phonepe-checkout-script';
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
 
     const initiatePayment = async () => {
         setIsLoading(true);
@@ -68,6 +68,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
                 toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
                 onPaymentFailure();
               } else if (response === 'CONCLUDED') {
+                // Here you might want to call another API to verify the payment status
                 onPaymentSuccess();
               }
               window.PhonePeCheckout.closePage();
@@ -92,20 +93,25 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
         }
     };
     
-    script.onload = () => {
+    if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
+        script.async = true;
+        
+        script.onload = () => {
+            initiatePayment();
+        };
+
+        script.onerror = () => {
+            setError("Failed to load payment script. Please check your connection.");
+            setIsLoading(false);
+        };
+        document.body.appendChild(script);
+    } else {
         initiatePayment();
-    };
+    }
 
-    script.onerror = () => {
-        setError("Failed to load payment script. Please check your connection.");
-        setIsLoading(false);
-    };
-
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
   }, [isOpen, token, amount, toast, onPaymentSuccess, onPaymentFailure, onOpenChange]);
 
   return (
@@ -125,7 +131,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
             </div>
           )}
           {error && (
-             <div className="text-center text-destructive h-full flex flex-col items-center justify-center">
+             <div className="text-center text-destructive h-full flex flex-col items-center justify-center p-4">
                 <p className="font-semibold">Payment Error</p>
                 <p className="text-sm">{error}</p>
              </div>
