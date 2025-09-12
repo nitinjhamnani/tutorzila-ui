@@ -6,21 +6,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthMock } from '@/hooks/use-auth-mock';
-import { useScript } from '@/hooks/use-script'; // Import the new hook
+import { useScript } from '@/hooks/use-script';
 
 declare global {
   interface Window {
     PhonePeCheckout: {
       transact: (options: {
-        method: string;
-        url: string;
-        headers: {
-          'Content-Type': string;
-          'X-CALLBACK-URL': string;
-          'X-CALL-MODE': string;
-        };
-        onSuccess: (response: any) => void;
-        onFailure: (response: any) => void;
+        paymentUrl: string;
+        type: "IFRAME";
+        callback: (response: 'USER_CANCEL' | 'CONCLUDED') => void;
       }) => void;
       closePage: () => void;
     };
@@ -50,7 +44,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
         setError(null);
 
         if (!token) {
-          setError("Authentication failed.");
+          setError("Authentication failed. Please log in again.");
           setIsLoading(false);
           return;
         }
@@ -66,32 +60,34 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           });
 
           if (!response.ok) {
-            throw new Error("Failed to initialize payment from server.");
+            throw new Error("Failed to initialize payment from the server.");
           }
 
           const data = await response.json();
           if (data.paymentUrl) {
+              const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
+                  console.log('PhonePe Callback Response:', response);
+                  if (response === 'USER_CANCEL') {
+                      toast({
+                          title: "Payment Cancelled",
+                          description: "You have cancelled the payment process.",
+                          variant: "destructive"
+                      });
+                      onPaymentFailure();
+                  } else if (response === 'CONCLUDED') {
+                      // Note: Final success/failure should be confirmed via server-side webhook.
+                      // This callback indicates the user has completed the flow on the PhonePe page.
+                      // We optimistically call onPaymentSuccess here.
+                      onPaymentSuccess();
+                  }
+                  window.PhonePeCheckout.closePage();
+                  onOpenChange(false); // Close the modal
+              };
+
               window.PhonePeCheckout.transact({
-                method: "url",
-                url: data.paymentUrl,
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-CALLBACK-URL': 'https://www.tutorzila.com/callback', 
-                  'X-CALL-MODE': 'post',
-                },
-                onSuccess: (response) => {
-                  console.log('PhonePe Success:', response);
-                  onPaymentSuccess();
-                },
-                onFailure: (response) => {
-                  console.error('PhonePe Failure:', response);
-                  toast({
-                    title: "Payment Failed",
-                    description: response?.message || "The payment could not be completed.",
-                    variant: "destructive"
-                  });
-                  onPaymentFailure();
-                },
+                paymentUrl: data.paymentUrl,
+                type: "IFRAME",
+                callback: handlePaymentCallback
               });
           } else {
             throw new Error("Payment URL not received from the server.");
@@ -107,10 +103,10 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
 
       initiatePayment();
     } else if (isOpen && scriptStatus === 'error') {
-        setError("Failed to load payment script. Please check your connection.");
+        setError("Failed to load payment script. Please check your connection and try again.");
         setIsLoading(false);
     }
-  }, [isOpen, scriptStatus, token, amount, toast, onPaymentSuccess, onPaymentFailure]);
+  }, [isOpen, scriptStatus, token, amount, toast, onPaymentSuccess, onPaymentFailure, onOpenChange]);
 
   let content;
 
@@ -129,7 +125,6 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
       </div>
     );
   } else {
-    // The iframe is now managed by the PhonePe SDK, so we just show a placeholder
     content = (
         <div id="phonepe-checkout-container" className="w-full h-full">
           <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground h-full">
@@ -146,7 +141,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle>Complete Your Payment</DialogTitle>
           <DialogDescription>
-            You will be redirected to our secure payment gateway.
+            Please follow the instructions on the payment page.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow flex items-center justify-center relative">
