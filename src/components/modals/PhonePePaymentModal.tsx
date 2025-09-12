@@ -38,43 +38,49 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
     const scriptUrl = 'https://api-preprod.phonepe.com/apis/pg-sandbox/v2/checkout-v2.js';
     const existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
 
-    const handleScriptLoad = () => {
-      console.log("PhonePe script loaded.");
-
-      const intervalId = setInterval(() => {
-        if (window.PhonePeCheckout && paymentContainerRef.current) {
-          clearInterval(intervalId);
-          console.log("PhonePe SDK is ready. Initiating transaction.");
-          
+    const initializePhonePe = () => {
+      if (window.PhonePeCheckout && paymentContainerRef.current) {
+        setIsLoading(false);
+        try {
+          window.PhonePeCheckout.transact({
+            paymentUrl: mockPaymentUrl,
+            callback: (response: any) => {
+              console.log("PhonePe callback received:", response);
+              if (response?.code === 'PAYMENT_SUCCESS') {
+                onPaymentSuccess();
+              } else {
+                toast({ title: "Payment Not Completed", description: response.description || "The payment process was not successfully completed." });
+                onPaymentFailure();
+              }
+              if (window.PhonePeCheckout.closePage) {
+                window.PhonePeCheckout.closePage();
+              }
+              onOpenChange(false);
+            },
+            type: "IFRAME",
+            containerId: "phonepe-checkout-container"
+          });
+        } catch (e) {
+          const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
+          console.error("PhonePe transact error:", errorMessage);
+          setError(`Could not initiate PhonePe checkout. ${errorMessage}`);
           setIsLoading(false);
-
-          try {
-            window.PhonePeCheckout.transact({
-              paymentUrl: mockPaymentUrl, 
-              callback: (response: any) => {
-                console.log("PhonePe callback received:", response);
-                if (response?.code === 'PAYMENT_SUCCESS') {
-                  onPaymentSuccess();
-                } else {
-                  toast({ title: "Payment Not Completed", description: response.description || "The payment process was not successfully completed." });
-                  onPaymentFailure();
-                }
-                if (window.PhonePeCheckout.closePage) {
-                  window.PhonePeCheckout.closePage();
-                }
-                onOpenChange(false);
-              },
-              type: "IFRAME",
-              containerId: "phonepe-checkout-container"
-            });
-          } catch (e) {
-            const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
-            console.error("PhonePe transact error:", errorMessage);
-            setError(`Could not initiate PhonePe checkout. ${errorMessage}`);
+        }
+      } else {
+        // Poll for SDK readiness
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          if (window.PhonePeCheckout) {
+            clearInterval(interval);
+            initializePhonePe();
+          } else if (attempts > 50) { // Timeout after 5 seconds
+            clearInterval(interval);
+            setError("Failed to initialize payment SDK. Please try again.");
             setIsLoading(false);
           }
-        }
-      }, 100);
+        }, 100);
+      }
     };
 
     const handleScriptError = () => {
@@ -83,23 +89,21 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
       setIsLoading(false);
     };
 
-    if (!existingScript) {
-        const script = document.createElement('script');
-        script.src = scriptUrl;
-        script.async = true;
-        script.addEventListener('load', handleScriptLoad);
-        script.addEventListener('error', handleScriptError);
-        document.body.appendChild(script);
-
-        return () => {
-            script.removeEventListener('load', handleScriptLoad);
-            script.removeEventListener('error', handleScriptError);
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
-        };
+    if (existingScript) {
+      initializePhonePe();
     } else {
-        handleScriptLoad(); // Script is already there, just run the logic
+      const script = document.createElement('script');
+      script.src = scriptUrl;
+      script.async = true;
+      script.onload = initializePhonePe;
+      script.onerror = handleScriptError;
+      document.body.appendChild(script);
+
+      return () => {
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
     }
   }, [isOpen, onOpenChange, onPaymentFailure, onPaymentSuccess, toast]);
 
@@ -114,7 +118,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
         </DialogHeader>
         <div className="flex-grow flex items-center justify-center relative">
           {(isLoading || error) && (
-             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-10 p-4 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-10 p-4 text-center">
               {isLoading ? (
                 <>
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -125,7 +129,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
               )}
             </div>
           )}
-          <div id="phonepe-checkout-container" ref={paymentContainerRef} className="w-full h-full" />
+          <div id="phonepe-checkout-container" ref={paymentContainerRef} className={cn("w-full h-full transition-opacity duration-300", isLoading || error ? "opacity-0" : "opacity-100")} />
         </div>
       </DialogContent>
     </Dialog>
