@@ -44,7 +44,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
   const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasTransactedRef = useRef(false);
 
-  // 1. Load the PhonePe script
+  // 1. Load the PhonePe script when the modal opens
   useEffect(() => {
     if (!isOpen) return;
 
@@ -58,28 +58,37 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
     script.id = scriptId;
     script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
     script.async = true;
-    script.onload = () => setScriptLoaded(true);
+    script.onload = () => {
+      console.log("PhonePe script loaded.");
+      setScriptLoaded(true);
+    };
     script.onerror = () => {
+      console.error("PhonePe script failed to load.");
       setError("Payment provider script failed to load. Please check your network or ad-blocker.");
       setStatus("FAILED");
     };
 
     document.body.appendChild(script);
 
+    // Cleanup function
     return () => {
-        // Clean up refs and intervals on unmount
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
         if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
+        const existingScript = document.getElementById(scriptId);
+        if (existingScript) {
+            // Optional: remove script on close to keep DOM clean, but might cause issues if modal is rapidly opened/closed
+            // document.body.removeChild(existingScript);
+        }
     };
-
   }, [isOpen]);
 
-  // 2. Fetch payment URL once the script is loaded
+  // 2. Fetch payment URL when modal is open
   useEffect(() => {
-    if (isOpen && scriptLoaded && status === "IDLE") {
+    if (isOpen && status === "IDLE") {
       const initiatePayment = async () => {
         setStatus("FETCHING_URL");
         setError(null);
+        hasTransactedRef.current = false;
 
         if (!token) {
           setError("Authentication failed. Please log in again.");
@@ -103,7 +112,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           if (data.paymentUrl && data.paymentId) {
             setPaymentUrl(data.paymentUrl);
             setPaymentId(data.paymentId);
-            setStatus("RENDERING_IFRAME");
+            // State will be updated, and the next useEffect will handle the transaction
           } else {
             throw new Error("Payment URL or ID not received from the server.");
           }
@@ -115,7 +124,8 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
 
       initiatePayment();
     }
-  }, [isOpen, scriptLoaded, token, amount, status]);
+  }, [isOpen, token, amount, status]);
+
 
   // 3. Start polling for activation status
   const startPolling = (pId: string) => {
@@ -136,34 +146,30 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           setTimeout(() => {
             onPaymentSuccess();
             onOpenChange(false);
-          }, 1500); // Give time for the success message to show
+          }, 1500);
         }
-        // If not ok, we just let the polling continue
       } catch (err) {
         console.error("Polling error:", err);
-        // We don't stop polling on a single network error
       }
     };
     
-    // Initial check
     checkStatus();
-
-    // Set up polling interval
     pollingIntervalRef.current = setInterval(checkStatus, 3000);
-
-    // Set up timeout to stop polling after 1 minute
     pollingTimeoutRef.current = setTimeout(() => {
       if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-      setStatus("TIMED_OUT");
+      if (status !== 'SUCCESS') {
+          setStatus("TIMED_OUT");
+      }
     }, 60000);
   };
 
 
-  // 4. Transact with PhonePe once URL is ready
+  // 4. Transact with PhonePe once URL and script are ready
   useEffect(() => {
-    if (status === "RENDERING_IFRAME" && paymentUrl && !hasTransactedRef.current) {
-        hasTransactedRef.current = true; // Prevents re-triggering
-
+    if (scriptLoaded && paymentUrl && paymentId && !hasTransactedRef.current) {
+        hasTransactedRef.current = true; 
+        setStatus("RENDERING_IFRAME");
+        
         const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
             if (window.PhonePeCheckout) {
                 window.PhonePeCheckout.closePage();
@@ -173,24 +179,28 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
                 toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
                 onOpenChange(false);
                 onPaymentFailure();
-            } else if (response === 'CONCLUDED' && paymentId) {
+            } else if (response === 'CONCLUDED') {
                 startPolling(paymentId);
             }
         };
 
-        if (window.PhonePeCheckout) {
-             window.PhonePeCheckout.transact({
-                paymentUrl: paymentUrl,
-                type: "IFRAME",
-                containerId: "phonepe-checkout-container",
-                callback: handlePaymentCallback
-            });
-        } else {
-             setError("PhonePe SDK could not be initialized.");
-             setStatus("FAILED");
-        }
+        const checkSdkAndTransact = () => {
+            if (window.PhonePeCheckout) {
+                 window.PhonePeCheckout.transact({
+                    paymentUrl: paymentUrl,
+                    type: "IFRAME",
+                    containerId: "phonepe-checkout-container",
+                    callback: handlePaymentCallback
+                });
+            } else {
+                 // Retry if SDK not ready
+                 setTimeout(checkSdkAndTransact, 100);
+            }
+        };
+        
+        checkSdkAndTransact();
     }
-  }, [status, paymentUrl, paymentId, onOpenChange, onPaymentFailure, onPaymentSuccess, toast]);
+  }, [scriptLoaded, paymentUrl, paymentId, onOpenChange, onPaymentFailure, startPolling, toast]);
 
   // Reset state on close
   useEffect(() => {
@@ -206,6 +216,8 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
     }
   }, [isOpen]);
 
+  const showOverlay = status !== 'RENDERING_IFRAME' || error;
+
   const renderStatus = () => {
     switch (status) {
       case "FETCHING_URL":
@@ -219,7 +231,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
       case "TIMED_OUT":
         return <><Clock className="h-8 w-8 text-yellow-500" /><p>Verification is taking longer than usual. Please check back in a few minutes.</p></>;
       default:
-        return <><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Loading Payment Page...</p></>;
+        return <><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Loading Payment SDK...</p></>;
     }
   };
 
@@ -233,12 +245,18 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow flex items-center justify-center relative">
-          {(status !== "RENDERING_IFRAME") && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-10 p-4 text-center">
+          <div
+            id="phonepe-checkout-container"
+            className={cn(
+              "w-full h-full transition-opacity duration-300",
+              showOverlay ? "opacity-0" : "opacity-100"
+            )}
+          />
+          {showOverlay && (
+             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-10 p-4 text-center">
               {renderStatus()}
             </div>
           )}
-          <div id="phonepe-checkout-container" className={cn("w-full h-full", status !== "RENDERING_IFRAME" ? 'hidden' : 'block')} />
         </div>
       </DialogContent>
     </Dialog>
