@@ -31,6 +31,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const [referralCode, setReferralCode] = useState("");
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const activationFee = 199;
 
   const handleApplyReferral = () => {
     if (!referralCode.trim()) {
@@ -83,7 +84,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-destructive/10 p-4 border-t border-destructive/20">
             <div className="flex-grow">
                 <p className="text-sm font-semibold text-destructive">
-                    One-Time Activation Fee: <span className="text-lg">₹199</span>
+                    One-Time Activation Fee: <span className="text-lg">₹{activationFee}</span>
                 </p>
                 <p className="text-xs text-destructive/80 mt-1">
                     By activating, you agree to our{' '}
@@ -155,6 +156,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
                 description: "Your payment could not be completed. Please try again.",
             });
         }}
+        amount={activationFee}
     />
     </>
   );
