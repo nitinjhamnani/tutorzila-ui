@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShieldAlert, Unlock, Percent } from "lucide-react";
+import { ShieldAlert, Unlock, Percent, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,8 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const [referralCode, setReferralCode] = useState("");
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState<{ tokenUrl: string; paymentId: string } | null>(null);
+  const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
   const activationFee = 199;
 
   const handleApplyReferral = () => {
@@ -42,12 +44,40 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       });
       return;
     }
-    // Mock referral code logic
     toast({
       title: "Referral Applied (Mock)",
       description: `Discount for code "${referralCode}" would be applied.`,
     });
-    setIsReferralModalOpen(false); // Close modal on success
+    setIsReferralModalOpen(false);
+  };
+  
+  const initiatePayment = async () => {
+    setIsInitiatingPayment(true);
+    try {
+      // In a real app, this would be a fetch to your backend.
+      // const response = await fetch('/api/initiate-payment', { method: 'POST', body: JSON.stringify({ amount: activationFee }) });
+      // const data = await response.json();
+      
+      // Simulating the API call with a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const mockData = {
+          tokenUrl: "https://mercury-uat.phonepe.com/transact/uat_v2?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzT24iOjE3NTc3MDcyODIzODksIm1lcmNoYW50SWQiOiJURVNULU0yM1VRR0cwMjROSVMiLCJtZXJjaGFudE9yZGVySWQiOiI1YmI5YjgxYS0yY2JiLTRiOTktYjE4NS02NmUyMDc1NmM4MTUifQ.KCoOafCY9cIzAd0qp4sGj82MVtfhykDdghpdexS-f5s",
+          paymentId: `pid_${Date.now()}` // A unique mock payment ID
+      };
+      
+      setPaymentDetails(mockData);
+      setIsPaymentModalOpen(true);
+
+    } catch (error) {
+       toast({
+        variant: "destructive",
+        title: "Payment Error",
+        description: "Could not initiate the payment process. Please try again.",
+      });
+    } finally {
+      setIsInitiatingPayment(false);
+    }
   };
 
   const handlePaymentSuccess = () => {
@@ -56,7 +86,16 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         title: "Payment Successful!",
         description: "Your account has been activated.",
     });
-    onActivate(); // This would typically refetch user status
+    onActivate();
+  };
+
+  const handlePaymentFailure = () => {
+      setIsPaymentModalOpen(false);
+      toast({
+          variant: "destructive",
+          title: "Payment Failed",
+          description: "Your payment could not be completed. Please try again.",
+      });
   };
 
   return (
@@ -99,10 +138,11 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
                     variant="destructive" 
                     size="default" 
                     className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95"
-                    onClick={() => setIsPaymentModalOpen(true)}
+                    onClick={initiatePayment}
+                    disabled={isInitiatingPayment}
                 >
-                  <Unlock className="mr-2 h-4 w-4" />
-                  Activate My Account Now
+                  {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
+                  {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
                 </Button>
                 <DialogTrigger asChild>
                   <Button variant="link" className="p-0 h-auto text-xs text-destructive/80 hover:text-destructive">
@@ -144,20 +184,17 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       </DialogContent>
     </Dialog>
 
-    <PhonePePaymentModal 
-        isOpen={isPaymentModalOpen}
-        onOpenChange={setIsPaymentModalOpen}
-        onPaymentSuccess={handlePaymentSuccess}
-        onPaymentFailure={() => {
-            setIsPaymentModalOpen(false);
-            toast({
-                variant: "destructive",
-                title: "Payment Failed",
-                description: "Your payment could not be completed. Please try again.",
-            });
-        }}
-        amount={activationFee}
-    />
+    {paymentDetails && (
+        <PhonePePaymentModal 
+            isOpen={isPaymentModalOpen}
+            onOpenChange={setIsPaymentModalOpen}
+            onPaymentSuccess={handlePaymentSuccess}
+            onPaymentFailure={handlePaymentFailure}
+            amount={activationFee}
+            tokenUrl={paymentDetails.tokenUrl}
+            paymentId={paymentDetails.paymentId}
+        />
+    )}
     </>
   );
 }
