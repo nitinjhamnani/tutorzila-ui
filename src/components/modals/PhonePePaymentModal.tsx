@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthMock } from '@/hooks/use-auth-mock';
-import { usePhonePe } from '@/hooks/use-phonepe'; // Import the new hook
 
 interface PhonePePaymentModalProps {
   isOpen: boolean;
@@ -19,17 +18,21 @@ interface PhonePePaymentModalProps {
 export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, onPaymentFailure, amount }: PhonePePaymentModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
-  const { scriptLoaded, isScriptLoading, loadError } = usePhonePe();
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen && scriptLoaded) {
+    if (isOpen) {
       const initiatePayment = async () => {
         setIsLoading(true);
+        setError(null);
+        setPaymentUrl(null);
 
         if (!token) {
           toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to make a payment." });
           setIsLoading(false);
+          setError("Authentication failed.");
           onPaymentFailure();
           return;
         }
@@ -49,28 +52,20 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
           }
 
           const data = await response.json();
-          if (data.paymentUrl && (window as any).PhonePeCheckout) {
-            (window as any).PhonePeCheckout.transact({
-              url: data.paymentUrl,
-              onTransactionCompleted: () => {
-                toast({ title: "Payment Completed", description: "Verifying payment status..." });
-                // In a real app, you would verify the transaction status with your backend here.
-                onPaymentSuccess();
-              },
-              onTransactionFailed: () => {
-                onPaymentFailure();
-              },
-            });
+          if (data.paymentUrl) {
+            setPaymentUrl(data.paymentUrl);
           } else {
-            throw new Error("PhonePe SDK not available or payment URL not received.");
+            throw new Error("Payment URL not received from the server.");
           }
-        } catch (error) {
-          console.error("Payment initiation failed:", error);
+        } catch (err) {
+          const errorMessage = (err as Error).message || "Could not prepare the payment page. Please try again.";
+          console.error("Payment initiation failed:", err);
           toast({
             variant: "destructive",
             title: "Payment Initialization Failed",
-            description: (error as Error).message || "Could not prepare the payment page. Please try again.",
+            description: errorMessage,
           });
+          setError(errorMessage);
           onPaymentFailure();
         } finally {
           setIsLoading(false);
@@ -79,27 +74,39 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
 
       initiatePayment();
     }
-  }, [isOpen, scriptLoaded, token, amount, toast, onPaymentSuccess, onPaymentFailure]);
+  }, [isOpen, token, amount, toast, onPaymentFailure]);
 
   let content;
 
-  if (isScriptLoading || isLoading) {
+  if (isLoading) {
     content = (
-      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground h-full">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p>Initializing secure payment...</p>
       </div>
     );
-  } else if (loadError) {
+  } else if (error) {
     content = (
-      <div className="text-center text-destructive">
-        <p>Error loading payment script.</p>
-        <p className="text-sm">Please check your connection and try again.</p>
+      <div className="text-center text-destructive h-full flex flex-col items-center justify-center">
+        <p className="font-semibold">Payment Error</p>
+        <p className="text-sm">{error}</p>
       </div>
     );
+  } else if (paymentUrl) {
+    content = (
+      <iframe
+        src={paymentUrl}
+        className="w-full h-full border-0"
+        title="PhonePe Payment"
+        allow="payment"
+      ></iframe>
+    );
   } else {
-    // The PhonePe SDK will mount its own UI inside this div
-    content = <div id="phonepe-checkout-container" className="w-full h-full"></div>;
+      content = (
+      <div className="text-center text-muted-foreground h-full flex flex-col items-center justify-center">
+        <p>Could not load payment gateway.</p>
+      </div>
+    );
   }
 
   return (
@@ -111,7 +118,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
             You are being redirected to our secure payment gateway.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-grow flex items-center justify-center relative p-6">
+        <div className="flex-grow flex items-center justify-center relative">
           {content}
         </div>
       </DialogContent>
