@@ -30,104 +30,90 @@ interface PhonePePaymentModalProps {
   amount: number;
 }
 
-type PaymentStatus = "IDLE" | "FETCHING_URL" | "RENDERING_IFRAME" | "POLLING_STATUS" | "SUCCESS" | "FAILED" | "TIMED_OUT";
+type PaymentStatus = "IDLE" | "LOADING_SCRIPT" | "RENDERING_IFRAME" | "POLLING_STATUS" | "SUCCESS" | "FAILED" | "TIMED_OUT";
 
 export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, onPaymentFailure, amount }: PhonePePaymentModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
-  const [scriptLoaded, setScriptLoaded] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-  const [paymentId, setPaymentId] = useState<string | null>(null);
   const [status, setStatus] = useState<PaymentStatus>("IDLE");
   const [error, setError] = useState<string | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const hasTransactedRef = useRef(false);
+  
+  // Hardcoded mock URL for testing as requested
+  const mockPaymentUrl = "https://mercury-uat.phonepe.com/transact/uat_v2?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzT24iOjE3NTc3MDcyODIzODksIm1lcmNoYW50SWQiOiJURVNULU0yM1VRR0cwMjROSVMiLCJtZXJjaGFudE9yZGVySWQiOiI1YmI5YjgxYS0yY2JiLTRiOTktYjE4NS02NmUyMDc1NmM4MTUifQ.KCoOafCY9cIzAd0qp4sGj82MVtfhykDdghpdexS-f5s";
+  const mockPaymentId = "MOCK_PAYMENT_ID_12345"; // Mock ID for polling
 
-  // 1. Load the PhonePe script when the modal opens
   useEffect(() => {
-    if (!isOpen) return;
-
-    const scriptId = 'phonepe-checkout-script';
-    if (document.getElementById(scriptId)) {
-      setScriptLoaded(true);
+    if (!isOpen) {
+      // Cleanup on modal close
+      if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+      if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
+      setStatus("IDLE");
+      setError(null);
       return;
     }
 
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
-    script.async = true;
-    script.onload = () => {
+    setStatus("LOADING_SCRIPT");
+    const scriptId = 'phonepe-checkout-script';
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    const handleScriptLoad = () => {
       console.log("PhonePe script loaded.");
-      setScriptLoaded(true);
-    };
-    script.onerror = () => {
-      console.error("PhonePe script failed to load.");
-      setError("Payment provider script failed to load. Please check your network or ad-blocker.");
-      setStatus("FAILED");
+      if (window.PhonePeCheckout) {
+        setStatus("RENDERING_IFRAME");
+        
+        const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
+            if (window.PhonePeCheckout) {
+                window.PhonePeCheckout.closePage();
+            }
+
+            if (response === 'USER_CANCEL') {
+                toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
+                onOpenChange(false);
+                onPaymentFailure();
+            } else if (response === 'CONCLUDED') {
+                startPolling(mockPaymentId);
+            }
+        };
+
+        window.PhonePeCheckout.transact({
+          paymentUrl: mockPaymentUrl,
+          type: "IFRAME",
+          containerId: "phonepe-checkout-container",
+          callback: handlePaymentCallback,
+        });
+
+      } else {
+        setError("PhonePe SDK failed to initialize.");
+        setStatus("FAILED");
+      }
     };
 
-    document.body.appendChild(script);
+    if (script) {
+        // If script already exists but might not have loaded, re-attach listener
+        script.addEventListener('load', handleScriptLoad);
+    } else {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = "https://mercury.phonepe.com/web/bundle/checkout.js";
+        script.async = true;
+        script.onload = handleScriptLoad;
+        script.onerror = () => {
+          console.error("PhonePe script failed to load.");
+          setError("Payment provider script failed to load. Please check your network or ad-blocker.");
+          setStatus("FAILED");
+        };
+        document.body.appendChild(script);
+    }
 
-    // Cleanup function
     return () => {
-        if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-        if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
-        const existingScript = document.getElementById(scriptId);
-        if (existingScript) {
-            // Optional: remove script on close to keep DOM clean, but might cause issues if modal is rapidly opened/closed
-            // document.body.removeChild(existingScript);
-        }
+      if (script) {
+        script.removeEventListener('load', handleScriptLoad);
+      }
     };
   }, [isOpen]);
 
-  // 2. Fetch payment URL when modal is open
-  useEffect(() => {
-    if (isOpen && status === "IDLE") {
-      const initiatePayment = async () => {
-        setStatus("FETCHING_URL");
-        setError(null);
-        hasTransactedRef.current = false;
-
-        if (!token) {
-          setError("Authentication failed. Please log in again.");
-          setStatus("FAILED");
-          return;
-        }
-
-        try {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-          const response = await fetch(`${apiBaseUrl}/api/tutor/payment?amount=${amount}`, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' },
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: "Failed to initialize payment." }));
-            throw new Error(errorData.message);
-          }
-
-          const data = await response.json();
-          if (data.paymentUrl && data.paymentId) {
-            setPaymentUrl(data.paymentUrl);
-            setPaymentId(data.paymentId);
-            // State will be updated, and the next useEffect will handle the transaction
-          } else {
-            throw new Error("Payment URL or ID not received from the server.");
-          }
-        } catch (err) {
-          setError((err as Error).message || "An unexpected error occurred during payment initiation.");
-          setStatus("FAILED");
-        }
-      };
-
-      initiatePayment();
-    }
-  }, [isOpen, token, amount, status]);
-
-
-  // 3. Start polling for activation status
   const startPolling = (pId: string) => {
     setStatus("POLLING_STATUS");
 
@@ -163,65 +149,12 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
     }, 60000);
   };
 
-
-  // 4. Transact with PhonePe once URL and script are ready
-  useEffect(() => {
-    if (scriptLoaded && paymentUrl && paymentId && !hasTransactedRef.current) {
-        hasTransactedRef.current = true; 
-        setStatus("RENDERING_IFRAME");
-        
-        const handlePaymentCallback = (response: 'USER_CANCEL' | 'CONCLUDED') => {
-            if (window.PhonePeCheckout) {
-                window.PhonePeCheckout.closePage();
-            }
-
-            if (response === 'USER_CANCEL') {
-                toast({ title: "Payment Cancelled", description: "You have cancelled the payment process.", variant: "destructive" });
-                onOpenChange(false);
-                onPaymentFailure();
-            } else if (response === 'CONCLUDED') {
-                startPolling(paymentId);
-            }
-        };
-
-        const checkSdkAndTransact = () => {
-            if (window.PhonePeCheckout) {
-                 window.PhonePeCheckout.transact({
-                    paymentUrl: paymentUrl,
-                    type: "IFRAME",
-                    containerId: "phonepe-checkout-container",
-                    callback: handlePaymentCallback
-                });
-            } else {
-                 // Retry if SDK not ready
-                 setTimeout(checkSdkAndTransact, 100);
-            }
-        };
-        
-        checkSdkAndTransact();
-    }
-  }, [scriptLoaded, paymentUrl, paymentId, onOpenChange, onPaymentFailure, startPolling, toast]);
-
-  // Reset state on close
-  useEffect(() => {
-    if (!isOpen) {
-      setScriptLoaded(false);
-      setPaymentUrl(null);
-      setPaymentId(null);
-      setStatus("IDLE");
-      setError(null);
-      hasTransactedRef.current = false;
-      if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-      if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
-    }
-  }, [isOpen]);
-
   const showOverlay = status !== 'RENDERING_IFRAME' || error;
 
   const renderStatus = () => {
     switch (status) {
-      case "FETCHING_URL":
-        return <><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Initializing secure payment...</p></>;
+      case "LOADING_SCRIPT":
+        return <><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Loading payment provider...</p></>;
       case "POLLING_STATUS":
         return <><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Verifying payment status...</p></>;
       case "SUCCESS":
@@ -231,7 +164,7 @@ export function PhonePePaymentModal({ isOpen, onOpenChange, onPaymentSuccess, on
       case "TIMED_OUT":
         return <><Clock className="h-8 w-8 text-yellow-500" /><p>Verification is taking longer than usual. Please check back in a few minutes.</p></>;
       default:
-        return <><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Loading Payment SDK...</p></>;
+        return <><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Loading...</p></>;
     }
   };
 
