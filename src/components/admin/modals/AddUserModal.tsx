@@ -29,6 +29,7 @@ import { useState } from 'react';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useRouter } from "next/navigation";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -68,6 +69,7 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useAuthMock();
+  const router = useRouter();
 
   const form = useForm<AddUserFormValues>({
     resolver: zodResolver(addUserSchema),
@@ -86,7 +88,7 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
 
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiBaseUrl}/api/admin/user/create`, {
+      const response = await fetch(`${apiBaseUrl}/api/admin/user/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,20 +105,34 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
             whatsappEnabled: data.whatsappEnabled,
          }),
       });
-      
-      const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message || "Failed to create user.");
+        // Try to parse JSON error first
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to create user.");
+        } catch (e) {
+          // If response is not JSON, use text
+          const errorText = await response.text();
+          throw new Error(errorText || "Failed to create user.");
+        }
       }
       
+      const tutorId = await response.text();
+
       toast({
         title: "User Created!",
         description: `A new ${userType.toLowerCase()} account for ${data.name} has been created.`,
       });
+
       onSuccess();
       onOpenChange(false);
       form.reset();
+      
+      if (userType === "TUTOR" && tutorId) {
+        router.push(`/admin/tutors/${tutorId}`);
+      }
+
 
     } catch (error) {
       toast({
