@@ -19,6 +19,7 @@ import {
   ArrowRight,
   CalendarCheck,
   Camera,
+  BookOpen,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -155,10 +156,10 @@ export default function AdminDashboardPage() {
   }
   
   const adminMetrics: MetricCardProps[] = [
-    { title: "Total Tutors", value: String(dashboardData?.totalTutors || 0), IconEl: Users, description: "Active & pending tutors", iconColor: "text-primary" },
-    { title: "Total Parents", value: String(dashboardData?.totalParents || 0), IconEl: UsersRound, description: "Registered parent accounts", iconColor: "text-primary" },
-    { title: "Total Enquiries", value: String(dashboardData?.totalEnquiries || 0), IconEl: Briefcase, description: "Active tuition requests", iconColor: "text-primary" },
-    { title: "Total Demos", value: String(dashboardData?.noOfDemos || 0), IconEl: CalendarCheck, description: "Scheduled demo sessions", iconColor: "text-primary" },
+    { title: "Total Tutors", value: String(dashboardData?.noOfTutors || 0), IconEl: Users, description: "All registered tutors", iconColor: "text-primary" },
+    { title: "Total Parents", value: String(dashboardData?.noOfParent || 0), IconEl: UsersRound, description: "All registered parents", iconColor: "text-primary" },
+    { title: "Open Enquiries", value: String(dashboardData?.noOfOpenEnquiries || 0), IconEl: BookOpen, description: "Awaiting tutor assignment", iconColor: "text-primary" },
+    { title: "Active Enquiries", value: String(dashboardData?.noOfActiveEnquiries || 0), IconEl: Briefcase, description: "Currently in progress", iconColor: "text-primary" },
   ];
   
   const adminQuickActions: AdminQuickActionCardProps[] = [
