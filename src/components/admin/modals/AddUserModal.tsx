@@ -193,7 +193,7 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
                     name="country"
                     render={({ field }) => (
                         <FormItem className="w-auto min-w-[120px]"> 
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Country" />
