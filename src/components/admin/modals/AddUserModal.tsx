@@ -118,30 +118,31 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
         }
       }
       
-      const tutorId = await response.text();
+      const responseText = await response.text();
 
       toast({
         title: "User Created!",
         description: `A new ${userType.toLowerCase()} account for ${data.name} has been created.`,
       });
 
-      onSuccess();
       onOpenChange(false);
       form.reset();
       
-      if (userType === "TUTOR" && tutorId) {
-        router.push(`/admin/tutors/${tutorId}`);
+      if (userType === "TUTOR" && responseText) {
+        router.push(`/admin/tutors/${responseText}`);
+      } else {
+        onSuccess(); // Invalidate parent list if a parent was created
+        setIsSubmitting(false); // Stop spinner if not redirecting
       }
 
 
     } catch (error) {
+      setIsSubmitting(false); // Stop spinner on error
       toast({
         variant: "destructive",
         title: "Creation Failed",
         description: (error as Error).message || "An unexpected error occurred.",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
