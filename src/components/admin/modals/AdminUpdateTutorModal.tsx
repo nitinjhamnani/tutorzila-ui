@@ -276,7 +276,10 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]">
+        <DialogContent
+          className="sm:max-w-3xl p-0 bg-card flex flex-col max-h-[90vh]"
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
             <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
                 <DialogTitle>Update Tutor: {tutor?.displayName}</DialogTitle>
             </DialogHeader>
