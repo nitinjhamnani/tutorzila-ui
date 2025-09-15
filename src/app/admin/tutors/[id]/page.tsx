@@ -84,6 +84,7 @@ import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTuto
 import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
 import { AdminUpdateBioModal } from "@/components/admin/modals/AdminUpdateBioModal";
 import { DisapproveBioModal } from "@/components/admin/modals/DisapproveBioModal";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -248,6 +249,7 @@ export default function AdminTutorProfilePage() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const tutorId = params.id as string;
+    const { hideLoader } = useGlobalLoader();
     
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
@@ -258,12 +260,18 @@ export default function AdminTutorProfilePage() {
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
 
-    const { data: tutor, isLoading, error, refetch } = useQuery<ApiTutor>({
+    const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
         queryFn: () => fetchTutorProfile(tutorId, token),
         enabled: !!tutorId && !!token,
         refetchOnWindowFocus: false,
     });
+
+    useEffect(() => {
+        if (!isLoading) {
+            hideLoader();
+        }
+    }, [isLoading, hideLoader]);
     
     const updateTutorState = (newUserDetails: any) => {
         queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
@@ -326,7 +334,7 @@ export default function AdminTutorProfilePage() {
     if (error) {
       return (
         <div className="text-center py-10 text-destructive">
-          <p>Error loading tutor details: ${(error as Error).message}</p>
+          <p>Error loading tutor details: {(error as Error).message}</p>
            <Button asChild variant="outline" size="sm" className="mt-4">
               <Link href="/admin/tutors"><ArrowLeft className="mr-2 h-4 w-4"/> Go Back</Link>
            </Button>

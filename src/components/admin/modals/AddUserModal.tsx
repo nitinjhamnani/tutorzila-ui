@@ -30,6 +30,7 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -70,6 +71,7 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useAuthMock();
   const router = useRouter();
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const form = useForm<AddUserFormValues>({
     resolver: zodResolver(addUserSchema),
@@ -84,6 +86,10 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
 
   const handleCreateUser = async (data: AddUserFormValues) => {
     setIsSubmitting(true);
+    if (userType === 'TUTOR') {
+      showLoader();
+    }
+
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
 
     try {
@@ -130,14 +136,17 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
       
       if (userType === "TUTOR" && responseText) {
         router.push(`/admin/tutors/${responseText}`);
+        // Do NOT call hideLoader here. It will be called by the destination page.
       } else {
-        onSuccess(); // Invalidate parent list if a parent was created
-        setIsSubmitting(false); // Stop spinner if not redirecting
+        onSuccess();
+        setIsSubmitting(false); 
       }
 
-
     } catch (error) {
-      setIsSubmitting(false); // Stop spinner on error
+      setIsSubmitting(false); 
+      if (userType === 'TUTOR') {
+        hideLoader();
+      }
       toast({
         variant: "destructive",
         title: "Creation Failed",
