@@ -144,6 +144,14 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string; 
         default: genderPreferenceApiValue = undefined;
     }
     
+    let startPreferenceApiValue: 'IMMEDIATELY' | 'WITHIN_A_MONTH' | 'JUST_EXPLORING' | undefined;
+    switch (formData.startDatePreference) {
+      case 'immediately': startPreferenceApiValue = 'IMMEDIATELY'; break;
+      case 'within_month': startPreferenceApiValue = 'WITHIN_A_MONTH'; break;
+      case 'exploring': startPreferenceApiValue = 'JUST_EXPLORING'; break;
+      default: startPreferenceApiValue = undefined;
+    }
+
     const requestBody = {
         studentName: formData.studentName,
         subjects: formData.subject,
@@ -162,7 +170,7 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string; 
         online: formData.teachingMode.includes("Online"),
         offline: formData.teachingMode.includes("Offline (In-person)"),
         genderPreference: genderPreferenceApiValue,
-        startPreference: formData.startDatePreference,
+        startPreference: startPreferenceApiValue,
     };
 
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -208,6 +216,8 @@ export default function AdminParentDetailPage() {
         queryKey: ['parentDetails', parentId],
         queryFn: () => fetchParentDetails(parentId, token),
         enabled: !!parentId && !!token,
+        staleTime: Infinity,
+        refetchOnWindowFocus: false,
     });
     
     const verificationMutation = useMutation({
@@ -482,5 +492,6 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
+
 
     
