@@ -32,12 +32,10 @@ const TutorProfileSchema = z.object({
 const IntelligentTutorMatchingOutputSchema = z.array(TutorProfileSchema).describe('A list of tutor profiles matching the student criteria.');
 export type IntelligentTutorMatchingOutput = z.infer<typeof IntelligentTutorMatchingOutputSchema>;
 
-const findTutors = ai.defineTool({
-  name: 'findTutors',
-  description: 'Finds tutors based on subject, grade level, and learning preferences.',
-  inputSchema: IntelligentTutorMatchingInputSchema,
-  outputSchema: IntelligentTutorMatchingOutputSchema,
-}, async (input) => {
+// This function now directly implements the logic instead of using a complex flow.
+// This is more efficient and avoids the issues causing the ListOperations polling.
+export async function intelligentTutorMatching(input: IntelligentTutorMatchingInput): Promise<IntelligentTutorMatchingOutput> {
+  console.log("Finding tutors with input:", input);
   // This is a placeholder implementation.
   // In a real application, this would query a database or external API
   // to find tutors matching the input criteria.
@@ -57,34 +55,15 @@ const findTutors = ai.defineTool({
       isRateNegotiable: false,
     },
   ];
-});
-
-export async function intelligentTutorMatching(input: IntelligentTutorMatchingInput): Promise<IntelligentTutorMatchingOutput> {
-  return intelligentTutorMatchingFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'intelligentTutorMatchingPrompt',
-  tools: [findTutors],
-  input: {schema: IntelligentTutorMatchingInputSchema},
-  output: {schema: IntelligentTutorMatchingOutputSchema},
-  prompt: `Find tutors based on the following criteria:
-
-Subject: {{{subject}}}
-Grade Level: {{{gradeLevel}}}
-Learning Preferences: {{{learningPreferences}}}
-
-Consider all these factors when choosing the best tutors for the student.`,
+// The tool definition is kept for potential future use or for clarity on the function's purpose,
+// but it is not directly invoked in the simplified flow.
+const findTutorsTool = ai.defineTool({
+  name: 'findTutors',
+  description: 'Finds tutors based on subject, grade level, and learning preferences.',
+  inputSchema: IntelligentTutorMatchingInputSchema,
+  outputSchema: IntelligentTutorMatchingOutputSchema,
+}, async (input) => {
+  return await intelligentTutorMatching(input);
 });
-
-const intelligentTutorMatchingFlow = ai.defineFlow(
-  {
-    name: 'intelligentTutorMatchingFlow',
-    inputSchema: IntelligentTutorMatchingInputSchema,
-    outputSchema: IntelligentTutorMatchingOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
