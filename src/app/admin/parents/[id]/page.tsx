@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX } from "lucide-react";
+import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
@@ -214,7 +214,7 @@ export default function AdminParentDetailPage() {
             <div className="space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0">
                     <CardHeader>
-                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                             <Avatar className="h-20 w-20 border-2 border-primary/20 shrink-0">
                                 <AvatarImage src={parent.avatar} alt={parent.name} />
                                 <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
@@ -294,7 +294,9 @@ export default function AdminParentDetailPage() {
                                     <TableRow>
                                         <TableHead>Subject</TableHead>
                                         <TableHead>Grade</TableHead>
-                                        <TableHead>Board</TableHead>
+                                        <TableHead>Mode</TableHead>
+                                        <TableHead>Location</TableHead>
+                                        <TableHead>Created</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Actions</TableHead>
                                     </TableRow>
@@ -304,7 +306,18 @@ export default function AdminParentDetailPage() {
                                     <TableRow key={req.id}>
                                         <TableCell className="font-medium">{req.subject.join(', ')}</TableCell>
                                         <TableCell>{req.gradeLevel}</TableCell>
-                                        <TableCell>{req.board}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                {req.teachingMode?.includes("Online") && <RadioTower className="w-4 h-4 text-primary" />}
+                                                {req.teachingMode?.includes("Offline (In-person)") && <MapPin className="w-4 h-4 text-primary" />}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {typeof req.location === 'object' && req.location ? `${req.location.area}, ${req.location.city}` : req.location}
+                                        </TableCell>
+                                        <TableCell>
+                                            {format(new Date(req.postedAt), "MMM d, yyyy")}
+                                        </TableCell>
                                         <TableCell>
                                             <Badge variant={req.status === 'open' ? 'default' : 'secondary'}>
                                                 {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
@@ -354,5 +367,7 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
+
+    
 
     
