@@ -295,7 +295,6 @@ export default function AdminParentDetailPage() {
                                         <TableHead>Subject</TableHead>
                                         <TableHead>Grade</TableHead>
                                         <TableHead>Mode</TableHead>
-                                        <TableHead>Location</TableHead>
                                         <TableHead>Created</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Actions</TableHead>
@@ -307,13 +306,7 @@ export default function AdminParentDetailPage() {
                                         <TableCell className="font-medium">{req.subject.join(', ')}</TableCell>
                                         <TableCell>{req.gradeLevel}</TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                {req.teachingMode?.includes("Online") && <RadioTower className="w-4 h-4 text-primary" />}
-                                                {req.teachingMode?.includes("Offline (In-person)") && <MapPin className="w-4 h-4 text-primary" />}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            {typeof req.location === 'object' && req.location ? `${req.location.area}, ${req.location.city}` : req.location}
+                                            {req.teachingMode?.join(', ')}
                                         </TableCell>
                                         <TableCell>
                                             {format(new Date(req.postedAt), "MMM d, yyyy")}
@@ -369,9 +362,3 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
-
-    
-
-    
-
-    
