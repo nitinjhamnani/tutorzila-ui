@@ -311,13 +311,17 @@ export default function AdminParentDetailPage() {
                                         <TableCell>{req.gradeLevel}</TableCell>
                                         <TableCell>{req.board}</TableCell>
                                         <TableCell>
-                                            {req.teachingMode?.join(', ')}
+                                            <div className="flex items-center gap-2">
+                                                {req.teachingMode?.includes("Online") && <span>Online</span>}
+                                                {req.teachingMode?.includes("Online") && req.teachingMode?.includes("Offline (In-person)") && <span>&</span>}
+                                                {req.teachingMode?.includes("Offline (In-person)") && <span>Offline</span>}
+                                            </div>
                                         </TableCell>
                                         <TableCell>
                                             {format(new Date(req.postedAt), "MMM d, yyyy")}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={req.status === 'open' ? 'default' : 'secondary'}>
+                                            <Badge variant="default">
                                                 {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                                             </Badge>
                                         </TableCell>
