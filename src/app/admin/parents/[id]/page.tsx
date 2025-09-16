@@ -21,35 +21,58 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
 import { ClassCard } from "@/components/dashboard/ClassCard";
-import { MOCK_ALL_PARENT_REQUIREMENTS, MOCK_CLASSES } from "@/lib/mock-data";
+import { MOCK_CLASSES } from "@/lib/mock-data";
 
 
-const fetchParentDetails = async (parentId: string, token: string | null): Promise<User> => {
+const fetchParentDetails = async (parentId: string, token: string | null): Promise<{ user: User; enquiries: TuitionRequirement[] }> => {
     if (!token) throw new Error("Authentication token not found.");
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    // This is a mock implementation. In a real app, you would fetch from an endpoint like:
-    // const response = await fetch(`${apiBaseUrl}/api/admin/parent/${parentId}`, { ... });
-    // For now, we simulate finding the parent from a mock API user list.
-    const usersResponse = await fetch(`${apiBaseUrl}/api/admin/users?userType=PARENT`, {
+    
+    const response = await fetch(`${apiBaseUrl}/api/admin/parent/${parentId}`, {
       headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
     });
-    if (!usersResponse.ok) throw new Error("Failed to fetch parent list to find details.");
-    const allParents: any[] = await usersResponse.json();
-    const parentData = allParents.find(p => p.id === parentId);
-    
-    if (!parentData) throw new Error("Parent not found.");
 
-    return {
-        id: parentData.id,
-        name: parentData.name,
-        email: parentData.email,
-        phone: parentData.phone,
+    if (!response.ok) {
+        throw new Error("Failed to fetch parent details.");
+    }
+    const data = await response.json();
+    const { userDetails, enquirySummaryList } = data;
+
+    const user: User = {
+        id: parentId,
+        name: userDetails.name,
+        email: userDetails.email,
+        phone: userDetails.phone,
         role: 'parent',
-        avatar: parentData.profilePicUrl,
-        isEmailVerified: parentData.emailVerified,
-        isPhoneVerified: parentData.phoneVerified,
-        status: parentData.active ? 'Active' : 'Inactive',
+        avatar: userDetails.profilePicUrl,
+        isEmailVerified: userDetails.emailVerified,
+        isPhoneVerified: userDetails.phoneVerified,
+        status: userDetails.active ? 'Active' : 'Inactive',
     };
+    
+    const enquiries: TuitionRequirement[] = (enquirySummaryList || []).map((item: any) => ({
+      id: item.enquiryId,
+      parentName: userDetails.name, 
+      subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
+      gradeLevel: item.grade,
+      scheduleDetails: "Details not provided by API",
+      location: {
+        address: [item.area, item.city, item.country].filter(Boolean).join(', '),
+        area: item.area,
+        city: item.city,
+        country: item.country,
+      },
+      status: item.status?.toLowerCase() || 'open', 
+      postedAt: item.createdOn || new Date().toISOString(),
+      board: item.board,
+      teachingMode: [
+        ...(item.online ? ["Online"] : []),
+        ...(item.offline ? ["Offline (In-person)"] : []),
+      ],
+      applicantsCount: item.assignedTutors || 0,
+    }));
+
+    return { user, enquiries };
 };
 
 const getInitials = (name: string): string => {
@@ -64,37 +87,29 @@ export default function AdminParentDetailPage() {
     const { token } = useAuthMock();
     const parentId = params.id as string;
 
-    const { data: parent, isLoading: isLoadingParent, error: parentError } = useQuery<User>({
+    const { data, isLoading: isLoadingParent, error: parentError } = useQuery({
         queryKey: ['parentDetails', parentId],
         queryFn: () => fetchParentDetails(parentId, token),
         enabled: !!parentId && !!token,
     });
+    
+    const parent = data?.user;
+    const enquiries = data?.enquiries || [];
 
-    const { data: enquiries = [], isLoading: isLoadingEnquiries } = useQuery<TuitionRequirement[]>({
-        queryKey: ['parentEnquiriesForAdmin', parentId],
-        queryFn: async () => {
-            // Mock: Filter global enquiries by parentId
-            return MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === parentId);
-        },
-        enabled: !!parentId,
-    });
 
     const { data: classes = [], isLoading: isLoadingClasses } = useQuery<MyClass[]>({
         queryKey: ['parentClassesForAdmin', parentId],
         queryFn: async () => {
-            // Mock: Filter global classes by parent association (needs more robust logic in real app)
-            // This is a simplified mock logic
-            const parentEnquiryIds = MOCK_ALL_PARENT_REQUIREMENTS.filter(req => req.parentId === parentId).map(req => req.id);
-            return MOCK_CLASSES.filter(c => parentEnquiryIds.includes(c.id)); // Using class ID as a mock link
+            const parentEnquiryIds = enquiries.map(req => req.id);
+            return MOCK_CLASSES.filter(c => parentEnquiryIds.includes(c.id)); 
         },
-        enabled: !!parentId,
+        enabled: !!parentId && !!enquiries && enquiries.length > 0,
     });
     
     if (isLoadingParent) {
       return (
-         <div className="space-y-6">
-            <Skeleton className="h-[150px] w-full rounded-xl" />
-            <Skeleton className="h-[250px] w-full rounded-xl" />
+        <div className="flex h-screen w-full items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
       );
     }
@@ -149,13 +164,12 @@ export default function AdminParentDetailPage() {
                     <Briefcase className="w-5 h-5 mr-3 text-primary"/>
                     Enquiries ({enquiries.length})
                 </h2>
-                 {isLoadingEnquiries ? <Skeleton className="h-40 w-full rounded-xl" /> : (
-                    enquiries.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4">
-                            {enquiries.map(req => <AdminEnquiryCard key={req.id} requirement={req} />)}
-                        </div>
-                    ) : <p className="text-muted-foreground text-sm">This parent has not posted any enquiries yet.</p>
-                 )}
+                 {enquiries.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                        {enquiries.map(req => <AdminEnquiryCard key={req.id} requirement={req} />)}
+                    </div>
+                 ) : <p className="text-muted-foreground text-sm">This parent has not posted any enquiries yet.</p>
+                 }
             </section>
             
             <section>
