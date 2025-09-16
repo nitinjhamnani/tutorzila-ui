@@ -45,8 +45,8 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EditParentModal } from "@/components/admin/modals/EditParentModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ModalTitle, DialogDescription as ModalDescription, DialogTrigger } from "@/components/ui/dialog";
-import { PostRequirementModal, type PostRequirementFormValues } from "@/components/common/modals/PostRequirementModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { CreateEnquiryFormValues, CreateEnquiryModal } from "@/components/admin/modals/CreateEnquiryModal";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -130,7 +130,7 @@ const verifyUserApi = async ({ userId, token, type }: { userId: string; token: s
     return response.json();
 };
 
-const createEnquiry = async ({ parentId, token, formData }: { parentId: string; token: string | null; formData: PostRequirementFormValues }) => {
+const createEnquiry = async ({ parentId, token, formData }: { parentId: string; token: string | null; formData: CreateEnquiryFormValues }) => {
     if (!token) throw new Error("Authentication token is required.");
     if (!parentId) throw new Error("Parent ID is required to create an enquiry.");
 
@@ -246,7 +246,7 @@ export default function AdminParentDetailPage() {
     });
 
     const createEnquiryMutation = useMutation({
-      mutationFn: (formData: PostRequirementFormValues) => createEnquiry({ parentId, token, formData }),
+      mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ parentId, token, formData }),
       onSuccess: (enquiryId) => {
         toast({ title: "Requirement Posted!", description: "The new tuition requirement has been successfully created." });
         queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
@@ -379,26 +379,9 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
-                      <Dialog open={isAddEnquiryModalOpen} onOpenChange={setIsAddEnquiryModalOpen}>
-                          <DialogTrigger asChild>
-                              <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto">
-                                  <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
-                              </Button>
-                          </DialogTrigger>
-                          <DialogContent 
-                              className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
-                              onPointerDownOutside={(e) => e.preventDefault()}
-                          >
-                             <PostRequirementModal
-                                onSuccess={() => {
-                                    setIsAddEnquiryModalOpen(false);
-                                    queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
-                                }}
-                                adminApiHandler={createEnquiryMutation.mutate}
-                                isSubmitting={createEnquiryMutation.isPending}
-                            />
-                          </DialogContent>
-                      </Dialog>
+                      <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto" onClick={() => setIsAddEnquiryModalOpen(true)}>
+                          <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
+                      </Button>
                     </CardFooter>
                 </Card>
 
@@ -488,9 +471,17 @@ export default function AdminParentDetailPage() {
               onOpenChange={setIsEditModalOpen}
               parent={parent}
             />
+            <CreateEnquiryModal
+              isOpen={isAddEnquiryModalOpen}
+              onOpenChange={setIsAddEnquiryModalOpen}
+              adminApiHandler={createEnquiryMutation.mutate}
+              isSubmitting={createEnquiryMutation.isPending}
+            />
         </TooltipProvider>
         </>
     );
 }
+
+    
 
     
