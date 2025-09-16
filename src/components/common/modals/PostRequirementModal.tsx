@@ -255,7 +255,7 @@ export function PostRequirementModal({
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
@@ -785,5 +785,3 @@ export function PostRequirementModal({
     </div>
   );
 }
-
-    
