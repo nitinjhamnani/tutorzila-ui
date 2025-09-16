@@ -300,23 +300,25 @@ export function PostRequirementModal({
         startPreference: data.startDatePreference,
     };
 
-    let apiRequestBody: any = {
-      enquiryRequest: enquiryRequest
-    };
-    
+    let apiRequestBody: any;
     let apiUrl = '/api/enquiry/create';
     
     if(!isAuthenticated) {
-        apiRequestBody.signupRequest = {
-            name: data.name,
-            email: data.email,
-            country: data.country,
-            countryCode: selectedCountryData?.countryCode || '',
-            phone: data.localPhoneNumber,
-            userType: "PARENT",
-            whatsappEnabled: data.whatsAppNotifications,
+        apiRequestBody = {
+            enquiryRequest: enquiryRequest,
+            signupRequest: {
+                name: data.name,
+                email: data.email,
+                country: data.country,
+                countryCode: selectedCountryData?.countryCode || '',
+                phone: data.localPhoneNumber,
+                userType: "PARENT",
+                whatsappEnabled: data.whatsAppNotifications,
+            }
         };
         apiUrl = '/api/auth/enquiry';
+    } else {
+        apiRequestBody = enquiryRequest;
     }
     
     try {
@@ -793,3 +795,4 @@ export function PostRequirementModal({
   );
 }
 
+    
