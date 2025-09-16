@@ -222,7 +222,18 @@ export default function AdminParentDetailPage() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="w-full">
-                                <CardTitle className="text-2xl font-bold text-foreground">{parent.name}</CardTitle>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <CardTitle className="text-2xl font-bold text-foreground">{parent.name}</CardTitle>
+                                   <Badge
+                                      className={cn(
+                                        "text-xs py-1 px-2.5 border",
+                                        parent.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-destructive/10 text-destructive border-destructive/50"
+                                      )}
+                                    >
+                                      {parent.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                                      {parent.status}
+                                    </Badge>
+                                </div>
                                 <div className="flex flex-col gap-2 text-sm text-muted-foreground mt-2">
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <Mail className="w-4 h-4"/> 
@@ -296,7 +307,7 @@ export default function AdminParentDetailPage() {
                                 <TableBody>
                                     {enquiries.map((req) => (
                                     <TableRow key={req.id}>
-                                        <TableCell className="font-medium">{req.subject.join(', ')}</TableCell>
+                                        <TableCell className="font-medium">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</TableCell>
                                         <TableCell>{req.gradeLevel}</TableCell>
                                         <TableCell>{req.board}</TableCell>
                                         <TableCell>
@@ -356,8 +367,3 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
-
-    
-
-    
-
