@@ -158,7 +158,15 @@ export default function AdminAllEnquiriesPage() {
             <TableBody>
               {allRequirements.map((req) => (
                 <TableRow key={req.id}>
-                  <TableCell className="font-medium text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</div>
+                    {req.teachingMode?.includes("Offline (In-person)") && req.location?.area && req.location?.city && (
+                      <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <MapPin className="h-3 w-3" />
+                        {req.location.area}, {req.location.city}
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="text-xs">{req.gradeLevel}</TableCell>
                   <TableCell className="text-xs">{req.board}</TableCell>
                   <TableCell className="text-xs">{req.teachingMode?.join(', ')}</TableCell>
