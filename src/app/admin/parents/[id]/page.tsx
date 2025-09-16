@@ -33,6 +33,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -198,6 +200,7 @@ export default function AdminParentDetailPage() {
 
     return (
         <>
+        <TooltipProvider>
             <div className="space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0">
                     <CardHeader>
@@ -215,10 +218,12 @@ export default function AdminParentDetailPage() {
                                         <Mail className="w-4 h-4"/> 
                                         <span>{parent.email}</span>
                                         {parent.isEmailVerified ? (
-                                            <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
-                                                <MailCheck className="mr-1 h-3 w-3" />
-                                                Email Verified
-                                            </Badge>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <MailCheck className="h-4 w-4 text-green-500" />
+                                                </TooltipTrigger>
+                                                <TooltipContent><p>Email Verified</p></TooltipContent>
+                                            </Tooltip>
                                         ) : (
                                             <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>Verify</button>
                                         )}
@@ -229,10 +234,12 @@ export default function AdminParentDetailPage() {
                                             <Phone className="w-4 h-4"/> 
                                             <span>{parent.phone}</span>
                                             {parent.isPhoneVerified ? (
-                                                <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
-                                                    <PhoneCall className="mr-1 h-3 w-3" />
-                                                    Phone Verified
-                                                </Badge>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <PhoneCall className="h-4 w-4 text-green-500" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent><p>Phone Verified</p></TooltipContent>
+                                                </Tooltip>
                                             ) : (
                                                 <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>
                                             )}
@@ -289,6 +296,8 @@ export default function AdminParentDetailPage() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+        </TooltipProvider>
         </>
     );
 }
+
