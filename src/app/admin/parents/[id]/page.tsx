@@ -214,11 +214,12 @@ export default function AdminParentDetailPage() {
                                     <div className="flex items-center gap-2">
                                         <Mail className="w-4 h-4"/> 
                                         <span>{parent.email}</span>
-                                        <Badge variant={parent.isEmailVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", parent.isEmailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                                          {parent.isEmailVerified ? <MailCheck className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                                          Email
-                                        </Badge>
-                                        {!parent.isEmailVerified && (
+                                        {parent.isEmailVerified ? (
+                                            <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
+                                                <MailCheck className="mr-1 h-3 w-3" />
+                                                Email Verified
+                                            </Badge>
+                                        ) : (
                                             <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>Verify</button>
                                         )}
                                     </div>
@@ -226,11 +227,12 @@ export default function AdminParentDetailPage() {
                                       <div className="flex items-center gap-2">
                                         <Phone className="w-4 h-4"/> 
                                         <span>{parent.phone}</span>
-                                        <Badge variant={parent.isPhoneVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", parent.isPhoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                                          {parent.isPhoneVerified ? <PhoneCall className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                                          Phone
-                                        </Badge>
-                                        {!parent.isPhoneVerified && (
+                                        {parent.isPhoneVerified ? (
+                                            <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
+                                                <PhoneCall className="mr-1 h-3 w-3" />
+                                                Phone Verified
+                                            </Badge>
+                                        ) : (
                                             <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>
                                         )}
                                         {parent.whatsappEnabled && (
@@ -287,5 +289,7 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
+
+    
 
     
