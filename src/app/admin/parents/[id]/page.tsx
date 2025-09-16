@@ -162,7 +162,7 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string, 
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
-      'TZ-USER-ID': parentId,
+      'TZ-PARENT-ID': parentId,
       'accept': '*/*',
     },
     body: JSON.stringify(requestBody),
