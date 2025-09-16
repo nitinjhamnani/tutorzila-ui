@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -77,7 +76,7 @@ const daysOptions: MultiSelectOption[] = [
   { value: "Friday", label: "Friday" },
   { value: "Saturday", label: "Saturday" },
   { value: "Sunday", label: "Sunday" },
-  { value: "Weekdays", label: "Weekdays" },
+  { value: "Weekdays", label: "Weekends" },
   { value: "Weekends", label: "Weekends" },
   { value: "Flexible", label: "Flexible"},
 ];
@@ -137,23 +136,33 @@ const postRequirementSchema = z.object({
   });
 
 
-type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
+export type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
   startFromStep?: 1 | 2 | 3;
   onTriggerSignIn?: (name?: string) => void;
   initialSubject?: string[];
+  // New props for admin usage
+  adminApiHandler?: (data: PostRequirementFormValues) => Promise<any>;
+  isSubmitting?: boolean;
 }
 
-export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSignIn, initialSubject }: PostRequirementModalProps) {
+export function PostRequirementModal({ 
+  onSuccess, 
+  startFromStep = 1, 
+  onTriggerSignIn, 
+  initialSubject,
+  adminApiHandler,
+  isSubmitting: isSubmittingProp = false
+}: PostRequirementModalProps) {
   const [currentStep, setCurrentStep] = useState(startFromStep);
   const totalSteps = 3;
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
-  const { setSession } = useAuthMock();
+  const { setSession, user, isAuthenticated } = useAuthMock();
 
   const form = useForm<PostRequirementFormValues>({
     resolver: zodResolver(postRequirementSchema),
@@ -176,6 +185,49 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       acceptTerms: false,
     },
   });
+  
+  useEffect(() => {
+    if (isAuthenticated && user) {
+        form.reset({
+            name: user.name,
+            email: user.email,
+            localPhoneNumber: user.phone,
+            country: 'IN', // This should ideally be derived from user data if available
+            acceptTerms: true, // Pre-accept for logged-in users
+            studentName: "",
+            subject: initialSubject || [],
+            gradeLevel: "",
+            board: "",
+            teachingMode: [],
+            location: null,
+            tutorGenderPreference: undefined,
+            startDatePreference: undefined,
+            preferredDays: [],
+            preferredTimeSlots: [],
+            whatsAppNotifications: user.whatsappEnabled,
+        });
+    } else {
+        form.reset({
+            name: "",
+            email: "",
+            localPhoneNumber: "",
+            country: "IN",
+            acceptTerms: false,
+            studentName: "",
+            subject: initialSubject || [],
+            gradeLevel: "",
+            board: "",
+            teachingMode: [],
+            location: null,
+            tutorGenderPreference: undefined,
+            startDatePreference: undefined,
+            preferredDays: [],
+            preferredTimeSlots: [],
+            whatsAppNotifications: true,
+        });
+    }
+  }, [isAuthenticated, user, form, initialSubject]);
+
 
   useEffect(() => {
     if (initialSubject) {
@@ -207,6 +259,11 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   };
 
   const onSubmit: SubmitHandler<PostRequirementFormValues> = async (data) => {
+    if (adminApiHandler) {
+      adminApiHandler(data);
+      return;
+    }
+
     form.clearErrors();
     showLoader();
 
@@ -215,17 +272,10 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     
     let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
     switch(data.tutorGenderPreference) {
-        case 'male':
-            genderPreferenceApiValue = 'MALE';
-            break;
-        case 'female':
-            genderPreferenceApiValue = 'FEMALE';
-            break;
-        case 'any':
-            genderPreferenceApiValue = 'NO_PREFERENCE';
-            break;
-        default:
-            genderPreferenceApiValue = undefined;
+        case 'male': genderPreferenceApiValue = 'MALE'; break;
+        case 'female': genderPreferenceApiValue = 'FEMALE'; break;
+        case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
+        default: genderPreferenceApiValue = undefined;
     }
     
     const enquiryRequest = {
@@ -250,25 +300,32 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
     };
 
     let apiRequestBody: any = {
-      signupRequest: {
-        name: data.name,
-        email: data.email,
-        country: data.country,
-        countryCode: selectedCountryData?.countryCode || '',
-        phone: data.localPhoneNumber,
-        userType: "PARENT",
-        whatsappEnabled: data.whatsAppNotifications,
-      },
       enquiryRequest: enquiryRequest
     };
     
+    let apiUrl = '/api/enquiry/create';
+    
+    if(!isAuthenticated) {
+        apiRequestBody.signupRequest = {
+            name: data.name,
+            email: data.email,
+            country: data.country,
+            countryCode: selectedCountryData?.countryCode || '',
+            phone: data.localPhoneNumber,
+            userType: "PARENT",
+            whatsappEnabled: data.whatsAppNotifications,
+        };
+        apiUrl = '/api/auth/enquiry';
+    }
+    
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiBaseUrl}/api/auth/enquiry`, {
+      const response = await fetch(`${apiBaseUrl}${apiUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'accept': '*/*',
+          ...(isAuthenticated && { 'Authorization': `Bearer ${localStorage.getItem('tutorzila_token')?.replace(/"/g, '')}` }),
         },
         body: JSON.stringify(apiRequestBody),
       });
@@ -279,15 +336,19 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
-      if (responseData.token && responseData.type === 'PARENT') {
+      if (!isAuthenticated && responseData.token && responseData.type === 'PARENT') {
         setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
         sessionStorage.setItem('showNewRequirementToast', 'true');
         router.push("/parent/dashboard");
-      } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
+      } else if (!isAuthenticated && responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
           hideLoader();
           onTriggerSignIn(data.email);
       } else {
         hideLoader();
+        toast({
+          title: "Requirement Posted!",
+          description: "Your tuition requirement has been successfully submitted.",
+        });
         onSuccess();
       }
 
@@ -303,13 +364,14 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
   };
 
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
+  const isFinalStep = isAuthenticated ? currentStep === 2 : currentStep === totalSteps;
 
   return (
     <div className="bg-card p-0 rounded-lg relative">
       <DialogHeader className="text-left pt-6 px-6">
         <DialogTitle className="text-2xl font-semibold">Post Your Tuition Requirement</DialogTitle>
         <DialogDescription>
-          Fill in the details below in {totalSteps} easy steps to find the perfect tutor.
+          Fill in the details below in {isAuthenticated ? '2' : '3'} easy steps to find the perfect tutor.
         </DialogDescription>
       </DialogHeader>
 
@@ -319,9 +381,9 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
       </DialogClose>
 
       <div className="my-6 px-6">
-        <Progress value={(currentStep / totalSteps) * 100} className="w-full h-2" />
+        <Progress value={(currentStep / (isAuthenticated ? 2 : totalSteps)) * 100} className="w-full h-2" />
         <p className="text-sm text-muted-foreground mt-2 text-center font-medium">
-          Step {currentStep} of {totalSteps}
+          Step {currentStep} of {isAuthenticated ? 2 : totalSteps}
         </p>
       </div>
 
@@ -704,15 +766,15 @@ export function PostRequirementModal({ onSuccess, startFromStep = 1, onTriggerSi
               )}
             </div>
             <div>
-              {currentStep < totalSteps && (
+              {!isFinalStep && (
                 <Button type="button" onClick={handleNext} className="transform transition-transform hover:scale-105 active:scale-95">
                   Next <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
-              {currentStep === totalSteps && (
-                <Button type="submit" disabled={form.formState.isSubmitting} className="transform transition-transform hover:scale-105 active:scale-95">
+              {isFinalStep && (
+                <Button type="submit" disabled={isSubmittingProp || form.formState.isSubmitting} className="transform transition-transform hover:scale-105 active:scale-95">
                   <Send className="mr-2 h-4 w-4" />
-                  {form.formState.isSubmitting ? "Sending..." : "Send"}
+                  {isSubmittingProp || form.formState.isSubmitting ? "Sending..." : "Send"}
                 </Button>
               )}
             </div>

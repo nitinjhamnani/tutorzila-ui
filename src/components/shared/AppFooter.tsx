@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from "react";
@@ -11,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"; 
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { PostRequirementModal } from "@/components/modals/PostRequirementModal";
+import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import AuthModal from "@/components/auth/AuthModal";
 

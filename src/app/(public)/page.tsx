@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import { useState } from "react"; 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
-import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
+import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";

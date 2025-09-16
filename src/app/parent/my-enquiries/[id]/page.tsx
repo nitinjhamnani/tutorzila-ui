@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -17,7 +15,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription as DialogDesc, // Renamed to avoid conflict
+  DialogDescription, // Renamed to avoid conflict
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -36,7 +34,7 @@ import { FormControl, FormItem } from "@/components/ui/form"; // Correctly impor
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ParentEnquiryModal, type ParentEnquiryEditFormValues } from "@/components/parent/modals/ParentEnquiryModal";
+import { PostRequirementModal, type PostRequirementFormValues } from "@/components/common/modals/PostRequirementModal";
 import {
   User,
   BookOpen,
@@ -167,7 +165,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   };
 };
 
-const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: ParentEnquiryEditFormValues }) => {
+const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: PostRequirementFormValues }) => {
   if (!token) throw new Error("Authentication token is required.");
   
   const locationDetails = formData.location;
@@ -278,7 +276,7 @@ export default function ParentEnquiryDetailsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (formData: ParentEnquiryEditFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
+    mutationFn: (formData: PostRequirementFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
       
@@ -364,7 +362,7 @@ export default function ParentEnquiryDetailsPage() {
     setIsCloseEnquiryModalOpen(false);
   };
 
-  const handleUpdateEnquiry = (updatedData: ParentEnquiryEditFormValues) => {
+  const handleUpdateEnquiry = (updatedData: PostRequirementFormValues) => {
     updateMutation.mutate(updatedData);
   };
   
@@ -430,10 +428,12 @@ export default function ParentEnquiryDetailsPage() {
                           <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
                               <UsersRound className="w-4 h-4"/> {requirement.studentName}
                           </CardDescription>
-                          <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                              <Clock className="w-3.5 h-3.5" /> 
-                              Posted on {format(postedDate, "MMM d, yyyy")}
-                          </CardDescription>
+                          {requirement.postedAt && (
+                            <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                                <Clock className="w-3.5 h-3.5" /> 
+                                Posted on {format(postedDate, "MMM d, yyyy")}
+                            </CardDescription>
+                          )}
                           <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                                     <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
@@ -526,9 +526,9 @@ export default function ParentEnquiryDetailsPage() {
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Close Enquiry: {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}</DialogTitle>
-                <DialogDesc>
+                <DialogDescription>
                   Please select a reason for closing this requirement. This helps us improve our service.
-                </DialogDesc>
+                </DialogDescription>
               </DialogHeader>
               <div className="py-4 space-y-4">
                   <RadioGroup
@@ -564,13 +564,20 @@ export default function ParentEnquiryDetailsPage() {
       )}
       
       {requirement && (
-        <ParentEnquiryModal
-          isOpen={isEditModalOpen}
-          onOpenChange={setIsEditModalOpen}
-          enquiryData={requirement}
-          onUpdateEnquiry={handleUpdateEnquiry}
-          isUpdating={updateMutation.isPending}
-        />
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent
+                className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
+                onPointerDownOutside={(e) => e.preventDefault()}
+            >
+                <PostRequirementModal
+                    onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ['parentEnquiryDetails', id] });
+                        setIsEditModalOpen(false);
+                    }}
+                    startFromStep={1}
+                />
+            </DialogContent>
+        </Dialog>
       )}
     </main>
   );

@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import type { ReactNode, ElementType } from "react";
@@ -66,7 +64,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import { CreateEnquiryFormModal, type CreateEnquiryFormValues } from "@/components/parent/modals/CreateEnquiryFormModal";
+import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 
 interface QuickActionCardProps {
   title: string;
@@ -123,46 +121,6 @@ const fetchParentDashboardData = async (token: string | null) => {
   return response.json();
 };
 
-const createEnquiry = async ({ token, formData }: { token: string | null, formData: CreateEnquiryFormValues }) => {
-  if (!token) throw new Error("Authentication token is required.");
-  
-  const locationDetails = formData.location;
-  const requestBody = {
-    studentName: formData.studentName,
-    subjects: formData.subject,
-    grade: formData.gradeLevel,
-    board: formData.board,
-    addressName: locationDetails?.name || locationDetails?.address || "",
-    address: locationDetails?.address || "",
-    city: locationDetails?.city || "",
-    state: locationDetails?.state || "",
-    country: locationDetails?.country || "",
-    area: locationDetails?.area || "",
-    pincode: locationDetails?.pincode || "",
-    googleMapsLink: locationDetails?.googleMapsUrl || "",
-    availabilityDays: formData.preferredDays,
-    availabilityTime: formData.preferredTimeSlots,
-    online: formData.teachingMode.includes("Online"),
-    offline: formData.teachingMode.includes("Offline (In-person)"),
-  };
-
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      'accept': '*/*',
-    },
-    body: JSON.stringify(requestBody),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to create enquiry.");
-  }
-  return true;
-};
-
 
 export default function ParentDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -182,18 +140,6 @@ export default function ParentDashboardPage() {
     refetchOnWindowFocus: false,
   });
 
-  const createEnquiryMutation = useMutation({
-    mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ token, formData }),
-    onSuccess: () => {
-      toast({ title: "Requirement Submitted!", description: "Your tuition requirement has been successfully posted." });
-      queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
-      queryClient.invalidateQueries({ queryKey: ['parentDashboard', token] });
-      setIsCreateEnquiryModalOpen(false);
-    },
-    onError: (error) => {
-      toast({ variant: "destructive", title: "Submission Failed", description: error.message });
-    },
-  });
 
   const [hasMounted, setHasMounted] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
@@ -417,11 +363,12 @@ export default function ParentDashboardPage() {
           )}
         </div>
       </main>
-      <CreateEnquiryFormModal 
-        onSuccess={handleCreateEnquirySuccess} 
-        onFormSubmit={createEnquiryMutation.mutate}
-        isSubmitting={createEnquiryMutation.isPending}
-      />
+      <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
+        <PostRequirementModal 
+            onSuccess={handleCreateEnquirySuccess}
+            startFromStep={isAuthenticated && user?.role === 'parent' ? 1 : 1}
+        />
+      </DialogContent>
     </Dialog>
   );
 }
