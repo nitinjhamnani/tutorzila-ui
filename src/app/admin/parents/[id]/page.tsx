@@ -249,7 +249,6 @@ export default function AdminParentDetailPage() {
       mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ parentId, token, formData }),
       onSuccess: (enquiryId) => {
         toast({ title: "Requirement Posted!", description: "The new tuition requirement has been successfully created." });
-        queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
         setIsAddEnquiryModalOpen(false);
         showLoader();
         router.push(`/admin/manage-enquiry/${enquiryId}`);
