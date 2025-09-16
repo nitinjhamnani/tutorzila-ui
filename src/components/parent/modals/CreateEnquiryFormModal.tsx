@@ -56,7 +56,7 @@ const teachingModeOptions = [
 const daysOptions: MultiSelectOption[] = [
   { value: "Monday", label: "Monday" }, { value: "Tuesday", label: "Tuesday" }, { value: "Wednesday", label: "Wednesday" },
   { value: "Thursday", label: "Thursday" }, { value: "Friday", label: "Friday" }, { value: "Saturday", label: "Saturday" },
-  { value: "Sunday", label: "Sunday" }, { value: "Weekdays", label: "Weekdays" }, { value: "Weekends", label: "Weekends" },
+  { value: "Sunday", label: "Sunday" }, { value: "Weekdays", label: "Weekends" }, { value: "Weekends", label: "Weekends" },
   { value: "Flexible", label: "Flexible"},
 ];
 const timeSlotsOptions: MultiSelectOption[] = [
@@ -123,10 +123,7 @@ export function CreateEnquiryFormModal({ onSuccess, onFormSubmit, isSubmitting }
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
 
   return (
-    <DialogContent 
-      className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
-      onPointerDownOutside={(e) => e.preventDefault()}
-    >
+    <>
       <DialogHeader className="p-6 pb-4 border-b relative">
         <DialogTitle className="text-xl font-semibold text-primary">Create New Tuition Requirement</DialogTitle>
         <DialogDescription className="text-sm">
@@ -327,6 +324,6 @@ export function CreateEnquiryFormModal({ onSuccess, onFormSubmit, isSubmitting }
           </DialogFooter>
         </form>
       </Form>
-    </DialogContent>
+    </>
   );
 }
