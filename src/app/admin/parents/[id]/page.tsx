@@ -270,11 +270,7 @@ export default function AdminParentDetailPage() {
                             </div>
                         </div>
                     </CardHeader>
-                     <CardFooter className="flex flex-col sm:flex-row justify-between gap-2 p-4 border-t">
-                        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><UserPlus className="mr-1.5 h-3.5 w-3.5"/>Create Enquiry</Button>
-                            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><KeyRound className="mr-1.5 h-3.5 w-3.5"/>Reset Password</Button>
-                        </div>
+                     <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 p-4 border-t">
                         {parent.status === 'Active' && (
                             <Button variant="destructive-outline" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><UserX className="mr-1.5 h-3.5 w-3.5"/>Inactivate</Button>
                         )}
@@ -294,6 +290,7 @@ export default function AdminParentDetailPage() {
                                     <TableRow>
                                         <TableHead>Subject</TableHead>
                                         <TableHead>Grade</TableHead>
+                                        <TableHead>Board</TableHead>
                                         <TableHead>Mode</TableHead>
                                         <TableHead>Created</TableHead>
                                         <TableHead>Status</TableHead>
@@ -305,6 +302,7 @@ export default function AdminParentDetailPage() {
                                     <TableRow key={req.id}>
                                         <TableCell className="font-medium">{req.subject.join(', ')}</TableCell>
                                         <TableCell>{req.gradeLevel}</TableCell>
+                                        <TableCell>{req.board}</TableCell>
                                         <TableCell>
                                             {req.teachingMode?.join(', ')}
                                         </TableCell>
