@@ -11,12 +11,21 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
@@ -261,6 +270,13 @@ export default function AdminParentDetailPage() {
                             </div>
                         </div>
                     </CardHeader>
+                     <CardFooter className="flex justify-start gap-2 p-4 border-t">
+                        <Button size="sm"><UserPlus className="mr-2 h-4 w-4"/>Create Enquiry</Button>
+                        <Button size="sm" variant="outline"><KeyRound className="mr-2 h-4 w-4"/>Reset Password</Button>
+                        {parent.status === 'Active' && (
+                            <Button size="sm" variant="destructive-outline"><UserX className="mr-2 h-4 w-4"/>Inactivate</Button>
+                        )}
+                    </CardFooter>
                 </Card>
 
                 <section>
@@ -269,9 +285,40 @@ export default function AdminParentDetailPage() {
                         Enquiries ({enquiries.length})
                     </h2>
                      {enquiries.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4">
-                            {enquiries.map(req => <AdminEnquiryCard key={req.id} requirement={req} />)}
-                        </div>
+                        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                            <CardContent className="p-0">
+                                <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Subject</TableHead>
+                                        <TableHead>Grade</TableHead>
+                                        <TableHead>Board</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {enquiries.map((req) => (
+                                    <TableRow key={req.id}>
+                                        <TableCell className="font-medium">{req.subject.join(', ')}</TableCell>
+                                        <TableCell>{req.gradeLevel}</TableCell>
+                                        <TableCell>{req.board}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={req.status === 'open' ? 'default' : 'secondary'}>
+                                                {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button asChild variant="outline" size="sm">
+                                                <Link href={`/admin/manage-enquiry/${req.id}`}><Eye className="mr-2 h-4 w-4"/> View</Link>
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                    ))}
+                                </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
                      ) : (
                         <Card className="text-center py-12 bg-card border rounded-lg shadow-sm">
                             <CardContent className="flex flex-col items-center">
@@ -305,3 +352,5 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
+
+    
