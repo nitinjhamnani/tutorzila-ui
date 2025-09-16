@@ -99,6 +99,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { ScheduleDemoModal } from "@/components/admin/modals/ScheduleDemoModal";
 import { AdminDemoCard } from "@/components/admin/AdminDemoCard";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface ParentContact {
     name: string;
@@ -448,6 +449,7 @@ function ManageEnquiryContent() {
   const { token } = useAuthMock();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { hideLoader } = useGlobalLoader();
 
   const [selectedTutor, setSelectedTutor] = useState<ApiTutor | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -477,6 +479,10 @@ function ManageEnquiryContent() {
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
   const [sourceTab, setSourceTab] = useState("recommended");
+  
+  useEffect(() => {
+      hideLoader();
+  }, [hideLoader]);
 
   const { data: enquiry, isLoading: isLoadingEnquiry, error: enquiryError } = useQuery({
     queryKey: ['adminEnquiryDetails', enquiryId],
