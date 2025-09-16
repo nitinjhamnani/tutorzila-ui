@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings, PlusCircle } from "lucide-react";
+import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings, PlusCircle, Edit3 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
@@ -43,6 +43,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { EditParentModal } from "@/components/admin/modals/EditParentModal";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -142,6 +143,7 @@ export default function AdminParentDetailPage() {
 
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const { data, isLoading: isLoadingParent, error: parentError } = useQuery({
         queryKey: ['parentDetails', parentId],
@@ -213,7 +215,12 @@ export default function AdminParentDetailPage() {
         <TooltipProvider>
             <div className="space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0">
-                    <CardHeader>
+                    <CardHeader className="relative">
+                        <div className="absolute top-4 right-4">
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsEditModalOpen(true)}>
+                              <Edit3 className="h-4 w-4" />
+                          </Button>
+                        </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                             <Avatar className="h-20 w-20 border-2 border-primary/20 shrink-0">
                                 <AvatarImage src={parent.avatar} alt={parent.name} />
@@ -241,7 +248,7 @@ export default function AdminParentDetailPage() {
                                         <Mail className="w-4 h-4"/> 
                                         <span className="truncate">{parent.email}</span>
                                         {parent.isEmailVerified ? (
-                                             <Tooltip>
+                                            <Tooltip>
                                                 <TooltipTrigger>
                                                     <Badge variant="secondary" className="py-1 px-2.5 bg-primary/10 text-primary border-primary/20">
                                                         <MailCheck className="h-3 w-3"/>
@@ -373,7 +380,13 @@ export default function AdminParentDetailPage() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            <EditParentModal 
+              isOpen={isEditModalOpen} 
+              onOpenChange={setIsEditModalOpen}
+              parent={parent}
+            />
         </TooltipProvider>
         </>
     );
 }
+
