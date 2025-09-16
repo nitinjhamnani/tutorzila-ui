@@ -182,7 +182,7 @@ export default function AdminParentsPage() {
                 <div className="flex items-center gap-3">
                   <Tooltip>
                     <TooltipTrigger>
-                      {parent.emailVerified ? <MailCheck className="h-5 w-5 text-green-500"/> : <MailCheck className="h-5 w-5 text-muted-foreground/50"/>}
+                      {parent.emailVerified ? <MailCheck className="h-5 w-5 text-primary"/> : <MailCheck className="h-5 w-5 text-muted-foreground/50"/>}
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Email {parent.emailVerified ? 'Verified' : 'Not Verified'}</p>
@@ -190,7 +190,7 @@ export default function AdminParentsPage() {
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger>
-                      {parent.phoneVerified ? <PhoneCall className="h-5 w-5 text-green-500"/> : <PhoneCall className="h-5 w-5 text-muted-foreground/50"/>}
+                      {parent.phoneVerified ? <PhoneCall className="h-5 w-5 text-primary"/> : <PhoneCall className="h-5 w-5 text-muted-foreground/50"/>}
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Phone {parent.phoneVerified ? 'Verified' : 'Not Verified'}</p>
