@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings } from "lucide-react";
+import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
@@ -271,9 +271,7 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                      <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 p-4 border-t">
-                        {parent.status === 'Active' && (
-                            <Button variant="destructive-outline" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><UserX className="mr-1.5 h-3.5 w-3.5"/>Inactivate</Button>
-                        )}
+                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
                     </CardFooter>
                 </Card>
 
@@ -360,5 +358,7 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
+
+    
 
     
