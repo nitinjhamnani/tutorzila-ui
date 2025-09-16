@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -144,7 +145,7 @@ interface PostRequirementModalProps {
   onTriggerSignIn?: (name?: string) => void;
   initialSubject?: string[];
   // New props for admin usage
-  adminApiHandler?: (data: PostRequirementFormValues) => Promise<any>;
+  adminApiHandler?: (data: PostRequirementFormValues) => void;
   isSubmitting?: boolean;
 }
 
@@ -411,7 +412,7 @@ export function PostRequirementModal({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80" />Subjects</FormLabel>
-                    <MultiSelectCommand
+                   <MultiSelectCommand
                       options={subjectsList}
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
@@ -784,3 +785,5 @@ export function PostRequirementModal({
     </div>
   );
 }
+
+    
