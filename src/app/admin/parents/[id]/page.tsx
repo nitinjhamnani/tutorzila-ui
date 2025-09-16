@@ -220,7 +220,9 @@ export default function AdminParentDetailPage() {
                                         {parent.isEmailVerified ? (
                                             <Tooltip>
                                                 <TooltipTrigger>
-                                                    <MailCheck className="h-4 w-4 text-green-500" />
+                                                    <Badge variant="secondary" className="py-0.5 bg-card text-primary border-primary/20">
+                                                        <MailCheck className="h-3 w-3"/>
+                                                    </Badge>
                                                 </TooltipTrigger>
                                                 <TooltipContent><p>Email Verified</p></TooltipContent>
                                             </Tooltip>
@@ -236,7 +238,9 @@ export default function AdminParentDetailPage() {
                                             {parent.isPhoneVerified ? (
                                                 <Tooltip>
                                                     <TooltipTrigger>
-                                                        <PhoneCall className="h-4 w-4 text-green-500" />
+                                                        <Badge variant="secondary" className="py-0.5 bg-card text-primary border-primary/20">
+                                                            <PhoneCall className="h-3 w-3"/>
+                                                        </Badge>
                                                     </TooltipTrigger>
                                                     <TooltipContent><p>Phone Verified</p></TooltipContent>
                                                 </Tooltip>
