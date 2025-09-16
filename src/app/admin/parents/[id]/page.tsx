@@ -240,32 +240,40 @@ export default function AdminParentDetailPage() {
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <Mail className="w-4 h-4"/> 
                                         <span className="truncate">{parent.email}</span>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <button onClick={() => { if(!parent.isEmailVerified) { setVerificationType('email'); setIsVerificationModalOpen(true);}}}>
-                                                    <Badge variant={parent.isEmailVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isEmailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20", !parent.isEmailVerified && "cursor-pointer hover:bg-destructive/20")}>
+                                        {parent.isEmailVerified ? (
+                                             <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Badge variant="secondary" className="py-1 px-2.5 bg-primary/10 text-primary border-primary/20">
                                                         <MailCheck className="h-3 w-3"/>
                                                     </Badge>
-                                                </button>
-                                            </TooltipTrigger>
-                                            <TooltipContent><p>Email {parent.isEmailVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
-                                        </Tooltip>
+                                                </TooltipTrigger>
+                                                <TooltipContent><p>Email Verified</p></TooltipContent>
+                                            </Tooltip>
+                                        ) : (
+                                            <Button variant="link" size="sm" className="text-xs h-auto p-0 text-primary" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>
+                                                Verify Email
+                                            </Button>
+                                        )}
                                     </div>
                                     {parent.phone && (
                                       <div className="flex flex-col items-start gap-1.5">
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <Phone className="w-4 h-4"/> 
                                             <span>{parent.countryCode} {parent.phone}</span>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <button onClick={() => { if(!parent.isPhoneVerified) { setVerificationType('phone'); setIsVerificationModalOpen(true);}}}>
-                                                        <Badge variant={parent.isPhoneVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isPhoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20", !parent.isPhoneVerified && "cursor-pointer hover:bg-destructive/20")}>
+                                            {parent.isPhoneVerified ? (
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <Badge variant="secondary" className="py-1 px-2.5 bg-primary/10 text-primary border-primary/20">
                                                             <PhoneCall className="h-3 w-3"/>
                                                         </Badge>
-                                                    </button>
-                                                </TooltipTrigger>
-                                                <TooltipContent><p>Phone {parent.isPhoneVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
-                                            </Tooltip>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent><p>Phone Verified</p></TooltipContent>
+                                                </Tooltip>
+                                            ) : (
+                                                <Button variant="link" size="sm" className="text-xs h-auto p-0 text-primary" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>
+                                                    Verify Phone
+                                                </Button>
+                                            )}
                                         </div>
                                         {parent.whatsappEnabled && (
                                             <Badge variant="default" className={cn("mt-1 w-fit bg-primary/10 text-primary border-primary/20 text-xs flex items-center gap-1.5")}>
