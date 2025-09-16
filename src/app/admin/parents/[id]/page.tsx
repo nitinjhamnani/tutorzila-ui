@@ -45,7 +45,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EditParentModal } from "@/components/admin/modals/EditParentModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ModalTitle, DialogDescription as ModalDescription, DialogTrigger } from "@/components/ui/dialog";
-import { CreateEnquiryFormModal, type CreateEnquiryFormValues } from "@/components/parent/modals/CreateEnquiryFormModal";
+import { PostRequirementModal, type PostRequirementFormValues } from "@/components/common/modals/PostRequirementModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
@@ -130,49 +130,59 @@ const verifyUserApi = async ({ userId, token, type }: { userId: string; token: s
     return response.json();
 };
 
-const createEnquiry = async ({ parentId, token, formData }: { parentId: string, token: string | null, formData: CreateEnquiryFormValues }) => {
-  if (!token) throw new Error("Authentication token is required.");
-  if (!parentId) throw new Error("Parent ID is required to create an enquiry.");
+const createEnquiry = async ({ parentId, token, formData }: { parentId: string; token: string | null; formData: PostRequirementFormValues }) => {
+    if (!token) throw new Error("Authentication token is required.");
+    if (!parentId) throw new Error("Parent ID is required to create an enquiry.");
 
-  const locationDetails = formData.location;
-  const requestBody = {
-    studentName: formData.studentName,
-    subjects: formData.subject,
-    grade: formData.gradeLevel,
-    board: formData.board,
-    addressName: locationDetails?.name || locationDetails?.address || "",
-    address: locationDetails?.address || "",
-    city: locationDetails?.city || "",
-    state: locationDetails?.state || "",
-    country: locationDetails?.country || "",
-    area: locationDetails?.area || "",
-    pincode: locationDetails?.pincode || "",
-    googleMapsLink: locationDetails?.googleMapsUrl || "",
-    availabilityDays: formData.preferredDays,
-    availabilityTime: formData.preferredTimeSlots,
-    online: formData.teachingMode.includes("Online"),
-    offline: formData.teachingMode.includes("Offline (In-person)"),
-    genderPreference: formData.tutorGenderPreference,
-    startPreference: formData.startDatePreference,
-  };
+    const locationDetails = formData.location;
+    
+    let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
+    switch (formData.tutorGenderPreference) {
+        case 'male': genderPreferenceApiValue = 'MALE'; break;
+        case 'female': genderPreferenceApiValue = 'FEMALE'; break;
+        case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
+        default: genderPreferenceApiValue = undefined;
+    }
+    
+    const requestBody = {
+        studentName: formData.studentName,
+        subjects: formData.subject,
+        grade: formData.gradeLevel,
+        board: formData.board,
+        addressName: locationDetails?.name || locationDetails?.address || "",
+        address: locationDetails?.address || "",
+        city: locationDetails?.city || "",
+        state: locationDetails?.state || "",
+        country: locationDetails?.country || "",
+        area: locationDetails?.area || "",
+        pincode: locationDetails?.pincode || "",
+        googleMapsLink: locationDetails?.googleMapsUrl || "",
+        availabilityDays: formData.preferredDays,
+        availabilityTime: formData.preferredTimeSlots,
+        online: formData.teachingMode.includes("Online"),
+        offline: formData.teachingMode.includes("Offline (In-person)"),
+        genderPreference: genderPreferenceApiValue,
+        startPreference: formData.startDatePreference,
+    };
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      'TZ-PARENT-ID': parentId,
-      'accept': '*/*',
-    },
-    body: JSON.stringify(requestBody),
-  });
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'TZ-PARENT-ID': parentId,
+            'accept': '*/*',
+        },
+        body: JSON.stringify(requestBody),
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to create enquiry.");
-  }
-  return response.text();
+    if (!response.ok) {
+        throw new Error("Failed to create enquiry.");
+    }
+    return response.text();
 };
+
 
 const getInitials = (name: string): string => {
   if (!name) return "?";
@@ -226,7 +236,7 @@ export default function AdminParentDetailPage() {
     });
 
     const createEnquiryMutation = useMutation({
-      mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ parentId, token, formData }),
+      mutationFn: (formData: PostRequirementFormValues) => createEnquiry({ parentId, token, formData }),
       onSuccess: (enquiryId) => {
         toast({ title: "Requirement Posted!", description: "The new tuition requirement has been successfully created." });
         queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
@@ -238,6 +248,7 @@ export default function AdminParentDetailPage() {
         toast({ variant: "destructive", title: "Submission Failed", description: error.message });
       },
     });
+
 
     const handleConfirmVerification = () => {
         if (verificationType) {
@@ -368,12 +379,12 @@ export default function AdminParentDetailPage() {
                               className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
                               onPointerDownOutside={(e) => e.preventDefault()}
                           >
-                            <CreateEnquiryFormModal 
+                             <PostRequirementModal
                                 onSuccess={() => {
                                     setIsAddEnquiryModalOpen(false);
                                     queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
                                 }}
-                                onFormSubmit={createEnquiryMutation.mutate}
+                                adminApiHandler={createEnquiryMutation.mutate}
                                 isSubmitting={createEnquiryMutation.isPending}
                             />
                           </DialogContent>
@@ -471,5 +482,7 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
+
+    
 
     

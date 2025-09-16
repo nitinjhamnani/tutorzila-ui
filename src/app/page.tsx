@@ -18,7 +18,7 @@ import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import { useState } from "react"; 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
-import { PostRequirementModal } from "@/components/modals/PostRequirementModal"; 
+import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";
@@ -98,12 +98,12 @@ export default function HomePage() {
     setAuthModalInitialView('signin');
     setIsAuthModalOpen(true);
   };
-
+  
   const handleTriggerSignUp = () => {
     setAuthModalInitialView('signup');
     setIsAuthModalOpen(true);
   };
-  
+
   const handleOpenRequirementModal = (subjectName?: string) => {
     setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
     setIsPostRequirementModalOpen(true);
@@ -314,7 +314,7 @@ export default function HomePage() {
               Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
             </p>
             <div className="mt-10">
-              <Button size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
+               <Button size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
                    Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
               </Button>
             </div>
@@ -366,6 +366,4 @@ export default function HomePage() {
     
   );
 }
-
-
 
