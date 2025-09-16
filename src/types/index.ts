@@ -1,5 +1,4 @@
 
-
 export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
@@ -10,10 +9,12 @@ export interface User {
   avatar?: string; // URL to avatar image
   status?: "Active" | "Inactive";
   phone?: string;
+  countryCode?: string;
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
   gender?: "male" | "female" | "other" | "";
   dateOfBirth?: string; // ISO date string
+  whatsappEnabled?: boolean;
 }
 
 export interface LocationDetails {
@@ -276,3 +277,5 @@ export interface AdminDashboardData {
   noOfOpenEnquiries: number;
   noOfActiveEnquiries: number;
 }
+
+    

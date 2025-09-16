@@ -63,6 +63,7 @@ const fetchParentDetails = async (parentId: string, token: string | null): Promi
         name: userDetails.name,
         email: userDetails.email,
         phone: userDetails.phone,
+        countryCode: userDetails.countryCode,
         role: 'parent',
         avatar: userDetails.profilePicUrl,
         isEmailVerified: userDetails.emailVerified,
@@ -234,7 +235,7 @@ export default function AdminParentDetailPage() {
                                       <div className="flex flex-col items-start gap-1.5">
                                         <div className="flex items-center gap-2">
                                             <Phone className="w-4 h-4"/> 
-                                            <span>{parent.phone}</span>
+                                            <span>{parent.countryCode} {parent.phone}</span>
                                             {parent.isPhoneVerified ? (
                                                 <Tooltip>
                                                     <TooltipTrigger>
@@ -305,3 +306,5 @@ export default function AdminParentDetailPage() {
     );
 }
 
+
+    
