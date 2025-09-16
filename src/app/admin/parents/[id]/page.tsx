@@ -228,14 +228,12 @@ export default function AdminParentDetailPage() {
                                         <Mail className="w-4 h-4"/> 
                                         <span className="truncate">{parent.email}</span>
                                         <Tooltip>
-                                            <TooltipTrigger>
-                                                {parent.isEmailVerified ? (
-                                                    <Badge variant="secondary" className="py-0.5 bg-card text-primary border-primary/20">
+                                            <TooltipTrigger asChild>
+                                                <button onClick={() => { if(!parent.isEmailVerified) { setVerificationType('email'); setIsVerificationModalOpen(true);}}}>
+                                                    <Badge variant={parent.isEmailVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isEmailVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-700 border-red-200", !parent.isEmailVerified && "cursor-pointer hover:bg-red-200")}>
                                                         <MailCheck className="h-3 w-3"/>
                                                     </Badge>
-                                                ) : (
-                                                    <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>Verify</button>
-                                                )}
+                                                </button>
                                             </TooltipTrigger>
                                             <TooltipContent><p>Email {parent.isEmailVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
                                         </Tooltip>
@@ -246,14 +244,12 @@ export default function AdminParentDetailPage() {
                                             <Phone className="w-4 h-4"/> 
                                             <span>{parent.countryCode} {parent.phone}</span>
                                             <Tooltip>
-                                                <TooltipTrigger>
-                                                    {parent.isPhoneVerified ? (
-                                                        <Badge variant="secondary" className="py-0.5 bg-card text-primary border-primary/20">
+                                                <TooltipTrigger asChild>
+                                                    <button onClick={() => { if(!parent.isPhoneVerified) { setVerificationType('phone'); setIsVerificationModalOpen(true);}}}>
+                                                        <Badge variant={parent.isPhoneVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isPhoneVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-700 border-red-200", !parent.isPhoneVerified && "cursor-pointer hover:bg-red-200")}>
                                                             <PhoneCall className="h-3 w-3"/>
                                                         </Badge>
-                                                    ) : (
-                                                        <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>
-                                                    )}
+                                                    </button>
                                                 </TooltipTrigger>
                                                 <TooltipContent><p>Phone {parent.isPhoneVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
                                             </Tooltip>
@@ -270,9 +266,9 @@ export default function AdminParentDetailPage() {
                             </div>
                         </div>
                     </CardHeader>
-                     <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-2 p-4 border-t">
-                        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
+                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
+                        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+                            <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
                         </div>
                     </CardFooter>
                 </Card>
@@ -364,3 +360,4 @@ export default function AdminParentDetailPage() {
     
 
     
+
