@@ -224,20 +224,23 @@ export default function AdminParentDetailPage() {
                                         )}
                                     </div>
                                     {parent.phone && (
-                                      <div className="flex items-center gap-2">
-                                        <Phone className="w-4 h-4"/> 
-                                        <span>{parent.phone}</span>
-                                        {parent.isPhoneVerified ? (
-                                            <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
-                                                <PhoneCall className="mr-1 h-3 w-3" />
-                                                Phone Verified
-                                            </Badge>
-                                        ) : (
-                                            <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>
-                                        )}
+                                      <div className="flex flex-col items-start gap-1.5">
+                                        <div className="flex items-center gap-2">
+                                            <Phone className="w-4 h-4"/> 
+                                            <span>{parent.phone}</span>
+                                            {parent.isPhoneVerified ? (
+                                                <Badge variant="default" className="text-xs py-0.5 px-2 bg-primary/10 text-primary border-primary/20">
+                                                    <PhoneCall className="mr-1 h-3 w-3" />
+                                                    Phone Verified
+                                                </Badge>
+                                            ) : (
+                                                <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>
+                                            )}
+                                        </div>
                                         {parent.whatsappEnabled && (
-                                            <Badge variant="secondary" className="bg-green-100 text-green-700">
-                                                <WhatsAppIcon className="h-3 w-3 mr-1" /> WhatsApp
+                                            <Badge variant="default" className={cn("mt-1 w-fit bg-primary/10 text-primary border-primary/20 text-xs flex items-center gap-1.5")}>
+                                                <WhatsAppIcon className="h-3 w-3"/>
+                                                WhatsApp
                                             </Badge>
                                         )}
                                       </div>
@@ -289,7 +292,3 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
-
-    
-
-    
