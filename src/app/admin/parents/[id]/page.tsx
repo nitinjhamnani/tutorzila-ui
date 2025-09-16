@@ -205,19 +205,19 @@ export default function AdminParentDetailPage() {
             <div className="space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0">
                     <CardHeader>
-                        <div className="flex items-center gap-4">
-                            <Avatar className="h-20 w-20 border-2 border-primary/20">
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                            <Avatar className="h-20 w-20 border-2 border-primary/20 shrink-0">
                                 <AvatarImage src={parent.avatar} alt={parent.name} />
                                 <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
                                     {getInitials(parent.name)}
                                 </AvatarFallback>
                             </Avatar>
-                            <div>
+                            <div className="w-full">
                                 <CardTitle className="text-2xl font-bold text-foreground">{parent.name}</CardTitle>
                                 <div className="flex flex-col gap-2 text-sm text-muted-foreground mt-2">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 flex-wrap">
                                         <Mail className="w-4 h-4"/> 
-                                        <span>{parent.email}</span>
+                                        <span className="truncate">{parent.email}</span>
                                         {parent.isEmailVerified ? (
                                             <Tooltip>
                                                 <TooltipTrigger>
@@ -233,7 +233,7 @@ export default function AdminParentDetailPage() {
                                     </div>
                                     {parent.phone && (
                                       <div className="flex flex-col items-start gap-1.5">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
                                             <Phone className="w-4 h-4"/> 
                                             <span>{parent.countryCode} {parent.phone}</span>
                                             {parent.isPhoneVerified ? (
@@ -305,6 +305,3 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
-
-
-    
