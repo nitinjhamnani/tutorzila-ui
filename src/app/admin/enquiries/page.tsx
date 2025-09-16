@@ -86,7 +86,6 @@ export default function AdminAllEnquiriesPage() {
              <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Parent</TableHead>
                     <TableHead>Subject</TableHead>
                     <TableHead>Grade</TableHead>
                     <TableHead>Board</TableHead>
@@ -99,7 +98,6 @@ export default function AdminAllEnquiriesPage() {
                 <TableBody>
                   {[...Array(5)].map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-16" /></TableCell>
@@ -148,7 +146,6 @@ export default function AdminAllEnquiriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Parent</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Grade</TableHead>
                 <TableHead>Board</TableHead>
@@ -161,8 +158,7 @@ export default function AdminAllEnquiriesPage() {
             <TableBody>
               {allRequirements.map((req) => (
                 <TableRow key={req.id}>
-                  <TableCell className="font-medium text-foreground">{req.parentName}</TableCell>
-                  <TableCell className="text-xs">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</TableCell>
+                  <TableCell className="font-medium text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</TableCell>
                   <TableCell className="text-xs">{req.gradeLevel}</TableCell>
                   <TableCell className="text-xs">{req.board}</TableCell>
                   <TableCell className="text-xs">{req.teachingMode?.join(', ')}</TableCell>
