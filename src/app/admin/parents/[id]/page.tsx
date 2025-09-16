@@ -46,7 +46,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { EditParentModal } from "@/components/admin/modals/EditParentModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ModalTitle, DialogDescription as ModalDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
-import { CreateEnquiryFormValues, CreateEnquiryModal } from "@/components/admin/modals/CreateEnquiryModal";
+import { CreateEnquiryModal, type CreateEnquiryFormValues } from "@/components/admin/modals/CreateEnquiryModal";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -379,9 +379,19 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
-                      <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto" onClick={() => setIsAddEnquiryModalOpen(true)}>
-                          <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
-                      </Button>
+                      <Dialog open={isAddEnquiryModalOpen} onOpenChange={setIsAddEnquiryModalOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto">
+                              <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
+                          </Button>
+                        </DialogTrigger>
+                        <CreateEnquiryModal
+                          isOpen={isAddEnquiryModalOpen}
+                          onOpenChange={setIsAddEnquiryModalOpen}
+                          adminApiHandler={createEnquiryMutation.mutate}
+                          isSubmitting={createEnquiryMutation.isPending}
+                        />
+                      </Dialog>
                     </CardFooter>
                 </Card>
 
@@ -470,12 +480,6 @@ export default function AdminParentDetailPage() {
               isOpen={isEditModalOpen} 
               onOpenChange={setIsEditModalOpen}
               parent={parent}
-            />
-            <CreateEnquiryModal
-              isOpen={isAddEnquiryModalOpen}
-              onOpenChange={setIsAddEnquiryModalOpen}
-              adminApiHandler={createEnquiryMutation.mutate}
-              isSubmitting={createEnquiryMutation.isPending}
             />
         </TooltipProvider>
         </>

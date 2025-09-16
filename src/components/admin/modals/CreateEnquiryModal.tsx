@@ -330,7 +330,7 @@ export function CreateEnquiryModal({ isOpen, onOpenChange, adminApiHandler, isSu
                 name="preferredDays"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Days</FormLabel>
+                    <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Days (Optional)</FormLabel>
                     <MultiSelectCommand
                       options={daysOptions}
                       selectedValues={field.value || []}
@@ -347,7 +347,7 @@ export function CreateEnquiryModal({ isOpen, onOpenChange, adminApiHandler, isSu
                 name="preferredTimeSlots"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time</FormLabel>
+                    <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time (Optional)</FormLabel>
                     <MultiSelectCommand
                       options={timeSlotsOptions}
                       selectedValues={field.value || []}
@@ -382,5 +382,3 @@ export function CreateEnquiryModal({ isOpen, onOpenChange, adminApiHandler, isSu
       </DialogContent>
   );
 }
-
-    
