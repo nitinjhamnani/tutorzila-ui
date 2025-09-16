@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -44,6 +43,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EditParentModal } from "@/components/admin/modals/EditParentModal";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { CreateEnquiryFormModal, type CreateEnquiryFormValues } from "@/components/parent/modals/CreateEnquiryFormModal";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -127,6 +128,48 @@ const verifyUserApi = async ({ userId, token, type }: { userId: string; token: s
     return response.json();
 };
 
+const createEnquiry = async ({ parentId, token, formData }: { parentId: string, token: string | null, formData: CreateEnquiryFormValues }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  if (!parentId) throw new Error("Parent ID is required to create an enquiry.");
+
+  const locationDetails = formData.location;
+  const requestBody = {
+    studentName: formData.studentName,
+    subjects: formData.subject,
+    grade: formData.gradeLevel,
+    board: formData.board,
+    addressName: locationDetails?.name || locationDetails?.address || "",
+    address: locationDetails?.address || "",
+    city: locationDetails?.city || "",
+    state: locationDetails?.state || "",
+    country: locationDetails?.country || "",
+    area: locationDetails?.area || "",
+    pincode: locationDetails?.pincode || "",
+    googleMapsLink: locationDetails?.googleMapsUrl || "",
+    availabilityDays: formData.preferredDays,
+    availabilityTime: formData.preferredTimeSlots,
+    online: formData.teachingMode.includes("Online"),
+    offline: formData.teachingMode.includes("Offline (In-person)"),
+  };
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-USER-ID': parentId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create enquiry.");
+  }
+  return true;
+};
+
 const getInitials = (name: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
@@ -144,13 +187,14 @@ export default function AdminParentDetailPage() {
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isAddEnquiryModalOpen, setIsAddEnquiryModalOpen] = useState(false);
 
     const { data, isLoading: isLoadingParent, error: parentError } = useQuery({
         queryKey: ['parentDetails', parentId],
         queryFn: () => fetchParentDetails(parentId, token),
         enabled: !!parentId && !!token,
     });
-
+    
     const verificationMutation = useMutation({
         mutationFn: (type: 'email' | 'phone') => verifyUserApi({ userId: parentId, token, type }),
         onSuccess: (updatedUserDetails) => {
@@ -174,6 +218,18 @@ export default function AdminParentDetailPage() {
         onError: (error: Error) => {
             toast({ variant: "destructive", title: "Verification Failed", description: error.message });
         },
+    });
+
+    const createEnquiryMutation = useMutation({
+      mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ parentId, token, formData }),
+      onSuccess: () => {
+        toast({ title: "Requirement Posted!", description: "The new tuition requirement has been successfully created." });
+        queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
+        setIsAddEnquiryModalOpen(false);
+      },
+      onError: (error: Error) => {
+        toast({ variant: "destructive", title: "Submission Failed", description: error.message });
+      },
     });
 
     const handleConfirmVerification = () => {
@@ -295,7 +351,23 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
-                        <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
+                        <Dialog open={isAddEnquiryModalOpen} onOpenChange={setIsAddEnquiryModalOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto">
+                                    <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent 
+                                className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+                                onPointerDownOutside={(e) => e.preventDefault()}
+                            >
+                                <CreateEnquiryFormModal 
+                                    onSuccess={() => setIsAddEnquiryModalOpen(false)} 
+                                    onFormSubmit={createEnquiryMutation.mutate}
+                                    isSubmitting={createEnquiryMutation.isPending}
+                                />
+                            </DialogContent>
+                        </Dialog>
                     </CardFooter>
                 </Card>
 
@@ -389,4 +461,3 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
-
