@@ -331,26 +331,33 @@ export function PostRequirementModal({
         body: JSON.stringify(apiRequestBody),
       });
 
-      const responseData = await response.json();
-
       if (!response.ok) {
+        const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
-      if (!isAuthenticated && responseData.token && responseData.type === 'PARENT') {
-        setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
-        sessionStorage.setItem('showNewRequirementToast', 'true');
-        router.push("/parent/dashboard");
-      } else if (!isAuthenticated && responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
-          hideLoader();
-          onTriggerSignIn(data.email);
-      } else {
-        hideLoader();
+      if (!isAuthenticated) {
+        const responseData = await response.json();
+        if (responseData.token && responseData.type === 'PARENT') {
+            setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
+            sessionStorage.setItem('showNewRequirementToast', 'true');
+            router.push("/parent/dashboard");
+        } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
+            hideLoader();
+            onTriggerSignIn(data.email);
+        }
+      } else { // This is the case for authenticated parent
+        const enquiryId = await response.text(); 
         toast({
           title: "Requirement Posted!",
           description: "Your tuition requirement has been successfully submitted.",
         });
-        onSuccess();
+        if (enquiryId) {
+          router.push(`/parent/my-enquiries/${enquiryId}`);
+        } else {
+          onSuccess(); // Fallback to onSuccess if no enquiryId is returned
+          hideLoader();
+        }
       }
 
     } catch (error) {
@@ -786,4 +793,3 @@ export function PostRequirementModal({
   );
 }
 
-    
