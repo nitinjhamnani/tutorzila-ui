@@ -230,7 +230,7 @@ export default function AdminParentDetailPage() {
                                         {parent.isEmailVerified ? (
                                             <Tooltip>
                                                 <TooltipTrigger>
-                                                    <Badge variant="secondary" className="py-0.5 bg-card text-primary border-primary/20">
+                                                     <Badge variant="secondary" className="py-0.5 bg-card text-primary border-primary/20">
                                                         <MailCheck className="h-3 w-3"/>
                                                     </Badge>
                                                 </TooltipTrigger>
@@ -270,8 +270,10 @@ export default function AdminParentDetailPage() {
                             </div>
                         </div>
                     </CardHeader>
-                     <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 p-4 border-t">
-                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
+                     <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-2 p-4 border-t">
+                        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
+                        </div>
                     </CardFooter>
                 </Card>
 
