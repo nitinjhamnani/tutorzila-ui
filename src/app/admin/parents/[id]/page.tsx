@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin } from "lucide-react";
+import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
@@ -324,8 +324,10 @@ export default function AdminParentDetailPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <Button asChild variant="outline" size="sm">
-                                                <Link href={`/admin/manage-enquiry/${req.id}`}><Eye className="mr-2 h-4 w-4"/> View</Link>
+                                            <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                                                <Link href={`/admin/manage-enquiry/${req.id}`}>
+                                                  <Settings className="h-4 w-4" />
+                                                </Link>
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -367,6 +369,8 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
+
+    
 
     
 
