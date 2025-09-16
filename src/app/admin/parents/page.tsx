@@ -39,6 +39,7 @@ import {
   Settings,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ApiParent {
   id: string;
@@ -177,16 +178,26 @@ export default function AdminParentsPage() {
             </TableCell>
             <TableCell className="text-xs">{format(new Date(parent.registeredDate), "MMM d, yyyy")}</TableCell>
             <TableCell>
-              <div className="flex flex-col items-start gap-1.5">
-                  <Badge variant={parent.emailVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", parent.emailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                    {parent.emailVerified ? <MailCheck className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                    Email
-                  </Badge>
-                  <Badge variant={parent.phoneVerified ? "default" : "destructive"} className={cn("text-xs py-0.5 px-2", parent.phoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20")}>
-                    {parent.phoneVerified ? <PhoneCall className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                    Phone
-                  </Badge>
-              </div>
+              <TooltipProvider>
+                <div className="flex items-center gap-3">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {parent.emailVerified ? <MailCheck className="h-5 w-5 text-green-500"/> : <MailCheck className="h-5 w-5 text-muted-foreground/50"/>}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Email {parent.emailVerified ? 'Verified' : 'Not Verified'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {parent.phoneVerified ? <PhoneCall className="h-5 w-5 text-green-500"/> : <PhoneCall className="h-5 w-5 text-muted-foreground/50"/>}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Phone {parent.phoneVerified ? 'Verified' : 'Not Verified'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
             </TableCell>
              <TableCell>
                <Badge variant={parent.active ? "default" : "destructive"} className="text-xs py-1 px-2.5">
