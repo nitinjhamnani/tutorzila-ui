@@ -227,7 +227,9 @@ export default function AdminParentDetailPage() {
                                    <Badge
                                       className={cn(
                                         "text-xs py-1 px-2.5 border",
-                                        "bg-primary text-primary-foreground border-primary"
+                                        parent.status === 'Active'
+                                        ? "bg-primary text-primary-foreground border-primary"
+                                        : "bg-destructive text-destructive-foreground border-destructive"
                                       )}
                                     >
                                       {parent.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
@@ -241,7 +243,7 @@ export default function AdminParentDetailPage() {
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <button onClick={() => { if(!parent.isEmailVerified) { setVerificationType('email'); setIsVerificationModalOpen(true);}}}>
-                                                    <Badge variant={parent.isEmailVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isEmailVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-700 border-red-200", !parent.isEmailVerified && "cursor-pointer hover:bg-red-200")}>
+                                                    <Badge variant={parent.isEmailVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isEmailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20", !parent.isEmailVerified && "cursor-pointer hover:bg-destructive/20")}>
                                                         <MailCheck className="h-3 w-3"/>
                                                     </Badge>
                                                 </button>
@@ -257,7 +259,7 @@ export default function AdminParentDetailPage() {
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <button onClick={() => { if(!parent.isPhoneVerified) { setVerificationType('phone'); setIsVerificationModalOpen(true);}}}>
-                                                        <Badge variant={parent.isPhoneVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isPhoneVerified ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-700 border-red-200", !parent.isPhoneVerified && "cursor-pointer hover:bg-red-200")}>
+                                                        <Badge variant={parent.isPhoneVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", parent.isPhoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20", !parent.isPhoneVerified && "cursor-pointer hover:bg-destructive/20")}>
                                                             <PhoneCall className="h-3 w-3"/>
                                                         </Badge>
                                                     </button>
@@ -278,9 +280,7 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
-                        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
-                            <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
-                        </div>
+                        <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
                     </CardFooter>
                 </Card>
 
@@ -321,9 +321,7 @@ export default function AdminParentDetailPage() {
                                             {format(new Date(req.postedAt), "MMM d, yyyy")}
                                         </TableCell>
                                         <TableCell>
-                                             <Badge variant="default">
-                                                {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
-                                            </Badge>
+                                            <Badge variant="default">{req.status.charAt(0).toUpperCase() + req.status.slice(1)}</Badge>
                                         </TableCell>
                                         <TableCell>
                                             <Button asChild variant="outline" size="icon" className="h-8 w-8">

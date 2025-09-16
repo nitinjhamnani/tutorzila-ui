@@ -370,11 +370,11 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                            <Badge variant={tutor.isActive ? "secondary" : "default"} className={cn("text-xs py-1 px-2.5", tutor.isActive ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
+                            <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                             <Badge variant={tutor.isVerified ? "secondary" : "default"} className={cn("text-xs py-1 px-2.5", tutor.isVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
+                             <Badge variant={tutor.isVerified ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
                                 {tutor.isVerified ? 'Verified' : 'Not Verified'}
                             </Badge>
@@ -423,14 +423,15 @@ export default function AdminTutorProfilePage() {
                             <div className="flex items-center gap-2">
                                 <span>{tutor.email}</span>
                                 <Tooltip>
-                                    <TooltipTrigger>
-                                        <Badge variant={tutor.emailVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.emailVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
-                                          {tutor.emailVerified && <MailCheck className="h-3 w-3"/>}
-                                        </Badge>
+                                    <TooltipTrigger asChild>
+                                        <button onClick={() => { if(!tutor.emailVerified) { setVerificationType('email'); setIsVerificationModalOpen(true);}}}>
+                                            <Badge variant={tutor.emailVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", tutor.emailVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20", !tutor.emailVerified && "cursor-pointer hover:bg-destructive/20")}>
+                                                <MailCheck className="h-3 w-3"/>
+                                            </Badge>
+                                        </button>
                                     </TooltipTrigger>
-                                    <TooltipContent><p>{tutor.emailVerified ? 'Email Verified' : 'Email Not Verified'}</p></TooltipContent>
+                                    <TooltipContent><p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
                                 </Tooltip>
-                                {!tutor.emailVerified && <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>Verify</button>}
                             </div>
                         </InfoItem>
                         <InfoItem icon={Phone} label="Phone">
@@ -438,14 +439,15 @@ export default function AdminTutorProfilePage() {
                                 <div className="flex items-center gap-2">
                                   <span>{tutor.countryCode} {tutor.phone}</span>
                                   <Tooltip>
-                                      <TooltipTrigger>
-                                          <Badge variant={tutor.phoneVerified ? "secondary" : "default"} className={cn("py-0.5", tutor.phoneVerified ? "bg-card text-primary border-primary/20" : "bg-primary text-primary-foreground border-primary")}>
-                                              {tutor.phoneVerified && <PhoneCall className="h-3 w-3"/>}
-                                          </Badge>
+                                      <TooltipTrigger asChild>
+                                           <button onClick={() => { if(!tutor.phoneVerified) { setVerificationType('phone'); setIsVerificationModalOpen(true);}}}>
+                                                <Badge variant={tutor.phoneVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", tutor.phoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20", !tutor.phoneVerified && "cursor-pointer hover:bg-destructive/20")}>
+                                                    <PhoneCall className="h-3 w-3"/>
+                                                </Badge>
+                                           </button>
                                       </TooltipTrigger>
-                                      <TooltipContent><p>{tutor.phoneVerified ? 'Phone Verified' : 'Phone Not Verified'}</p></TooltipContent>
+                                      <TooltipContent><p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
                                   </Tooltip>
-                                  {!tutor.phoneVerified && <button className="text-xs text-primary hover:underline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>Verify</button>}
                                 </div>
                                 {tutor.whatsappEnabled && (
                                     <Badge variant="default" className={cn("mt-1 w-fit bg-primary/10 text-primary border-primary/20 text-xs flex items-center gap-1.5")}>
@@ -464,12 +466,12 @@ export default function AdminTutorProfilePage() {
                     <CardHeader className="flex flex-row items-start justify-between gap-2">
                         <CardTitle>About</CardTitle>
                          {tutor.isBioReviewed ? (
-                           <Badge variant="secondary" className="text-xs py-1 px-2.5 bg-card text-primary border-primary/20">
+                           <Badge variant="secondary" className="text-xs py-1 px-2.5 bg-primary/10 text-primary border-primary/20">
                              <CheckCircle className="mr-1 h-3 w-3"/>
                              Approved
                            </Badge>
                          ) : (
-                           <Badge variant="default" className="text-xs py-1 px-2.5 bg-primary text-primary-foreground border-primary">
+                           <Badge variant="destructive" className="text-xs py-1 px-2.5">
                              <ShieldAlert className="mr-1 h-3 w-3"/>
                              Pending Approval
                            </Badge>

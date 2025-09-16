@@ -172,7 +172,7 @@ export default function AdminParentsPage() {
             <TableCell className="text-xs">
               <div className="flex flex-col">
                 <span className="font-medium text-foreground">{`${parent.countryCode} ${parent.phone}`}</span>
-                {parent.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit bg-green-100 text-green-700">WhatsApp</Badge>}
+                {parent.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit bg-primary/10 text-primary border-primary/20">WhatsApp</Badge>}
               </div>
             </TableCell>
             <TableCell className="text-xs">{format(new Date(parent.registeredDate), "MMM d, yyyy")}</TableCell>
