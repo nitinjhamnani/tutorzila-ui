@@ -129,10 +129,6 @@ export function CreateEnquiryFormModal({ onSuccess, onFormSubmit, isSubmitting }
         <DialogDescription className="text-sm">
           Please fill in the details below to find the perfect tutor.
         </DialogDescription>
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
       </DialogHeader>
       
       <Form {...form}>
@@ -217,31 +213,33 @@ export function CreateEnquiryFormModal({ onSuccess, onFormSubmit, isSubmitting }
                       key={item.id}
                       control={form.control}
                       name="teachingMode"
-                      render={({ field }) => (
-                        <FormItem key={item.id}>
-                          <Label
-                            htmlFor={`teaching-mode-create-${item.id}`}
-                            className={cn(
-                              "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
-                              field.value?.includes(item.id) && "bg-primary/10 border-primary ring-1 ring-primary"
-                            )}
-                          >
-                            <FormControl>
-                              <Checkbox
-                                id={`teaching-mode-create-${item.id}`}
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  const currentValues = field.value || [];
-                                  return checked
-                                    ? field.onChange([...currentValues, item.id])
-                                    : field.onChange(currentValues.filter(value => value !== item.id));
-                                }}
-                              />
-                            </FormControl>
-                            <span className="font-normal text-sm">{item.label}</span>
-                          </Label>
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        return (
+                           <FormItem key={item.id}>
+                            <Label
+                              htmlFor={`teaching-mode-create-${item.id}`}
+                              className={cn(
+                                "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
+                                field.value?.includes(item.id) && "bg-primary/10 border-primary ring-1 ring-primary"
+                              )}
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  id={`teaching-mode-create-${item.id}`}
+                                  checked={field.value?.includes(item.id)}
+                                  onCheckedChange={(checked) => {
+                                    const currentValues = field.value || [];
+                                    return checked
+                                      ? field.onChange([...currentValues, item.id])
+                                      : field.onChange(currentValues.filter(value => value !== item.id));
+                                  }}
+                                />
+                              </FormControl>
+                              <span className="font-normal text-sm">{item.label}</span>
+                            </Label>
+                          </FormItem>
+                        );
+                      }}
                     />
                   ))}
                 </div>
