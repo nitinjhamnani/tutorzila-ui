@@ -3,15 +3,25 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 import type { TuitionRequirement, User } from "@/types";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2 } from "lucide-react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { format } from 'date-fns';
 
 const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -35,7 +45,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
   
   return data.map((item: any, index: number) => ({
     id: item.enquiryId || `enq-${index}-${Date.now()}`,
-    parentName: "A Parent", 
+    parentName: item.parentName || "A Parent", 
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
     scheduleDetails: "Details not provided by API",
@@ -71,9 +81,38 @@ export default function AdminAllEnquiriesPage() {
   const renderEnquiryList = () => {
     if (isLoading) {
       return (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+          <CardContent className="p-0">
+             <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Parent</TableHead>
+                    <TableHead>Subject</TableHead>
+                    <TableHead>Grade</TableHead>
+                    <TableHead>Board</TableHead>
+                    <TableHead>Mode</TableHead>
+                    <TableHead>Posted</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-8 w-8 rounded-md" /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+          </CardContent>
+        </Card>
       );
     }
 
@@ -89,32 +128,62 @@ export default function AdminAllEnquiriesPage() {
       );
     }
 
-    if (allRequirements.length > 0) {
+    if (allRequirements.length === 0) {
       return (
-        <div className="grid grid-cols-1 gap-4 md:gap-5">
-          {allRequirements.map((req, index) => (
-            <div
-              key={req.id}
-              className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out h-full"
-              style={{ animationDelay: `${index * 0.05 + 0.1}s` }}
-            >
-              <AdminEnquiryCard requirement={req} />
-            </div>
-          ))}
-        </div>
+        <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out col-span-full">
+          <CardContent className="flex flex-col items-center">
+            <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+            <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              There are currently no open tuition enquiries on the platform.
+            </p>
+          </CardContent>
+        </Card>
       );
     }
+    
     return (
-      <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out col-span-full">
-        <CardContent className="flex flex-col items-center">
-          <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-5" />
-          <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            There are currently no open tuition enquiries on the platform.
-          </p>
+       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Parent</TableHead>
+                <TableHead>Subject</TableHead>
+                <TableHead>Grade</TableHead>
+                <TableHead>Board</TableHead>
+                <TableHead>Mode</TableHead>
+                <TableHead>Posted</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allRequirements.map((req) => (
+                <TableRow key={req.id}>
+                  <TableCell className="font-medium text-foreground">{req.parentName}</TableCell>
+                  <TableCell className="text-xs">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</TableCell>
+                  <TableCell className="text-xs">{req.gradeLevel}</TableCell>
+                  <TableCell className="text-xs">{req.board}</TableCell>
+                  <TableCell className="text-xs">{req.teachingMode?.join(', ')}</TableCell>
+                  <TableCell className="text-xs">{format(new Date(req.postedAt), "MMM d, yyyy")}</TableCell>
+                  <TableCell>
+                    <Badge variant="default">{req.status.charAt(0).toUpperCase() + req.status.slice(1)}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                      <Link href={`/admin/manage-enquiry/${req.id}`}>
+                        <Settings className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
-    );
+    )
   };
 
   return (
@@ -137,3 +206,4 @@ export default function AdminAllEnquiriesPage() {
     </div>
   );
 }
+    
