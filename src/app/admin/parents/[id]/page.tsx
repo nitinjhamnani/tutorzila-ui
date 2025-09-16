@@ -227,7 +227,7 @@ export default function AdminParentDetailPage() {
                                    <Badge
                                       className={cn(
                                         "text-xs py-1 px-2.5 border",
-                                        parent.status === "Active" ? "bg-primary text-primary-foreground border-primary" : "bg-destructive/10 text-destructive border-destructive/50"
+                                        "bg-primary text-primary-foreground border-primary"
                                       )}
                                     >
                                       {parent.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
@@ -277,7 +277,7 @@ export default function AdminParentDetailPage() {
                             </div>
                         </div>
                     </CardHeader>
-                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
+                    <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
                         <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
                             <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto"><PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry</Button>
                         </div>
@@ -321,7 +321,7 @@ export default function AdminParentDetailPage() {
                                             {format(new Date(req.postedAt), "MMM d, yyyy")}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="default">
+                                             <Badge variant="default">
                                                 {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                                             </Badge>
                                         </TableCell>
