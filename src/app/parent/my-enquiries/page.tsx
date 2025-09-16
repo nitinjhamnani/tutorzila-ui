@@ -149,7 +149,7 @@ export default function ParentMyEnquiriesPage() {
       setIsCreateEnquiryModalOpen(false);
     },
     onError: (error) => {
-      toast({ variant: "destructive", title: "Submission Failed", description: error.message });
+      toast({ variant: "destructive", title: "Submission Failed", description: (error as Error).message });
     },
   });
 

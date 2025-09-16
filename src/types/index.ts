@@ -271,8 +271,8 @@ export interface Message {
 }
 
 export interface AdminDashboardData {
-    noOfParent: number;
-    noOfTutors: number;
-    noOfOpenEnquiries: number;
-    noOfActiveEnquiries: number;
+  noOfParent: number;
+  noOfTutors: number;
+  noOfOpenEnquiries: number;
+  noOfActiveEnquiries: number;
 }

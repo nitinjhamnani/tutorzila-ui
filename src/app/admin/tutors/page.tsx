@@ -304,7 +304,7 @@ export default function AdminTutorsPage() {
             </TableCell>
             <TableCell>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
-                  <Settings className="h-4 w-4" />
+                  <Settings className="h-4 h-4" />
               </Button>
             </TableCell>
           </TableRow>
