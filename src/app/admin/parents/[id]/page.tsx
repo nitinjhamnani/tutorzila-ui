@@ -152,6 +152,8 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string, 
     availabilityTime: formData.preferredTimeSlots,
     online: formData.teachingMode.includes("Online"),
     offline: formData.teachingMode.includes("Offline (In-person)"),
+    genderPreference: formData.tutorGenderPreference,
+    startPreference: formData.startDatePreference,
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -356,11 +358,26 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
-                        <DialogTrigger asChild>
-                            <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto" onClick={() => setIsAddEnquiryModalOpen(true)}>
-                                <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
-                            </Button>
-                        </DialogTrigger>
+                      <Dialog open={isAddEnquiryModalOpen} onOpenChange={setIsAddEnquiryModalOpen}>
+                          <DialogTrigger asChild>
+                              <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto">
+                                  <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
+                              </Button>
+                          </DialogTrigger>
+                          <DialogContent 
+                              className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+                              onPointerDownOutside={(e) => e.preventDefault()}
+                          >
+                            <CreateEnquiryFormModal 
+                                onSuccess={() => {
+                                    setIsAddEnquiryModalOpen(false);
+                                    queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
+                                }}
+                                onFormSubmit={createEnquiryMutation.mutate}
+                                isSubmitting={createEnquiryMutation.isPending}
+                            />
+                          </DialogContent>
+                      </Dialog>
                     </CardFooter>
                 </Card>
 
@@ -450,22 +467,9 @@ export default function AdminParentDetailPage() {
               onOpenChange={setIsEditModalOpen}
               parent={parent}
             />
-            <Dialog open={isAddEnquiryModalOpen} onOpenChange={setIsAddEnquiryModalOpen}>
-              <DialogContent 
-                  className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
-                  onPointerDownOutside={(e) => e.preventDefault()}
-              >
-                  <CreateEnquiryFormModal 
-                      onSuccess={() => {
-                          setIsAddEnquiryModalOpen(false);
-                          queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
-                      }}
-                      onFormSubmit={createEnquiryMutation.mutate}
-                      isSubmitting={createEnquiryMutation.isPending}
-                  />
-              </DialogContent>
-            </Dialog>
         </TooltipProvider>
         </>
     );
 }
+
+    
