@@ -4,7 +4,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import type { User, TuitionRequirement, MyClass } from "@/types";
+import type { User, TuitionRequirement } from "@/types";
 import {
   Card,
   CardContent,
@@ -20,8 +20,6 @@ import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefc
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
-import { ClassCard } from "@/components/dashboard/ClassCard";
-import { MOCK_CLASSES } from "@/lib/mock-data";
 
 
 const fetchParentDetails = async (parentId: string, token: string | null): Promise<{ user: User; enquiries: TuitionRequirement[] }> => {
@@ -95,16 +93,6 @@ export default function AdminParentDetailPage() {
     
     const parent = data?.user;
     const enquiries = data?.enquiries || [];
-
-
-    const { data: classes = [], isLoading: isLoadingClasses } = useQuery<MyClass[]>({
-        queryKey: ['parentClassesForAdmin', parentId],
-        queryFn: async () => {
-            const parentEnquiryIds = enquiries.map(req => req.id);
-            return MOCK_CLASSES.filter(c => parentEnquiryIds.includes(c.id)); 
-        },
-        enabled: !!parentId && !!enquiries && enquiries.length > 0,
-    });
     
     if (isLoadingParent) {
       return (
@@ -133,12 +121,6 @@ export default function AdminParentDetailPage() {
 
     return (
         <div className="space-y-6">
-             <Button asChild variant="outline" size="sm">
-                <Link href="/admin/parents">
-                    <ArrowLeft className="mr-2 h-4 w-4"/>
-                    Back to All Parents
-                </Link>
-            </Button>
             <Card className="bg-card rounded-xl shadow-lg border-0">
                 <CardHeader>
                     <div className="flex items-center gap-4">
@@ -171,21 +153,6 @@ export default function AdminParentDetailPage() {
                  ) : <p className="text-muted-foreground text-sm">This parent has not posted any enquiries yet.</p>
                  }
             </section>
-            
-            <section>
-                <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center">
-                    <School className="w-5 h-5 mr-3 text-primary"/>
-                    Classes ({classes.length})
-                </h2>
-                 {isLoadingClasses ? <Skeleton className="h-40 w-full rounded-xl" /> : (
-                    classes.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {classes.map(cls => <ClassCard key={cls.id} classData={cls} />)}
-                        </div>
-                    ) : <p className="text-muted-foreground text-sm">This parent has no active or past classes.</p>
-                 )}
-            </section>
         </div>
     );
 }
-
