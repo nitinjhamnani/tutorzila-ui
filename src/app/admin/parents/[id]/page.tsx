@@ -270,9 +270,11 @@ export default function AdminParentDetailPage() {
                             </div>
                         </div>
                     </CardHeader>
-                     <CardFooter className="flex justify-start gap-2 p-4 border-t">
-                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><UserPlus className="mr-1.5 h-3.5 w-3.5"/>Create Enquiry</Button>
-                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><KeyRound className="mr-1.5 h-3.5 w-3.5"/>Reset Password</Button>
+                     <CardFooter className="flex justify-between gap-2 p-4 border-t">
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><UserPlus className="mr-1.5 h-3.5 w-3.5"/>Create Enquiry</Button>
+                            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><KeyRound className="mr-1.5 h-3.5 w-3.5"/>Reset Password</Button>
+                        </div>
                         {parent.status === 'Active' && (
                             <Button variant="destructive-outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><UserX className="mr-1.5 h-3.5 w-3.5"/>Inactivate</Button>
                         )}
