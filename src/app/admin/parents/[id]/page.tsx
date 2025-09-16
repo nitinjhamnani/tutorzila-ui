@@ -271,10 +271,10 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                      <CardFooter className="flex justify-start gap-2 p-4 border-t">
-                        <Button size="sm"><UserPlus className="mr-2 h-4 w-4"/>Create Enquiry</Button>
-                        <Button size="sm" variant="outline"><KeyRound className="mr-2 h-4 w-4"/>Reset Password</Button>
+                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><UserPlus className="mr-1.5 h-3.5 w-3.5"/>Create Enquiry</Button>
+                        <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><KeyRound className="mr-1.5 h-3.5 w-3.5"/>Reset Password</Button>
                         {parent.status === 'Active' && (
-                            <Button size="sm" variant="destructive-outline"><UserX className="mr-2 h-4 w-4"/>Inactivate</Button>
+                            <Button variant="destructive-outline" size="sm" className="text-xs py-1.5 px-3 h-auto"><UserX className="mr-1.5 h-3.5 w-3.5"/>Inactivate</Button>
                         )}
                     </CardFooter>
                 </Card>
