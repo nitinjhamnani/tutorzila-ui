@@ -251,7 +251,7 @@ export default function AdminParentDetailPage() {
                                             </Tooltip>
                                         ) : (
                                             <Badge variant="outline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}} className="cursor-pointer bg-transparent text-primary border-primary hover:bg-primary/10">
-                                                Verify Email
+                                                Verify
                                             </Badge>
                                         )}
                                     </div>
@@ -271,7 +271,7 @@ export default function AdminParentDetailPage() {
                                                 </Tooltip>
                                             ) : (
                                                <Badge variant="outline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}} className="cursor-pointer bg-transparent text-primary border-primary hover:bg-primary/10">
-                                                    Verify Phone
+                                                    Verify
                                                 </Badge>
                                             )}
                                         </div>
