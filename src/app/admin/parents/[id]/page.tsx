@@ -250,9 +250,9 @@ export default function AdminParentDetailPage() {
                                                 <TooltipContent><p>Email Verified</p></TooltipContent>
                                             </Tooltip>
                                         ) : (
-                                            <Button variant="link" size="sm" className="text-xs h-auto p-0 text-primary" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}}>
+                                            <Badge variant="outline" onClick={() => { setVerificationType('email'); setIsVerificationModalOpen(true);}} className="cursor-pointer bg-transparent text-primary border-primary hover:bg-primary/10">
                                                 Verify Email
-                                            </Button>
+                                            </Badge>
                                         )}
                                     </div>
                                     {parent.phone && (
@@ -270,9 +270,9 @@ export default function AdminParentDetailPage() {
                                                     <TooltipContent><p>Phone Verified</p></TooltipContent>
                                                 </Tooltip>
                                             ) : (
-                                                <Button variant="link" size="sm" className="text-xs h-auto p-0 text-primary" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}}>
+                                               <Badge variant="outline" onClick={() => { setVerificationType('phone'); setIsVerificationModalOpen(true);}} className="cursor-pointer bg-transparent text-primary border-primary hover:bg-primary/10">
                                                     Verify Phone
-                                                </Button>
+                                                </Badge>
                                             )}
                                         </div>
                                         {parent.whatsappEnabled && (
