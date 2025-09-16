@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -43,8 +44,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EditParentModal } from "@/components/admin/modals/EditParentModal";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle as ModalTitle, DialogDescription as ModalDescription, DialogTrigger } from "@/components/ui/dialog";
 import { CreateEnquiryFormModal, type CreateEnquiryFormValues } from "@/components/parent/modals/CreateEnquiryFormModal";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -167,7 +169,7 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string, 
   if (!response.ok) {
     throw new Error("Failed to create enquiry.");
   }
-  return true;
+  return response.text();
 };
 
 const getInitials = (name: string): string => {
@@ -183,6 +185,7 @@ export default function AdminParentDetailPage() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const parentId = params.id as string;
+    const { showLoader } = useGlobalLoader();
 
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
@@ -222,10 +225,12 @@ export default function AdminParentDetailPage() {
 
     const createEnquiryMutation = useMutation({
       mutationFn: (formData: CreateEnquiryFormValues) => createEnquiry({ parentId, token, formData }),
-      onSuccess: () => {
+      onSuccess: (enquiryId) => {
         toast({ title: "Requirement Posted!", description: "The new tuition requirement has been successfully created." });
         queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
         setIsAddEnquiryModalOpen(false);
+        showLoader();
+        router.push(`/admin/manage-enquiry/${enquiryId}`);
       },
       onError: (error: Error) => {
         toast({ variant: "destructive", title: "Submission Failed", description: error.message });
@@ -351,23 +356,11 @@ export default function AdminParentDetailPage() {
                         </div>
                     </CardHeader>
                     <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-2 p-4 border-t">
-                        <Dialog open={isAddEnquiryModalOpen} onOpenChange={setIsAddEnquiryModalOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto">
-                                    <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent 
-                                className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
-                                onPointerDownOutside={(e) => e.preventDefault()}
-                            >
-                                <CreateEnquiryFormModal 
-                                    onSuccess={() => setIsAddEnquiryModalOpen(false)} 
-                                    onFormSubmit={createEnquiryMutation.mutate}
-                                    isSubmitting={createEnquiryMutation.isPending}
-                                />
-                            </DialogContent>
-                        </Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="default" size="sm" className="text-xs py-1.5 px-3 h-auto w-full sm:w-auto" onClick={() => setIsAddEnquiryModalOpen(true)}>
+                                <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>Add Enquiry
+                            </Button>
+                        </DialogTrigger>
                     </CardFooter>
                 </Card>
 
@@ -457,6 +450,21 @@ export default function AdminParentDetailPage() {
               onOpenChange={setIsEditModalOpen}
               parent={parent}
             />
+            <Dialog open={isAddEnquiryModalOpen} onOpenChange={setIsAddEnquiryModalOpen}>
+              <DialogContent 
+                  className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+                  onPointerDownOutside={(e) => e.preventDefault()}
+              >
+                  <CreateEnquiryFormModal 
+                      onSuccess={() => {
+                          setIsAddEnquiryModalOpen(false);
+                          queryClient.invalidateQueries({ queryKey: ['parentDetails', parentId] });
+                      }}
+                      onFormSubmit={createEnquiryMutation.mutate}
+                      isSubmitting={createEnquiryMutation.isPending}
+                  />
+              </DialogContent>
+            </Dialog>
         </TooltipProvider>
         </>
     );
