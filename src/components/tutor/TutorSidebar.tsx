@@ -1,3 +1,4 @@
+
 // src/components/tutor/TutorSidebar.tsx
 "use client";
 
@@ -45,48 +46,17 @@ export function TutorSidebar(props: TutorSidebarProps) {
         "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out", // Base common classes
  props.isMobile
  ? cn( // Mobile specific positioning & sizing
- "fixed inset-y-0 left-0 z-40 w-60 transform",
- `top-[var(--header-height,0px)] h-[calc(100vh_-_var(--header-height,0px))]`, // Positioned below header
+ "fixed z-40 w-60 transform",
+ `top-[var(--header-height)] bottom-0`, // Positioned below header
  props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
  )
  : cn( // Desktop specific positioning & sizing
- "relative hidden md:flex md:flex-col h-auto", // Use h-auto to let content define height
+ "relative md:flex md:flex-col", // Removed h-full
  props.isNavbarCollapsed ? "w-20" : "w-60"
  )
       )}
       aria-label="Tutor Navigation"
     >
-      {/* Navbar Header/Logo Section */}
-      <div
-        className={cn(
- "h-16 flex items-center border-b border-border shrink-0", // Fixed height for header
-          props.isMobile
-            ? "justify-between px-4" // Mobile: Logo left, close button right
- : (props.isNavbarCollapsed ? "justify-center px-2" : "justify-between px-4") // Desktop: Varies
-        )}
-      >
- {props.user && (
- <div
- className={cn(
- "flex items-center gap-2",
- !props.isMobile && props.isNavbarCollapsed && "justify-center" // Center on collapsed desktop
- )}
- >
- <Avatar className="h-8 w-8 shrink-0">
-  <AvatarImage src={props.user.avatar || `https://avatar.vercel.sh/${props.user.email}.png`} alt={props.user.name} />
- <AvatarFallback className="text-xs bg-primary/20 text-primary">
- {props.user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
- </AvatarFallback>
- </Avatar>       
- {(!props.isMobile && !props.isNavbarCollapsed) && ( // Show name and email on expanded desktop
- <div className="text-xs min-w-0">
- <p className="font-semibold text-foreground truncate">{props.user.name}</p>
- </div>
- )}
- </div>
- )}
-      </div>
-
       {/* Navigation Links */}
       <div className="flex-grow overflow-y-auto p-3 space-y-1">
  {/* Main Nav Items */}

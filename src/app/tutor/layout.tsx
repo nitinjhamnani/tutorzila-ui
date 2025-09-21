@@ -104,14 +104,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-screen bg-secondary">
       {/* Integrated Header - Sticky */}
       {hasMounted && (
         <header
           className={cn(
-            "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30",
-            `h-[${headerHeight}]`
+            "bg-card shadow-sm w-full px-2 flex items-center justify-between sticky top-0 z-40 shrink-0",
+            "h-[var(--header-height)]"
           )}
         >
           <div className="flex items-center gap-2">
@@ -126,7 +125,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               <MenuIcon className="h-6 w-6" />
             </Button>
             <Link href="/tutor/dashboard">
-              <Logo className="h-8 w-auto" />
+              <Logo className="h-16 w-auto p-0" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -138,11 +137,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
               </span>
             </Button>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 h-8 w-8">
-              <SettingsIcon className="w-4 h-4" />
-              <span className="sr-only">Settings</span>
-            </Button>
-            {/* Logout Icon Button */}
             <Button
               variant="ghost"
               size="icon"
@@ -171,14 +165,21 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         />
         <main
           className={cn(
-            "flex-1 flex flex-col overflow-y-auto bg-secondary"
+            "flex-1 flex flex-col overflow-y-auto bg-secondary p-4 sm:p-6 md:p-8"
           )}
         >
-          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full p-4 sm:p-6 md:p-8">
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out w-full">
             {children}
           </div>
         </main>
       </div>
+       {isMobile && isMobileNavOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/30 md:hidden"
+          onClick={toggleMobileNav}
+          aria-label="Close navigation menu"
+        />
+      )}
     </div>
   );
 }
