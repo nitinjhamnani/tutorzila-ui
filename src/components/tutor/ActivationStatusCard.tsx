@@ -79,16 +79,19 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         }
       });
       if (response.ok) {
-        const result = await response.json();
-        if (result.success === true) {
-          setVerificationStatus('success');
-          cleanupAndClose(true, result.message);
-          return 'success';
-        } else {
-          // If the API confirms failure, stop polling
-          setVerificationStatus('failed');
-          cleanupAndClose(false, result.message);
-          return 'failed';
+        const responseText = await response.text();
+        if (responseText) { // Check if response body is not empty
+          const result = JSON.parse(responseText);
+          if (result.success === true) {
+            setVerificationStatus('success');
+            cleanupAndClose(true, result.message);
+            return 'success';
+          } else {
+            // If the API confirms failure, stop polling
+            setVerificationStatus('failed');
+            cleanupAndClose(false, result.message);
+            return 'failed';
+          }
         }
       }
       return 'pending';
