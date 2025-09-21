@@ -34,6 +34,42 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const activationFee = 199;
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://mercury-uat.phonepe.com/web/bundle/checkout.js";
+    script.async = true;
+
+    const handleScriptLoad = () => {
+      console.log("PhonePe SDK loaded successfully.");
+      setError(null);
+    };
+
+    const handleScriptError = () => {
+        console.error("Failed to load PhonePe SDK.");
+        setError("Failed to load payment SDK. Please refresh the page.");
+        toast({
+            variant: "destructive",
+            title: "Payment Error",
+            description: "Could not load the payment SDK. Please check your internet connection and refresh.",
+        });
+    };
+
+    script.addEventListener("load", handleScriptLoad);
+    script.addEventListener("error", handleScriptError);
+
+    document.body.appendChild(script);
+
+    return () => {
+      script.removeEventListener("load", handleScriptLoad);
+      script.removeEventListener("error", handleScriptError);
+      document.body.removeChild(script);
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [toast]);
+
+
   const cleanupAndClose = (success: boolean) => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
@@ -53,14 +89,21 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
 
   const checkPaymentStatus = async (paymentId: string) => {
     try {
-      const response = await fetch(`/api/tutor/activation?paymentId=${paymentId}`, {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+      const response = await fetch(`${apiBaseUrl}/api/payment/tutor/status?paymentId=${paymentId}`, {
         method: 'GET',
-        headers: { 'accept': '*/*' }
+        headers: {
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (response.ok) {
-        setVerificationStatus('success');
-        cleanupAndClose(true);
-        return 'success';
+        const result = await response.json();
+        if (result.status === 'SUCCESS') {
+          setVerificationStatus('success');
+          cleanupAndClose(true);
+          return 'success';
+        }
       }
       return 'pending';
     } catch (e) {
@@ -87,6 +130,16 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   };
   
   const initiatePayment = async () => {
+    if (!window.PhonePeCheckout) {
+        setError("Payment SDK is not ready. Please wait a moment and try again.");
+        toast({
+            variant: "destructive",
+            title: "Payment Gateway Not Ready",
+            description: "The payment gateway is still loading. Please wait a moment and try again.",
+        });
+        return;
+    }
+
     setIsInitiatingPayment(true);
     setError(null);
     try {
@@ -109,39 +162,27 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       setIsPaymentFlowActive(true);
       setIsInitiatingPayment(false);
 
-      // wait until SDK is ready
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        if (window.PhonePeCheckout) {
-          clearInterval(interval);
-          try {
-            window.PhonePeCheckout.transact({
-              tokenUrl: paymentUrl,
-              callback: (response: any) => {
-                console.log("PhonePe callback:", response);
-                if (window.PhonePeCheckout.closePage) {
-                  window.PhonePeCheckout.closePage();
-                }
-                if (response === "CONCLUDED") {
-                  startPolling(paymentId);
-                } else if (response === "USER_CANCEL") {
-                  cleanupAndClose(false); // Handle user cancellation
-                }
-              },
-              type: "IFRAME",
-              containerId: "phonepe-container-direct"
-            });
-          } catch (e) {
-            setError("Could not initiate PhonePe checkout.");
-            setIsPaymentFlowActive(false);
-          }
-        } else if (attempts > 50) { // ~5 seconds timeout
-          clearInterval(interval);
-          setError("Failed to initialize payment SDK. Please refresh and try again.");
-          setIsPaymentFlowActive(false);
-        }
-      }, 100);
+      try {
+        window.PhonePeCheckout.transact({
+          tokenUrl: paymentUrl,
+          callback: (response: any) => {
+            console.log("PhonePe callback", response); // Added for debugging
+            if (window.PhonePeCheckout.closePage) {
+              window.PhonePeCheckout.closePage();
+            }
+            if (response === "CONCLUDED") {
+              startPolling(paymentId);
+            } else if (response === "USER_CANCEL") {
+              cleanupAndClose(false); 
+            }
+          },
+          type: "IFRAME",
+          containerId: "phonepe-container-direct"
+        });
+      } catch (e) {
+        setError("Could not initiate PhonePe checkout.");
+        setIsPaymentFlowActive(false);
+      }
 
     } catch (error: any) {
       toast({
@@ -177,7 +218,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
           </p>
         </div>
         
-        <div id="phonepe-container-direct" className={cn("w-full h-full min-h-[50px]", !isPaymentFlowActive && "hidden")}>
+        <div id="phonepe-container-direct" className={cn("w-full h-[600px] z-[201]", !isPaymentFlowActive && "hidden")}>
           {isInitiatingPayment && (
             <div className="flex items-center justify-center gap-2 text-sm text-destructive h-[36px]">
               <Loader2 className="h-4 w-4 animate-spin"/>
