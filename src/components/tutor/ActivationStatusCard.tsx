@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from 'react';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { useQueryClient } from "@tanstack/react-query";
 
 declare global {
   interface Window {
@@ -32,6 +33,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('idle');
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const activationFee = 199;
@@ -58,6 +60,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         title: "Payment Successful!",
         description: message || "Your account has been activated.",
       });
+      queryClient.invalidateQueries({ queryKey: ['tutorDashboard', token] });
       onActivate();
     } else {
       toast({
@@ -81,13 +84,12 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       if (response.ok) {
         const responseText = await response.text();
         if (responseText) {
-          const result = JSON.parse(responseText);
-          if (result.transactionStatus === "COMPLETED") {
-            setVerificationStatus('success');
-            cleanupAndClose(true, "Transaction is completed.");
-            return 'success';
-          }
-          // Assuming other statuses are pending or can be polled again
+            const result = JSON.parse(responseText);
+            if (result.transactionStatus === "COMPLETED") {
+                setVerificationStatus('success');
+                // Don't call cleanupAndClose here directly, let the polling logic handle it
+                return 'success';
+            }
         }
       }
       return 'pending';
@@ -97,23 +99,31 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     }
   };
 
-  const startPolling = (paymentId: string) => {
-    setVerificationStatus('verifying');
-    showLoader("Verifying payment status...");
+  const startPolling = (paymentId: string, concludedByUser: boolean = false) => {
+    if(concludedByUser) {
+        showLoader("Verifying payment status...");
+    }
+    
     let attempts = 0;
-    const maxAttempts = 20; 
+    const maxAttempts = concludedByUser ? 20 : 6; // Poll longer if user concluded, shorter if immediate
+    const interval = concludedByUser ? 6000 : 10000;
 
     pollingIntervalRef.current = setInterval(async () => {
       attempts++;
       const status = await checkPaymentStatus(paymentId);
-      if (status === 'success' || attempts >= maxAttempts) {
+      if (status === 'success') {
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-        if (status !== 'success') {
-          setVerificationStatus('timeout');
-          cleanupAndClose(false, "Payment verification timed out. Please check again later or contact support.");
+        if(window.PhonePeCheckout) window.PhonePeCheckout.closePage();
+        cleanupAndClose(true, "Transaction is completed.");
+        queryClient.invalidateQueries({ queryKey: ['tutorDashboard'] });
+      } else if (attempts >= maxAttempts) {
+        if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+        if (concludedByUser) {
+            cleanupAndClose(false, "Payment verification timed out. Please check again later or contact support.");
         }
+        // If not concluded by user, we just stop polling silently, user is still in the iframe
       }
-    }, 6000); 
+    }, interval); 
   };
   
   const initiatePayment = async () => {
@@ -148,6 +158,8 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
 
       setIsPaymentFlowActive(true);
       setIsInitiatingPayment(false);
+      
+      startPolling(paymentId, false); // Start polling immediately
 
       try {
         window.PhonePeCheckout.transact({
@@ -155,7 +167,8 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
           callback: (response: any) => {
             console.log("PhonePe callback", response);
             if (response === "CONCLUDED") {
-              startPolling(paymentId);
+              if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current); // Stop immediate polling
+              startPolling(paymentId, true); // Start polling with loader
             } else if (response === "USER_CANCEL") {
               cleanupAndClose(false, "You cancelled the payment process."); 
             }
@@ -230,3 +243,4 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     </Card>
   );
 }
+
