@@ -140,8 +140,10 @@ declare module "lucide-react" {
     export const CheckSquare: React.FC<React.SVGProps<SVGSVGElement>>;
     export const MapPinned: React.FC<React.SVGProps<SVGSVGElement>>;
     export const MoreVertical: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Loader2: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
     
 
     
+
