@@ -29,7 +29,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const paymentContainerRef = useRef<HTMLDivElement>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const activationFee = 199;
 
@@ -90,12 +89,12 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     setIsPaymentFlowActive(true); 
     setError(null);
     try {
+      // MOCK: Replace with your actual API call to get the payment token
       await new Promise(resolve => setTimeout(resolve, 1000));
       const mockData = {
         tokenUrl: "https://mercury-uat.phonepe.com/transact/uat_v2?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzT24iOjE3NTc3MDcyODIzODksIm1lcmNoYW50SWQiOiJURVNULU0yM1VRR0cwMjROSVMiLCJtZXJjaGFudE9yZGVySWQiOiI1YmI5YjgxYS0yY2JiLTRiOTktYjE4NS02NmUyMDc1NmM4MTUifQ.KCoOafCY9cIzAd0qp4sGj82MVtfhykDdghpdexS-f5s",
         paymentId: `pid_${Date.now()}`
       };
-
 
       const scriptUrl = 'https://mercury-stg.phonepe.com/web/bundle/checkout.js';
       const script = document.createElement('script');
@@ -121,17 +120,20 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
             } catch (e) {
               setError("Could not initiate PhonePe checkout.");
               setIsInitiatingPayment(false);
+              setIsPaymentFlowActive(false);
             }
           } else if (attempts > 50) {
             clearInterval(interval);
             setError("Failed to initialize payment SDK.");
             setIsInitiatingPayment(false);
+            setIsPaymentFlowActive(false);
           }
         }, 100);
       };
       script.onerror = () => {
         setError("Failed to load the payment SDK.");
         setIsInitiatingPayment(false);
+        setIsPaymentFlowActive(false);
       };
       document.body.appendChild(script);
 
@@ -145,82 +147,53 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       setIsPaymentFlowActive(false);
     }
   };
-  
-  const showOverlayLoader = isInitiatingPayment || verificationStatus === 'verifying' || verificationStatus === 'timeout' || error;
-
 
   return (
-    <>
-      <Card className={cn("bg-destructive/10 border-destructive/20 text-destructive-foreground animate-in fade-in duration-500 ease-out", className)}>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-destructive/20 rounded-full">
-              <ShieldAlert className="h-6 w-6 text-destructive" />
-            </div>
-            <div>
-              <CardTitle className="text-xl font-semibold text-destructive">Account Activation Required</CardTitle>
-              <CardDescription className="text-destructive/80 mt-1">
-                Your account is currently inactive. Please complete the activation to start receiving student enquiries.
-              </CardDescription>
-            </div>
+    <Card className={cn("bg-destructive/10 border-destructive/20 text-destructive-foreground animate-in fade-in duration-500 ease-out", className)}>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-destructive/20 rounded-full">
+            <ShieldAlert className="h-6 w-6 text-destructive" />
           </div>
-        </CardHeader>
-        <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-destructive/10 p-4 border-t border-destructive/20">
-          <div className="flex-grow">
-            <p className="text-sm font-semibold text-destructive">One-Time Activation Fee: <span className="text-lg">₹{activationFee}</span></p>
-            <p className="text-xs text-destructive/80 mt-1">
-              By activating, you agree to our{' '}
-              <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">Terms & Conditions</Link>.
-            </p>
+          <div>
+            <CardTitle className="text-xl font-semibold text-destructive">Account Activation Required</CardTitle>
+            <CardDescription className="text-destructive/80 mt-1">
+              Your account is currently inactive. Please complete the activation to start receiving student enquiries.
+            </CardDescription>
           </div>
-          {!isPaymentFlowActive ? (
-            <Button 
-              variant="destructive" 
-              size="sm"
-              className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 transform transition-transform hover:scale-105 active:scale-95"
-              onClick={initiatePayment}
-              disabled={isInitiatingPayment}
-            >
-              {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
-              {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
-            </Button>
-          ) : (
-             <div className="w-full sm:w-auto min-h-[50px] flex items-center justify-center">
-                {isInitiatingPayment && (
-                    <div className="flex items-center gap-2 text-sm text-destructive">
-                        <Loader2 className="h-4 w-4 animate-spin"/>
-                        <span>Loading payment gateway...</span>
-                    </div>
-                )}
-             </div>
-          )}
-        </CardFooter>
-      </Card>
-      
-      {isPaymentFlowActive && (
-        <>
-            <div className="fixed inset-0 z-[99] bg-black/60 backdrop-blur-sm" onClick={() => setIsPaymentFlowActive(false)}></div>
-            <div className="fixed inset-0 z-[100] p-4 flex flex-col items-center justify-center pointer-events-none">
-              <div className="bg-card rounded-lg w-full max-w-md h-[90vh] max-h-[650px] flex flex-col overflow-hidden pointer-events-auto">
-                <div className="p-4 border-b flex items-center justify-between">
-                  <h3 className="font-semibold text-center text-foreground">Complete Your Payment</h3>
-                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsPaymentFlowActive(false)}>
-                      <p className="sr-only">Close</p>
-                    </Button>
-                </div>
-                <div className="flex-grow relative flex items-center justify-center">
-                  {(verificationStatus === 'verifying' || verificationStatus === 'timeout') && (
-                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-20 p-4 text-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p>{verificationStatus === 'verifying' ? "Verifying payment, please wait..." : "Verification taking longer than usual."}</p>
-                     </div>
-                  )}
-                  <div id="phonepe-container-direct" className="w-full h-full z-10"/>
-                </div>
-              </div>
-            </div>
-        </>
-      )}
-    </>
+        </div>
+      </CardHeader>
+      <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-destructive/10 p-4 border-t border-destructive/20">
+        <div className="flex-grow">
+          <p className="text-sm font-semibold text-destructive">One-Time Activation Fee: <span className="text-lg">₹{activationFee}</span></p>
+          <p className="text-xs text-destructive/80 mt-1">
+            By activating, you agree to our{' '}
+            <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">Terms & Conditions</Link>.
+          </p>
+        </div>
+        {!isPaymentFlowActive ? (
+          <Button 
+            variant="destructive" 
+            size="sm"
+            className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 transform transition-transform hover:scale-105 active:scale-95"
+            onClick={initiatePayment}
+            disabled={isInitiatingPayment}
+          >
+            {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
+            {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
+          </Button>
+        ) : (
+           <div className="w-full sm:w-auto min-h-[50px] flex items-center justify-center">
+              {isInitiatingPayment && (
+                  <div className="flex items-center gap-2 text-sm text-destructive">
+                      <Loader2 className="h-4 w-4 animate-spin"/>
+                      <span>Loading payment gateway...</span>
+                  </div>
+              )}
+               <div id="phonepe-container-direct" className={cn("w-full h-full", isInitiatingPayment ? 'hidden' : 'block')}/>
+           </div>
+        )}
+      </CardFooter>
+    </Card>
   );
 }
