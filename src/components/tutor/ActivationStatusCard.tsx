@@ -87,6 +87,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   
   const initiatePayment = async () => {
     setIsInitiatingPayment(true);
+    setIsPaymentFlowActive(true); 
     setError(null);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -95,7 +96,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         paymentId: `pid_${Date.now()}`
       };
 
-      setIsPaymentFlowActive(true); // Open the overlay
 
       const scriptUrl = 'https://mercury-stg.phonepe.com/web/bundle/checkout.js';
       const script = document.createElement('script');
@@ -142,6 +142,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         description: "Could not initiate the payment process. Please try again.",
       });
       setIsInitiatingPayment(false);
+      setIsPaymentFlowActive(false);
     }
   };
   
@@ -172,37 +173,53 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
               <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">Terms & Conditions</Link>.
             </p>
           </div>
-          <Button 
-            variant="destructive" 
-            size="sm"
-            className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 transform transition-transform hover:scale-105 active:scale-95"
-            onClick={initiatePayment}
-            disabled={isInitiatingPayment}
-          >
-            {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
-            {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
-          </Button>
+          {!isPaymentFlowActive ? (
+            <Button 
+              variant="destructive" 
+              size="sm"
+              className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 transform transition-transform hover:scale-105 active:scale-95"
+              onClick={initiatePayment}
+              disabled={isInitiatingPayment}
+            >
+              {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
+              {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
+            </Button>
+          ) : (
+             <div className="w-full sm:w-auto min-h-[50px] flex items-center justify-center">
+                {isInitiatingPayment && (
+                    <div className="flex items-center gap-2 text-sm text-destructive">
+                        <Loader2 className="h-4 w-4 animate-spin"/>
+                        <span>Loading payment gateway...</span>
+                    </div>
+                )}
+             </div>
+          )}
         </CardFooter>
       </Card>
-
+      
       {isPaymentFlowActive && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm p-4 flex flex-col items-center justify-center">
-          <div className="bg-card rounded-lg w-full max-w-md h-[90vh] max-h-[650px] flex flex-col overflow-hidden">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold text-center text-foreground">Complete Your Payment</h3>
-            </div>
-            <div className="flex-grow relative flex items-center justify-center">
-              {showOverlayLoader && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-10 p-4 text-center">
-                  {(isInitiatingPayment || verificationStatus === 'verifying') && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
-                  <p>{error || (isInitiatingPayment ? "Loading payment page..." : verificationStatus === 'verifying' ? "Verifying payment..." : "Verification taking longer than usual. Please wait.")}</p>
-                  {(error || verificationStatus === 'timeout') && <Button onClick={() => setIsPaymentFlowActive(false)} variant="outline" className="mt-4">Close</Button>}
+        <>
+            <div className="fixed inset-0 z-[99] bg-black/60 backdrop-blur-sm" onClick={() => setIsPaymentFlowActive(false)}></div>
+            <div className="fixed inset-0 z-[100] p-4 flex flex-col items-center justify-center pointer-events-none">
+              <div className="bg-card rounded-lg w-full max-w-md h-[90vh] max-h-[650px] flex flex-col overflow-hidden pointer-events-auto">
+                <div className="p-4 border-b flex items-center justify-between">
+                  <h3 className="font-semibold text-center text-foreground">Complete Your Payment</h3>
+                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsPaymentFlowActive(false)}>
+                      <p className="sr-only">Close</p>
+                    </Button>
                 </div>
-              )}
-              <div id="phonepe-container-direct" className="w-full h-full" ref={paymentContainerRef}/>
+                <div className="flex-grow relative flex items-center justify-center">
+                  {(verificationStatus === 'verifying' || verificationStatus === 'timeout') && (
+                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground bg-background z-20 p-4 text-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <p>{verificationStatus === 'verifying' ? "Verifying payment, please wait..." : "Verification taking longer than usual."}</p>
+                     </div>
+                  )}
+                  <div id="phonepe-container-direct" className="w-full h-full z-10"/>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+        </>
       )}
     </>
   );
