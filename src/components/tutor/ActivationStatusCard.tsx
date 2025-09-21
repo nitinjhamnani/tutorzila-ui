@@ -92,7 +92,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       // MOCK: Replace with your actual API call to get the payment token
       await new Promise(resolve => setTimeout(resolve, 1000));
       const mockData = {
-        tokenUrl: "https://mercury-uat.phonepe.com/transact/uat_v2?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzT24iOjE3NTc3MDcyODIzODksIm1lcmNoYW50SWQiOiJURVNULU0yM1VRR0cwMjROSVMiLCJtZXJjaGFudE9yZGVySWQiOiI1YmI5YjgxYS0yY2JiLTRiOTktYjE4NS02NmUyMDc1NmM4MTUifQ.KCoOafCY9cIzAd0qp4sGj82MVtfhykDdghpdexS-f5s",
+        tokenUrl: "https://mercury-uat.phonepe.com/transact/uat_v2?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzT24iOjE3NTg0NzAyMjY3MTEsIm1lcmNoYW50SWQiOiJURVNULU0yM1VRR0cwMjROSVMiLCJtZXJjaGFudE9yZGVySWQiOiJhN2QyNjhiMS1iOWI4LTQ0YWItOTJiMS1jMjA5MTFiYWQwZDkifQ.I4GgZXbfpwbahuYCFW8fsLeEgPfirqe7D0fDpE6ELEY",
         paymentId: `pid_${Date.now()}`
       };
 
