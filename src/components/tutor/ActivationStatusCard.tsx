@@ -86,7 +86,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   
   const initiatePayment = async () => {
     setIsInitiatingPayment(true);
-    setIsPaymentFlowActive(true); 
     setError(null);
     try {
       // MOCK: Replace with your actual API call to get the payment token
@@ -96,46 +95,34 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         paymentId: `pid_${Date.now()}`
       };
 
-      const scriptUrl = 'https://mercury-stg.phonepe.com/web/bundle/checkout.js';
-      const script = document.createElement('script');
-      script.src = scriptUrl;
-      script.async = true;
-      script.onload = () => {
-        let attempts = 0;
-        const interval = setInterval(() => {
-          attempts++;
-          if (window.PhonePeCheckout) {
-            clearInterval(interval);
-            setIsInitiatingPayment(false);
-            try {
-              window.PhonePeCheckout.transact({
-                tokenUrl: mockData.tokenUrl,
-                callback: () => {
-                  if (window.PhonePeCheckout.closePage) window.PhonePeCheckout.closePage();
-                  startPolling(mockData.paymentId);
-                },
-                type: "IFRAME",
-                containerId: "phonepe-container-direct"
-              });
-            } catch (e) {
-              setError("Could not initiate PhonePe checkout.");
-              setIsInitiatingPayment(false);
-              setIsPaymentFlowActive(false);
-            }
-          } else if (attempts > 50) {
-            clearInterval(interval);
-            setError("Failed to initialize payment SDK.");
-            setIsInitiatingPayment(false);
+      setIsPaymentFlowActive(true);
+      setIsInitiatingPayment(false);
+
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (window.PhonePeCheckout) {
+          clearInterval(interval);
+          try {
+            window.PhonePeCheckout.transact({
+              tokenUrl: mockData.tokenUrl,
+              callback: () => {
+                if (window.PhonePeCheckout.closePage) window.PhonePeCheckout.closePage();
+                startPolling(mockData.paymentId);
+              },
+              type: "IFRAME",
+              containerId: "phonepe-container-direct"
+            });
+          } catch (e) {
+            setError("Could not initiate PhonePe checkout.");
             setIsPaymentFlowActive(false);
           }
-        }, 100);
-      };
-      script.onerror = () => {
-        setError("Failed to load the payment SDK.");
-        setIsInitiatingPayment(false);
-        setIsPaymentFlowActive(false);
-      };
-      document.body.appendChild(script);
+        } else if (attempts > 50) { // ~5 seconds timeout
+          clearInterval(interval);
+          setError("Failed to initialize payment SDK. Please refresh and try again.");
+          setIsPaymentFlowActive(false);
+        }
+      }, 100);
 
     } catch (error) {
       toast({
@@ -144,7 +131,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         description: "Could not initiate the payment process. Please try again.",
       });
       setIsInitiatingPayment(false);
-      setIsPaymentFlowActive(false);
     }
   };
 
@@ -171,7 +157,19 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
             <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">Terms & Conditions</Link>.
           </p>
         </div>
-        {!isPaymentFlowActive ? (
+        
+        <div className={cn("w-full sm:w-auto", !isPaymentFlowActive && "hidden")}>
+          {isInitiatingPayment ? (
+            <div className="flex items-center justify-center gap-2 text-sm text-destructive h-[36px]">
+              <Loader2 className="h-4 w-4 animate-spin"/>
+              <span>Loading payment gateway...</span>
+            </div>
+          ) : (
+            <div id="phonepe-container-direct" className="w-full h-full min-h-[50px]"></div>
+          )}
+        </div>
+
+        {!isPaymentFlowActive && (
           <Button 
             variant="destructive" 
             size="sm"
@@ -182,16 +180,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
             {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
             {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
           </Button>
-        ) : (
-           <div className="w-full sm:w-auto min-h-[50px] flex items-center justify-center">
-              {isInitiatingPayment && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
-                      <Loader2 className="h-4 w-4 animate-spin"/>
-                      <span>Loading payment gateway...</span>
-                  </div>
-              )}
-               <div id="phonepe-container-direct" className={cn("w-full h-full", isInitiatingPayment ? 'hidden' : 'block')}/>
-           </div>
         )}
       </CardFooter>
     </Card>
