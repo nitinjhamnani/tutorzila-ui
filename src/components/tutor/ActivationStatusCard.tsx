@@ -87,7 +87,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
             const result = JSON.parse(responseText);
             if (result.transactionStatus === "COMPLETED") {
                 setVerificationStatus('success');
-                // Don't call cleanupAndClose here directly, let the polling logic handle it
                 return 'success';
             }
         }
@@ -105,7 +104,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     }
     
     let attempts = 0;
-    const maxAttempts = concludedByUser ? 20 : 6; // Poll longer if user concluded, shorter if immediate
+    const maxAttempts = concludedByUser ? 20 : 12; // Poll longer if user concluded, 2 minutes if immediate
     const interval = concludedByUser ? 6000 : 10000;
 
     pollingIntervalRef.current = setInterval(async () => {
@@ -113,7 +112,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       const status = await checkPaymentStatus(paymentId);
       if (status === 'success') {
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-        if(window.PhonePeCheckout) window.PhonePeCheckout.closePage();
+        if(window.PhonePeCheckout && typeof window.PhonePeCheckout.closePage === 'function') window.PhonePeCheckout.closePage();
         cleanupAndClose(true, "Transaction is completed.");
         queryClient.invalidateQueries({ queryKey: ['tutorDashboard'] });
       } else if (attempts >= maxAttempts) {
@@ -243,4 +242,3 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     </Card>
   );
 }
-
