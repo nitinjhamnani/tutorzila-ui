@@ -46,7 +46,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   }, []);
 
 
-  const cleanupAndClose = (success: boolean) => {
+  const cleanupAndClose = (success: boolean, message?: string) => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
@@ -54,12 +54,16 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     hideLoader();
     setIsPaymentFlowActive(false);
     if (success) {
+      toast({
+        title: "Payment Successful!",
+        description: message || "Your account has been activated.",
+      });
       onActivate();
     } else {
       toast({
           variant: "destructive",
           title: "Payment Failed",
-          description: "Your payment could not be completed. Please try again.",
+          description: message || "Your payment could not be completed. Please try again.",
       });
     }
   };
@@ -67,7 +71,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const checkPaymentStatus = async (paymentId: string) => {
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-      const response = await fetch(`${apiBaseUrl}/api/payment/tutor/status?paymentId=${paymentId}`, {
+      const response = await fetch(`${apiBaseUrl}/api/payment/status?paymentId=${paymentId}`, {
         method: 'GET',
         headers: {
           'accept': '*/*',
@@ -76,10 +80,15 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       });
       if (response.ok) {
         const result = await response.json();
-        if (result.status === 'SUCCESS') {
+        if (result.success === true) {
           setVerificationStatus('success');
-          cleanupAndClose(true);
+          cleanupAndClose(true, result.message);
           return 'success';
+        } else {
+          // If the API confirms failure, stop polling
+          setVerificationStatus('failed');
+          cleanupAndClose(false, result.message);
+          return 'failed';
         }
       }
       return 'pending';
@@ -98,14 +107,14 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     pollingIntervalRef.current = setInterval(async () => {
       attempts++;
       const status = await checkPaymentStatus(paymentId);
-      if (status === 'success' || attempts >= maxAttempts) {
+      if (status === 'success' || status === 'failed' || attempts >= maxAttempts) {
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-        if (status !== 'success') {
+        if (status !== 'success' && status !== 'failed') {
           setVerificationStatus('timeout');
-          hideLoader();
+          cleanupAndClose(false, "Payment verification timed out. Please check again later or contact support.");
         }
       }
-    }, 6000); // Polling interval changed to 6 seconds
+    }, 6000); 
   };
   
   const initiatePayment = async () => {
@@ -149,7 +158,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
             if (response === "CONCLUDED") {
               startPolling(paymentId);
             } else if (response === "USER_CANCEL") {
-              cleanupAndClose(false); 
+              cleanupAndClose(false, "You cancelled the payment process."); 
             }
             if (window.PhonePeCheckout.closePage) {
                 window.PhonePeCheckout.closePage();
