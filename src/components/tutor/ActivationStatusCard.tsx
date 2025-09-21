@@ -28,29 +28,11 @@ interface ActivationStatusCardProps {
 
 export function ActivationStatusCard({ onActivate, className }: ActivationStatusCardProps) {
   const { toast } = useToast();
-  const [referralCode, setReferralCode] = useState("");
-  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<{ tokenUrl: string; paymentId: string } | null>(null);
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
   const activationFee = 199;
 
-  const handleApplyReferral = () => {
-    if (!referralCode.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Invalid Code",
-        description: "Please enter a referral code.",
-      });
-      return;
-    }
-    toast({
-      title: "Referral Applied (Mock)",
-      description: `Discount for code "${referralCode}" would be applied.`,
-    });
-    setIsReferralModalOpen(false);
-  };
-  
   const initiatePayment = async () => {
     setIsInitiatingPayment(true);
     try {
@@ -100,7 +82,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
 
   return (
     <>
-    <Dialog open={isReferralModalOpen} onOpenChange={setIsReferralModalOpen}>
       <Card className={cn(
           "bg-destructive/10 border-destructive/20 text-destructive-foreground animate-in fade-in duration-500 ease-out",
           className
@@ -136,7 +117,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
             <div className="flex flex-col items-center sm:items-end gap-1.5 w-full sm:w-auto">
                 <Button 
                     variant="destructive" 
-                    size="default" 
+                    size="sm"
                     className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs sm:text-sm py-2 px-3"
                     onClick={initiatePayment}
                     disabled={isInitiatingPayment}
@@ -144,46 +125,10 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
                   {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
                   {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
                 </Button>
-                <DialogTrigger asChild>
-                  <Button variant="link" className="p-0 h-auto text-xs text-destructive/80 hover:text-destructive">
-                    Have a referral code?
-                  </Button>
-                </DialogTrigger>
             </div>
         </CardFooter>
       </Card>
       
-      <DialogContent className="sm:max-w-md bg-card">
-        <DialogHeader>
-          <DialogTitle className="flex items-center text-primary">
-            <Percent className="mr-2 h-5 w-5"/>
-            Apply Referral Code
-          </DialogTitle>
-          <DialogDescription>
-            Enter your referral code below to avail a discount on your activation fee.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-2">
-           <div className="relative">
-                <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                    id="referral-code-modal"
-                    placeholder="Enter code..."
-                    value={referralCode}
-                    onChange={(e) => setReferralCode(e.target.value)}
-                    className="pl-9 h-10 text-sm bg-input border-border focus:border-primary focus:ring-primary/30"
-                />
-            </div>
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="ghost">Cancel</Button>
-          </DialogClose>
-          <Button type="button" onClick={handleApplyReferral}>Apply Code</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-
     {paymentDetails && (
         <PhonePePaymentModal 
             isOpen={isPaymentModalOpen}
