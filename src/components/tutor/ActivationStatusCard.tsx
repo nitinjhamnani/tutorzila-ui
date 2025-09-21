@@ -108,7 +108,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
                 <Button 
                     variant="destructive" 
                     size="sm"
-                    className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-xs sm:text-sm py-2 px-3"
+                    className="w-full sm:w-auto text-xs sm:text-sm py-2 px-3 transform transition-transform hover:scale-105 active:scale-95"
                     onClick={initiatePayment}
                     disabled={isInitiatingPayment}
                 >
