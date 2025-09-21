@@ -35,39 +35,13 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
   const activationFee = 199;
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://mercury-uat.phonepe.com/web/bundle/checkout.js";
-    script.async = true;
-
-    const handleScriptLoad = () => {
-      console.log("PhonePe SDK loaded successfully.");
-      setError(null);
-    };
-
-    const handleScriptError = () => {
-        console.error("Failed to load PhonePe SDK.");
-        setError("Failed to load payment SDK. Please refresh the page.");
-        toast({
-            variant: "destructive",
-            title: "Payment Error",
-            description: "Could not load the payment SDK. Please check your internet connection and refresh.",
-        });
-    };
-
-    script.addEventListener("load", handleScriptLoad);
-    script.addEventListener("error", handleScriptError);
-
-    document.body.appendChild(script);
-
+    // Cleanup polling interval on component unmount
     return () => {
-      script.removeEventListener("load", handleScriptLoad);
-      script.removeEventListener("error", handleScriptError);
-      document.body.removeChild(script);
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
       }
     };
-  }, [toast]);
+  }, []);
 
 
   const cleanupAndClose = (success: boolean) => {
@@ -166,14 +140,14 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         window.PhonePeCheckout.transact({
           tokenUrl: paymentUrl,
           callback: (response: any) => {
-            console.log("PhonePe callback", response); // Added for debugging
-            if (window.PhonePeCheckout.closePage) {
-              window.PhonePeCheckout.closePage();
-            }
+            console.log("PhonePe callback", response);
             if (response === "CONCLUDED") {
               startPolling(paymentId);
             } else if (response === "USER_CANCEL") {
               cleanupAndClose(false); 
+            }
+            if (window.PhonePeCheckout.closePage) {
+                window.PhonePeCheckout.closePage();
             }
           },
           type: "IFRAME",
