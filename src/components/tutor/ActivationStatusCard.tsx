@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from 'react';
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 declare global {
   interface Window {
@@ -26,6 +27,7 @@ type VerificationStatus = 'idle' | 'verifying' | 'success' | 'failed' | 'timeout
 export function ActivationStatusCard({ onActivate, className }: ActivationStatusCardProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
+  const { showLoader, hideLoader } = useGlobalLoader();
   const [isPaymentFlowActive, setIsPaymentFlowActive] = useState(false);
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('idle');
@@ -49,6 +51,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
     }
+    hideLoader();
     setIsPaymentFlowActive(false);
     if (success) {
       onActivate();
@@ -88,8 +91,9 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
 
   const startPolling = (paymentId: string) => {
     setVerificationStatus('verifying');
+    showLoader("Verifying payment status...");
     let attempts = 0;
-    const maxAttempts = 20; // ~1 minute
+    const maxAttempts = 20; 
 
     pollingIntervalRef.current = setInterval(async () => {
       attempts++;
@@ -98,9 +102,10 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
         if (status !== 'success') {
           setVerificationStatus('timeout');
+          hideLoader();
         }
       }
-    }, 3000);
+    }, 6000); // Polling interval changed to 6 seconds
   };
   
   const initiatePayment = async () => {

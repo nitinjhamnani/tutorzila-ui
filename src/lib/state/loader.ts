@@ -1,4 +1,9 @@
 
 import { atom } from "jotai";
 
-export const loaderAtom = atom<boolean>(false);
+export interface LoaderState {
+  isLoading: boolean;
+  message?: string;
+}
+
+export const loaderAtom = atom<LoaderState>({ isLoading: false, message: undefined });

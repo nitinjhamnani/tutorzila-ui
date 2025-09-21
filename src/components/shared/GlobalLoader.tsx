@@ -4,16 +4,15 @@
 import { useAtom } from "jotai";
 import { loaderAtom } from "@/lib/state/loader";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
 
 export function GlobalLoader() {
-  const [isLoading] = useAtom(loaderAtom);
+  const [loaderState] = useAtom(loaderAtom);
 
   return (
     <div
       className={cn(
         "fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300",
-        isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
+        loaderState.isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
       )}
     >
       <div className="flex flex-col items-center gap-4">
@@ -31,6 +30,9 @@ export function GlobalLoader() {
             strokeWidth="5"
           ></circle>
         </svg>
+        {loaderState.message && (
+          <p className="text-sm font-medium text-white">{loaderState.message}</p>
+        )}
       </div>
     </div>
   );
