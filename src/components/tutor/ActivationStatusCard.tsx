@@ -88,7 +88,8 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     setIsInitiatingPayment(true);
     setError(null);
     try {
-      const response = await fetch(`/api/payment/tutor?amount=${activationFee}`, {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/api/payment/tutor?amount=${activationFee}`, {
         method: 'GET',
         headers: {
           'accept': '*/*',
