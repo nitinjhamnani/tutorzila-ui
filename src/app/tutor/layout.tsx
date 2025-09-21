@@ -108,7 +108,10 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     <>
       <Script
         src="https://mercury-stg.phonepe.com/web/bundle/checkout.js"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
+        onLoad={() => {
+          console.log("✅ PhonePe SDK loaded", window.PhonePeCheckout);
+        }}
       />
       <div className="flex flex-col h-screen bg-secondary">
         {/* Integrated Header - Sticky */}
