@@ -88,16 +88,24 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     setIsInitiatingPayment(true);
     setError(null);
     try {
-      // MOCK: Replace with your actual API call to get the payment token
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockData = {
-        tokenUrl: "https://mercury-uat.phonepe.com/transact/uat_v2?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzT24iOjE3NTg0NzAyMjY3MTEsIm1lcmNoYW50SWQiOiJURVNULU0yM1VRR0cwMjROSVMiLCJtZXJjaGFudE9yZGVySWQiOiJhN2QyNjhiMS1iOWI4LTQ0YWItOTJiMS1jMjA5MTFiYWQwZDkifQ.I4GgZXbfpwbahuYCFW8fsLeEgPfirqe7D0fDpE6ELEY",
-        paymentId: `pid_${Date.now()}`
-      };
+      const response = await fetch(`/api/payment/tutor?amount=${activationFee}`, {
+        method: 'GET',
+        headers: {
+          'accept': '*/*',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get payment details from server.");
+      }
+      
+      const paymentData = await response.json();
+      const { paymentUrl, paymentId } = paymentData;
 
       setIsPaymentFlowActive(true);
       setIsInitiatingPayment(false);
 
+      // wait until SDK is ready
       let attempts = 0;
       const interval = setInterval(() => {
         attempts++;
@@ -105,10 +113,15 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
           clearInterval(interval);
           try {
             window.PhonePeCheckout.transact({
-              tokenUrl: mockData.tokenUrl,
-              callback: () => {
-                if (window.PhonePeCheckout.closePage) window.PhonePeCheckout.closePage();
-                startPolling(mockData.paymentId);
+              tokenUrl: paymentUrl,
+              callback: (response: any) => {
+                console.log("PhonePe callback:", response);
+                if (window.PhonePeCheckout.closePage) {
+                  window.PhonePeCheckout.closePage();
+                }
+                if (response === "CONCLUDED") {
+                  startPolling(paymentId);
+                }
               },
               type: "IFRAME",
               containerId: "phonepe-container-direct"
@@ -124,11 +137,11 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         }
       }, 100);
 
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Payment Error",
-        description: "Could not initiate the payment process. Please try again.",
+        description: error.message || "Could not initiate the payment process. Please try again.",
       });
       setIsInitiatingPayment(false);
     }
@@ -158,14 +171,12 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
           </p>
         </div>
         
-        <div className={cn("w-full sm:w-auto", !isPaymentFlowActive && "hidden")}>
-          {isInitiatingPayment ? (
+        <div id="phonepe-container-direct" className={cn("w-full h-full min-h-[50px]", !isPaymentFlowActive && "hidden")}>
+          {isInitiatingPayment && (
             <div className="flex items-center justify-center gap-2 text-sm text-destructive h-[36px]">
               <Loader2 className="h-4 w-4 animate-spin"/>
               <span>Loading payment gateway...</span>
             </div>
-          ) : (
-            <div id="phonepe-container-direct" className="w-full h-full min-h-[50px]"></div>
           )}
         </div>
 
