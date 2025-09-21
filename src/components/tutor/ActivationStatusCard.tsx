@@ -125,6 +125,8 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
                 }
                 if (response === "CONCLUDED") {
                   startPolling(paymentId);
+                } else if (response === "USER_CANCEL") {
+                  cleanupAndClose(false); // Handle user cancellation
                 }
               },
               type: "IFRAME",
