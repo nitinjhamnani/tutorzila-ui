@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from 'react';
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 declare global {
   interface Window {
@@ -24,6 +25,7 @@ type VerificationStatus = 'idle' | 'verifying' | 'success' | 'failed' | 'timeout
 
 export function ActivationStatusCard({ onActivate, className }: ActivationStatusCardProps) {
   const { toast } = useToast();
+  const { token } = useAuthMock();
   const [isPaymentFlowActive, setIsPaymentFlowActive] = useState(false);
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('idle');
@@ -92,6 +94,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       const response = await fetch(`${apiBaseUrl}/api/payment/tutor?amount=${activationFee}`, {
         method: 'GET',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'accept': '*/*',
         },
       });
