@@ -80,24 +80,20 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       });
       if (response.ok) {
         const responseText = await response.text();
-        if (responseText) { // Check if response body is not empty
+        if (responseText) {
           const result = JSON.parse(responseText);
-          if (result.success === true) {
+          if (result.transactionStatus === "COMPLETED") {
             setVerificationStatus('success');
-            cleanupAndClose(true, result.message);
+            cleanupAndClose(true, "Transaction is completed.");
             return 'success';
-          } else {
-            // If the API confirms failure, stop polling
-            setVerificationStatus('failed');
-            cleanupAndClose(false, result.message);
-            return 'failed';
           }
+          // Assuming other statuses are pending or can be polled again
         }
       }
       return 'pending';
     } catch (e) {
       console.error("Polling failed:", e);
-      return 'pending';
+      return 'pending'; // Continue polling on error
     }
   };
 
@@ -110,9 +106,9 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     pollingIntervalRef.current = setInterval(async () => {
       attempts++;
       const status = await checkPaymentStatus(paymentId);
-      if (status === 'success' || status === 'failed' || attempts >= maxAttempts) {
+      if (status === 'success' || attempts >= maxAttempts) {
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-        if (status !== 'success' && status !== 'failed') {
+        if (status !== 'success') {
           setVerificationStatus('timeout');
           cleanupAndClose(false, "Payment verification timed out. Please check again later or contact support.");
         }
