@@ -14,12 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription, // Renamed to avoid conflict
-  DialogFooter,
-  DialogClose,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -31,9 +26,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { FormControl, FormItem } from "@/components/ui/form"; // Correctly import form components
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditEnquiryModal, type EditEnquiryFormValues } from "@/components/common/modals/EditEnquiryModal";
@@ -60,6 +52,7 @@ import {
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Label } from "@/components/ui/label";
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -281,10 +274,10 @@ export default function ParentEnquiryDetailsPage() {
 
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
-    onSuccess: (updatedData) => {
+    onSuccess: (data) => {
       toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
       
-      const { enquirySummary, enquiryDetails } = updatedData;
+      const { enquirySummary, enquiryDetails } = data;
       const transformStringToArray = (str: string | null | undefined): string[] => {
           if (typeof str === 'string' && str.trim() !== '') return str.split(',').map(s => s.trim());
           return [];
@@ -390,6 +383,7 @@ export default function ParentEnquiryDetailsPage() {
   const startDisplayMap: Record<string, string> = {
     "immediately": "Immediately",
     "within a month": "Within a month",
+    "within_month": "Within a month",
     "just exploring": "Just exploring",
   }
   const startValue = requirement?.startDatePreference ? startDisplayMap[requirement.startDatePreference] : undefined;
@@ -558,14 +552,7 @@ export default function ParentEnquiryDetailsPage() {
                         className="sm:max-w-2xl bg-card p-0 rounded-lg overflow-hidden"
                         onPointerDownOutside={(e) => e.preventDefault()}
                       >
-                        <DialogHeader className="p-6 pb-4 relative border-b">
-                            <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
-                            <DialogDescription className="text-xs">
-                                Update the details for your enquiry.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <EditEnquiryModal
-                            isOpen={isEditModalOpen}
+                         <EditEnquiryModal
                             onOpenChange={setIsEditModalOpen}
                             enquiryData={requirement}
                             onUpdateEnquiry={handleUpdateEnquiry}
@@ -615,11 +602,9 @@ export default function ParentEnquiryDetailsPage() {
                   </RadioGroup>
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">
+                <Button type="button" variant="outline" onClick={() => setIsCloseEnquiryModalOpen(false)}>
                     Cancel
-                  </Button>
-                </DialogClose>
+                </Button>
                 <Button 
                   type="button" 
                   onClick={handleCloseEnquiryDialogAction} 
@@ -635,5 +620,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
-    
