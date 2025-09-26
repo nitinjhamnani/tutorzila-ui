@@ -75,8 +75,8 @@ const editEnquirySchema = z.object({
   ).nullable(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
-  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]),
-  startDatePreference: z.string().min(1, { message: "Start date preference is required."}),
+  tutorGenderPreference: z.enum(["male", "female", "any", "MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
+  startDatePreference: z.enum(["immediately", "within_month", "exploring", "IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -108,7 +108,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
         location: null,
         preferredDays: [],
         preferredTimeSlots: [],
-        tutorGenderPreference: "NO_PREFERENCE",
+        tutorGenderPreference: "any",
         startDatePreference: "immediately",
     },
   });
@@ -129,10 +129,10 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
           preferredDays: enquiryData.preferredDays || [],
           preferredTimeSlots: enquiryData.preferredTimeSlots || [],
           tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
-          startDatePreference: enquiryData.startDatePreference || "immediately",
+          startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
       });
     }
-  }, [enquiryData, form]);
+  }, [enquiryData, form, form.reset]);
 
   const onSubmit: SubmitHandler<EditEnquiryFormValues> = (data) => {
     if (!enquiryData) return;
@@ -191,7 +191,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Level</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
                     </FormControl>
@@ -209,7 +209,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80"/>Board</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a board" /></SelectTrigger>
                     </FormControl>
@@ -326,9 +326,9 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="immediately">Immediately</SelectItem>
-                        <SelectItem value="within_month">Within a month</SelectItem>
-                        <SelectItem value="exploring">Just exploring</SelectItem>
+                        <SelectItem value="IMMEDIATELY">Immediately</SelectItem>
+                        <SelectItem value="WITHIN_A_MONTH">Within a month</SelectItem>
+                        <SelectItem value="JUST_EXPLORING">Just exploring</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -396,3 +396,5 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
     </>
   );
 }
+
+    
