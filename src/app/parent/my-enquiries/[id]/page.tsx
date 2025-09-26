@@ -36,7 +36,7 @@ import { FormControl, FormItem } from "@/components/ui/form"; // Correctly impor
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PostRequirementModal, type PostRequirementFormValues } from "@/components/common/modals/PostRequirementModal";
+import { EditEnquiryModal, type EditEnquiryFormValues } from "@/components/common/modals/EditEnquiryModal";
 import {
   User,
   BookOpen,
@@ -173,21 +173,17 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   };
 };
 
-const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: PostRequirementFormValues }) => {
+const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: EditEnquiryFormValues }) => {
   if (!token) throw new Error("Authentication token is required.");
   
   const locationDetails = formData.location;
   
   let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
   switch(formData.tutorGenderPreference) {
-      case 'male':
-          genderPreferenceApiValue = 'MALE';
-          break;
-      case 'female':
-          genderPreferenceApiValue = 'FEMALE';
-          break;
-      case 'any':
-          genderPreferenceApiValue = 'NO_PREFERENCE';
+      case 'MALE':
+      case 'FEMALE':
+      case 'NO_PREFERENCE':
+          genderPreferenceApiValue = formData.tutorGenderPreference;
           break;
       default:
           genderPreferenceApiValue = undefined;
@@ -284,7 +280,7 @@ export default function ParentEnquiryDetailsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (formData: PostRequirementFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
+    mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
       
@@ -378,7 +374,7 @@ export default function ParentEnquiryDetailsPage() {
     setIsCloseEnquiryModalOpen(false);
   };
 
-  const handleUpdateEnquiry = (updatedData: PostRequirementFormValues) => {
+  const handleUpdateEnquiry = (updatedData: EditEnquiryFormValues) => {
     updateMutation.mutate(updatedData);
   };
   
@@ -562,12 +558,12 @@ export default function ParentEnquiryDetailsPage() {
                         className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
                         onPointerDownOutside={(e) => e.preventDefault()}
                       >
-                        <PostRequirementModal
-                            onSuccess={() => {
-                                queryClient.invalidateQueries({ queryKey: ['parentEnquiryDetails', id] });
-                                setIsEditModalOpen(false);
-                            }}
-                            startFromStep={1}
+                        <EditEnquiryModal
+                            isOpen={isEditModalOpen}
+                            onOpenChange={setIsEditModalOpen}
+                            enquiryData={requirement}
+                            onUpdateEnquiry={handleUpdateEnquiry}
+                            isUpdating={updateMutation.isPending}
                         />
                       </DialogContent>
                     </Dialog>
