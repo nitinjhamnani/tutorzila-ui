@@ -169,7 +169,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     postedAt: enquirySummary.createdOn,
     applicantsCount: enquirySummary.assignedTutors || 0,
     tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
-    startDatePreference: enquiryDetails.startDatePreference?.replace(/_/g, ' ') as 'Immediately' | 'Within a month' | 'Just exploring' | undefined,
+    startDatePreference: enquiryDetails.startDatePreference,
   };
 };
 
@@ -325,7 +325,7 @@ export default function ParentEnquiryDetailsPage() {
       queryClient.setQueryData(['parentEnquiryDetails', id], transformedData);
       setIsEditModalOpen(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({ variant: "destructive", title: "Update Failed", description: error.message });
     },
   });
@@ -344,7 +344,7 @@ export default function ParentEnquiryDetailsPage() {
       toast({
         variant: "destructive",
         title: "Failed to Close Enquiry",
-        description: error.message,
+        description: (error as Error).message,
       });
     },
   });
@@ -635,3 +635,5 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
+    

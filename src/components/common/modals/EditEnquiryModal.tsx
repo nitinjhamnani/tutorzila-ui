@@ -71,7 +71,7 @@ const editEnquirySchema = z.object({
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]),
-  startDatePreference: z.enum(["Immediately", "Within a month", "Just exploring"]),
+  startDatePreference: z.string().min(1, { message: "Start date preference is required."}),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -111,20 +111,20 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
 
   useEffect(() => {
     if (enquiryData && isOpen) {
-      form.reset({
-        studentName: enquiryData.studentName || "",
-        subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [enquiryData.subject],
-        gradeLevel: enquiryData.gradeLevel || "",
-        board: enquiryData.board || "",
-        teachingMode: enquiryData.teachingMode || [],
-        location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
-        preferredDays: enquiryData.preferredDays || [],
-        preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference ?? "NO_PREFERENCE",
-        startDatePreference: enquiryData.startDatePreference ?? "Immediately",
-      });
+        form.reset({
+            studentName: enquiryData.studentName || "",
+            subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [enquiryData.subject],
+            gradeLevel: enquiryData.gradeLevel || "",
+            board: enquiryData.board || "",
+            teachingMode: enquiryData.teachingMode || [],
+            location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
+            preferredDays: enquiryData.preferredDays || [],
+            preferredTimeSlots: enquiryData.preferredTimeSlots || [],
+            tutorGenderPreference: enquiryData.tutorGenderPreference ?? "NO_PREFERENCE",
+            startDatePreference: enquiryData.startDatePreference ?? "Immediately",
+        });
     }
-  }, [enquiryData, isOpen, form.reset]);
+  }, [enquiryData, isOpen, form]);
 
   const onSubmit: SubmitHandler<EditEnquiryFormValues> = (data) => {
     if (!enquiryData) return;
@@ -379,3 +379,5 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
     </Form>
   );
 }
+
+    
