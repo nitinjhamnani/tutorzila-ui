@@ -19,6 +19,7 @@ import {
   DialogDescription, // Renamed to avoid conflict
   DialogFooter,
   DialogClose,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -551,9 +552,25 @@ export default function ParentEnquiryDetailsPage() {
               </CardContent>
               <CardFooter className="p-4 md:p-5 border-t flex flex-wrap justify-end items-center gap-2">
                 <div className="flex flex-wrap justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                      <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
-                    </Button>
+                    <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent
+                        className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
+                        onPointerDownOutside={(e) => e.preventDefault()}
+                      >
+                        <PostRequirementModal
+                            onSuccess={() => {
+                                queryClient.invalidateQueries({ queryKey: ['parentEnquiryDetails', id] });
+                                setIsEditModalOpen(false);
+                            }}
+                            startFromStep={1}
+                        />
+                      </DialogContent>
+                    </Dialog>
                     {(requirement.applicantsCount ?? 0) > 0 && (
                       <Button asChild variant="default" size="sm">
                           <Link href={`/parent/my-tutors/${requirement.id}`}>
@@ -613,24 +630,6 @@ export default function ParentEnquiryDetailsPage() {
             </DialogContent>
           </Dialog>
       )}
-      
-      {requirement && (
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-            <DialogContent
-                className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
-                onPointerDownOutside={(e) => e.preventDefault()}
-            >
-                <PostRequirementModal
-                    onSuccess={() => {
-                        queryClient.invalidateQueries({ queryKey: ['parentEnquiryDetails', id] });
-                        setIsEditModalOpen(false);
-                    }}
-                    startFromStep={1}
-                />
-            </DialogContent>
-        </Dialog>
-      )}
     </main>
   );
 }
-
