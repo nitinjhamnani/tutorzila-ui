@@ -91,13 +91,12 @@ const editEnquirySchema = z.object({
 export type EditEnquiryFormValues = z.infer<typeof editEnquirySchema>;
 
 interface EditEnquiryModalProps {
-  onOpenChange: (isOpen: boolean) => void;
   enquiryData: TuitionRequirement | null;
   onUpdateEnquiry: (updatedData: EditEnquiryFormValues) => void;
   isUpdating: boolean;
 }
 
-export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: EditEnquiryModalProps) {
+export function EditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdating }: EditEnquiryModalProps) {
   const form = useForm<EditEnquiryFormValues>({
     resolver: zodResolver(editEnquirySchema),
     defaultValues: {
@@ -129,7 +128,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
           startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
       });
     }
-  }, [enquiryData, form.reset]);
+  }, [enquiryData, form]);
 
   const onSubmit: SubmitHandler<EditEnquiryFormValues> = (data) => {
     if (!enquiryData) return;
@@ -396,5 +395,3 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
       </DialogContent>
   );
 }
-
-    

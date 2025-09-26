@@ -1451,9 +1451,17 @@ const closeEnquiryMutation = useMutation({
       
        {selectedTutor && <TutorProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} tutor={selectedTutor} enquiryId={enquiryId} sourceTab={sourceTab} />}
        {selectedTutor && <TutorContactModal isOpen={isContactModalOpen} onOpenChange={setIsContactModalOpen} tutor={selectedTutor} />}
+        
         {enquiry && (
-            <EditEnquiryModal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} enquiryData={enquiry} onUpdateEnquiry={updateMutation.mutate} isUpdating={updateMutation.isPending}/>
+            <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+              <EditEnquiryModal
+                enquiryData={enquiry}
+                onUpdateEnquiry={updateMutation.mutate}
+                isUpdating={updateMutation.isPending}
+              />
+            </Dialog>
         )}
+
         {selectedTutor && <ScheduleDemoModal isOpen={isScheduleDemoModalOpen} onOpenChange={setIsScheduleDemoModalOpen} tutor={selectedTutor} enquiry={enquiry} />}
         <Dialog open={isAddNotesModalOpen} onOpenChange={setIsAddNotesModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
