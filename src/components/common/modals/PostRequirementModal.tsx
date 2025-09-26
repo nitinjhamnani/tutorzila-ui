@@ -113,8 +113,8 @@ const postRequirementSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
-  startDatePreference: z.enum(["immediately", "within_month", "exploring"]).optional(),
+  tutorGenderPreference: z.enum(["male", "female", "any"], { required_error: "Please select a gender preference." }),
+  startDatePreference: z.enum(["immediately", "within_month", "exploring"], { required_error: "Please select a start date." }),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   // Step 3
@@ -805,5 +805,3 @@ export function PostRequirementModal({
     </div>
   );
 }
-
-    
