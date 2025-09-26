@@ -142,11 +142,11 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
   return (
     <>
       <DialogHeader className="p-6 pb-4 relative border-b">
-          <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
-          <DialogDescription className="text-xs">
-              Update the details for your enquiry.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogTitle>Edit Tuition Requirement</DialogTitle>
+        <DialogDescription>
+          Update the details for your enquiry for {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
+        </DialogDescription>
+      </DialogHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[70vh] overflow-y-auto">
           <FormField

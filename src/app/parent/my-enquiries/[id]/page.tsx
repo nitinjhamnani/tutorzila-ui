@@ -279,23 +279,20 @@ export default function ParentEnquiryDetailsPage() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
     onSuccess: (data) => {
-      queryClient.setQueryData(['parentEnquiryDetails', id], (oldData: TuitionRequirement | undefined) => {
-        if (!oldData) return undefined;
-        
-        const { enquirySummary, enquiryDetails } = data;
-        const transformStringToArray = (str: string | null | undefined): string[] => {
+      const { enquirySummary, enquiryDetails } = data;
+      const transformStringToArray = (str: string | null | undefined): string[] => {
           if (typeof str === 'string' && str.trim() !== '') return str.split(',').map(s => s.trim());
           return [];
-        };
+      };
 
-        return {
-          ...oldData,
-          studentName: enquiryDetails.studentName,
-          subject: transformStringToArray(enquirySummary.subjects),
-          gradeLevel: enquirySummary.grade,
-          board: enquirySummary.board,
-          location: {
-            ...oldData.location,
+      const updatedRequirement: TuitionRequirement = {
+        id: enquirySummary.enquiryId,
+        parentName: "A Parent", 
+        studentName: enquiryDetails.studentName,
+        subject: transformStringToArray(enquirySummary.subjects),
+        gradeLevel: enquirySummary.grade,
+        board: enquirySummary.board,
+        location: {
             name: enquiryDetails.addressName || enquiryDetails.address,
             address: enquiryDetails.address,
             googleMapsUrl: enquiryDetails.googleMapsLink,
@@ -304,19 +301,23 @@ export default function ParentEnquiryDetailsPage() {
             country: enquirySummary.country,
             area: enquirySummary.area,
             pincode: enquiryDetails.pincode,
-          },
-          teachingMode: [
-            ...(enquirySummary.online ? ["Online"] : []),
-            ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
-          ],
-          scheduleDetails: enquiryDetails.notes,
-          additionalNotes: enquiryDetails.additionalNotes,
-          preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
-          preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
-          tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
-          startDatePreference: enquiryDetails.startDatePreference,
-        };
-      });
+        },
+        teachingMode: [
+          ...(enquirySummary.online ? ["Online"] : []),
+          ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+        ],
+        scheduleDetails: enquiryDetails.notes, 
+        additionalNotes: enquiryDetails.additionalNotes,
+        preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+        preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+        status: enquirySummary.status?.toLowerCase() || 'open',
+        postedAt: enquirySummary.createdOn,
+        applicantsCount: enquirySummary.assignedTutors || 0,
+        tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
+        startDatePreference: enquiryDetails.startDatePreference,
+      };
+
+      queryClient.setQueryData(['parentEnquiryDetails', id], updatedRequirement);
 
       toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
       setIsEditModalOpen(false);
@@ -440,31 +441,33 @@ export default function ParentEnquiryDetailsPage() {
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
                <CardHeader className="bg-card p-4 sm:p-5 relative">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="flex-grow">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <CardTitle className="text-xl font-semibold text-primary">
-                        {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-                        </CardTitle>
-                        <Badge variant="default" className="text-xs">
-                            {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-                        </Badge>
-                      </div>
-                      <div className="space-y-2 pt-2">
-                          <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                              <UsersRound className="w-4 h-4"/> {requirement.studentName}
-                          </CardDescription>
-                          {requirement.postedAt && (
-                            <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                                <Clock className="w-3.5 h-3.5" /> 
-                                Posted on {format(postedDate, "MMM d, yyyy")}
-                            </CardDescription>
-                          )}
-                          <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                                    <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
-                                    {requirement.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{requirement.board}</span>}
-                                    <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{requirement.teachingMode?.join(', ')}</span>
-                                </div>
+                  <div className="flex items-center gap-4 flex-grow">
+                      <div className="flex-grow">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <CardTitle className="text-xl font-semibold text-primary">
+                            {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                            </CardTitle>
+                            <Badge variant="default" className="text-xs">
+                                {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
+                            </Badge>
+                          </div>
+                          <div className="space-y-2 pt-2">
+                              <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                                  <UsersRound className="w-4 h-4"/> {requirement.studentName}
+                              </CardDescription>
+                              {requirement.postedAt && (
+                                <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                                    <Clock className="w-3.5 h-3.5" /> 
+                                    Posted on {format(postedDate, "MMM d, yyyy")}
+                                </CardDescription>
+                              )}
+                              <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
+                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                        <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
+                                        {requirement.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{requirement.board}</span>}
+                                        <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{requirement.teachingMode?.join(', ')}</span>
+                                    </div>
+                              </div>
                           </div>
                       </div>
                   </div>
@@ -622,4 +625,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
