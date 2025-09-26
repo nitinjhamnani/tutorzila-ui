@@ -61,8 +61,8 @@ const timeSlotsOptions: MultiSelectOption[] = [
 const editEnquirySchema = z.object({
   studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
-  gradeLevel: z.string().min(1, { message: "Grade level is required." }),
-  board: z.string().min(1, { message: "Board is required."}),
+  gradeLevel: z.string({ required_error: "Grade level is required." }).min(1, { message: "Grade level is required." }),
+  board: z.string({ required_error: "Board is required." }).min(1, { message: "Board is required."}),
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
   location: z.custom<LocationDetails | null>(
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
