@@ -105,14 +105,14 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary">
+    <div className="flex flex-col h-screen bg-secondary">
       {/* Integrated Header */}
       {hasMounted && (
         <header
           className={cn(
             "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-30", 
-            `h-[${headerHeight}]`
+            "sticky top-0 z-40", 
+            "h-[var(--header-height)]"
           )}
         >
           <div className="flex items-center gap-2">
