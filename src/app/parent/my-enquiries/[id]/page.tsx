@@ -14,6 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -22,9 +26,9 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogFooter as AlertDialogFooterComponent,
+  AlertDialogHeader as AlertDialogHeaderComponent,
+  AlertDialogTitle as AlertDialogTitleComponent,
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -275,22 +279,23 @@ export default function ParentEnquiryDetailsPage() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
     onSuccess: (data) => {
-      toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
-      
-      const { enquirySummary, enquiryDetails } = data;
-      const transformStringToArray = (str: string | null | undefined): string[] => {
+      queryClient.setQueryData(['parentEnquiryDetails', id], (oldData: TuitionRequirement | undefined) => {
+        if (!oldData) return undefined;
+        
+        const { enquirySummary, enquiryDetails } = data;
+        const transformStringToArray = (str: string | null | undefined): string[] => {
           if (typeof str === 'string' && str.trim() !== '') return str.split(',').map(s => s.trim());
           return [];
-      };
+        };
 
-      const transformedData: TuitionRequirement = {
-        id: enquirySummary.enquiryId,
-        parentName: requirement?.parentName || "A Parent", 
-        studentName: enquiryDetails.studentName,
-        subject: transformStringToArray(enquirySummary.subjects),
-        gradeLevel: enquirySummary.grade,
-        board: enquirySummary.board,
-        location: {
+        return {
+          ...oldData,
+          studentName: enquiryDetails.studentName,
+          subject: transformStringToArray(enquirySummary.subjects),
+          gradeLevel: enquirySummary.grade,
+          board: enquirySummary.board,
+          location: {
+            ...oldData.location,
             name: enquiryDetails.addressName || enquiryDetails.address,
             address: enquiryDetails.address,
             googleMapsUrl: enquiryDetails.googleMapsLink,
@@ -299,23 +304,21 @@ export default function ParentEnquiryDetailsPage() {
             country: enquirySummary.country,
             area: enquirySummary.area,
             pincode: enquiryDetails.pincode,
-        },
-        teachingMode: [
-          ...(enquirySummary.online ? ["Online"] : []),
-          ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
-        ],
-        scheduleDetails: enquiryDetails.notes, 
-        additionalNotes: enquiryDetails.additionalNotes,
-        preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
-        preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
-        status: enquirySummary.status?.toLowerCase() || 'open',
-        postedAt: enquirySummary.createdOn,
-        applicantsCount: enquirySummary.assignedTutors || 0,
-        tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
-        startDatePreference: enquiryDetails.startDatePreference,
-      };
+          },
+          teachingMode: [
+            ...(enquirySummary.online ? ["Online"] : []),
+            ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+          ],
+          scheduleDetails: enquiryDetails.notes,
+          additionalNotes: enquiryDetails.additionalNotes,
+          preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+          preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+          tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
+          startDatePreference: enquiryDetails.startDatePreference,
+        };
+      });
 
-      queryClient.setQueryData(['parentEnquiryDetails', id], transformedData);
+      toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
       setIsEditModalOpen(false);
     },
     onError: (error: any) => {
@@ -382,10 +385,9 @@ export default function ParentEnquiryDetailsPage() {
   
   const startDisplayMap: Record<string, string> = {
     "immediately": "Immediately",
-    "within a month": "Within a month",
     "within_month": "Within a month",
-    "just exploring": "Just exploring",
-  }
+    "exploring": "Just exploring",
+  };
   const startValue = requirement?.startDatePreference ? startDisplayMap[requirement.startDatePreference] : undefined;
 
 
@@ -620,3 +622,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
