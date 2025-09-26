@@ -146,7 +146,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
           <DialogDescription className="text-xs">
               Update the details for your enquiry.
           </DialogDescription>
-      </DialogHeader>
+        </DialogHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[70vh] overflow-y-auto">
           <FormField
