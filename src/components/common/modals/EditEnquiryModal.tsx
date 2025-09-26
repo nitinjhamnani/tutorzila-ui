@@ -115,10 +115,11 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
 
   useEffect(() => {
     if (enquiryData) {
+        console.log("Enquiry data received in modal:", enquiryData);
         form.reset({
             studentName: enquiryData.studentName || "",
             subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
-            grade: enquiryData.gradeLevel, // Use gradeLevel from type which is mapped from 'grade'
+            grade: enquiryData.gradeLevel,
             board: enquiryData.board,
             teachingMode: enquiryData.teachingMode || [],
             location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
