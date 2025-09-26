@@ -142,7 +142,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
 
   return {
     id: enquirySummary.enquiryId,
-    parentName: "A Parent", // This info doesn't seem to be in the response, placeholder for now
+    parentName: "A Parent", 
     studentName: enquiryDetails.studentName,
     subject: transformStringToArray(enquirySummary.subjects),
     gradeLevel: enquirySummary.grade,
@@ -558,6 +558,12 @@ export default function ParentEnquiryDetailsPage() {
                         className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
                         onPointerDownOutside={(e) => e.preventDefault()}
                       >
+                        <DialogHeader className="p-6 pb-4 relative border-b">
+                            <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
+                            <DialogDescription className="text-xs">
+                                Update the details for your enquiry.
+                            </DialogDescription>
+                        </DialogHeader>
                         <EditEnquiryModal
                             isOpen={isEditModalOpen}
                             onOpenChange={setIsEditModalOpen}
