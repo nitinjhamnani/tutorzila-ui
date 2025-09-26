@@ -124,7 +124,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
         startDatePreference: enquiryData.startDatePreference ? (enquiryData.startDatePreference.charAt(0).toUpperCase() + enquiryData.startDatePreference.slice(1).replace(/_/g, ' ')) as any : "Immediately",
       });
     }
-  }, [enquiryData, isOpen, form.reset]);
+  }, [enquiryData, isOpen, form.reset, form]);
 
   const onSubmit: SubmitHandler<EditEnquiryFormValues> = (data) => {
     if (!enquiryData) return;
