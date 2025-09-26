@@ -66,7 +66,7 @@ const timeSlotsOptions: MultiSelectOption[] = [
 const editEnquirySchema = z.object({
   studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
-  grade: z.string({ required_error: "Grade level is required." }).min(1, { message: "Grade level is required." }),
+  gradeLevel: z.string({ required_error: "Grade level is required." }).min(1, { message: "Grade level is required." }),
   board: z.string({ required_error: "Board is required." }).min(1, { message: "Board is required."}),
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
   location: z.custom<LocationDetails | null>(
@@ -102,7 +102,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
     defaultValues: {
         studentName: "",
         subject: [],
-        grade: "",
+        gradeLevel: "",
         board: "",
         teachingMode: [],
         location: null,
@@ -115,11 +115,11 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
 
   useEffect(() => {
     if (enquiryData) {
-        console.log("Enquiry data received in modal:", enquiryData);
+        console.log("Populating Edit Modal with:", enquiryData);
         form.reset({
             studentName: enquiryData.studentName || "",
             subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
-            grade: enquiryData.gradeLevel,
+            gradeLevel: enquiryData.gradeLevel,
             board: enquiryData.board,
             teachingMode: enquiryData.teachingMode || [],
             location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
@@ -184,11 +184,11 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
-              name="grade"
+              name="gradeLevel"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Level</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
                     </FormControl>
@@ -206,7 +206,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80"/>Board</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a board" /></SelectTrigger>
                     </FormControl>
