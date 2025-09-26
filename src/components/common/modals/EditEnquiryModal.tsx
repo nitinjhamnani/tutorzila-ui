@@ -281,7 +281,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
               name="tutorGenderPreference"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender (Optional)</FormLabel>
+                  <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
@@ -303,7 +303,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
               name="startDatePreference"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date (Optional)</FormLabel>
+                  <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
