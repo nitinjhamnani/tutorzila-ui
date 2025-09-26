@@ -120,11 +120,11 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
         location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
-        startDatePreference: enquiryData.startDatePreference ? (enquiryData.startDatePreference.charAt(0).toUpperCase() + enquiryData.startDatePreference.slice(1).replace(/_/g, ' ')) as any : "Immediately",
+        tutorGenderPreference: enquiryData.tutorGenderPreference ?? "NO_PREFERENCE",
+        startDatePreference: enquiryData.startDatePreference ?? "Immediately",
       });
     }
-  }, [enquiryData, isOpen, form.reset, form]);
+  }, [enquiryData, isOpen, form.reset]);
 
   const onSubmit: SubmitHandler<EditEnquiryFormValues> = (data) => {
     if (!enquiryData) return;
