@@ -115,21 +115,24 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
 
   useEffect(() => {
     if (enquiryData) {
-        console.log("Populating Edit Modal with:", enquiryData);
-        form.reset({
-            studentName: enquiryData.studentName || "",
-            subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
-            gradeLevel: enquiryData.gradeLevel,
-            board: enquiryData.board,
-            teachingMode: enquiryData.teachingMode || [],
-            location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
-            preferredDays: enquiryData.preferredDays || [],
-            preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-            tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
-            startDatePreference: enquiryData.startDatePreference || "immediately",
-        });
+      console.log("Populating Edit Modal with:", enquiryData);
+      const normalizedGrade = gradeLevelsList.find(g => g.toLowerCase() === enquiryData.gradeLevel?.toLowerCase()) || "";
+      const normalizedBoard = boardsList.find(b => b.toLowerCase() === enquiryData.board?.toLowerCase()) || "";
+
+      form.reset({
+          studentName: enquiryData.studentName || "",
+          subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
+          gradeLevel: normalizedGrade,
+          board: normalizedBoard,
+          teachingMode: enquiryData.teachingMode || [],
+          location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
+          preferredDays: enquiryData.preferredDays || [],
+          preferredTimeSlots: enquiryData.preferredTimeSlots || [],
+          tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
+          startDatePreference: enquiryData.startDatePreference || "immediately",
+      });
     }
-  }, [enquiryData, form.reset]);
+  }, [enquiryData, form.reset, form]);
 
   const onSubmit: SubmitHandler<EditEnquiryFormValues> = (data) => {
     if (!enquiryData) return;
@@ -373,6 +376,7 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
           </div>
           
           <DialogFooter className="pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUpdating}>Cancel</Button>
             <Button type="submit" disabled={isUpdating}>
               {isUpdating ? (
                 <>
