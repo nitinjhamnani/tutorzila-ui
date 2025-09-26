@@ -48,7 +48,7 @@ const teachingModeOptions = [
 const daysOptions: MultiSelectOption[] = [
   { value: "Monday", label: "Monday" }, { value: "Tuesday", label: "Tuesday" }, { value: "Wednesday", label: "Wednesday" },
   { value: "Thursday", label: "Thursday" }, { value: "Friday", label: "Friday" }, { value: "Saturday", label: "Saturday" },
-  { value: "Sunday", label: "Sunday" }, { value: "Weekdays", label: "Weekdays" }, { value: "Weekends", label: "Weekends" },
+  { value: "Sunday", label: "Sunday" }, { value: "Weekdays", label: "Weekends" }, { value: "Weekends", label: "Weekends" },
   { value: "Flexible", label: "Flexible"},
 ];
 const timeSlotsOptions: MultiSelectOption[] = [
@@ -70,8 +70,8 @@ const editEnquirySchema = z.object({
   ).nullable(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
-  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
-  startDatePreference: z.enum(["Immediately", "Within a month", "Just exploring"]).optional(),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]),
+  startDatePreference: z.enum(["Immediately", "Within a month", "Just exploring"]),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -329,7 +329,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
             name="preferredDays"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Days (Optional)</FormLabel>
+                <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Days</FormLabel>
                 <MultiSelectCommand
                   options={daysOptions}
                   selectedValues={field.value || []}
@@ -346,7 +346,7 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
             name="preferredTimeSlots"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots (Optional)</FormLabel>
+                <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots</FormLabel>
                 <MultiSelectCommand
                   options={timeSlotsOptions}
                   selectedValues={field.value || []}
@@ -361,7 +361,6 @@ export function EditEnquiryModal({ isOpen, onOpenChange, enquiryData, onUpdateEn
         </div>
         
         <DialogFooter className="pt-4">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUpdating}>Cancel</Button>
           <Button type="submit" disabled={isUpdating}>
             {isUpdating ? (
               <>

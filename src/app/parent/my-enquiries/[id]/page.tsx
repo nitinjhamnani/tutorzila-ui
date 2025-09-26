@@ -168,8 +168,8 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     status: enquirySummary.status?.toLowerCase() || 'open',
     postedAt: enquirySummary.createdOn,
     applicantsCount: enquirySummary.assignedTutors || 0,
-    tutorGenderPreference: enquiryDetails.tutorGenderPreference,
-    startDatePreference: enquiryDetails.startDatePreference,
+    tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
+    startDatePreference: enquiryDetails.startDatePreference?.replace(/_/g, ' ') as 'Immediately' | 'Within a month' | 'Just exploring' | undefined,
   };
 };
 
@@ -318,7 +318,7 @@ export default function ParentEnquiryDetailsPage() {
         status: enquirySummary.status?.toLowerCase() || 'open',
         postedAt: enquirySummary.createdOn,
         applicantsCount: enquirySummary.assignedTutors || 0,
-        tutorGenderPreference: enquiryDetails.tutorGenderPreference,
+        tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
         startDatePreference: enquiryDetails.startDatePreference,
       };
 
@@ -389,8 +389,8 @@ export default function ParentEnquiryDetailsPage() {
   
   const startDisplayMap: Record<string, string> = {
     "immediately": "Immediately",
-    "within_month": "Within a month",
-    "exploring": "Just exploring",
+    "within a month": "Within a month",
+    "just exploring": "Just exploring",
   }
   const startValue = requirement?.startDatePreference ? startDisplayMap[requirement.startDatePreference] : undefined;
 
@@ -555,7 +555,7 @@ export default function ParentEnquiryDetailsPage() {
                         </Button>
                       </DialogTrigger>
                       <DialogContent
-                        className="sm:max-w-xl bg-card p-0 rounded-lg overflow-hidden"
+                        className="sm:max-w-2xl bg-card p-0 rounded-lg overflow-hidden"
                         onPointerDownOutside={(e) => e.preventDefault()}
                       >
                         <DialogHeader className="p-6 pb-4 relative border-b">
