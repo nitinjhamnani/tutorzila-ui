@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -44,31 +45,17 @@ export function ParentSidebar(props: ParentSidebarProps) {
         props.isMobile
           ? cn(
               "fixed inset-y-0 left-0 z-40 w-60 transform",
-              `top-[var(--header-height,0px)] h-[calc(100vh_-_var(--header-height,0px))]`,
+              `top-[var(--header-height)] h-[calc(100vh_-_var(--header-height,0px))]`,
               props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
             )
           : cn(
-              "relative md:flex md:flex-col", // Removed h-full
+              "relative md:flex md:flex-col", 
               props.isNavbarCollapsed ? "w-20" : "w-60"
             ),
         props.isMobile ? "md:hidden" : "hidden md:flex"
       )}
       aria-label="Parent Navigation"
     >
-      {/* Navbar Header/Logo Section */}
-      <div
-        className={cn(
-          "h-16 flex items-center border-b border-border shrink-0 px-3",
-          !props.isMobile && props.isNavbarCollapsed && "justify-center"
-        )}
-      >
-        {!props.isMobile && !props.isNavbarCollapsed && (
-          <Link href="/parent/dashboard" className="flex-shrink-0">
-            <Logo className="h-8 w-auto" />
-          </Link>
-        )}
-      </div>
-
       {/* Navigation Links */}
       <div className="flex-grow overflow-y-auto p-3 space-y-1">
         {props.navItems.map((item) => {
