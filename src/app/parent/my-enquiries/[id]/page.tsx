@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -53,6 +54,7 @@ import {
   MapPinned,
   Loader2,
   UsersRound,
+  VenetianMask,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -119,49 +121,54 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const response = await fetch(`${apiBaseUrl}/api/enquiry/details/${enquiryId}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'accept': '*/*',
-    }
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error("Enquiry not found or you do not have permission to view it.");
-    }
+    if (response.status === 404) throw new Error("Enquiry not found or you do not have permission to view it.");
     throw new Error("Failed to fetch enquiry details.");
   }
 
   const data = await response.json();
+  const { enquirySummary, enquiryDetails } = data;
+  
+  const transformStringToArray = (str: string | null | undefined): string[] => {
+      if (typeof str === 'string' && str.trim() !== '') {
+          return str.split(',').map(s => s.trim());
+      }
+      return [];
+  };
 
   return {
-    id: data.enquirySummary.enquiryId,
-    parentName: data.name || "A Parent", 
-    studentName: data.studentName,
-    subject: typeof data.enquirySummary.subjects === 'string' ? data.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-    gradeLevel: data.enquirySummary.grade,
-    board: data.enquirySummary.board,
+    id: enquirySummary.enquiryId,
+    parentName: "A Parent", // This info doesn't seem to be in the response, placeholder for now
+    studentName: enquiryDetails.studentName,
+    subject: transformStringToArray(enquirySummary.subjects),
+    gradeLevel: enquirySummary.grade,
+    board: enquirySummary.board,
     location: {
-        name: data.addressName || data.address || "",
-        address: data.address,
-        googleMapsUrl: data.googleMapsLink,
-        city: data.enquirySummary.city,
-        state: data.enquirySummary.state,
-        country: data.enquirySummary.country,
-        area: data.enquirySummary.area,
-        pincode: data.pincode,
+        name: enquiryDetails.addressName || enquiryDetails.address,
+        address: enquiryDetails.address,
+        googleMapsUrl: enquiryDetails.googleMapsLink,
+        city: enquirySummary.city,
+        state: enquirySummary.state,
+        country: enquirySummary.country,
+        area: enquirySummary.area,
+        pincode: enquiryDetails.pincode,
     },
     teachingMode: [
-      ...(data.enquirySummary.online ? ["Online"] : []),
-      ...(data.enquirySummary.offline ? ["Offline (In-person)"] : []),
+      ...(enquirySummary.online ? ["Online"] : []),
+      ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
     ],
-    scheduleDetails: data.notes, 
-    additionalNotes: data.notes,
-    preferredDays: typeof data.availabilityDays === 'string' ? data.availabilityDays.split(',').map((d:string) => d.trim()) : [],
-    preferredTimeSlots: typeof data.availabilityTime === 'string' ? data.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-    status: data.status?.toLowerCase() || 'open',
-    postedAt: data.enquirySummary.createdOn,
-    applicantsCount: data.enquirySummary.assignedTutors,
+    scheduleDetails: enquiryDetails.notes, 
+    additionalNotes: enquiryDetails.additionalNotes,
+    preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+    preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+    status: enquirySummary.status?.toLowerCase() || 'open',
+    postedAt: enquirySummary.createdOn,
+    applicantsCount: enquirySummary.assignedTutors || 0,
+    tutorGenderPreference: enquiryDetails.tutorGenderPreference,
+    startDatePreference: enquiryDetails.startDatePreference,
   };
 };
 
@@ -280,34 +287,42 @@ export default function ParentEnquiryDetailsPage() {
     onSuccess: (updatedData) => {
       toast({ title: "Enquiry Updated!", description: "Your requirement has been successfully updated." });
       
+      const { enquirySummary, enquiryDetails } = updatedData;
+      const transformStringToArray = (str: string | null | undefined): string[] => {
+          if (typeof str === 'string' && str.trim() !== '') return str.split(',').map(s => s.trim());
+          return [];
+      };
+
       const transformedData: TuitionRequirement = {
-        id: updatedData.enquirySummary.enquiryId,
-        parentName: updatedData.name || requirement?.parentName || "A Parent", 
-        studentName: updatedData.studentName,
-        subject: typeof updatedData.enquirySummary.subjects === 'string' ? updatedData.enquirySummary.subjects.split(',').map((s:string) => s.trim()) : [],
-        gradeLevel: updatedData.enquirySummary.grade,
-        board: updatedData.enquirySummary.board,
+        id: enquirySummary.enquiryId,
+        parentName: requirement?.parentName || "A Parent", 
+        studentName: enquiryDetails.studentName,
+        subject: transformStringToArray(enquirySummary.subjects),
+        gradeLevel: enquirySummary.grade,
+        board: enquirySummary.board,
         location: {
-            name: updatedData.addressName || updatedData.address || "",
-            address: updatedData.address,
-            googleMapsUrl: updatedData.googleMapsLink,
-            city: updatedData.enquirySummary.city,
-            state: updatedData.enquirySummary.state,
-            country: updatedData.enquirySummary.country,
-            area: updatedData.enquirySummary.area,
-            pincode: updatedData.pincode,
+            name: enquiryDetails.addressName || enquiryDetails.address,
+            address: enquiryDetails.address,
+            googleMapsUrl: enquiryDetails.googleMapsLink,
+            city: enquirySummary.city,
+            state: enquirySummary.state,
+            country: enquirySummary.country,
+            area: enquirySummary.area,
+            pincode: enquiryDetails.pincode,
         },
         teachingMode: [
-          ...(updatedData.enquirySummary.online ? ["Online"] : []),
-          ...(updatedData.enquirySummary.offline ? ["Offline (In-person)"] : []),
+          ...(enquirySummary.online ? ["Online"] : []),
+          ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
         ],
-        scheduleDetails: updatedData.notes, 
-        additionalNotes: updatedData.notes,
-        preferredDays: typeof updatedData.availabilityDays === 'string' ? updatedData.availabilityDays.split(',').map((d:string) => d.trim()) : [],
-        preferredTimeSlots: typeof updatedData.availabilityTime === 'string' ? updatedData.availabilityTime.split(',').map((t:string) => t.trim()) : [],
-        status: updatedData.status?.toLowerCase() || 'open',
-        postedAt: updatedData.enquirySummary.createdOn,
-        applicantsCount: updatedData.enquirySummary.assignedTutors,
+        scheduleDetails: enquiryDetails.notes, 
+        additionalNotes: enquiryDetails.additionalNotes,
+        preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
+        preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
+        status: enquirySummary.status?.toLowerCase() || 'open',
+        postedAt: enquirySummary.createdOn,
+        applicantsCount: enquirySummary.assignedTutors || 0,
+        tutorGenderPreference: enquiryDetails.tutorGenderPreference,
+        startDatePreference: enquiryDetails.startDatePreference,
       };
 
       queryClient.setQueryData(['parentEnquiryDetails', id], transformedData);
@@ -367,6 +382,21 @@ export default function ParentEnquiryDetailsPage() {
   };
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
+  
+  const genderDisplayMap: Record<string, string> = {
+    "MALE": "Male",
+    "FEMALE": "Female",
+    "NO_PREFERENCE": "No Preference",
+  };
+  const genderValue = requirement?.tutorGenderPreference ? genderDisplayMap[requirement.tutorGenderPreference] : undefined;
+  
+  const startDisplayMap: Record<string, string> = {
+    "immediately": "Immediately",
+    "within_month": "Within a month",
+    "exploring": "Just exploring",
+  }
+  const startValue = requirement?.startDatePreference ? startDisplayMap[requirement.startDatePreference] : undefined;
+
 
   if (isLoading || isCheckingAuth) {
     return (
@@ -406,6 +436,8 @@ export default function ParentEnquiryDetailsPage() {
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
+  const hasPreferences = !!(genderValue || startValue);
+
 
   return (
     <main className="flex-grow">
@@ -446,6 +478,25 @@ export default function ParentEnquiryDetailsPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-4 md:p-5 space-y-5">
+                {hasPreferences && (
+                  <>
+                    <Separator />
+                    <section className="space-y-3">
+                        <h3 className="text-base font-semibold text-foreground flex items-center">
+                            <Info className="w-4 h-4 mr-2 text-primary/80" />
+                            General Preferences
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                            {genderValue && (
+                              <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />
+                            )}
+                            {startValue && (
+                              <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />
+                            )}
+                        </div>
+                    </section>
+                  </>
+                )}
                 {hasScheduleInfo && (
                   <>
                     <Separator />
@@ -582,3 +633,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
