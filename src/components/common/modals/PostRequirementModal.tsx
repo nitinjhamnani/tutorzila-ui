@@ -178,8 +178,8 @@ export function PostRequirementModal({
       board: "",
       teachingMode: [],
       location: null,
-      tutorGenderPreference: undefined,
-      startDatePreference: undefined,
+      tutorGenderPreference: "any",
+      startDatePreference: "immediately",
       preferredDays: [],
       preferredTimeSlots: [],
       whatsAppNotifications: true,
@@ -201,8 +201,8 @@ export function PostRequirementModal({
             board: "",
             teachingMode: [],
             location: null,
-            tutorGenderPreference: undefined,
-            startDatePreference: undefined,
+            tutorGenderPreference: "any",
+            startDatePreference: "immediately",
             preferredDays: [],
             preferredTimeSlots: [],
             whatsAppNotifications: user.whatsappEnabled,
@@ -220,8 +220,8 @@ export function PostRequirementModal({
             board: "",
             teachingMode: [],
             location: null,
-            tutorGenderPreference: undefined,
-            startDatePreference: undefined,
+            tutorGenderPreference: "any",
+            startDatePreference: "immediately",
             preferredDays: [],
             preferredTimeSlots: [],
             whatsAppNotifications: true,
@@ -270,6 +270,13 @@ export function PostRequirementModal({
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
     
+    let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
+    switch (data.tutorGenderPreference) {
+      case 'male': genderPreferenceApiValue = 'MALE'; break;
+      case 'female': genderPreferenceApiValue = 'FEMALE'; break;
+      case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
+    }
+    
     if(!isAuthenticated) {
         const enquiryRequest = {
             studentName: data.studentName,
@@ -281,6 +288,8 @@ export function PostRequirementModal({
             availabilityTime: data.preferredTimeSlots,
             online: data.teachingMode.includes("Online"),
             offline: data.teachingMode.includes("Offline (In-person)"),
+            genderPreference: genderPreferenceApiValue,
+            startPreference: data.startDatePreference,
         };
         
         const signupRequest = {
@@ -344,7 +353,7 @@ export function PostRequirementModal({
             availabilityTime: data.preferredTimeSlots,
             online: data.teachingMode.includes("Online"),
             offline: data.teachingMode.includes("Offline (In-person)"),
-            genderPreference: data.tutorGenderPreference,
+            genderPreference: genderPreferenceApiValue,
             startPreference: data.startDatePreference,
         };
 
