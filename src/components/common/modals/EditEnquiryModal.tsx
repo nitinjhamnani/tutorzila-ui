@@ -91,13 +91,12 @@ const editEnquirySchema = z.object({
 export type EditEnquiryFormValues = z.infer<typeof editEnquirySchema>;
 
 interface EditEnquiryModalProps {
-  onOpenChange: (isOpen: boolean) => void;
   enquiryData: TuitionRequirement | null;
   onUpdateEnquiry: (updatedData: EditEnquiryFormValues) => void;
   isUpdating: boolean;
 }
 
-export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: EditEnquiryModalProps) {
+export function EditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdating }: EditEnquiryModalProps) {
   const form = useForm<EditEnquiryFormValues>({
     resolver: zodResolver(editEnquirySchema),
     defaultValues: {
@@ -117,16 +116,16 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
   useEffect(() => {
     if (enquiryData) {
       form.reset({
-          studentName: enquiryData.studentName || "",
-          subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
-          gradeLevel: enquiryData.gradeLevel,
-          board: enquiryData.board,
-          teachingMode: enquiryData.teachingMode || [],
-          location: typeof enquiryData.location === 'object' ? enquiryData.location : { address: "" },
-          preferredDays: enquiryData.preferredDays || [],
-          preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-          tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
-          startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
+        studentName: enquiryData.studentName || "",
+        subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
+        gradeLevel: enquiryData.gradeLevel || "",
+        board: enquiryData.board || "",
+        teachingMode: enquiryData.teachingMode || [],
+        location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
+        preferredDays: enquiryData.preferredDays || [],
+        preferredTimeSlots: enquiryData.preferredTimeSlots || [],
+        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
+        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
       });
     }
   }, [enquiryData, form]);
@@ -141,7 +140,10 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
   if (!enquiryData) return null;
 
   return (
-    <>
+    <DialogContent 
+      className="sm:max-w-2xl bg-card p-0 rounded-lg overflow-hidden"
+      onPointerDownOutside={(e) => e.preventDefault()}
+    >
       <DialogHeader className="p-6 pb-4 relative border-b">
         <DialogTitle>Edit Tuition Requirement</DialogTitle>
         <DialogDescription>
@@ -373,7 +375,6 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
           </div>
           
           <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUpdating}>Cancel</Button>
             <Button type="submit" disabled={isUpdating}>
               {isUpdating ? (
                 <>
@@ -390,6 +391,6 @@ export function EditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, i
           </DialogFooter>
         </form>
       </Form>
-    </>
+    </DialogContent>
   );
 }
