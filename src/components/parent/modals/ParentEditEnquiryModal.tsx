@@ -109,8 +109,8 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: null,
         preferredDays: [],
         preferredTimeSlots: [],
-        tutorGenderPreference: "NO_PREFERENCE",
-        startDatePreference: "IMMEDIATELY",
+        tutorGenderPreference: undefined,
+        startDatePreference: undefined,
     },
   });
 
@@ -125,8 +125,8 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
-        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
+        tutorGenderPreference: enquiryData.tutorGenderPreference || undefined,
+        startDatePreference: enquiryData.startDatePreference || undefined,
       });
     }
   }, [enquiryData, form]);
@@ -307,7 +307,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
                           <SelectValue placeholder="Select tutor gender" />
@@ -329,7 +329,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
                           <SelectValue placeholder="Select start time" />
