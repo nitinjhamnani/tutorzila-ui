@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EditEnquiryModal, type EditEnquiryFormValues } from "@/components/common/modals/EditEnquiryModal";
+import { ParentEditEnquiryModal, type ParentEnquiryEditFormValues } from "@/components/parent/modals/ParentEditEnquiryModal";
 import {
   User,
   BookOpen,
@@ -171,7 +171,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   };
 };
 
-const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: EditEnquiryFormValues }) => {
+const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: ParentEnquiryEditFormValues }) => {
   if (!token) throw new Error("Authentication token is required.");
   
   const locationDetails = formData.location;
@@ -285,7 +285,7 @@ export default function ParentEnquiryDetailsPage() {
   }, [isLoading, hideLoader]);
 
   const updateMutation = useMutation({
-    mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
+    mutationFn: (formData: ParentEnquiryEditFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
     onSuccess: (data) => {
       const { enquirySummary, enquiryDetails } = data;
       const transformStringToArray = (str: string | null | undefined): string[] => {
@@ -379,7 +379,7 @@ export default function ParentEnquiryDetailsPage() {
     setIsCloseEnquiryModalOpen(false);
   };
 
-  const handleUpdateEnquiry = (updatedData: EditEnquiryFormValues) => {
+  const handleUpdateEnquiry = (updatedData: ParentEnquiryEditFormValues) => {
     updateMutation.mutate(updatedData);
   };
   
@@ -548,7 +548,9 @@ export default function ParentEnquiryDetailsPage() {
                             <Info className="w-4 h-4 mr-2 text-primary/80" />
                             Additional Notes
                         </h3>
-                        <p className="text-sm text-foreground/80 leading-relaxed pl-6">{requirement.additionalNotes}</p>
+                        <p className="text-sm text-foreground/80 leading-relaxed pl-6 whitespace-pre-wrap">
+                            {requirement.additionalNotes}
+                        </p>
                     </section>
                    </>
                 )}
@@ -565,7 +567,7 @@ export default function ParentEnquiryDetailsPage() {
                         className="sm:max-w-2xl bg-card p-0 rounded-lg overflow-hidden"
                         onPointerDownOutside={(e) => e.preventDefault()}
                       >
-                         <EditEnquiryModal
+                         <ParentEditEnquiryModal
                             onOpenChange={setIsEditModalOpen}
                             enquiryData={requirement}
                             onUpdateEnquiry={handleUpdateEnquiry}
