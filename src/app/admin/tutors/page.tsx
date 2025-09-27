@@ -47,16 +47,8 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { allSubjectsList, boardsList, gradeLevelsList } from "@/lib/constants";
 
-const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
-const gradeLevelsList = [
-    "Nursery", "LKG", "UKG",
-    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
-    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12",
-    "College Level", "Adult Learner", "Other"
-];
 
 const fetchAdminTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");

@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
-
+import { allSubjectsList as allSubjectsConstant, boardsList as boardsConstant } from '@/lib/constants';
 
 const allSubjectsList: MultiSelectOption[] = [...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.subjects))].filter(Boolean).map(s => ({value: s, label: s}));
 const gradeLevelsList: {value: string, label: string}[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])))].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map(g => ({value: g, label:g}));
@@ -35,16 +35,7 @@ const modeOptionsList: { value: string; label: string }[] = [
   { value: "Both", label: "Both (Online & In-person)" },
 ];
 
-const boardsList: { value: string, label: string }[] = [
-  { value: "All", label: "All Boards" },
-  { value: "CBSE", label: "CBSE" },
-  { value: "ICSE", label: "ICSE" },
-  { value: "IB", label: "IB (International Baccalaureate)" },
-  { value: "IGCSE", label: "IGCSE (Cambridge)" },
-  { value: "State Board", label: "State Board (Specify State)" },
-  { value: "Cambridge", label: "Cambridge Assessment" },
-  { value: "NIOS", label: "NIOS (National Institute of Open Schooling)" },
-];
+const boardsList: { value: string, label: string }[] = ["All", ...boardsConstant].map(b => ({value: b, label: b}));
 
 
 export function TutorProfileSearch() {
@@ -150,7 +141,7 @@ export function TutorProfileSearch() {
           <BookOpen className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Subjects
         </Label>
         <MultiSelectCommand
-          options={allSubjectsList}
+          options={allSubjectsConstant}
           selectedValues={subjectFilter}
           onValueChange={setSubjectFilter}
           placeholder="Select subjects..."

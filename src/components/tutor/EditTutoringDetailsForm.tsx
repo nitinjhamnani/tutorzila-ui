@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,44 +29,14 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQueryClient } from "@tanstack/react-query";
+import { allSubjectsList, gradeLevelsList as gradeLevelOptions, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions } from "@/lib/constants";
 
+const gradeLevelsList: MultiSelectOption[] = gradeLevelOptions.map(gl => ({ value: gl, label: gl }));
+const boardsList: MultiSelectOption[] = boardOptions.map(b => ({ value: b, label: b }));
 
-const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
 const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
-const boardsList: MultiSelectOption[] = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"].map(b => ({ value: b, label: b }));
 const qualificationsList: MultiSelectOption[] = ["Bachelor's Degree", "Master's Degree", "PhD", "Teaching Certification", "Subject Matter Expert", "Other"].map(q => ({ value: q, label: q }));
 const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
-
-
-const teachingModeItems = [
-  { id: "Online", label: "Online" },
-  { id: "Offline", label: "Offline (Student's Home)" },
-];
-
-const daysOptionsList: MultiSelectOption[] = [
-  { value: "Monday", label: "Monday" },
-  { value: "Tuesday", label: "Tuesday" },
-  { value: "Wednesday", label: "Wednesday" },
-  { value: "Thursday", label: "Thursday" },
-  { value: "Friday", label: "Friday" },
-  { value: "Saturday", label: "Saturday" },
-  { value: "Sunday", label: "Sunday" },
-  { value: "Weekdays", label: "Weekends" },
-  { value: "Flexible", label: "Flexible" },
-];
-
-const timeSlotsOptionsList: MultiSelectOption[] = [
-  { value: "0700-0900", label: "7:00 AM - 9:00 AM" },
-  { value: "0900-1100", label: "9:00 AM - 11:00 AM" },
-  { value: "1100-1300", label: "11:00 AM - 1:00 PM" },
-  { value: "1300-1500", label: "1:00 PM - 3:00 PM" },
-  { value: "1500-1700", label: "3:00 PM - 5:00 PM" },
-  { value: "1700-1900", label: "5:00 PM - 7:00 PM" },
-  { value: "1900-2100", label: "7:00 PM - 9:00 PM" },
-  { value: "Flexible", label: "Flexible" },
-];
-
 
 const tutoringDetailsSchema = z.object({
   subjects: z.array(z.string()).min(1, "Please select at least one subject."),
@@ -254,7 +225,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   <FormItem>
                     <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subjects You Teach</FormLabel>
                     <MultiSelectCommand
-                      options={subjectsList}
+                      options={allSubjectsList}
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select subjects..."
@@ -309,7 +280,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     <FormLabel className="flex items-center text-base font-medium"><RadioTower className="mr-2 h-4 w-4 text-primary/80"/>Teaching Mode</FormLabel>
                      <FormDescription className="text-xs">Select all applicable teaching modes.</FormDescription>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                    {teachingModeItems.map((item) => (
+                    {teachingModeOptions.map((item) => (
                       <FormField
                         key={item.id}
                         control={form.control}
@@ -511,7 +482,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     <FormItem>
                       <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Preferred Teaching Days</FormLabel>
                       <MultiSelectCommand
-                        options={daysOptionsList}
+                        options={daysOptions}
                         selectedValues={field.value || []}
                         onValueChange={field.onChange}
                         placeholder="Select preferred days..."
@@ -528,7 +499,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                     <FormItem className="flex flex-col">
                       <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Preferred Time Slots</FormLabel>
                       <MultiSelectCommand
-                        options={timeSlotsOptionsList}
+                        options={timeSlotsOptions}
                         selectedValues={field.value || []}
                         onValueChange={(values) => field.onChange(values)}
                         placeholder="Select preferred time slots..."
@@ -568,4 +539,3 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     </Card>
   );
 }
-

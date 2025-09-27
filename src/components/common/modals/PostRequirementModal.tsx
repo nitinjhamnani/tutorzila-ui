@@ -44,6 +44,7 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Switch } from "@/components/ui/switch";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { allSubjectsList, gradeLevelsList, boardsList, teachingModeOptions, daysOptions, timeSlotsOptions, simpleStartDatePreferenceOptions, simpleTutorGenderPreferenceOptions } from "@/lib/constants";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -52,46 +53,6 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <path d="M15.246 14.148c-.281-.141-1.66-1.04-1.916-1.158-.256-.117-.44-.187-.625.117-.184.305-.724.938-.887 1.115-.164.177-.328.188-.609.047-.282-.14-1.188-.438-2.262-1.395-.837-.745-1.395-1.661-1.56-1.944-.163-.282-.01- .438.104-.576.104-.13.234-.336.351-.49.117-.154.156-.257.234-.422.078-.164.039-.305-.019-.445-.058-.141-.625-1.492-.859-2.04-.233-.547-.467-.469-.625-.469-.141 0-.305-.019-.469-.019-.164 0-.438.058-.672.305-.234.246-.887.867-.887 2.109s.906 2.441 1.023 2.617c.118.176 1.77 2.899 4.293 4.098 2.522 1.199 2.522.797 2.969.762.447-.039 1.66-.672 1.898-1.32.238-.648.238-1.199.16-1.319-.078-.121-.281-.188-.586-.328z" />
     </svg>
 );
-
-const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-
-const gradeLevelsList = [
-    "Nursery", "LKG", "UKG",
-    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
-    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12",
-    "College Level", "Adult Learner", "Other"
-];
-const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
-
-const teachingModeOptions = [
-  { id: "Online", label: "Online" },
-  { id: "Offline (In-person)", label: "Offline (In-person)" },
-];
-
-const daysOptions: MultiSelectOption[] = [
-  { value: "Monday", label: "Monday" },
-  { value: "Tuesday", label: "Tuesday" },
-  { value: "Wednesday", label: "Wednesday" },
-  { value: "Thursday", label: "Thursday" },
-  { value: "Friday", label: "Friday" },
-  { value: "Saturday", label: "Saturday" },
-  { value: "Sunday", label: "Sunday" },
-  { value: "Weekdays", label: "Weekends" },
-  { value: "Weekends", label: "Weekends" },
-  { value: "Flexible", label: "Flexible"},
-];
-
-const timeSlotsOptions: MultiSelectOption[] = [
-  { value: "8:00 AM - 10:00 AM", label: "8:00 AM - 10:00 AM" },
-  { value: "10:00 AM - 12:00 PM", label: "10:00 AM - 12:00 PM" },
-  { value: "12:00 PM - 2:00 PM", label: "12:00 PM - 2:00 PM" },
-  { value: "2:00 PM - 4:00 PM", label: "2:00 PM - 4:00 PM" },
-  { value: "4:00 PM - 6:00 PM", label: "4:00 PM - 6:00 PM" },
-  { value: "6:00 PM - 8:00 PM", label: "6:00 PM - 8:00 PM" },
-  { value: "8:00 PM - 10:00 PM", label: "8:00 PM - 10:00 PM" },
-  { value: "Flexible", label: "Flexible"},
-];
 
 const MOCK_COUNTRIES = [
   { country: "IN", countryCode: "+91", label: "India (+91)" },
@@ -341,7 +302,7 @@ export function PostRequirementModal({
                   <FormItem className="flex flex-col">
                     <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80" />Subjects</FormLabel>
                    <MultiSelectCommand
-                      options={subjectsList}
+                      options={allSubjectsList}
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select subjects..."
@@ -476,9 +437,7 @@ export function PostRequirementModal({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="any">No Preference</SelectItem>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
+                          {simpleTutorGenderPreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -498,9 +457,7 @@ export function PostRequirementModal({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="immediately">Immediately</SelectItem>
-                          <SelectItem value="within_month">Within a month</SelectItem>
-                          <SelectItem value="exploring">Just exploring</SelectItem>
+                          {simpleStartDatePreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -713,5 +670,3 @@ export function PostRequirementModal({
     </div>
   );
 }
-
-    

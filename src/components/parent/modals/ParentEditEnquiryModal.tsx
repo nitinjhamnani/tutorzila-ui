@@ -37,32 +37,8 @@ import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
 import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Save, X, User, Loader2, VenetianMask } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
+import { allSubjectsList, gradeLevelsList, boardsList, teachingModeOptions, daysOptions, timeSlotsOptions, tutorGenderPreferenceOptions, startDatePreferenceOptions } from "@/lib/constants";
 
-const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-const gradeLevelsList = [
-    "Nursery", "LKG", "UKG",
-    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
-    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12",
-    "College Level", "Adult Learner", "Other"
-];
-const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
-const teachingModeOptions = [
-  { id: "Online", label: "Online" },
-  { id: "Offline (In-person)", label: "Offline (In-person)" },
-];
-const daysOptions: MultiSelectOption[] = [
-  { value: "Monday", label: "Monday" }, { value: "Tuesday", label: "Tuesday" }, { value: "Wednesday", label: "Wednesday" },
-  { value: "Thursday", label: "Thursday" }, { value: "Friday", label: "Friday" }, { value: "Saturday", label: "Saturday" },
-  { value: "Sunday", label: "Sunday" }, { value: "Weekdays", label: "Weekends" }, { value: "Weekends", label: "Weekends" },
-  { value: "Flexible", label: "Flexible"},
-];
-const timeSlotsOptions: MultiSelectOption[] = [
-  { value: "0800-1000", label: "8:00 AM - 10:00 AM" }, { value: "1000-1200", label: "10:00 AM - 12:00 PM" },
-  { value: "1200-1400", label: "12:00 PM - 2:00 PM" }, { value: "1400-1600", label: "2:00 PM - 4:00 PM" },
-  { value: "1600-1800", label: "4:00 PM - 6:00 PM" }, { value: "1800-2000", label: "6:00 PM - 8:00 PM" },
-  { value: "2000-2200", label: "8:00 PM - 10:00 PM" }, { value: "Flexible", label: "Flexible"},
-];
 
 const parentEnquiryEditSchema = z.object({
   studentName: z.string().min(2, "Student's name is required.").optional(),
@@ -171,7 +147,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
               <FormItem className="flex flex-col">
                 <FormLabel className="flex items-center"><BookOpen className="mr-2 h-4 w-4 text-primary/80"/>Subject(s)</FormLabel>
                  <MultiSelectCommand
-                    options={subjectsList}
+                    options={allSubjectsList}
                     selectedValues={field.value || []}
                     onValueChange={field.onChange}
                     placeholder="Select subjects..."
@@ -314,9 +290,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="NO_PREFERENCE">No Preference</SelectItem>
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
+                        {tutorGenderPreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -336,9 +310,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="IMMEDIATELY">Immediately</SelectItem>
-                        <SelectItem value="WITHIN_A_MONTH">Within a month</SelectItem>
-                        <SelectItem value="JUST_EXPLORING">Just exploring</SelectItem>
+                        {startDatePreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />

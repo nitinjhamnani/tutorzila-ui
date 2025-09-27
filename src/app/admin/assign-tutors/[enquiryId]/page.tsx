@@ -69,17 +69,7 @@ import {
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
 import { Loader2 } from "lucide-react";
-
-
-const allSubjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
-const boardsList = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"];
-const gradeLevelsList = [
-    "Nursery", "LKG", "UKG",
-    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
-    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-    "Grade 11", "Grade 12",
-    "College Level", "Adult Learner", "Other"
-];
+import { allSubjectsList, boardsList, gradeLevelsList } from "@/lib/constants";
 
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
