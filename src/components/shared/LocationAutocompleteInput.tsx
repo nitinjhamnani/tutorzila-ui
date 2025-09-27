@@ -182,7 +182,7 @@ export function LocationAutocompleteInput({
         <Input
           type="text"
           placeholder={placeholder}
-          value={inputValue}
+          value={inputValue || ''}
           onChange={handleInputChange}
           onFocus={() => { if(suggestions.length > 0) setShowSuggestions(true); }}
           className={cn("pl-10", inputValue ? "pr-10" : "pr-4", className)}
