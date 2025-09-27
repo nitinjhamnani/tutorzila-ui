@@ -90,12 +90,13 @@ const parentEnquiryEditSchema = z.object({
 export type ParentEnquiryEditFormValues = z.infer<typeof parentEnquiryEditSchema>;
 
 interface ParentEditEnquiryModalProps {
+  onOpenChange: (isOpen: boolean) => void;
+  enquiryData: TuitionRequirement | null;
   onUpdateEnquiry: (updatedData: ParentEnquiryEditFormValues) => void;
   isUpdating: boolean;
-  enquiryData: TuitionRequirement | null;
 }
 
-export function ParentEditEnquiryModal({ onUpdateEnquiry, isUpdating, enquiryData }: ParentEditEnquiryModalProps) {
+export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: ParentEditEnquiryModalProps) {
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
@@ -123,8 +124,8 @@ export function ParentEditEnquiryModal({ onUpdateEnquiry, isUpdating, enquiryDat
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference,
-        startDatePreference: enquiryData.startDatePreference,
+        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
+        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
       });
     }
   }, [enquiryData, form]);
@@ -371,6 +372,7 @@ export function ParentEditEnquiryModal({ onUpdateEnquiry, isUpdating, enquiryDat
           </div>
           
           <DialogFooter className="pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUpdating}>Cancel</Button>
             <Button type="submit" disabled={isUpdating}>
               {isUpdating ? (
                 <>
