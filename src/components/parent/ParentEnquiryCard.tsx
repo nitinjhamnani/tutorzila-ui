@@ -28,6 +28,7 @@ import { formatDistanceToNow, parseISO } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
@@ -78,10 +79,15 @@ export function ParentEnquiryCard({
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const subjectInitials = getInitials(requirement.subject);
   const isPastEnquiry = requirement.status === "closed";
+  const { showLoader } = useGlobalLoader();
 
   const locationString = typeof requirement.location === 'object' && requirement.location !== null
     ? [requirement.location.area, requirement.location.city, requirement.location.country].filter(Boolean).join(', ')
     : requirement.location;
+    
+  const handleManageClick = () => {
+    showLoader("Loading enquiry details...");
+  };
 
   return (
       <Card
@@ -168,6 +174,7 @@ export function ParentEnquiryCard({
                 size="sm"
                 variant="outline"
                 className="text-xs py-1.5 px-3 h-auto"
+                onClick={handleManageClick}
             >
                 <Link href={`/parent/my-enquiries/${requirement.id}`}>
                     <SettingsIcon className="w-3 h-3 mr-1.5" />

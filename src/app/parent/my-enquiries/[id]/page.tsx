@@ -57,6 +57,7 @@ import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -262,6 +263,7 @@ export default function ParentEnquiryDetailsPage() {
   const { toast } = useToast();
   const id = params.id as string;
   const queryClient = useQueryClient();
+  const { hideLoader } = useGlobalLoader();
 
   const [isCloseEnquiryModalOpen, setIsCloseEnquiryModalOpen] = useState(false);
   const [closeReason, setCloseReason] = useState<string | null>(null);
@@ -275,6 +277,12 @@ export default function ParentEnquiryDetailsPage() {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (!isLoading) {
+      hideLoader();
+    }
+  }, [isLoading, hideLoader]);
 
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
