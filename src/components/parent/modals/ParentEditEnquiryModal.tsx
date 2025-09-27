@@ -115,8 +115,6 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
 
   useEffect(() => {
     if (enquiryData) {
-      console.log("Enquiry Data Grade Level:", enquiryData.gradeLevel);
-      console.log("Enquiry Data Board:", enquiryData.board);
       form.reset({
         studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
@@ -189,7 +187,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Level</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
                     </FormControl>
@@ -207,7 +205,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80"/>Board</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a board" /></SelectTrigger>
                     </FormControl>
