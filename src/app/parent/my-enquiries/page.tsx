@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -40,6 +41,7 @@ import {
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -87,6 +89,7 @@ export default function ParentMyEnquiriesPage() {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { hideLoader } = useGlobalLoader();
 
   const [isCreateEnquiryModalOpen, setIsCreateEnquiryModalOpen] = useState(false);
 
@@ -97,6 +100,12 @@ export default function ParentMyEnquiriesPage() {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (!isLoadingEnquiries) {
+      hideLoader();
+    }
+  }, [isLoadingEnquiries, hideLoader]);
 
   useEffect(() => {
     if (!isCheckingAuth) {

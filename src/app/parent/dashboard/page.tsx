@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ReactNode, ElementType } from "react";
@@ -75,9 +76,10 @@ interface QuickActionCardProps {
   buttonText?: string;
   iconBg?: string;
   iconTextColor?: string;
+  onClick?: () => void;
 }
 
-function QuickActionCard({ title, description, IconEl, href, disabled, buttonText, iconBg = "bg-primary/10", iconTextColor = "text-primary" }: QuickActionCardProps) {
+function QuickActionCard({ title, description, IconEl, href, disabled, buttonText, onClick, iconBg = "bg-primary/10", iconTextColor = "text-primary" }: QuickActionCardProps) {
   const content = (
     <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
       <div>
@@ -96,6 +98,10 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
 
   if (disabled) {
     return <div className="block h-full opacity-60 cursor-not-allowed">{content}</div>;
+  }
+  
+  if (onClick) {
+    return <button onClick={onClick} className="block text-left h-full w-full">{content}</button>;
   }
 
   return (
@@ -127,7 +133,7 @@ export default function ParentDashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { hideLoader } = useGlobalLoader();
+  const { showLoader, hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
 
   const [isCreateEnquiryModalOpen, setIsCreateEnquiryModalOpen] = useState(false);
@@ -181,6 +187,11 @@ export default function ParentDashboardPage() {
       setIsPhoneVerified(true);
     }
   }, [user, dashboardData]);
+  
+  const handleMyEnquiriesClick = () => {
+    showLoader("Fetching your enquiries...");
+    router.push("/parent/my-enquiries");
+  };
 
   if (isCheckingAuth || !hasMounted || !isAuthenticated || !user || user.role !== 'parent') {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Parent Dashboard...</div>;
@@ -226,7 +237,7 @@ export default function ParentDashboardPage() {
   const isUserVerified = dashboardData ? dashboardData.verified : (isEmailVerified && isPhoneVerified);
 
   const parentQuickActions: QuickActionCardProps[] = [
-    { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-enquiries", buttonText: "Manage Enquiries" },
+    { title: "My Enquiries", description: "View & manage posted requests.", IconEl: ListChecks, href: "/parent/my-enquiries", buttonText: "Manage Enquiries", onClick: handleMyEnquiriesClick },
     { title: "Find Tutors", description: "Search for qualified tutors.", IconEl: SearchCheck, href: "/parent/find-tutor", buttonText: "Search Now" },
     { title: "Demo Sessions", description: "Manage demo class requests & schedules.", IconEl: MessageSquareQuote, href: "/parent/demo-sessions", buttonText: "Manage Demos", disabled: false },
     { title: "My Payments", description: "View your payment history.", IconEl: DollarSign, href: "/parent/payments", buttonText: "View Payments", disabled: false },
@@ -347,6 +358,7 @@ export default function ParentDashboardPage() {
                   buttonText={action.buttonText}
                   iconBg={action.iconBg}
                   iconTextColor={action.iconTextColor}
+                  onClick={action.onClick}
                 />
               ))}
             </div>
@@ -366,7 +378,7 @@ export default function ParentDashboardPage() {
       <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
         <PostRequirementModal 
             onSuccess={handleCreateEnquirySuccess}
-            startFromStep={isAuthenticated && user?.role === 'parent' ? 1 : 1}
+            startFromStep={isAuthenticated && user?.role === 'parent' ? 2 : 1}
         />
       </DialogContent>
     </Dialog>
