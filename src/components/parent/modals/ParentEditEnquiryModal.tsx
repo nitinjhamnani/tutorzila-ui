@@ -8,7 +8,6 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -93,13 +92,12 @@ const parentEnquiryEditSchema = z.object({
 export type ParentEnquiryEditFormValues = z.infer<typeof parentEnquiryEditSchema>;
 
 interface ParentEnquiryModalProps {
-  onOpenChange: (isOpen: boolean) => void;
   enquiryData: TuitionRequirement | null;
   onUpdateEnquiry: (updatedData: ParentEnquiryEditFormValues) => void;
   isUpdating: boolean;
 }
 
-export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: ParentEnquiryModalProps) {
+export function ParentEditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdating }: ParentEnquiryModalProps) {
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
@@ -152,7 +150,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         <DialogDescription className="text-xs">
           Update the details for your enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
         </DialogDescription>
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground" onClick={() => onOpenChange(false)}>
+        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </DialogClose>
@@ -403,3 +401,5 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
     </>
   );
 }
+
+    
