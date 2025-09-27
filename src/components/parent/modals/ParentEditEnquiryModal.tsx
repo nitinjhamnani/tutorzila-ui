@@ -8,6 +8,7 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
+  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
