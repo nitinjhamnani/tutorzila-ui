@@ -67,17 +67,17 @@ const timeSlotsOptions: MultiSelectOption[] = [
 const parentEnquiryEditSchema = z.object({
   studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
-  gradeLevel: z.string().min(1, { message: "Grade level is required." }),
-  board: z.string().min(1, { message: "Board is required."}),
+  gradeLevel: z.string({ required_error: "Grade level is required." }).min(1, { message: "Grade level is required." }),
+  board: z.string({ required_error: "Board is required." }).min(1, { message: "Board is required."}),
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
   location: z.custom<LocationDetails | null>(
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
-  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
+  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -125,13 +125,14 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
-        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
+        tutorGenderPreference: enquiryData.tutorGenderPreference,
+        startDatePreference: enquiryData.startDatePreference,
       });
     }
   }, [enquiryData, form]);
 
   const onSubmit: SubmitHandler<ParentEnquiryEditFormValues> = (data) => {
+    if (!enquiryData) return;
     onUpdateEnquiry(data);
   };
   
@@ -143,7 +144,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
     <>
       <DialogHeader className="p-6 pb-4 border-b relative">
         <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
-        <DialogDescription>
+        <DialogDescription className="text-xs">
           Update the details for your enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
         </DialogDescription>
       </DialogHeader>
@@ -188,10 +189,10 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Level</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
-                        <SelectValue placeholder="Select a grade level" />
+                        <SelectValue placeholder="Select a grade level">{field.value}</SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -208,10 +209,10 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80"/>Board</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
-                        <SelectValue placeholder="Select a board" />
+                        <SelectValue placeholder="Select a board">{field.value}</SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
