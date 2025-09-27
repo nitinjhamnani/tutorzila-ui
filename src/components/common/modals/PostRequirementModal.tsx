@@ -158,9 +158,9 @@ export function PostRequirementModal({
 }: PostRequirementModalProps) {
   
   const { user, isAuthenticated } = useAuthMock();
-  const [currentStep, setCurrentStep] = useState(startFromStep);
+  const [currentStep, setCurrentStep] = useState(1);
   
-  const totalSteps = isAuthenticated ? 2 : 3;
+  const totalSteps = 3;
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -244,8 +244,6 @@ export function PostRequirementModal({
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference', 'preferredDays', 'preferredTimeSlots'];
-    } else if (currentStep === 3 && !isAuthenticated) {
-      fieldsToValidate = ['name', 'email', 'country', 'localPhoneNumber', 'acceptTerms', 'whatsAppNotifications'];
     }
 
     const isValid = fieldsToValidate.length > 0 ? await form.trigger(fieldsToValidate) : true;
@@ -279,119 +277,61 @@ export function PostRequirementModal({
       case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
     }
     
-    if(!isAuthenticated) {
-        const enquiryRequest = {
-            studentName: data.studentName,
-            subjects: data.subject,
-            grade: data.gradeLevel,
-            board: data.board,
-            location: data.location?.address, // Assuming location.address is the main string
-            availabilityDays: data.preferredDays,
-            availabilityTime: data.preferredTimeSlots,
-            online: data.teachingMode.includes("Online"),
-            offline: data.teachingMode.includes("Offline (In-person)"),
-            genderPreference: genderPreferenceApiValue,
-            startPreference: data.startDatePreference,
-        };
-        
-        const signupRequest = {
-            name: data.name,
-            email: data.email,
-            country: data.country,
-            countryCode: selectedCountryData?.countryCode || '',
-            phone: data.localPhoneNumber,
-            userType: "PARENT",
-            whatsappEnabled: data.whatsAppNotifications,
-        };
-        
-        try {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-          const response = await fetch(`${apiBaseUrl}/api/auth/enquiry`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
-            body: JSON.stringify({ enquiryRequest, signupRequest }),
-          });
+    const enquiryRequest = {
+        studentName: data.studentName,
+        subjects: data.subject,
+        grade: data.gradeLevel,
+        board: data.board,
+        location: data.location?.address, // Assuming location.address is the main string
+        availabilityDays: data.preferredDays,
+        availabilityTime: data.preferredTimeSlots,
+        online: data.teachingMode.includes("Online"),
+        offline: data.teachingMode.includes("Offline (In-person)"),
+        genderPreference: genderPreferenceApiValue,
+        startPreference: data.startDatePreference,
+    };
+    
+    const signupRequest = {
+        name: data.name,
+        email: data.email,
+        country: data.country,
+        countryCode: selectedCountryData?.countryCode || '',
+        phone: data.localPhoneNumber,
+        userType: "PARENT",
+        whatsappEnabled: data.whatsAppNotifications,
+    };
+    
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/api/auth/enquiry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+        body: JSON.stringify({ enquiryRequest, signupRequest }),
+      });
 
-          if (!response.ok) {
-            const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
-            throw new Error(responseData.message || "An unexpected error occurred.");
-          }
+      if (!response.ok) {
+        const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
+        throw new Error(responseData.message || "An unexpected error occurred.");
+      }
 
-          const responseData = await response.json();
-          if (responseData.token && responseData.type === 'PARENT') {
-              setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
-              sessionStorage.setItem('showNewRequirementToast', 'true');
-              router.push("/parent/dashboard");
-          } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
-              hideLoader();
-              onTriggerSignIn(data.email);
-          }
-
-        } catch (error) {
+      const responseData = await response.json();
+      if (responseData.token && responseData.type === 'PARENT') {
+          setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
+          sessionStorage.setItem('showNewRequirementToast', 'true');
+          router.push("/parent/dashboard");
+      } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
           hideLoader();
-          console.error("Enquiry creation failed:", error);
-          toast({
-            variant: "destructive",
-            title: "Submission Error",
-            description: (error as Error).message || "Could not submit your requirement. Please try again.",
-          });
-        }
-    } else { // Authenticated Parent Flow
-        const locationDetails = data.location;
-        const requestBody = {
-            studentName: data.studentName,
-            subjects: data.subject,
-            grade: data.gradeLevel,
-            board: data.board,
-            addressName: locationDetails?.name || locationDetails?.address || "",
-            address: locationDetails?.address || "",
-            city: locationDetails?.city || "",
-            state: locationDetails?.state || "",
-            country: locationDetails?.country || data.country,
-            area: locationDetails?.area || "",
-            pincode: locationDetails?.pincode || "",
-            googleMapsLink: locationDetails?.googleMapsUrl || "",
-            availabilityDays: data.preferredDays,
-            availabilityTime: data.preferredTimeSlots,
-            online: data.teachingMode.includes("Online"),
-            offline: data.teachingMode.includes("Offline (In-person)"),
-            genderPreference: genderPreferenceApiValue,
-            startPreference: data.startDatePreference,
-        };
+          onTriggerSignIn(data.email);
+      }
 
-        try {
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-            const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'accept': '*/*',
-                    'Authorization': `Bearer ${localStorage.getItem('tutorzila_token')?.replace(/"/g, '')}`,
-                },
-                body: JSON.stringify(requestBody),
-            });
-
-            if (!response.ok) throw new Error("Failed to post enquiry.");
-
-            const enquiryId = await response.text();
-            toast({
-                title: "Requirement Posted!",
-                description: "Your tuition requirement has been successfully submitted.",
-            });
-            if (enquiryId) {
-                router.push(`/parent/my-enquiries/${enquiryId}`);
-            } else {
-                onSuccess();
-                hideLoader();
-            }
-        } catch (error) {
-            hideLoader();
-            toast({
-                variant: "destructive",
-                title: "Submission Error",
-                description: (error as Error).message,
-            });
-        }
+    } catch (error) {
+      hideLoader();
+      console.error("Enquiry creation failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Submission Error",
+        description: (error as Error).message || "Could not submit your requirement. Please try again.",
+      });
     }
   };
 
