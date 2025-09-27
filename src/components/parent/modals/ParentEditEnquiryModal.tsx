@@ -190,7 +190,9 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Level</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
-                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a grade level" /></SelectTrigger>
+                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
+                        <SelectValue placeholder="Select a grade level" />
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {gradeLevelsList.map(gl => <SelectItem key={gl} value={gl}>{gl}</SelectItem>)}
@@ -208,7 +210,9 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                   <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80"/>Board</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
-                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm"><SelectValue placeholder="Select a board" /></SelectTrigger>
+                      <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
+                        <SelectValue placeholder="Select a board" />
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {boardsList.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
