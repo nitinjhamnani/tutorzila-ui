@@ -100,21 +100,23 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
-      studentName: "",
-      subject: [],
-      gradeLevel: "",
-      board: "",
-      teachingMode: [],
-      location: null,
-      preferredDays: [],
-      preferredTimeSlots: [],
-      tutorGenderPreference: "NO_PREFERENCE",
-      startDatePreference: "IMMEDIATELY",
+        studentName: "",
+        subject: [],
+        gradeLevel: "",
+        board: "",
+        teachingMode: [],
+        location: null,
+        preferredDays: [],
+        preferredTimeSlots: [],
+        tutorGenderPreference: "NO_PREFERENCE",
+        startDatePreference: "IMMEDIATELY",
     },
   });
-  
+
   useEffect(() => {
     if (enquiryData) {
+      console.log("Enquiry Data Grade Level:", enquiryData.gradeLevel);
+      console.log("Enquiry Data Board:", enquiryData.board);
       form.reset({
         studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
