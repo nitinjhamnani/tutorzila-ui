@@ -103,8 +103,8 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
     defaultValues: {
         studentName: "",
         subject: [],
-        gradeLevel: "",
-        board: "",
+        gradeLevel: undefined,
+        board: undefined,
         teachingMode: [],
         location: null,
         preferredDays: [],
@@ -119,17 +119,17 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
       form.reset({
         studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
-        gradeLevel: enquiryData.gradeLevel || "",
-        board: enquiryData.board || "",
+        gradeLevel: enquiryData.gradeLevel || undefined,
+        board: enquiryData.board || undefined,
         teachingMode: enquiryData.teachingMode || [],
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference,
-        startDatePreference: enquiryData.startDatePreference,
+        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
+        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
       });
     }
-  }, [enquiryData, form]);
+  }, [enquiryData]);
 
   const onSubmit: SubmitHandler<ParentEnquiryEditFormValues> = (data) => {
     if (!enquiryData) return;
@@ -142,7 +142,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
 
   return (
     <>
-      <DialogHeader className="p-6 pb-4 border-b relative">
+      <DialogHeader className="p-6 pb-4 border-b">
         <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
         <DialogDescription className="text-xs">
           Update the details for your enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
@@ -189,10 +189,14 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Grade Level</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    key={`grade-${field.value ?? 'empty'}`}
+                    onValueChange={field.onChange}
+                    value={field.value ?? undefined}
+                  >
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
-                        <SelectValue placeholder="Select a grade level">{field.value}</SelectValue>
+                        <SelectValue placeholder="Select a grade level" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -209,10 +213,14 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-primary/80"/>Board</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    key={`board-${field.value ?? 'empty'}`}
+                    onValueChange={field.onChange}
+                    value={field.value ?? undefined}
+                  >
                     <FormControl>
                       <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
-                        <SelectValue placeholder="Select a board">{field.value}</SelectValue>
+                        <SelectValue placeholder="Select a board" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
