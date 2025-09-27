@@ -177,14 +177,11 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
   const locationDetails = formData.location;
   
   let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
-  switch(formData.tutorGenderPreference) {
-      case 'MALE':
-      case 'FEMALE':
-      case 'NO_PREFERENCE':
-          genderPreferenceApiValue = formData.tutorGenderPreference;
-          break;
-      default:
-          genderPreferenceApiValue = undefined;
+  switch (formData.tutorGenderPreference) {
+      case 'male': genderPreferenceApiValue = 'MALE'; break;
+      case 'female': genderPreferenceApiValue = 'FEMALE'; break;
+      case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
+      default: genderPreferenceApiValue = undefined;
   }
   
   const requestBody = {
