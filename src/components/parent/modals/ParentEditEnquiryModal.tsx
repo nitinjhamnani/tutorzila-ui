@@ -8,7 +8,6 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
@@ -74,8 +73,8 @@ const parentEnquiryEditSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
-  startDatePreference: z.enum(["immediately", "within_month", "exploring"]).optional(),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
+  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
 }).refine(data => {
@@ -109,16 +108,13 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: null,
         preferredDays: [],
         preferredTimeSlots: [],
-        tutorGenderPreference: "any",
-        startDatePreference: "immediately",
+        tutorGenderPreference: "NO_PREFERENCE",
+        startDatePreference: "IMMEDIATELY",
     },
   });
 
   useEffect(() => {
     if (enquiryData) {
-      const genderValue = enquiryData.tutorGenderPreference?.toLowerCase() as 'male' | 'female' | 'any' | undefined;
-      const startValue = enquiryData.startDatePreference?.toLowerCase() as 'immediately' | 'within_month' | 'exploring' | undefined;
-      
       form.reset({
         studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
@@ -128,8 +124,8 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: genderValue || "any",
-        startDatePreference: startValue || "immediately",
+        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
+        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
       });
     }
   }, [enquiryData, form]);
@@ -154,7 +150,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 max-h-[70vh] overflow-y-auto">
-           <FormField
+          <FormField
               control={form.control}
               name="studentName"
               render={({ field }) => (
@@ -305,9 +301,9 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="any">No Preference</SelectItem>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="NO_PREFERENCE">No Preference</SelectItem>
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -327,9 +323,9 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="immediately">Immediately</SelectItem>
-                        <SelectItem value="within_month">Within a month</SelectItem>
-                        <SelectItem value="exploring">Just exploring</SelectItem>
+                        <SelectItem value="IMMEDIATELY">Immediately</SelectItem>
+                        <SelectItem value="WITHIN_A_MONTH">Within a month</SelectItem>
+                        <SelectItem value="JUST_EXPLORING">Just exploring</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -397,3 +393,5 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
     </>
   );
 }
+
+    
