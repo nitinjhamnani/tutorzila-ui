@@ -141,10 +141,9 @@ export type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
-  startFromStep?: 1 | 2 | 3;
+  startFromStep?: 1 | 2;
   onTriggerSignIn?: (name?: string) => void;
   initialSubject?: string[];
-  // New props for admin usage
   adminApiHandler?: (data: PostRequirementFormValues) => void;
   isSubmitting?: boolean;
 }
@@ -157,13 +156,16 @@ export function PostRequirementModal({
   adminApiHandler,
   isSubmitting: isSubmittingProp = false
 }: PostRequirementModalProps) {
+  
+  const { user, isAuthenticated } = useAuthMock();
   const [currentStep, setCurrentStep] = useState(startFromStep);
-  const totalSteps = 3;
+  
+  const totalSteps = isAuthenticated ? 2 : 3;
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
-  const { setSession, user, isAuthenticated } = useAuthMock();
+  const { setSession } = useAuthMock();
 
   const form = useForm<PostRequirementFormValues>({
     resolver: zodResolver(postRequirementSchema),
@@ -242,7 +244,7 @@ export function PostRequirementModal({
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
     } else if (currentStep === 2) {
       fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference', 'preferredDays', 'preferredTimeSlots'];
-    } else if (currentStep === 3) {
+    } else if (currentStep === 3 && !isAuthenticated) {
       fieldsToValidate = ['name', 'email', 'country', 'localPhoneNumber', 'acceptTerms', 'whatsAppNotifications'];
     }
 
@@ -394,14 +396,14 @@ export function PostRequirementModal({
   };
 
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
-  const isFinalStep = isAuthenticated ? currentStep === 2 : currentStep === totalSteps;
+  const isFinalStep = currentStep === totalSteps;
 
   return (
     <div className="bg-card p-0 rounded-lg relative">
       <DialogHeader className="text-left pt-6 px-6">
         <DialogTitle className="text-2xl font-semibold">Post Your Tuition Requirement</DialogTitle>
         <DialogDescription>
-          Fill in the details below in {isAuthenticated ? '2' : '3'} easy steps to find the perfect tutor.
+          Fill in the details below in {totalSteps} easy steps to find the perfect tutor.
         </DialogDescription>
       </DialogHeader>
 
@@ -411,9 +413,9 @@ export function PostRequirementModal({
       </DialogClose>
 
       <div className="my-6 px-6">
-        <Progress value={(currentStep / (isAuthenticated ? 2 : totalSteps)) * 100} className="w-full h-2" />
+        <Progress value={(currentStep / totalSteps) * 100} className="w-full h-2" />
         <p className="text-sm text-muted-foreground mt-2 text-center font-medium">
-          Step {currentStep} of {isAuthenticated ? 2 : totalSteps}
+          Step {currentStep} of {totalSteps}
         </p>
       </div>
 
