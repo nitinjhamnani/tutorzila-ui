@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -68,17 +67,17 @@ const timeSlotsOptions: MultiSelectOption[] = [
 const parentEnquiryEditSchema = z.object({
   studentName: z.string().min(2, "Student's name is required.").optional(),
   subject: z.array(z.string()).min(1, { message: "Please select at least one subject." }),
-  gradeLevel: z.string({ required_error: "Grade level is required." }).min(1, { message: "Grade level is required." }),
-  board: z.string({ required_error: "Board is required." }).min(1, { message: "Board is required."}),
+  gradeLevel: z.string().min(1, { message: "Grade level is required." }),
+  board: z.string().min(1, { message: "Board is required."}),
   teachingMode: z.array(z.string()).min(1, { message: "Please select at least one teaching mode." }),
   location: z.custom<LocationDetails | null>(
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
+  tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
+  startDatePreference: z.enum(["immediately", "within_month", "exploring"]).optional(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
-  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
-  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -91,14 +90,14 @@ const parentEnquiryEditSchema = z.object({
 
 export type ParentEnquiryEditFormValues = z.infer<typeof parentEnquiryEditSchema>;
 
-interface ParentEditEnquiryModalProps {
+interface ParentEnquiryEditModalProps {
   enquiryData: TuitionRequirement | null;
   onUpdateEnquiry: (updatedData: ParentEnquiryEditFormValues) => void;
   isUpdating: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }
 
-export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: ParentEditEnquiryModalProps) {
+export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: ParentEnquiryEditModalProps) {
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
@@ -110,13 +109,16 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: null,
         preferredDays: [],
         preferredTimeSlots: [],
-        tutorGenderPreference: "NO_PREFERENCE",
-        startDatePreference: "IMMEDIATELY",
+        tutorGenderPreference: "any",
+        startDatePreference: "immediately",
     },
   });
 
   useEffect(() => {
     if (enquiryData) {
+      const genderValue = enquiryData.tutorGenderPreference?.toLowerCase() as 'male' | 'female' | 'any' | undefined;
+      const startValue = enquiryData.startDatePreference?.toLowerCase() as 'immediately' | 'within_month' | 'exploring' | undefined;
+      
       form.reset({
         studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
@@ -126,8 +128,8 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
-        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
+        tutorGenderPreference: genderValue,
+        startDatePreference: startValue,
       });
     }
   }, [enquiryData, form]);
@@ -143,8 +145,8 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
 
   return (
     <>
-      <DialogHeader className="p-6 pb-4 relative border-b">
-        <DialogTitle>Edit Tuition Requirement</DialogTitle>
+      <DialogHeader className="p-6 pb-4 border-b">
+        <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
         <DialogDescription>
           Update the details for your enquiry for {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
         </DialogDescription>
@@ -302,9 +304,9 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="NO_PREFERENCE">No Preference</SelectItem>
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
+                        <SelectItem value="any">No Preference</SelectItem>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -324,9 +326,9 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="IMMEDIATELY">Immediately</SelectItem>
-                        <SelectItem value="WITHIN_A_MONTH">Within a month</SelectItem>
-                        <SelectItem value="JUST_EXPLORING">Just exploring</SelectItem>
+                        <SelectItem value="immediately">Immediately</SelectItem>
+                        <SelectItem value="within_month">Within a month</SelectItem>
+                        <SelectItem value="exploring">Just exploring</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
