@@ -158,7 +158,7 @@ export function PostRequirementModal({
 }: PostRequirementModalProps) {
   
   const { user, isAuthenticated } = useAuthMock();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(startFromStep);
   
   const totalSteps = 3;
 
@@ -190,49 +190,6 @@ export function PostRequirementModal({
   });
   
   useEffect(() => {
-    if (isAuthenticated && user) {
-        form.reset({
-            name: user.name,
-            email: user.email,
-            localPhoneNumber: user.phone,
-            country: 'IN', // This should ideally be derived from user data if available
-            acceptTerms: true, // Pre-accept for logged-in users
-            studentName: "",
-            subject: initialSubject || [],
-            gradeLevel: "",
-            board: "",
-            teachingMode: [],
-            location: null,
-            tutorGenderPreference: undefined,
-            startDatePreference: undefined,
-            preferredDays: [],
-            preferredTimeSlots: [],
-            whatsAppNotifications: user.whatsappEnabled,
-        });
-    } else {
-        form.reset({
-            name: "",
-            email: "",
-            localPhoneNumber: "",
-            country: "IN",
-            acceptTerms: false,
-            studentName: "",
-            subject: initialSubject || [],
-            gradeLevel: "",
-            board: "",
-            teachingMode: [],
-            location: null,
-            tutorGenderPreference: undefined,
-            startDatePreference: undefined,
-            preferredDays: [],
-            preferredTimeSlots: [],
-            whatsAppNotifications: true,
-        });
-    }
-  }, [isAuthenticated, user, form, initialSubject]);
-
-
-  useEffect(() => {
     if (initialSubject) {
       form.setValue('subject', initialSubject);
     }
@@ -255,7 +212,7 @@ export function PostRequirementModal({
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
