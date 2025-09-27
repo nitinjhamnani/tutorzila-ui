@@ -97,7 +97,7 @@ export default function ParentMyEnquiriesPage() {
     queryKey: ['parentEnquiries', token],
     queryFn: () => fetchParentEnquiries(token),
     enabled: !!token && !!user && user.role === 'parent',
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     refetchOnWindowFocus: false,
   });
 
