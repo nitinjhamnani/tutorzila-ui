@@ -90,29 +90,28 @@ const parentEnquiryEditSchema = z.object({
 export type ParentEnquiryEditFormValues = z.infer<typeof parentEnquiryEditSchema>;
 
 interface ParentEditEnquiryModalProps {
-  onOpenChange: (isOpen: boolean) => void;
-  enquiryData: TuitionRequirement | null;
   onUpdateEnquiry: (updatedData: ParentEnquiryEditFormValues) => void;
   isUpdating: boolean;
+  enquiryData: TuitionRequirement | null;
 }
 
-export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: ParentEditEnquiryModalProps) {
+export function ParentEditEnquiryModal({ onUpdateEnquiry, isUpdating, enquiryData }: ParentEditEnquiryModalProps) {
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
-        studentName: "",
-        subject: [],
-        gradeLevel: "",
-        board: "",
-        teachingMode: [],
-        location: null,
-        preferredDays: [],
-        preferredTimeSlots: [],
-        tutorGenderPreference: "NO_PREFERENCE",
-        startDatePreference: "IMMEDIATELY",
+      studentName: "",
+      subject: [],
+      gradeLevel: "",
+      board: "",
+      teachingMode: [],
+      location: null,
+      preferredDays: [],
+      preferredTimeSlots: [],
+      tutorGenderPreference: "NO_PREFERENCE",
+      startDatePreference: "IMMEDIATELY",
     },
   });
-
+  
   useEffect(() => {
     if (enquiryData) {
       form.reset({
@@ -124,14 +123,13 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
-        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
+        tutorGenderPreference: enquiryData.tutorGenderPreference,
+        startDatePreference: enquiryData.startDatePreference,
       });
     }
   }, [enquiryData, form]);
 
   const onSubmit: SubmitHandler<ParentEnquiryEditFormValues> = (data) => {
-    if (!enquiryData) return;
     onUpdateEnquiry(data);
   };
   
@@ -373,7 +371,6 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
           </div>
           
           <DialogFooter className="pt-4">
-             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUpdating}>Cancel</Button>
             <Button type="submit" disabled={isUpdating}>
               {isUpdating ? (
                 <>
@@ -393,5 +390,3 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
     </>
   );
 }
-
-    
