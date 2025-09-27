@@ -44,7 +44,7 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Switch } from "@/components/ui/switch";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { allSubjectsList, gradeLevelsList, boardsList, teachingModeOptions, daysOptions, timeSlotsOptions, simpleStartDatePreferenceOptions, simpleTutorGenderPreferenceOptions } from "@/lib/constants";
+import { allSubjectsList, gradeLevelsList, boardsList, teachingModeOptions, daysOptions, timeSlotsOptions, startDatePreferenceOptions, tutorGenderPreferenceOptions } from "@/lib/constants";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -74,8 +74,8 @@ const postRequirementSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  tutorGenderPreference: z.enum(["male", "female", "any"], { required_error: "Please select a gender preference." }),
-  startDatePreference: z.enum(["immediately", "within_month", "exploring"], { required_error: "Please select a start date." }),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"], { required_error: "Please select a gender preference." }),
+  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"], { required_error: "Please select a start date." }),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   // Step 3
@@ -121,7 +121,7 @@ export function PostRequirementModal({
   const { user, isAuthenticated } = useAuthMock();
   const [currentStep, setCurrentStep] = useState(startFromStep);
   
-  const totalSteps = 3;
+  const totalSteps = isAuthenticated && user?.role === 'parent' ? 2 : 3;
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -132,17 +132,17 @@ export function PostRequirementModal({
     resolver: zodResolver(postRequirementSchema),
     defaultValues: {
       studentName: "",
-      name: "",
-      email: "",
+      name: user?.name || "",
+      email: user?.email || "",
       country: "IN",
-      localPhoneNumber: "",
+      localPhoneNumber: user?.phone || "",
       subject: initialSubject || [],
       gradeLevel: "",
       board: "",
       teachingMode: [],
       location: null,
-      tutorGenderPreference: undefined,
-      startDatePreference: undefined,
+      tutorGenderPreference: "NO_PREFERENCE",
+      startDatePreference: "IMMEDIATELY",
       preferredDays: [],
       preferredTimeSlots: [],
       whatsAppNotifications: true,
@@ -160,7 +160,7 @@ export function PostRequirementModal({
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
-    } else if (currentStep === 2) {
+    } else if (currentStep === 2 && totalSteps === 3) {
       fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference', 'preferredDays', 'preferredTimeSlots'];
     }
 
@@ -173,7 +173,7 @@ export function PostRequirementModal({
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -188,24 +188,17 @@ export function PostRequirementModal({
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
     
-    let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
-    switch (data.tutorGenderPreference) {
-      case 'male': genderPreferenceApiValue = 'MALE'; break;
-      case 'female': genderPreferenceApiValue = 'FEMALE'; break;
-      case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
-    }
-    
     const enquiryRequest = {
         studentName: data.studentName,
         subjects: data.subject,
         grade: data.gradeLevel,
         board: data.board,
-        location: data.location?.address, // Assuming location.address is the main string
+        address: data.location?.address, // Assuming location.address is the main string
         availabilityDays: data.preferredDays,
         availabilityTime: data.preferredTimeSlots,
         online: data.teachingMode.includes("Online"),
         offline: data.teachingMode.includes("Offline (In-person)"),
-        genderPreference: genderPreferenceApiValue,
+        genderPreference: data.tutorGenderPreference,
         startPreference: data.startDatePreference,
     };
     
@@ -221,10 +214,19 @@ export function PostRequirementModal({
     
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiBaseUrl}/api/auth/enquiry`, {
+      const endpoint = isAuthenticated ? '/api/enquiry/create' : '/api/auth/enquiry';
+      
+      const headers: HeadersInit = { 'Content-Type': 'application/json', 'accept': '*/*' };
+      if(isAuthenticated && token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const body = isAuthenticated ? JSON.stringify(enquiryRequest) : JSON.stringify({ enquiryRequest, signupRequest });
+
+      const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
-        body: JSON.stringify({ enquiryRequest, signupRequest }),
+        headers: headers,
+        body: body,
       });
 
       if (!response.ok) {
@@ -232,14 +234,24 @@ export function PostRequirementModal({
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
-      const responseData = await response.json();
-      if (responseData.token && responseData.type === 'PARENT') {
-          setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
-          sessionStorage.setItem('showNewRequirementToast', 'true');
-          router.push("/parent/dashboard");
-      } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
-          hideLoader();
-          onTriggerSignIn(data.email);
+      if (isAuthenticated) {
+        toast({
+          title: "Requirement Posted!",
+          description: "Your new tuition requirement has been successfully submitted.",
+        });
+        sessionStorage.setItem('showNewRequirementToast', 'true');
+        onSuccess();
+        router.push("/parent/dashboard");
+      } else {
+        const responseData = await response.json();
+        if (responseData.token && responseData.type === 'PARENT') {
+            setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
+            sessionStorage.setItem('showNewRequirementToast', 'true');
+            router.push("/parent/dashboard");
+        } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
+            hideLoader();
+            onTriggerSignIn(data.email);
+        }
       }
 
     } catch (error) {
@@ -255,6 +267,7 @@ export function PostRequirementModal({
 
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
   const isFinalStep = currentStep === totalSteps;
+  const { token } = useAuthMock();
 
   return (
     <div className="bg-card p-0 rounded-lg relative">
@@ -354,7 +367,7 @@ export function PostRequirementModal({
             </div>
           )}
 
-          {currentStep === 2 && (
+          {(currentStep === 2) && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><Settings2 className="mr-2 h-5 w-5" />Tuition Preferences</h3>
 
@@ -437,7 +450,7 @@ export function PostRequirementModal({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {simpleTutorGenderPreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          {tutorGenderPreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -457,7 +470,7 @@ export function PostRequirementModal({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {simpleStartDatePreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          {startDatePreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -512,7 +525,7 @@ export function PostRequirementModal({
             </div>
           )}
 
-          {currentStep === 3 && (
+          {(currentStep === 3) && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Your Contact Details</h3>
               <FormField
