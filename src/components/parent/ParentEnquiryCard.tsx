@@ -167,14 +167,11 @@ export function ParentEnquiryCard({
                 asChild
                 size="sm"
                 variant="outline"
-                className={cn(
-                "text-xs py-1.5 px-3 h-auto",
-                "bg-primary/5 text-primary border-primary/30 hover:bg-primary/10"
-                )}
+                className="text-xs py-1.5 px-3 h-auto"
             >
                 <Link href={`/parent/my-enquiries/${requirement.id}`}>
-                    <Eye className="w-3 h-3 mr-1.5" />
-                    View Details
+                    <SettingsIcon className="w-3 h-3 mr-1.5" />
+                    Manage
                 </Link>
             </Button>
           </div>
