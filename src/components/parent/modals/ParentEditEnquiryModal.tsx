@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -36,7 +35,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Label } from "@/components/ui/label";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Info, Save, X, User, Loader2, VenetianMask } from "lucide-react";
+import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Save, X, User, Loader2, VenetianMask } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
@@ -91,13 +90,14 @@ const parentEnquiryEditSchema = z.object({
 
 export type ParentEnquiryEditFormValues = z.infer<typeof parentEnquiryEditSchema>;
 
-interface ParentEnquiryModalProps {
+interface ParentEditEnquiryModalProps {
+  onOpenChange: (isOpen: boolean) => void;
   enquiryData: TuitionRequirement | null;
   onUpdateEnquiry: (updatedData: ParentEnquiryEditFormValues) => void;
   isUpdating: boolean;
 }
 
-export function ParentEditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdating }: ParentEnquiryModalProps) {
+export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnquiry, isUpdating }: ParentEditEnquiryModalProps) {
   const form = useForm<ParentEnquiryEditFormValues>({
     resolver: zodResolver(parentEnquiryEditSchema),
     defaultValues: {
@@ -147,13 +147,9 @@ export function ParentEditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdatin
     <>
       <DialogHeader className="p-6 pb-4 border-b relative">
         <DialogTitle className="text-xl font-semibold text-primary">Edit Tuition Requirement</DialogTitle>
-        <DialogDescription className="text-xs">
+        <DialogDescription>
           Update the details for your enquiry: {Array.isArray(enquiryData.subject) ? enquiryData.subject.join(', ') : enquiryData.subject}.
         </DialogDescription>
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
       </DialogHeader>
       
       <Form {...form}>
@@ -244,7 +240,7 @@ export function ParentEditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdatin
                       return (
                          <FormItem key={item.id}>
                           <Label
-                            htmlFor={`teaching-mode-edit-${item.id}`}
+                            htmlFor={`teaching-mode-edit-parent-${item.id}`}
                             className={cn(
                               "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
                               field.value?.includes(item.id) && "bg-primary/10 border-primary ring-1 ring-primary"
@@ -252,7 +248,7 @@ export function ParentEditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdatin
                           >
                             <FormControl>
                               <Checkbox
-                                id={`teaching-mode-edit-${item.id}`}
+                                id={`teaching-mode-edit-parent-${item.id}`}
                                 checked={field.value?.includes(item.id)}
                                 onCheckedChange={(checked) => {
                                   const currentValues = field.value || [];
@@ -401,5 +397,3 @@ export function ParentEditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdatin
     </>
   );
 }
-
-    
