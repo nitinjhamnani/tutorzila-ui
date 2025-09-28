@@ -199,6 +199,7 @@ export function PostRequirementModal({
         addressName: locationDetails?.name,
         city: locationDetails?.city,
         state: locationDetails?.state,
+        country: locationDetails?.country,
         area: locationDetails?.area,
         pincode: locationDetails?.pincode,
         googleMapsLink: locationDetails?.googleMapsUrl,
