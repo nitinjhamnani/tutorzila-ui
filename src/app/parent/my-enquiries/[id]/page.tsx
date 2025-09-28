@@ -26,13 +26,13 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter as AlertDialogFooterComponent,
-  AlertDialogHeader as AlertDialogHeaderComponent,
-  AlertDialogTitle as AlertDialogTitleComponent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ParentEditEnquiryModal, type ParentEnquiryEditFormValues } from "@/components/parent/modals/ParentEditEnquiryModal";
+import { EditEnquiryModal, type EditEnquiryFormValues } from "@/components/common/modals/EditEnquiryModal";
 import {
   User,
   BookOpen,
@@ -171,7 +171,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   };
 };
 
-const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: ParentEnquiryEditFormValues }) => {
+const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string, token: string | null, formData: EditEnquiryFormValues }) => {
   if (!token) throw new Error("Authentication token is required.");
   
   const locationDetails = formData.location;
@@ -274,7 +274,7 @@ export default function ParentEnquiryDetailsPage() {
   }, [isLoading, hideLoader]);
 
   const updateMutation = useMutation({
-    mutationFn: (formData: ParentEnquiryEditFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
+    mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
     onSuccess: (data) => {
       const { enquirySummary, enquiryDetails } = data;
       const transformStringToArray = (str: string | null | undefined): string[] => {
@@ -368,7 +368,7 @@ export default function ParentEnquiryDetailsPage() {
     setIsCloseEnquiryModalOpen(false);
   };
 
-  const handleUpdateEnquiry = (updatedData: ParentEnquiryEditFormValues) => {
+  const handleUpdateEnquiry = (updatedData: EditEnquiryFormValues) => {
     updateMutation.mutate(updatedData);
   };
   
@@ -552,17 +552,11 @@ export default function ParentEnquiryDetailsPage() {
                           <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                         </Button>
                       </DialogTrigger>
-                      <DialogContent
-                        className="sm:max-w-2xl bg-card p-0 rounded-lg overflow-hidden"
-                        onPointerDownOutside={(e) => e.preventDefault()}
-                      >
-                         <ParentEditEnquiryModal
-                            onOpenChange={setIsEditModalOpen}
-                            enquiryData={requirement}
-                            onUpdateEnquiry={handleUpdateEnquiry}
-                            isUpdating={updateMutation.isPending}
-                        />
-                      </DialogContent>
+                      <EditEnquiryModal
+                        enquiryData={requirement}
+                        onUpdateEnquiry={handleUpdateEnquiry}
+                        isUpdating={updateMutation.isPending}
+                      />
                     </Dialog>
                     {(requirement.applicantsCount ?? 0) > 0 && (
                       <Button asChild variant="default" size="sm">
@@ -583,14 +577,14 @@ export default function ParentEnquiryDetailsPage() {
       </div>
 
       {requirement && (
-        <Dialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Close Enquiry: {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}</DialogTitle>
-                <DialogDescription>
-                  Please select a reason for closing this requirement. This helps us improve our service.
-                </DialogDescription>
-              </DialogHeader>
+        <AlertDialog open={isCloseEnquiryModalOpen} onOpenChange={setIsCloseEnquiryModalOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to close this enquiry?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action will mark the requirement as closed. You can reopen it later if needed. Please select a reason for closing.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
               <div className="py-4 space-y-4">
                   <RadioGroup
                     onValueChange={(value: string) => setCloseReason(value)}
@@ -599,29 +593,22 @@ export default function ParentEnquiryDetailsPage() {
                   >
                     {closeReasons.map((reason) => (
                       <div key={reason.id} className="flex items-center space-x-3 space-y-0">
-                        <RadioGroupItem value={reason.id} id={reason.id} />
+                        <RadioGroupItem value={reason.label} id={reason.id} />
                         <Label htmlFor={reason.id} className="font-normal text-sm">{reason.label}</Label>
                       </div>
                     ))}
                   </RadioGroup>
               </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsCloseEnquiryModalOpen(false)}>
-                    Cancel
-                </Button>
-                <Button 
-                  type="button" 
-                  onClick={handleCloseEnquiryDialogAction} 
-                  disabled={!closeReason || closeEnquiryMutation.isPending}
-                >
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleCloseEnquiryDialogAction} disabled={!closeReason || closeEnquiryMutation.isPending}>
                   {closeEnquiryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {closeEnquiryMutation.isPending ? "Closing..." : "Confirm & Close"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
       )}
     </main>
   );
 }
-
