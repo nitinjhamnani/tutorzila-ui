@@ -378,7 +378,7 @@ export default function ParentDashboardPage() {
       <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
         <PostRequirementModal 
             onSuccess={handleCreateEnquirySuccess}
-            startFromStep={isAuthenticated && user?.role === 'parent' ? 2 : 1}
+            startFromStep={1}
         />
       </DialogContent>
     </Dialog>
