@@ -33,10 +33,14 @@ export const daysOptions: MultiSelectOption[] = [
 ];
 
 export const timeSlotsOptions: MultiSelectOption[] = [
-  { value: "0800-1000", label: "8:00 AM - 10:00 AM" }, { value: "1000-1200", label: "10:00 AM - 12:00 PM" },
-  { value: "1200-1400", label: "12:00 PM - 2:00 PM" }, { value: "1400-1600", label: "2:00 PM - 4:00 PM" },
-  { value: "1600-1800", label: "4:00 PM - 6:00 PM" }, { value: "1800-2000", label: "6:00 PM - 8:00 PM" },
-  { value: "2000-2200", label: "8:00 PM - 10:00 PM" }, { value: "Flexible", label: "Flexible"},
+  { value: "7:00 AM - 9:00 AM", label: "7:00 AM - 9:00 AM" },
+  { value: "9:00 AM - 11:00 AM", label: "9:00 AM - 11:00 AM" },
+  { value: "11:00 AM - 1:00 PM", label: "11:00 AM - 1:00 PM" },
+  { value: "1:00 PM - 3:00 PM", label: "1:00 PM - 3:00 PM" },
+  { value: "3:00 PM - 5:00 PM", label: "3:00 PM - 5:00 PM" },
+  { value: "5:00 PM - 7:00 PM", label: "5:00 PM - 7:00 PM" },
+  { value: "7:00 PM - 9:00 PM", label: "7:00 PM - 9:00 PM" },
+  { value: "Flexible", label: "Flexible" },
 ];
 
 export const tutorGenderPreferenceOptions = [
@@ -45,8 +49,20 @@ export const tutorGenderPreferenceOptions = [
     { value: "FEMALE", label: "Female" }
 ];
 
+export const simpleTutorGenderPreferenceOptions = [
+    { value: "any", label: "No Preference" },
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" }
+];
+
 export const startDatePreferenceOptions = [
     { value: "IMMEDIATELY", label: "Immediately" },
     { value: "WITHIN_A_MONTH", label: "Within a month" },
     { value: "JUST_EXPLORING", label: "Just exploring" }
+];
+
+export const simpleStartDatePreferenceOptions = [
+    { value: "immediately", label: "Immediately" },
+    { value: "within_month", label: "Within a month" },
+    { value: "exploring", label: "Just exploring" }
 ];
