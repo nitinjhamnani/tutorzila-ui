@@ -74,8 +74,8 @@ const postRequirementSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
-  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"], { required_error: "Please select a gender preference." }),
+  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"], { required_error: "Please select a start date preference." }),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   // Step 3
@@ -118,7 +118,7 @@ export function PostRequirementModal({
   isSubmitting: isSubmittingProp = false
 }: PostRequirementModalProps) {
   
-  const { user, isAuthenticated } = useAuthMock();
+  const { user, isAuthenticated, token } = useAuthMock();
   const [currentStep, setCurrentStep] = useState(startFromStep);
   
   const totalSteps = isAuthenticated && user?.role === 'parent' ? 2 : 3;
@@ -160,8 +160,8 @@ export function PostRequirementModal({
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
-    } else if (currentStep === 2 && totalSteps === 3) {
-      fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference', 'preferredDays', 'preferredTimeSlots'];
+    } else if (currentStep === 2) { 
+      fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference'];
     }
 
     const isValid = fieldsToValidate.length > 0 ? await form.trigger(fieldsToValidate) : true;
@@ -267,7 +267,6 @@ export function PostRequirementModal({
 
   const isOfflineModeSelected = form.watch("teachingMode")?.includes("Offline (In-person)");
   const isFinalStep = currentStep === totalSteps;
-  const { token } = useAuthMock();
 
   return (
     <div className="bg-card p-0 rounded-lg relative">
@@ -570,8 +569,7 @@ export function PostRequirementModal({
                           </FormControl>
                           <SelectContent>
                             {MOCK_COUNTRIES.map(c => (
-                              <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
-                            ))}
+                              <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
