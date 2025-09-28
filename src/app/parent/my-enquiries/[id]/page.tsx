@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -452,6 +453,7 @@ export default function ParentEnquiryDetailsPage() {
                               <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
                                   <UsersRound className="w-4 h-4"/> {requirement.studentName}
                               </CardDescription>
+                              
                               <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                                         <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
@@ -548,7 +550,7 @@ export default function ParentEnquiryDetailsPage() {
                 <div className="flex flex-wrap justify-end gap-2">
                     <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="xs" className="text-xs py-1.5 px-2.5 h-auto">
                           <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
                         </Button>
                       </DialogTrigger>
@@ -566,7 +568,7 @@ export default function ParentEnquiryDetailsPage() {
                           </Link>
                       </Button>
                     )}
-                    <Button variant="outline" size="sm" onClick={handleOpenCloseEnquiryModal}>
+                    <Button variant="outline" size="xs" className="text-xs py-1.5 px-2.5 h-auto" onClick={handleOpenCloseEnquiryModal}>
                       <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
                     </Button>
                 </div>
