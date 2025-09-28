@@ -79,14 +79,14 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
     defaultValues: {
         studentName: "",
         subject: [],
-        gradeLevel: undefined,
-        board: undefined,
+        gradeLevel: "",
+        board: "",
         teachingMode: [],
         location: null,
         preferredDays: [],
         preferredTimeSlots: [],
-        tutorGenderPreference: undefined,
-        startDatePreference: undefined,
+        tutorGenderPreference: "NO_PREFERENCE",
+        startDatePreference: "IMMEDIATELY",
     },
   });
 
@@ -95,14 +95,14 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
       form.reset({
         studentName: enquiryData.studentName || "",
         subject: Array.isArray(enquiryData.subject) ? enquiryData.subject : [],
-        gradeLevel: enquiryData.gradeLevel || undefined,
-        board: enquiryData.board || undefined,
+        gradeLevel: enquiryData.gradeLevel || "",
+        board: enquiryData.board || "",
         teachingMode: enquiryData.teachingMode || [],
         location: typeof enquiryData.location === 'object' ? enquiryData.location : null,
         preferredDays: enquiryData.preferredDays || [],
         preferredTimeSlots: enquiryData.preferredTimeSlots || [],
-        tutorGenderPreference: enquiryData.tutorGenderPreference || undefined,
-        startDatePreference: enquiryData.startDatePreference || undefined,
+        tutorGenderPreference: enquiryData.tutorGenderPreference || "NO_PREFERENCE",
+        startDatePreference: enquiryData.startDatePreference || "IMMEDIATELY",
       });
     }
   }, [enquiryData, form]);
@@ -283,7 +283,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Preferred Gender</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
                           <SelectValue placeholder="Select tutor gender" />
@@ -303,7 +303,7 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80" />Start Date</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
                           <SelectValue placeholder="Select start time" />
@@ -378,3 +378,5 @@ export function ParentEditEnquiryModal({ onOpenChange, enquiryData, onUpdateEnqu
     </>
   );
 }
+
+    
