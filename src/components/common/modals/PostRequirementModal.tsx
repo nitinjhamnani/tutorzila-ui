@@ -188,12 +188,20 @@ export function PostRequirementModal({
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
     
+    const locationDetails = data.location;
+    
     const enquiryRequest = {
         studentName: data.studentName,
         subjects: data.subject,
         grade: data.gradeLevel,
         board: data.board,
-        address: data.location?.address, // Assuming location.address is the main string
+        address: locationDetails?.address,
+        addressName: locationDetails?.name,
+        city: locationDetails?.city,
+        state: locationDetails?.state,
+        area: locationDetails?.area,
+        pincode: locationDetails?.pincode,
+        googleMapsLink: locationDetails?.googleMapsUrl,
         availabilityDays: data.preferredDays,
         availabilityTime: data.preferredTimeSlots,
         online: data.teachingMode.includes("Online"),
