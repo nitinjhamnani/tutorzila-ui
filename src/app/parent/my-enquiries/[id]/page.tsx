@@ -406,7 +406,7 @@ export default function ParentEnquiryDetailsPage() {
               <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit">
                 <XCircle className="h-10 w-10 text-destructive" />
               </div>
-              <CardTitle className="text-xl mt-4">Enquiry Not Found</CardTitle>
+              <AlertDialogTitle>Enquiry Not Found</AlertDialogTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">{(error as Error)?.message || "An unexpected error occurred."}</p>
@@ -452,12 +452,6 @@ export default function ParentEnquiryDetailsPage() {
                               <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
                                   <UsersRound className="w-4 h-4"/> {requirement.studentName}
                               </CardDescription>
-                              {requirement.postedAt && (
-                                <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                                    <Clock className="w-3.5 h-3.5" /> 
-                                    Posted on {format(postedDate, "MMM d, yyyy")}
-                                </CardDescription>
-                              )}
                               <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                                         <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
@@ -544,7 +538,13 @@ export default function ParentEnquiryDetailsPage() {
                    </>
                 )}
               </CardContent>
-              <CardFooter className="p-4 md:p-5 border-t flex flex-wrap justify-end items-center gap-2">
+              <CardFooter className="p-4 md:p-5 border-t flex flex-wrap justify-between items-center gap-2">
+                {requirement.postedAt && (
+                    <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                        <Clock className="w-3.5 h-3.5" /> 
+                        Posted on {format(postedDate, "MMM d, yyyy")}
+                    </CardDescription>
+                )}
                 <div className="flex flex-wrap justify-end gap-2">
                     <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                       <DialogTrigger asChild>
