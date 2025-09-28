@@ -427,8 +427,7 @@ export default function ParentEnquiryDetailsPage() {
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
-  const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
-  const hasPreferences = !!(genderValue || startValue);
+  const hasPreferences = !!(genderValue || startValue || (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0));
 
 
   return (
@@ -473,7 +472,7 @@ export default function ParentEnquiryDetailsPage() {
                     <section className="space-y-3">
                         <h3 className="text-base font-semibold text-foreground flex items-center">
                             <Info className="w-4 h-4 mr-2 text-primary/80" />
-                            General Preferences
+                            Preferences
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
                             {genderValue && (
@@ -482,24 +481,11 @@ export default function ParentEnquiryDetailsPage() {
                             {startValue && (
                               <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />
                             )}
-                        </div>
-                    </section>
-                  </>
-                )}
-                {hasScheduleInfo && (
-                  <>
-                    <Separator />
-                    <section className="space-y-3">
-                        <h3 className="text-base font-semibold text-foreground flex items-center">
-                            <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                            Schedule Preferences
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
                             {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-                            <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
+                                <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
                             )}
                             {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
-                            <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
+                                <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
                             )}
                         </div>
                     </section>
