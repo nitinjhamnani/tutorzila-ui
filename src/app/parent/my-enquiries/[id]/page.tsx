@@ -15,7 +15,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -390,9 +389,9 @@ export default function ParentEnquiryDetailsPage() {
   const genderValue = requirement?.tutorGenderPreference ? genderDisplayMap[requirement.tutorGenderPreference] : undefined;
   
   const startDisplayMap: Record<string, string> = {
-    "immediately": "Immediately",
-    "within_month": "Within a month",
-    "exploring": "Just exploring",
+    "IMMEDIATELY": "Immediately",
+    "WITHIN_A_MONTH": "Within a month",
+    "JUST_EXPLORING": "Just exploring",
   };
   const startValue = requirement?.startDatePreference ? startDisplayMap[requirement.startDatePreference] : undefined;
 
