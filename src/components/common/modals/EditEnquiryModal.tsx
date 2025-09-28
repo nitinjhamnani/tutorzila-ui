@@ -143,6 +143,7 @@ export function EditEnquiryModal({ enquiryData, onUpdateEnquiry, isUpdating }: E
     <DialogContent 
       className="sm:max-w-2xl bg-card p-0 rounded-lg overflow-hidden"
       onPointerDownOutside={(e) => e.preventDefault()}
+      onOpenAutoFocus={(e) => e.preventDefault()}
     >
       <DialogHeader className="p-6 pb-4 relative border-b">
         <DialogTitle>Edit Tuition Requirement</DialogTitle>
