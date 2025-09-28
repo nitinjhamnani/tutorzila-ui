@@ -49,20 +49,8 @@ export const tutorGenderPreferenceOptions = [
     { value: "FEMALE", label: "Female" }
 ];
 
-export const simpleTutorGenderPreferenceOptions = [
-    { value: "any", label: "No Preference" },
-    { value: "male", label: "Male" },
-    { value: "female", label: "Female" }
-];
-
 export const startDatePreferenceOptions = [
     { value: "IMMEDIATELY", label: "Immediately" },
     { value: "WITHIN_A_MONTH", label: "Within a month" },
     { value: "JUST_EXPLORING", label: "Just exploring" }
-];
-
-export const simpleStartDatePreferenceOptions = [
-    { value: "immediately", label: "Immediately" },
-    { value: "within_month", label: "Within a month" },
-    { value: "exploring", label: "Just exploring" }
 ];
