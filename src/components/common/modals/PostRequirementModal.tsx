@@ -74,8 +74,8 @@ const postRequirementSchema = z.object({
     (val) => val === null || (typeof val === 'object' && val !== null && 'address' in val),
     "Invalid location format."
   ).nullable(),
-  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"], { required_error: "Please select a gender preference." }),
-  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"], { required_error: "Please select a start date." }),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
+  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
   // Step 3
@@ -141,8 +141,8 @@ export function PostRequirementModal({
       board: "",
       teachingMode: [],
       location: null,
-      tutorGenderPreference: "NO_PREFERENCE",
-      startDatePreference: "IMMEDIATELY",
+      tutorGenderPreference: undefined,
+      startDatePreference: undefined,
       preferredDays: [],
       preferredTimeSlots: [],
       whatsAppNotifications: true,
