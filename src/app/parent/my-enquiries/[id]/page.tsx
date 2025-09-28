@@ -15,6 +15,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -175,14 +176,6 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
   
   const locationDetails = formData.location;
   
-  let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
-  switch (formData.tutorGenderPreference) {
-      case 'male': genderPreferenceApiValue = 'MALE'; break;
-      case 'female': genderPreferenceApiValue = 'FEMALE'; break;
-      case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
-      default: genderPreferenceApiValue = undefined;
-  }
-  
   const requestBody = {
     studentName: formData.studentName,
     subjects: formData.subject,
@@ -200,7 +193,7 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
     availabilityTime: formData.preferredTimeSlots,
     online: formData.teachingMode.includes("Online"),
     offline: formData.teachingMode.includes("Offline (In-person)"),
-    genderPreference: genderPreferenceApiValue,
+    genderPreference: formData.tutorGenderPreference,
     startPreference: formData.startDatePreference,
   };
 
@@ -631,3 +624,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
