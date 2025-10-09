@@ -149,22 +149,24 @@ export function LocationAutocompleteInput({
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
             setDebugAddressComponents(place.address_components); // Store for debugging
 
-            const getComponent = (types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
-                for (const type of types) {
-                    const component = place.address_components?.find(c => c.types.includes(type));
-                    if (component) return component[nameType];
-                }
-                return '';
+            const getComponent = (components: google.maps.GeocoderAddressComponent[], types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
+              for (const type of types) {
+                const component = components.find(c => c.types.includes(type));
+                if (component) return component[nameType];
+              }
+              return '';
             };
 
+            const components = place.address_components || [];
+            
             const locationDetails: LocationDetails = {
                 name: place.name,
                 address: place.formatted_address || suggestion.description,
-                city: getComponent(['locality', 'postal_town', 'administrative_area_level_2', 'administrative_area_level_3']),
-                area: getComponent(['sublocality_level_1', 'sublocality_level_2', 'sublocality_level_3', 'neighborhood']),
-                state: getComponent(['administrative_area_level_1']),
-                country: getComponent(['country'], 'short_name'),
-                pincode: getComponent(['postal_code']),
+                area: getComponent(components, ['sublocality_level_1', 'neighborhood', 'sublocality_level_2', 'sublocality_level_3']),
+                city: getComponent(components, ['locality', 'postal_town', 'administrative_area_level_2', 'administrative_area_level_3']),
+                state: getComponent(components, ['administrative_area_level_1']),
+                country: getComponent(components, ['country'], 'short_name'),
+                pincode: getComponent(components, ['postal_code']),
                 googleMapsUrl: place.url,
             };
 
