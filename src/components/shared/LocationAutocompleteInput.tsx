@@ -147,7 +147,7 @@ export function LocationAutocompleteInput({
         setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
 
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-            setDebugAddressComponents(place.address_components); // Store for debugging
+            setDebugAddressComponents(place.address_components); 
 
             const getComponent = (components: google.maps.GeocoderAddressComponent[], types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
               for (const type of types) {
@@ -160,7 +160,12 @@ export function LocationAutocompleteInput({
             const components = place.address_components || [];
             
             const city = getComponent(components, ['administrative_area_level_3', 'locality', 'postal_town', 'administrative_area_level_2']);
-            const area = getComponent(components, ['sublocality_level_1', 'sublocality_level_2', 'neighborhood']) || city;
+            const locality = getComponent(components, ['locality']);
+            let area = getComponent(components, ['sublocality_level_1', 'sublocality_level_2', 'neighborhood']);
+
+            if (!area) {
+                area = locality; 
+            }
 
 
             const locationDetails: LocationDetails = {
