@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 export interface LocationDetails {
   name?: string; 
   address: string;
-  area?: string;
+  area?: string; // e.g., neighborhood or sublocality
   city?: string;
   state?: string;
   country?: string;
@@ -45,6 +45,7 @@ export function LocationAutocompleteInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [sessionToken, setSessionToken] = useState<google.maps.places.AutocompleteSessionToken | undefined>(undefined);
+  const [debugAddressComponents, setDebugAddressComponents] = useState<any>(null); // State for debugging
 
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesService = useRef<google.maps.places.PlacesService | null>(null);
@@ -121,6 +122,7 @@ export function LocationAutocompleteInput({
     setInputValue(newValue);
     setSelectedLocation(null);
     onValueChange(null);
+    setDebugAddressComponents(null);
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -145,21 +147,21 @@ export function LocationAutocompleteInput({
         setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
 
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-            const addressComponents = place.address_components || [];
+            setDebugAddressComponents(place.address_components); // Store for debugging
 
             const getComponent = (types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
-              for (const type of types) {
-                  const component = addressComponents.find(c => c.types.includes(type));
-                  if (component) return component[nameType];
-              }
-              return '';
+                for (const type of types) {
+                    const component = place.address_components?.find(c => c.types.includes(type));
+                    if (component) return component[nameType];
+                }
+                return '';
             };
 
             const locationDetails: LocationDetails = {
                 name: place.name,
                 address: place.formatted_address || suggestion.description,
-                area: getComponent(['sublocality_level_1', 'sublocality_level_2', 'sublocality_level_3', 'neighborhood']),
-                city: getComponent(['locality', 'postal_town', 'administrative_area_level_2']),
+                area: getComponent(['sublocality_level_2', 'sublocality_level_1', 'neighborhood', 'locality']),
+                city: getComponent(['locality', 'administrative_area_level_3', 'postal_town']),
                 state: getComponent(['administrative_area_level_1']),
                 country: getComponent(['country'], 'short_name'),
                 pincode: getComponent(['postal_code']),
@@ -196,6 +198,7 @@ export function LocationAutocompleteInput({
     onValueChange(null);
     setSuggestions([]);
     setShowSuggestions(false);
+    setDebugAddressComponents(null);
   };
 
   if (loadError) {
@@ -272,6 +275,18 @@ export function LocationAutocompleteInput({
           {(selectedLocation.name && selectedLocation.name !== selectedLocation.address) && (
             <p className="text-xs text-muted-foreground mt-0.5">{selectedLocation.address}</p>
           )}
+        </div>
+      )}
+      {debugAddressComponents && (
+        <div className="mt-4 p-4 border bg-muted/40 rounded-lg">
+            <h4 className="text-xs font-bold text-foreground mb-2">Google API Address Components (Debug):</h4>
+            <pre className="text-xs bg-black text-white p-3 rounded-md overflow-x-auto">
+                <code>{JSON.stringify(debugAddressComponents, null, 2)}</code>
+            </pre>
+             <h4 className="text-xs font-bold text-foreground mt-4 mb-2">Parsed Location Details:</h4>
+             <pre className="text-xs bg-black text-white p-3 rounded-md overflow-x-auto">
+                <code>{JSON.stringify(selectedLocation, null, 2)}</code>
+            </pre>
         </div>
       )}
     </div>
