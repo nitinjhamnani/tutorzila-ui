@@ -160,8 +160,8 @@ export function LocationAutocompleteInput({
             const locationDetails: LocationDetails = {
                 name: place.name,
                 address: place.formatted_address || suggestion.description,
-                area: getComponent(['sublocality_level_2', 'sublocality_level_1', 'neighborhood', 'locality']),
-                city: getComponent(['locality', 'administrative_area_level_3', 'postal_town']),
+                city: getComponent(['locality', 'postal_town', 'administrative_area_level_2', 'administrative_area_level_3']),
+                area: getComponent(['sublocality_level_1', 'sublocality_level_2', 'sublocality_level_3', 'neighborhood']),
                 state: getComponent(['administrative_area_level_1']),
                 country: getComponent(['country'], 'short_name'),
                 pincode: getComponent(['postal_code']),
