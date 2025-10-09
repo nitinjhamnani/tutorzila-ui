@@ -159,8 +159,9 @@ export function LocationAutocompleteInput({
 
             const components = place.address_components || [];
             
-            const area = getComponent(components, ['sublocality_level_1', 'sublocality_level_2', 'neighborhood']) || getComponent(components, ['locality']);
             const city = getComponent(components, ['administrative_area_level_3', 'locality', 'postal_town', 'administrative_area_level_2']);
+            const area = getComponent(components, ['sublocality_level_1', 'sublocality_level_2', 'neighborhood']) || city;
+
 
             const locationDetails: LocationDetails = {
                 name: place.name,
@@ -168,7 +169,7 @@ export function LocationAutocompleteInput({
                 area: area,
                 city: city,
                 state: getComponent(components, ['administrative_area_level_1']),
-                country: getComponent(components, ['country'], 'short_name'),
+                country: getComponent(components, ['country'], 'long_name'),
                 pincode: getComponent(components, ['postal_code']),
                 googleMapsUrl: place.url,
             };
