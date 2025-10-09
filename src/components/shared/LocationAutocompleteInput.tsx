@@ -48,14 +48,23 @@ export function LocationAutocompleteInput({
 
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesService = useRef<google.maps.places.PlacesService | null>(null);
+  const geocoder = useRef<google.maps.Geocoder | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isLoaded && !autocompleteService.current) {
-      autocompleteService.current = new window.google.maps.places.AutocompleteService();
-      const dummyDiv = document.createElement('div');
-      placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
+    if (isLoaded) {
+      if (!autocompleteService.current) {
+        autocompleteService.current = new window.google.maps.places.AutocompleteService();
+      }
+      if (!geocoder.current) {
+        geocoder.current = new window.google.maps.Geocoder();
+      }
+      if (!placesService.current) {
+        // The PlacesService needs a map or an HTML element to attach to, even if it's not visible.
+        const dummyDiv = document.createElement('div');
+        placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
+      }
     }
   }, [isLoaded]);
 
@@ -111,6 +120,8 @@ export function LocationAutocompleteInput({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
+    setSelectedLocation(null);
+    onValueChange(null);
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -132,42 +143,51 @@ export function LocationAutocompleteInput({
     };
 
     placesService.current.getDetails(request, (place, status) => {
-      // Create a new session token for the next session
-      setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
+        // A new session token should be generated for each session. A session starts when the user starts typing, and concludes when they select a place.
+        setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
 
-      if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-        const addressComponents = place.address_components || [];
-        
-        const getAddressComponent = (types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
-            for (const type of types) {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+            const addressComponents = place.address_components || [];
+
+            const getComponent = (type: string, nameType: 'long_name' | 'short_name' = 'long_name') => {
                 const component = addressComponents.find(c => c.types.includes(type));
-                if (component) {
-                    return component[nameType];
-                }
-            }
-            return '';
-        };
+                return component ? component[nameType] : '';
+            };
 
-        const area = getAddressComponent(['sublocality_level_1']) || getAddressComponent(['neighborhood']) || getAddressComponent(['sublocality']);
-        const city = getAddressComponent(['locality']);
-        const state = getAddressComponent(['administrative_area_level_1']);
-        const country = getAddressComponent(['country']);
-        const pincode = getAddressComponent(['postal_code']);
-        
-        const locationDetails: LocationDetails = {
-            name: place.name,
-            address: place.formatted_address || suggestion.description,
-            area: area,
-            city: city,
-            state: state,
-            country: country,
-            pincode: pincode,
-            googleMapsUrl: place.url,
-        };
-        
-        setSelectedLocation(locationDetails);
-        onValueChange(locationDetails);
-      }
+            const locationDetails: LocationDetails = {
+                name: place.name,
+                address: place.formatted_address || suggestion.description,
+                area: getComponent('sublocality_level_1') || getComponent('sublocality_level_2') || getComponent('neighborhood') || getComponent('sublocality'),
+                city: getComponent('locality') || getComponent('postal_town') || getComponent('administrative_area_level_2'),
+                state: getComponent('administrative_area_level_1'),
+                country: getComponent('country', 'short_name'),
+                pincode: getComponent('postal_code'),
+                googleMapsUrl: place.url,
+            };
+
+            setSelectedLocation(locationDetails);
+
+            // If pincode is missing, perform a reverse geocode
+            if (!locationDetails.pincode && place.geometry?.location && geocoder.current) {
+                geocoder.current.geocode({ location: place.geometry.location }, (results, geoStatus) => {
+                    if (geoStatus === 'OK' && results && results[0]) {
+                        const geoComponents = results[0].address_components || [];
+                        const pincodeComponent = geoComponents.find(c => c.types.includes('postal_code'));
+                        if (pincodeComponent) {
+                            const finalDetails = { ...locationDetails, pincode: pincodeComponent.long_name };
+                            setSelectedLocation(finalDetails);
+                            onValueChange(finalDetails);
+                        } else {
+                            onValueChange(locationDetails); // Pincode not found, use what we have
+                        }
+                    } else {
+                        onValueChange(locationDetails); // Geocoding failed, use what we have
+                    }
+                });
+            } else {
+                onValueChange(locationDetails);
+            }
+        }
     });
   };
   
@@ -198,7 +218,6 @@ export function LocationAutocompleteInput({
           onChange={handleInputChange}
           onFocus={() => {
             if (suggestions.length > 0) setShowSuggestions(true);
-            // Create a new session token when the input is focused
             if (!sessionToken && isLoaded) {
               setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
             }
