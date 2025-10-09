@@ -61,7 +61,6 @@ export function LocationAutocompleteInput({
         geocoder.current = new window.google.maps.Geocoder();
       }
       if (!placesService.current) {
-        // The PlacesService needs a map or an HTML element to attach to, even if it's not visible.
         const dummyDiv = document.createElement('div');
         placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
       }
@@ -143,45 +142,45 @@ export function LocationAutocompleteInput({
     };
 
     placesService.current.getDetails(request, (place, status) => {
-        // A new session token should be generated for each session. A session starts when the user starts typing, and concludes when they select a place.
         setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
 
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
             const addressComponents = place.address_components || [];
 
-            const getComponent = (type: string, nameType: 'long_name' | 'short_name' = 'long_name') => {
-                const component = addressComponents.find(c => c.types.includes(type));
-                return component ? component[nameType] : '';
+            const getComponent = (types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
+              for (const type of types) {
+                  const component = addressComponents.find(c => c.types.includes(type));
+                  if (component) return component[nameType];
+              }
+              return '';
             };
 
             const locationDetails: LocationDetails = {
                 name: place.name,
                 address: place.formatted_address || suggestion.description,
-                area: getComponent('sublocality_level_1') || getComponent('sublocality_level_2') || getComponent('neighborhood') || getComponent('sublocality'),
-                city: getComponent('locality') || getComponent('postal_town') || getComponent('administrative_area_level_2'),
-                state: getComponent('administrative_area_level_1'),
-                country: getComponent('country', 'short_name'),
-                pincode: getComponent('postal_code'),
+                area: getComponent(['sublocality_level_1', 'sublocality_level_2', 'sublocality_level_3', 'neighborhood']),
+                city: getComponent(['locality', 'postal_town', 'administrative_area_level_2']),
+                state: getComponent(['administrative_area_level_1']),
+                country: getComponent(['country'], 'short_name'),
+                pincode: getComponent(['postal_code']),
                 googleMapsUrl: place.url,
             };
 
             setSelectedLocation(locationDetails);
 
-            // If pincode is missing, perform a reverse geocode
             if (!locationDetails.pincode && place.geometry?.location && geocoder.current) {
                 geocoder.current.geocode({ location: place.geometry.location }, (results, geoStatus) => {
                     if (geoStatus === 'OK' && results && results[0]) {
-                        const geoComponents = results[0].address_components || [];
-                        const pincodeComponent = geoComponents.find(c => c.types.includes('postal_code'));
+                        const pincodeComponent = results[0].address_components.find(c => c.types.includes('postal_code'));
                         if (pincodeComponent) {
                             const finalDetails = { ...locationDetails, pincode: pincodeComponent.long_name };
                             setSelectedLocation(finalDetails);
                             onValueChange(finalDetails);
                         } else {
-                            onValueChange(locationDetails); // Pincode not found, use what we have
+                            onValueChange(locationDetails);
                         }
                     } else {
-                        onValueChange(locationDetails); // Geocoding failed, use what we have
+                        onValueChange(locationDetails);
                     }
                 });
             } else {
