@@ -44,6 +44,8 @@ export function LocationAutocompleteInput({
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionToken, setSessionToken] = useState<google.maps.places.AutocompleteSessionToken | undefined>(undefined);
+
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesService = useRef<google.maps.places.PlacesService | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -91,6 +93,7 @@ export function LocationAutocompleteInput({
       {
         input,
         componentRestrictions: { country: "in" },
+        sessionToken: sessionToken,
       },
       (predictions, status) => {
         setIsTyping(false);
@@ -122,21 +125,34 @@ export function LocationAutocompleteInput({
 
     if (!placesService.current || !suggestion.place_id) return;
     
-    const request = {
+    const request: google.maps.places.PlaceDetailsRequest = {
       placeId: suggestion.place_id,
-      fields: ['name', 'formatted_address', 'address_components', 'url'],
+      fields: ['name', 'formatted_address', 'address_components', 'url', 'geometry'],
+      sessionToken: sessionToken,
     };
 
     placesService.current.getDetails(request, (place, status) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-        const getAddressComponent = (type: string) => 
-            place?.address_components?.find(comp => comp.types.includes(type))?.long_name || '';
+      // Create a new session token for the next session
+      setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
 
-        const area = getAddressComponent('sublocality_level_1') || getAddressComponent('neighborhood');
-        const city = getAddressComponent('locality');
-        const state = getAddressComponent('administrative_area_level_1');
-        const country = getAddressComponent('country');
-        const pincode = getAddressComponent('postal_code');
+      if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+        const addressComponents = place.address_components || [];
+        
+        const getAddressComponent = (types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
+            for (const type of types) {
+                const component = addressComponents.find(c => c.types.includes(type));
+                if (component) {
+                    return component[nameType];
+                }
+            }
+            return '';
+        };
+
+        const area = getAddressComponent(['sublocality_level_1']) || getAddressComponent(['neighborhood']) || getAddressComponent(['sublocality']);
+        const city = getAddressComponent(['locality']);
+        const state = getAddressComponent(['administrative_area_level_1']);
+        const country = getAddressComponent(['country']);
+        const pincode = getAddressComponent(['postal_code']);
         
         const locationDetails: LocationDetails = {
             name: place.name,
@@ -180,7 +196,13 @@ export function LocationAutocompleteInput({
           placeholder={placeholder}
           value={inputValue || ''}
           onChange={handleInputChange}
-          onFocus={() => { if(suggestions.length > 0) setShowSuggestions(true); }}
+          onFocus={() => {
+            if (suggestions.length > 0) setShowSuggestions(true);
+            // Create a new session token when the input is focused
+            if (!sessionToken && isLoaded) {
+              setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
+            }
+          }}
           className={cn("pl-10", inputValue ? "pr-10" : "pr-4", className)}
           autoComplete="off"
         />
