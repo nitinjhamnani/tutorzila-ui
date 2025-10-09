@@ -45,7 +45,6 @@ export function LocationAutocompleteInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [sessionToken, setSessionToken] = useState<google.maps.places.AutocompleteSessionToken | undefined>(undefined);
-  const [debugAddressComponents, setDebugAddressComponents] = useState<any>(null); // State for debugging
 
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesService = useRef<google.maps.places.PlacesService | null>(null);
@@ -122,7 +121,6 @@ export function LocationAutocompleteInput({
     setInputValue(newValue);
     setSelectedLocation(null);
     onValueChange(null);
-    setDebugAddressComponents(null);
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -147,8 +145,7 @@ export function LocationAutocompleteInput({
         setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
 
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-            setDebugAddressComponents(place.address_components); 
-
+            
             const getComponent = (components: google.maps.GeocoderAddressComponent[], types: string[], nameType: 'long_name' | 'short_name' = 'long_name'): string => {
               for (const type of types) {
                 const component = components.find(c => c.types.includes(type));
@@ -160,13 +157,7 @@ export function LocationAutocompleteInput({
             const components = place.address_components || [];
             
             const city = getComponent(components, ['administrative_area_level_3', 'locality', 'postal_town', 'administrative_area_level_2']);
-            const locality = getComponent(components, ['locality']);
-            let area = getComponent(components, ['sublocality_level_1', 'sublocality_level_2', 'neighborhood']);
-
-            if (!area) {
-                area = locality; 
-            }
-
+            const area = getComponent(components, ['sublocality_level_1', 'sublocality_level_2', 'neighborhood']) || getComponent(components, ['locality']);
 
             const locationDetails: LocationDetails = {
                 name: place.name,
@@ -209,7 +200,6 @@ export function LocationAutocompleteInput({
     onValueChange(null);
     setSuggestions([]);
     setShowSuggestions(false);
-    setDebugAddressComponents(null);
   };
 
   if (loadError) {
@@ -288,18 +278,8 @@ export function LocationAutocompleteInput({
           )}
         </div>
       )}
-      {debugAddressComponents && (
-        <div className="mt-4 p-4 border bg-muted/40 rounded-lg">
-            <h4 className="text-xs font-bold text-foreground mb-2">Google API Address Components (Debug):</h4>
-            <pre className="text-xs bg-black text-white p-3 rounded-md overflow-x-auto">
-                <code>{JSON.stringify(debugAddressComponents, null, 2)}</code>
-            </pre>
-             <h4 className="text-xs font-bold text-foreground mt-4 mb-2">Parsed Location Details:</h4>
-             <pre className="text-xs bg-black text-white p-3 rounded-md overflow-x-auto">
-                <code>{JSON.stringify(selectedLocation, null, 2)}</code>
-            </pre>
-        </div>
-      )}
     </div>
   );
 }
+
+    
