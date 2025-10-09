@@ -129,27 +129,23 @@ export function LocationAutocompleteInput({
 
     placesService.current.getDetails(request, (place, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-        let city = '', state = '', country = '', pincode = '', area = '';
-        
-        place.address_components?.forEach(component => {
-            const types = component.types;
-            if (types.includes('sublocality_level_1') || types.includes('neighborhood')) {
-              area = component.long_name;
-            }
-            if (types.includes('locality')) city = component.long_name;
-            if (types.includes('administrative_area_level_1')) state = component.long_name;
-            if (types.includes('country')) country = component.long_name;
-            if (types.includes('postal_code')) pincode = component.long_name;
-        });
+        const getAddressComponent = (type: string) => 
+            place?.address_components?.find(comp => comp.types.includes(type))?.long_name || '';
 
+        const area = getAddressComponent('sublocality_level_1') || getAddressComponent('neighborhood');
+        const city = getAddressComponent('locality');
+        const state = getAddressComponent('administrative_area_level_1');
+        const country = getAddressComponent('country');
+        const pincode = getAddressComponent('postal_code');
+        
         const locationDetails: LocationDetails = {
             name: place.name,
             address: place.formatted_address || suggestion.description,
-            area: area || city, // Fallback to city if area is not found
-            city,
-            state,
-            country,
-            pincode,
+            area: area,
+            city: city,
+            state: state,
+            country: country,
+            pincode: pincode,
             googleMapsUrl: place.url,
         };
         
