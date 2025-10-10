@@ -146,25 +146,35 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 
   const mutation = useMutation({
     mutationFn: (data: TutoringDetailsFormValues) => updateTutoringDetailsApi(token, data),
-    onSuccess: (updatedDashboardData) => {
-      queryClient.setQueryData(['tutorDashboard', token], updatedDashboardData);
-      toast({
-        title: "Tutoring Details Updated!",
-        description: "Your tutoring information has been saved successfully.",
-      });
-      if (onSuccess) {
-        onSuccess();
-      }
+    onSuccess: (updatedTutoringDetails) => {
+        // Correctly merge the new tutoring details with existing user details in the cache
+        queryClient.setQueryData(['tutorDashboard', token], (oldData: any) => {
+            if (!oldData) return { tutoringDetails: updatedTutoringDetails };
+            
+            return {
+                ...oldData, // Keep existing userDetails, profilePicture, etc.
+                tutoringDetails: updatedTutoringDetails, // Overwrite only the tutoringDetails part
+            };
+        });
+        
+        toast({
+            title: "Tutoring Details Updated!",
+            description: "Your tutoring information has been saved successfully.",
+        });
+
+        if (onSuccess) {
+            onSuccess();
+        }
     },
     onError: (error) => {
-      console.error("Failed to update tutoring details:", error);
-      toast({
-        variant: "destructive",
-        title: "Update Failed",
-        description: (error as Error).message || "An unexpected error occurred.",
-      });
+        console.error("Failed to update tutoring details:", error);
+        toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: (error as Error).message || "An unexpected error occurred.",
+        });
     },
-  });
+});
 
   React.useEffect(() => {
     if (initialData?.tutoringDetails) {
@@ -547,3 +557,5 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     </Card>
   );
 }
+
+    
