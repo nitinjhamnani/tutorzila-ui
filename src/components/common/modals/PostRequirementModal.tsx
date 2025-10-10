@@ -121,7 +121,7 @@ export function PostRequirementModal({
   const { user, isAuthenticated, token } = useAuthMock();
   const [currentStep, setCurrentStep] = useState(startFromStep);
   
-  const totalSteps = isAuthenticated && user?.role === 'parent' ? 2 : 3;
+  const totalSteps = startFromStep === 1 ? 3 : 2;
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
