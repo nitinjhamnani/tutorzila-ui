@@ -57,7 +57,7 @@ const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequire
     gradeLevel: item.grade,
     scheduleDetails: "Details not provided by API",
     location: [item.area, item.city, item.country].filter(Boolean).join(', '),
-    status: "open", 
+    status: item.status?.toLowerCase() || 'open',
     postedAt: item.createdOn || new Date().toISOString(),
     board: item.board,
     teachingMode: [
@@ -65,10 +65,6 @@ const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequire
       ...(item.offline ? ["Offline (In-person)"] : []),
     ],
     applicantsCount: item.assignedTutors,
-    // Add mock properties for frontend display logic
-    mockIsRecommended: index % 3 === 0,
-    mockIsAppliedByCurrentUser: index % 4 === 0,
-    mockIsShortlistedByCurrentUser: index % 5 === 0,
   }));
 };
 
@@ -153,9 +149,9 @@ export default function AllEnquiriesPage() {
     });
     return {
       "All Enquiries": baseFiltered.length,
-      "Recommended": baseFiltered.filter(r => r.mockIsRecommended).length,
-      "Applied": baseFiltered.filter(r => r.mockIsAppliedByCurrentUser).length,
-      "Shortlisted": baseFiltered.filter(r => r.mockIsShortlistedByCurrentUser).length,
+      "Recommended": baseFiltered.filter(r => r.status === 'open').length, // Mocked logic, should be API driven
+      "Applied": baseFiltered.filter(r => r.status === 'matched').length, // Assuming 'matched' means applied by current user
+      "Shortlisted": baseFiltered.filter(r => r.status === 'open' && r.applicantsCount && r.applicantsCount > 2).length, // Mocked logic
     };
   }, [allOpenRequirements, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
 
@@ -181,13 +177,13 @@ export default function AllEnquiriesPage() {
     });
 
     if (activeFilterCategory === 'Recommended') {
-      return filtered.filter(req => req.mockIsRecommended);
+        return filtered.filter(req => req.status === 'open');
     }
     if (activeFilterCategory === 'Applied') {
-      return filtered.filter(req => req.mockIsAppliedByCurrentUser);
+        return filtered.filter(req => req.status === 'matched');
     }
     if (activeFilterCategory === 'Shortlisted') {
-      return filtered.filter(req => req.mockIsShortlistedByCurrentUser);
+        return filtered.filter(req => req.status === 'open' && req.applicantsCount && req.applicantsCount > 2);
     }
     return filtered; // For "All Enquiries"
   }, [allOpenRequirements, activeFilterCategory, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
@@ -260,7 +256,7 @@ export default function AllEnquiriesPage() {
     return (
       <Card className="text-center py-12 bg-card border-0 rounded-xl shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
         <CardContent className="flex flex-col items-center">
-          <LucideFilterIcon className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+          <LucideFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" />
           <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             There are no tuition enquiries matching your current filters.
@@ -313,14 +309,14 @@ export default function AllEnquiriesPage() {
                               )}
                             title="Filter Enquiries"
                         >
-                            <LucideFilterIcon className="w-4 h-4 opacity-90 md:mr-1.5" />
+                            <LucideFilter className="w-4 h-4 opacity-90 md:mr-1.5" />
                             <span className="hidden md:inline">Filter</span>
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden">
                     <DialogHeader className="p-6 pb-4 border-b">
                         <DialogTitle className="text-lg font-semibold text-primary flex items-center">
-                        <LucideFilterIcon className="mr-2 h-5 w-5" /> Filter Enquiries
+                        <LucideFilter className="mr-2 h-5 w-5" /> Filter Enquiries
                         </DialogTitle>
                         <DialogDescription>
                         Refine your search for tuition opportunities.
@@ -441,3 +437,5 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
+
+    
