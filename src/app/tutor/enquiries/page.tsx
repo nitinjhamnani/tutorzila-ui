@@ -29,7 +29,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
-const allEnquiryStatusesForPage = ["All Enquiries", "Recommended", "Applied", "Shortlisted"] as const;
+const allEnquiryStatusesForPage = ["Recommended", "Applied", "Assigned"] as const;
 type EnquiryStatusCategory = typeof allEnquiryStatusesForPage[number];
 
 const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
@@ -148,18 +148,16 @@ export default function AllEnquiriesPage() {
         return subjectMatch && gradeMatch && boardMatch && locationMatch && modeMatch;
     });
     return {
-      "All Enquiries": baseFiltered.length,
-      "Recommended": baseFiltered.filter(r => r.status === 'open').length, // Mocked logic, should be API driven
-      "Applied": baseFiltered.filter(r => r.status === 'matched').length, // Assuming 'matched' means applied by current user
-      "Shortlisted": baseFiltered.filter(r => r.status === 'open' && r.applicantsCount && r.applicantsCount > 2).length, // Mocked logic
+      "Recommended": baseFiltered.filter(r => r.status === 'open').length,
+      "Applied": baseFiltered.filter(r => r.status === 'applied').length, 
+      "Assigned": baseFiltered.filter(r => r.status === 'assigned' || r.status === 'matched').length,
     };
   }, [allOpenRequirements, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
 
   const filterCategoriesForDropdown: { label: EnquiryStatusCategory; value: EnquiryStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "All Enquiries", value: "All Enquiries", icon: ListChecks, count: categoryCounts["All Enquiries"] },
     { label: "Recommended", value: "Recommended", icon: Star, count: categoryCounts.Recommended },
     { label: "Applied", value: "Applied", icon: CheckCircle, count: categoryCounts.Applied },
-    { label: "Shortlisted", value: "Shortlisted", icon: Bookmark, count: categoryCounts.Shortlisted },
+    { label: "Assigned", value: "Assigned", icon: UsersIcon, count: categoryCounts.Assigned },
   ];
 
   const selectedCategoryLabel = useMemo(() => {
@@ -180,12 +178,12 @@ export default function AllEnquiriesPage() {
         return filtered.filter(req => req.status === 'open');
     }
     if (activeFilterCategory === 'Applied') {
-        return filtered.filter(req => req.status === 'matched');
+        return filtered.filter(req => req.status === 'applied');
     }
-    if (activeFilterCategory === 'Shortlisted') {
-        return filtered.filter(req => req.status === 'open' && req.applicantsCount && req.applicantsCount > 2);
+    if (activeFilterCategory === 'Assigned') {
+        return filtered.filter(req => req.status === 'assigned' || req.status === 'matched');
     }
-    return filtered; // For "All Enquiries"
+    return filtered; // Should not be reached if filter is always one of the three
   }, [allOpenRequirements, activeFilterCategory, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
 
   const handleApplyFilters = () => {
