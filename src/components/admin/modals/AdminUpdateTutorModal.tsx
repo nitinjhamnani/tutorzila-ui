@@ -183,41 +183,38 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         }
         return updateTutorDetails({ tutorId: tutor.id, token, formData });
     },
-    onSuccess: (data) => {
+    onSuccess: (response) => {
       queryClient.setQueryData(['tutorProfile', tutor?.id], (oldData: ApiTutor | undefined) => {
-        // Merge the old data (which has personal info) with the new data from the update API
-        if (!oldData) return data;
-        
-        // Assuming the response `data` from the update endpoint
-        // has the same structure as the `tutoringDetails` part of the GET response.
-        // We will merge this with the existing `userDetails`.
+        if (!oldData) return undefined;
+        const { tutoringDetails } = response;
         return {
-          ...oldData, // Keeps personal details like name, email, phone from initial load
-          subjectsList: data.subjects,
-          gradesList: data.grades,
-          boardsList: data.boards,
-          qualificationList: data.qualifications,
-          availabilityDaysList: data.availabilityDays,
-          availabilityTimeList: data.availabilityTime,
-          yearOfExperience: data.yearOfExperience,
-          bio: data.tutorBio,
-          addressName: data.addressName,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          area: data.area,
-          pincode: data.pincode,
-          country: data.country,
-          googleMapsLink: data.googleMapsLink,
-          hourlyRate: data.hourlyRate,
-          languagesList: data.languages,
-          profileCompletion: data.profileCompletion,
-          isActive: data.active,
-          isRateNegotiable: data.rateNegotiable,
-          isBioReviewed: data.bioReviewed,
-          online: data.online,
-          offline: data.offline,
-          isHybrid: data.hybrid,
+          ...oldData, 
+          ...tutoringDetails,
+          subjectsList: tutoringDetails.subjects,
+          gradesList: tutoringDetails.grades,
+          boardsList: tutoringDetails.boards,
+          qualificationList: tutoringDetails.qualifications,
+          availabilityDaysList: tutoringDetails.availabilityDays,
+          availabilityTimeList: tutoringDetails.availabilityTime,
+          yearOfExperience: tutoringDetails.yearOfExperience,
+          bio: tutoringDetails.tutorBio,
+          addressName: tutoringDetails.addressName,
+          address: tutoringDetails.address,
+          city: tutoringDetails.city,
+          state: tutoringDetails.state,
+          area: tutoringDetails.area,
+          pincode: tutoringDetails.pincode,
+          country: tutoringDetails.country,
+          googleMapsLink: tutoringDetails.googleMapsLink,
+          hourlyRate: tutoringDetails.hourlyRate,
+          languagesList: tutoringDetails.languages,
+          profileCompletion: tutoringDetails.profileCompletion,
+          isActive: tutoringDetails.active,
+          isRateNegotiable: tutoringDetails.rateNegotiable,
+          isBioReviewed: tutoringDetails.bioReviewed,
+          online: tutoringDetails.online,
+          offline: tutoringDetails.offline,
+          isHybrid: tutoringDetails.hybrid,
         };
       });
       toast({

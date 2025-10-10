@@ -72,37 +72,38 @@ export function ApproveBioModal({ isOpen, onOpenChange, tutorName, tutorId }: Ap
 
   const mutation = useMutation({
     mutationFn: (approvalReason: string) => approveTutorBioApi({ tutorId, reason: approvalReason, token }),
-    onSuccess: (updatedTutoringDetails) => {
+    onSuccess: (response) => {
+       const { tutoringDetails } = response;
       queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
         if (!oldData) return undefined;
         return {
           ...oldData,
-          ...updatedTutoringDetails, // This should spread the fields from the tutoringDetails response
-          subjectsList: updatedTutoringDetails.subjects,
-          gradesList: updatedTutoringDetails.grades,
-          boardsList: updatedTutoringDetails.boards,
-          qualificationList: updatedTutoringDetails.qualifications,
-          availabilityDaysList: updatedTutoringDetails.availabilityDays,
-          availabilityTimeList: updatedTutoringDetails.availabilityTime,
-          yearOfExperience: updatedTutoringDetails.yearOfExperience,
-          bio: updatedTutoringDetails.tutorBio,
-          addressName: updatedTutoringDetails.addressName,
-          address: updatedTutoringDetails.address,
-          city: updatedTutoringDetails.city,
-          state: updatedTutoringDetails.state,
-          area: updatedTutoringDetails.area,
-          pincode: updatedTutoringDetails.pincode,
-          country: updatedTutoringDetails.country,
-          googleMapsLink: updatedTutoringDetails.googleMapsLink,
-          hourlyRate: updatedTutoringDetails.hourlyRate,
-          languagesList: updatedTutoringDetails.languages,
-          profileCompletion: updatedTutoringDetails.profileCompletion,
-          isActive: updatedTutoringDetails.active,
-          isRateNegotiable: updatedTutoringDetails.rateNegotiable,
-          isBioReviewed: updatedTutoringDetails.bioReviewed,
-          online: updatedTutoringDetails.online,
-          offline: updatedTutoringDetails.offline,
-          isHybrid: updatedTutoringDetails.hybrid,
+          ...tutoringDetails,
+          subjectsList: tutoringDetails.subjects,
+          gradesList: tutoringDetails.grades,
+          boardsList: tutoringDetails.boards,
+          qualificationList: tutoringDetails.qualifications,
+          availabilityDaysList: tutoringDetails.availabilityDays,
+          availabilityTimeList: tutoringDetails.availabilityTime,
+          yearOfExperience: tutoringDetails.yearOfExperience,
+          bio: tutoringDetails.tutorBio,
+          addressName: tutoringDetails.addressName,
+          address: tutoringDetails.address,
+          city: tutoringDetails.city,
+          state: tutoringDetails.state,
+          area: tutoringDetails.area,
+          pincode: tutoringDetails.pincode,
+          country: tutoringDetails.country,
+          googleMapsLink: tutoringDetails.googleMapsLink,
+          hourlyRate: tutoringDetails.hourlyRate,
+          languagesList: tutoringDetails.languages,
+          profileCompletion: tutoringDetails.profileCompletion,
+          isActive: tutoringDetails.active,
+          isRateNegotiable: tutoringDetails.rateNegotiable,
+          isBioReviewed: tutoringDetails.bioReviewed,
+          online: tutoringDetails.online,
+          offline: tutoringDetails.offline,
+          isHybrid: tutoringDetails.hybrid,
         };
       });
       toast({
