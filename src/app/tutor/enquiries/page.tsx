@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { TuitionRequirement, User } from "@/types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard"; 
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2 } from "lucide-react";
+import { FilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
@@ -256,7 +256,7 @@ export default function AllEnquiriesPage() {
     return (
       <Card className="text-center py-12 bg-card border-0 rounded-xl shadow-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
         <CardContent className="flex flex-col items-center">
-          <LucideFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+          <FilterIcon className="w-16 h-16 text-primary/30 mx-auto mb-5" />
           <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             There are no tuition enquiries matching your current filters.
@@ -309,14 +309,14 @@ export default function AllEnquiriesPage() {
                               )}
                             title="Filter Enquiries"
                         >
-                            <LucideFilter className="w-4 h-4 opacity-90 md:mr-1.5" />
+                            <FilterIcon className="w-4 h-4 opacity-90 md:mr-1.5" />
                             <span className="hidden md:inline">Filter</span>
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md bg-card p-0 rounded-xl overflow-hidden">
                     <DialogHeader className="p-6 pb-4 border-b">
                         <DialogTitle className="text-lg font-semibold text-primary flex items-center">
-                        <LucideFilter className="mr-2 h-5 w-5" /> Filter Enquiries
+                        <FilterIcon className="mr-2 h-5 w-5" /> Filter Enquiries
                         </DialogTitle>
                         <DialogDescription>
                         Refine your search for tuition opportunities.
@@ -437,5 +437,3 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
-
-    
