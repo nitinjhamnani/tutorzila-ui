@@ -50,7 +50,7 @@ import {
   UploadCloud,
   Ruler,
   Filter as FilterIconLucide,
-  ListFilter,
+  ListChecks,
   Users as UsersIcon,
   BarChart2,
   ShoppingBag,
@@ -235,10 +235,10 @@ export default function TutorDashboardPage() {
   }
 
   const dashboardMetrics = [
-    { title: "Enquiries Assigned", value: String(dashboardData?.enquiriesAssigned ?? 0), IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Demo Scheduled", value: String(dashboardData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Profile Views", value: String(dashboardData?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Avg. Rating", value: dashboardData?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Enquiries Assigned", value: String(dashboardData?.tutorMetrics?.enquiriesAssigned ?? 0), IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Demo Scheduled", value: String(dashboardData?.tutorMetrics?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Profile Views", value: String(dashboardData?.tutorMetrics?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Avg. Rating", value: dashboardData?.tutorMetrics?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
   ];
 
   const quickActions: QuickActionCardProps[] = [
@@ -252,9 +252,9 @@ export default function TutorDashboardPage() {
     { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
   ];
 
-  const profileCompletion = dashboardData?.profileCompletion ?? 0;
-  const isTutorActive = dashboardData?.tutorActive ?? true;
-  const isVerified = (tutorUser?.isEmailVerified && tutorUser?.isPhoneVerified) || false;
+  const profileCompletion = dashboardData?.tutoringDetails?.profileCompletion ?? 0;
+  const isTutorActive = dashboardData?.tutoringDetails?.active ?? false;
+  const isVerified = dashboardData?.tutoringDetails?.verified ?? false;
 
   return (
     <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
