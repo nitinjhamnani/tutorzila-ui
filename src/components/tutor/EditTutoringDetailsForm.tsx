@@ -21,14 +21,14 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Loader2 } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { allSubjectsList, gradeLevelsList as gradeLevelOptions, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions } from "@/lib/constants";
 
 const gradeLevelsList: MultiSelectOption[] = gradeLevelOptions.map(gl => ({ value: gl, label: gl }));
@@ -69,6 +69,56 @@ interface EditTutoringDetailsFormProps {
   initialData?: any;
 }
 
+const updateTutoringDetailsApi = async (token: string | null, data: TutoringDetailsFormValues) => {
+    if (!token) {
+      throw new Error("Authentication Error: You are not logged in.");
+    }
+
+    const locationDetails = data.location;
+    const requestBody = {
+      subjects: data.subjects,
+      grades: data.gradeLevelsTaught,
+      boards: data.boardsTaught,
+      qualifications: data.qualifications,
+      availabilityDays: data.preferredDays,
+      availabilityTime: data.preferredTimeSlots,
+      yearOfExperience: data.yearOfExperience,
+      tutorBio: data.bio,
+      hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
+      languages: data.languages,
+      online: data.teachingMode.includes("Online"),
+      offline: data.teachingMode.includes("Offline"),
+      hybrid: data.isHybrid,
+      rateNegotiable: data.isRateNegotiable,
+      addressName: locationDetails?.name || "",
+      address: locationDetails?.address || "",
+      city: locationDetails?.city || "",
+      state: locationDetails?.state || "",
+      country: locationDetails?.country || "",
+      area: locationDetails?.area || "",
+      pincode: locationDetails?.pincode || "",
+      googleMapsLink: locationDetails?.googleMapsUrl || "",
+    };
+
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/api/tutor/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'accept': '*/*',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response.' }));
+      throw new Error(errorData.message || 'Failed to update details.');
+    }
+    
+    return await response.json();
+};
+
 export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoringDetailsFormProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
@@ -91,6 +141,28 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       languages: ensureArray(initialData?.tutoringDetails?.languages),
       yearOfExperience: initialData?.tutoringDetails?.yearOfExperience || "",
       bio: initialData?.tutoringDetails?.tutorBio || "",
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (data: TutoringDetailsFormValues) => updateTutoringDetailsApi(token, data),
+    onSuccess: (updatedDashboardData) => {
+      queryClient.setQueryData(['tutorDashboard', token], updatedDashboardData);
+      toast({
+        title: "Tutoring Details Updated!",
+        description: "Your tutoring information has been saved successfully.",
+      });
+      if (onSuccess) {
+        onSuccess();
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to update tutoring details:", error);
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: (error as Error).message || "An unexpected error occurred.",
+      });
     },
   });
 
@@ -129,78 +201,9 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     }
   }, [initialData, form]);
 
-  async function onSubmit(data: TutoringDetailsFormValues) {
-    if (!token) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "You are not authenticated. Please log in again.",
-      });
-      return;
-    }
-
-    const locationDetails = data.location;
-    const requestBody = {
-      subjects: data.subjects,
-      grades: data.gradeLevelsTaught,
-      boards: data.boardsTaught,
-      qualifications: data.qualifications,
-      availabilityDays: data.preferredDays,
-      availabilityTime: data.preferredTimeSlots,
-      yearOfExperience: data.yearOfExperience,
-      tutorBio: data.bio,
-      hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
-      languages: data.languages,
-      online: data.teachingMode.includes("Online"),
-      offline: data.teachingMode.includes("Offline"),
-      hybrid: data.isHybrid,
-      rateNegotiable: data.isRateNegotiable,
-      addressName: locationDetails?.name || "",
-      address: locationDetails?.address || "",
-      city: locationDetails?.city || "",
-      state: locationDetails?.state || "",
-      country: locationDetails?.country || "",
-      area: locationDetails?.area || "",
-      pincode: locationDetails?.pincode || "",
-      googleMapsLink: locationDetails?.googleMapsUrl || "",
-    };
-
-    try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiBaseUrl}/api/tutor/update`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'accept': '*/*',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response.' }));
-        throw new Error(errorData.message || 'Failed to update details.');
-      }
-      
-      const updatedDashboardData = await response.json();
-      queryClient.setQueryData(['tutorDashboard', token], updatedDashboardData);
-
-      toast({
-        title: "Tutoring Details Updated!",
-        description: "Your tutoring information has been saved successfully.",
-      });
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (error) {
-      console.error("Failed to update tutoring details:", error);
-      toast({
-        variant: "destructive",
-        title: "Update Failed",
-        description: (error as Error).message || "An unexpected error occurred.",
-      });
-    }
-  }
+  const onSubmit = (data: TutoringDetailsFormValues) => {
+    mutation.mutate(data);
+  };
 
   const formValues = form.watch();
 
@@ -333,7 +336,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                               htmlFor="isHybridCheckbox"
                               className="text-xs font-semibold text-muted-foreground"
                             >
-                              Also available for Hybrid (mix of Online &amp; Offline) classes.
+                              Also available for Hybrid (mix of Online & Offline) classes.
                             </Label>
                           </FormItem>
                         )}
@@ -414,7 +417,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
                   name="qualifications"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications &amp; Certifications</FormLabel>
+                      <FormLabel className="flex items-center"><GraduationCap className="mr-2 h-4 w-4 text-primary/80"/>Qualifications & Certifications</FormLabel>
                       <MultiSelectCommand
                         options={qualificationsList}
                         selectedValues={field.value || []}
@@ -529,9 +532,14 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
               />
             </div>
           </CardContent>
-          <CardFooter className="p-6 border-t">
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Save Tutoring Details"}
+          <CardFooter className="p-6 border-t flex justify-end">
+            <Button type="submit" className="w-full sm:w-auto" disabled={mutation.isPending}>
+              {mutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : "Save Tutoring Details"}
             </Button>
           </CardFooter>
         </form>
