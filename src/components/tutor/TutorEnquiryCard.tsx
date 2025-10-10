@@ -44,17 +44,6 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
   const { toast } = useToast();
 
   const subjectInitials = getInitials(requirement.subject);
-  const [isShortlisted, setIsShortlisted] = useState(requirement.mockIsShortlistedByCurrentUser || false);
-
-  const handleShortlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsShortlisted(!isShortlisted);
-    toast({
-      title: !isShortlisted ? "Added to Shortlist" : "Removed from Shortlist",
-      description: `Enquiry for ${Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject} has been ${!isShortlisted ? 'added to' : 'removed from'} your shortlist.`,
-    });
-  };
 
   return (
     <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
@@ -74,18 +63,6 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
             </CardDescription>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-              "absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full",
-              isShortlisted && "text-primary"
-          )}
-          onClick={handleShortlistToggle}
-          title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
-          >
-          <Bookmark className={cn("h-4 w-4 transition-colors", isShortlisted && "fill-primary")} />
-        </Button>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 text-xs flex-grow">
         <InfoItem icon={GraduationCap} text={requirement.gradeLevel} />
