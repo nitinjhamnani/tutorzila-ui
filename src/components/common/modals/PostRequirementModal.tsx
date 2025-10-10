@@ -104,16 +104,19 @@ interface PostRequirementModalProps {
   onSuccess: () => void;
   onTriggerSignIn?: (name?: string) => void;
   initialSubject?: string[];
+  startFromStep?: number;
 }
 
 export function PostRequirementModal({ 
   onSuccess, 
   onTriggerSignIn, 
   initialSubject,
+  startFromStep = 1,
 }: PostRequirementModalProps) {
   
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(startFromStep);
   const totalSteps = 3;
+  const { user } = useAuthMock();
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -141,6 +144,17 @@ export function PostRequirementModal({
       acceptTerms: false,
     },
   });
+  
+  useEffect(() => {
+    if (user) {
+        form.reset({
+            ...form.getValues(),
+            name: user.name || "",
+            email: user.email || "",
+            localPhoneNumber: user.phone || ""
+        });
+    }
+  }, [user, form]);
   
   useEffect(() => {
     if (initialSubject) {
@@ -651,9 +665,9 @@ export function PostRequirementModal({
                 </Button>
               )}
               {isFinalStep && (
-                <Button type="submit" disabled={isSubmittingProp || form.formState.isSubmitting} className="transform transition-transform hover:scale-105 active:scale-95">
+                <Button type="submit" disabled={form.formState.isSubmitting} className="transform transition-transform hover:scale-105 active:scale-95">
                   <Send className="mr-2 h-4 w-4" />
-                  {isSubmittingProp || form.formState.isSubmitting ? "Sending..." : "Send"}
+                  {form.formState.isSubmitting ? "Sending..." : "Send"}
                 </Button>
               )}
             </div>
@@ -663,5 +677,3 @@ export function PostRequirementModal({
     </div>
   );
 }
-
-    
