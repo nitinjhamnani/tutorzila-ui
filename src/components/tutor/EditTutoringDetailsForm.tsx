@@ -30,6 +30,7 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { allSubjectsList, gradeLevelsList as gradeLevelOptions, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions } from "@/lib/constants";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const gradeLevelsList: MultiSelectOption[] = gradeLevelOptions.map(gl => ({ value: gl, label: gl }));
 const boardsList: MultiSelectOption[] = boardOptions.map(b => ({ value: b, label: b }));
@@ -123,6 +124,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
@@ -146,14 +148,19 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 
   const mutation = useMutation({
     mutationFn: (data: TutoringDetailsFormValues) => updateTutoringDetailsApi(token, data),
+    onMutate: () => {
+      showLoader("Updating your profile...");
+    },
     onSuccess: (updatedTutoringDetails) => {
-        // Correctly merge the new tutoring details with existing user details in the cache
         queryClient.setQueryData(['tutorDashboard', token], (oldData: any) => {
             if (!oldData) return { tutoringDetails: updatedTutoringDetails };
             
             return {
-                ...oldData, // Keep existing userDetails, profilePicture, etc.
-                tutoringDetails: updatedTutoringDetails, // Overwrite only the tutoringDetails part
+                ...oldData,
+                tutoringDetails: {
+                  ...oldData.tutoringDetails, // Keep existing fields in tutoringDetails
+                  ...updatedTutoringDetails,   // Overwrite with new fields from response
+                }
             };
         });
         
@@ -174,6 +181,9 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
             description: (error as Error).message || "An unexpected error occurred.",
         });
     },
+    onSettled: () => {
+      hideLoader();
+    }
 });
 
   React.useEffect(() => {
@@ -557,5 +567,3 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     </Card>
   );
 }
-
-    
