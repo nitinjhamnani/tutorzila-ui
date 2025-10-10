@@ -102,26 +102,18 @@ export type PostRequirementFormValues = z.infer<typeof postRequirementSchema>;
 
 interface PostRequirementModalProps {
   onSuccess: () => void;
-  startFromStep?: 1 | 2;
   onTriggerSignIn?: (name?: string) => void;
   initialSubject?: string[];
-  adminApiHandler?: (data: PostRequirementFormValues) => void;
-  isSubmitting?: boolean;
 }
 
 export function PostRequirementModal({ 
   onSuccess, 
-  startFromStep = 1, 
   onTriggerSignIn, 
   initialSubject,
-  adminApiHandler,
-  isSubmitting: isSubmittingProp = false
 }: PostRequirementModalProps) {
   
-  const { user, isAuthenticated, token } = useAuthMock();
-  const [currentStep, setCurrentStep] = useState(startFromStep);
-  
-  const totalSteps = startFromStep === 1 ? 3 : 2;
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -132,10 +124,10 @@ export function PostRequirementModal({
     resolver: zodResolver(postRequirementSchema),
     defaultValues: {
       studentName: "",
-      name: user?.name || "",
-      email: user?.email || "",
+      name: "",
+      email: "",
       country: "IN",
-      localPhoneNumber: user?.phone || "",
+      localPhoneNumber: "",
       subject: initialSubject || [],
       gradeLevel: "",
       board: "",
@@ -178,11 +170,6 @@ export function PostRequirementModal({
   };
 
   const onSubmit: SubmitHandler<PostRequirementFormValues> = async (data) => {
-    if (adminApiHandler) {
-      adminApiHandler(data);
-      return;
-    }
-
     form.clearErrors();
     showLoader();
 
@@ -223,14 +210,10 @@ export function PostRequirementModal({
     
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      const endpoint = isAuthenticated ? '/api/enquiry/create' : '/api/auth/enquiry';
+      const endpoint = '/api/auth/enquiry';
       
       const headers: HeadersInit = { 'Content-Type': 'application/json', 'accept': '*/*' };
-      if(isAuthenticated && token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const body = isAuthenticated ? JSON.stringify(enquiryRequest) : JSON.stringify({ enquiryRequest, signupRequest });
+      const body = JSON.stringify({ enquiryRequest, signupRequest });
 
       const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         method: 'POST',
@@ -243,24 +226,14 @@ export function PostRequirementModal({
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
-      if (isAuthenticated) {
-        toast({
-          title: "Requirement Posted!",
-          description: "Your new tuition requirement has been successfully submitted.",
-        });
-        sessionStorage.setItem('showNewRequirementToast', 'true');
-        onSuccess();
-        router.push("/parent/dashboard");
-      } else {
-        const responseData = await response.json();
-        if (responseData.token && responseData.type === 'PARENT') {
-            setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
-            sessionStorage.setItem('showNewRequirementToast', 'true');
-            router.push("/parent/dashboard");
-        } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
-            hideLoader();
-            onTriggerSignIn(data.email);
-        }
+      const responseData = await response.json();
+      if (responseData.token && responseData.type === 'PARENT') {
+          setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
+          sessionStorage.setItem('showNewRequirementToast', 'true');
+          router.push("/parent/dashboard");
+      } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
+          hideLoader();
+          onTriggerSignIn(data.email);
       }
 
     } catch (error) {
@@ -690,3 +663,5 @@ export function PostRequirementModal({
     </div>
   );
 }
+
+    
