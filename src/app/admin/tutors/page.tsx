@@ -54,7 +54,7 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
   if (!token) throw new Error("Authentication token not found.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/search/tutors/all?${params.toString()}`, {
+  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -67,10 +67,11 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
   }
   
   const data = await response.json();
-  // Transform the new API response to match the existing ApiTutor type structure
+  
   return data.map((tutor: any) => ({
     id: tutor.tutorId,
     displayName: tutor.tutorName,
+    name: tutor.tutorName,
     subjectsList: tutor.subjects ? tutor.subjects.split(',').map((s:string) => s.trim()) : [],
     gradesList: tutor.grades ? tutor.grades.split(',').map((g:string) => g.trim()) : [],
     boardsList: tutor.boards ? tutor.boards.split(',').map((b:string) => b.trim()) : [],
@@ -79,13 +80,14 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
     state: tutor.state,
     googleMapsLink: tutor.googleMapLink,
     createdAt: tutor.createdAt,
+    registeredDate: tutor.createdAt,
+    gender: tutor.gender,
     isActive: tutor.active,
     isBioReviewed: tutor.bioReviewed,
     online: tutor.online,
     offline: tutor.offline,
+    isVerified: tutor.verified,
     profilePicUrl: tutor.profilePicUrl,
-    isVerified: tutor.verified, 
-    name: tutor.tutorName,
   }));
 };
 
