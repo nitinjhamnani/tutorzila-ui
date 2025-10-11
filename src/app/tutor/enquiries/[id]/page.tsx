@@ -86,6 +86,7 @@ const fetchEnquiryDetails = async (
 
   const requirement: TuitionRequirement = {
     id: enquiryResponse.enquirySummary.enquiryId,
+    parentId: data.parentId,
     parentName: "A Parent", 
     studentName: enquiryResponse.enquiryDetails.studentName,
     subject: transformStringToArray(enquiryResponse.enquirySummary.subjects),
@@ -147,6 +148,7 @@ const applyToEnquiry = async (
 
   const requirement: TuitionRequirement = {
     id: enquiryResponse.enquirySummary.enquiryId,
+    parentId: data.parentId,
     parentName: "A Parent",
     studentName: enquiryResponse.enquiryDetails.studentName,
     subject: transformStringToArray(enquiryResponse.enquirySummary.subjects),
@@ -238,7 +240,7 @@ const EnquiryInfoItem = ({
 export default function TutorEnquiryDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { token } = useAuthMock();
+  const { token, isCheckingAuth } = useAuthMock();
   const id = params.id as string;
   const { showLoader, hideLoader } = useGlobalLoader();
   const { toast } = useToast();
@@ -497,4 +499,3 @@ export default function TutorEnquiryDetailPage() {
     </div>
   );
 }
-
