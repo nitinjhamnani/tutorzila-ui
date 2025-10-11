@@ -63,7 +63,7 @@ const fetchEnquiryDetails = async (
   }
   
   const data = await response.json();
-  const { enquirySummary, enquiryDetails } = data.enquiryResponse;
+  const { enquiryResponse } = data;
 
   const transformStringToArray = (str: string | null | undefined): string[] => {
     if (typeof str === 'string' && str.trim() !== '') {
@@ -73,34 +73,34 @@ const fetchEnquiryDetails = async (
   };
 
   const requirement: TuitionRequirement = {
-    id: enquirySummary.enquiryId,
+    id: enquiryResponse.enquirySummary.enquiryId,
     parentName: "A Parent", 
-    studentName: enquiryDetails.studentName,
-    subject: transformStringToArray(enquirySummary.subjects),
-    gradeLevel: enquirySummary.grade,
-    board: enquirySummary.board,
+    studentName: enquiryResponse.enquiryDetails.studentName,
+    subject: transformStringToArray(enquiryResponse.enquirySummary.subjects),
+    gradeLevel: enquiryResponse.enquirySummary.grade,
+    board: enquiryResponse.enquirySummary.board,
     location: {
-        name: enquiryDetails.addressName || enquiryDetails.address,
-        address: enquiryDetails.address,
-        googleMapsUrl: enquiryDetails.googleMapsLink,
-        city: enquirySummary.city,
-        state: enquirySummary.state,
-        country: enquirySummary.country,
-        area: enquirySummary.area,
-        pincode: enquiryDetails.pincode,
+        name: enquiryResponse.enquiryDetails.addressName || enquiryResponse.enquiryDetails.address,
+        address: enquiryResponse.enquiryDetails.address,
+        googleMapsUrl: enquiryResponse.enquiryDetails.googleMapsLink,
+        city: enquiryResponse.enquirySummary.city,
+        state: enquiryResponse.enquirySummary.state,
+        country: enquiryResponse.enquirySummary.country,
+        area: enquiryResponse.enquirySummary.area,
+        pincode: enquiryResponse.enquiryDetails.pincode,
     },
     teachingMode: [
-      ...(enquirySummary.online ? ["Online"] : []),
-      ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
+      ...(enquiryResponse.enquirySummary.online ? ["Online"] : []),
+      ...(enquiryResponse.enquirySummary.offline ? ["Offline (In-person)"] : []),
     ],
-    scheduleDetails: enquiryDetails.notes, 
-    additionalNotes: enquiryDetails.additionalNotes,
-    preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
-    preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
-    status: enquirySummary.status?.toLowerCase() || 'open',
-    postedAt: enquirySummary.createdOn,
-    tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
-    startDatePreference: enquiryDetails.startDatePreference,
+    scheduleDetails: enquiryResponse.enquiryDetails.notes, 
+    additionalNotes: enquiryResponse.enquiryDetails.additionalNotes,
+    preferredDays: transformStringToArray(enquiryResponse.enquiryDetails.availabilityDays),
+    preferredTimeSlots: transformStringToArray(enquiryResponse.enquiryDetails.availabilityTime),
+    status: enquiryResponse.enquirySummary.status?.toLowerCase() || 'open',
+    postedAt: enquiryResponse.enquirySummary.createdOn,
+    tutorGenderPreference: enquiryResponse.enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
+    startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
     budget: data.budget, 
   };
   
@@ -250,11 +250,6 @@ export default function TutorEnquiryDetailPage() {
                           <CardTitle className="text-xl font-semibold text-primary">
                           {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                           </CardTitle>
-                          {assignedStatus && (
-                            <Badge variant="default" className="text-xs">
-                                {assignedStatus.charAt(0).toUpperCase() + assignedStatus.slice(1).toLowerCase()}
-                            </Badge>
-                          )}
                         </div>
                         <div className="space-y-2 pt-2">
                             <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
