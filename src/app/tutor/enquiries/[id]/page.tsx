@@ -438,11 +438,11 @@ export default function TutorEnquiryDetailPage() {
                 <CardTitle className="text-xl font-semibold text-primary">
                 {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                 </CardTitle>
-                {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED') && (
-                <Badge variant="default" className="text-xs w-fit">
+                {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED' || assignedStatus === 'ASSIGNED') && (
+                  <Badge variant="default" className="text-xs w-fit bg-primary text-primary-foreground">
                     <CheckCircle className="mr-1 h-3 w-3"/>
-                    {assignedStatus === 'APPLIED' ? 'Applied' : 'Shortlisted'}
-                </Badge>
+                    {assignedStatus === 'APPLIED' ? 'Applied' : assignedStatus === 'SHORTLISTED' ? 'Shortlisted' : 'Assigned'}
+                  </Badge>
                 )}
             </div>
               <div className="space-y-2 pt-2">
@@ -558,7 +558,7 @@ export default function TutorEnquiryDetailPage() {
                   Back to All Enquiries
                 </Link>
               </Button>
-              {assignedStatus !== "ASSIGNED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "APPLIED" && (
+              {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                      <Button size="sm">
@@ -582,7 +582,7 @@ export default function TutorEnquiryDetailPage() {
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              {(assignedStatus === "APPLIED" || assignedStatus === "SHORTLISTED") && (
+              {(assignedStatus === "APPLIED" || assignedStatus === "SHORTLISTED" || assignedStatus === "ASSIGNED") && (
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button size="sm" variant="destructive-outline">
