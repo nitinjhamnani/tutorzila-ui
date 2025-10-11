@@ -4,6 +4,7 @@
 
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useAuthMock } from "@/hooks/use-auth-mock";
