@@ -75,15 +75,11 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
       </CardContent>
       <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-muted-foreground self-start sm:self-center min-w-0">
-          {requirement.applicantsCount !== undefined && requirement.applicantsCount >= 0 && (
-            <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
-              <UsersIcon className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" /> {requirement.applicantsCount} Assigned
-            </Badge>
-          )}
+          
           {requirement.location && (
             <Badge variant="outline" className="py-0.5 px-1.5 border-border/70 bg-background/50 font-normal">
               <MapPin className="w-2.5 h-2.5 mr-1 text-muted-foreground/80" />
-              {requirement.location}
+              {requirement.location as string}
             </Badge>
           )}
         </div>
