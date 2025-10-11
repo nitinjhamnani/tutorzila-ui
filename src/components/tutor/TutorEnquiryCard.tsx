@@ -5,7 +5,7 @@ import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Send, Bookmark, Building } from "lucide-react";
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { formatDistanceToNow, parseISO } from "date-fns";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -47,7 +47,7 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
 
   const subjectInitials = getInitials(requirement.subject);
   
-  const handleApplyClick = () => {
+  const handleViewClick = () => {
     showLoader("Fetching enquiry details...");
   };
 
@@ -95,9 +95,9 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
             variant="outline"
             className="w-full sm:w-auto text-xs py-1.5 px-3 h-auto"
           >
-            <Link href={`/tutor/enquiries/${requirement.id}`} onClick={handleApplyClick}>
-                <Send className="w-3 h-3 mr-1.5" />
-                Apply Now
+            <Link href={`/tutor/enquiries/${requirement.id}`} onClick={handleViewClick}>
+                <Eye className="w-3 h-3 mr-1.5" />
+                View
             </Link>
           </Button>
       </CardFooter>
