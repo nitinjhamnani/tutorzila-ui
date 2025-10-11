@@ -1062,9 +1062,9 @@ const closeEnquiryMutation = useMutation({
                         : (tutors.map(tutor => (
                             <TableRow key={tutor.id}>
                                 <TableCell><div><div className="font-medium text-foreground">{tutor.displayName}</div><div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div></div></TableCell>
-                                <TableCell className="text-xs">{tutor.subjectsList.join(', ')}</TableCell>
-                                <TableCell className="text-xs">{tutor.gradesList.join(', ')}</TableCell>
-                                <TableCell className="text-xs">{tutor.boardsList.join(', ')}</TableCell>
+                                <TableCell className="text-xs">{Array.isArray(tutor.subjectsList) ? tutor.subjectsList.join(', ') : ''}</TableCell>
+                                <TableCell className="text-xs">{Array.isArray(tutor.gradesList) ? tutor.gradesList.join(', ') : ''}</TableCell>
+                                <TableCell className="text-xs">{Array.isArray(tutor.boardsList) ? tutor.boardsList.join(', ') : ''}</TableCell>
                                 <TableCell><div className="flex items-center gap-2">{tutor.online && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Online</p></TooltipContent></Tooltip>}{tutor.offline && <Tooltip><TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><Users className="w-4 h-4 text-primary" /></div></TooltipTrigger><TooltipContent><p>Offline</p></TooltipContent></Tooltip>}</div></TableCell>
                                 <TableCell><div className="flex items-center gap-2"><Tooltip><TooltipTrigger>{tutor.isActive ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isActive ? "Active" : "Inactive"}</p></TooltipContent></Tooltip><Tooltip><TooltipTrigger>{tutor.isVerified ? <ShieldCheck className="h-4 w-4 text-green-500" /> : <ShieldAlert className="h-4 w-4 text-yellow-500" />}</TooltipTrigger><TooltipContent><p>{tutor.isVerified ? "Verified" : "Not Verified"}</p></TooltipContent></Tooltip></div></TableCell>
                                 <TableCell><div className="flex items-center gap-1.5">
