@@ -29,10 +29,10 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { allSubjectsList, gradeLevelsList as gradeLevelOptions, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions } from "@/lib/constants";
+import { allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions } from "@/lib/constants";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
-const gradeLevelsList: MultiSelectOption[] = gradeLevelOptions.map(gl => ({ value: gl, label: gl }));
+const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
 const boardsList: MultiSelectOption[] = boardOptions.map(b => ({ value: b, label: b }));
 
 const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
