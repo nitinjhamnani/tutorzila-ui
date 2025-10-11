@@ -2,16 +2,27 @@
 // src/app/tutor/enquiries/[id]/page.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { TuitionRequirement, LocationDetails } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -38,11 +49,12 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const fetchEnquiryDetails = async (
   enquiryId: string,
   token: string | null
-): Promise<{ requirement: TuitionRequirement, assignedStatus: string | null }> => {
+): Promise<{ requirement: TuitionRequirement; assignedStatus: string | null }> => {
   if (!token) throw new Error("Authentication token is required.");
   if (!enquiryId) throw new Error("Enquiry ID is required.");
 
@@ -107,6 +119,68 @@ const fetchEnquiryDetails = async (
   return { requirement, assignedStatus: data.assignedEnquiryStatus };
 };
 
+const applyToEnquiry = async (
+  enquiryId: string,
+  token: string | null
+): Promise<{ requirement: TuitionRequirement; assignedStatus: string | null }> => {
+  if (!token) throw new Error("Authentication failed.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/tutor/enquiry/apply/${enquiryId}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Failed to apply. Please try again.' }));
+    throw new Error(errorData.message);
+  }
+
+  const data = await response.json();
+  const { enquiryResponse } = data;
+
+  const transformStringToArray = (str: string | null | undefined): string[] => {
+    if (typeof str === 'string' && str.trim() !== '') {
+        return str.split(',').map(s => s.trim());
+    }
+    return [];
+  };
+
+  const requirement: TuitionRequirement = {
+    id: enquiryResponse.enquirySummary.enquiryId,
+    parentName: "A Parent",
+    studentName: enquiryResponse.enquiryDetails.studentName,
+    subject: transformStringToArray(enquiryResponse.enquirySummary.subjects),
+    gradeLevel: enquiryResponse.enquirySummary.grade,
+    board: enquiryResponse.enquirySummary.board,
+    location: {
+        name: enquiryResponse.enquiryDetails.addressName || enquiryResponse.enquiryDetails.address,
+        address: enquiryResponse.enquiryDetails.address,
+        googleMapsUrl: enquiryResponse.enquiryDetails.googleMapsLink,
+        city: enquiryResponse.enquirySummary.city,
+        state: enquiryResponse.enquirySummary.state,
+        country: enquiryResponse.enquirySummary.country,
+        area: enquiryResponse.enquirySummary.area,
+        pincode: enquiryResponse.enquiryDetails.pincode,
+    },
+    teachingMode: [
+      ...(enquiryResponse.enquirySummary.online ? ["Online"] : []),
+      ...(enquiryResponse.enquirySummary.offline ? ["Offline (In-person)"] : []),
+    ],
+    scheduleDetails: enquiryResponse.enquiryDetails.notes,
+    additionalNotes: enquiryResponse.enquiryDetails.additionalNotes,
+    preferredDays: transformStringToArray(enquiryResponse.enquiryDetails.availabilityDays),
+    preferredTimeSlots: transformStringToArray(enquiryResponse.enquiryDetails.availabilityTime),
+    status: enquiryResponse.enquirySummary.status?.toLowerCase() || 'open',
+    postedAt: enquiryResponse.enquirySummary.createdOn,
+    tutorGenderPreference: enquiryResponse.enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
+    startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
+    budget: data.budget,
+  };
+  
+  return { requirement, assignedStatus: data.assignedEnquiryStatus };
+};
+
+
 const EnquiryInfoItem = ({
   icon: Icon,
   label,
@@ -164,9 +238,11 @@ const EnquiryInfoItem = ({
 export default function TutorEnquiryDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { token } = useAuthMock();
   const id = params.id as string;
-  const { hideLoader } = useGlobalLoader();
+  const { showLoader, hideLoader } = useGlobalLoader();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const {
     data: enquiryData,
@@ -179,8 +255,29 @@ export default function TutorEnquiryDetailPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const requirement = enquiryData?.requirement;
-  const assignedStatus = enquiryData?.assignedStatus;
+  const applyMutation = useMutation({
+    mutationFn: () => applyToEnquiry(id, token),
+    onMutate: () => {
+      showLoader("Applying to enquiry...");
+    },
+    onSuccess: (newData) => {
+      queryClient.setQueryData(["enquiryDetails", id, token], newData);
+      toast({
+        title: "Successfully Applied!",
+        description: "The parent has been notified of your interest.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Application Failed",
+        description: error.message || "An unexpected error occurred.",
+      });
+    },
+    onSettled: () => {
+      hideLoader();
+    },
+  });
 
 
   useEffect(() => {
@@ -188,6 +285,9 @@ export default function TutorEnquiryDetailPage() {
       hideLoader();
     }
   }, [isLoading, hideLoader]);
+  
+  const requirement = enquiryData?.requirement;
+  const assignedStatus = enquiryData?.assignedStatus;
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
   const genderDisplayMap: Record<string, string> = {
@@ -368,10 +468,28 @@ export default function TutorEnquiryDetailPage() {
                 </Link>
               </Button>
               {assignedStatus !== "ASSIGNED" && assignedStatus !== "SHORTLISTED" && (
-                <Button size="sm">
-                  <Send className="mr-2 h-4 w-4" />
-                  Apply Now
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                     <Button size="sm">
+                        <Send className="mr-2 h-4 w-4" />
+                        Apply Now
+                      </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm Application</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to apply for this tuition enquiry? The parent will be notified of your interest.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => applyMutation.mutate()} disabled={applyMutation.isPending}>
+                        {applyMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</> : "Confirm & Apply"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </CardFooter>
         </Card>
@@ -379,3 +497,4 @@ export default function TutorEnquiryDetailPage() {
     </div>
   );
 }
+
