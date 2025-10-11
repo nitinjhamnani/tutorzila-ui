@@ -3,11 +3,31 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import type { TuitionRequirement, User } from "@/types";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard"; 
-import { FilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { TuitionRequirement } from "@/types";
+import { Button } from "@/components/ui/button";
+import { TutorEnquiryCard } from "@/components/tutor/TutorEnquiryCard";
+import {
+  FilterIcon,
+  Star,
+  CheckCircle,
+  Briefcase,
+  XIcon,
+  BookOpen,
+  Users as UsersIcon,
+  MapPin,
+  RadioTower,
+  XCircle as ErrorIcon,
+  Loader2,
+  ChevronDown,
+  Building,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -17,69 +37,89 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger as FormSelectTrigger, SelectValue as FormSelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger as FormSelectTrigger,
+  SelectValue as FormSelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import {
+  MultiSelectCommand,
+  type Option as MultiSelectOption,
+} from "@/components/ui/multi-select-command";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
-
+import {
+  allSubjectsList,
+  boardsList as boardsConstant,
+  teachingModeOptions,
+} from "@/lib/constants";
 
 const allEnquiryStatusesForPage = ["Recommended", "Applied", "Assigned"] as const;
-type EnquiryStatusCategory = typeof allEnquiryStatusesForPage[number];
+type EnquiryStatusCategory = (typeof allEnquiryStatusesForPage)[number];
 
-const fetchTutorEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
+const fetchTutorEnquiries = async (
+  token: string | null,
+  category: EnquiryStatusCategory
+): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
-  
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/list`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'accept': '*/*',
+
+  const apiCategory = category.toLowerCase();
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(
+    `${apiBaseUrl}/api/search/enquiries/${apiCategory}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
+      },
     }
-  });
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch enquiries.");
   }
-  
+
   const data = await response.json();
-  
-  return data.map((item: any, index: number) => ({
-    id: item.enquiryId || `enq-${index}-${Date.now()}`,
-    parentId: `p-${index}`, 
-    parentName: "A Parent", 
-    subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
+
+  return data.map((item: any) => ({
+    id: item.enquiryId,
+    parentId: `p-${item.enquiryId}`, // Mock parentId
+    parentName: "A Parent",
+    subject:
+      typeof item.subjects === "string"
+        ? item.subjects.split(",").map((s: string) => s.trim())
+        : [],
     gradeLevel: item.grade,
     scheduleDetails: "Details not provided by API",
-    location: [item.area, item.city, item.country].filter(Boolean).join(', '),
-    status: item.status?.toLowerCase() || 'open',
+    location: [item.area, item.city, item.country].filter(Boolean).join(", "),
+    status: item.status?.toLowerCase() || "open",
     postedAt: item.createdOn || new Date().toISOString(),
     board: item.board,
     teachingMode: [
       ...(item.online ? ["Online"] : []),
       ...(item.offline ? ["Offline (In-person)"] : []),
     ],
-    applicantsCount: item.assignedTutors,
+    applicantsCount: item.assignedTutors || 0, // Assuming this field might still exist or be useful
   }));
 };
-
 
 export default function AllEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-
-  const { data: allOpenRequirements = [], isLoading, error } = useQuery({
-    queryKey: ['tutorEnquiries', token],
-    queryFn: () => fetchTutorEnquiries(token),
-    enabled: !!token && !!user && user.role === 'tutor',
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempSubjectFilter, setTempSubjectFilter] = useState<string[]>([]);
@@ -94,10 +134,23 @@ export default function AllEnquiriesPage() {
   const [appliedLocationFilter, setAppliedLocationFilter] = useState("All");
   const [appliedTeachingModeFilter, setAppliedTeachingModeFilter] = useState<string[]>([]);
 
-  const [activeFilterCategory, setActiveFilterCategory] = useState<EnquiryStatusCategory>('Recommended');
+  const [activeFilterCategory, setActiveFilterCategory] =
+    useState<EnquiryStatusCategory>("Recommended");
+
+  const {
+    data: allOpenRequirements = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["tutorEnquiries", token, activeFilterCategory],
+    queryFn: () => fetchTutorEnquiries(token, activeFilterCategory),
+    enabled: !!token && !!user && user.role === "tutor" && !!activeFilterCategory,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'tutor')) {
+    if (!isCheckingAuth && (!isAuthenticated || user?.role !== "tutor")) {
       router.replace("/");
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
@@ -125,47 +178,50 @@ export default function AllEnquiriesPage() {
     return [{ value: "All", label: "All Locations" }, ...uniqueLocationStrings.map(l => ({ value: l, label: l }))];
   }, [allOpenRequirements]);
 
-  const teachingModeOptions = [
-    { id: "Online", label: "Online" },
-    { id: "Offline (In-person)", label: "Offline (In-person)" },
-  ];
-
   const filtersApplied = useMemo(() => {
-    return appliedSubjectFilter.length > 0 ||
-           appliedGradeFilter !== "All" ||
-           appliedBoardFilter !== "All" ||
-           appliedLocationFilter !== "All" ||
-           appliedTeachingModeFilter.length > 0;
-  }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
+    return (
+      appliedSubjectFilter.length > 0 ||
+      appliedGradeFilter !== "All" ||
+      appliedBoardFilter !== "All" ||
+      appliedLocationFilter !== "All" ||
+      appliedTeachingModeFilter.length > 0
+    );
+  }, [
+    appliedSubjectFilter,
+    appliedGradeFilter,
+    appliedBoardFilter,
+    appliedLocationFilter,
+    appliedTeachingModeFilter,
+  ]);
 
-  const categoryCounts = useMemo(() => {
-    let baseFiltered = allOpenRequirements.filter(req => {
-        const subjectMatch = appliedSubjectFilter.length === 0 || (Array.isArray(req.subject) ? req.subject.some(s => appliedSubjectFilter.includes(s)) : appliedSubjectFilter.includes(req.subject));
-        const gradeMatch = appliedGradeFilter === "All" || req.gradeLevel === appliedGradeFilter;
-        const boardMatch = appliedBoardFilter === "All" || req.board === appliedBoardFilter;
-        const locationMatch = appliedLocationFilter === "All" || req.location === appliedLocationFilter;
-        const modeMatch = appliedTeachingModeFilter.length === 0 || (req.teachingMode && req.teachingMode.some(m => appliedTeachingModeFilter.includes(m)));
-        return subjectMatch && gradeMatch && boardMatch && locationMatch && modeMatch;
-    });
-    return {
-      "Recommended": baseFiltered.filter(r => r.status === 'open').length,
-      "Applied": baseFiltered.filter(r => r.status === 'applied').length, 
-      "Assigned": baseFiltered.filter(r => r.status === 'assigned' || r.status === 'matched').length,
-    };
-  }, [allOpenRequirements, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
+    const categoryCounts = useMemo(() => {
+    // Since API does the filtering, we assume the length of the fetched data is the count.
+    // This is a simplification. For accurate counts for *all* categories, we'd need a separate summary API call.
+    // For now, we'll just show the count for the active category.
+    const counts = { Recommended: 0, Applied: 0, Assigned: 0 };
+    if (activeFilterCategory === 'Recommended') counts.Recommended = allOpenRequirements.length;
+    if (activeFilterCategory === 'Applied') counts.Applied = allOpenRequirements.length;
+    if (activeFilterCategory === 'Assigned') counts.Assigned = allOpenRequirements.length;
+    return counts;
+  }, [allOpenRequirements, activeFilterCategory]);
 
-  const filterCategoriesForDropdown: { label: EnquiryStatusCategory; value: EnquiryStatusCategory; icon: React.ElementType; count: number }[] = [
-    { label: "Recommended", value: "Recommended", icon: Star, count: categoryCounts.Recommended },
-    { label: "Applied", value: "Applied", icon: CheckCircle, count: categoryCounts.Applied },
-    { label: "Assigned", value: "Assigned", icon: UsersIcon, count: categoryCounts.Assigned },
+  const filterCategoriesForDropdown: {
+    label: EnquiryStatusCategory;
+    value: EnquiryStatusCategory;
+    icon: React.ElementType;
+  }[] = [
+    { label: "Recommended", value: "Recommended", icon: Star },
+    { label: "Applied", value: "Applied", icon: CheckCircle },
+    { label: "Assigned", value: "Assigned", icon: UsersIcon },
   ];
 
   const selectedCategoryLabel = useMemo(() => {
     return filterCategoriesForDropdown.find(cat => cat.value === activeFilterCategory)?.label || "Recommended";
   }, [activeFilterCategory, filterCategoriesForDropdown]);
 
+
   const filteredRequirements = useMemo(() => {
-    let filtered = allOpenRequirements.filter((req) => {
+    return allOpenRequirements.filter((req) => {
         const subjectMatch = appliedSubjectFilter.length === 0 || (Array.isArray(req.subject) ? req.subject.some(s => appliedSubjectFilter.includes(s)) : appliedSubjectFilter.includes(req.subject));
         const gradeMatch = appliedGradeFilter === "All" || req.gradeLevel === appliedGradeFilter;
         const boardMatch = appliedBoardFilter === "All" || req.board === appliedBoardFilter;
@@ -173,18 +229,8 @@ export default function AllEnquiriesPage() {
         const modeMatch = appliedTeachingModeFilter.length === 0 || (req.teachingMode && req.teachingMode.some(m => appliedTeachingModeFilter.includes(m)));
         return subjectMatch && gradeMatch && boardMatch && locationMatch && modeMatch;
     });
+  }, [allOpenRequirements, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
 
-    if (activeFilterCategory === 'Recommended') {
-        return filtered.filter(req => req.status === 'open');
-    }
-    if (activeFilterCategory === 'Applied') {
-        return filtered.filter(req => req.status === 'applied');
-    }
-    if (activeFilterCategory === 'Assigned') {
-        return filtered.filter(req => req.status === 'assigned' || req.status === 'matched');
-    }
-    return filtered; // Should not be reached if filter is always one of the three
-  }, [allOpenRequirements, activeFilterCategory, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedLocationFilter, appliedTeachingModeFilter]);
 
   const handleApplyFilters = () => {
     setAppliedSubjectFilter([...tempSubjectFilter]);
@@ -208,7 +254,7 @@ export default function AllEnquiriesPage() {
     setAppliedTeachingModeFilter([]);
     setIsFilterDialogOpen(false);
   };
-  
+
   const handleTeachingModeCheckboxChange = (modeValue: string, checked: boolean) => {
     setTempTeachingModeFilter(prev => 
       checked ? [...prev, modeValue] : prev.filter(s => s !== modeValue)
@@ -403,7 +449,7 @@ export default function AllEnquiriesPage() {
                     )}
                 >
                     <span className="text-primary-foreground">
-                        {selectedCategoryLabel} ({filterCategoriesForDropdown.find(cat => cat.value === activeFilterCategory)?.count || 0})
+                        {selectedCategoryLabel} 
                     </span>
                     <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
                 </Button>
@@ -421,7 +467,7 @@ export default function AllEnquiriesPage() {
                     )}
                     >
                     <category.icon className="mr-2 h-4 w-4" />
-                    {category.label} ({category.count})
+                    {category.label}
                     </DropdownMenuItem>
                 ))}
                 </DropdownMenuContent>
@@ -435,3 +481,4 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
+
