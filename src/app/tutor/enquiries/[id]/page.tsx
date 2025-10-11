@@ -34,6 +34,7 @@ import {
   XCircle,
   Coins,
   DollarSign,
+  Send,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,7 @@ import { cn } from "@/lib/utils";
 const fetchEnquiryDetails = async (
   enquiryId: string,
   token: string | null
-): Promise<TuitionRequirement> => {
+): Promise<{ requirement: TuitionRequirement, assignedStatus: string | null }> => {
   if (!token) throw new Error("Authentication token is required.");
   if (!enquiryId) throw new Error("Enquiry ID is required.");
 
@@ -71,7 +72,7 @@ const fetchEnquiryDetails = async (
     return [];
   };
 
-  return {
+  const requirement: TuitionRequirement = {
     id: enquirySummary.enquiryId,
     parentName: "A Parent", 
     studentName: enquiryDetails.studentName,
@@ -101,9 +102,9 @@ const fetchEnquiryDetails = async (
     tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
     startDatePreference: enquiryDetails.startDatePreference,
     budget: data.budget, 
-    // assignedEnquiryStatus is not part of TuitionRequirement, handle it separately in the component
-    // To include it, we'd need to modify the type, which might have wider implications.
   };
+  
+  return { requirement, assignedStatus: data.assignedEnquiryStatus };
 };
 
 const EnquiryInfoItem = ({
@@ -168,7 +169,7 @@ export default function TutorEnquiryDetailPage() {
   const { hideLoader } = useGlobalLoader();
 
   const {
-    data: requirement,
+    data: enquiryData,
     isLoading,
     error,
   } = useQuery({
@@ -177,6 +178,10 @@ export default function TutorEnquiryDetailPage() {
     enabled: !!id && !!token,
     staleTime: 5 * 60 * 1000,
   });
+
+  const requirement = enquiryData?.requirement;
+  const assignedStatus = enquiryData?.assignedStatus;
+
 
   useEffect(() => {
     if (!isLoading) {
@@ -245,9 +250,11 @@ export default function TutorEnquiryDetailPage() {
                           <CardTitle className="text-xl font-semibold text-primary">
                           {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                           </CardTitle>
-                          <Badge variant="default" className="text-xs">
-                              {requirement.status.charAt(0).toUpperCase() + requirement.status.slice(1)}
-                          </Badge>
+                          {assignedStatus && (
+                            <Badge variant="default" className="text-xs">
+                                {assignedStatus.charAt(0).toUpperCase() + assignedStatus.slice(1).toLowerCase()}
+                            </Badge>
+                          )}
                         </div>
                         <div className="space-y-2 pt-2">
                             <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
@@ -365,7 +372,12 @@ export default function TutorEnquiryDetailPage() {
                   Back to All Enquiries
                 </Link>
               </Button>
-              <Button size="sm">Apply Now</Button>
+              {assignedStatus !== "ASSIGNED" && assignedStatus !== "SHORTLISTED" && (
+                <Button size="sm">
+                  <Send className="mr-2 h-4 w-4" />
+                  Apply Now
+                </Button>
+              )}
             </CardFooter>
         </Card>
       </div>
