@@ -32,6 +32,8 @@ import {
   UsersRound,
   VenetianMask,
   XCircle,
+  Coins,
+  DollarSign,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -46,7 +48,7 @@ const fetchEnquiryDetails = async (
   const apiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
   const response = await fetch(
-    `${apiBaseUrl}/api/enquiry/details/${enquiryId}`,
+    `${apiBaseUrl}/api/tutor/enquiry/${enquiryId}`,
     {
       headers: { Authorization: `Bearer ${token}`, accept: "*/*" },
     }
@@ -60,7 +62,7 @@ const fetchEnquiryDetails = async (
   }
   
   const data = await response.json();
-  const { enquirySummary, enquiryDetails } = data;
+  const { enquirySummary, enquiryDetails } = data.enquiryResponse;
 
   const transformStringToArray = (str: string | null | undefined): string[] => {
     if (typeof str === 'string' && str.trim() !== '') {
@@ -71,7 +73,7 @@ const fetchEnquiryDetails = async (
 
   return {
     id: enquirySummary.enquiryId,
-    parentName: "A Parent", // This info is not in the API response, so mocking it.
+    parentName: "A Parent", 
     studentName: enquiryDetails.studentName,
     subject: transformStringToArray(enquirySummary.subjects),
     gradeLevel: enquirySummary.grade,
@@ -98,6 +100,9 @@ const fetchEnquiryDetails = async (
     postedAt: enquirySummary.createdOn,
     tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
     startDatePreference: enquiryDetails.startDatePreference,
+    budget: data.budget, 
+    // assignedEnquiryStatus is not part of TuitionRequirement, handle it separately in the component
+    // To include it, we'd need to modify the type, which might have wider implications.
   };
 };
 
@@ -225,6 +230,7 @@ export default function TutorEnquiryDetailPage() {
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
   const hasPreferences = !!(genderValue || startValue);
+  const budgetInfo = requirement.budget;
 
 
   return (
@@ -266,6 +272,21 @@ export default function TutorEnquiryDetailPage() {
               </div>
             </CardHeader>
             <CardContent className="p-4 md:p-5 space-y-5">
+              {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
+                <>
+                  <Separator />
+                  <section className="space-y-3">
+                    <h3 className="text-base font-semibold text-foreground flex items-center">
+                      <DollarSign className="w-4 h-4 mr-2 text-primary/80" />
+                      Budget
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                      <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
+                      {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
+                    </div>
+                  </section>
+                </>
+              )}
               {hasPreferences && (
                 <>
                   <Separator />
