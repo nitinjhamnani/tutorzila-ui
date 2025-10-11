@@ -92,7 +92,7 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
           <Button
             asChild
             size="sm"
-            variant="primary-outline"
+            variant="outline"
             className="w-full sm:w-auto text-xs py-1.5 px-3 h-auto"
           >
             <Link href={`/tutor/enquiries/${requirement.id}`} onClick={handleApplyClick}>
