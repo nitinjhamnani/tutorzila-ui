@@ -86,10 +86,8 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
           <Button
             asChild
             size="sm"
-            className={cn(
-              "w-full sm:w-auto text-xs py-1.5 px-3 h-auto",
-              "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
-            )}
+            variant="outline"
+            className="w-full sm:w-auto text-xs py-1.5 px-3 h-auto"
           >
             <Link href={`/tutor/enquiries/${requirement.id}`}>
                 <Send className="w-3 h-3 mr-1.5" />
