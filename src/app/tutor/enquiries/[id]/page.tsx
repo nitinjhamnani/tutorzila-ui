@@ -440,12 +440,17 @@ export default function TutorEnquiryDetailPage() {
                           <CardTitle className="text-xl font-semibold text-primary">
                           {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                           </CardTitle>
-                          {assignedStatus === 'APPLIED' && (
+                          {assignedStatus === 'APPLIED' ? (
                             <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20 w-fit">
                               <CheckCircle className="mr-1 h-3 w-3"/>
                               Applied
                             </Badge>
-                          )}
+                          ) : assignedStatus === 'SHORTLISTED' ? (
+                            <Badge variant="outline" className="text-xs bg-yellow-100 text-yellow-700 border-yellow-500/50 w-fit">
+                                <CheckCircle className="mr-1 h-3 w-3"/>
+                                Shortlisted
+                            </Badge>
+                          ) : null}
                         </div>
                         <div className="space-y-2 pt-2">
                             <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
@@ -587,7 +592,7 @@ export default function TutorEnquiryDetailPage() {
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              {assignedStatus === "APPLIED" && (
+              {(assignedStatus === "APPLIED" || assignedStatus === "SHORTLISTED") && (
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button size="sm" variant="destructive-outline">
