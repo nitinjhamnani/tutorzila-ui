@@ -63,7 +63,7 @@ import {
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useQuery } from "@tanstack/react-query";
 import {
-  allSubjectsList,
+  allSubjectsList as allSubjectsConstant,
   boardsList as boardsConstant,
   teachingModeOptions,
 } from "@/lib/constants";
@@ -77,7 +77,7 @@ const fetchTutorEnquiries = async (
 ): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
 
-  const apiCategory = category.toLowerCase();
+  const apiCategory = category.toUpperCase();
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
   const response = await fetch(
     `${apiBaseUrl}/api/search/enquiries/${apiCategory}`,
@@ -113,7 +113,7 @@ const fetchTutorEnquiries = async (
       ...(item.online ? ["Online"] : []),
       ...(item.offline ? ["Offline (In-person)"] : []),
     ],
-    applicantsCount: item.assignedTutors || 0, // Assuming this field might still exist or be useful
+    applicantsCount: item.assignedTutors || 0,
   }));
 };
 
@@ -481,4 +481,3 @@ export default function AllEnquiriesPage() {
     </main>
   );
 }
-
