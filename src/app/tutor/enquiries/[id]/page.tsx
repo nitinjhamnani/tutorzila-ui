@@ -304,7 +304,7 @@ const EnquiryInfoItem = ({
 export default function TutorEnquiryDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { token, isCheckingAuth } = useAuthMock();
+  const { token } = useAuthMock();
   const id = params.id as string;
   const { showLoader, hideLoader } = useGlobalLoader();
   const { toast } = useToast();
@@ -313,6 +313,7 @@ export default function TutorEnquiryDetailPage() {
   const {
     data: enquiryData,
     isLoading,
+    isCheckingAuth,
     error,
   } = useQuery({
     queryKey: ["enquiryDetails", id, token],
@@ -433,45 +434,34 @@ export default function TutorEnquiryDetailPage() {
       <div className="max-w-4xl mx-auto">
         <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
             <CardHeader className="bg-card p-4 sm:p-5">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="flex items-center gap-4 flex-grow">
-                    <div className="flex-grow">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 flex-wrap mb-1">
-                          <CardTitle className="text-xl font-semibold text-primary">
-                          {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-                          </CardTitle>
-                          {assignedStatus === 'APPLIED' ? (
-                            <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20 w-fit">
-                              <CheckCircle className="mr-1 h-3 w-3"/>
-                              Applied
-                            </Badge>
-                          ) : assignedStatus === 'SHORTLISTED' ? (
-                            <Badge variant="outline" className="text-xs bg-yellow-100 text-yellow-700 border-yellow-500/50 w-fit">
-                                <CheckCircle className="mr-1 h-3 w-3"/>
-                                Shortlisted
-                            </Badge>
-                          ) : null}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
+                <CardTitle className="text-xl font-semibold text-primary">
+                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                </CardTitle>
+                {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED') && (
+                <Badge variant="default" className="text-xs w-fit">
+                    <CheckCircle className="mr-1 h-3 w-3"/>
+                    {assignedStatus === 'APPLIED' ? 'Applied' : 'Shortlisted'}
+                </Badge>
+                )}
+            </div>
+              <div className="space-y-2 pt-2">
+                  <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                      <UsersRound className="w-4 h-4"/> {requirement.studentName}
+                  </CardDescription>
+                  {requirement.postedAt && (
+                    <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                        <Clock className="w-3.5 h-3.5" /> 
+                        Posted on {format(postedDate, "MMM d, yyyy")}
+                    </CardDescription>
+                  )}
+                  <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                            <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
+                            {requirement.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{requirement.board}</span>}
+                            <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{requirement.teachingMode?.join(', ')}</span>
                         </div>
-                        <div className="space-y-2 pt-2">
-                            <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                                <UsersRound className="w-4 h-4"/> {requirement.studentName}
-                            </CardDescription>
-                            {requirement.postedAt && (
-                              <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                                  <Clock className="w-3.5 h-3.5" /> 
-                                  Posted on {format(postedDate, "MMM d, yyyy")}
-                              </CardDescription>
-                            )}
-                            <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
-                                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                                      <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
-                                      {requirement.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{requirement.board}</span>}
-                                      <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{requirement.teachingMode?.join(', ')}</span>
-                                  </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                  </div>
               </div>
             </CardHeader>
             <CardContent className="p-4 md:p-5 space-y-5">
