@@ -186,10 +186,9 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
     onSuccess: (response) => {
       queryClient.setQueryData(['tutorProfile', tutor?.id], (oldData: ApiTutor | undefined) => {
         if (!oldData) return undefined;
-        const { tutoringDetails } = response;
+        const tutoringDetails = response.tutoringDetails || response;
         return {
           ...oldData, 
-          ...tutoringDetails,
           subjectsList: tutoringDetails.subjects,
           gradesList: tutoringDetails.grades,
           boardsList: tutoringDetails.boards,
