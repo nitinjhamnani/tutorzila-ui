@@ -1,4 +1,3 @@
-
 // src/app/tutor/enquiries/[id]/page.tsx
 "use client";
 
@@ -46,6 +45,8 @@ import {
   Coins,
   DollarSign,
   Send,
+  CheckCircle,
+  Ban,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -133,6 +134,68 @@ const applyToEnquiry = async (
   
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ message: 'Failed to apply. Please try again.' }));
+    throw new Error(errorData.message);
+  }
+
+  const data = await response.json();
+  const { enquiryResponse } = data;
+
+  const transformStringToArray = (str: string | null | undefined): string[] => {
+    if (typeof str === 'string' && str.trim() !== '') {
+        return str.split(',').map(s => s.trim());
+    }
+    return [];
+  };
+
+  const requirement: TuitionRequirement = {
+    id: enquiryResponse.enquirySummary.enquiryId,
+    parentId: data.parentId,
+    parentName: "A Parent",
+    studentName: enquiryResponse.enquiryDetails.studentName,
+    subject: transformStringToArray(enquiryResponse.enquirySummary.subjects),
+    gradeLevel: enquiryResponse.enquirySummary.grade,
+    board: enquiryResponse.enquirySummary.board,
+    location: {
+        name: enquiryResponse.enquiryDetails.addressName || enquiryResponse.enquiryDetails.address,
+        address: enquiryResponse.enquiryDetails.address,
+        googleMapsUrl: enquiryResponse.enquiryDetails.googleMapsLink,
+        city: enquiryResponse.enquirySummary.city,
+        state: enquiryResponse.enquirySummary.state,
+        country: enquiryResponse.enquirySummary.country,
+        area: enquiryResponse.enquirySummary.area,
+        pincode: enquiryResponse.enquiryDetails.pincode,
+    },
+    teachingMode: [
+      ...(enquiryResponse.enquirySummary.online ? ["Online"] : []),
+      ...(enquiryResponse.enquirySummary.offline ? ["Offline (In-person)"] : []),
+    ],
+    scheduleDetails: enquiryResponse.enquiryDetails.notes,
+    additionalNotes: enquiryResponse.enquiryDetails.additionalNotes,
+    preferredDays: transformStringToArray(enquiryResponse.enquiryDetails.availabilityDays),
+    preferredTimeSlots: transformStringToArray(enquiryResponse.enquiryDetails.availabilityTime),
+    status: enquiryResponse.enquirySummary.status?.toLowerCase() || 'open',
+    postedAt: enquiryResponse.enquirySummary.createdOn,
+    tutorGenderPreference: enquiryResponse.enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
+    startDatePreference: enquiryResponse.enquiryDetails.startDatePreference,
+    budget: data.budget,
+  };
+  
+  return { requirement, assignedStatus: data.assignedEnquiryStatus };
+};
+
+const revokeApplication = async (
+  enquiryId: string,
+  token: string | null
+): Promise<{ requirement: TuitionRequirement; assignedStatus: string | null }> => {
+  if (!token) throw new Error("Authentication failed.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/tutor/enquiry/revoke/${enquiryId}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Failed to revoke application. Please try again.' }));
     throw new Error(errorData.message);
   }
 
@@ -281,6 +344,30 @@ export default function TutorEnquiryDetailPage() {
     },
   });
 
+  const revokeMutation = useMutation({
+    mutationFn: () => revokeApplication(id, token),
+    onMutate: () => {
+      showLoader("Revoking application...");
+    },
+    onSuccess: (newData) => {
+      queryClient.setQueryData(["enquiryDetails", id, token], newData);
+      toast({
+        title: "Application Revoked",
+        description: "You have withdrawn your application for this enquiry.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Revoke Failed",
+        description: error.message || "Could not revoke the application.",
+      });
+    },
+    onSettled: () => {
+      hideLoader();
+    },
+  });
+
 
   useEffect(() => {
     if (!isLoading) {
@@ -352,6 +439,12 @@ export default function TutorEnquiryDetailPage() {
                           <CardTitle className="text-xl font-semibold text-primary">
                           {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                           </CardTitle>
+                          {assignedStatus === 'APPLIED' && (
+                            <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                              <CheckCircle className="mr-1 h-3 w-3"/>
+                              Applied
+                            </Badge>
+                          )}
                         </div>
                         <div className="space-y-2 pt-2">
                             <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
@@ -469,7 +562,7 @@ export default function TutorEnquiryDetailPage() {
                   Back to All Enquiries
                 </Link>
               </Button>
-              {assignedStatus !== "ASSIGNED" && assignedStatus !== "SHORTLISTED" && (
+              {assignedStatus !== "ASSIGNED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "APPLIED" && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                      <Button size="sm">
@@ -491,6 +584,30 @@ export default function TutorEnquiryDetailPage() {
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
+                </AlertDialog>
+              )}
+              {assignedStatus === "APPLIED" && (
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive-outline">
+                          <Ban className="mr-2 h-4 w-4" />
+                          Not Interested
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Revoke Application</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to withdraw your application for this enquiry? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => revokeMutation.mutate()} disabled={revokeMutation.isPending}>
+                           {revokeMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Revoking...</> : "Confirm Revoke"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
                 </AlertDialog>
               )}
             </CardFooter>
