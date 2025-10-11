@@ -37,7 +37,7 @@ import { LocationDetails } from "@/types";
 import { cn } from "@/lib/utils";
 import { BookOpen, GraduationCap, Building, RadioTower, MapPin, CalendarDays, Clock, Save, X, User, Loader2, VenetianMask } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/shared/LocationAutocompleteInput";
-import { allSubjectsList, gradeLevelsList, boardsList, teachingModeOptions, daysOptions, timeSlotsOptions, simpleTutorGenderPreferenceOptions, simpleStartDatePreferenceOptions } from "@/lib/constants";
+import { allSubjectsList, gradeLevelsList, boardsList, teachingModeOptions, daysOptions, timeSlotsOptions, tutorGenderPreferenceOptions, startDatePreferenceOptions } from "@/lib/constants";
 
 
 const createEnquirySchema = z.object({
@@ -52,8 +52,8 @@ const createEnquirySchema = z.object({
   ).nullable(),
   preferredDays: z.array(z.string()).optional(),
   preferredTimeSlots: z.array(z.string()).optional(),
-  tutorGenderPreference: z.enum(["male", "female", "any"]).optional(),
-  startDatePreference: z.enum(["immediately", "within_month", "exploring"]).optional(),
+  tutorGenderPreference: z.enum(["MALE", "FEMALE", "NO_PREFERENCE"]).optional(),
+  startDatePreference: z.enum(["IMMEDIATELY", "WITHIN_A_MONTH", "JUST_EXPLORING"]).optional(),
 }).refine(data => {
   if (data.teachingMode.includes("Offline (In-person)") && (!data.location || !data.location.address || data.location.address.trim() === "")) {
     return false;
@@ -85,8 +85,8 @@ export function CreateEnquiryModal({ isOpen, onOpenChange, adminApiHandler, isSu
       location: null,
       preferredDays: [],
       preferredTimeSlots: [],
-      tutorGenderPreference: "any",
-      startDatePreference: "immediately",
+      tutorGenderPreference: "NO_PREFERENCE",
+      startDatePreference: "IMMEDIATELY",
     },
   });
 
@@ -267,7 +267,7 @@ export function CreateEnquiryModal({ isOpen, onOpenChange, adminApiHandler, isSu
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {simpleTutorGenderPreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          {tutorGenderPreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -287,7 +287,7 @@ export function CreateEnquiryModal({ isOpen, onOpenChange, adminApiHandler, isSu
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {simpleStartDatePreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          {startDatePreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
