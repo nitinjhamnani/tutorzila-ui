@@ -2,7 +2,7 @@
 // src/app/tutor/enquiries/[id]/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { TuitionRequirement, LocationDetails } from "@/types";
@@ -432,14 +432,20 @@ export default function TutorEnquiryDetailPage() {
     <div className={containerPadding}>
       <div className="max-w-4xl mx-auto">
         <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-            <CardHeader className="bg-card p-4 sm:p-5 relative">
+            <CardHeader className="bg-card p-4 sm:p-5">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex items-center gap-4 flex-grow">
                     <div className="flex-grow">
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 flex-wrap mb-1">
                           <CardTitle className="text-xl font-semibold text-primary">
                           {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                           </CardTitle>
+                          {assignedStatus === 'APPLIED' && (
+                            <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20 w-fit">
+                              <CheckCircle className="mr-1 h-3 w-3"/>
+                              Applied
+                            </Badge>
+                          )}
                         </div>
                         <div className="space-y-2 pt-2">
                             <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
@@ -461,14 +467,6 @@ export default function TutorEnquiryDetailPage() {
                         </div>
                     </div>
                 </div>
-                 {assignedStatus === 'APPLIED' && (
-                  <div className="absolute top-4 right-4">
-                    <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                      <CheckCircle className="mr-1 h-3 w-3"/>
-                      Applied
-                    </Badge>
-                  </div>
-                )}
               </div>
             </CardHeader>
             <CardContent className="p-4 md:p-5 space-y-5">
