@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface TutorEnquiryCardProps {
   requirement: TuitionRequirement;
@@ -42,8 +43,13 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const { toast } = useToast();
+  const { showLoader } = useGlobalLoader();
 
   const subjectInitials = getInitials(requirement.subject);
+  
+  const handleApplyClick = () => {
+    showLoader("Fetching enquiry details...");
+  };
 
   return (
     <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
@@ -86,10 +92,10 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
           <Button
             asChild
             size="sm"
-            variant="outline"
+            variant="primary-outline"
             className="w-full sm:w-auto text-xs py-1.5 px-3 h-auto"
           >
-            <Link href={`/tutor/enquiries/${requirement.id}`}>
+            <Link href={`/tutor/enquiries/${requirement.id}`} onClick={handleApplyClick}>
                 <Send className="w-3 h-3 mr-1.5" />
                 Apply Now
             </Link>
