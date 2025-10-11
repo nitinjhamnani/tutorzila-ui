@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { TuitionRequirement } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,7 @@ import {
   boardsList as boardsConstant,
   teachingModeOptions,
 } from "@/lib/constants";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const allEnquiryStatusesForPage = ["Recommended", "Applied", "Assigned"] as const;
 type EnquiryStatusCategory = (typeof allEnquiryStatusesForPage)[number];
@@ -120,6 +121,7 @@ const fetchTutorEnquiries = async (
 export default function AllEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [tempSubjectFilter, setTempSubjectFilter] = useState<string[]>([]);
@@ -145,9 +147,18 @@ export default function AllEnquiriesPage() {
     queryKey: ["tutorEnquiries", token, activeFilterCategory],
     queryFn: () => fetchTutorEnquiries(token, activeFilterCategory),
     enabled: !!token && !!user && user.role === "tutor" && !!activeFilterCategory,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (isLoading) {
+      showLoader("Fetching enquiries...");
+    } else {
+      hideLoader();
+    }
+  }, [isLoading, showLoader, hideLoader]);
+
 
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== "tutor")) {
@@ -263,11 +274,7 @@ export default function AllEnquiriesPage() {
 
   const renderEnquiryList = () => {
     if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      );
+      return null; // The global loader will be shown
     }
 
     if (error) {
