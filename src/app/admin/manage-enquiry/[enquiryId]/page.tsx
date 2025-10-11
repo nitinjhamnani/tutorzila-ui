@@ -147,7 +147,7 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
   
   const fetchParams = new URLSearchParams(params.toString());
 
-  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${fetchParams.toString()}`, {
+  const response = await fetch(`${apiBaseUrl}/api/search/tutors/recommended?${fetchParams.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
   if (!response.ok) throw new Error("Failed to fetch tutors.");
@@ -1823,3 +1823,5 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
+
+    
