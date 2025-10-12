@@ -110,11 +110,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
               </div>
 
             </CardContent>
-            <div className="p-4 border-t">
-              <Button className={cn("w-full py-2.5 font-semibold text-sm", "bg-primary text-primary-foreground hover:bg-primary/90")}>
-                <MessageSquare className="mr-2 h-4 w-4" /> Book a Demo
-              </Button>
-            </div>
+            
           </Card>
         </aside>
 
