@@ -30,7 +30,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -205,7 +205,7 @@ export default function AdminParentDetailPage() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const parentId = params.id as string;
-    const { showLoader } = useGlobalLoader();
+    const { showLoader, hideLoader } = useGlobalLoader();
 
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
@@ -220,6 +220,12 @@ export default function AdminParentDetailPage() {
         refetchOnWindowFocus: false,
     });
     
+    useEffect(() => {
+        if (!isLoadingParent) {
+            hideLoader();
+        }
+    }, [isLoadingParent, hideLoader]);
+
     const verificationMutation = useMutation({
         mutationFn: (type: 'email' | 'phone') => verifyUserApi({ userId: parentId, token, type }),
         onSuccess: (updatedUserDetails) => {

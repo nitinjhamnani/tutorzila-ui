@@ -90,7 +90,8 @@ export default function AdminParentsPage() {
   const { token } = useAuthMock();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { hideLoader } = useGlobalLoader();
+  const { hideLoader, showLoader } = useGlobalLoader();
+  const router = useRouter();
 
   const { data: parents = [], isLoading, error } = useQuery<ApiParent[]>({
     queryKey: ['adminAllParents', token],
@@ -108,6 +109,11 @@ export default function AdminParentsPage() {
 
   const handleAddUserSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['adminAllParents'] });
+  };
+  
+  const handleViewParent = (parentId: string) => {
+    showLoader("Loading parent details...");
+    router.push(`/admin/parents/${parentId}`);
   };
 
   const renderTableContent = () => {
@@ -214,10 +220,8 @@ export default function AdminParentsPage() {
                </Badge>
             </TableCell>
             <TableCell>
-              <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                <Link href={`/admin/parents/${parent.id}`}>
-                  <Settings className="h-4 w-4" />
-                </Link>
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewParent(parent.id)}>
+                <Settings className="h-4 w-4" />
               </Button>
             </TableCell>
           </TableRow>
