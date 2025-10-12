@@ -217,7 +217,7 @@ export function ParentDemoSessionCard({
   return (
     <>
     <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
-      <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
+      <Card className="bg-card rounded-lg shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
             <div className="flex-grow min-w-0">
@@ -491,4 +491,3 @@ function InfoItem({ icon: Icon, label, value }: InfoItemPropsLocal) {
     </div>
   );
 }
-    

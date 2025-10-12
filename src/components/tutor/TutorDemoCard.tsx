@@ -69,7 +69,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
 
   return (
     <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
-      <Card className="bg-card rounded-none shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
+      <Card className="bg-card rounded-lg shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
             <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
@@ -102,19 +102,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
           <InfoItem icon={CalendarDays} label="Date:" value={format(demoDate, "MMM d, yyyy")} />
           <InfoItem icon={Clock} label="Time:" value={`${demo.startTime} - ${demo.endTime}`} />
         </CardContent>
-        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
-           <div className="flex items-center space-x-2">
-            {demo.mode && (
-              <Badge
-                className={cn(
-                    "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
-                )}
-              >
-                <ModeIcon />
-                {demo.mode === "Offline (In-person)" ? "Offline" : demo.mode}
-              </Badge>
-            )}
-          </div>
+        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-end items-center gap-2">
           <div className="flex items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
               <Button
