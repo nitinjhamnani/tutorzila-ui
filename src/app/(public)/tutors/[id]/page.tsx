@@ -43,10 +43,9 @@ const transformApiResponseToTutorProfile = (
     bio: data.bio,
     languages: transformStringToArray(data.languages),
     teachingMode: teachingModes,
-    // The following fields are not in the API response and are set to default/mock values
-    experience: "Not Specified",
-    hourlyRate: "0",
-    isRateNegotiable: false,
+    experience: data.experience,
+    hourlyRate: String(data.hourlyRate),
+    isRateNegotiable: data.rateNegotiable,
     rating: 0, 
     avatar: undefined, 
     status: "Active", // Assumed

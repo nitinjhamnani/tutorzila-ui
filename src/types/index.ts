@@ -77,6 +77,10 @@ export interface PublicTutorProfileResponse {
   languages: string;
   online: boolean;
   offline: boolean;
+  experience: string;
+  hourlyRate: number;
+  hybrid: boolean;
+  rateNegotiable: boolean;
 }
 
 export interface TuitionRequirement {

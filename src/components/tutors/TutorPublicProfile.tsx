@@ -19,7 +19,7 @@ import {
   CalendarDays,
   Clock,
   Languages,
-  RadioTower,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -75,16 +75,16 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
 
 
 export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
-  const teachingModeText = Array.isArray(tutor.teachingMode) ? tutor.teachingMode.join(' & ') : tutor.teachingMode;
+    const teachingModeText = Array.isArray(tutor.teachingMode) ? tutor.teachingMode.join(' & ') : tutor.teachingMode;
 
-  const TeachingModeIcon =
-    Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
-      ? Laptop
-      : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
-      ? Laptop
-      : Array.isArray(tutor.teachingMode) && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
-      ? UsersIcon
-      : Laptop;
+    const TeachingModeIcon =
+      Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
+        ? Laptop
+        : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
+        ? Laptop
+        : Array.isArray(tutor.teachingMode) && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
+        ? UsersIcon
+        : Laptop;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -94,13 +94,18 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
           <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
             <CardContent className="pt-6 text-center">
               <Avatar className="w-28 h-28 border-4 border-card shadow-md ring-2 ring-primary/40 mx-auto">
-                <AvatarImage src={tutor.avatar} alt={tutor.name} />
                 <AvatarFallback className="text-3xl bg-primary/20 text-primary font-semibold">
                   {getInitials(tutor.name)}
                 </AvatarFallback>
               </Avatar>
               <h1 className="text-lg font-semibold text-foreground tracking-tight mt-4">{tutor.name}</h1>
               <p className="text-xs text-muted-foreground mt-1">{tutor.role === "tutor" ? "Professional Tutor" : tutor.role}</p>
+
+              {tutor.hourlyRate && parseFloat(tutor.hourlyRate) > 0 && (
+                  <Badge variant="secondary" className="mt-3 text-sm py-1 px-3 border-primary/30 bg-primary/10 text-primary font-semibold">
+                      ₹{tutor.hourlyRate}/hr {tutor.isRateNegotiable && `(Negotiable)`}
+                  </Badge>
+              )}
             </CardContent>
             <div className="p-4 border-t">
               <Button className={cn("w-full py-2.5 font-semibold text-sm", "bg-primary text-primary-foreground hover:bg-primary/90")}>
@@ -131,7 +136,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjects}/>
                 <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradeLevelsTaught}/>
                 <InfoBadgeList icon={Award} label="Boards" items={tutor.boardsTaught}/>
-                <InfoItem icon={RadioTower} label="Teaching Mode">{teachingModeText}</InfoItem>
+                <InfoItem icon={TeachingModeIcon} label="Teaching Mode">{teachingModeText}</InfoItem>
                 {tutor.location && <InfoItem icon={MapPin} label="Address">{tutor.location}</InfoItem>}
             </CardContent>
           </Card>
@@ -143,6 +148,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutor.qualifications} />
                 <InfoBadgeList icon={Languages} label="Languages" items={tutor.languages || []} />
+                <InfoItem icon={Briefcase} label="Experience">{tutor.experience}</InfoItem>
                 <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor.preferredDays}/>
                 <InfoBadgeList icon={Clock} label="Available Times" items={tutor.preferredTimeSlots}/>
             </CardContent>
