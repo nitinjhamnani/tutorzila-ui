@@ -44,11 +44,11 @@ const transformApiResponseToTutorProfile = (
     languages: transformStringToArray(data.languages),
     teachingMode: teachingModes,
     // The following fields are not in the API response and are set to default/mock values
-    experience: "3+ years", // Mocked
-    hourlyRate: "900", // Mocked
-    isRateNegotiable: true, // Mocked
-    rating: 4.7, // Mocked
-    avatar: `https://picsum.photos/seed/${id}/128`, // Mocked
+    experience: "Not Specified",
+    hourlyRate: "0",
+    isRateNegotiable: false,
+    rating: 0, 
+    avatar: undefined, 
     status: "Active", // Assumed
   };
 };
