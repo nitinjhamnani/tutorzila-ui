@@ -55,16 +55,6 @@ const fetchAdminDemos = async (token: string | null, status: DemoStatusCategory)
   return data;
 };
 
-const getStatusBadgeClasses = (status: string) => {
-    switch (status) {
-      case "SCHEDULED": return "bg-blue-100 text-blue-700";
-      case "COMPLETED": return "bg-green-100 text-green-700";
-      case "CANCELLED": return "bg-red-100 text-red-700";
-      case "REQUESTED": return "bg-yellow-100 text-yellow-700";
-      default: return "bg-muted text-muted-foreground";
-    }
-};
-
 const StatusIcon = ({ status }: { status: string }) => {
     const iconProps = "w-3 h-3 mr-1";
     switch (status) {
@@ -176,7 +166,7 @@ export default function AdminAllDemosPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge className={cn("text-[10px] px-2 py-0.5", getStatusBadgeClasses(demo.demoStatus))}>
+                                    <Badge variant="default" className={cn("text-[10px] px-2 py-0.5")}>
                                         <StatusIcon status={demo.demoStatus} />
                                         {demo.demoStatus}
                                     </Badge>
