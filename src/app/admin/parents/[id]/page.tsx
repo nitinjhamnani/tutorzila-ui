@@ -136,22 +136,6 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string; 
 
     const locationDetails = formData.location;
     
-    let genderPreferenceApiValue: 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined;
-    switch (formData.tutorGenderPreference) {
-        case 'male': genderPreferenceApiValue = 'MALE'; break;
-        case 'female': genderPreferenceApiValue = 'FEMALE'; break;
-        case 'any': genderPreferenceApiValue = 'NO_PREFERENCE'; break;
-        default: genderPreferenceApiValue = undefined;
-    }
-    
-    let startPreferenceApiValue: 'IMMEDIATELY' | 'WITHIN_A_MONTH' | 'JUST_EXPLORING' | undefined;
-    switch (formData.startDatePreference) {
-      case 'immediately': startPreferenceApiValue = 'IMMEDIATELY'; break;
-      case 'within_month': startPreferenceApiValue = 'WITHIN_A_MONTH'; break;
-      case 'exploring': startPreferenceApiValue = 'JUST_EXPLORING'; break;
-      default: startPreferenceApiValue = undefined;
-    }
-
     const requestBody = {
         studentName: formData.studentName,
         subjects: formData.subject,
@@ -169,8 +153,8 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string; 
         availabilityTime: formData.preferredTimeSlots,
         online: formData.teachingMode.includes("Online"),
         offline: formData.teachingMode.includes("Offline (In-person)"),
-        genderPreference: genderPreferenceApiValue,
-        startPreference: startPreferenceApiValue,
+        genderPreference: formData.tutorGenderPreference,
+        startPreference: formData.startDatePreference,
     };
 
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
