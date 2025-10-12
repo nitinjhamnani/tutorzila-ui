@@ -34,7 +34,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const studentInitials = getStudentInitials(demo.studentName);
 
-  const statusBadgeClasses = () => {
+  const getStatusBadgeClasses = () => {
     switch (demo.status) {
       case "Scheduled":
         return "bg-blue-100 text-blue-700 border-blue-500/50 hover:bg-blue-200";
@@ -185,3 +185,4 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+

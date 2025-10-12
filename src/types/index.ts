@@ -132,6 +132,7 @@ export interface Testimonial {
 
 export interface DemoSession {
   id: string;
+  enquiryId?: string;
   tutorId?: string;
   tutorName?: string;
   tutorAvatarSeed?: string;
@@ -140,21 +141,27 @@ export interface DemoSession {
   gradeLevel: string;
   board: string;
   date: string; // ISO string
+  day?: string;
   startTime: string;
   endTime: string;
+  duration?: string;
   status: "Scheduled" | "Completed" | "Cancelled" | "Requested";
   joinLink?: string;
+  demoLink?: string;
   mode?: "Online" | "Offline (In-person)";
   feedbackSubmitted?: boolean;
   rescheduleStatus?: 'idle' | 'pending' | 'confirmed';
   rating?: number; 
-  parentComment?: string; 
+  parentComment?: string;
+  isPaid?: boolean;
+  demoFee?: number;
 }
 
 export interface EnquiryDemo {
   demoId: string;
   demoStatus: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "REQUESTED";
   demoDetails: {
+    enquiryId?: string;
     studentName: string;
     tutorName: string;
     subjects: string;
