@@ -142,7 +142,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             )}
             {demo.status === "Scheduled" && (
               <>
-                <Button size="sm" variant="destructive-outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
+                <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
                     <XOctagon className="w-3 h-3 mr-1.5" /> Cancel
                 </Button>
               </>
