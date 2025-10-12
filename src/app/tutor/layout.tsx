@@ -27,7 +27,8 @@ import {
   ShoppingBag,
   ListChecks,
   DollarSign,
-  MessageSquareQuote
+  MessageSquareQuote,
+  Eye,
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 
@@ -138,13 +139,11 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               </Link>
             </div>
             <div className="flex items-center gap-2 md:gap-3">
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8">
-                <Bell className="w-4 h-4" />
-                <span className="sr-only">Notifications</span>
-                <span className="absolute top-1 right-1 flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
-                </span>
+              <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8">
+                <Link href={`/tutors/${user.id}`} target="_blank">
+                  <Eye className="w-4 h-4" />
+                  <span className="sr-only">View Public Profile</span>
+                </Link>
               </Button>
               <Button
                 variant="ghost"
