@@ -72,13 +72,11 @@ export function ApproveBioModal({ isOpen, onOpenChange, tutorName, tutorId }: Ap
 
   const mutation = useMutation({
     mutationFn: (approvalReason: string) => approveTutorBioApi({ tutorId, reason: approvalReason, token }),
-    onSuccess: (response) => {
-       const { tutoringDetails } = response;
+    onSuccess: (tutoringDetails) => {
       queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
         if (!oldData) return undefined;
         return {
           ...oldData,
-          ...tutoringDetails,
           subjectsList: tutoringDetails.subjects,
           gradesList: tutoringDetails.grades,
           boardsList: tutoringDetails.boards,

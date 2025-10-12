@@ -73,13 +73,11 @@ export function DisapproveBioModal({ isOpen, onOpenChange, tutorName, tutorId }:
 
   const mutation = useMutation({
     mutationFn: (disapprovalReason: string) => disapproveTutorBioApi({ tutorId, reason: disapprovalReason, token }),
-    onSuccess: (response) => {
-      const { tutoringDetails } = response;
+    onSuccess: (tutoringDetails) => {
       queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
         if (!oldData) return undefined;
         return {
           ...oldData,
-          ...tutoringDetails,
           subjectsList: tutoringDetails.subjects,
           gradesList: tutoringDetails.grades,
           boardsList: tutoringDetails.boards,
