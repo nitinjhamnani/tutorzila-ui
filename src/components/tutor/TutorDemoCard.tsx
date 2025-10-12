@@ -20,19 +20,16 @@ interface TutorDemoCardProps {
   onCancelSession: (sessionId: string) => void;
 }
 
-const getStudentInitials = (name?: string): string => {
-  if (!name || name.trim() === "") return "S";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) {
-    return parts[0].substring(0, 2).toUpperCase();
-  }
-  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+const getSubjectInitials = (subject?: string): string => {
+  if (!subject || subject.trim() === "") return "?";
+  const firstSubject = subject.split(',')[0].trim();
+  return firstSubject[0].toUpperCase();
 };
 
 export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorDemoCardProps) {
   const demoDate = new Date(demo.date);
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
-  const studentInitials = getStudentInitials(demo.studentName);
+  const subjectInitials = getSubjectInitials(demo.subject);
 
   const getStatusBadgeClasses = () => {
     switch (demo.status) {
@@ -73,8 +70,8 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
             <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
-              <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-xs">
-                {studentInitials}
+              <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
+                {subjectInitials}
               </AvatarFallback>
             </Avatar>
             <div className="flex-grow min-w-0">
@@ -125,11 +122,11 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             {demo.status === "Scheduled" && (
               <>
                 <DialogTrigger asChild>
-                  <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
+                  <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-foreground/30 text-foreground/80 hover:border-foreground/50 hover:bg-muted hover:text-foreground">
                     <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Reschedule
                   </Button>
                 </DialogTrigger>
-                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => onCancelSession(demo.id)}>
+                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-foreground/30 text-foreground/80 hover:border-foreground/50 hover:bg-muted hover:text-foreground" onClick={() => onCancelSession(demo.id)}>
                     <XOctagon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Cancel
                 </Button>
               </>
