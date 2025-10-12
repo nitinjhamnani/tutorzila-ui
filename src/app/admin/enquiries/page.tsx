@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -69,6 +70,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
 export default function AdminAllEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
+  const { hideLoader } = useGlobalLoader();
 
   const { data: allRequirements = [], isLoading, error } = useQuery({
     queryKey: ['adminAllEnquiries', token],
@@ -77,6 +79,12 @@ export default function AdminAllEnquiriesPage() {
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (!isLoading) {
+      hideLoader();
+    }
+  }, [isLoading, hideLoader]);
 
   const renderEnquiryList = () => {
     if (isLoading) {
