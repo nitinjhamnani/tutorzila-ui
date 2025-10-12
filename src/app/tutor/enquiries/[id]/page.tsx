@@ -301,6 +301,20 @@ const EnquiryInfoItem = ({
   );
 };
 
+const DetailSectionCard = ({ icon: Icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) => (
+    <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
+        <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-primary flex items-center">
+                <Icon className="w-4 h-4 mr-2" />
+                {title}
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+            {children}
+        </CardContent>
+    </Card>
+);
+
 export default function TutorEnquiryDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -431,127 +445,91 @@ export default function TutorEnquiryDetailPage() {
 
   return (
     <div className={containerPadding}>
-      <div className="max-w-4xl mx-auto">
-        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-            <CardHeader className="bg-card p-4 sm:p-5">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
-                <CardTitle className="text-xl font-semibold text-primary">
-                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-                </CardTitle>
-                {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED' || assignedStatus === 'ASSIGNED') && (
-                  <Badge variant="default" className="text-xs w-fit bg-primary text-primary-foreground">
-                    <CheckCircle className="mr-1 h-3 w-3"/>
-                    {assignedStatus === 'APPLIED' ? 'Applied' : assignedStatus === 'SHORTLISTED' ? 'Shortlisted' : 'Assigned'}
-                  </Badge>
-                )}
-            </div>
-              <div className="space-y-2 pt-2">
-                  <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                      <UsersRound className="w-4 h-4"/> {requirement.studentName}
-                  </CardDescription>
-                  {requirement.postedAt && (
-                    <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                        <Clock className="w-3.5 h-3.5" /> 
-                        Posted on {format(postedDate, "MMM d, yyyy")}
-                    </CardDescription>
-                  )}
-                  <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                            <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-primary/80"/>{requirement.gradeLevel}</span>
-                            {requirement.board && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-primary/80"/>{requirement.board}</span>}
-                            <span className="flex items-center gap-1.5"><RadioTower className="w-3.5 h-3.5 text-primary/80"/>{requirement.teachingMode?.join(', ')}</span>
-                        </div>
-                  </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-4 md:p-5 space-y-5">
-              {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
-                <>
-                  <Separator />
-                  <section className="space-y-3">
-                    <h3 className="text-base font-semibold text-foreground flex items-center">
-                      <DollarSign className="w-4 h-4 mr-2 text-primary/80" />
-                      Budget
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                      <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
-                      {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
+        <div className="max-w-4xl mx-auto space-y-6">
+            <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                <CardHeader className="bg-card p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
+                        <CardTitle className="text-xl font-semibold text-primary">
+                        {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                        </CardTitle>
+                        {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED' || assignedStatus === 'ASSIGNED') && (
+                        <Badge variant="default" className="text-xs w-fit bg-primary text-primary-foreground">
+                            <CheckCircle className="mr-1 h-3 w-3"/>
+                            {assignedStatus === 'APPLIED' ? 'Applied' : assignedStatus === 'SHORTLISTED' ? 'Shortlisted' : 'Assigned'}
+                        </Badge>
+                        )}
                     </div>
-                  </section>
-                </>
-              )}
-              {hasPreferences && (
-                <>
-                  <Separator />
-                  <section className="space-y-3">
-                      <h3 className="text-base font-semibold text-foreground flex items-center">
-                          <Info className="w-4 h-4 mr-2 text-primary/80" />
-                          General Preferences
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                          {genderValue && (
-                            <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />
-                          )}
-                          {startValue && (
-                            <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />
-                          )}
-                      </div>
-                  </section>
-                </>
-              )}
-              {hasScheduleInfo && (
-                <>
-                  <Separator />
-                  <section className="space-y-3">
-                      <h3 className="text-base font-semibold text-foreground flex items-center">
-                          <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                          Schedule Preferences
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                          {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-                          <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
-                          )}
-                          {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
-                          <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
-                          )}
-                      </div>
-                  </section>
-                </>
-              )}
-              {hasLocationInfo && (
-                <>
-                  <Separator />
-                  <section className="space-y-3">
-                      <h3 className="text-base font-semibold text-foreground flex items-center">
-                          <MapPin className="w-4 h-4 mr-2 text-primary/80" />
-                          Location
-                      </h3>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                          {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
-                          {locationInfo && (locationInfo.city || locationInfo.state || locationInfo.country) && (
-                              <EnquiryInfoItem label="Location" value={[locationInfo.city, locationInfo.state, locationInfo.country].filter(Boolean).join(', ')} icon={MapPinned} />
-                          )}
-                           {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
-                      </div>
-                  </section>
-                </>
-              )}
-              {requirement.additionalNotes && (
-                 <>
-                  <Separator />
-                  <section className="space-y-3">
-                      <h3 className="text-base font-semibold text-foreground flex items-center">
-                          <Info className="w-4 h-4 mr-2 text-primary/80" />
-                          Additional Notes
-                      </h3>
-                      <p className="text-sm text-foreground/80 leading-relaxed pl-6 whitespace-pre-wrap">
-                          {requirement.additionalNotes}
-                      </p>
-                  </section>
-                 </>
-              )}
-            </CardContent>
-            <CardFooter className="p-4 md:p-5 border-t flex flex-wrap justify-between items-center gap-2">
+                    <div className="space-y-2 pt-2">
+                        <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                            <UsersRound className="w-4 h-4"/> {requirement.studentName}
+                        </CardDescription>
+                        {requirement.postedAt && (
+                            <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                                <Clock className="w-3.5 h-3.5" /> 
+                                Posted on {format(postedDate, "MMM d, yyyy")}
+                            </CardDescription>
+                        )}
+                    </div>
+                </CardHeader>
+            </Card>
+
+            <DetailSectionCard icon={GraduationCap} title="Academic Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <EnquiryInfoItem label="Grade Level" value={requirement.gradeLevel} />
+                    {requirement.board && <EnquiryInfoItem label="Board" value={requirement.board} />}
+                </div>
+            </DetailSectionCard>
+
+             {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
+                <DetailSectionCard icon={DollarSign} title="Budget">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
+                        {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
+                    </div>
+                </DetailSectionCard>
+            )}
+
+            {(hasPreferences || hasScheduleInfo) && (
+                <DetailSectionCard icon={Info} title="Tuition Preferences">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {genderValue && <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />}
+                        {startValue && <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />}
+                        {requirement.preferredDays && requirement.preferredDays.length > 0 && (
+                            <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
+                        )}
+                        {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
+                            <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
+                        )}
+                    </div>
+                </DetailSectionCard>
+            )}
+            
+            <DetailSectionCard icon={RadioTower} title="Teaching Mode & Location">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {requirement.teachingMode && requirement.teachingMode.length > 0 && (
+                        <EnquiryInfoItem label="Mode(s)" value={requirement.teachingMode.join(', ')} />
+                    )}
+                    {hasLocationInfo && (
+                        <>
+                            {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} />}
+                            {locationInfo && (locationInfo.city || locationInfo.state) && (
+                                <EnquiryInfoItem label="City/State" value={[locationInfo.city, locationInfo.state].filter(Boolean).join(', ')} />
+                            )}
+                            {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
+                        </>
+                    )}
+                </div>
+            </DetailSectionCard>
+
+            {requirement.additionalNotes && (
+                 <DetailSectionCard icon={Info} title="Additional Notes from Parent">
+                    <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                        {requirement.additionalNotes}
+                    </p>
+                </DetailSectionCard>
+            )}
+            
+            <CardFooter className="p-4 md:p-5 border-t bg-card rounded-b-xl flex flex-wrap justify-between items-center gap-2">
                <Button variant="link" asChild className="text-xs p-0 h-auto text-primary hover:text-primary/80">
                 <Link href="/tutor/enquiries">
                   <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
@@ -607,8 +585,7 @@ export default function TutorEnquiryDetailPage() {
                 </AlertDialog>
               )}
             </CardFooter>
-        </Card>
-      </div>
+        </div>
     </div>
   );
 }
