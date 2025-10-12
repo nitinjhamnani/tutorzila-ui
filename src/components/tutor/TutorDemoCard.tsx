@@ -38,7 +38,7 @@ const getSubjectInitials = (subject?: string): string => {
 };
 
 const cancellationReasons = [
-  { id: "reschedule", label: "The parent wants to reschedule." },
+  { id: "reschedule", label: "I want to reschedule at some other time" },
   { id: "emergency", label: "I'm unavailable due to a personal emergency." },
   { id: "not_interested", label: "I am no longer interested in this enquiry." },
   { id: "timing_issue", label: "The proposed timing does not work for me." },
@@ -142,7 +142,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             )}
             {demo.status === "Scheduled" && (
               <>
-                <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
+                <Button size="sm" variant="destructive-outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
                     <XOctagon className="w-3 h-3 mr-1.5" /> Cancel
                 </Button>
               </>
@@ -177,7 +177,6 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             </RadioGroup>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Back</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmCancel} disabled={!cancelReason.trim()}>
               Confirm Cancellation
             </AlertDialogAction>
