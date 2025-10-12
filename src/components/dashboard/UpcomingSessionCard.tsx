@@ -104,16 +104,11 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
               </Button>
             )}
              {demoData.status === "Scheduled" && onUpdateSession && onCancelSession && (
-              <>
-                <DialogTrigger asChild>
-                  <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
-                    <ClockIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Reschedule
-                  </Button>
-                </DialogTrigger>
-                <Button size="xs" variant="destructiveOutline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => onCancelSession(demoData.id)}>
-                    <XOctagon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Cancel
+              <DialogTrigger asChild>
+                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
+                  <Settings className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Manage
                 </Button>
-              </>
+              </DialogTrigger>
             )}
              {demoData.status === "Requested" && (
                  <DialogTrigger asChild>
@@ -174,7 +169,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
             {classData.status === "Upcoming" && classData.startDate && <InfoItem icon={CalendarIcon} label="Starts" value={format(new Date(classData.startDate!), "MMM d, yyyy")} />}
             {classData.status === "Ongoing" && classData.nextSession && <InfoItem icon={CalendarIcon} label="Next On" value={format(new Date(classData.nextSession!), "MMM d, yyyy 'at' p")} />}
         </CardContent>
-        <CardFooter className="p-0 pt-3 border-t border-border/30 group-hover:bg-muted/20 transition-colors duration-300 flex justify-end items-center gap-2">
+        <CardFooter className="p-0 pt-3 border-t border-border/30 transition-colors duration-300 flex justify-end items-center gap-2">
             {(classData.mode === "Online" && (classData.status === "Ongoing" || classData.status === "Upcoming")) && (
               <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
                 <Link href={"#"} target="_blank" rel="noopener noreferrer">
