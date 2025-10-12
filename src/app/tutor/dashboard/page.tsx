@@ -131,10 +131,10 @@ const fetchTutorDashboardData = async (token: string | null) => {
   return response.json();
 };
 
-const fetchTutorDemos = async (token: string | null): Promise<DemoSession[]> => {
+const fetchTutorScheduledDemos = async (token: string | null): Promise<DemoSession[]> => {
   if (!token) throw new Error("Authentication token not found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-  const response = await fetch(`${apiBaseUrl}/api/tutor/demos`, {
+  const response = await fetch(`${apiBaseUrl}/api/tutor/demos/SCHEDULED`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
   if (!response.ok) throw new Error("Failed to fetch demos.");
@@ -207,8 +207,8 @@ export default function TutorDashboardPage() {
   });
 
   const { data: demosData, isLoading: isLoadingDemos } = useQuery({
-    queryKey: ['tutorDemos', token],
-    queryFn: () => fetchTutorDemos(token),
+    queryKey: ['tutorScheduledDemos', token],
+    queryFn: () => fetchTutorScheduledDemos(token),
     enabled: !!tutorUser,
     staleTime: 5 * 60 * 1000,
   });
@@ -233,7 +233,7 @@ export default function TutorDashboardPage() {
       );
 
       const upcomingDemosFiltered = demosData
-        .filter(d => d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0, 0, 0, 0)))
+        .filter(d => new Date(d.date) >= new Date(new Date().setHours(0, 0, 0, 0)))
         .map(d => ({ type: 'demo' as const, data: d, sortDate: new Date(d.date) }));
 
       const upcomingRegClassesFiltered = tutorClasses
