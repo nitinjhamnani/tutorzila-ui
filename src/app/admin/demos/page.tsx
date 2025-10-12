@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon, ListFilter, ChevronDown, CheckSquare } from "lucide-react";
+import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon, ListFilter, ChevronDown, CheckSquare, Eye, Edit, Ban } from "lucide-react";
 import type { EnquiryDemo } from "@/types";
 import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -137,6 +137,7 @@ export default function AdminAllDemosPage() {
                             <TableHead>Date & Time</TableHead>
                             <TableHead>Mode</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Actions</TableHead>
                         </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -166,10 +167,30 @@ export default function AdminAllDemosPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="default" className={cn("text-[10px] px-2 py-0.5")}>
+                                    <Badge variant="default" className={cn("text-[10px] px-2 py-0.5", "bg-primary text-primary-foreground")}>
                                         <StatusIcon status={demo.demoStatus} />
                                         {demo.demoStatus}
                                     </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-1.5">
+                                        <Tooltip>
+                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><Eye className="h-4 w-4"/></Button></TooltipTrigger>
+                                            <TooltipContent><p>View Enquiry</p></TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><Edit className="h-4 w-4"/></Button></TooltipTrigger>
+                                            <TooltipContent><p>Reschedule Demo</p></TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><Ban className="h-4 w-4"/></Button></TooltipTrigger>
+                                            <TooltipContent><p>Cancel Demo</p></TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><CheckCircle className="h-4 w-4"/></Button></TooltipTrigger>
+                                            <TooltipContent><p>Mark as Completed</p></TooltipContent>
+                                        </Tooltip>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}
