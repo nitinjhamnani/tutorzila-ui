@@ -24,7 +24,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 const demoStatusCategories = [
-  { value: "ALL", label: "All Demos", icon: ListFilter },
   { value: "SCHEDULED", label: "Scheduled", icon: Clock },
   { value: "COMPLETED", label: "Completed", icon: CheckCircle },
   { value: "CANCELLED", label: "Cancelled", icon: XCircle },
