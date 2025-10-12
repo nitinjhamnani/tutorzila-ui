@@ -32,7 +32,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
-import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+
 
 const fetchTutorId = async (token: string | null): Promise<string> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -56,21 +57,36 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const { user, logout, isAuthenticated, isCheckingAuth, token } = useAuthMock();
   const router = useRouter();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const [hasMounted, setHasMounted] = useState(false);
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isFetchingTutorId, setIsFetchingTutorId] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const { data: tutorId, isLoading: isLoadingTutorId } = useQuery({
-    queryKey: ['tutorId', token],
-    queryFn: () => fetchTutorId(token),
-    enabled: !!token && !!user && user.role === 'tutor',
-    staleTime: Infinity, // ID is unlikely to change, cache it forever
-  });
+  const handleViewProfileClick = async () => {
+    setIsFetchingTutorId(true);
+    try {
+      const id = await fetchTutorId(token);
+      if (id) {
+        window.open(`/tutors/${id}`, '_blank');
+      } else {
+        throw new Error("Received an empty ID for the tutor.");
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Could Not Fetch Profile",
+        description: error.message || "Unable to retrieve the public profile link.",
+      });
+    } finally {
+      setIsFetchingTutorId(false);
+    }
+  };
 
   const toggleNavbarCollapsed = () => setIsNavbarCollapsed(prev => !prev);
   const toggleMobileNav = () => setIsMobileNavOpen(prev => !prev);
@@ -165,17 +181,20 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               </Link>
             </div>
             <div className="flex items-center gap-2 md:gap-3">
-               <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" disabled={isLoadingTutorId || !tutorId}>
-                {isLoadingTutorId ? (
+               <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" 
+                onClick={handleViewProfileClick}
+                disabled={isFetchingTutorId}
+                aria-label="View Public Profile"
+              >
+                {isFetchingTutorId ? (
                    <Loader2 className="w-4 h-4 animate-spin" />
-                ) : tutorId ? (
-                  <Link href={`/tutors/${tutorId}`} target="_blank">
-                    <Eye className="w-4 h-4" />
-                    <span className="sr-only">View Public Profile</span>
-                  </Link>
                 ) : (
-                   <Eye className="w-4 h-4" />
+                  <Eye className="w-4 h-4" />
                 )}
+                <span className="sr-only">View Public Profile</span>
               </Button>
               <Button
                 variant="ghost"
