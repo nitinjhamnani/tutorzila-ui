@@ -29,12 +29,31 @@ import {
   DollarSign,
   MessageSquareQuote,
   Eye,
+  Loader2,
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchTutorId = async (token: string | null): Promise<string> => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/tutor/get/id`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "accept": "text/plain",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch tutor ID.");
+  }
+  return response.text();
+};
+
 
 export default function TutorSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, logout, isAuthenticated, isCheckingAuth, token } = useAuthMock();
   const router = useRouter();
   const isMobile = useIsMobile();
 
@@ -45,6 +64,13 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   useEffect(() => {
     setHasMounted(true);
   }, []);
+
+  const { data: tutorId, isLoading: isLoadingTutorId } = useQuery({
+    queryKey: ['tutorId', token],
+    queryFn: () => fetchTutorId(token),
+    enabled: !!token && !!user && user.role === 'tutor',
+    staleTime: Infinity, // ID is unlikely to change, cache it forever
+  });
 
   const toggleNavbarCollapsed = () => setIsNavbarCollapsed(prev => !prev);
   const toggleMobileNav = () => setIsMobileNavOpen(prev => !prev);
@@ -139,11 +165,17 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               </Link>
             </div>
             <div className="flex items-center gap-2 md:gap-3">
-              <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8">
-                <Link href={`/tutors/${user.id}`} target="_blank">
-                  <Eye className="w-4 h-4" />
-                  <span className="sr-only">View Public Profile</span>
-                </Link>
+               <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" disabled={isLoadingTutorId || !tutorId}>
+                {isLoadingTutorId ? (
+                   <Loader2 className="w-4 h-4 animate-spin" />
+                ) : tutorId ? (
+                  <Link href={`/tutors/${tutorId}`} target="_blank">
+                    <Eye className="w-4 h-4" />
+                    <span className="sr-only">View Public Profile</span>
+                  </Link>
+                ) : (
+                   <Eye className="w-4 h-4" />
+                )}
               </Button>
               <Button
                 variant="ghost"

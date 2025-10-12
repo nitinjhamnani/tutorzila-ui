@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { PostRequirementModal } from "@/components/modals/PostRequirementModal";
+import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import { PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
