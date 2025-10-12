@@ -36,17 +36,14 @@ import { format, addMinutes, parse } from 'date-fns';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const allDemoStatusesForPage = [
-  "All Demos",
   "Scheduled",
-  "Requested",
   "Completed",
   "Cancelled",
 ] as const;
 type DemoStatusCategory = (typeof allDemoStatusesForPage)[number];
 
-const statusIcons: Record<Exclude<DemoStatusCategory, "All Demos">, React.ElementType> = { // Exclude "All Demos" for specific icons
+const statusIcons: Record<DemoStatusCategory, React.ElementType> = {
   Scheduled: ClockIcon,
-  Requested: MessageSquareQuote,
   Completed: CheckCircle,
   Cancelled: CancelIcon,
 };
@@ -56,32 +53,19 @@ const fetchTutorDemos = async (token: string | null, status: DemoStatusCategory)
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
   
-  let statusesToFetch: string[] = [];
-  if (status === "All Demos") {
-    statusesToFetch = ["SCHEDULED", "REQUESTED", "COMPLETED", "CANCELLED"];
-  } else {
-    statusesToFetch = [status.toUpperCase()];
-  }
-
-  const fetchPromises = statusesToFetch.map(async (s) => {
-    const response = await fetch(`${apiBaseUrl}/api/tutor/demos/${s}`, {
-      headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
-    });
-    if (!response.ok) {
-        // Silently fail for individual fetches in "All" mode to not break the whole page
-        if (status === 'All Demos') {
-            console.error(`Failed to fetch demos for status: ${s}`);
-            return [];
-        }
-        throw new Error(`Failed to fetch demos for status: ${s}`);
-    }
-    return response.json();
+  const upperCaseStatus = status.toUpperCase();
+  
+  const response = await fetch(`${apiBaseUrl}/api/tutor/demos/${upperCaseStatus}`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
 
-  const results = await Promise.all(fetchPromises);
-  const combinedData: EnquiryDemo[] = results.flat();
+  if (!response.ok) {
+      throw new Error(`Failed to fetch demos for status: ${status}`);
+  }
+  
+  const data: EnquiryDemo[] = await response.json();
 
-  return combinedData.map(item => {
+  return data.map(item => {
     const startTime = item.demoDetails.startTime || "12:00 AM";
     const duration = parseInt(item.demoDetails.duration) || 30;
     
@@ -205,16 +189,13 @@ export default function TutorDemoSessionsPage() {
   const categoryCounts = useMemo(() => {
     // This is a simplification since we don't have all data at once.
     // A better approach would be an API endpoint that provides counts for all categories.
+    // For now, we'll just show the count for the active category.
     const counts = {
-      "All Demos": 0,
       Scheduled: 0,
-      Requested: 0,
       Completed: 0,
       Cancelled: 0,
     };
-    if (activeDemoCategoryFilter !== "All Demos") {
-      counts[activeDemoCategoryFilter] = allTutorDemos.length;
-    }
+    counts[activeDemoCategoryFilter] = allTutorDemos.length;
     return counts;
   }, [allTutorDemos, activeDemoCategoryFilter]);
 
@@ -222,11 +203,8 @@ export default function TutorDemoSessionsPage() {
     label: DemoStatusCategory;
     value: DemoStatusCategory;
     icon: React.ElementType;
-    // count: number; // Count is dynamic and will be shown in the trigger
   }[] = [
-    { label: "All Demos", value: "All Demos", icon: CalendarDays },
     { label: "Scheduled", value: "Scheduled", icon: ClockIcon },
-    { label: "Requested", value: "Requested", icon: MessageSquareQuote },
     { label: "Completed", value: "Completed", icon: CheckCircle },
     { label: "Cancelled", value: "Cancelled", icon: CancelIcon },
   ];
