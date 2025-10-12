@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
@@ -9,16 +9,36 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon } from "lucide-react";
+import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon, ListFilter, ChevronDown, CheckSquare } from "lucide-react";
 import type { EnquiryDemo } from "@/types";
 import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
-const fetchAdminDemos = async (token: string | null): Promise<EnquiryDemo[]> => {
+const demoStatusCategories = [
+  { value: "ALL", label: "All Demos", icon: ListFilter },
+  { value: "SCHEDULED", label: "Scheduled", icon: Clock },
+  { value: "COMPLETED", label: "Completed", icon: CheckCircle },
+  { value: "CANCELLED", label: "Cancelled", icon: XCircle },
+  { value: "REQUESTED", label: "Requested", icon: CheckSquare },
+] as const;
+
+type DemoStatusCategory = typeof demoStatusCategories[number]['value'];
+
+
+const fetchAdminDemos = async (token: string | null, status: DemoStatusCategory): Promise<EnquiryDemo[]> => {
   if (!token) throw new Error("Authentication token not found.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/demo/all/SCHEDULED`, {
+  const response = await fetch(`${apiBaseUrl}/api/demo/all/${status}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -52,6 +72,7 @@ const StatusIcon = ({ status }: { status: string }) => {
       case "SCHEDULED": return <Clock className={iconProps} />;
       case "COMPLETED": return <CheckCircle className={iconProps} />;
       case "CANCELLED": return <XCircle className={iconProps} />;
+      case "REQUESTED": return <CheckSquare className={iconProps} />;
       default: return null;
     }
 };
@@ -60,10 +81,12 @@ const StatusIcon = ({ status }: { status: string }) => {
 export default function AdminAllDemosPage() {
     const { token } = useAuthMock();
     const { hideLoader, showLoader } = useGlobalLoader();
+    const [activeFilterCategory, setActiveFilterCategory] = useState<DemoStatusCategory>("SCHEDULED");
+
 
     const { data: allDemos = [], isLoading, error } = useQuery({
-        queryKey: ['adminAllDemos', token],
-        queryFn: () => fetchAdminDemos(token),
+        queryKey: ['adminAllDemos', token, activeFilterCategory],
+        queryFn: () => fetchAdminDemos(token, activeFilterCategory),
         enabled: !!token,
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
@@ -76,6 +99,10 @@ export default function AdminAllDemosPage() {
           hideLoader();
         }
     }, [isLoading, showLoader, hideLoader]);
+
+    const selectedCategoryData = useMemo(() => {
+        return demoStatusCategories.find(cat => cat.value === activeFilterCategory) || demoStatusCategories[0];
+    }, [activeFilterCategory]);
 
     const renderDemoTable = () => {
         if (isLoading) {
@@ -101,7 +128,7 @@ export default function AdminAllDemosPage() {
                     <Presentation className="w-16 h-16 text-primary/30 mx-auto mb-5" />
                     <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Demos Found</p>
                     <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                    There are currently no demo sessions scheduled on the platform.
+                      There are currently no demos matching "{selectedCategoryData.label}".
                     </p>
                 </CardContent>
                 </Card>
@@ -178,6 +205,37 @@ export default function AdminAllDemosPage() {
                             A comprehensive list of all demo sessions across the platform.
                         </CardDescription>
                     </div>
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="default"
+                            size="sm"
+                            className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            <span>
+                            {selectedCategoryData.label} ({isLoading ? '...' : allDemos.length})
+                            </span>
+                            <ChevronDown className="w-4 h-4 opacity-70" />
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-[220px]">
+                        <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {demoStatusCategories.map((category) => (
+                            <DropdownMenuItem
+                            key={category.value}
+                            onClick={() => setActiveFilterCategory(category.value)}
+                            className={cn(
+                                "text-sm",
+                                activeFilterCategory === category.value && "bg-primary text-primary-foreground"
+                            )}
+                            >
+                            <category.icon className="mr-2 h-4 w-4" />
+                            {category.label}
+                            </DropdownMenuItem>
+                        ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </CardHeader>
             </Card>
             {renderDemoTable()}
