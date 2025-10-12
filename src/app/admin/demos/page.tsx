@@ -6,9 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Presentation, XCircle } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon } from "lucide-react";
 import type { EnquiryDemo } from "@/types";
-import { AdminDemoCard } from "@/components/admin/AdminDemoCard";
+import { format, parseISO } from 'date-fns';
+import { cn } from "@/lib/utils";
 
 const fetchAdminDemos = async (token: string | null): Promise<EnquiryDemo[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -32,6 +36,26 @@ const fetchAdminDemos = async (token: string | null): Promise<EnquiryDemo[]> => 
   return data;
 };
 
+const getStatusBadgeClasses = (status: string) => {
+    switch (status) {
+      case "SCHEDULED": return "bg-blue-100 text-blue-700";
+      case "COMPLETED": return "bg-green-100 text-green-700";
+      case "CANCELLED": return "bg-red-100 text-red-700";
+      case "REQUESTED": return "bg-yellow-100 text-yellow-700";
+      default: return "bg-muted text-muted-foreground";
+    }
+};
+
+const StatusIcon = ({ status }: { status: string }) => {
+    const iconProps = "w-3 h-3 mr-1";
+    switch (status) {
+      case "SCHEDULED": return <Clock className={iconProps} />;
+      case "COMPLETED": return <CheckCircle className={iconProps} />;
+      case "CANCELLED": return <XCircle className={iconProps} />;
+      default: return null;
+    }
+};
+
 
 export default function AdminAllDemosPage() {
     const { token } = useAuthMock();
@@ -53,7 +77,7 @@ export default function AdminAllDemosPage() {
         }
     }, [isLoading, showLoader, hideLoader]);
 
-    const renderDemoList = () => {
+    const renderDemoTable = () => {
         if (isLoading) {
             return null; // Global loader is shown
         }
@@ -85,11 +109,59 @@ export default function AdminAllDemosPage() {
         }
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                {allDemos.map((demo) => (
-                    <AdminDemoCard key={demo.demoId} demo={demo} />
-                ))}
-            </div>
+            <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                <CardContent className="p-0">
+                    <TooltipProvider>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Tutor</TableHead>
+                            <TableHead>Student</TableHead>
+                            <TableHead>Subject</TableHead>
+                            <TableHead>Date & Time</TableHead>
+                            <TableHead>Mode</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {allDemos.map((demo) => (
+                            <TableRow key={demo.demoId}>
+                                <TableCell className="font-medium text-foreground">{demo.demoDetails.tutorName}</TableCell>
+                                <TableCell>{demo.demoDetails.studentName}</TableCell>
+                                <TableCell>{demo.demoDetails.subjects}</TableCell>
+                                <TableCell className="text-xs">
+                                    <div>{format(parseISO(demo.demoDetails.date), "MMM d, yyyy")}</div>
+                                    <div className="text-muted-foreground">{demo.demoDetails.startTime} ({demo.demoDetails.duration} mins)</div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-2">
+                                    {demo.demoDetails.online && (
+                                        <Tooltip>
+                                            <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><RadioTower className="w-4 h-4 text-primary" /></div></TooltipTrigger>
+                                            <TooltipContent><p>Online</p></TooltipContent>
+                                        </Tooltip>
+                                    )}
+                                    {demo.demoDetails.offline && (
+                                        <Tooltip>
+                                            <TooltipTrigger asChild><div className="p-1.5 bg-primary/10 rounded-full"><UsersIcon className="w-4 h-4 text-primary" /></div></TooltipTrigger>
+                                            <TooltipContent><p>Offline</p></TooltipContent>
+                                        </Tooltip>
+                                    )}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge className={cn("text-[10px] px-2 py-0.5", getStatusBadgeClasses(demo.demoStatus))}>
+                                        <StatusIcon status={demo.demoStatus} />
+                                        {demo.demoStatus}
+                                    </Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                    </TooltipProvider>
+                </CardContent>
+            </Card>
         )
     };
 
@@ -108,7 +180,7 @@ export default function AdminAllDemosPage() {
                     </div>
                 </CardHeader>
             </Card>
-            {renderDemoList()}
+            {renderDemoTable()}
         </div>
     );
 }
