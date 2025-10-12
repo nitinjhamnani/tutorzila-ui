@@ -20,8 +20,10 @@ import {
   Clock,
   Languages,
   DollarSign,
+  RadioTower,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 interface TutorPublicProfileProps {
   tutor: TutorProfile;
@@ -101,11 +103,12 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
               <h1 className="text-lg font-semibold text-foreground tracking-tight mt-4">{tutor.name}</h1>
               <p className="text-xs text-muted-foreground mt-1">{tutor.role === "tutor" ? "Professional Tutor" : tutor.role}</p>
 
-              {tutor.hourlyRate && parseFloat(tutor.hourlyRate) > 0 && (
-                  <Badge variant="secondary" className="mt-3 text-sm py-1 px-3 border-primary/30 bg-primary/10 text-primary font-semibold">
-                      ₹{tutor.hourlyRate}/hr {tutor.isRateNegotiable && `(Negotiable)`}
-                  </Badge>
-              )}
+              <Separator className="my-4" />
+              <div className="text-left space-y-3">
+                <InfoItem icon={Briefcase} label="Experience">{tutor.experience}</InfoItem>
+                <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+              </div>
+
             </CardContent>
             <div className="p-4 border-t">
               <Button className={cn("w-full py-2.5 font-semibold text-sm", "bg-primary text-primary-foreground hover:bg-primary/90")}>
