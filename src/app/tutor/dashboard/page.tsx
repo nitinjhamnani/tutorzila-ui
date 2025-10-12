@@ -288,8 +288,6 @@ export default function TutorDashboardPage() {
   const dashboardMetrics = [
     { title: "Enquiries Assigned", value: String(dashboardData?.tutorMetrics?.enquiriesAssigned ?? 0), IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Demo Scheduled", value: String(dashboardData?.tutorMetrics?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Profile Views", value: String(dashboardData?.tutorMetrics?.profileViews ?? 0), IconEl: Eye, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Avg. Rating", value: dashboardData?.tutorMetrics?.averageRating?.toFixed(1) || "N/A", IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
   ];
 
   const quickActions: QuickActionCardProps[] = [
@@ -394,7 +392,7 @@ export default function TutorDashboardPage() {
                   <p className="text-xs">There was an error fetching your dashboard metrics. Please try again later.</p>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
                 {dashboardMetrics.map((metric, index) => (
                   <Card key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
                     <div className="flex items-start justify-between">
@@ -487,3 +485,5 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
+
+    
