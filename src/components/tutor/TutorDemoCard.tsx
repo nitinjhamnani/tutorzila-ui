@@ -79,7 +79,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             </Avatar>
             <div className="flex-grow min-w-0">
               <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
-                Demo: {demo.subject}
+                {demo.subject} ({demo.mode === "Offline (In-person)" ? "Offline" : demo.mode})
               </CardTitle>
               <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
                 <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
