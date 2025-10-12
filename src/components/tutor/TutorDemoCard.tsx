@@ -126,10 +126,10 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
               <>
                 <DialogTrigger asChild>
                   <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
-                    <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Reschedule
+                    <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Reschedule
                   </Button>
                 </DialogTrigger>
-                <Button size="xs" variant="destructiveOutline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => onCancelSession(demo.id)}>
+                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => onCancelSession(demo.id)}>
                     <XOctagon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Cancel
                 </Button>
               </>
