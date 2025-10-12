@@ -48,6 +48,7 @@ import { MultiSelectCommand, type Option as MultiSelectOption } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { allSubjectsList, boardsList, gradeLevelsList } from "@/lib/constants";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
 const fetchAdminTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
@@ -97,6 +98,7 @@ export default function AdminTutorsPage() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { hideLoader } = useGlobalLoader();
   
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
@@ -132,6 +134,12 @@ export default function AdminTutorsPage() {
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (!isLoading) {
+      hideLoader();
+    }
+  }, [isLoading, hideLoader]);
 
   const handleAddUserSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['adminAllTutors'] });
