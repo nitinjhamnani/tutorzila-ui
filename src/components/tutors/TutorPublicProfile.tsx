@@ -119,7 +119,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
            <Card className="shadow-lg border border-border/30 rounded-xl bg-card">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold text-primary flex items-center">
-                About
+                <MessageSquare className="w-4 h-4 mr-2"/> About
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -128,21 +128,28 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
           </Card>
 
           <Card>
-            <CardHeader>
-                <CardTitle>Tutoring Details</CardTitle>
+            <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold text-primary flex items-center">
+                    <BookOpen className="w-4 h-4 mr-2"/> Tutoring Details
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
                 <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjects}/>
                 <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradeLevelsTaught}/>
                 <InfoBadgeList icon={Award} label="Boards" items={tutor.boardsTaught}/>
-                <InfoItem icon={RadioTower} label="Teaching Mode">{teachingModeText}</InfoItem>
+                <InfoItem icon={RadioTower} label="Teaching Mode">
+                    {teachingModeText}
+                    {tutor.isHybrid && <Badge variant="outline" className="ml-2">Hybrid</Badge>}
+                </InfoItem>
                 {tutor.location && <InfoItem icon={MapPin} label="Address">{tutor.location}</InfoItem>}
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader>
-                <CardTitle>Other Details</CardTitle>
+            <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold text-primary flex items-center">
+                    <Briefcase className="w-4 h-4 mr-2"/> Other Details
+                </CardTitle>
             </CardHeader>
              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutor.qualifications} />
