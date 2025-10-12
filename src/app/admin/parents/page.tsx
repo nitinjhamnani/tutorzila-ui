@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface ApiParent {
   id: string;
@@ -89,6 +90,7 @@ export default function AdminParentsPage() {
   const { token } = useAuthMock();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
+  const { hideLoader } = useGlobalLoader();
 
   const { data: parents = [], isLoading, error } = useQuery<ApiParent[]>({
     queryKey: ['adminAllParents', token],
@@ -97,6 +99,12 @@ export default function AdminParentsPage() {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (!isLoading) {
+      hideLoader();
+    }
+  }, [isLoading, hideLoader]);
 
   const handleAddUserSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['adminAllParents'] });
