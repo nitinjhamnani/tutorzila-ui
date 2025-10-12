@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 interface NavItem {
   href: string;
@@ -42,6 +43,16 @@ export function AdminSidebar({
   logoutNavItem,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { showLoader } = useGlobalLoader();
+
+  const handleNavLinkClick = (href: string) => {
+    if (pathname !== href) {
+      showLoader();
+    }
+    if (isMobile && isMobileNavOpen) {
+      toggleMobileNav();
+    }
+  };
 
   return (
     <nav
@@ -68,7 +79,7 @@ export function AdminSidebar({
             <Link
               key={item.label}
               href={item.disabled ? "#" : item.href}
-              onClick={isMobile ? toggleMobileNav : undefined}
+              onClick={() => handleNavLinkClick(item.href)}
               className={cn(
                 "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out",
                 isActive

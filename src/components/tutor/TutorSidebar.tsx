@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types";
-import { PanelLeft, Menu as MenuIcon } from "lucide-react";
+import { PanelLeft, Menu as MenuIcon, LogOut } from "lucide-react";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 // Define the structure for navigation items
 interface NavItem {
@@ -39,6 +40,16 @@ interface TutorSidebarProps {
 
 export function TutorSidebar(props: TutorSidebarProps) {
   const pathname = usePathname();
+  const { showLoader } = useGlobalLoader();
+
+  const handleNavLinkClick = (href: string) => {
+    if (pathname !== href) {
+      showLoader();
+    }
+    if (props.isMobile && props.isMobileNavOpen) {
+      props.toggleMobileNav();
+    }
+  };
 
   return (
     <nav
@@ -66,7 +77,7 @@ export function TutorSidebar(props: TutorSidebarProps) {
             <Link
               key={item.label}
               href={item.disabled ? "#" : item.href}
-              onClick={props.isMobile ? props.toggleMobileNav : undefined}
+              onClick={() => handleNavLinkClick(item.href)}
               className={cn(
                 "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out",
                 isActive
@@ -92,7 +103,7 @@ export function TutorSidebar(props: TutorSidebarProps) {
             <Link
               key={item.label}
               href={item.disabled ? "#" : item.href}
-              onClick={props.isMobile ? props.toggleMobileNav : undefined}
+              onClick={() => handleNavLinkClick(item.href)}
               className={cn(
                 "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out mb-1",
                 isActive
