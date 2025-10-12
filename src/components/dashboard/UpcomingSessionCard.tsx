@@ -11,14 +11,33 @@ import { format, isToday, addMinutes, parse } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 
 export interface UpcomingSessionCardProps {
   sessionDetails: { type: 'demo', data: DemoSession } | { type: 'class', data: MyClass };
   onUpdateSession?: (updatedDemo: DemoSession) => void; // Only for demos
-  onCancelSession?: (sessionId: string) => void; // Only for demos
+  onCancelSession?: (sessionId: string, reason: string) => void; // Only for demos
 }
+
+const cancellationReasons = [
+  { id: "reschedule", label: "I want to reschedule at some other time" },
+  { id: "emergency", label: "I'm unavailable due to a personal emergency." },
+  { id: "not_interested", label: "I am no longer interested in this enquiry." },
+  { id: "timing_issue", label: "The proposed timing does not work for me." },
+  { id: "other", label: "Other" },
+];
 
 const getInitials = (name?: string): string => {
   if (!name) return "N/A";
@@ -30,6 +49,8 @@ const getInitials = (name?: string): string => {
 export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelSession }: UpcomingSessionCardProps) {
   const { type, data } = sessionDetails;
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   const sessionDate = new Date(type === 'demo' ? data.date : (data.status === 'Upcoming' && (data as MyClass).startDate ? (data as MyClass).startDate! : (data as MyClass).nextSession || (data as MyClass).startDate || Date.now()));
   
@@ -54,12 +75,19 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
     }
   };
 
+  const handleConfirmCancel = () => {
+    if (onCancelSession) {
+      onCancelSession(data.id, cancelReason);
+      setIsCancelModalOpen(false);
+    }
+  };
+
   const isDemo = type === 'demo';
 
   if (isDemo) {
     const demoData = data as DemoSession;
     return (
-      <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
+      <>
         <Card className="bg-card border border-border/40 rounded-lg shadow-sm w-full overflow-hidden">
           <CardHeader className={cn(
             "p-3 sm:p-4 border-b border-border/30",
@@ -103,38 +131,53 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
                 </Link>
               </Button>
             )}
-             {demoData.status === "Scheduled" && onUpdateSession && onCancelSession && (
-              <DialogTrigger asChild>
-                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
-                  <Settings className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Manage
-                </Button>
-              </DialogTrigger>
+             {demoData.status === "Scheduled" && onCancelSession && (
+              <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => setIsCancelModalOpen(true)}>
+                <XOctagon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Cancel
+              </Button>
             )}
              {demoData.status === "Requested" && (
-                 <DialogTrigger asChild>
-                    <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
-                        <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
-                    </Button>
-                 </DialogTrigger>
+              <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
+                  <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
+              </Button>
             )}
           </CardFooter>
         </Card>
-        {onUpdateSession && onCancelSession && (
-            <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
-                <ManageDemoModal
-                demoSession={demoData}
-                onUpdateSession={(updatedDemo) => {
-                    if(onUpdateSession) onUpdateSession(updatedDemo);
-                    setIsManageModalOpen(false);
-                }}
-                onCancelSession={(sessionId) => {
-                    if(onCancelSession) onCancelSession(sessionId);
-                    setIsManageModalOpen(false);
-                }}
-                />
-            </DialogContent>
-        )}
-      </Dialog>
+        <AlertDialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure you want to cancel?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                    This will cancel the demo session with {demoData.studentName}. Please provide a reason for cancellation.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="py-2">
+                    <Label htmlFor="cancellation-reason" className="text-sm font-medium text-foreground mb-3 block">
+                    Reason for Cancellation
+                    </Label>
+                    <RadioGroup
+                    id="cancellation-reason"
+                    value={cancelReason}
+                    onValueChange={setCancelReason}
+                    className="flex flex-col space-y-2"
+                    >
+                    {cancellationReasons.map((reason) => (
+                        <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                        <RadioGroupItem value={reason.label} id={reason.id} />
+                        <Label htmlFor={reason.id} className="font-normal">{reason.label}</Label>
+                        </div>
+                    ))}
+                    </RadioGroup>
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Back</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleConfirmCancel} disabled={!cancelReason.trim()}>
+                    Confirm Cancellation
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   } else { // Regular Class
     const classData = data as MyClass;
