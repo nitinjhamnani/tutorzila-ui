@@ -10,14 +10,26 @@ import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQu
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface TutorDemoCardProps {
   demo: DemoSession;
   onUpdateSession: (updatedDemo: DemoSession) => void;
-  onCancelSession: (sessionId: string) => void;
+  onCancelSession: (sessionId: string, reason: string) => void; // Updated to accept a reason
 }
 
 const getSubjectInitials = (subject?: string): string => {
@@ -29,6 +41,8 @@ const getSubjectInitials = (subject?: string): string => {
 export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorDemoCardProps) {
   const demoDate = new Date(demo.date);
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
   const subjectInitials = getSubjectInitials(demo.subject);
 
   const getStatusBadgeClasses = () => {
@@ -63,9 +77,14 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
     if (demo.mode === "Offline (In-person)") return <UsersIcon className={iconClasses} />;
     return null;
   }
+  
+  const handleConfirmCancel = () => {
+      onCancelSession(demo.id, cancelReason);
+      setIsCancelModalOpen(false);
+  };
 
   return (
-    <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
+    <>
       <Card className="bg-card rounded-lg shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
@@ -123,34 +142,63 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             )}
             {demo.status === "Scheduled" && (
               <>
-                <DialogTrigger asChild>
-                  <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto">
-                    <Clock className="w-3 h-3 mr-1.5" /> Reschedule
-                  </Button>
-                </DialogTrigger>
-                <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => onCancelSession(demo.id)}>
+                <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
+                    <DialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto">
+                            <Settings className="w-3 h-3 mr-1.5" /> Manage
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
+                      <ManageDemoModal
+                        demoSession={demo}
+                        onUpdateSession={(updatedDemo) => {
+                          onUpdateSession(updatedDemo);
+                          setIsManageModalOpen(false);
+                        }}
+                        onCancelSession={(sessionId) => {
+                          onCancelSession(sessionId, "Cancelled by tutor."); // Default reason
+                          setIsManageModalOpen(false);
+                        }}
+                      />
+                    </DialogContent>
+                </Dialog>
+                <Button size="sm" variant="destructive-outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
                     <XOctagon className="w-3 h-3 mr-1.5" /> Cancel
                 </Button>
               </>
             )}
         </CardFooter>
       </Card>
-      {demo.status === "Scheduled" && (
-        <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
-          <ManageDemoModal
-            demoSession={demo}
-            onUpdateSession={(updatedDemo) => {
-              onUpdateSession(updatedDemo);
-              setIsManageModalOpen(false);
-            }}
-            onCancelSession={(sessionId) => {
-              onCancelSession(sessionId);
-              setIsManageModalOpen(false);
-            }}
-          />
-        </DialogContent>
-      )}
-    </Dialog>
+      
+      <AlertDialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to cancel?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will cancel the demo session with {demo.studentName}. Please provide a reason for cancellation.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Label htmlFor="cancellation-reason" className="text-sm font-medium text-foreground">
+              Reason for Cancellation
+            </Label>
+            <Textarea
+              id="cancellation-reason"
+              placeholder="e.g., Unforeseen personal circumstances."
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              className="mt-2 min-h-[80px]"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancel} disabled={!cancelReason.trim()}>
+              Confirm Cancellation
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 

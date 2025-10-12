@@ -31,7 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, addMinutes, parse } from 'date-fns';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
@@ -105,12 +105,35 @@ const fetchTutorDemos = async (token: string | null): Promise<DemoSession[]> => 
   });
 };
 
+const cancelDemoApi = async ({ demoId, reason, token }: { demoId: string; reason: string; token: string | null }) => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+    const response = await fetch(`${apiBaseUrl}/api/demo/cancel`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'TZ-DMO-ID': demoId,
+            'accept': '*/*',
+        },
+        body: JSON.stringify({ message: reason }),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to cancel the demo session.");
+    }
+    
+    return true; // Assuming success on 2xx status
+};
+
+
 export default function TutorDemoSessionsPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
   const { showLoader, hideLoader } = useGlobalLoader();
+  const queryClient = useQueryClient();
 
   const { data: allTutorDemos = [], isLoading, error } = useQuery({
     queryKey: ['tutorDemos', token],
@@ -125,6 +148,30 @@ export default function TutorDemoSessionsPage() {
       hideLoader();
     }
   }, [isLoading, showLoader, hideLoader]);
+  
+  const cancelMutation = useMutation({
+    mutationFn: cancelDemoApi,
+    onMutate: () => {
+      showLoader("Cancelling demo...");
+    },
+    onSuccess: () => {
+        toast({
+            title: "Demo Cancelled",
+            description: "The demo session has been successfully cancelled.",
+        });
+        queryClient.invalidateQueries({ queryKey: ['tutorDemos', token] });
+    },
+    onError: (error: Error) => {
+        toast({
+            variant: "destructive",
+            title: "Cancellation Failed",
+            description: error.message,
+        });
+    },
+    onSettled: () => {
+        hideLoader();
+    },
+  });
 
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] =
     useState<DemoStatusCategory>("Scheduled");
@@ -180,14 +227,9 @@ export default function TutorDemoSessionsPage() {
     });
   };
 
-  const handleCancelSession = (sessionId: string) => {
-    // This part would be replaced by a mutation to the backend API
-    toast({
-      title: "Demo Cancelled (Mock)",
-      description: "The demo session has been cancelled.",
-      variant: "destructive",
-    });
-  };
+  const handleCancelSession = useCallback((sessionId: string, reason: string) => {
+    cancelMutation.mutate({ demoId: sessionId, reason, token });
+  }, [cancelMutation, token]);
 
   const renderDemoList = (demos: DemoSession[]) => {
     if (isLoading) {
@@ -266,7 +308,7 @@ export default function TutorDemoSessionsPage() {
                     className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                     <span className="text-primary-foreground">
-                    {selectedCategoryLabel} ({filterCategoriesForDropdown.find(cat => cat.value === activeDemoCategoryFilter)?.count || 0})
+                        {selectedCategoryLabel} 
                     </span>
                     <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
                 </Button>
@@ -284,7 +326,7 @@ export default function TutorDemoSessionsPage() {
                     )}
                     >
                     <category.icon className="mr-2 h-4 w-4" />
-                    {category.label} ({category.count})
+                    {category.label}
                     </DropdownMenuItem>
                 ))}
                 </DropdownMenuContent>
