@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Eye, Edit3, Users as UsersIcon } from "lucide-react";
+import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Edit3, Users as UsersIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -37,20 +37,20 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const getStatusBadgeClasses = () => {
     switch (demo.status) {
       case "Scheduled":
-        return "bg-blue-100 text-blue-700 border-blue-500/50 hover:bg-blue-200";
+        return "bg-primary text-primary-foreground";
       case "Requested":
-        return "bg-yellow-100 text-yellow-700 border-yellow-500/50 hover:bg-yellow-200";
+        return "bg-yellow-500 text-white";
       case "Completed":
-        return "bg-green-100 text-green-700 border-green-500/50 hover:bg-green-200";
+        return "bg-green-600 text-white";
       case "Cancelled":
-        return "bg-red-100 text-red-700 border-red-500/50 hover:bg-red-200";
+        return "bg-destructive text-destructive-foreground";
       default:
-        return "bg-gray-100 text-gray-700 border-gray-500/50 hover:bg-gray-200";
+        return "bg-muted text-muted-foreground";
     }
   };
 
   const StatusIcon = () => {
-    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
+    const iconClasses = "w-2.5 h-2.5 mr-1";
     switch (demo.status) {
       case "Scheduled": return <Clock className={iconClasses} />;
       case "Requested": return <MessageSquareQuote className={iconClasses} />;
@@ -66,7 +66,6 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
     if (demo.mode === "Offline (In-person)") return <UsersIcon className={iconClasses} />;
     return null;
   }
-
 
   return (
     <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
@@ -87,20 +86,14 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 With {demo.studentName}
               </CardDescription>
             </div>
-             {demo.status === "Scheduled" && (
-                <DialogTrigger asChild>
-                     <Button
-                        variant="default"
-                        size="icon"
-                        className={cn(
-                            "absolute top-0 right-0 h-7 w-7 text-primary-foreground bg-primary hover:bg-primary/90",
-                        )}
-                        title="Manage Demo"
-                     >
-                        <Settings className="h-4 w-4" />
-                    </Button>
-                </DialogTrigger>
-            )}
+          </div>
+          <div className="absolute top-0 right-0">
+              <Badge
+                className={cn("text-[10px] px-2 py-0.5 font-medium", getStatusBadgeClasses())}
+              >
+                <StatusIcon />
+                {demo.status}
+              </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 text-xs flex-grow">
@@ -111,14 +104,6 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
         </CardContent>
         <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-between items-center gap-2">
            <div className="flex items-center space-x-2">
-             <Badge
-                className={cn(
-                    "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
-                )}
-            >
-                <StatusIcon />
-                {demo.status}
-            </Badge>
             {demo.mode && (
               <Badge
                 className={cn(
@@ -136,7 +121,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 asChild
                 size="sm"
                 className={cn(
-                  "text-xs py-1.5 px-2.5 h-auto", // Adjusted size to match apply button
+                  "text-xs py-1.5 px-2.5 h-auto", 
                   "bg-primary border-primary text-primary-foreground hover:bg-primary/90 transform transition-transform hover:scale-105 active:scale-95"
                 )}
               >
@@ -144,6 +129,11 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                   <Video className="w-3 h-3 mr-1" /> Join Session
                 </Link>
               </Button>
+            )}
+             {demo.status === "Requested" && (
+                 <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
+                    <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
+                </Button>
             )}
           </div>
         </CardFooter>
@@ -185,4 +175,3 @@ function InfoItem({ icon: Icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
-
