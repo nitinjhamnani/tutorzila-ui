@@ -63,7 +63,6 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
         <Card className="bg-card border border-border/40 rounded-lg shadow-sm w-full overflow-hidden">
           <CardHeader className={cn(
             "p-3 sm:p-4 border-b border-border/30",
-            "bg-muted/30" 
           )}>
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -95,7 +94,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
           </CardContent>
           <CardFooter className={cn(
             "border-t border-border/30 flex justify-end items-center gap-2",
-            "bg-muted/30 p-3 sm:p-4"
+            "p-3 sm:p-4"
             )}>
             {demoData.joinLink && demoData.status === "Scheduled" && (
               <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
@@ -111,7 +110,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
                     <ClockIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Reschedule
                   </Button>
                 </DialogTrigger>
-                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => onCancelSession(demoData.id)}>
+                <Button size="xs" variant="destructiveOutline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => onCancelSession(demoData.id)}>
                     <XOctagon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Cancel
                 </Button>
               </>
@@ -175,7 +174,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
             {classData.status === "Upcoming" && classData.startDate && <InfoItem icon={CalendarIcon} label="Starts" value={format(new Date(classData.startDate!), "MMM d, yyyy")} />}
             {classData.status === "Ongoing" && classData.nextSession && <InfoItem icon={CalendarIcon} label="Next On" value={format(new Date(classData.nextSession!), "MMM d, yyyy 'at' p")} />}
         </CardContent>
-        <CardFooter className="p-0 pt-3 border-t border-border/30 bg-card/50 group-hover:bg-muted/20 transition-colors duration-300 flex justify-end items-center gap-2">
+        <CardFooter className="p-0 pt-3 border-t border-border/30 group-hover:bg-muted/20 transition-colors duration-300 flex justify-end items-center gap-2">
             {(classData.mode === "Online" && (classData.status === "Ongoing" || classData.status === "Upcoming")) && (
               <Button asChild size="xs" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
                 <Link href={"#"} target="_blank" rel="noopener noreferrer">
