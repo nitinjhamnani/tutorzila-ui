@@ -245,17 +245,6 @@ export default function TutorDashboardPage() {
     }
   }, [tutorUser, hasMounted, demosData]);
 
-  const handleAvatarUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Here you would typically upload the file to your backend/storage
-    }
-  };
-
   const handleUpdateDemoSession = (updatedDemo: DemoSession) => {
     setUpcomingSessions(prevSessions =>
       prevSessions.map(session =>
@@ -327,17 +316,6 @@ export default function TutorDashboardPage() {
                       {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <button
-                    onClick={handleAvatarUploadClick}
-                    className={cn(
-                      "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
-                      "bg-primary/20 hover:bg-primary/30"
-                    )}
-                    aria-label="Update profile picture"
-                  >
-                    <Camera className={cn("w-3 h-3 md:w-3.5 md:h-3.5", "text-primary")} />
-                  </button>
-                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                 </div>
                 <div>
                   <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
@@ -485,5 +463,3 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
-
-    
