@@ -405,7 +405,7 @@ export default function TutorEnquiryDetailPage() {
   };
   const startValue = requirement?.startDatePreference ? startDisplayMap[requirement.startDatePreference] : undefined;
 
-  const containerPadding = "py-6 md:py-8"; 
+  const containerPadding = "py-6 md:py-8 px-4 sm:px-6 md:px-8"; 
 
   if (isLoading || isCheckingAuth) {
     return (
@@ -446,7 +446,7 @@ export default function TutorEnquiryDetailPage() {
   return (
     <div className={containerPadding}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 lg:sticky lg:top-[calc(var(--header-height)+1.5rem)]">
                 <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
                     <CardHeader className="bg-card p-4 sm:p-5">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
