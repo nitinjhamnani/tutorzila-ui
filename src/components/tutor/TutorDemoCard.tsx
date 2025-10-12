@@ -6,12 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Edit3, Users as UsersIcon, XOctagon } from "lucide-react";
+import { CalendarDays, Clock, User, Video, CheckCircle, XCircle, MessageSquareQuote, Settings, GraduationCap, ShieldCheck, RadioTower, Info, Edit3, Users as UsersIcon, XOctagon, Ban } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import Link from "next/link";
 import {
   AlertDialog,
@@ -22,15 +20,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface TutorDemoCardProps {
   demo: DemoSession;
   onUpdateSession: (updatedDemo: DemoSession) => void;
-  onCancelSession: (sessionId: string, reason: string) => void; // Updated to accept a reason
+  onCancelSession: (sessionId: string, reason: string) => void; 
 }
 
 const getSubjectInitials = (subject?: string): string => {
@@ -39,9 +37,17 @@ const getSubjectInitials = (subject?: string): string => {
   return firstSubject[0].toUpperCase();
 };
 
+const cancellationReasons = [
+  { id: "reschedule", label: "The parent wants to reschedule." },
+  { id: "emergency", label: "I'm unavailable due to a personal emergency." },
+  { id: "not_interested", label: "I am no longer interested in this enquiry." },
+  { id: "timing_issue", label: "The proposed timing does not work for me." },
+  { id: "other", label: "Other" },
+];
+
+
 export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorDemoCardProps) {
   const demoDate = new Date(demo.date);
-  const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const subjectInitials = getSubjectInitials(demo.subject);
@@ -134,13 +140,6 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
                 </Link>
               </Button>
             )}
-             {demo.status === "Requested" && (
-                 <DialogTrigger asChild>
-                    <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto">
-                        <Edit3 className="w-3 h-3 mr-1.5" /> Confirm/Modify
-                    </Button>
-                 </DialogTrigger>
-            )}
             {demo.status === "Scheduled" && (
               <>
                 <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
@@ -160,16 +159,22 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-2">
-            <Label htmlFor="cancellation-reason" className="text-sm font-medium text-foreground">
+            <Label htmlFor="cancellation-reason" className="text-sm font-medium text-foreground mb-3 block">
               Reason for Cancellation
             </Label>
-            <Textarea
+            <RadioGroup
               id="cancellation-reason"
-              placeholder="e.g., Unforeseen personal circumstances."
               value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-              className="mt-2 min-h-[80px]"
-            />
+              onValueChange={setCancelReason}
+              className="flex flex-col space-y-2"
+            >
+              {cancellationReasons.map((reason) => (
+                <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                  <RadioGroupItem value={reason.label} id={reason.id} />
+                  <Label htmlFor={reason.id} className="font-normal">{reason.label}</Label>
+                </div>
+              ))}
+            </RadioGroup>
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Back</AlertDialogCancel>
