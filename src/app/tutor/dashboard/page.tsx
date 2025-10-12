@@ -5,13 +5,13 @@ import type { ReactNode, ElementType } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import type { User, TutorProfile, DemoSession, MyClass } from "@/types";
+import type { User, TutorProfile, DemoSession, MyClass, EnquiryDemo } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { MOCK_DEMO_SESSIONS, MOCK_CLASSES } from "@/lib/mock-data";
+import { MOCK_CLASSES } from "@/lib/mock-data";
 import { UpcomingSessionCard } from "@/components/dashboard/UpcomingSessionCard";
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import { Badge } from "@/components/ui/badge";
@@ -74,6 +74,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
+import { format, addMinutes, parse } from 'date-fns';
 
 interface QuickActionCardProps {
   title: string;
@@ -130,6 +131,60 @@ const fetchTutorDashboardData = async (token: string | null) => {
   return response.json();
 };
 
+const fetchTutorDemos = async (token: string | null): Promise<DemoSession[]> => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/tutor/demos`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+  });
+  if (!response.ok) throw new Error("Failed to fetch demos.");
+  
+  const data: EnquiryDemo[] = await response.json();
+
+  return data.map(item => {
+    const startTime = item.demoDetails.startTime || "12:00 AM";
+    const duration = parseInt(item.demoDetails.duration) || 30;
+    
+    let endTime = "12:30 AM";
+    try {
+      const startDateTime = parse(`${item.demoDetails.date} ${startTime}`, 'yyyy-MM-dd hh:mm a', new Date());
+      if (!isNaN(startDateTime.getTime())) {
+          const endDateTime = addMinutes(startDateTime, duration);
+          endTime = format(endDateTime, "hh:mm a");
+      }
+    } catch(e) {
+      console.error("Could not parse date/time for end time calculation", item.demoDetails.date, startTime);
+    }
+    
+    const statusMap: Record<string, DemoSession["status"]> = {
+      SCHEDULED: "Scheduled",
+      REQUESTED: "Requested",
+      COMPLETED: "Completed",
+      CANCELLED: "Cancelled",
+    };
+
+    return {
+      id: item.demoId,
+      enquiryId: item.demoDetails.enquiryId,
+      tutorName: item.demoDetails.tutorName,
+      studentName: item.demoDetails.studentName,
+      subject: item.demoDetails.subjects,
+      gradeLevel: item.demoDetails.grade,
+      board: item.demoDetails.board,
+      date: item.demoDetails.date, // Already a string
+      day: item.demoDetails.day,
+      startTime: startTime,
+      endTime: endTime,
+      duration: item.demoDetails.duration,
+      status: statusMap[item.demoStatus] || "Requested",
+      demoLink: item.demoDetails.demoLink,
+      isPaid: item.demoDetails.paid,
+      demoFee: item.demoDetails.demoFees,
+      mode: item.demoDetails.online ? "Online" : (item.demoDetails.offline ? "Offline (In-person)" : undefined),
+    };
+  });
+};
+
 export default function TutorDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
@@ -151,6 +206,13 @@ export default function TutorDashboardPage() {
     refetchOnWindowFocus: false, 
   });
 
+  const { data: demosData, isLoading: isLoadingDemos } = useQuery({
+    queryKey: ['tutorDemos', token],
+    queryFn: () => fetchTutorDemos(token),
+    enabled: !!tutorUser,
+    staleTime: 5 * 60 * 1000,
+  });
+
   useEffect(() => {
     setHasMounted(true);
     hideLoader(); // Ensure loader is hidden when dashboard mounts
@@ -165,15 +227,12 @@ export default function TutorDashboardPage() {
   }, [hasMounted, isAuthenticated, isCheckingAuth, user, router]);
 
   useEffect(() => {
-    if (tutorUser && hasMounted) {
-      const tutorDemos = MOCK_DEMO_SESSIONS.filter(
-        d => d.tutorId === tutorUser.id || d.tutorName === tutorUser.name
-      );
+    if (tutorUser && hasMounted && demosData) {
       const tutorClasses = MOCK_CLASSES.filter(
         c => c.tutorId === tutorUser.id || c.tutorName === tutorUser.name
       );
 
-      const upcomingDemosFiltered = tutorDemos
+      const upcomingDemosFiltered = demosData
         .filter(d => d.status === "Scheduled" && new Date(d.date) >= new Date(new Date().setHours(0, 0, 0, 0)))
         .map(d => ({ type: 'demo' as const, data: d, sortDate: new Date(d.date) }));
 
@@ -184,7 +243,7 @@ export default function TutorDashboardPage() {
       const combined = [...upcomingDemosFiltered, ...upcomingRegClassesFiltered].sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
       setUpcomingSessions(combined);
     }
-  }, [tutorUser, hasMounted]);
+  }, [tutorUser, hasMounted, demosData]);
 
   const handleAvatarUploadClick = () => {
     fileInputRef.current?.click();
@@ -205,10 +264,6 @@ export default function TutorDashboardPage() {
           : session
       ).sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime())
     );
-    const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === updatedDemo.id);
-    if (demoIndexInMock > -1) {
-      MOCK_DEMO_SESSIONS[demoIndexInMock] = updatedDemo;
-    }
     setIsManageDemoModalOpen(false);
   };
 
@@ -220,10 +275,6 @@ export default function TutorDashboardPage() {
           : session
       )
     );
-    const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === sessionId);
-    if (demoIndexInMock > -1) {
-      MOCK_DEMO_SESSIONS[demoIndexInMock].status = "Cancelled";
-    }
     setIsManageDemoModalOpen(false);
   };
 
@@ -369,7 +420,11 @@ export default function TutorDashboardPage() {
                 <Link href="/tutor/demo-sessions">View All Demos</Link>
               </Button>
             </div>
-            {upcomingSessions.length > 0 ? (
+            {isLoadingDemos ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                    {[...Array(3)].map((_, index) => <Skeleton key={index} className="h-48 w-full rounded-xl" />)}
+                </div>
+            ) : upcomingSessions.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                 {upcomingSessions.slice(0, 3).map((session) => (
                   <UpcomingSessionCard
