@@ -115,9 +115,11 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
               </Button>
             )}
              {demo.status === "Requested" && (
-                 <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
-                    <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
-                </Button>
+                 <DialogTrigger asChild>
+                    <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
+                        <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
+                    </Button>
+                 </DialogTrigger>
             )}
             {demo.status === "Scheduled" && (
               <>
