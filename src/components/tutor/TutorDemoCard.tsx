@@ -19,10 +19,10 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-  AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -143,27 +143,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
             )}
             {demo.status === "Scheduled" && (
               <>
-                <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
-                    <DialogTrigger asChild>
-                        <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto">
-                            <Settings className="w-3 h-3 mr-1.5" /> Manage
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-lg bg-card p-0 rounded-xl overflow-hidden">
-                      <ManageDemoModal
-                        demoSession={demo}
-                        onUpdateSession={(updatedDemo) => {
-                          onUpdateSession(updatedDemo);
-                          setIsManageModalOpen(false);
-                        }}
-                        onCancelSession={(sessionId) => {
-                          onCancelSession(sessionId, "Cancelled by tutor."); // Default reason
-                          setIsManageModalOpen(false);
-                        }}
-                      />
-                    </DialogContent>
-                </Dialog>
-                <Button size="sm" variant="destructive-outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
+                <Button size="sm" variant="outline" className="text-xs py-1.5 px-2.5 h-auto" onClick={() => setIsCancelModalOpen(true)}>
                     <XOctagon className="w-3 h-3 mr-1.5" /> Cancel
                 </Button>
               </>
