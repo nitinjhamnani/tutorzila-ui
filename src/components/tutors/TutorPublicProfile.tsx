@@ -135,7 +135,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjects}/>
                 <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradeLevelsTaught}/>
                 <InfoBadgeList icon={Award} label="Boards" items={tutor.boardsTaught}/>
-                <InfoItem icon={TeachingModeIcon} label="Teaching Mode">{teachingModeText}</InfoItem>
+                <InfoItem icon={RadioTower} label="Teaching Mode">{teachingModeText}</InfoItem>
                 {tutor.location && <InfoItem icon={MapPin} label="Address">{tutor.location}</InfoItem>}
             </CardContent>
           </Card>
@@ -147,7 +147,6 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutor.qualifications} />
                 <InfoBadgeList icon={Languages} label="Languages" items={tutor.languages || []} />
-                <InfoItem icon={Briefcase} label="Experience">{tutor.experience}</InfoItem>
                 <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor.preferredDays}/>
                 <InfoBadgeList icon={Clock} label="Available Times" items={tutor.preferredTimeSlots}/>
             </CardContent>
