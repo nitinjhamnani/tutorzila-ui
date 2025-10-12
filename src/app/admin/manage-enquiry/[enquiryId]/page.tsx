@@ -1275,6 +1275,7 @@ const closeEnquiryMutation = useMutation({
                     return null; 
                 }
                 const { demoDetails } = demo;
+                const isCancelled = demo.demoStatus === "CANCELLED";
                 return (
                     <TableRow key={demo.demoId}>
                     <TableCell>
@@ -1307,14 +1308,16 @@ const closeEnquiryMutation = useMutation({
                         </TooltipProvider>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
-                          <CalendarClock className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
-                          <XCircle className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      {!isCancelled && (
+                        <div className="flex items-center gap-1.5">
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
+                            <CalendarClock className="w-4 h-4" />
+                          </Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
+                            <XCircle className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                     </TableRow>
                 )
@@ -1823,5 +1826,3 @@ export default function ManageEnquiryPage() {
         </Suspense>
     )
 }
-
-    
