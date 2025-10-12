@@ -23,13 +23,16 @@ import {
   Menu as MenuIcon,
   Bell,
   UsersRound,
+  Presentation,
 } from "lucide-react";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const adminNavItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/tutors", label: "Tutors", icon: Users },
   { href: "/admin/parents", label: "Parents", icon: UsersRound },
   { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
+  { href: "/admin/demos", label: "Demos", icon: Presentation },
   { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
   { href: "/admin/reports", label: "Reports", icon: BarChart2, disabled: true },
   { href: "/admin/settings", label: "Settings", icon: SettingsIcon, disabled: true },
@@ -43,6 +46,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user, logout, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const isMobile = useIsMobile();
+  const { showLoader } = useGlobalLoader();
 
   const [hasMounted, setHasMounted] = useState(false);
   const [isNavbarOpen, setIsNavbarOpen] = useState(!isMobile);

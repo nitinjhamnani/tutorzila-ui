@@ -277,5 +277,3 @@ export interface AdminDashboardData {
   noOfOpenEnquiries: number;
   noOfActiveEnquiries: number;
 }
-
-    
