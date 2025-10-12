@@ -1,4 +1,3 @@
-
 // src/app/tutor/enquiries/[id]/page.tsx
 "use client";
 
@@ -80,10 +79,10 @@ const fetchEnquiryDetails = async (
   const { enquiryResponse, budget } = data;
 
   const transformStringToArray = (str: string | null | undefined): string[] => {
-    if (typeof str === 'string' && str.trim() !== '') {
-        return str.split(',').map(s => s.trim());
-    }
-    return [];
+      if (typeof str === 'string' && str.trim() !== '') {
+          return str.split(',').map(s => s.trim());
+      }
+      return [];
   };
 
   const requirement: TuitionRequirement = {
@@ -445,8 +444,8 @@ export default function TutorEnquiryDetailPage() {
 
   return (
     <div className={containerPadding}>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-1 space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
                     <CardHeader className="bg-card p-4 sm:p-5">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
@@ -477,7 +476,7 @@ export default function TutorEnquiryDetailPage() {
                             <BookOpen className="w-4 h-4 mr-2 text-primary/80" />
                             Academic Details
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                        <div className="grid grid-cols-1 gap-x-6 gap-y-3 pl-6">
                             <EnquiryInfoItem label="Grade Level" value={requirement.gradeLevel} icon={GraduationCap} />
                             {requirement.board && <EnquiryInfoItem label="Board" value={requirement.board} icon={Building} />}
                             {requirement.teachingMode && requirement.teachingMode.length > 0 && <EnquiryInfoItem label="Mode(s)" value={requirement.teachingMode.join(', ')} icon={RadioTower}/>}
@@ -541,10 +540,10 @@ export default function TutorEnquiryDetailPage() {
                     </CardFooter>
                 </Card>
             </div>
-            <div className="lg:col-span-1 space-y-6">
-                {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
+            <div className="lg:col-span-2 space-y-6">
+                 {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
                     <DetailSectionCard icon={DollarSign} title="Budget">
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
                             {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
                         </div>
@@ -553,7 +552,7 @@ export default function TutorEnquiryDetailPage() {
 
                 {(hasPreferences || hasScheduleInfo) && (
                     <DetailSectionCard icon={Info} title="Tuition Preferences">
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {genderValue && <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />}
                             {startValue && <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />}
                             {requirement.preferredDays && requirement.preferredDays.length > 0 && (
@@ -568,12 +567,12 @@ export default function TutorEnquiryDetailPage() {
                 
                 {hasLocationInfo && (
                     <DetailSectionCard icon={MapPin} title="Location Details">
-                         <div className="grid grid-cols-1 gap-3">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
                             {locationInfo && (locationInfo.city || locationInfo.state) && (
                                 <EnquiryInfoItem label="City/State" value={[locationInfo.city, locationInfo.state].filter(Boolean).join(', ')} icon={MapPinned} />
                             )}
-                            {locationInfo?.address && <EnquiryInfoItem value={locationInfo}/>}
+                            {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
                         </div>
                     </DetailSectionCard>
                 )}
@@ -590,4 +589,3 @@ export default function TutorEnquiryDetailPage() {
     </div>
   );
 }
-
