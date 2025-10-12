@@ -1,4 +1,5 @@
 
+
 export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
@@ -36,6 +37,46 @@ export interface BudgetDetails {
   totalFees?: number;
   totalHours?: number;
   totalDays?: number;
+}
+
+export interface TutorProfile extends User {
+  subjects: string[];
+  experience: string;
+  grade?: string; // Kept for simplicity, but gradeLevelsTaught is more descriptive
+  hourlyRate: string;
+  bio: string;
+  isRateNegotiable?: boolean;
+  qualifications: string[];
+  teachingMode: ("Online" | "Offline (In-person)" | "In-person")[]; // Allow "In-person"
+  gradeLevelsTaught: string[];
+  boardsTaught: string[];
+  preferredDays: string[];
+  preferredTimeSlots: string[];
+  location?: string;
+  rating: number;
+  languages?: string[];
+  mockIsRecommendedBySystem?: boolean;
+  mockIsDemoRequestedByCurrentUser?: boolean;
+  mockIsShortlistedByCurrentUser?: boolean;
+}
+
+export interface PublicTutorProfileResponse {
+  tutorName: string;
+  subjects: string;
+  grades: string;
+  boards: string;
+  area: string;
+  city: string;
+  state: string;
+  country: string;
+  gender: string;
+  qualifications: string;
+  availabilityDays: string;
+  availabilityTime: string;
+  bio: string;
+  languages: string;
+  online: boolean;
+  offline: boolean;
 }
 
 export interface TuitionRequirement {
