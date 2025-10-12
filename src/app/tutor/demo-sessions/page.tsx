@@ -246,7 +246,7 @@ export default function TutorDemoSessionsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
+        <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-0 flex flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex-grow">
                 <div className="flex items-center">
@@ -259,11 +259,7 @@ export default function TutorDemoSessionsPage() {
                     View, schedule, and update your demo class details.
                 </CardDescription>
             </div>
-          </CardHeader>
-        </Card>
-
-        <div className="flex justify-end mb-4 sm:mb-6">
-            <DropdownMenu>
+             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button
                     variant="default"
@@ -293,7 +289,8 @@ export default function TutorDemoSessionsPage() {
                 ))}
                 </DropdownMenuContent>
             </DropdownMenu>
-        </div>
+          </CardHeader>
+        </Card>
 
         <div className="mt-4">{renderDemoList(filteredDemos)}</div>
       </div>
