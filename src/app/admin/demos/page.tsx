@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon, ListFilter, ChevronDown, CheckSquare, Eye, Edit, Ban } from "lucide-react";
+import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon, ListFilter, ChevronDown, CheckSquare, Eye, Edit, Ban, Settings } from "lucide-react";
 import type { EnquiryDemo } from "@/types";
 import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 
 const demoStatusCategories = [
   { value: "SCHEDULED", label: "Scheduled", icon: Clock },
@@ -173,24 +174,11 @@ export default function AdminAllDemosPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex items-center gap-1.5">
-                                        <Tooltip>
-                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><Eye className="h-4 w-4"/></Button></TooltipTrigger>
-                                            <TooltipContent><p>View Enquiry</p></TooltipContent>
-                                        </Tooltip>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><Edit className="h-4 w-4"/></Button></TooltipTrigger>
-                                            <TooltipContent><p>Reschedule Demo</p></TooltipContent>
-                                        </Tooltip>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><Ban className="h-4 w-4"/></Button></TooltipTrigger>
-                                            <TooltipContent><p>Cancel Demo</p></TooltipContent>
-                                        </Tooltip>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-8 w-8"><CheckCircle className="h-4 w-4"/></Button></TooltipTrigger>
-                                            <TooltipContent><p>Mark as Completed</p></TooltipContent>
-                                        </Tooltip>
-                                    </div>
+                                    <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                                      <Link href={`/admin/demos/${demo.demoId}`}>
+                                        <Settings className="h-4 w-4" />
+                                      </Link>
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         ))}
