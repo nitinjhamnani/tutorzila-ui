@@ -78,7 +78,7 @@ export default function AdminAllDemosPage() {
         queryKey: ['adminAllDemos', token, activeFilterCategory],
         queryFn: () => fetchAdminDemos(token, activeFilterCategory),
         enabled: !!token,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 0,
         refetchOnWindowFocus: false,
     });
     
