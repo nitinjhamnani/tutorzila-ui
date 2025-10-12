@@ -41,21 +41,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
   const status = data.status;
 
   const getStatusBadgeClasses = () => {
-    switch (status) {
-      case "Scheduled": 
-      case "Ongoing":   
-      case "Upcoming":  
-        return "bg-blue-100 text-blue-700 border-blue-500/50";
-      case "Completed": 
-      case "Past":      
-        return "bg-green-100 text-green-700 border-green-500/50";
-      case "Cancelled":
-        return "bg-red-100 text-red-700 border-red-500/50";
-      case "Requested": 
-        return "bg-yellow-100 text-yellow-700 border-yellow-500/50";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-500/50";
-    }
+    return "bg-primary text-primary-foreground";
   };
 
   const StatusIcon = () => {
@@ -93,7 +79,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
               </div>
               <Badge
                 variant="outline"
-                className={cn("text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full", getStatusBadgeClasses())}
+                className={cn("text-[10px] py-0.5 px-2 border font-semibold whitespace-nowrap rounded-full", getStatusBadgeClasses())}
               >
                 <StatusIcon />
                 {status}
@@ -173,7 +159,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
             </div>
             <Badge
               variant="outline"
-              className={cn("text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full", getStatusBadgeClasses())}
+              className={cn("text-[10px] py-0.5 px-2 border font-semibold whitespace-nowrap rounded-full", getStatusBadgeClasses())}
             >
               <StatusIcon />
               {status}
