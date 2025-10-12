@@ -445,9 +445,9 @@ export default function TutorEnquiryDetailPage() {
 
   return (
     <div className={containerPadding}>
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1 space-y-6">
-                <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden sticky top-[calc(var(--header-height,0px)+1.5rem)]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+                <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
                     <CardHeader className="bg-card p-4 sm:p-5">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
                             <CardTitle className="text-xl font-semibold text-primary">
@@ -472,11 +472,15 @@ export default function TutorEnquiryDetailPage() {
                             )}
                         </div>
                     </CardHeader>
-                    <CardContent className="p-4 md:p-5 space-y-3">
-                         <div className="grid grid-cols-1 gap-2 text-sm">
-                            <EnquiryInfoItem icon={GraduationCap} label="Grade Level" value={requirement.gradeLevel} />
-                            {requirement.board && <EnquiryInfoItem icon={Building} label="Board" value={requirement.board} />}
-                             {requirement.teachingMode && requirement.teachingMode.length > 0 && <EnquiryInfoItem icon={RadioTower} label="Mode" value={requirement.teachingMode.join(', ')} />}
+                    <CardContent className="p-4 md:p-5 space-y-3 border-t">
+                        <h3 className="text-base font-semibold text-foreground flex items-center">
+                            <BookOpen className="w-4 h-4 mr-2 text-primary/80" />
+                            Academic Details
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                            <EnquiryInfoItem label="Grade Level" value={requirement.gradeLevel} icon={GraduationCap} />
+                            {requirement.board && <EnquiryInfoItem label="Board" value={requirement.board} icon={Building} />}
+                            {requirement.teachingMode && requirement.teachingMode.length > 0 && <EnquiryInfoItem label="Mode(s)" value={requirement.teachingMode.join(', ')} icon={RadioTower}/>}
                         </div>
                     </CardContent>
                     <CardFooter className="p-4 md:p-5 border-t bg-card flex flex-col gap-2">
@@ -537,10 +541,10 @@ export default function TutorEnquiryDetailPage() {
                     </CardFooter>
                 </Card>
             </div>
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-1 space-y-6">
                 {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
                     <DetailSectionCard icon={DollarSign} title="Budget">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-3">
                             <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
                             {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
                         </div>
@@ -549,7 +553,7 @@ export default function TutorEnquiryDetailPage() {
 
                 {(hasPreferences || hasScheduleInfo) && (
                     <DetailSectionCard icon={Info} title="Tuition Preferences">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-3">
                             {genderValue && <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />}
                             {startValue && <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />}
                             {requirement.preferredDays && requirement.preferredDays.length > 0 && (
@@ -562,22 +566,17 @@ export default function TutorEnquiryDetailPage() {
                     </DetailSectionCard>
                 )}
                 
-                <DetailSectionCard icon={RadioTower} title="Teaching Mode & Location">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {requirement.teachingMode && requirement.teachingMode.length > 0 && (
-                            <EnquiryInfoItem label="Mode(s)" value={requirement.teachingMode.join(', ')} />
-                        )}
-                        {hasLocationInfo && (
-                            <>
-                                {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} />}
-                                {locationInfo && (locationInfo.city || locationInfo.state) && (
-                                    <EnquiryInfoItem label="City/State" value={[locationInfo.city, locationInfo.state].filter(Boolean).join(', ')} />
-                                )}
-                                {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
-                            </>
-                        )}
-                    </div>
-                </DetailSectionCard>
+                {hasLocationInfo && (
+                    <DetailSectionCard icon={MapPin} title="Location Details">
+                         <div className="grid grid-cols-1 gap-3">
+                            {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
+                            {locationInfo && (locationInfo.city || locationInfo.state) && (
+                                <EnquiryInfoItem label="City/State" value={[locationInfo.city, locationInfo.state].filter(Boolean).join(', ')} icon={MapPinned} />
+                            )}
+                            {locationInfo?.address && <EnquiryInfoItem value={locationInfo}/>}
+                        </div>
+                    </DetailSectionCard>
+                )}
 
                 {requirement.additionalNotes && (
                     <DetailSectionCard icon={Info} title="Additional Notes from Parent">
