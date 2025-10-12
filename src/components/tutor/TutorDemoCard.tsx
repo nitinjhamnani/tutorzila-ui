@@ -89,7 +89,7 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
           </div>
           <div className="absolute top-0 right-0">
               <Badge
-                className={cn("text-[10px] px-2 py-0.5 font-medium", getStatusBadgeClasses())}
+                className={cn("text-[10px] px-2 py-0.5 font-semibold", getStatusBadgeClasses())}
               >
                 <StatusIcon />
                 {demo.status}
