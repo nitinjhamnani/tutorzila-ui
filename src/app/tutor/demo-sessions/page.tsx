@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
+import React from 'react';
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -14,7 +15,7 @@ import {
   Clock as ClockIcon,
   ChevronDown,
   CalendarDays,
-  XCircle as CancelIcon,
+  XCircle as CancelIcon, // Using CancelIcon as XCircle
   Loader2,
 } from "lucide-react";
 import { TutorDemoCard } from "@/components/tutor/TutorDemoCard";
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
 import { format, addMinutes, parse } from 'date-fns';
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const allDemoStatusesForPage = [
   "All Demos",
@@ -41,6 +43,13 @@ const allDemoStatusesForPage = [
   "Cancelled",
 ] as const;
 type DemoStatusCategory = (typeof allDemoStatusesForPage)[number];
+
+const statusIcons: Record<Exclude<DemoStatusCategory, "All Demos">, React.ElementType> = { // Exclude "All Demos" for specific icons
+  Scheduled: ClockIcon,
+  Requested: MessageSquareQuote,
+  Completed: CheckCircle,
+  Cancelled: CancelIcon,
+};
 
 const fetchTutorDemos = async (token: string | null): Promise<DemoSession[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -101,12 +110,21 @@ export default function TutorDemoSessionsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const { data: allTutorDemos = [], isLoading, error } = useQuery({
     queryKey: ['tutorDemos', token],
     queryFn: () => fetchTutorDemos(token),
     enabled: !!token && !!tutorUser,
   });
+  
+  useEffect(() => {
+    if (isLoading) {
+      showLoader("Fetching demos...");
+    } else {
+      hideLoader();
+    }
+  }, [isLoading, showLoader, hideLoader]);
 
   const [activeDemoCategoryFilter, setActiveDemoCategoryFilter] =
     useState<DemoStatusCategory>("Scheduled");
@@ -173,11 +191,7 @@ export default function TutorDemoSessionsPage() {
 
   const renderDemoList = (demos: DemoSession[]) => {
     if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      );
+      return null; // Global loader is shown
     }
     
     if (error) {
