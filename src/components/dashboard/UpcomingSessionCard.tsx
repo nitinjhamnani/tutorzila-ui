@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, ClockIcon, User, Video, CheckCircle, XCircle, AlertTriangle, BookOpen, GraduationCap, ShieldCheck, Settings, MessageSquareQuote, Edit3, Info, ListFilter, Users as UsersIcon, CalendarDays, CalendarIcon, LinkIcon, Save, Ban } from "lucide-react";
+import { Calendar, ClockIcon, User, Video, CheckCircle, XCircle, AlertTriangle, BookOpen, GraduationCap, ShieldCheck, Settings, MessageSquareQuote, Edit3, Info, ListFilter, Users as UsersIcon, CalendarDays, CalendarIcon, LinkIcon, Save, Ban, XOctagon } from "lucide-react";
 import { format, isToday, addMinutes, parse } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -71,7 +71,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
                   <CardTitle className="text-sm sm:text-base font-semibold text-primary line-clamp-1" title={title}>
                     {title}
                   </CardTitle>
-                  <CardDescription className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 flex items-center">
+                  <CardDescription className="text-[11px] sm:text-[11px] text-muted-foreground mt-0.5 flex items-center">
                     <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 text-muted-foreground/80" />
                     {studentName}
                   </CardDescription>
@@ -104,16 +104,21 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
                 </Link>
               </Button>
             )}
-            {demoData.status === "Scheduled" && onUpdateSession && onCancelSession && (
-               <DialogTrigger asChild>
-                  <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
-                    <Settings className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Manage
+             {demoData.status === "Scheduled" && onUpdateSession && onCancelSession && (
+              <>
+                <DialogTrigger asChild>
+                  <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
+                    <ClockIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Reschedule
                   </Button>
                 </DialogTrigger>
+                <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto" onClick={() => onCancelSession(demoData.id)}>
+                    <XOctagon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Cancel
+                </Button>
+              </>
             )}
              {demoData.status === "Requested" && (
                  <DialogTrigger asChild>
-                    <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
+                    <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto">
                         <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
                     </Button>
                  </DialogTrigger>
@@ -144,9 +149,6 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
         <CardHeader className="p-0 pb-3 border-b border-border/30">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <Badge variant="outline" className="text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full bg-teal-100 text-teal-700 border-teal-500/50">
-                Class
-              </Badge>
               <div className="flex-grow min-w-0">
                 <CardTitle className="text-xs sm:text-sm font-semibold text-primary line-clamp-1" title={title}>
                   {title}
