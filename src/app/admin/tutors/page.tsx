@@ -98,7 +98,7 @@ export default function AdminTutorsPage() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { hideLoader } = useGlobalLoader();
+  const { hideLoader, showLoader } = useGlobalLoader();
   
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
@@ -146,6 +146,7 @@ export default function AdminTutorsPage() {
   };
   
   const handleViewTutor = (tutor: ApiTutor) => {
+    showLoader("Loading tutor details...");
     router.push(`/admin/tutors/${tutor.id}`);
   };
 
