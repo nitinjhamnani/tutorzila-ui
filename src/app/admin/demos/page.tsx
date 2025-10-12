@@ -132,18 +132,24 @@ export default function AdminAllDemosPage() {
                     <Table>
                         <TableHeader>
                         <TableRow>
+                            <TableHead>Status</TableHead>
                             <TableHead>Tutor</TableHead>
                             <TableHead>Student</TableHead>
                             <TableHead>Subject</TableHead>
                             <TableHead>Date & Time</TableHead>
                             <TableHead>Mode</TableHead>
-                            <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                         </TableHeader>
                         <TableBody>
                         {allDemos.map((demo) => (
                             <TableRow key={demo.demoId}>
+                                <TableCell>
+                                    <Badge variant="default" className={cn("text-[10px] px-2 py-0.5", "bg-primary text-primary-foreground")}>
+                                        <StatusIcon status={demo.demoStatus} />
+                                        {demo.demoStatus}
+                                    </Badge>
+                                </TableCell>
                                 <TableCell className="font-medium text-foreground">{demo.demoDetails.tutorName}</TableCell>
                                 <TableCell>{demo.demoDetails.studentName}</TableCell>
                                 <TableCell>{demo.demoDetails.subjects}</TableCell>
@@ -166,12 +172,6 @@ export default function AdminAllDemosPage() {
                                         </Tooltip>
                                     )}
                                     </div>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="default" className={cn("text-[10px] px-2 py-0.5", "bg-primary text-primary-foreground")}>
-                                        <StatusIcon status={demo.demoStatus} />
-                                        {demo.demoStatus}
-                                    </Badge>
                                 </TableCell>
                                 <TableCell>
                                     <Button asChild variant="outline" size="icon" className="h-8 w-8">
