@@ -14,7 +14,7 @@ const fetchAdminDemos = async (token: string | null): Promise<EnquiryDemo[]> => 
   if (!token) throw new Error("Authentication token not found.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/demo/list`, {
+  const response = await fetch(`${apiBaseUrl}/api/demo/all/SCHEDULED`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -112,4 +112,3 @@ export default function AdminAllDemosPage() {
         </div>
     );
 }
-
