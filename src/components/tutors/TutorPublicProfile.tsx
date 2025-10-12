@@ -90,9 +90,9 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
         {/* Left Column */}
-        <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-[calc(var(--header-height,0px)+1.5rem)] lg:self-start">
+        <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-[calc(var(--header-height,0px)+1.5rem)]">
           <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
             <CardContent className="pt-6 text-center">
               <Avatar className="w-28 h-28 border-4 border-card shadow-md ring-2 ring-primary/40 mx-auto">
