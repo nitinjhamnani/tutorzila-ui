@@ -81,16 +81,13 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
           )}>
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                <Badge variant="outline" className="text-[10px] py-0.5 px-2 border font-medium whitespace-nowrap rounded-full bg-purple-100 text-purple-700 border-purple-500/50">
-                  Demo
-                </Badge>
                 <div className="flex-grow min-w-0">
                   <CardTitle className="text-sm sm:text-base font-semibold text-primary line-clamp-1" title={title}>
                     {title}
                   </CardTitle>
                   <CardDescription className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 flex items-center">
                     <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 text-muted-foreground/80" />
-                    Student: {studentName}
+                    {studentName}
                   </CardDescription>
                 </div>
               </div>
@@ -129,9 +126,11 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
                 </DialogTrigger>
             )}
              {demoData.status === "Requested" && (
-                 <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
-                    <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
-                </Button>
+                 <DialogTrigger asChild>
+                    <Button size="xs" variant="outline" className="text-[10px] sm:text-[11px] py-1 px-2 h-auto bg-card border-primary/60 text-primary/80 hover:border-primary hover:bg-primary/5 hover:text-primary">
+                        <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" /> Confirm/Modify
+                    </Button>
+                 </DialogTrigger>
             )}
           </CardFooter>
         </Card>
@@ -155,7 +154,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
   } else { // Regular Class
     const classData = data as MyClass;
     return (
-      <Card className="bg-card border-0 rounded-none shadow-lg p-4 w-full overflow-hidden h-full flex flex-col">
+      <Card className="bg-card border-0 rounded-lg shadow-lg p-4 w-full overflow-hidden h-full flex flex-col">
         <CardHeader className="p-0 pb-3 border-b border-border/30">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -168,7 +167,7 @@ export function UpcomingSessionCard({ sessionDetails, onUpdateSession, onCancelS
                 </CardTitle>
                 <CardDescription className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 flex items-center">
                   <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 text-muted-foreground/80" />
-                  Student: {studentName}
+                  {studentName}
                 </CardDescription>
               </div>
             </div>
@@ -222,5 +221,3 @@ function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
     </div>
   );
 }
-
-    
