@@ -56,7 +56,7 @@ const transformApiResponseToTutorProfile = (
 const fetchTutorPublicProfile = async (id: string): Promise<TutorProfile> => {
   if (!id) throw new Error("Tutor ID is required.");
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/auth/tutor/${id}`);
 
   if (!response.ok) {

@@ -61,7 +61,7 @@ interface ApiParent {
 const fetchAdminParents = async (token: string | null): Promise<ApiParent[]> => {
   if (!token) throw new Error("Authentication token not found.");
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/admin/users?userType=PARENT`, {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -221,7 +221,7 @@ export default function AdminParentsPage() {
             </TableCell>
             <TableCell>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewParent(parent.id)}>
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 h-4" />
               </Button>
             </TableCell>
           </TableRow>

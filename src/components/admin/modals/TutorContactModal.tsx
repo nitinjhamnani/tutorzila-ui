@@ -30,7 +30,7 @@ const fetchTutorContact = async (tutorId: string, token: string | null): Promise
     if (!token) throw new Error("Authentication token not found.");
     if (!tutorId) throw new Error("Tutor ID is required.");
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/admin/user/contact/${tutorId}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
     });

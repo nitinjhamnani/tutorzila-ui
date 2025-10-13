@@ -37,7 +37,7 @@ type DemoStatusCategory = typeof demoStatusCategories[number]['value'];
 const fetchAdminDemos = async (token: string | null, status: DemoStatusCategory): Promise<EnquiryDemo[]> => {
   if (!token) throw new Error("Authentication token not found.");
   
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/demo/all/${status}`, {
     headers: {
       'Authorization': `Bearer ${token}`,

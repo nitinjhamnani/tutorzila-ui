@@ -88,7 +88,7 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/manage/tutor/${tutorId}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -153,7 +153,7 @@ const verifyTutorEmailApi = async ({ tutorId, token }: { tutorId: string; token:
     if (!token) throw new Error("Authentication token not found.");
     if (!tutorId) throw new Error("Tutor ID is required for verification.");
     
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/admin/user/verify/email/${tutorId}`, {
         method: 'PUT',
         headers: {
@@ -173,7 +173,7 @@ const verifyTutorPhoneApi = async ({ tutorId, token }: { tutorId: string; token:
     if (!token) throw new Error("Authentication token not found.");
     if (!tutorId) throw new Error("Tutor ID is required for verification.");
     
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/admin/user/verify/phone/${tutorId}`, {
         method: 'PUT',
         headers: {

@@ -59,7 +59,7 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const fetchParentDetails = async (parentId: string, token: string | null): Promise<{ user: User; enquiries: TuitionRequirement[] }> => {
     if (!token) throw new Error("Authentication token not found.");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     const response = await fetch(`${apiBaseUrl}/api/admin/parent/${parentId}`, {
       headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
@@ -114,7 +114,7 @@ const verifyUserApi = async ({ userId, token, type }: { userId: string; token: s
     if (!token) throw new Error("Authentication token not found.");
     if (!userId) throw new Error("User ID is required for verification.");
     
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/admin/user/verify/${type}/${userId}`, {
         method: 'PUT',
         headers: {
@@ -157,7 +157,7 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string; 
         startPreference: formData.startDatePreference,
     };
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/enquiry/create`, {
         method: 'POST',
         headers: {
@@ -474,7 +474,3 @@ export default function AdminParentDetailPage() {
         </>
     );
 }
-
-    
-
-    

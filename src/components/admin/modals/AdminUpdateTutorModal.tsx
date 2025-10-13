@@ -131,7 +131,7 @@ const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: strin
     hybrid: formData.isHybrid,
   };
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/manage/tutor/update/${tutorId}`, {
     method: 'POST',
     headers: {

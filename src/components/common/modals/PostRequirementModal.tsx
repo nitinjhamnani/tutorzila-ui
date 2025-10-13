@@ -223,7 +223,7 @@ export function PostRequirementModal({
     };
     
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const endpoint = '/api/auth/enquiry';
       
       const headers: HeadersInit = { 'Content-Type': 'application/json', 'accept': '*/*' };

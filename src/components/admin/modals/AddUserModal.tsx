@@ -93,7 +93,7 @@ export function AddUserModal({ isOpen, onOpenChange, userType, onSuccess }: AddU
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
 
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const response = await fetch(`${apiBaseUrl}/api/admin/user/add`, {
         method: 'POST',
         headers: {

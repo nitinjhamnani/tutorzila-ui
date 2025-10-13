@@ -97,7 +97,7 @@ function AdminQuickActionCard({ title, description, IconEl, href, disabled }: Ad
 
 const fetchAdminDashboardData = async (token: string | null): Promise<AdminDashboardData> => {
     if (!token) throw new Error("No admin token found.");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/admin/dashboard`, {
       headers: {
         'Authorization': `Bearer ${token}`,

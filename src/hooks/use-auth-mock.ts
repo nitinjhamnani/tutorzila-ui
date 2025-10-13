@@ -105,7 +105,7 @@ export function useAuthMock() {
   };
 
   const login = async (email: string, password?: string) => {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
         method: 'POST',

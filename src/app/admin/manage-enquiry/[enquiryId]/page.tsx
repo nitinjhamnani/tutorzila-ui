@@ -143,7 +143,7 @@ const reopenReasons = [
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   
   const fetchParams = new URLSearchParams(params.toString());
 
@@ -160,7 +160,7 @@ const fetchAssignableTutors = async (token: string | null, params: URLSearchPara
 
 const fetchEnquiryTutors = async (enquiryId: string, token: string | null): Promise<Record<string, ApiTutor[]>> => {
     if (!token) throw new Error("Authentication token not found.");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/tutors`, {
         headers: { 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' }
     });
@@ -170,7 +170,7 @@ const fetchEnquiryTutors = async (enquiryId: string, token: string | null): Prom
 
 const fetchEnquiryDemos = async (enquiryId: string, token: string | null): Promise<EnquiryDemo[]> => {
     if (!token) throw new Error("Authentication token not found.");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/demo/enquiry`, {
         headers: { 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' }
     });
@@ -182,7 +182,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   if (!token) throw new Error("Authentication token is required.");
   if (!enquiryId) throw new Error("Enquiry ID is required.");
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/${enquiryId}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
@@ -262,7 +262,7 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
     startPreference: formData.startDatePreference,
   };
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/enquiry/update`, {
     method: 'PUT',
     headers: {
@@ -283,7 +283,7 @@ const addNoteToEnquiry = async ({ enquiryId, token, note }: { enquiryId: string,
   if (!enquiryId) throw new Error("Enquiry ID is required.");
   if (!note) throw new Error("Note content cannot be empty.");
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/notes`, {
     method: 'PUT', 
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'TZ-ENQ-ID': enquiryId, 'accept': '*/*' },
@@ -298,7 +298,7 @@ const updateEnquiryStatus = async ({ enquiryId, token, status, remark }: { enqui
   if (!token) throw new Error("Authentication token is required.");
   if (!status) throw new Error("Status is required.");
   
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   let apiUrl = `${apiBaseUrl}/api/admin/enquiry/status?status=${status.toUpperCase()}`;
   let requestBody = JSON.stringify({ message: remark });
 
@@ -329,7 +329,7 @@ const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, t
   if (!token) throw new Error("Authentication token is required.");
   if (!reason) throw new Error("A reason for closing is required.");
   
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/enquiry/close`, {
     method: 'PUT',
     headers: {
@@ -350,7 +350,7 @@ const updateEnquiryBudget = async ({ enquiryId, token, budget }: { enquiryId: st
   if (!enquiryId) throw new Error("Enquiry ID is required.");
   if (!budget) throw new Error("Budget details are required.");
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/budget`, {
     method: 'PUT',
     headers: {
@@ -374,7 +374,7 @@ const fetchParentContact = async (parentId: string, token: string | null): Promi
     if (!token) throw new Error("Authentication token not found.");
     if (!parentId) throw new Error("Parent ID is required.");
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const response = await fetch(`${apiBaseUrl}/api/admin/user/contact/${parentId}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
     });

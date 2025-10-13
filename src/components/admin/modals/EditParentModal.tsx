@@ -81,7 +81,7 @@ const updateParentDetails = async ({
     countryCode: selectedCountryData?.countryCode || '',
   };
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/admin/user/update/${userId}`, {
     method: 'PUT',
     headers: {
@@ -272,4 +272,3 @@ export function EditParentModal({ isOpen, onOpenChange, parent }: EditParentModa
     </Dialog>
   );
 }
-

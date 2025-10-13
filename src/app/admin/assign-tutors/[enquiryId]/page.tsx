@@ -74,7 +74,7 @@ import { allSubjectsList, boardsList, gradeLevelsList } from "@/lib/constants";
 
 const fetchAssignableTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
