@@ -19,6 +19,7 @@ import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
+import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
 
 const fetchUserDetails = async (token: string | null): Promise<UserDetails> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -46,6 +47,7 @@ export default function TutorMyAccountPage() {
   const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
   const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
   const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
+  const [isUpdateBankDetailsModalOpen, setIsUpdateBankDetailsModalOpen] = useState(false);
 
   const { hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
@@ -186,18 +188,18 @@ export default function TutorMyAccountPage() {
                     )}
                   </p>
                 </InfoCard>
+                <InfoCard
+                  icon={Landmark}
+                  title="Bank Details"
+                  isVerified={false} // This could be dynamic based on if bank details are present and verified
+                  onUpdate={() => setIsUpdateBankDetailsModalOpen(true)}
+                  updateButtonText="Update"
+                >
+                  <p className="text-xs text-muted-foreground">
+                    Provide bank details/UPI ID to receive payments.
+                  </p>
+                </InfoCard>
               </div>
-              <InfoCard
-                icon={Landmark}
-                title="Bank Details"
-                isVerified={false} // Placeholder
-                onUpdate={() => {}} // Placeholder
-                updateButtonText="Update"
-              >
-                <p className="text-xs text-muted-foreground">
-                  Provide bank details/UPI ID to receive payments.
-                </p>
-            </InfoCard>
             </CardContent>
           </Card>
           
@@ -223,6 +225,11 @@ export default function TutorMyAccountPage() {
             isOpen={isEditPersonalModalOpen}
             onOpenChange={setIsEditPersonalModalOpen}
             user={userDetails}
+          />
+          
+          <UpdateBankDetailsModal 
+            isOpen={isUpdateBankDetailsModalOpen}
+            onOpenChange={setIsUpdateBankDetailsModalOpen}
           />
 
           {otpVerificationType && otpVerificationIdentifier && (
@@ -260,7 +267,7 @@ function InfoCard({ icon: Icon, title, children, isVerified, onUpdate, updateBut
         <div className="mb-3">{children}</div>
       </div>
        <div className="flex items-center justify-between">
-        {title.includes("Password") ? <div/> : (isVerified ? (
+        {title.includes("Password") || title.includes("Bank") ? <div/> : (isVerified ? (
             <Badge variant="default" className="w-fit bg-green-600 hover:bg-green-700 text-xs py-1">
             <CheckCircle className="mr-1 h-3 w-3" /> Verified
             </Badge>
