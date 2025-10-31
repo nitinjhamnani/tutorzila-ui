@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MailCheck, PhoneCall, UserCircle, ShieldCheck, Edit3, CheckCircle, XCircle, ClipboardEdit, Loader2, Mail, Phone } from "lucide-react";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { cn } from "@/lib/utils";
@@ -144,7 +144,12 @@ export default function TutorMyAccountPage() {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium text-foreground">{userDetails.name}</p>
-                    <p className="text-xs text-muted-foreground">{userDetails.email}</p>
+                    {userDetails.gender && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                           <VenetianMask className="w-3.5 h-3.5" /> 
+                           {userDetails.gender.charAt(0).toUpperCase() + userDetails.gender.slice(1).toLowerCase()}
+                        </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -161,7 +166,7 @@ export default function TutorMyAccountPage() {
                 <InfoCard
                   icon={Phone}
                   title="Update Phone"
-                  description={userDetails.phone ? `Your phone number ${userDetails.phone} is ${userDetails.isPhoneVerified ? 'verified' : 'not verified'}.` : "Add and verify your phone number for seamless communication."}
+                  description={userDetails.phone ? `Your phone number ${userDetails.countryCode} ${userDetails.phone} is ${userDetails.isPhoneVerified ? 'verified' : 'not verified'}.` : "Add and verify your phone number for seamless communication."}
                   isVerified={userDetails.isPhoneVerified || false}
                   onUpdate={() => setIsUpdatePhoneModalOpen(true)}
                   updateButtonText="Update Phone"
