@@ -17,6 +17,7 @@ import type { User as UserDetails } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
+import { DeactivationModal } from "@/components/modals/DeactivationModal";
 
 const fetchUserDetails = async (token: string | null): Promise<UserDetails> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -42,6 +43,7 @@ export default function TutorMyAccountPage() {
   const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
+  const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
 
   const { hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
@@ -129,7 +131,7 @@ export default function TutorMyAccountPage() {
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                   <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start sm:justify-end">
+                   <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start sm:justify-end" onClick={() => setIsDeactivationModalOpen(true)}>
                       Deactivate my account
                   </Button>
                 </div>
@@ -185,6 +187,12 @@ export default function TutorMyAccountPage() {
             onOpenChange={setIsUpdatePhoneModalOpen}
             currentPhone={userDetails.phone}
             currentCountryCode={userDetails.countryCode}
+          />
+          <DeactivationModal
+            isOpen={isDeactivationModalOpen}
+            onOpenChange={setIsDeactivationModalOpen}
+            userName={userDetails.name}
+            userId={user.id}
           />
 
           {otpVerificationType && otpVerificationIdentifier && (
