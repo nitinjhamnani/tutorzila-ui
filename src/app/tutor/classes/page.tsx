@@ -1,10 +1,19 @@
+
 "use client";
 
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { School, Construction } from "lucide-react"; // Added Construction
+import { School, Construction } from "lucide-react";
 import Link from "next/link";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 export default function TutorManageClassesPage() {
+  const { hideLoader } = useGlobalLoader();
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
+
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
