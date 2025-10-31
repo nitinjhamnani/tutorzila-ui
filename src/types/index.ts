@@ -122,6 +122,7 @@ export interface ApiTutor {
   // Fields for list view from /api/search/tutors/all
   id: string; 
   displayName: string;
+  name: string;
   subjectsList: string[];
   gradesList: string[];
   boardsList: string[];
@@ -155,7 +156,6 @@ export interface ApiTutor {
   isHybrid?: boolean;
 
   // Fields that might come from other sources (like initial user data or userDetails in detail view)
-  name?: string; 
   email?: string;
   phone?: string;
   countryCode?: string;
@@ -298,13 +298,12 @@ export interface TutorLead {
 
 export interface TutorTransaction {
   id: string;
-  tutorId: string;
-  type: "Credit" | "Debit";
-  mode: "Cash" | "Online" | "Wallet" | "System"; // System for automated like lead consumption
-  amount: number;
+  type?: "Credit" | "Debit";
+  amount?: number;
+  status?: string;
+  mode?: string;
   date: string; // ISO date string
   summary: string;
-  status?: "Success" | "Failed" | "Pending";
 }
 
 export interface ConversationSummary {

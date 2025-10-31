@@ -2,12 +2,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ListChecks, ArrowUpCircle, ArrowDownCircle, Coins, CheckCircle2, XCircle } from "lucide-react"; 
+import { ListChecks, ArrowUpCircle, ArrowDownCircle, Coins, CheckCircle2, XCircle, ShieldAlert } from "lucide-react"; 
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import type { TutorTransaction, TutorProfile } from "@/types";
-import { MOCK_TUTOR_TRANSACTIONS } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -21,30 +20,65 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const fetchTutorTransactions = async (token: string | null): Promise<TutorTransaction[]> => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/payment/list`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch transactions.");
+  }
+
+  const data = await response.json();
+  
+  // Map API response to our TutorTransaction type
+  return data.map((txn: any, index: number) => ({
+    id: `txn-${index}-${new Date(txn.transactionDate).getTime()}`, // Generate a unique ID
+    type: txn.transactionType,
+    amount: txn.transactionAmount,
+    status: txn.transactionStatus,
+    mode: txn.transactionMode,
+    date: txn.transactionDate,
+    summary: `Transaction of type ${txn.transactionType}` // Generate a summary
+  }));
+};
 
 export default function TutorTransactionsPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-  const [hasMounted, setHasMounted] = useState(false);
-  const [transactions, setTransactions] = useState<TutorTransaction[]>([]);
+  const { hideLoader, showLoader } = useGlobalLoader();
   const tutorUser = user as TutorProfile | null;
-  const { hideLoader } = useGlobalLoader();
+
+  const { data: transactions = [], isLoading, error } = useQuery({
+    queryKey: ['tutorTransactions', token],
+    queryFn: () => fetchTutorTransactions(token),
+    enabled: !!token && !!tutorUser,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    setHasMounted(true);
-    hideLoader();
-  }, [hideLoader]);
-
-  useEffect(() => {
-    if (hasMounted && !isCheckingAuth) {
-      if (!isAuthenticated || !tutorUser || tutorUser.role !== 'tutor') {
-        router.replace("/");
-      } else {
-        const tutorTransactions = MOCK_TUTOR_TRANSACTIONS.filter(txn => txn.tutorId === tutorUser.id);
-        setTransactions(tutorTransactions);
-      }
+    if (isLoading) {
+      showLoader("Fetching transactions...");
+    } else {
+      hideLoader();
     }
-  }, [hasMounted, isAuthenticated, isCheckingAuth, tutorUser, router]);
+  }, [isLoading, showLoader, hideLoader]);
+
+  useEffect(() => {
+    if (!isCheckingAuth && (!isAuthenticated || !tutorUser || tutorUser.role !== 'tutor')) {
+      router.replace("/");
+    }
+  }, [isCheckingAuth, isAuthenticated, tutorUser, router]);
 
   const formattedTransactions = useMemo(() => {
     return transactions.map(txn => ({
@@ -53,32 +87,122 @@ export default function TutorTransactionsPage() {
     }));
   }, [transactions]);
 
-  const getStatusBadgeClasses = (status?: "Success" | "Failed" | "Pending") => {
-    switch (status) {
-      case "Success":
+  const getStatusBadgeClasses = (status?: string) => {
+    switch (status?.toLowerCase()) {
+      case "completed":
+      case "success":
         return "bg-green-100 text-green-700 border-green-500/50";
-      case "Failed":
+      case "failed":
         return "bg-red-100 text-red-700 border-red-500/50";
-      case "Pending":
+      case "pending":
         return "bg-yellow-100 text-yellow-700 border-yellow-500/50";
       default:
         return "bg-gray-100 text-gray-700 border-gray-500/50";
     }
   };
 
-  const StatusIcon = ({ status }: { status?: "Success" | "Failed" | "Pending" }) => {
+  const StatusIcon = ({ status }: { status?: string }) => {
     const iconClasses = "w-3 h-3 mr-1";
-    switch (status) {
-      case "Success": return <CheckCircle2 className={cn(iconClasses, "text-green-700")} />;
-      case "Failed": return <XCircle className={cn(iconClasses, "text-red-700")} />;
-      case "Pending": return <Coins className={cn(iconClasses, "text-yellow-700")} />; // Using Coins for Pending as an example
+    switch (status?.toLowerCase()) {
+      case "completed":
+      case "success": return <CheckCircle2 className={cn(iconClasses, "text-green-700")} />;
+      case "failed": return <XCircle className={cn(iconClasses, "text-red-700")} />;
+      case "pending": return <Coins className={cn(iconClasses, "text-yellow-700")} />;
       default: return null;
     }
   };
 
+  if (isCheckingAuth || !user) {
+    return null;
+  }
 
-  if (!hasMounted || isCheckingAuth || !user) {
-    return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
+  const renderTableContent = () => {
+    if (isLoading) {
+      return (
+         <TableBody>
+          {[...Array(5)].map((_, i) => (
+            <TableRow key={i}>
+              <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+              <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      )
+    }
+
+    if (error) {
+      return (
+        <TableBody>
+            <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center">
+                <div className="flex flex-col items-center justify-center gap-2 text-destructive">
+                    <ShieldAlert className="h-8 w-8" />
+                    <span className="font-semibold">Failed to load transactions</span>
+                    <span className="text-sm">{(error as Error).message}</span>
+                </div>
+                </TableCell>
+            </TableRow>
+        </TableBody>
+      );
+    }
+    
+    if (formattedTransactions.length === 0) {
+       return (
+        <TableBody>
+            <TableRow>
+                <TableCell colSpan={7}>
+                    <div className="text-center py-16">
+                        <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+                        <p className="text-md font-semibold text-foreground/70 mb-2">No Transactions Found</p>
+                        <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                        You don't have any transactions yet.
+                        </p>
+                    </div>
+                </TableCell>
+            </TableRow>
+        </TableBody>
+       );
+    }
+
+    return (
+      <TableBody>
+        {formattedTransactions.map((txn) => (
+          <TableRow key={txn.id} className="hover:bg-muted/20">
+            <TableCell className="px-4 py-3 text-xs text-foreground/80">{txn.id.split('-')[0]}...{txn.id.slice(-4)}</TableCell>
+            <TableCell className={cn(
+              "px-4 py-3 text-xs font-semibold flex items-center",
+              txn.type?.toLowerCase() === "credit" ? "text-green-600" : "text-red-600"
+            )}>
+              {txn.type?.toLowerCase() === "credit" ? <ArrowUpCircle className="w-3.5 h-3.5 mr-1.5"/> : <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5"/>}
+              {txn.type}
+            </TableCell>
+            <TableCell className="px-4 py-3 text-xs text-foreground">{txn.mode}</TableCell>
+            <TableCell className="px-4 py-3 text-xs text-foreground text-right">
+              {txn.mode?.toLowerCase() === "wallet" && txn.type?.toLowerCase() === "debit" ? (
+                <span className="flex items-center justify-end">
+                  <Coins className="w-3.5 h-3.5 mr-1 inline-block text-yellow-600"/> {txn.amount}
+                </span>
+              ) : (
+                `₹${txn.amount?.toLocaleString()}`
+              )}
+            </TableCell>
+            <TableCell className="px-4 py-3 text-xs text-foreground">{txn.formattedDate}</TableCell>
+            <TableCell className="px-4 py-3 text-xs text-foreground">{txn.summary}</TableCell>
+              <TableCell className="px-4 py-3 text-xs">
+              <Badge variant="outline" className={cn("py-0.5 px-2 text-[10px] font-medium", getStatusBadgeClasses(txn.status))}>
+                <StatusIcon status={txn.status} />
+                {txn.status || "N/A"}
+              </Badge>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    );
   }
   
   return (
@@ -102,62 +226,21 @@ export default function TutorTransactionsPage() {
 
         <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
           <CardContent className="p-0">
-            {formattedTransactions.length > 0 ? (
-              <Table>
-                <TableCaption className="py-4 text-xs">A list of your recent transactions.</TableCaption>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground w-[120px]">Transaction ID</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Type</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Mode</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Amount</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Date</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Summary</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {formattedTransactions.map((txn) => (
-                    <TableRow key={txn.id} className="hover:bg-muted/20">
-                      <TableCell className="px-4 py-3 text-xs font-medium text-foreground">{txn.id}</TableCell>
-                      <TableCell className={cn(
-                        "px-4 py-3 text-xs font-semibold flex items-center",
-                        txn.type === "Credit" ? "text-green-600" : "text-red-600"
-                      )}>
-                        {txn.type === "Credit" ? <ArrowUpCircle className="w-3.5 h-3.5 mr-1.5"/> : <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5"/>}
-                        {txn.type}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-xs text-foreground">{txn.mode}</TableCell>
-                      <TableCell className="px-4 py-3 text-xs text-foreground text-right">
-                        {txn.mode === "Wallet" && txn.type === "Debit" ? (
-                          <span className="flex items-center justify-end">
-                            <Coins className="w-3.5 h-3.5 mr-1 inline-block text-yellow-600"/> {txn.amount}
-                          </span>
-                        ) : (
-                          `₹${txn.amount.toLocaleString()}`
-                        )}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-xs text-foreground">{txn.formattedDate}</TableCell>
-                      <TableCell className="px-4 py-3 text-xs text-foreground">{txn.summary}</TableCell>
-                       <TableCell className="px-4 py-3 text-xs">
-                        <Badge variant="outline" className={cn("py-0.5 px-2 text-[10px] font-medium", getStatusBadgeClasses(txn.status))}>
-                          <StatusIcon status={txn.status} />
-                          {txn.status || "N/A"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-16">
-                <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-                <p className="text-md font-semibold text-foreground/70 mb-2">No Transactions Found</p>
-                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                  You don't have any transactions yet.
-                </p>
-              </div>
-            )}
+            <Table>
+              <TableCaption className="py-4 text-xs">A list of your recent transactions.</TableCaption>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground w-[120px]">Transaction ID</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Type</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Mode</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Amount</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Date</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Summary</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              {renderTableContent()}
+            </Table>
           </CardContent>
         </Card>
       </div>

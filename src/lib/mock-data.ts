@@ -775,17 +775,7 @@ export const MOCK_TUTOR_LEADS: TutorLead[] = [
   },
 ];
 
-export const MOCK_TUTOR_TRANSACTIONS: TutorTransaction[] = [
-  { id: "txn1", tutorId: "t2", type: "Credit", mode: "Wallet", amount: 500, date: new Date(Date.now() - 86400000 * 2).toISOString(), summary: "Lead purchase credits", status: "Success" },
-  { id: "txn2", tutorId: "t2", type: "Debit", mode: "Wallet", amount: 5, date: new Date(Date.now() - 86400000 * 1).toISOString(), summary: "Lead consumed for Ananya Sharma", status: "Success" },
-  { id: "txn3", tutorId: "t6", type: "Credit", mode: "Online", amount: 2000, date: new Date(Date.now() - 86400000 * 5).toISOString(), summary: "Payment received from Sunita Patil", status: "Success" },
-  { id: "txn4", tutorId: "t6", type: "Debit", mode: "Wallet", amount: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), summary: "Lead consumed for Rajesh Kumar", status: "Success" },
-  { id: "txn5", tutorId: "t2", type: "Credit", mode: "Cash", amount: 3800, date: new Date().toISOString(), summary: "Payment collected from Arjun Menon", status: "Pending" },
-  { id: "txn6", tutorId: "t1", type: "Credit", mode: "Online", amount: 5000, date: new Date(Date.now() - 86400000 * 10).toISOString(), summary: "Fee credit for Physics batch", status: "Success" },
-  { id: "txn7", tutorId: "t1", type: "Debit", mode: "System", amount: 100, date: new Date(Date.now() - 86400000 * 9).toISOString(), summary: "Platform service fee", status: "Success" },
-  { id: "txn8", tutorId: "t3", type: "Credit", mode: "Wallet", amount: 1000, date: new Date(Date.now() - 86400000 * 7).toISOString(), summary: "Top-up for leads", status: "Success" },
-  { id: "txn9", tutorId: "t3", type: "Debit", mode: "Wallet", amount: 3, date: new Date(Date.now() - 86400000 * 6).toISOString(), summary: "Lead consumed for CS project", status: "Failed" },
-];
+export const MOCK_TUTOR_TRANSACTIONS: TutorTransaction[] = [];
 
 export const MOCK_PARENT_CONVERSATIONS: ConversationSummary[] = [
   {
@@ -837,5 +827,3 @@ export const MOCK_PARENT_CONVERSATIONS: ConversationSummary[] = [
 ];
 
 export const mockTutors = MOCK_TUTOR_PROFILES;
-
-    
