@@ -5,7 +5,6 @@ import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -70,7 +69,7 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
         <AlertDialogHeader>
           <AlertDialogTitle>Deactivate Account: {userName}</AlertDialogTitle>
           <AlertDialogDescription>
-            We're sorry to see you go. Please let us know why you're deactivating.
+            We're sorry to see you go. Please let us know why you're deactivating. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4 space-y-4">
@@ -91,7 +90,6 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
           </RadioGroup>
         </div>
         <AlertDialogFooter className="gap-2 sm:flex-col md:flex-row">
-          <AlertDialogCancel disabled={!!isSubmitting}>Keep Account</AlertDialogCancel>
           <Button 
             variant="secondary" 
             onClick={() => handleDeactivation("temporary")} 
