@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MailCheck, PhoneCall, UserCircle, ShieldCheck, Edit3, CheckCircle, XCircle, ClipboardEdit, Loader2 } from "lucide-react";
+import { MailCheck, PhoneCall, UserCircle, ShieldCheck, Edit3, CheckCircle, XCircle, ClipboardEdit, Loader2, Mail, Phone } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,8 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { User as UserDetails } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UpdateEmailModal } from "@/components/tutor/modals/UpdateEmailModal";
+import { UpdatePhoneModal } from "@/components/tutor/modals/UpdatePhoneModal";
 
 const fetchUserDetails = async (token: string | null): Promise<UserDetails> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -38,6 +40,9 @@ export default function TutorMyAccountPage() {
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
   const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
+  const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
+  const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
+
   const { hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
 
@@ -89,15 +94,7 @@ export default function TutorMyAccountPage() {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading user data...</div>;
   }
 
-  const handleOpenOtpModal = (type: "email" | "phone") => {
-    if (!userDetails) return;
-    setOtpVerificationType(type);
-    setOtpVerificationIdentifier(type === "email" ? userDetails.email : userDetails.phone || "Your Phone Number");
-    setIsOtpModalOpen(true);
-  };
-
   const handleOtpSuccess = () => {
-    // In a real app, this would likely be handled by query invalidation
     queryClient.invalidateQueries({ queryKey: ['userDetails', token] });
     setIsOtpModalOpen(false);
     setOtpVerificationType(null);
@@ -132,7 +129,7 @@ export default function TutorMyAccountPage() {
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0">
+                   <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start sm:justify-end">
                       Deactivate my account
                   </Button>
                 </div>
@@ -153,25 +150,37 @@ export default function TutorMyAccountPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <VerificationItem
-                  icon={MailCheck}
-                  title="Email Verification"
-                  description={userDetails.isEmailVerified ? "Your email is verified." : "Verify your email address to enhance account security."}
+                <InfoCard
+                  icon={Mail}
+                  title="Update Email"
+                  description={userDetails.isEmailVerified ? `Your email ${userDetails.email} is verified.` : "Update your email address to enhance account security."}
                   isVerified={userDetails.isEmailVerified || false}
-                  onVerify={() => handleOpenOtpModal("email")}
+                  onUpdate={() => setIsUpdateEmailModalOpen(true)}
+                  updateButtonText="Update Email"
                 />
-                <VerificationItem
-                  icon={PhoneCall}
-                  title="Phone Verification"
-                  description={userDetails.isPhoneVerified ? "Your phone number is verified." : "Verify your phone number for seamless communication."}
+                <InfoCard
+                  icon={Phone}
+                  title="Update Phone"
+                  description={userDetails.phone ? `Your phone number ${userDetails.phone} is ${userDetails.isPhoneVerified ? 'verified' : 'not verified'}.` : "Add and verify your phone number for seamless communication."}
                   isVerified={userDetails.isPhoneVerified || false}
-                  onVerify={() => handleOpenOtpModal("phone")}
-                  disabled={!userDetails.phone}
-                  disabledText="Add phone number in profile to verify."
+                  onUpdate={() => setIsUpdatePhoneModalOpen(true)}
+                  updateButtonText="Update Phone"
                 />
               </div>
             </CardContent>
           </Card>
+          
+          <UpdateEmailModal
+            isOpen={isUpdateEmailModalOpen}
+            onOpenChange={setIsUpdateEmailModalOpen}
+            currentEmail={userDetails.email}
+          />
+          <UpdatePhoneModal
+            isOpen={isUpdatePhoneModalOpen}
+            onOpenChange={setIsUpdatePhoneModalOpen}
+            currentPhone={userDetails.phone}
+            currentCountryCode={userDetails.countryCode}
+          />
 
           {otpVerificationType && otpVerificationIdentifier && (
             <OtpVerificationModal
@@ -188,41 +197,42 @@ export default function TutorMyAccountPage() {
   );
 }
 
-interface VerificationItemProps {
+interface InfoCardProps {
   icon: React.ElementType;
   title: string;
   description: string;
   isVerified: boolean;
-  onVerify: () => void;
-  disabled?: boolean;
-  disabledText?: string;
+  onUpdate: () => void;
+  updateButtonText: string;
 }
 
-function VerificationItem({ icon: Icon, title, description, isVerified, onVerify, disabled, disabledText }: VerificationItemProps) {
+function InfoCard({ icon: Icon, title, description, isVerified, onUpdate, updateButtonText }: InfoCardProps) {
   return (
     <Card className="bg-card/50 border rounded-lg p-4 flex flex-col justify-between shadow-xs hover:shadow-sm transition-shadow">
       <div>
         <div className="flex items-center mb-2">
-          <Icon className={cn("w-5 h-5 mr-2", isVerified ? "text-green-600" : "text-primary")} />
+          <Icon className={cn("w-5 h-5 mr-2", "text-primary")} />
           <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-3">{description}</p>
       </div>
-      {isVerified ? (
-        <Badge variant="default" className="w-fit bg-green-600 hover:bg-green-700 text-xs py-1">
-          <CheckCircle className="mr-1 h-3 w-3" /> Verified
-        </Badge>
-      ) : (
+       <div className="flex items-center justify-between">
+        {isVerified ? (
+            <Badge variant="default" className="w-fit bg-green-600 hover:bg-green-700 text-xs py-1">
+            <CheckCircle className="mr-1 h-3 w-3" /> Verified
+            </Badge>
+        ) : (
+            <span className="text-xs font-semibold text-yellow-600">Not Verified</span>
+        )}
         <Button
           variant="outline"
           size="sm"
-          className="text-xs border-primary text-primary hover:bg-primary/10 hover:text-primary w-fit"
-          onClick={onVerify}
-          disabled={disabled}
+          className="text-xs border-primary text-primary hover:bg-primary/10 hover:text-primary"
+          onClick={onUpdate}
         >
-          {disabled ? disabledText : "Verify Now"}
+            {updateButtonText}
         </Button>
-      )}
+       </div>
     </Card>
   );
 }

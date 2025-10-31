@@ -253,7 +253,8 @@ export function ParentDemoSessionCard({
           <div className="flex items-center space-x-2 self-start sm:self-center">
               <Badge
                   className={cn(
-                      "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full"
+                      "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full",
+                      getStatusBadgeClasses()
                   )}
               >
                   <StatusIcon />
