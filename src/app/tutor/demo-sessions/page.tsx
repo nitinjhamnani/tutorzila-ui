@@ -300,6 +300,7 @@ export default function TutorDemoSessionsPage() {
                     View, schedule, and update your demo class details.
                 </CardDescription>
             </div>
+            {allTutorDemos.length > 0 && (
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button
@@ -330,6 +331,7 @@ export default function TutorDemoSessionsPage() {
                 ))}
                 </DropdownMenuContent>
             </DropdownMenu>
+            )}
           </CardHeader>
         </Card>
 
