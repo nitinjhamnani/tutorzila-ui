@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const allPaymentStatusesForPage = ["All", "Pending", "Paid", "Overdue"] as const;
 type PaymentStatusCategory = typeof allPaymentStatusesForPage[number];
@@ -30,9 +31,14 @@ export default function TutorPaymentsPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const { toast } = useToast();
   const tutorUser = user as TutorProfile | null;
+  const { hideLoader } = useGlobalLoader();
 
   const [allPayments, setAllPayments] = useState<TutorPayment[]>([]);
   const [activePaymentCategoryFilter, setActivePaymentCategoryFilter] = useState<PaymentStatusCategory>("All");
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
 
   useEffect(() => {
     if (tutorUser) {
