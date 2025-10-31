@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3 } from "lucide-react";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { cn } from "@/lib/utils";
@@ -185,6 +186,28 @@ export default function TutorMyAccountPage() {
                     )}
                   </p>
                 </InfoCard>
+                <InfoCard
+                  icon={Landmark}
+                  title="Bank Details"
+                  isVerified={false} // Placeholder
+                  onUpdate={() => {}} // Placeholder
+                  updateButtonText="Update"
+                >
+                  <p className="text-xs text-muted-foreground">
+                    Provide bank details/UPI ID to receive payments.
+                  </p>
+                </InfoCard>
+                <InfoCard
+                  icon={KeyRound}
+                  title="Reset Password"
+                  isVerified={false} // Not applicable
+                  onUpdate={() => {}} // Placeholder
+                  updateButtonText="Reset"
+                >
+                  <p className="text-xs text-muted-foreground">
+                    Update your account password for security.
+                  </p>
+                </InfoCard>
               </div>
             </CardContent>
           </Card>
@@ -248,13 +271,13 @@ function InfoCard({ icon: Icon, title, children, isVerified, onUpdate, updateBut
         <div className="mb-3">{children}</div>
       </div>
        <div className="flex items-center justify-between">
-        {isVerified ? (
+        {title.includes("Password") ? <div/> : (isVerified ? (
             <Badge variant="default" className="w-fit bg-green-600 hover:bg-green-700 text-xs py-1">
             <CheckCircle className="mr-1 h-3 w-3" /> Verified
             </Badge>
         ) : (
             <span className="text-xs font-semibold text-yellow-600">Not Verified</span>
-        )}
+        ))}
         <Button
           variant="outline"
           size="sm"
