@@ -16,6 +16,11 @@ export interface User {
   gender?: "male" | "female" | "other" | "";
   dateOfBirth?: string; // ISO date string
   whatsappEnabled?: boolean;
+  registeredDate?: string;
+  createdBy?: string;
+  createdByUsername?: string;
+  profilePicUrl?: string;
+  active?: boolean;
 }
 
 export interface LocationDetails {
@@ -125,10 +130,13 @@ export interface ApiTutor {
   state: string;
   googleMapsLink?: string;
   createdAt: string; // This was from the list view API
+  registeredDate: string;
+  createdBy?: string;
+  createdByUsername?: string;
+  profilePicUrl?: string;
   isBioReviewed: boolean;
   online: boolean;
   offline: boolean;
-  profilePicUrl?: string;
 
   // Additional fields for detail view from /api/manage/tutor/{id}
   qualificationList?: string[];
@@ -159,8 +167,6 @@ export interface ApiTutor {
   isVerified: boolean; // Both list and detail responses should have this
   emailVerified?: boolean;
   phoneVerified?: boolean;
-  registeredDate?: string;
-  createdBy?: string;
   active?: boolean; // Can be deprecated if isActive is used consistently
 }
 

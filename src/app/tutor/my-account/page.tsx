@@ -5,58 +5,111 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MailCheck, PhoneCall, UserCircle, ShieldCheck, Edit3, CheckCircle, XCircle, ClipboardEdit } from "lucide-react";
+import { MailCheck, PhoneCall, UserCircle, ShieldCheck, Edit3, CheckCircle, XCircle, ClipboardEdit, Loader2 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { User as UserDetails } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const fetchUserDetails = async (token: string | null): Promise<UserDetails> => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/user/details`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user details.");
+  }
+  return response.json();
+};
+
 
 export default function TutorMyAccountPage() {
-  const { user, isAuthenticated } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
   const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
-
-  const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
-  const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
   const { hideLoader } = useGlobalLoader();
+  const queryClient = useQueryClient();
+
+  const { data: userDetails, isLoading, error } = useQuery({
+      queryKey: ['userDetails', token],
+      queryFn: () => fetchUserDetails(token),
+      enabled: !!token,
+  });
 
   useEffect(() => {
     hideLoader();
   }, [hideLoader]);
 
-  useEffect(() => {
-    if (user) {
-      setIsEmailVerified(user.isEmailVerified || false);
-      setIsPhoneVerified(user.isPhoneVerified || false);
-    }
-  }, [user]);
+  if (isCheckingAuth || isLoading) {
+    return (
+        <main className="flex-grow">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+             <div className="space-y-6">
+                <Card className="w-full max-w-2xl mx-auto shadow-lg rounded-xl border bg-card">
+                  <CardHeader className="p-6 border-b">
+                    <Skeleton className="h-8 w-1/2" />
+                    <Skeleton className="h-4 w-3/4 mt-2" />
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center space-x-4">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2">
+                           <Skeleton className="h-4 w-[250px]" />
+                           <Skeleton className="h-4 w-[200px]" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                        <Skeleton className="h-24 w-full rounded-lg" />
+                        <Skeleton className="h-24 w-full rounded-lg" />
+                    </div>
+                  </CardContent>
+                </Card>
+            </div>
+          </div>
+        </main>
+    );
+  }
 
-  if (!isAuthenticated || !user) {
+  if (error) {
+    return <div className="text-center py-10 text-destructive">Error: {(error as Error).message}</div>
+  }
+  
+  if (!isAuthenticated || !user || !userDetails) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading user data...</div>;
   }
 
   const handleOpenOtpModal = (type: "email" | "phone") => {
-    if (!user) return;
+    if (!userDetails) return;
     setOtpVerificationType(type);
-    setOtpVerificationIdentifier(type === "email" ? user.email : user.phone || "Your Phone Number");
+    setOtpVerificationIdentifier(type === "email" ? userDetails.email : userDetails.phone || "Your Phone Number");
     setIsOtpModalOpen(true);
   };
 
   const handleOtpSuccess = () => {
-    if (otpVerificationType === "email") {
-      setIsEmailVerified(true);
-      if (user) user.isEmailVerified = true; 
-    } else if (otpVerificationType === "phone") {
-      setIsPhoneVerified(true);
-      if (user) user.isPhoneVerified = true;
-    }
+    // In a real app, this would likely be handled by query invalidation
+    queryClient.invalidateQueries({ queryKey: ['userDetails', token] });
     setIsOtpModalOpen(false);
     setOtpVerificationType(null);
     setOtpVerificationIdentifier(null);
   };
+  
+  const getInitials = (name: string): string => {
+    if (!name) return "?";
+    const parts = name.split(" ");
+    return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
+  };
+
 
   return (
     <main className="flex-grow">
@@ -96,12 +149,12 @@ export default function TutorMyAccountPage() {
               <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
-                    <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={userDetails.avatar} alt={userDetails.name} />
+                    <AvatarFallback>{getInitials(userDetails.name)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <p className="text-sm font-medium text-foreground">{userDetails.name}</p>
+                    <p className="text-xs text-muted-foreground">{userDetails.email}</p>
                   </div>
                 </div>
               </div>
@@ -110,17 +163,17 @@ export default function TutorMyAccountPage() {
                 <VerificationItem
                   icon={MailCheck}
                   title="Email Verification"
-                  description={isEmailVerified ? "Your email is verified." : "Verify your email address to enhance account security."}
-                  isVerified={isEmailVerified}
+                  description={userDetails.isEmailVerified ? "Your email is verified." : "Verify your email address to enhance account security."}
+                  isVerified={userDetails.isEmailVerified || false}
                   onVerify={() => handleOpenOtpModal("email")}
                 />
                 <VerificationItem
                   icon={PhoneCall}
                   title="Phone Verification"
-                  description={isPhoneVerified ? "Your phone number is verified." : "Verify your phone number for seamless communication."}
-                  isVerified={isPhoneVerified}
+                  description={userDetails.isPhoneVerified ? "Your phone number is verified." : "Verify your phone number for seamless communication."}
+                  isVerified={userDetails.isPhoneVerified || false}
                   onVerify={() => handleOpenOtpModal("phone")}
-                  disabled={!user.phone}
+                  disabled={!userDetails.phone}
                   disabledText="Add phone number in profile to verify."
                 />
               </div>
