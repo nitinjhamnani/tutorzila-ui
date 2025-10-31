@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -35,9 +36,9 @@ const deactivationReasons = [
 export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: DeactivationModalProps) {
   const { toast } = useToast();
   const [reason, setReason] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<"temporary" | "permanent" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleDeactivation = async (type: "temporary" | "permanent") => {
+  const handleDeactivation = async () => {
     if (!reason) {
       toast({
         variant: "destructive",
@@ -47,18 +48,18 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
       return;
     }
     
-    setIsSubmitting(type);
-    console.log(`Deactivating (${type}) user ${userId} for reason: ${reason}`);
+    setIsSubmitting(true);
+    console.log(`Deactivating user ${userId} for reason: ${reason}`);
 
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     toast({
-      title: `Account Deactivated (${type})`,
-      description: `The account for ${userName} has been handled. (This is a mock action)`,
+      title: `Account Deactivated`,
+      description: `The account for ${userName} has been deactivated. (This is a mock action)`,
     });
     
-    setIsSubmitting(null);
+    setIsSubmitting(false);
     onOpenChange(false);
     // In a real app, you would likely call a logout function here and redirect.
   };
@@ -69,7 +70,7 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
         <AlertDialogHeader>
           <AlertDialogTitle>Deactivate Account: {userName}</AlertDialogTitle>
           <AlertDialogDescription>
-            We're sorry to see you go. Please let us know why you're deactivating. This action cannot be undone.
+            We're sorry to see you go. Please let us know why you're deactivating. This will temporarily disable your account.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4 space-y-4">
@@ -79,7 +80,7 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
             onValueChange={setReason}
             value={reason || ""}
             className="flex flex-col space-y-2"
-            disabled={!!isSubmitting}
+            disabled={isSubmitting}
           >
             {deactivationReasons.map((option) => (
               <div key={option.id} className="flex items-center space-x-3 space-y-0">
@@ -89,23 +90,15 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
             ))}
           </RadioGroup>
         </div>
-        <AlertDialogFooter className="gap-2 sm:flex-col md:flex-row">
-          <Button 
-            variant="secondary" 
-            onClick={() => handleDeactivation("temporary")} 
-            disabled={!reason || !!isSubmitting}
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleDeactivation} 
+            disabled={!reason || isSubmitting}
           >
-            {isSubmitting === 'temporary' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Lock className="mr-2 h-4 w-4" />}
-            {isSubmitting === 'temporary' ? 'Deactivating...' : 'Temporarily Deactivate'}
-          </Button>
-          <Button 
-            variant="destructive" 
-            onClick={() => handleDeactivation("permanent")}
-            disabled={!reason || !!isSubmitting}
-          >
-            {isSubmitting === 'permanent' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Trash2 className="mr-2 h-4 w-4" />}
-            {isSubmitting === 'permanent' ? 'Deleting...' : 'Permanently Deactivate'}
-          </Button>
+            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Lock className="mr-2 h-4 w-4" />}
+            {isSubmitting ? 'Deactivating...' : 'Confirm Deactivation'}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
