@@ -1,11 +1,11 @@
-
 "use client";
 
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { School, Construction } from "lucide-react";
-import Link from "next/link";
+import { School } from "lucide-react";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function TutorManageClassesPage() {
   const { hideLoader } = useGlobalLoader();
@@ -25,7 +25,7 @@ export default function TutorManageClassesPage() {
               </div>
               <div>
                 <CardTitle className="text-2xl font-semibold text-primary tracking-tight">
-                  Manage My Classes
+                  My Classes
                 </CardTitle>
                 <CardDescription className="text-sm text-foreground/70 mt-1">
                   Organize your scheduled classes, track student progress, and manage class materials.
@@ -33,12 +33,14 @@ export default function TutorManageClassesPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-5 text-center">
-            <Construction className="w-16 h-16 text-primary/30 mx-auto mb-5" /> {/* Added Construction icon */}
-            <p className="text-xl font-semibold text-foreground/70 mb-1.5">Feature Coming Soon!</p>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              This section will allow you to manage all aspects of your regular tutoring classes, including scheduling, attendance, and sharing resources.
-            </p>
+           <CardContent className="p-5 text-center">
+             <div className="text-center py-12">
+                <School className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+                <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Classes Found</p>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  You do not have any active or upcoming classes scheduled at the moment.
+                </p>
+             </div>
           </CardContent>
         </Card>
       </div>
