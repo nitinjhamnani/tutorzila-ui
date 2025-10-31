@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -152,7 +153,7 @@ export default function TutorMyAccountPage() {
                 <InfoCard
                   icon={Mail}
                   title="Update Email"
-                  description={userDetails.isEmailVerified ? `Your email ${userDetails.email} is verified.` : "Update your email address to enhance account security."}
+                  description={userDetails.isEmailVerified ? `Your email ${userDetails.email} is verified.` : `Your email ${userDetails.email} is not verified.`}
                   isVerified={userDetails.isEmailVerified || false}
                   onUpdate={() => setIsUpdateEmailModalOpen(true)}
                   updateButtonText="Update Email"
