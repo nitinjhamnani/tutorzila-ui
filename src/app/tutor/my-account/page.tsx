@@ -11,7 +11,6 @@ import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 export default function TutorMyAccountPage() {
@@ -62,12 +61,6 @@ export default function TutorMyAccountPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <BreadcrumbHeader
-          segments={[
-            { label: "Dashboard", href: "/tutor/dashboard" },
-            { label: "My Account" },
-          ]}
-        />
         <div className="space-y-6">
           <Card className="bg-card border rounded-lg shadow-sm animate-in fade-in duration-500 ease-out">
             <CardHeader className="p-5">
