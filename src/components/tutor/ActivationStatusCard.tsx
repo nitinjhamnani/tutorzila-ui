@@ -73,7 +73,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
 
   const checkPaymentStatus = async (paymentId: string) => {
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const response = await fetch(`${apiBaseUrl}/api/payment/status?paymentId=${paymentId}`, {
         method: 'GET',
         headers: {
@@ -139,7 +139,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
     setIsInitiatingPayment(true);
     setError(null);
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const response = await fetch(`${apiBaseUrl}/api/payment/tutor?amount=${activationFee}`, {
         method: 'GET',
         headers: {
@@ -163,13 +163,19 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
       try {
         window.PhonePeCheckout.transact({
           tokenUrl: paymentUrl,
-          callback: (response: any) => {
+          callback: async (response: any) => {
             console.log("PhonePe callback", response);
             if (response === "CONCLUDED") {
               if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current); // Stop immediate polling
               startPolling(paymentId, true); // Start polling with loader
             } else if (response === "USER_CANCEL") {
-              cleanupAndClose(false, "You cancelled the payment process."); 
+              if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+              const finalStatus = await checkPaymentStatus(paymentId);
+              if (finalStatus !== 'success') {
+                  cleanupAndClose(false, "You cancelled the payment process.");
+              } else {
+                  cleanupAndClose(true, "Transaction completed despite cancellation attempt.");
+              }
             }
             if (window.PhonePeCheckout.closePage) {
                 window.PhonePeCheckout.closePage();
