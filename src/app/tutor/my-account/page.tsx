@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2 } from "lucide-react";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3 } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
+import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 
 const fetchUserDetails = async (token: string | null): Promise<UserDetails> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -44,6 +44,7 @@ export default function TutorMyAccountPage() {
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
   const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
+  const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
 
   const { hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
@@ -130,11 +131,9 @@ export default function TutorMyAccountPage() {
                     </CardDescription>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                   <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start sm:justify-end" onClick={() => setIsDeactivationModalOpen(true)}>
-                      Deactivate my account
-                  </Button>
-                </div>
+                 <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start sm:justify-end" onClick={() => setIsDeactivationModalOpen(true)}>
+                    Deactivate my account
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="p-5 space-y-4">
@@ -154,6 +153,9 @@ export default function TutorMyAccountPage() {
                     )}
                   </div>
                 </div>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setIsEditPersonalModalOpen(true)}>
+                    <Edit3 className="h-4 w-4" />
+                </Button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -203,6 +205,12 @@ export default function TutorMyAccountPage() {
             onOpenChange={setIsDeactivationModalOpen}
             userName={userDetails.name}
             userId={user.id}
+          />
+
+          <EditPersonalDetailsModal
+            isOpen={isEditPersonalModalOpen}
+            onOpenChange={setIsEditPersonalModalOpen}
+            user={userDetails}
           />
 
           {otpVerificationType && otpVerificationIdentifier && (
