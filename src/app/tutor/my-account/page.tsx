@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 export default function TutorMyAccountPage() {
   const { user, isAuthenticated } = useAuthMock();
@@ -20,6 +22,11 @@ export default function TutorMyAccountPage() {
 
   const [isEmailVerified, setIsEmailVerified] = useState(user?.isEmailVerified || false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(user?.isPhoneVerified || false);
+  const { hideLoader } = useGlobalLoader();
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
 
   useEffect(() => {
     if (user) {
