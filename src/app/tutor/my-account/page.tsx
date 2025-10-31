@@ -187,11 +187,7 @@ export default function TutorMyAccountPage() {
                   </p>
                 </InfoCard>
               </div>
-            </CardContent>
-          </Card>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoCard
+              <InfoCard
                 icon={Landmark}
                 title="Bank Details"
                 isVerified={false} // Placeholder
@@ -202,18 +198,8 @@ export default function TutorMyAccountPage() {
                   Provide bank details/UPI ID to receive payments.
                 </p>
             </InfoCard>
-            <InfoCard
-              icon={KeyRound}
-              title="Reset Password"
-              isVerified={false} // Not applicable
-              onUpdate={() => {}} // Placeholder
-              updateButtonText="Reset"
-            >
-              <p className="text-xs text-muted-foreground">
-                Update your account password for security.
-              </p>
-            </InfoCard>
-          </div>
+            </CardContent>
+          </Card>
           
           <UpdateEmailModal
             isOpen={isUpdateEmailModalOpen}
