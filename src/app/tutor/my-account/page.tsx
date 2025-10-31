@@ -116,7 +116,7 @@ export default function TutorMyAccountPage() {
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <div className="space-y-6">
-          <Card className="bg-card border rounded-lg shadow-sm animate-in fade-in duration-500 ease-out">
+          <Card className="bg-card rounded-xl shadow-lg border-0 animate-in fade-in duration-500 ease-out">
             <CardHeader className="p-5">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -186,31 +186,34 @@ export default function TutorMyAccountPage() {
                     )}
                   </p>
                 </InfoCard>
-                <InfoCard
-                  icon={Landmark}
-                  title="Bank Details"
-                  isVerified={false} // Placeholder
-                  onUpdate={() => {}} // Placeholder
-                  updateButtonText="Update"
-                >
-                  <p className="text-xs text-muted-foreground">
-                    Provide bank details/UPI ID to receive payments.
-                  </p>
-                </InfoCard>
-                <InfoCard
-                  icon={KeyRound}
-                  title="Reset Password"
-                  isVerified={false} // Not applicable
-                  onUpdate={() => {}} // Placeholder
-                  updateButtonText="Reset"
-                >
-                  <p className="text-xs text-muted-foreground">
-                    Update your account password for security.
-                  </p>
-                </InfoCard>
               </div>
             </CardContent>
           </Card>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoCard
+                icon={Landmark}
+                title="Bank Details"
+                isVerified={false} // Placeholder
+                onUpdate={() => {}} // Placeholder
+                updateButtonText="Update"
+              >
+                <p className="text-xs text-muted-foreground">
+                  Provide bank details/UPI ID to receive payments.
+                </p>
+            </InfoCard>
+            <InfoCard
+              icon={KeyRound}
+              title="Reset Password"
+              isVerified={false} // Not applicable
+              onUpdate={() => {}} // Placeholder
+              updateButtonText="Reset"
+            >
+              <p className="text-xs text-muted-foreground">
+                Update your account password for security.
+              </p>
+            </InfoCard>
+          </div>
           
           <UpdateEmailModal
             isOpen={isUpdateEmailModalOpen}
