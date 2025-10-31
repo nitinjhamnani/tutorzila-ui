@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 export default function TutorTransactionsPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -27,10 +28,12 @@ export default function TutorTransactionsPage() {
   const [hasMounted, setHasMounted] = useState(false);
   const [transactions, setTransactions] = useState<TutorTransaction[]>([]);
   const tutorUser = user as TutorProfile | null;
+  const { hideLoader } = useGlobalLoader();
 
   useEffect(() => {
     setHasMounted(true);
-  }, []);
+    hideLoader();
+  }, [hideLoader]);
 
   useEffect(() => {
     if (hasMounted && !isCheckingAuth) {
