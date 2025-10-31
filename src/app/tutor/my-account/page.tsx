@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -15,8 +14,8 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { User as UserDetails } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UpdateEmailModal } from "@/components/tutor/modals/UpdateEmailModal";
-import { UpdatePhoneModal } from "@/components/tutor/modals/UpdatePhoneModal";
+import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
+import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 
 const fetchUserDetails = async (token: string | null): Promise<UserDetails> => {
   if (!token) throw new Error("Authentication token not found.");
