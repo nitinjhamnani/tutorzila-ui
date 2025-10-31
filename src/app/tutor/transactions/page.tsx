@@ -122,12 +122,10 @@ export default function TutorTransactionsPage() {
          <TableBody>
           {[...Array(5)].map((_, i) => (
             <TableRow key={i}>
-              <TableCell><Skeleton className="h-4 w-24" /></TableCell>
               <TableCell><Skeleton className="h-4 w-16" /></TableCell>
               <TableCell><Skeleton className="h-4 w-16" /></TableCell>
               <TableCell><Skeleton className="h-4 w-16" /></TableCell>
               <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-              <TableCell><Skeleton className="h-4 w-32" /></TableCell>
               <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
             </TableRow>
           ))}
@@ -139,7 +137,7 @@ export default function TutorTransactionsPage() {
       return (
         <TableBody>
             <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                 <div className="flex flex-col items-center justify-center gap-2 text-destructive">
                     <ShieldAlert className="h-8 w-8" />
                     <span className="font-semibold">Failed to load transactions</span>
@@ -155,7 +153,7 @@ export default function TutorTransactionsPage() {
        return (
         <TableBody>
             <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={5}>
                     <div className="text-center py-16">
                         <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-4" />
                         <p className="text-md font-semibold text-foreground/70 mb-2">No Transactions Found</p>
@@ -173,7 +171,6 @@ export default function TutorTransactionsPage() {
       <TableBody>
         {formattedTransactions.map((txn) => (
           <TableRow key={txn.id} className="hover:bg-muted/20">
-            <TableCell className="px-4 py-3 text-xs text-foreground/80">{txn.id.split('-')[0]}...{txn.id.slice(-4)}</TableCell>
             <TableCell className={cn(
               "px-4 py-3 text-xs font-semibold flex items-center",
               txn.type?.toLowerCase() === "credit" ? "text-green-600" : "text-red-600"
@@ -192,7 +189,6 @@ export default function TutorTransactionsPage() {
               )}
             </TableCell>
             <TableCell className="px-4 py-3 text-xs text-foreground">{txn.formattedDate}</TableCell>
-            <TableCell className="px-4 py-3 text-xs text-foreground">{txn.summary}</TableCell>
               <TableCell className="px-4 py-3 text-xs">
               <Badge variant="outline" className={cn("py-0.5 px-2 text-[10px] font-medium", getStatusBadgeClasses(txn.status))}>
                 <StatusIcon status={txn.status} />
@@ -230,12 +226,10 @@ export default function TutorTransactionsPage() {
               <TableCaption className="py-4 text-xs">A list of your recent transactions.</TableCaption>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground w-[120px]">Transaction ID</TableHead>
                   <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Type</TableHead>
                   <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Mode</TableHead>
                   <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Amount</TableHead>
                   <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Date</TableHead>
-                  <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Summary</TableHead>
                   <TableHead className="px-4 py-3 text-xs font-medium text-muted-foreground">Status</TableHead>
                 </TableRow>
               </TableHeader>
