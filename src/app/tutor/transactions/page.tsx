@@ -87,27 +87,13 @@ export default function TutorTransactionsPage() {
     }));
   }, [transactions]);
 
-  const getStatusBadgeClasses = (status?: string) => {
-    switch (status?.toLowerCase()) {
-      case "completed":
-      case "success":
-        return "bg-green-100 text-green-700 border-green-500/50";
-      case "failed":
-        return "bg-red-100 text-red-700 border-red-500/50";
-      case "pending":
-        return "bg-yellow-100 text-yellow-700 border-yellow-500/50";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-500/50";
-    }
-  };
-
   const StatusIcon = ({ status }: { status?: string }) => {
     const iconClasses = "w-3 h-3 mr-1";
     switch (status?.toLowerCase()) {
       case "completed":
-      case "success": return <CheckCircle2 className={cn(iconClasses, "text-green-700")} />;
-      case "failed": return <XCircle className={cn(iconClasses, "text-red-700")} />;
-      case "pending": return <Coins className={cn(iconClasses, "text-yellow-700")} />;
+      case "success": return <CheckCircle2 className={cn(iconClasses)} />;
+      case "failed": return <XCircle className={cn(iconClasses)} />;
+      case "pending": return <Coins className={cn(iconClasses)} />;
       default: return null;
     }
   };
@@ -190,7 +176,7 @@ export default function TutorTransactionsPage() {
             </TableCell>
             <TableCell className="px-4 py-3 text-xs text-foreground">{txn.formattedDate}</TableCell>
               <TableCell className="px-4 py-3 text-xs">
-              <Badge variant="outline" className={cn("py-0.5 px-2 text-[10px] font-medium", getStatusBadgeClasses(txn.status))}>
+              <Badge variant="default" className="py-0.5 px-2 text-[10px] font-medium">
                 <StatusIcon status={txn.status} />
                 {txn.status || "N/A"}
               </Badge>
