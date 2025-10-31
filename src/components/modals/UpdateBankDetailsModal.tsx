@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Landmark, Save } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const bankDetailsSchema = z.object({
   paymentMode: z.enum(["UPI", "NEFT/IMPS"]),
@@ -121,13 +122,29 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange }: UpdateBankDetai
                     >
                       <FormItem>
                         <RadioGroupItem value="UPI" id="mode-upi" className="sr-only" />
-                        <Label htmlFor="mode-upi" className="flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer data-[state=checked]:border-primary">
+                        <Label
+                          htmlFor="mode-upi"
+                          className={cn(
+                            "flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer transition-colors",
+                            field.value === "UPI"
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "border-border hover:bg-accent/50"
+                          )}
+                        >
                           UPI
                         </Label>
                       </FormItem>
                       <FormItem>
                         <RadioGroupItem value="NEFT/IMPS" id="mode-bank" className="sr-only" />
-                        <Label htmlFor="mode-bank" className="flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer data-[state=checked]:border-primary">
+                        <Label
+                          htmlFor="mode-bank"
+                           className={cn(
+                            "flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer transition-colors",
+                            field.value === "NEFT/IMPS"
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "border-border hover:bg-accent/50"
+                          )}
+                        >
                           Bank Transfer
                         </Label>
                       </FormItem>
