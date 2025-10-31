@@ -68,24 +68,27 @@ import {
   Coins,
   CheckCircle,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
 import { format, addMinutes, parse } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
 
 interface QuickActionCardProps {
   title: string;
   description: string;
   IconEl: ElementType;
-  href: string;
+  href?: string;
   disabled?: boolean;
   buttonText?: string;
+  onClick?: () => void;
 }
 
-function QuickActionCard({ title, description, IconEl, href, disabled, buttonText }: QuickActionCardProps) {
+function QuickActionCard({ title, description, IconEl, href, disabled, buttonText, onClick }: QuickActionCardProps) {
   const content = (
     <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
       <div>
@@ -105,9 +108,14 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
   if (disabled) {
     return <div className="block h-full opacity-60 cursor-not-allowed">{content}</div>;
   }
+  
+  if (onClick) {
+    return <button onClick={onClick} className="block text-left h-full w-full">{content}</button>;
+  }
+
 
   return (
-    <Link href={href} className="block h-full">
+    <Link href={href || "#"} className="block h-full">
       {content}
     </Link>
   );
@@ -116,7 +124,7 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
 const fetchTutorDashboardData = async (token: string | null) => {
   if (!token) throw new Error("No authentication token found.");
   // NOTE: This URL should be in an environment variable in a real application
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/tutor/dashboard`, {
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -131,9 +139,25 @@ const fetchTutorDashboardData = async (token: string | null) => {
   return response.json();
 };
 
+const fetchTutorId = async (token: string | null): Promise<string> => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/tutor/get/id`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "accept": "text/plain",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch tutor ID.");
+  }
+  return response.text();
+};
+
 const fetchTutorScheduledDemos = async (token: string | null): Promise<DemoSession[]> => {
   if (!token) throw new Error("Authentication token not found.");
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const response = await fetch(`${apiBaseUrl}/api/tutor/demos/SCHEDULED`, {
     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
   });
@@ -190,6 +214,8 @@ export default function TutorDashboardPage() {
   const router = useRouter();
   const tutorUser = user as TutorProfile | null;
   const { hideLoader } = useGlobalLoader();
+  const { toast } = useToast();
+  const [isFetchingTutorId, setIsFetchingTutorId] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -267,6 +293,26 @@ export default function TutorDashboardPage() {
     setIsManageDemoModalOpen(false);
   };
 
+  const handleViewProfileClick = async () => {
+    setIsFetchingTutorId(true);
+    try {
+      const id = await fetchTutorId(token);
+      if (id) {
+        window.open(`/tutors/${id}`, '_blank');
+      } else {
+        throw new Error("Received an empty ID for the tutor.");
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Could Not Fetch Profile",
+        description: error.message || "Unable to retrieve the public profile link.",
+      });
+    } finally {
+      setIsFetchingTutorId(false);
+    }
+  };
+
   if (isCheckingAuth || !hasMounted || !isAuthenticated || !tutorUser) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Dashboard...</div>;
   }
@@ -286,7 +332,7 @@ export default function TutorDashboardPage() {
     { title: "My Payments", description: "Track your earnings and payment status", IconEl: DollarSign, href: "/tutor/payments", buttonText: "View Payments" },
     { title: "Edit Personal Details", description: "Update your personal information", IconEl: UserCog, href: "/tutor/edit-personal-details", buttonText: "Update Details" },
     { title: "Edit Tutoring Profile", description: "Showcase your expertise", IconEl: BookOpenIcon, href: "/tutor/edit-tutoring-details", buttonText: "Update Profile" },
-    { title: "View Public Profile", description: "See how your profile looks to parents", IconEl: Eye, href: `/tutors/${tutorUser.id}`, disabled: !tutorUser.id, buttonText: "View Profile" },
+    { title: "View Public Profile", description: "See how your profile looks to parents", IconEl: Eye, onClick: handleViewProfileClick, buttonText: "View Profile" },
     { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
   ];
 
@@ -432,6 +478,7 @@ export default function TutorDashboardPage() {
                   href={action.href}
                   disabled={action.disabled}
                   buttonText={action.buttonText}
+                  onClick={action.onClick}
                 />
               ))}
             </div>
@@ -463,3 +510,5 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
+
+    
