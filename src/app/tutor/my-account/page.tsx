@@ -132,11 +132,6 @@ export default function TutorMyAccountPage() {
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                   <Button asChild variant="outline" size="sm" className="text-xs transform transition-transform hover:scale-105">
-                    <Link href="/tutor/edit-personal-details">
-                      <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit Personal Details
-                    </Link>
-                  </Button>
                   <Button asChild variant="outline" size="sm" className="text-xs transform transition-transform hover:scale-105">
                     <Link href="/tutor/edit-tutoring-details">
                       <ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Edit Tutoring Details

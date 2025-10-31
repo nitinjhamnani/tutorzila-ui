@@ -330,7 +330,6 @@ export default function TutorDashboardPage() {
     { title: "Demo Sessions", description: "Manage all your demo class activities", IconEl: Presentation, href: "/tutor/demo-sessions", buttonText: "Manage Demos" },
     { title: "My Classes", description: "Organize your scheduled classes", IconEl: CalendarDays, href: "/tutor/classes", buttonText: "Manage Classes" },
     { title: "My Payments", description: "Track your earnings and payment status", IconEl: DollarSign, href: "/tutor/payments", buttonText: "View Payments" },
-    { title: "Edit Personal Details", description: "Update your personal information", IconEl: UserCog, href: "/tutor/edit-personal-details", buttonText: "Update Details" },
     { title: "Edit Tutoring Profile", description: "Showcase your expertise", IconEl: BookOpenIcon, href: "/tutor/edit-tutoring-details", buttonText: "Update Profile" },
     { title: "View Public Profile", description: "See how your profile looks to parents", IconEl: Eye, onClick: handleViewProfileClick, buttonText: "View Profile" },
     { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
@@ -510,5 +509,3 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
-
-    
