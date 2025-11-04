@@ -92,8 +92,8 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
   const content = (
     <div className="bg-card rounded-xl shadow-lg p-5 hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between border-0 transform hover:-translate-y-1">
       <div>
-        <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-lg text-primary mb-3">
-          <IconEl className="w-5 h-5" />
+        <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-primary mb-3", "bg-primary/10")}>
+          <IconEl className={cn("w-5 h-5", "text-primary")} />
         </div>
         <h3 className="font-medium text-foreground text-sm mb-1">{title}</h3>
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
@@ -332,7 +332,7 @@ export default function TutorDashboardPage() {
     { title: "My Payments", description: "Track your earnings and payment status", IconEl: DollarSign, href: "/tutor/payments", buttonText: "View Payments" },
     { title: "Edit Tutoring Profile", description: "Showcase your expertise", IconEl: BookOpenIcon, href: "/tutor/edit-tutoring-details", buttonText: "Update Profile" },
     { title: "View Public Profile", description: "See how your profile looks to parents", IconEl: Eye, onClick: handleViewProfileClick, buttonText: "View Profile" },
-    { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "#", disabled: true, buttonText: "Get Support" },
+    { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "/tutor/support", buttonText: "Get Support" },
   ];
 
   const profileCompletion = dashboardData?.tutoringDetails?.profileCompletion ?? 0;
