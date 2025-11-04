@@ -185,7 +185,7 @@ export default function TutorMyAccountPage() {
                     )}
                   </p>
                 </InfoCard>
-                 <InfoCard
+                <InfoCard
                   icon={Landmark}
                   title="Bank Details"
                   isVerified={false} // This could be dynamic based on if bank details are present and verified
@@ -198,8 +198,8 @@ export default function TutorMyAccountPage() {
                 </InfoCard>
               </div>
             </CardContent>
-             <CardFooter>
-                 <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start" onClick={() => setIsDeactivationModalOpen(true)}>
+            <CardFooter className="p-4 border-t flex justify-end">
+                <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0" onClick={() => setIsDeactivationModalOpen(true)}>
                     Deactivate my account
                 </Button>
             </CardFooter>
