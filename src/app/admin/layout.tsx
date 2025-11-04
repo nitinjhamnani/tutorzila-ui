@@ -18,7 +18,7 @@ import {
   DollarSign,
   BarChart2,
   ShieldCheck,
-  Settings as SettingsIcon,
+  LifeBuoy,
   LogOut,
   Menu as MenuIcon,
   Bell,
@@ -35,7 +35,7 @@ const adminNavItems = [
   { href: "/admin/demos", label: "Demos", icon: Presentation },
   { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
   { href: "/admin/reports", label: "Reports", icon: BarChart2, disabled: true },
-  { href: "/admin/settings", label: "Settings", icon: SettingsIcon, disabled: true },
+  { href: "/admin/support", label: "Support", icon: LifeBuoy, disabled: false },
 ];
 
 const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: () => {} };
