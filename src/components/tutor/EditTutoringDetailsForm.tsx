@@ -29,6 +29,7 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { LocationAutocompleteInput, type LocationDetails } from "@/components/shared/LocationAutocompleteInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { ApiTutor } from "@/types";
 import { allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions } from "@/lib/constants";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
@@ -36,7 +37,28 @@ const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grad
 const boardsList: MultiSelectOption[] = boardOptions.map(b => ({ value: b, label: b }));
 
 const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
-const qualificationsList: MultiSelectOption[] = ["Bachelor's Degree", "Master's Degree", "PhD", "Teaching Certification", "Subject Matter Expert", "Other"].map(q => ({ value: q, label: q }));
+const qualificationsList: MultiSelectOption[] = [
+    "High School",
+    "Associate's Degree",
+    "Bachelor of Arts (B.A.)",
+    "Bachelor of Science (B.Sc.)",
+    "Bachelor of Commerce (B.Com.)",
+    "Bachelor of Technology (B.Tech.)",
+    "Bachelor of Engineering (B.E.)",
+    "Bachelor of Education (B.Ed.)",
+    "Master of Arts (M.A.)",
+    "Master of Science (M.Sc.)",
+    "Master of Commerce (M.Com.)",
+    "Master of Technology (M.Tech.)",
+    "Master of Engineering (M.E.)",
+    "Master of Computer Applications (MCA)",
+    "Master of Business Administration (MBA)",
+    "PhD (Doctor of Philosophy)",
+    "Teaching Certification",
+    "Subject Matter Expert",
+    "Other"
+].map(q => ({ value: q, label: q }));
+
 const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
 
 const tutoringDetailsSchema = z.object({
