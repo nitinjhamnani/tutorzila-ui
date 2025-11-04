@@ -143,5 +143,6 @@ declare module "lucide-react" {
     export const MoreVertical: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Loader2: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Ticket: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Landmark: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
