@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -47,6 +47,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const ticketSchema = z.object({
   subject: z.string().min(5, "Subject must be at least 5 characters."),
@@ -77,6 +78,12 @@ export default function TutorSupportPage() {
   const [tickets, setTickets] = useState(mockTickets);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { hideLoader } = useGlobalLoader();
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
+
 
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
