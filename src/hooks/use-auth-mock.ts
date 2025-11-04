@@ -143,8 +143,10 @@ export function useAuthMock() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem("tutorzila_user");
       localStorage.removeItem("tutorzila_token");
+      window.location.href = '/'; // Force a full page reload to the homepage
+    } else {
+      router.push("/"); 
     }
-    router.push("/"); 
   };
 
   return {
