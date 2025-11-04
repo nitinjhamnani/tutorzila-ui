@@ -24,6 +24,7 @@ import {
   Bell,
   UsersRound,
   Presentation,
+  Ticket,
 } from "lucide-react";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
@@ -35,7 +36,7 @@ const adminNavItems = [
   { href: "/admin/demos", label: "Demos", icon: Presentation },
   { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
   { href: "/admin/reports", label: "Reports", icon: BarChart2, disabled: true },
-  { href: "/admin/support", label: "Support", icon: LifeBuoy, disabled: false },
+  { href: "/admin/support", label: "Support", icon: Ticket, disabled: false },
 ];
 
 const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: () => {} };
