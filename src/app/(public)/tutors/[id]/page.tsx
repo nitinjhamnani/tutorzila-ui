@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useParams } from "next/navigation";
@@ -9,7 +8,6 @@ import { TutorPublicProfile } from "@/components/tutors/TutorPublicProfile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UserX } from "lucide-react";
-import { FloatingPostRequirementButton } from "@/components/shared/FloatingPostRequirementButton";
 
 const transformApiResponseToTutorProfile = (
   id: string,
@@ -123,7 +121,6 @@ export default function TutorProfilePage() {
   return (
     <div className={`${containerPadding} py-6 md:py-10 animate-in fade-in duration-500 ease-out pb-20 md:pb-24`}>
       <TutorPublicProfile tutor={tutor} />
-      <FloatingPostRequirementButton />
     </div>
   );
 }
