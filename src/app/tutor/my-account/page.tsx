@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound } from "lucide-react";
@@ -134,9 +134,6 @@ export default function TutorMyAccountPage() {
                     </CardDescription>
                   </div>
                 </div>
-                 <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start sm:justify-end" onClick={() => setIsDeactivationModalOpen(true)}>
-                    Deactivate my account
-                </Button>
               </div>
             </CardHeader>
             <CardContent className="p-5 space-y-4">
@@ -188,7 +185,7 @@ export default function TutorMyAccountPage() {
                     )}
                   </p>
                 </InfoCard>
-                <InfoCard
+                 <InfoCard
                   icon={Landmark}
                   title="Bank Details"
                   isVerified={false} // This could be dynamic based on if bank details are present and verified
@@ -201,6 +198,11 @@ export default function TutorMyAccountPage() {
                 </InfoCard>
               </div>
             </CardContent>
+             <CardFooter>
+                 <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0 justify-start" onClick={() => setIsDeactivationModalOpen(true)}>
+                    Deactivate my account
+                </Button>
+            </CardFooter>
           </Card>
           
           <UpdateEmailModal
