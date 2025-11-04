@@ -20,6 +20,28 @@ export const boardsList: string[] = [
     "CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"
 ];
 
+export const qualificationsList: MultiSelectOption[] = [
+    "High School",
+    "Associate's Degree",
+    "Bachelor of Arts (B.A.)",
+    "Bachelor of Science (B.Sc.)",
+    "Bachelor of Commerce (B.Com.)",
+    "Bachelor of Technology (B.Tech.)",
+    "Bachelor of Engineering (B.E.)",
+    "Bachelor of Education (B.Ed.)",
+    "Master of Arts (M.A.)",
+    "Master of Science (M.Sc.)",
+    "Master of Commerce (M.Com.)",
+    "Master of Technology (M.Tech.)",
+    "Master of Engineering (M.E.)",
+    "Master of Computer Applications (MCA)",
+    "Master of Business Administration (MBA)",
+    "PhD (Doctor of Philosophy)",
+    "Teaching Certification",
+    "Subject Matter Expert",
+    "Other"
+].map(q => ({ value: q, label: q }));
+
 export const teachingModeOptions: { id: string; label: string }[] = [
   { id: "Online", label: "Online" },
   { id: "Offline (In-person)", label: "Offline (In-person)" },
