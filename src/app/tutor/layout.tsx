@@ -30,6 +30,7 @@ import {
   MessageSquareQuote,
   Eye,
   Loader2,
+  LifeBuoy,
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -102,7 +103,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
   const accountSettingsNavItems = [
     { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
-    { href: "/tutor/settings", label: "Settings", icon: SettingsIcon, disabled: true },
+    { href: "/tutor/support", label: "Support", icon: LifeBuoy, disabled: false },
   ];
 
   const handleLogout = () => {

@@ -72,7 +72,7 @@ const mockTickets: SupportTicket[] = [
   { id: "TKT-003", subject: "Question about commission structure", status: "Resolved", priority: "Low", lastUpdated: new Date(Date.now() - 86400000 * 5).toISOString() },
 ];
 
-export default function AdminSupportPage() {
+export default function TutorSupportPage() {
   const { toast } = useToast();
   const [tickets, setTickets] = useState(mockTickets);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -129,7 +129,7 @@ export default function AdminSupportPage() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6">
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
         <CardHeader className="p-0 flex flex-row items-center justify-between gap-3">
           <div className="flex-grow min-w-0">
@@ -164,7 +164,7 @@ export default function AdminSupportPage() {
                       <FormItem>
                         <FormLabel>Subject</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Payment failure for Enquiry #..." {...field} />
+                          <Input placeholder="e.g., Payment issue for Enquiry #..." {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
