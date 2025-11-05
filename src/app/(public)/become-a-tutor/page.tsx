@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, School, Phone, CheckCircle, Info } from "lucide-react";
+import { Mail, User, School, Phone, CheckCircle, Info, BriefcaseBusiness, Briefcase, CalendarCheck, GraduationCap } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,23 @@ const MOCK_COUNTRIES = [
   { country: "JP", countryCode: "+81", label: "Japan (+81)" },
 ];
 
+const becomeTutorBenefits = [
+  {
+    icon: BriefcaseBusiness, 
+    title: "Reach Students",
+    description: "Connect with thousands of potential students actively looking for tutors like you.",
+  },
+  {
+    icon: Briefcase, 
+    title: "Flexible Schedule & Rates",
+    description: "Set your own working hours and competitive rates that suit your expertise.",
+  },
+  {
+    icon: CalendarCheck, 
+    title: "Manage Easily",
+    description: "Utilize our user-friendly platform to manage your profile, bookings, and communication.",
+  },
+];
 
 export default function BecomeTutorPage() {
   const { setSession } = useAuthMock();
@@ -140,6 +157,9 @@ export default function BecomeTutorPage() {
       setIsSubmitting(false);
     }
   }
+
+  const sectionPadding = "py-10 md:py-16"; 
+  const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
 
   return (
     <>
@@ -315,6 +335,34 @@ export default function BecomeTutorPage() {
           </Card>
       </div>
       </div>
+      <section className={`w-full bg-background ${sectionPadding}`}>
+        <div className={`${containerPadding}`}>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Become A Tutor with Tutorzila</h2>
+            <p className="mt-4 max-w-2xl mx-auto text-foreground/80 md:text-lg">
+              Share your knowledge, inspire students, and earn on your own schedule. Join our community of passionate educators today.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {becomeTutorBenefits.map((benefit, index) => (
+              <Card key={index} className="group bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.02]">
+                <div className="flex flex-col items-center text-center">
+                  <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm mb-4">
+                    <benefit.icon className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{benefit.title}</h3>
+                  <p className="text-sm text-foreground/70 mt-2">{benefit.description}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+          <div className="flex justify-center mt-10">
+              <Button size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95" onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}>
+                <GraduationCap className="mr-2.5 h-5 w-5" /> Start Teaching Today
+              </Button>
+          </div>
+        </div>
+      </section>
       {isAuthModalOpen && (
         <AuthModal 
           isOpen={isAuthModalOpen} 
