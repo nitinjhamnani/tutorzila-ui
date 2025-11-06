@@ -6,6 +6,8 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useEffect } from "react";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const fetchTutorDashboardData = async (token: string | null) => {
   if (!token) throw new Error("No authentication token found.");
@@ -26,6 +28,12 @@ const fetchTutorDashboardData = async (token: string | null) => {
 
 export default function TutorEditTutoringDetailsPage() {
   const { token } = useAuthMock();
+  const { hideLoader } = useGlobalLoader();
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
+  
   const { data: dashboardData, isLoading, error } = useQuery({
     queryKey: ['tutorDashboard', token],
     queryFn: () => fetchTutorDashboardData(token),
