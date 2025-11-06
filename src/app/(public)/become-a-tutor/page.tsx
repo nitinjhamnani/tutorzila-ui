@@ -168,10 +168,6 @@ export default function BecomeTutorPage() {
       hideLoader();
 
       if (response.ok) {
-        toast({
-          title: "Registration Successful!",
-          description: responseData.message || "Please check your email for the OTP.",
-        });
         setOtpIdentifier(values.email);
         setIsOtpModalOpen(true);
       } else {

@@ -14,6 +14,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -54,6 +64,7 @@ export function OtpVerificationModal({
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timer, setTimer] = useState(600); // 10 minutes in seconds
+  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
 
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
@@ -74,6 +85,20 @@ export function OtpVerificationModal({
       return () => clearInterval(interval);
     }
   }, [timer, isOpen]);
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setIsConfirmingClose(true);
+    } else {
+      onOpenChange(true);
+    }
+  };
+
+  const handleConfirmClose = () => {
+    onOpenChange(false);
+    setIsConfirmingClose(false);
+  };
+
 
   const onSubmit: SubmitHandler<OtpFormValues> = async (data) => {
     setIsVerifying(true);
@@ -108,7 +133,8 @@ export function OtpVerificationModal({
   const seconds = timer % 60;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent 
         className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
@@ -179,5 +205,20 @@ export function OtpVerificationModal({
         </Form>
       </DialogContent>
     </Dialog>
+    <AlertDialog open={isConfirmingClose} onOpenChange={setIsConfirmingClose}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Closing this will cancel the verification process. You will need to start the registration again.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsConfirmingClose(false)}>No, continue verification</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Yes, cancel</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
