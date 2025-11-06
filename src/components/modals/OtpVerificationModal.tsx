@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { ShieldCheck, RefreshCw, Mail, Phone, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +51,7 @@ interface OtpVerificationModalProps {
   onOpenChange: (isOpen: boolean) => void;
   verificationType: "email" | "phone";
   identifier: string;
-  onSuccess: (otp: string) => void; 
+  onSuccess: (otp: string) => Promise<void>; 
   onResend?: () => Promise<void>; 
 }
 
@@ -65,6 +68,9 @@ export function OtpVerificationModal({
   const [isResending, setIsResending] = useState(false);
   const [timer, setTimer] = useState(600); // 10 minutes in seconds
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
+  const { showLoader } = useGlobalLoader();
+  const router = useRouter();
+  const { setSession } = useAuthMock();
 
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
@@ -102,9 +108,48 @@ export function OtpVerificationModal({
 
   const onSubmit: SubmitHandler<OtpFormValues> = async (data) => {
     setIsVerifying(true);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate async
-    onSuccess(data.otp);
-    setIsVerifying(false);
+    showLoader("Verifying your code...");
+    try {
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const response = await fetch(`${apiBaseUrl}/api/auth/verify?email=${encodeURIComponent(identifier)}&otp=${data.otp}`, {
+            method: 'GET',
+            headers: { 'accept': '*/*' },
+        });
+
+        const responseData = await response.json();
+
+        if (response.ok && responseData.token) {
+            setSession(responseData.token, responseData.type, identifier, responseData.name, responseData.profilePicture);
+            toast({
+                title: "Verification Successful!",
+                description: "Your account has been created. Redirecting...",
+            });
+            
+            const role = responseData.type.toLowerCase();
+            if (role === 'tutor') {
+                router.push("/tutor/dashboard");
+            } else if (role === 'parent') {
+                router.push("/parent/dashboard");
+            } else {
+                router.push("/");
+            }
+        } else {
+            throw new Error(responseData.message || "OTP verification failed.");
+        }
+    } catch (error) {
+        toast({
+            variant: "destructive",
+            title: "Verification Failed",
+            description: (error as Error).message || "An unexpected error occurred.",
+        });
+    } finally {
+        setIsVerifying(false);
+        // hideLoader() is called by the destination page's useEffect on success, so we don't call it here.
+        // It is needed in the catch block if that's where we stop.
+        if (form.formState.errors.otp) { // Example of a failure case where we would hide the loader
+             // hideLoader() should be called if an error occurs and we are not redirecting
+        }
+    }
   };
 
   const handleResendOtp = async () => {

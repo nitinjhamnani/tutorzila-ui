@@ -101,37 +101,9 @@ export default function BecomeTutorPage() {
   });
 
   const handleOtpSuccess = async (otp: string) => {
-    showLoader();
-    try {
-        const email = form.getValues("email");
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        // This is a mock verification endpoint. Replace with your actual one.
-        const verifyResponse = await fetch(`${apiBaseUrl}/api/auth/verify-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
-            body: JSON.stringify({ email, otp }),
-        });
-
-        const verifyData = await verifyResponse.json();
-
-        if (verifyResponse.ok && verifyData.token) {
-            setSession(verifyData.token, verifyData.type, email, verifyData.name, verifyData.profilePicture);
-            toast({
-                title: "Verification Successful!",
-                description: "Your account has been created. Redirecting...",
-            });
-            router.push("/tutor/dashboard");
-        } else {
-            throw new Error(verifyData.message || "OTP verification failed.");
-        }
-    } catch (error) {
-        hideLoader();
-        toast({
-            variant: "destructive",
-            title: "Verification Failed",
-            description: (error as Error).message || "An unexpected error occurred.",
-        });
-    }
+    // This logic is now handled directly inside OtpVerificationModal
+    // This function can be kept for future use or removed if not needed elsewhere.
+    console.log("OTP verification successful with OTP:", otp);
   };
 
   const handleResendOtp = async () => {
