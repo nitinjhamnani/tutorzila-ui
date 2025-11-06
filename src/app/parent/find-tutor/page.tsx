@@ -61,6 +61,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const allSubjectsList: MultiSelectOption[] = [...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.subjects) ? t.subjects : [t.subjects]).filter(Boolean))].map(s => ({ value: String(s), label: String(s) }));
 const allGradeLevelsList: { value: string; label: string }[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])).filter(Boolean))].map(g => ({ value: String(g), label: String(g) }));
@@ -83,6 +84,7 @@ export default function ParentFindTutorPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
+  const { hideLoader } = useGlobalLoader();
 
   const [allTutors, setAllTutors] = useState<TutorProfile[]>([]);
 
@@ -103,6 +105,10 @@ export default function ParentFindTutorPage() {
   const [appliedFeeRange, setAppliedFeeRange] = useState<[number, number]>([200, 2000]);
 
   const [activeStatusFilter, setActiveStatusFilter] = useState<TutorStatusCategory>("All Tutors");
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
 
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'parent')) {
@@ -447,4 +453,3 @@ export default function ParentFindTutorPage() {
     </main>
   );
 }
-    

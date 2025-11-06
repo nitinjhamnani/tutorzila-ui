@@ -22,6 +22,7 @@ import {
   DialogDescription as ModalDescription, // Keep DialogDescription for modal structure
 } from "@/components/ui/dialog";
 import { ScheduleDemoRequestModal } from "@/components/modals/ScheduleDemoRequestModal";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 export default function AppliedTutorsPage() {
   const params = useParams();
@@ -29,6 +30,7 @@ export default function AppliedTutorsPage() {
   const { user: parentUser, isAuthenticated, isCheckingAuth } = useAuthMock(); // Renamed user to parentUser
   const { toast } = useToast();
   const enquiryId = params.enquiryId as string;
+  const { hideLoader } = useGlobalLoader();
 
   const [enquiry, setEnquiry] = useState<TuitionRequirement | null>(null);
   const [appliedTutors, setAppliedTutors] = useState<TutorProfile[]>([]);
@@ -41,7 +43,8 @@ export default function AppliedTutorsPage() {
 
   useEffect(() => {
     setHasMounted(true);
-  }, []);
+    hideLoader();
+  }, [hideLoader]);
 
   useEffect(() => {
     if (!hasMounted || isCheckingAuth || !enquiryId) return;
@@ -227,4 +230,3 @@ export default function AppliedTutorsPage() {
     </main>
   );
 }
-

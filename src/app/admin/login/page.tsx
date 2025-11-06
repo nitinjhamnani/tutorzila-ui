@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/card";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useRouter } from "next/navigation";
 import logoAsset from '@/assets/images/logo.png';
@@ -44,6 +44,10 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showLoader, hideLoader } = useGlobalLoader();
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
 
   const form = useForm<AdminLoginFormValues>({
     resolver: zodResolver(adminLoginSchema),

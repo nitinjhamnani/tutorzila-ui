@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ParentPaymentCard } from "@/components/dashboard/parent/ParentPaymentCard";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const paymentStatusCategories = [
   "All",
@@ -50,10 +51,15 @@ export default function ParentPaymentsPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
+  const { hideLoader } = useGlobalLoader();
 
   const [allPayments, setAllPayments] = useState<ParentPayment[]>([]);
   const [activeFilterCategory, setActiveFilterCategory] =
     useState<PaymentStatusCategory>("All");
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
 
   useEffect(() => {
     if (!isCheckingAuth) {

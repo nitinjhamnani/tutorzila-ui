@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import type { NextStepDecisionValue } from "@/components/modals/FeedbackModal";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
 const demoStatusCategories = [
@@ -56,10 +57,15 @@ export default function ParentDemoSessionsPage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
+  const { hideLoader } = useGlobalLoader();
 
   const [allParentDemos, setAllParentDemos] = useState<DemoSession[]>([]);
   const [activeFilterCategory, setActiveFilterCategory] =
     useState<DemoStatusCategory>("Scheduled");
+
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
 
   useEffect(() => {
     if (!isCheckingAuth) {
@@ -294,7 +300,7 @@ export default function ParentDemoSessionsPage() {
               ))}
             </div>
           ) : (
-            <Card className="text-center py-16 bg-card border rounded-lg shadow-sm">
+            <Card className="text-center py-16 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
               <CardContent className="flex flex-col items-center">
                 <MessageSquareQuote className="w-16 h-16 text-primary/30 mx-auto mb-4" />
                 <p className="text-md font-semibold text-foreground/70 mb-2">
@@ -311,4 +317,3 @@ export default function ParentDemoSessionsPage() {
     </main>
   );
 }
-
