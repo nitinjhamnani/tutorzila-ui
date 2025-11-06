@@ -49,7 +49,7 @@ interface OtpVerificationModalProps {
   verificationType: "email" | "phone";
   identifier: string;
   onSuccess: (otp: string) => void; 
-  onResend: () => Promise<void>; 
+  onResend?: () => Promise<void>; 
 }
 
 export function OtpVerificationModal({
@@ -108,6 +108,7 @@ export function OtpVerificationModal({
   };
 
   const handleResendOtp = async () => {
+    if (!onResend) return;
     setIsResending(true);
     try {
         await onResend();
@@ -187,7 +188,7 @@ export function OtpVerificationModal({
                 type="button"
                 variant="link"
                 onClick={handleResendOtp}
-                disabled={isResending || isVerifying || timer > 540} // Disable resend for the first minute
+                disabled={isResending || isVerifying || timer > 540 || !onResend} // Disable resend for the first minute
                 className="text-xs text-primary hover:text-primary/80 p-0 h-auto self-center sm:self-auto"
               >
                 <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isResending ? "animate-spin" : ""}`} />
@@ -214,7 +215,7 @@ export function OtpVerificationModal({
             </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsConfirmingClose(false)}>No, continue verification</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setIsConfirmingClose(false)} className="bg-white hover:bg-accent hover:text-accent-foreground">No, continue verification</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Yes, cancel</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
