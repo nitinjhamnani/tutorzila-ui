@@ -109,7 +109,10 @@ export function OtpVerificationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden">
+      <DialogContent 
+        className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="p-6 pb-4 text-left border-b">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-full text-primary">
