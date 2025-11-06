@@ -30,6 +30,7 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Switch } from "@/components/ui/switch";
 import AuthModal from "@/components/auth/AuthModal";
 import bannerImage from '@/assets/images/banner-11.png';
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal"; // Import the new modal
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -84,7 +85,8 @@ export default function BecomeTutorPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showLoader, hideLoader } = useGlobalLoader();
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpIdentifier, setOtpIdentifier] = useState("");
 
   const form = useForm<TutorSignUpFormValues>({
     resolver: zodResolver(tutorSignUpSchema),
@@ -97,6 +99,46 @@ export default function BecomeTutorPage() {
       whatsappEnabled: true,
     },
   });
+
+  const handleOtpSuccess = async (otp: string) => {
+    showLoader();
+    try {
+        const email = form.getValues("email");
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        // This is a mock verification endpoint. Replace with your actual one.
+        const verifyResponse = await fetch(`${apiBaseUrl}/api/auth/verify-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+            body: JSON.stringify({ email, otp }),
+        });
+
+        const verifyData = await verifyResponse.json();
+
+        if (verifyResponse.ok && verifyData.token) {
+            setSession(verifyData.token, verifyData.type, email, verifyData.name, verifyData.profilePicture);
+            toast({
+                title: "Verification Successful!",
+                description: "Your account has been created. Redirecting...",
+            });
+            router.push("/tutor/dashboard");
+        } else {
+            throw new Error(verifyData.message || "OTP verification failed.");
+        }
+    } catch (error) {
+        hideLoader();
+        toast({
+            variant: "destructive",
+            title: "Verification Failed",
+            description: (error as Error).message || "An unexpected error occurred.",
+        });
+    }
+  };
+
+  const handleResendOtp = async () => {
+    // In a real app, you'd call an API to resend the OTP
+    console.log("Resending OTP to", form.getValues("email"));
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
 
   async function onSubmit(values: TutorSignUpFormValues) {
     setIsSubmitting(true);
@@ -118,27 +160,21 @@ export default function BecomeTutorPage() {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const response = await fetch(`${apiBaseUrl}/api/auth/signup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'accept': '*/*',
-        },
+        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
         body: JSON.stringify(apiRequestBody),
       });
 
       const responseData = await response.json();
+      hideLoader();
 
       if (response.ok) {
         toast({
           title: "Registration Successful!",
-          description: responseData.message || `Welcome, ${values.name}! Redirecting to your dashboard...`,
+          description: responseData.message || "Please check your email for the OTP.",
         });
-        
-        if (responseData.token && responseData.type === 'TUTOR') {
-            setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone, responseData.profilePicture);
-            router.push("/tutor/dashboard");
-        }
+        setOtpIdentifier(values.email);
+        setIsOtpModalOpen(true);
       } else {
-        hideLoader();
         toast({
           variant: "destructive",
           title: "Registration Failed",
@@ -363,12 +399,14 @@ export default function BecomeTutorPage() {
           </div>
         </div>
       </section>
-      {isAuthModalOpen && (
-        <AuthModal 
-          isOpen={isAuthModalOpen} 
-          onOpenChange={setIsAuthModalOpen}
-        />
-      )}
+      <OtpVerificationModal
+        isOpen={isOtpModalOpen}
+        onOpenChange={setIsOtpModalOpen}
+        verificationType="email"
+        identifier={otpIdentifier}
+        onSuccess={handleOtpSuccess}
+        onResend={handleResendOtp}
+      />
     </>
   );
 }

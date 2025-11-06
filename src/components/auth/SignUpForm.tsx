@@ -33,6 +33,7 @@ import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Switch } from "@/components/ui/switch";
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal"; // Import the OTP modal
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -76,6 +77,8 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showLoader, hideLoader } = useGlobalLoader();
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpIdentifier, setOtpIdentifier] = useState("");
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -89,6 +92,55 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       whatsAppNotifications: true,
     },
   });
+
+  const handleOtpSuccess = async (otp: string) => {
+    showLoader();
+    try {
+        const email = form.getValues("email");
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        // This is a mock verification endpoint. Replace with your actual one.
+        const verifyResponse = await fetch(`${apiBaseUrl}/api/auth/verify-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+            body: JSON.stringify({ email, otp }),
+        });
+
+        const verifyData = await verifyResponse.json();
+
+        if (verifyResponse.ok && verifyData.token) {
+            setSession(verifyData.token, verifyData.type, email, verifyData.name, verifyData.profilePicture);
+            toast({
+                title: "Verification Successful!",
+                description: "Your account has been created. Redirecting...",
+            });
+            const role = verifyData.type.toLowerCase();
+            if (role === 'tutor') {
+                router.push("/tutor/dashboard");
+            } else if (role === 'parent') {
+                router.push("/parent/dashboard");
+            } else {
+                hideLoader();
+                router.push("/");
+            }
+        } else {
+            throw new Error(verifyData.message || "OTP verification failed.");
+        }
+    } catch (error) {
+        hideLoader();
+        toast({
+            variant: "destructive",
+            title: "Verification Failed",
+            description: (error as Error).message || "An unexpected error occurred.",
+        });
+    }
+  };
+  
+  const handleResendOtp = async () => {
+    // In a real app, you'd call an API to resend the OTP
+    console.log("Resending OTP to", form.getValues("email"));
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
+
 
   useEffect(() => {
     form.setValue("role", selectedRole);
@@ -140,30 +192,18 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       });
 
       const responseData = await response.json();
+      hideLoader();
 
       if (response.ok) {
         toast({
           title: "Account Created!",
-          description: responseData.message || `Welcome, ${values.name}! Redirecting...`,
+          description: responseData.message || "Please check your email for the OTP.",
         });
-        
-        if (responseData.token && responseData.type) {
-            setSession(responseData.token, responseData.type, values.email, values.name, apiRequestBody.phone, responseData.profilePicture);
-            const role = responseData.type.toLowerCase();
-            if (role === 'tutor') {
-                router.push("/tutor/dashboard");
-            } else if (role === 'parent') {
-                router.push("/parent/dashboard");
-            } else {
-                router.push("/");
-                hideLoader(); // Hide loader if no specific dashboard
-            }
-        }
-        
+        setOtpIdentifier(values.email);
+        setIsOtpModalOpen(true);
         if (onSuccess) onSuccess();
         if (onClose) onClose();
       } else {
-        hideLoader();
         toast({
           variant: "destructive",
           title: "Sign Up Failed",
@@ -179,7 +219,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         description: "Could not connect to the server or the response was invalid. Please try again later.",
       });
     } finally {
-      // We no longer hide the loader here. It will be hidden by the destination dashboard page.
       setIsSubmitting(false);
     }
   }
@@ -191,6 +230,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
   };
 
   return (
+    <>
     <Card className="w-full max-w-lg shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="p-0 pt-0 pb-0 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block">
@@ -403,5 +443,14 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         </p>
       </CardFooter>
     </Card>
+    <OtpVerificationModal
+        isOpen={isOtpModalOpen}
+        onOpenChange={setIsOtpModalOpen}
+        verificationType="email"
+        identifier={otpIdentifier}
+        onSuccess={handleOtpSuccess}
+        onResend={handleResendOtp}
+    />
+    </>
   );
 }
