@@ -144,5 +144,6 @@ declare module "lucide-react" {
     export const Loader2: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Ticket: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Landmark: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const KeyRound: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }

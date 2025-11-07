@@ -2,289 +2,286 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound } from "lucide-react";
-import { useAuthMock } from "@/hooks/use-auth-mock";
-import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { useGlobalLoader } from "@/hooks/use-global-loader";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { User as UserDetails } from "@/types";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower } from "lucide-react";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import type { ApiTutor } from "@/types";
 
-const fetchUserDetails = async (token: string | null): Promise<UserDetails> => {
-  if (!token) throw new Error("Authentication token not found.");
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/user/details`, {
+const fetchTutorDashboardData = async (token: string | null): Promise<ApiTutor> => {
+  if (!token) throw new Error("No authentication token found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/tutor/dashboard`, {
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'accept': '*/*',
-    }
+      "Authorization": `Bearer ${token}`,
+      "accept": "*/*",
+    },
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch user details.");
+    throw new Error("Failed to fetch tutor dashboard data.");
   }
-  return response.json();
+  const data = await response.json();
+  const { userDetails, tutoringDetails } = data;
+
+  return {
+    id: userDetails.id || "",
+    displayName: userDetails.name,
+    name: userDetails.name,
+    email: userDetails.email,
+    countryCode: userDetails.countryCode,
+    phone: userDetails.phone,
+    profilePicUrl: userDetails.profilePicUrl,
+    emailVerified: userDetails.emailVerified,
+    phoneVerified: userDetails.phoneVerified,
+    whatsappEnabled: userDetails.whatsappEnabled,
+    registeredDate: userDetails.registeredDate,
+    createdBy: userDetails.createdBy,
+    subjectsList: tutoringDetails.subjects,
+    gradesList: tutoringDetails.grades,
+    boardsList: tutoringDetails.boards,
+    qualificationList: tutoringDetails.qualifications,
+    availabilityDaysList: tutoringDetails.availabilityDays,
+    availabilityTimeList: tutoringDetails.availabilityTime,
+    yearOfExperience: tutoringDetails.yearOfExperience,
+    bio: tutoringDetails.tutorBio,
+    addressName: tutoringDetails.addressName,
+    address: tutoringDetails.address,
+    city: tutoringDetails.city,
+    state: tutoringDetails.state,
+    area: tutoringDetails.area,
+    pincode: tutoringDetails.pincode,
+    country: tutoringDetails.country,
+    googleMapsLink: tutoringDetails.googleMapsLink,
+    hourlyRate: tutoringDetails.hourlyRate,
+    languagesList: tutoringDetails.languages,
+    profileCompletion: tutoringDetails.profileCompletion,
+    isActive: tutoringDetails.active,
+    isRateNegotiable: tutoringDetails.rateNegotiable,
+    isBioReviewed: tutoringDetails.bioReviewed,
+    online: tutoringDetails.online,
+    offline: tutoringDetails.offline,
+    isHybrid: tutoringDetails.hybrid,
+    gender: userDetails.gender,
+    isVerified: tutoringDetails.verified,
+  };
 };
 
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.885-.002 2.024.63 3.965 1.739 5.618l-1.187 4.349 4.443-1.152z" />
+        <path d="M15.246 14.148c-.281-.141-1.66-1.04-1.916-1.158-.256-.117-.44-.187-.625.117-.184.305-.724.938-.887 1.115-.164.177-.328.188-.609.047-.282-.14-1.188-.438-2.262-1.395-.837-.745-1.395-1.661-1.56-1.944-.163-.282-.01- .438.104-.576.104-.13.234-.336.351-.49.117-.154.156-.257.234-.422.078-.164.039-.305-.019-.445-.058-.141-.625-1.492-.859-2.04-.233-.547-.467-.469-.625-.469-.141 0-.305-.019-.469-.019-.164 0-.438.058-.672.305-.234.246-.887.867-.887 2.109s.906 2.441 1.023 2.617c.118.176 1.77 2.899 4.293 4.098 2.522 1.199 2.522.797 2.969.762.447-.039 1.66-.672 1.898-1.32.238-.648.238-1.199.16-1.319-.078-.121-.281-.188-.586-.328z" />
+    </svg>
+);
+
+const getInitials = (name?: string): string => {
+  if (!name) return "?";
+  const parts = name.split(" ");
+  return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
+};
+
+const InfoItem = ({ icon: Icon, label, children, className }: { icon: React.ElementType; label: string; children?: React.ReactNode; className?:string }) => {
+  if (!children && typeof children !== 'number') return null;
+  return (
+    <div className={cn("flex items-start", className)}>
+      <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
+      <div className="flex flex-col flex-grow text-xs">
+        <span className="font-medium text-foreground">{label}</span>
+        <div className="text-muted-foreground">{children}</div>
+      </div>
+    </div>
+  );
+};
+
+const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items?: string[] }) => {
+  if (!items || items.length === 0) return null;
+  return (
+    <div className="flex items-start">
+       <Icon className="w-4 h-4 mr-2.5 mt-1 text-muted-foreground shrink-0" />
+      <div className="flex flex-col">
+        <span className="font-medium text-foreground mb-1 text-xs">{label}</span>
+        <div className="flex flex-wrap gap-1">
+          {items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>)}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function TutorMyAccountPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone" | null>(null);
-  const [otpVerificationIdentifier, setOtpVerificationIdentifier] = useState<string | null>(null);
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
   const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
   const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
   const [isUpdateBankDetailsModalOpen, setIsUpdateBankDetailsModalOpen] = useState(false);
-
   const { hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
 
-  const { data: userDetails, isLoading, error } = useQuery({
-      queryKey: ['userDetails', token],
-      queryFn: () => fetchUserDetails(token),
-      enabled: !!token,
+  const { data: tutor, isLoading, error } = useQuery({
+    queryKey: ["tutorDashboard", token],
+    queryFn: () => fetchTutorDashboardData(token),
+    enabled: !!token && !isCheckingAuth,
   });
 
   useEffect(() => {
-    hideLoader();
-  }, [hideLoader]);
+    if (!isLoading) {
+      hideLoader();
+    }
+  }, [isLoading, hideLoader]);
 
   if (isCheckingAuth || isLoading) {
     return (
         <main className="flex-grow">
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-             <div className="space-y-6">
-                <Card className="w-full max-w-2xl mx-auto shadow-lg rounded-xl border bg-card">
-                  <CardHeader className="p-6 border-b">
-                    <Skeleton className="h-8 w-1/2" />
-                    <Skeleton className="h-4 w-3/4 mt-2" />
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
-                    <div className="flex items-center space-x-4">
-                        <Skeleton className="h-10 w-10 rounded-full" />
-                        <div className="space-y-2">
-                           <Skeleton className="h-4 w-[250px]" />
-                           <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                        <Skeleton className="h-24 w-full rounded-lg" />
-                        <Skeleton className="h-24 w-full rounded-lg" />
-                    </div>
-                  </CardContent>
-                </Card>
-            </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-1 space-y-6"><Skeleton className="h-[350px] w-full rounded-xl" /></div>
+                <div className="md:col-span-2 space-y-6"><Skeleton className="h-[200px] w-full rounded-xl" /> <Skeleton className="h-[250px] w-full rounded-xl" /></div>
+             </div>
           </div>
         </main>
     );
   }
-
-  if (error) {
-    return <div className="text-center py-10 text-destructive">Error: {(error as Error).message}</div>
-  }
   
-  if (!isAuthenticated || !user || !userDetails) {
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading user data...</div>;
+  if (error || !tutor) {
+    return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
   }
-
-  const handleOtpSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['userDetails', token] });
-    setIsOtpModalOpen(false);
-    setOtpVerificationType(null);
-    setOtpVerificationIdentifier(null);
-  };
-  
-  const getInitials = (name: string): string => {
-    if (!name) return "?";
-    const parts = name.split(" ");
-    return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
-  };
-
 
   return (
-    <main className="flex-grow">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <div className="space-y-6">
-          <Card className="bg-card rounded-xl shadow-lg border-0 animate-in fade-in duration-500 ease-out">
-            <CardHeader className="p-5">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-primary/10 rounded-full text-primary">
-                    <UserCircle className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl font-semibold text-primary tracking-tight">
-                      My Account
-                    </CardTitle>
-                    <CardDescription className="text-sm text-foreground/70 mt-1">
-                      Manage your profile information and account settings.
-                    </CardDescription>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-5 space-y-4">
-              <div className="flex items-center justify-between p-3 border rounded-md bg-background/50">
-                <div className="flex items-center">
-                  <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={userDetails.avatar} alt={userDetails.name} />
-                    <AvatarFallback>{getInitials(userDetails.name)}</AvatarFallback>
+    <>
+      <main className="flex-grow">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+          <BreadcrumbHeader
+            segments={[
+              { label: "Dashboard", href: "/tutor/dashboard" },
+              { label: "My Account" },
+            ]}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500 ease-out">
+            <div className="md:col-span-1 space-y-6">
+              <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                <CardContent className="p-5 md:p-6 text-center">
+                  <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
+                    <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                    <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
+                        {getInitials(tutor.displayName)}
+                    </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{userDetails.name}</p>
-                    {userDetails.gender && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                           <VenetianMask className="w-3.5 h-3.5" /> 
-                           {userDetails.gender.charAt(0).toUpperCase() + userDetails.gender.slice(1).toLowerCase()}
-                        </p>
-                    )}
+                  <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
+                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
+                      <Badge variant={tutor.isActive ? "default" : "destructive"}>{tutor.isActive ? 'Active' : 'Inactive'}</Badge>
+                      <Badge variant={tutor.isVerified ? "default" : "destructive"}>{tutor.isVerified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
-                </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setIsEditPersonalModalOpen(true)}>
-                    <Edit3 className="h-4 w-4" />
-                </Button>
-              </div>
+                </CardContent>
+              </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoCard
-                  icon={Mail}
-                  title="Update Email"
-                  isVerified={userDetails.isEmailVerified || false}
-                  onUpdate={() => setIsUpdateEmailModalOpen(true)}
-                  updateButtonText="Update Email"
-                >
-                  <p className="text-xs text-muted-foreground">
-                    Your email <strong className="text-foreground/90">{userDetails.email}</strong> is {userDetails.isEmailVerified ? 'verified' : 'not verified'}.
-                  </p>
-                </InfoCard>
-                <InfoCard
-                  icon={Phone}
-                  title="Update Phone"
-                  isVerified={userDetails.isPhoneVerified || false}
-                  onUpdate={() => setIsUpdatePhoneModalOpen(true)}
-                  updateButtonText="Update Phone"
-                >
-                   <p className="text-xs text-muted-foreground">
-                    {userDetails.phone ? (
-                      <>Your phone number <strong className="text-foreground/90">{userDetails.countryCode} {userDetails.phone}</strong> is {userDetails.isPhoneVerified ? 'verified' : 'not verified'}.</>
-                    ) : (
-                      "Add and verify your phone number for seamless communication."
-                    )}
-                  </p>
-                </InfoCard>
-                <InfoCard
-                  icon={Landmark}
-                  title="Bank Details"
-                  isVerified={false} // This could be dynamic based on if bank details are present and verified
-                  onUpdate={() => setIsUpdateBankDetailsModalOpen(true)}
-                  updateButtonText="Update"
-                >
-                  <p className="text-xs text-muted-foreground">
-                    Provide bank details/UPI ID to receive payments.
-                  </p>
-                </InfoCard>
-              </div>
-            </CardContent>
-            <CardFooter className="p-4 border-t flex justify-end">
-                <Button variant="link" size="sm" className="text-xs text-destructive hover:text-destructive/80 h-auto p-0" onClick={() => setIsDeactivationModalOpen(true)}>
-                    Deactivate my account
-                </Button>
-            </CardFooter>
-          </Card>
-          
-          <UpdateEmailModal
-            isOpen={isUpdateEmailModalOpen}
-            onOpenChange={setIsUpdateEmailModalOpen}
-            currentEmail={userDetails.email}
-          />
-          <UpdatePhoneModal
-            isOpen={isUpdatePhoneModalOpen}
-            onOpenChange={setIsUpdatePhoneModalOpen}
-            currentPhone={userDetails.phone}
-            currentCountryCode={userDetails.countryCode}
-          />
-          <DeactivationModal
-            isOpen={isDeactivationModalOpen}
-            onOpenChange={setIsDeactivationModalOpen}
-            userName={userDetails.name}
-            userId={user.id}
-          />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Personal & Contact</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <InfoItem icon={VenetianMask} label="Gender">{tutor.gender || "Not Specified"}</InfoItem>
+                  <InfoItem icon={Mail} label="Email">{tutor.email}</InfoItem>
+                  <InfoItem icon={Phone} label="Phone">
+                      <div className="flex flex-col items-start gap-1.5">
+                          <span>{tutor.countryCode} {tutor.phone}</span>
+                          {tutor.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit"><WhatsAppIcon className="h-3 w-3 mr-1"/>WhatsApp</Badge>}
+                      </div>
+                  </InfoItem>
+                </CardContent>
+                <CardFooter className="border-t p-3">
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => setIsEditPersonalModalOpen(true)}>
+                    <Edit3 className="mr-2 h-4 w-4"/>
+                    Edit Details
+                  </Button>
+                </CardFooter>
+              </Card>
 
-          <EditPersonalDetailsModal
-            isOpen={isEditPersonalModalOpen}
-            onOpenChange={setIsEditPersonalModalOpen}
-            user={userDetails}
-          />
-          
-          <UpdateBankDetailsModal 
-            isOpen={isUpdateBankDetailsModalOpen}
-            onOpenChange={setIsUpdateBankDetailsModalOpen}
-          />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Settings</CardTitle>
+                </CardHeader>
+                 <CardContent className="flex flex-col space-y-2">
+                    <Button variant="outline" size="sm" onClick={() => setIsUpdateEmailModalOpen(true)}>Update Email</Button>
+                    <Button variant="outline" size="sm" onClick={() => setIsUpdatePhoneModalOpen(true)}>Update Phone</Button>
+                    <Button variant="outline" size="sm" onClick={() => setIsUpdateBankDetailsModalOpen(true)}>Update Bank Details</Button>
+                 </CardContent>
+                 <CardFooter className="border-t p-3">
+                    <Button variant="destructive" size="sm" className="w-full" onClick={() => setIsDeactivationModalOpen(true)}>Deactivate Account</Button>
+                 </CardFooter>
+              </Card>
+            </div>
 
-          {otpVerificationType && otpVerificationIdentifier && (
-            <OtpVerificationModal
-              isOpen={isOtpModalOpen}
-              onOpenChange={setIsOtpModalOpen}
-              verificationType={otpVerificationType}
-              identifier={otpVerificationIdentifier}
-              onSuccess={handleOtpSuccess}
-            />
-          )}
+            <div className="md:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>About Me</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                    <CardTitle>Tutoring Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjectsList}/>
+                    <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradesList}/>
+                    <InfoBadgeList icon={Building} label="Boards" items={tutor.boardsList}/>
+                    <InfoItem icon={RadioTower} label="Teaching Mode">
+                      <div className="flex items-center gap-2">
+                          {tutor.online && <Badge>Online</Badge>}
+                          {tutor.offline && <Badge>Offline</Badge>}
+                          {tutor.isHybrid && <Badge variant="outline">Hybrid</Badge>}
+                      </div>
+                    </InfoItem>
+                    {tutor.offline && <InfoItem icon={MapPin} label="Address">{tutor.addressName || tutor.address}</InfoItem>}
+                </CardContent>
+              </Card>
+               <Card>
+                  <CardHeader>
+                      <CardTitle>Other Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutor.qualificationList} />
+                      <InfoBadgeList icon={Languages} label="Languages" items={tutor.languagesList} />
+                      <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor.availabilityDaysList}/>
+                      <InfoBadgeList icon={Clock} label="Available Times" items={tutor.availabilityTimeList}/>
+                  </CardContent>
+                   <CardFooter className="border-t p-3 flex justify-end">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href="/tutor/edit-tutoring-details">
+                            <Edit3 className="mr-2 h-4 w-4"/>
+                            Edit Tutoring Details
+                        </Link>
+                      </Button>
+                   </CardFooter>
+              </Card>
+            </div>
+          </div>
         </div>
-      </div>
-    </main>
-  );
-}
+      </main>
 
-interface InfoCardProps {
-  icon: React.ElementType;
-  title: string;
-  children: React.ReactNode;
-  isVerified: boolean;
-  onUpdate: () => void;
-  updateButtonText: string;
-}
-
-function InfoCard({ icon: Icon, title, children, isVerified, onUpdate, updateButtonText }: InfoCardProps) {
-  return (
-    <Card className="bg-card/50 border rounded-lg p-4 flex flex-col justify-between shadow-xs hover:shadow-sm transition-shadow">
-      <div>
-        <div className="flex items-center mb-2">
-          <Icon className={cn("w-5 h-5 mr-2", "text-primary")} />
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        </div>
-        <div className="mb-3">{children}</div>
-      </div>
-       <div className="flex items-center justify-between">
-        {title.includes("Password") || title.includes("Bank") ? <div/> : (isVerified ? (
-            <Badge variant="default" className="w-fit bg-green-600 hover:bg-green-700 text-xs py-1">
-            <CheckCircle className="mr-1 h-3 w-3" /> Verified
-            </Badge>
-        ) : (
-            <span className="text-xs font-semibold text-yellow-600">Not Verified</span>
-        ))}
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-xs border-primary text-primary hover:bg-primary/10 hover:text-primary"
-          onClick={onUpdate}
-        >
-            {updateButtonText}
-        </Button>
-       </div>
-    </Card>
+      <UpdateEmailModal isOpen={isUpdateEmailModalOpen} onOpenChange={setIsUpdateEmailModalOpen} currentEmail={tutor.email || ""} />
+      <UpdatePhoneModal isOpen={isUpdatePhoneModalOpen} onOpenChange={setIsUpdatePhoneModalOpen} currentPhone={tutor.phone} currentCountryCode={tutor.countryCode} />
+      <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={tutor.displayName} userId={tutor.id} />
+      <EditPersonalDetailsModal isOpen={isEditPersonalModalOpen} onOpenChange={setIsEditPersonalModalOpen} user={tutor as any} />
+      <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} />
+    </>
   );
 }
