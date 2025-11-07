@@ -7,6 +7,7 @@ import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Lock, LogIn, Users, School, KeyRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
