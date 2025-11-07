@@ -121,8 +121,8 @@ export function OtpVerificationModal({
         if (response.ok && responseData.token) {
             setSession(responseData.token, responseData.type, identifier, responseData.name, responseData.profilePicture);
             toast({
-                title: "Verification Successful!",
-                description: "Your account has been created. Redirecting...",
+                title: "Sign In Successful!",
+                description: "Welcome to your dashboard.",
             });
             
             const role = responseData.type.toLowerCase();
