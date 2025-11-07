@@ -94,45 +94,9 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
   });
 
   const handleOtpSuccess = async (otp: string) => {
-    showLoader();
-    try {
-        const email = form.getValues("email");
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        // This is a mock verification endpoint. Replace with your actual one.
-        const verifyResponse = await fetch(`${apiBaseUrl}/api/auth/verify-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
-            body: JSON.stringify({ email, otp }),
-        });
-
-        const verifyData = await verifyResponse.json();
-
-        if (verifyResponse.ok && verifyData.token) {
-            setSession(verifyData.token, verifyData.type, email, verifyData.name, verifyData.profilePicture);
-            toast({
-                title: "Verification Successful!",
-                description: "Your account has been created. Redirecting...",
-            });
-            const role = verifyData.type.toLowerCase();
-            if (role === 'tutor') {
-                router.push("/tutor/dashboard");
-            } else if (role === 'parent') {
-                router.push("/parent/dashboard");
-            } else {
-                hideLoader();
-                router.push("/");
-            }
-        } else {
-            throw new Error(verifyData.message || "OTP verification failed.");
-        }
-    } catch (error) {
-        hideLoader();
-        toast({
-            variant: "destructive",
-            title: "Verification Failed",
-            description: (error as Error).message || "An unexpected error occurred.",
-        });
-    }
+    // This logic is now handled by the OTP modal itself.
+    // This function can be used for any additional actions on success if needed later.
+    console.log("OTP verification successful in sign-up context.");
   };
   
   const handleResendOtp = async () => {
@@ -195,10 +159,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       hideLoader();
 
       if (response.ok) {
-        toast({
-          title: "Account Created!",
-          description: responseData.message || "Please check your email for the OTP.",
-        });
         setOtpIdentifier(values.email);
         setIsOtpModalOpen(true);
         if (onSuccess) onSuccess();

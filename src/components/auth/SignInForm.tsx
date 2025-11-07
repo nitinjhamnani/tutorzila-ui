@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, LogIn, Users, School } from "lucide-react";
+import { Mail, Lock, LogIn, Users, School, KeyRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +33,7 @@ import type { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
 import { useState } from 'react';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
-
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -43,10 +43,15 @@ const signInSchema = z.object({
 type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { onSuccess?: () => void, onSwitchForm: (formType: 'signin' | 'signup') => void, onClose?: () => void, initialName?: string }) {
-  const { login } = useAuthMock();
+  const { login, setSession } = useAuthMock();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
   const { showLoader, hideLoader } = useGlobalLoader();
+  const router = useRouter();
+
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpIdentifier, setOtpIdentifier] = useState("");
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -55,6 +60,62 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       password: "",
     },
   });
+
+  const handleOtpLogin = async () => {
+    const email = form.getValues("email");
+    const isEmailValid = await form.trigger("email");
+
+    if (!isEmailValid) {
+        form.setFocus("email");
+        return;
+    }
+
+    setIsOtpSubmitting(true);
+    showLoader("Sending OTP...");
+
+    try {
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const response = await fetch(`${apiBaseUrl}/api/auth/otplogin?email=${encodeURIComponent(email)}`, {
+            method: 'GET',
+            headers: { 'accept': '*/*' },
+        });
+
+        const responseData = await response.json();
+        hideLoader();
+
+        if (response.ok) {
+            toast({
+                title: "OTP Sent!",
+                description: responseData.message || `An OTP has been sent to ${email}.`,
+            });
+            setOtpIdentifier(email);
+            setIsOtpModalOpen(true);
+        } else {
+            throw new Error(responseData.message || "Failed to send OTP.");
+        }
+    } catch (error) {
+        hideLoader();
+        toast({
+            variant: "destructive",
+            title: "Failed to Send OTP",
+            description: (error as Error).message,
+        });
+    } finally {
+        setIsOtpSubmitting(false);
+    }
+  };
+  
+  const handleOtpSuccess = async (otp: string) => {
+    // This function is now handled by the OTP modal itself, but we keep it
+    // in case we need to add logic here later.
+    console.log("OTP verified successfully in sign-in form context.");
+  };
+
+  const handleResendOtp = async () => {
+    // This is a mock resend function.
+    console.log("Resending OTP for login to", form.getValues("email"));
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
 
 
   async function onSubmit(values: SignInFormValues) {
@@ -82,6 +143,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   }
 
   return (
+    <>
     <Card className="w-full max-w-lg shadow-lg rounded-lg bg-card border animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="space-y-1.5 flex flex-col items-center bg-card rounded-t-lg p-0 pt-0 pb-0">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block">
@@ -114,7 +176,16 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground text-left block w-full">Password</FormLabel>
+                  <div className="flex justify-between items-center">
+                    <FormLabel className="text-foreground text-left block w-full">Password</FormLabel>
+                     <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
+                      <Link
+                          href="#" 
+                      >
+                          Forgot Password?
+                      </Link>
+                    </Button>
+                  </div>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -125,21 +196,22 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
                 </FormItem>
               )}
             />
+             <div className="relative flex items-center justify-center text-xs text-muted-foreground">
+                <span className="absolute inset-x-0 h-px bg-border"></span>
+                <span className="relative bg-card px-2">OR</span>
+            </div>
+             <Button type="button" variant="secondary" className="w-full" onClick={handleOtpLogin} disabled={isOtpSubmitting}>
+                <KeyRound className="mr-2 h-4 w-4" />
+                {isOtpSubmitting ? 'Sending OTP...' : 'Login with OTP'}
+            </Button>
             <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
               <LogIn className="mr-2 h-5 w-5" /> 
-              {isSubmitting ? 'Logging In...' : 'Login'}
+              {isSubmitting ? 'Logging In...' : 'Login with Password'}
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8 bg-card rounded-b-lg">
-        <Button variant="link" size="sm" asChild className="text-muted-foreground hover:text-primary transition-colors">
-         <Link
-            href="#" 
-          >
-            Forgot Password?
-          </Link>
-        </Button>
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
             <Button variant="link" onClick={() => onSwitchForm('signup')} className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
@@ -148,5 +220,14 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
         </p>
       </CardFooter>
     </Card>
+     <OtpVerificationModal
+        isOpen={isOtpModalOpen}
+        onOpenChange={setIsOtpModalOpen}
+        verificationType="email"
+        identifier={otpIdentifier}
+        onSuccess={handleOtpSuccess}
+        onResend={handleResendOtp}
+      />
+    </>
   );
 }
