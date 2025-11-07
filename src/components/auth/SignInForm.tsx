@@ -179,7 +179,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
                 <FormItem>
                   <div className="flex justify-between items-center">
                     <FormLabel className="text-foreground text-left block w-full">Password</FormLabel>
-                     <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
+                    <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
                       <Link
                           href="#" 
                       >
@@ -197,14 +197,12 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
                 </FormItem>
               )}
             />
-             <div className="relative flex items-center justify-center text-xs text-muted-foreground">
-                <span className="absolute inset-x-0 h-px bg-border"></span>
-                <span className="relative bg-card px-2">OR</span>
+             <div className="flex justify-start">
+               <Button type="button" variant="link" className="p-0 h-auto text-xs text-primary font-semibold" onClick={handleOtpLogin} disabled={isOtpSubmitting}>
+                    {isOtpSubmitting ? 'Sending OTP...' : 'Get OTP to Login'}
+               </Button>
             </div>
-             <Button type="button" variant="secondary" className="w-full" onClick={handleOtpLogin} disabled={isOtpSubmitting}>
-                <KeyRound className="mr-2 h-4 w-4" />
-                {isOtpSubmitting ? 'Sending OTP...' : 'Login with OTP'}
-            </Button>
+            
             <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
               <LogIn className="mr-2 h-5 w-5" /> 
               {isSubmitting ? 'Logging In...' : 'Login with Password'}
@@ -228,7 +226,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
         identifier={otpIdentifier}
         onSuccess={handleOtpSuccess}
         onResend={handleResendOtp}
-      />
+    />
     </>
   );
 }
