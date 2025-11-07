@@ -46,9 +46,10 @@ export function AdminSidebar({
   const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
-    if (pathname !== href) {
-      showLoader();
+    if (pathname === href) {
+      return;
     }
+    // The loader will be shown by the destination page if needed.
     if (isMobile && isMobileNavOpen) {
       toggleMobileNav();
     }

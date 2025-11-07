@@ -31,7 +31,7 @@ interface TutorSidebarProps {
   isMobileNavOpen: boolean;
   toggleMobileNav: () => void;
   isNavbarCollapsed: boolean;
-  toggleNavbarCollapsed?: () => void; // Make optional if not always used by every instance
+  toggleNavbarCollapsed?: () => void;
   user: User | null;
   tutorNavItems: NavItem[];
   accountSettingsNavItems: NavItem[];
@@ -43,8 +43,8 @@ export function TutorSidebar(props: TutorSidebarProps) {
   const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
-    if (pathname !== href) {
-      showLoader();
+    if (pathname === href) {
+        return;
     }
     if (props.isMobile && props.isMobileNavOpen) {
       props.toggleMobileNav();

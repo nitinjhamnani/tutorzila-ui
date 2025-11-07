@@ -41,8 +41,8 @@ export function ParentSidebar(props: ParentSidebarProps) {
   const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
-    if (pathname !== href) {
-      showLoader();
+    if (pathname === href) {
+        return;
     }
     if (props.isMobile && props.isMobileNavOpen) {
       props.toggleMobileNav();
