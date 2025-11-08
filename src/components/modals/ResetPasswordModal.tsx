@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -23,11 +24,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { KeyRound, Lock, Loader2 } from "lucide-react";
+import { KeyRound, Lock, Loader2, Check, Circle } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 
 const resetPasswordSchema = z
   .object({
-    newPassword: z.string().min(8, "Password must be at least 8 characters."),
+    newPassword: z.string()
+      .min(8, "Password must be at least 8 characters.")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character."),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -42,18 +48,34 @@ interface ResetPasswordModalProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
+const PasswordCheck = ({ label, isMet }: { label: string; isMet: boolean }) => (
+  <div className={cn("flex items-center text-xs", isMet ? "text-green-600" : "text-muted-foreground")}>
+    {isMet ? <Check className="mr-2 h-3.5 w-3.5" /> : <Circle className="mr-2 h-3.5 w-3.5" />}
+    <span>{label}</span>
+  </div>
+);
+
 export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
+    mode: "onTouched",
     defaultValues: {
       newPassword: "",
       confirmPassword: "",
     },
   });
-  
+
+  const newPassword = form.watch("newPassword");
+
+  const validationChecks = {
+    length: (newPassword || "").length >= 8,
+    uppercase: /[A-Z]/.test(newPassword || ""),
+    specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword || ""),
+  };
+
   useEffect(() => {
     if (!isOpen) {
       form.reset();
@@ -85,7 +107,7 @@ export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalP
             Reset Your Password
           </DialogTitle>
           <DialogDescription>
-            Enter a new password below for your account.
+            Enter and confirm a new strong password for your account.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -111,6 +133,13 @@ export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalP
                 </FormItem>
               )}
             />
+            
+            <div className="p-3 bg-muted/50 rounded-md space-y-1.5 border border-border/50">
+              <PasswordCheck label="At least 8 characters long" isMet={validationChecks.length} />
+              <PasswordCheck label="At least one uppercase letter" isMet={validationChecks.uppercase} />
+              <PasswordCheck label="At least one special symbol" isMet={validationChecks.specialChar} />
+            </div>
+
             <FormField
               control={form.control}
               name="confirmPassword"
