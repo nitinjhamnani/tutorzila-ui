@@ -273,7 +273,7 @@ export default function TutorMyAccountPage() {
                         <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <button onClick={() => { if(!tutor.emailVerified) { handleOpenOtpModal('email');}}} className="flex items-center">
+                                <button onClick={() => { if(!tutor.emailVerified) { handleOpenOtpModal('email');}}}>
                                     {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
                                         <span className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
                                     )}
@@ -409,9 +409,9 @@ export default function TutorMyAccountPage() {
         >
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
-              <EditTutoringDetailsForm 
-                initialData={{tutoringDetails: tutor}}
-                onSuccess={() => setIsEditTutoringModalOpen(false)} 
+              <EditTutoringDetailsForm
+                initialData={{ tutoringDetails: tutor }}
+                onSuccess={() => setIsEditTutoringModalOpen(false)}
               />
           </div>
         </DialogContent>
@@ -419,4 +419,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-
