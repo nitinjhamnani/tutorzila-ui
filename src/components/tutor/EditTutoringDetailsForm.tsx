@@ -129,20 +129,20 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
     defaultValues: {
-      subjects: ensureArray(initialData?.tutoringDetails?.subjectsList),
-      gradeLevelsTaught: ensureArray(initialData?.tutoringDetails?.gradesList),
-      boardsTaught: ensureArray(initialData?.tutoringDetails?.boardsList),
-      preferredDays: ensureArray(initialData?.tutoringDetails?.availabilityDaysList),
-      preferredTimeSlots: ensureArray(initialData?.tutoringDetails?.availabilityTimeList),
+      subjects: [],
+      gradeLevelsTaught: [],
+      boardsTaught: [],
+      preferredDays: [],
+      preferredTimeSlots: [],
       teachingMode: [],
-      isHybrid: initialData?.tutoringDetails?.isHybrid || false,
-      location: initialData?.tutoringDetails?.address ? { address: initialData.tutoringDetails.address } : null,
-      hourlyRate: initialData?.tutoringDetails?.hourlyRate ? String(initialData.tutoringDetails.hourlyRate) : "",
-      isRateNegotiable: initialData?.tutoringDetails?.isRateNegotiable || false,
-      qualifications: ensureArray(initialData?.tutoringDetails?.qualificationList),
-      languages: ensureArray(initialData?.tutoringDetails?.languagesList),
-      yearOfExperience: initialData?.tutoringDetails?.yearOfExperience || "",
-      bio: initialData?.tutoringDetails?.bio || "",
+      isHybrid: false,
+      location: null,
+      hourlyRate: "",
+      isRateNegotiable: false,
+      qualifications: [],
+      languages: [],
+      yearOfExperience: "",
+      bio: "",
     },
   });
 
@@ -187,8 +187,8 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 });
 
   React.useEffect(() => {
-    if (initialData?.tutoringDetails) {
-      const details = initialData.tutoringDetails;
+    const details = initialData?.tutoringDetails || initialData;
+    if (details) {
       const modes = [];
       if (details.online) modes.push("Online");
       if (details.offline) modes.push("Offline");

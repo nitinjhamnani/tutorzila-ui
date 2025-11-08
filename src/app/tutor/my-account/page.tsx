@@ -408,7 +408,7 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={{tutoringDetails: tutor}}
+                initialData={{ tutoringDetails: tutor }}
                 onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
@@ -417,7 +417,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-
-    
-
-    
