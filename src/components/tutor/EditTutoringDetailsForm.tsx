@@ -93,7 +93,7 @@ const updateTutoringDetailsApi = async (token: string | null, data: TutoringDeta
       hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : 0,
       languages: data.languages,
       online: data.teachingMode.includes("Online"),
-      offline: data.teachingMode.includes("Offline"),
+      offline: data.teachingMode.includes("Offline (In-person)"),
       hybrid: data.isHybrid,
       rateNegotiable: data.isRateNegotiable,
       addressName: locationDetails?.name || "",
@@ -150,25 +150,19 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       bio: "",
     },
   });
-
+  
   const mutation = useMutation({
     mutationFn: (data: TutoringDetailsFormValues) => updateTutoringDetailsApi(token, data),
     onMutate: () => {
       showLoader("Updating your profile...");
     },
-    onSuccess: (updatedTutoringDetails) => {
-        queryClient.setQueryData(['tutorDashboard', token], (oldData: any) => {
-            if (!oldData) return { tutoringDetails: updatedTutoringDetails };
-            
-            return {
-                ...oldData,
-                tutoringDetails: {
-                  ...oldData.tutoringDetails, // Keep existing fields in tutoringDetails
-                  ...updatedTutoringDetails,   // Overwrite with new fields from response
-                }
-            };
-        });
-        
+    onSuccess: (updatedData) => {
+        // This will update both the 'tutorDashboard' and 'tutorAccountDetails' queries
+        // as they both will be invalidated and refetch, or we can set their data.
+        // For simplicity, invalidating is often safer.
+        queryClient.invalidateQueries({ queryKey: ['tutorDashboard', token] });
+        queryClient.invalidateQueries({ queryKey: ['tutorAccountDetails', token] });
+
         toast({
             title: "Tutoring Details Updated!",
             description: "Your tutoring information has been saved successfully.",
@@ -191,23 +185,22 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     }
 });
 
+
   React.useEffect(() => {
-    // This now handles both cases: `initialData.tutoringDetails` from dashboard,
-    // and `{ tutoringDetails: tutor }` from my-account
     const details = initialData?.tutoringDetails || initialData;
     if (details) {
       const modes = [];
       if (details.online) modes.push("Online");
-      if (details.offline) modes.push("Offline");
+      if (details.offline) modes.push("Offline (In-person)");
       
       form.reset({
-        subjects: ensureArray(details.subjectsList || details.subjects),
-        gradeLevelsTaught: ensureArray(details.gradesList || details.grades),
-        boardsTaught: ensureArray(details.boardsList || details.boards),
-        preferredDays: ensureArray(details.availabilityDaysList || details.availabilityDays),
-        preferredTimeSlots: ensureArray(details.availabilityTimeList || details.availabilityTime),
+        subjects: ensureArray(details.subjects || details.subjectsList),
+        gradeLevelsTaught: ensureArray(details.grades || details.gradesList),
+        boardsTaught: ensureArray(details.boards || details.boardsList),
+        preferredDays: ensureArray(details.availabilityDays || details.availabilityDaysList),
+        preferredTimeSlots: ensureArray(details.availabilityTime || details.availabilityTimeList),
         teachingMode: modes,
-        isHybrid: details.isHybrid || false,
+        isHybrid: details.hybrid || details.isHybrid || false,
         location: {
             name: details.addressName || details.address || "",
             address: details.address || "",
@@ -219,11 +212,11 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
             googleMapsLink: details.googleMapsLink || "",
         },
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
-        isRateNegotiable: details.isRateNegotiable || false,
-        qualifications: ensureArray(details.qualificationList || details.qualifications),
-        languages: ensureArray(details.languagesList || details.languages),
+        isRateNegotiable: details.rateNegotiable || details.isRateNegotiable || false,
+        qualifications: ensureArray(details.qualifications || details.qualificationList),
+        languages: ensureArray(details.languages || details.languagesList),
         yearOfExperience: details.yearOfExperience || "",
-        bio: details.bio || details.tutorBio || "",
+        bio: details.tutorBio || details.bio || "",
       });
     }
   }, [initialData, form]);
@@ -574,5 +567,3 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     </Card>
   );
 }
-
-    

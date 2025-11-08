@@ -168,6 +168,10 @@ export interface ApiTutor {
   emailVerified?: boolean;
   phoneVerified?: boolean;
   active?: boolean; // Can be deprecated if isActive is used consistently
+  
+  // Bank Details
+  paymentType?: 'UPI' | 'NEFT/IMPS';
+  accountNumber?: string;
 }
 
 

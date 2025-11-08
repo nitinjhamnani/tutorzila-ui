@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 
 
-const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
+const fetchTutorAccountDetails = async (token: string | null): Promise<{ userDetails: any, tutoringDetails: any, bankDetails: any }> => {
   if (!token) throw new Error("No authentication token found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
   const response = await fetch(`${apiBaseUrl}/api/tutor/account`, {
@@ -48,60 +48,7 @@ const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor>
   if (!response.ok) {
     throw new Error("Failed to fetch tutor account data.");
   }
-  const data = await response.json();
-  const { userDetails, tutoringDetails, bankDetails } = data;
-
-  const ensureArray = (value: any): string[] => {
-    if (Array.isArray(value)) return value;
-    if (typeof value === 'string' && value.trim() !== '') return value.split(',').map(item => item.trim()).filter(item => item);
-    return [];
-  };
-
-  return {
-    id: userDetails.id || "",
-    displayName: userDetails.name,
-    name: userDetails.name,
-    email: userDetails.email,
-    countryCode: userDetails.countryCode,
-    phone: userDetails.phone,
-    profilePicUrl: userDetails.profilePicUrl,
-    emailVerified: userDetails.emailVerified,
-    phoneVerified: userDetails.phoneVerified,
-    whatsappEnabled: userDetails.whatsappEnabled,
-    registeredDate: userDetails.registeredDate,
-    createdBy: userDetails.createdBy,
-    createdByUsername: userDetails.createdByUsername,
-    subjectsList: ensureArray(tutoringDetails.subjects),
-    gradesList: ensureArray(tutoringDetails.grades),
-    boardsList: ensureArray(tutoringDetails.boards),
-    qualificationList: ensureArray(tutoringDetails.qualifications),
-    availabilityDaysList: ensureArray(tutoringDetails.availabilityDays),
-    availabilityTimeList: ensureArray(tutoringDetails.availabilityTime),
-    yearOfExperience: tutoringDetails.yearOfExperience,
-    bio: tutoringDetails.tutorBio,
-    addressName: tutoringDetails.addressName,
-    address: tutoringDetails.address,
-    city: tutoringDetails.city,
-    state: tutoringDetails.state,
-    area: tutoringDetails.area,
-    pincode: tutoringDetails.pincode,
-    country: tutoringDetails.country,
-    googleMapsLink: tutoringDetails.googleMapsLink,
-    hourlyRate: tutoringDetails.hourlyRate,
-    languagesList: ensureArray(tutoringDetails.languages),
-    profileCompletion: tutoringDetails.profileCompletion,
-    isActive: tutoringDetails.active,
-    isRateNegotiable: tutoringDetails.rateNegotiable,
-    isBioReviewed: tutoringDetails.bioReviewed,
-    online: tutoringDetails.online,
-    offline: tutoringDetails.offline,
-    isHybrid: tutoringDetails.hybrid,
-    gender: userDetails.gender,
-    isVerified: tutoringDetails.verified,
-    // Bank Details
-    paymentType: bankDetails?.paymentType,
-    accountNumber: bankDetails?.accountNumber,
-  };
+  return await response.json();
 };
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -162,7 +109,7 @@ export default function TutorMyAccountPage() {
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
 
 
-  const { data: tutor, isLoading, error } = useQuery({
+  const { data: tutorAccountData, isLoading, error } = useQuery({
     queryKey: ["tutorAccountDetails", token],
     queryFn: () => fetchTutorAccountDetails(token),
     enabled: !!token && !isCheckingAuth,
@@ -175,8 +122,9 @@ export default function TutorMyAccountPage() {
   }, [isLoading, hideLoader]);
 
   const handleOpenOtpModal = (type: "email" | "phone") => {
+    if (!tutorAccountData?.userDetails) return;
     setOtpVerificationType(type);
-    setOtpIdentifier(type === "email" ? tutor!.email! : tutor!.phone!);
+    setOtpIdentifier(type === "email" ? tutorAccountData.userDetails.email! : tutorAccountData.userDetails.phone!);
     setIsOtpModalOpen(true);
   };
   
@@ -199,14 +147,63 @@ export default function TutorMyAccountPage() {
     );
   }
   
-  if (error || !tutor) {
+  if (error || !tutorAccountData) {
     return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
   }
+
+  const { userDetails, tutoringDetails, bankDetails } = tutorAccountData;
 
   const maskAccountNumber = (number?: string) => {
     if (!number) return 'Not Provided';
     return `**** **** **** ${number.slice(-4)}`;
   }
+  
+  // Reconstruct the `tutor` object to pass to modals
+  const legacyTutorObject: ApiTutor = {
+      id: userDetails.id || "",
+      displayName: userDetails.name,
+      name: userDetails.name,
+      email: userDetails.email,
+      countryCode: userDetails.countryCode,
+      phone: userDetails.phone,
+      profilePicUrl: userDetails.profilePicUrl,
+      emailVerified: userDetails.emailVerified,
+      phoneVerified: userDetails.phoneVerified,
+      whatsappEnabled: userDetails.whatsappEnabled,
+      registeredDate: userDetails.registeredDate,
+      createdBy: userDetails.createdBy,
+      createdByUsername: userDetails.createdByUsername,
+      subjectsList: tutoringDetails.subjects,
+      gradesList: tutoringDetails.grades,
+      boardsList: tutoringDetails.boards,
+      qualificationList: tutoringDetails.qualifications,
+      availabilityDaysList: tutoringDetails.availabilityDays,
+      availabilityTimeList: tutoringDetails.availabilityTime,
+      yearOfExperience: tutoringDetails.yearOfExperience,
+      bio: tutoringDetails.tutorBio,
+      addressName: tutoringDetails.addressName,
+      address: tutoringDetails.address,
+      city: tutoringDetails.city,
+      state: tutoringDetails.state,
+      area: tutoringDetails.area,
+      pincode: tutoringDetails.pincode,
+      country: tutoringDetails.country,
+      googleMapsLink: tutoringDetails.googleMapsLink,
+      hourlyRate: tutoringDetails.hourlyRate,
+      languagesList: tutoringDetails.languages,
+      profileCompletion: tutoringDetails.profileCompletion,
+      isActive: tutoringDetails.active,
+      isRateNegotiable: tutoringDetails.rateNegotiable,
+      isBioReviewed: tutoringDetails.bioReviewed,
+      online: tutoringDetails.online,
+      offline: tutoringDetails.offline,
+      isHybrid: tutoringDetails.hybrid,
+      gender: userDetails.gender,
+      isVerified: tutoringDetails.verified,
+      paymentType: bankDetails?.paymentType,
+      accountNumber: bankDetails?.accountNumber,
+  };
+
 
   return (
     <>
@@ -249,19 +246,19 @@ export default function TutorMyAccountPage() {
                 </div>
                 <CardContent className="p-5 md:p-6 text-center">
                   <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
-                    <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
+                    <AvatarImage src={userDetails.profilePicUrl} alt={userDetails.name} />
                     <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
-                        {getInitials(tutor.displayName)}
+                        {getInitials(userDetails.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
+                  <CardTitle className="text-xl font-bold text-foreground mt-4">{userDetails.name}</CardTitle>
                   <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
                     <VenetianMask className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0"/>
-                    <span className="capitalize">{tutor.gender || 'Not Specified'}</span>
+                    <span className="capitalize">{userDetails.gender || 'Not Specified'}</span>
                   </div>
                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                      <Badge variant={tutor.isActive ? "default" : "destructive"}>{tutor.isActive ? 'Active' : 'Inactive'}</Badge>
-                      <Badge variant={tutor.isVerified ? "default" : "destructive"}>{tutor.isVerified ? 'Verified' : 'Not Verified'}</Badge>
+                      <Badge variant={tutoringDetails.active ? "default" : "destructive"}>{tutoringDetails.active ? 'Active' : 'Inactive'}</Badge>
+                      <Badge variant={tutoringDetails.verified ? "default" : "destructive"}>{tutoringDetails.verified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -273,18 +270,18 @@ export default function TutorMyAccountPage() {
                 <CardContent className="space-y-4">
                   <InfoItem icon={Mail} label="Email">
                     <div className="flex items-center gap-2">
-                        <span>{tutor.email}</span>
+                        <span>{userDetails.email}</span>
                         <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <button onClick={() => { if(!tutor.emailVerified) { handleOpenOtpModal('email');}}}>
-                                    {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
+                                <button onClick={() => { if(!userDetails.emailVerified) { handleOpenOtpModal('email');}}}>
+                                    {userDetails.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
                                         <span className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
                                     )}
                                 </button>
                             </TooltipTrigger>
                             <TooltipContent>
-                            <p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p>
+                            <p>Email {userDetails.emailVerified ? 'Verified' : 'Not Verified'}</p>
                             </TooltipContent>
                         </Tooltip>
                         </TooltipProvider>
@@ -293,26 +290,26 @@ export default function TutorMyAccountPage() {
                   <InfoItem icon={Phone} label="Phone">
                       <div className="flex flex-col items-start gap-1.5">
                         <div className="flex items-center gap-2">
-                          <span>{tutor.countryCode} {tutor.phone}</span>
+                          <span>{userDetails.countryCode} {userDetails.phone}</span>
                           <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <button
-                                        className={!tutor.phoneVerified ? "cursor-pointer" : ""}
-                                        onClick={() => { if(!tutor.phoneVerified) { handleOpenOtpModal('phone');}}}
+                                        className={!userDetails.phoneVerified ? "cursor-pointer" : ""}
+                                        onClick={() => { if(!userDetails.phoneVerified) { handleOpenOtpModal('phone');}}}
                                     >
-                                        {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
+                                        {userDetails.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
                                             <span className="text-primary hover:underline text-xs">(Verify Now)</span>
                                         )}
                                     </button>
                                 </TooltipTrigger>
                               <TooltipContent>
-                                <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
+                                <p>Phone {userDetails.phoneVerified ? 'Verified' : 'Not Verified'}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </div>
-                          {tutor.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit"><WhatsAppIcon className="h-3 w-3 mr-1"/>WhatsApp</Badge>}
+                          {userDetails.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit"><WhatsAppIcon className="h-3 w-3 mr-1"/>WhatsApp</Badge>}
                       </div>
                   </InfoItem>
                 </CardContent>
@@ -323,8 +320,8 @@ export default function TutorMyAccountPage() {
                   <CardTitle>Payment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <InfoItem icon={Landmark} label="Payment Mode">{tutor.paymentType || "Not Set"}</InfoItem>
-                  <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(tutor.accountNumber)}</InfoItem>
+                  <InfoItem icon={Landmark} label="Payment Mode">{bankDetails?.paymentType || "Not Set"}</InfoItem>
+                  <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(bankDetails?.accountNumber)}</InfoItem>
                 </CardContent>
               </Card>
             </div>
@@ -333,7 +330,7 @@ export default function TutorMyAccountPage() {
               <Card>
                 <CardHeader className="flex flex-row items-start justify-between gap-2">
                   <CardTitle>About Me</CardTitle>
-                   {tutor.isBioReviewed ? (
+                   {tutoringDetails.bioReviewed ? (
                      <Badge variant="secondary" className="text-xs py-1 px-2.5 bg-primary/10 text-primary border-primary/20">
                        <CheckCircle className="mr-1 h-3 w-3"/>
                        Approved
@@ -346,7 +343,7 @@ export default function TutorMyAccountPage() {
                    )}
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
+                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutoringDetails.tutorBio || "No biography provided."}</p>
                 </CardContent>
               </Card>
               <Card>
@@ -354,17 +351,17 @@ export default function TutorMyAccountPage() {
                     <CardTitle>Tutoring Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjectsList}/>
-                    <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradesList}/>
-                    <InfoBadgeList icon={Building} label="Boards" items={tutor.boardsList}/>
+                    <InfoBadgeList icon={BookOpen} label="Subjects" items={tutoringDetails.subjects}/>
+                    <InfoBadgeList icon={GraduationCap} label="Grades" items={tutoringDetails.grades}/>
+                    <InfoBadgeList icon={Building} label="Boards" items={tutoringDetails.boards}/>
                     <InfoItem icon={RadioTower} label="Teaching Mode">
                       <div className="flex items-center gap-2">
-                          {tutor.online && <Badge>Online</Badge>}
-                          {tutor.offline && <Badge>Offline</Badge>}
-                          {tutor.isHybrid && <Badge variant="outline">Hybrid</Badge>}
+                          {tutoringDetails.online && <Badge>Online</Badge>}
+                          {tutoringDetails.offline && <Badge>Offline</Badge>}
+                          {tutoringDetails.hybrid && <Badge variant="outline">Hybrid</Badge>}
                       </div>
                     </InfoItem>
-                    {tutor.offline && <InfoItem icon={MapPin} label="Address">{tutor.addressName || tutor.address}</InfoItem>}
+                    {tutoringDetails.offline && <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address}</InfoItem>}
                 </CardContent>
               </Card>
                <Card>
@@ -372,10 +369,10 @@ export default function TutorMyAccountPage() {
                       <CardTitle>Other Details</CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutor.qualificationList} />
-                      <InfoBadgeList icon={Languages} label="Languages" items={tutor.languagesList || []} />
-                      <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor.availabilityDaysList}/>
-                      <InfoBadgeList icon={Clock} label="Available Times" items={tutor.availabilityTimeList}/>
+                      <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutoringDetails.qualifications} />
+                      <InfoBadgeList icon={Languages} label="Languages" items={tutoringDetails.languages || []} />
+                      <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutoringDetails.availabilityDays}/>
+                      <InfoBadgeList icon={Clock} label="Available Times" items={tutoringDetails.availabilityTime}/>
                   </CardContent>
               </Card>
             </div>
@@ -383,11 +380,11 @@ export default function TutorMyAccountPage() {
         </div>
       </main>
 
-      <UpdateEmailModal isOpen={isUpdateEmailModalOpen} onOpenChange={setIsUpdateEmailModalOpen} currentEmail={tutor.email || ""} />
-      <UpdatePhoneModal isOpen={isUpdatePhoneModalOpen} onOpenChange={setIsUpdatePhoneModalOpen} currentPhone={tutor.phone} currentCountryCode={tutor.countryCode} />
-      <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={tutor.displayName} userId={tutor.id} />
-      <EditPersonalDetailsModal isOpen={isEditPersonalModalOpen} onOpenChange={setIsEditPersonalModalOpen} user={tutor as any} />
-      <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} initialAccountName={tutor.displayName} />
+      <UpdateEmailModal isOpen={isUpdateEmailModalOpen} onOpenChange={setIsUpdateEmailModalOpen} currentEmail={userDetails.email || ""} />
+      <UpdatePhoneModal isOpen={isUpdatePhoneModalOpen} onOpenChange={setIsUpdatePhoneModalOpen} currentPhone={userDetails.phone} currentCountryCode={userDetails.countryCode} />
+      <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={userDetails.name} userId={userDetails.id} />
+      <EditPersonalDetailsModal isOpen={isEditPersonalModalOpen} onOpenChange={setIsEditPersonalModalOpen} user={legacyTutorObject as any} />
+      <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} initialAccountName={userDetails.name} />
       <OtpVerificationModal
         isOpen={isOtpModalOpen}
         onOpenChange={setIsOtpModalOpen}
@@ -408,7 +405,7 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={{ tutoringDetails: tutor }}
+                initialData={tutorAccountData}
                 onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
@@ -417,3 +414,4 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
