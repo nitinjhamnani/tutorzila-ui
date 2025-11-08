@@ -63,7 +63,12 @@ const tutoringDetailsSchema = z.object({
 
 type TutoringDetailsFormValues = z.infer<typeof tutoringDetailsSchema>;
 
-const ensureArray = (value: any): string[] => Array.isArray(value) ? value : [];
+const ensureArray = (value: any): string[] => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') return value.split(',').map(item => item.trim()).filter(item => item);
+  return [];
+};
+
 
 interface EditTutoringDetailsFormProps {
   onSuccess?: () => void;
@@ -187,6 +192,8 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
 });
 
   React.useEffect(() => {
+    // This now handles both cases: `initialData.tutoringDetails` from dashboard,
+    // and `{ tutoringDetails: tutor }` from my-account
     const details = initialData?.tutoringDetails || initialData;
     if (details) {
       const modes = [];
@@ -194,11 +201,11 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       if (details.offline) modes.push("Offline");
       
       form.reset({
-        subjects: ensureArray(details.subjectsList),
-        gradeLevelsTaught: ensureArray(details.gradesList),
-        boardsTaught: ensureArray(details.boardsList),
-        preferredDays: ensureArray(details.availabilityDaysList),
-        preferredTimeSlots: ensureArray(details.availabilityTimeList),
+        subjects: ensureArray(details.subjectsList || details.subjects),
+        gradeLevelsTaught: ensureArray(details.gradesList || details.grades),
+        boardsTaught: ensureArray(details.boardsList || details.boards),
+        preferredDays: ensureArray(details.availabilityDaysList || details.availabilityDays),
+        preferredTimeSlots: ensureArray(details.availabilityTimeList || details.availabilityTime),
         teachingMode: modes,
         isHybrid: details.isHybrid || false,
         location: {
@@ -213,10 +220,10 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
         },
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
         isRateNegotiable: details.isRateNegotiable || false,
-        qualifications: ensureArray(details.qualificationList),
-        languages: ensureArray(details.languagesList),
+        qualifications: ensureArray(details.qualificationList || details.qualifications),
+        languages: ensureArray(details.languagesList || details.languages),
         yearOfExperience: details.yearOfExperience || "",
-        bio: details.bio || "",
+        bio: details.bio || details.tutorBio || "",
       });
     }
   }, [initialData, form]);
@@ -567,3 +574,5 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     </Card>
   );
 }
+
+    
