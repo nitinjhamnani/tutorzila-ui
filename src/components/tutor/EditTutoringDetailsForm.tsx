@@ -129,20 +129,20 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
     defaultValues: {
-      subjects: ensureArray(initialData?.tutoringDetails?.subjects),
-      gradeLevelsTaught: ensureArray(initialData?.tutoringDetails?.grades),
-      boardsTaught: ensureArray(initialData?.tutoringDetails?.boards),
-      preferredDays: ensureArray(initialData?.tutoringDetails?.availabilityDays),
-      preferredTimeSlots: ensureArray(initialData?.tutoringDetails?.availabilityTime),
+      subjects: ensureArray(initialData?.tutoringDetails?.subjectsList),
+      gradeLevelsTaught: ensureArray(initialData?.tutoringDetails?.gradesList),
+      boardsTaught: ensureArray(initialData?.tutoringDetails?.boardsList),
+      preferredDays: ensureArray(initialData?.tutoringDetails?.availabilityDaysList),
+      preferredTimeSlots: ensureArray(initialData?.tutoringDetails?.availabilityTimeList),
       teachingMode: [],
-      isHybrid: initialData?.tutoringDetails?.hybrid || false,
+      isHybrid: initialData?.tutoringDetails?.isHybrid || false,
       location: initialData?.tutoringDetails?.address ? { address: initialData.tutoringDetails.address } : null,
       hourlyRate: initialData?.tutoringDetails?.hourlyRate ? String(initialData.tutoringDetails.hourlyRate) : "",
-      isRateNegotiable: initialData?.tutoringDetails?.rateNegotiable || false,
-      qualifications: ensureArray(initialData?.tutoringDetails?.qualifications),
-      languages: ensureArray(initialData?.tutoringDetails?.languages),
+      isRateNegotiable: initialData?.tutoringDetails?.isRateNegotiable || false,
+      qualifications: ensureArray(initialData?.tutoringDetails?.qualificationList),
+      languages: ensureArray(initialData?.tutoringDetails?.languagesList),
       yearOfExperience: initialData?.tutoringDetails?.yearOfExperience || "",
-      bio: initialData?.tutoringDetails?.tutorBio || "",
+      bio: initialData?.tutoringDetails?.bio || "",
     },
   });
 
@@ -194,13 +194,13 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       if (details.offline) modes.push("Offline");
       
       form.reset({
-        subjects: ensureArray(details.subjects),
-        gradeLevelsTaught: ensureArray(details.grades),
-        boardsTaught: ensureArray(details.boards),
-        preferredDays: ensureArray(details.availabilityDays),
-        preferredTimeSlots: ensureArray(details.availabilityTime),
+        subjects: ensureArray(details.subjectsList),
+        gradeLevelsTaught: ensureArray(details.gradesList),
+        boardsTaught: ensureArray(details.boardsList),
+        preferredDays: ensureArray(details.availabilityDaysList),
+        preferredTimeSlots: ensureArray(details.availabilityTimeList),
         teachingMode: modes,
-        isHybrid: details.hybrid || false,
+        isHybrid: details.isHybrid || false,
         location: {
             name: details.addressName || details.address || "",
             address: details.address || "",
@@ -212,11 +212,11 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
             googleMapsLink: details.googleMapsLink || "",
         },
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
-        isRateNegotiable: details.rateNegotiable || false,
-        qualifications: ensureArray(details.qualifications),
-        languages: ensureArray(details.languages),
+        isRateNegotiable: details.isRateNegotiable || false,
+        qualifications: ensureArray(details.qualificationList),
+        languages: ensureArray(details.languagesList),
         yearOfExperience: details.yearOfExperience || "",
-        bio: details.tutorBio || "",
+        bio: details.bio || "",
       });
     }
   }, [initialData, form]);
