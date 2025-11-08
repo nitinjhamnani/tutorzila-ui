@@ -189,6 +189,7 @@ export default function TutorMyAccountPage() {
                     </AvatarFallback>
                   </Avatar>
                   <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
+                  <p className="text-sm text-muted-foreground capitalize">{tutor.gender || 'Not specified'}</p>
                    <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                       <Badge variant={tutor.isActive ? "default" : "destructive"}>{tutor.isActive ? 'Active' : 'Inactive'}</Badge>
                       <Badge variant={tutor.isVerified ? "default" : "destructive"}>{tutor.isVerified ? 'Verified' : 'Not Verified'}</Badge>
@@ -201,11 +202,26 @@ export default function TutorMyAccountPage() {
                   <CardTitle>Personal & Contact</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <InfoItem icon={VenetianMask} label="Gender">{tutor.gender || "Not Specified"}</InfoItem>
-                  <InfoItem icon={Mail} label="Email">{tutor.email}</InfoItem>
+                  <InfoItem icon={Mail} label="Email">
+                    <div className="flex items-center gap-2">
+                        <span>{tutor.email}</span>
+                        {tutor.emailVerified ? (
+                            <Badge variant="secondary" className="py-0.5 px-2 bg-green-100 text-green-700 border-green-300">Verified</Badge>
+                        ) : (
+                            <Badge variant="destructive" className="py-0.5 px-2">Not Verified</Badge>
+                        )}
+                    </div>
+                  </InfoItem>
                   <InfoItem icon={Phone} label="Phone">
                       <div className="flex flex-col items-start gap-1.5">
-                          <span>{tutor.countryCode} {tutor.phone}</span>
+                        <div className="flex items-center gap-2">
+                            <span>{tutor.countryCode} {tutor.phone}</span>
+                            {tutor.phoneVerified ? (
+                                <Badge variant="secondary" className="py-0.5 px-2 bg-green-100 text-green-700 border-green-300">Verified</Badge>
+                            ) : (
+                                <Badge variant="destructive" className="py-0.5 px-2">Not Verified</Badge>
+                            )}
+                        </div>
                           {tutor.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit"><WhatsAppIcon className="h-3 w-3 mr-1"/>WhatsApp</Badge>}
                       </div>
                   </InfoItem>
