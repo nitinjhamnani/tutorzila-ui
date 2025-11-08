@@ -31,6 +31,7 @@ import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
@@ -157,6 +158,7 @@ export default function TutorMyAccountPage() {
   const [otpIdentifier, setOtpIdentifier] = useState("");
   const { toast } = useToast();
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
 
 
   const { data: tutor, isLoading, error } = useQuery({
@@ -228,6 +230,10 @@ export default function TutorMyAccountPage() {
                                 <UserCircle className="mr-2 h-4 w-4" />
                                 <span>Edit Personal Details</span>
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsEditTutoringModalOpen(true)}>
+                                <Briefcase className="mr-2 h-4 w-4" />
+                                <span>Edit Tutoring Details</span>
+                            </DropdownMenuItem>
                              <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                                 <Lock className="mr-2 h-4 w-4" />
@@ -266,11 +272,11 @@ export default function TutorMyAccountPage() {
                         <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <span onClick={() => { if(!tutor.emailVerified) { handleOpenOtpModal('email');}}}>
+                                <button onClick={() => { if(!tutor.emailVerified) { handleOpenOtpModal('email');}}} className="flex items-center">
                                     {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
-                                        <button className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</button>
+                                        <span className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
                                     )}
-                                </span>
+                                </button>
                             </TooltipTrigger>
                             <TooltipContent>
                             <p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p>
@@ -286,11 +292,11 @@ export default function TutorMyAccountPage() {
                           <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <span onClick={() => { if(!tutor.phoneVerified) { handleOpenOtpModal('phone');}}}>
+                                    <button onClick={() => { if(!tutor.phoneVerified) { handleOpenOtpModal('phone');}}} className="flex items-center">
                                         {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
-                                            <button className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</button>
+                                            <span className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
                                         )}
-                                    </span>
+                                    </button>
                                 </TooltipTrigger>
                               <TooltipContent>
                                 <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
@@ -391,6 +397,9 @@ export default function TutorMyAccountPage() {
         }}
       />
       <ResetPasswordModal isOpen={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen} />
+      <EditTutoringDetailsForm onSuccess={() => setIsEditTutoringModalOpen(false)} initialData={{tutoringDetails: tutor}} />
     </>
   );
 }
+
+    
