@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import type { ApiTutor } from "@/types";
+import type { ApiTutor, User } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -43,6 +43,16 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <path d="M15.246 14.148c-.281-.141-1.66-1.04-1.916-1.158-.256-.117-.44-.187-.625.117-.184.305-.724.938-.887 1.115-.164.177-.328.188-.609.047-.282-.14-1.188-.438-2.262-1.395-.837-.745-1.395-1.661-1.56-1.944-.163-.282-.01- .438.104-.576.104-.13.234-.336.351-.49.117-.154.156-.257.234-.422.078-.164.039-.305-.019-.445-.058-.141-.625-1.492-.859-2.04-.233-.547-.467-.469-.625-.469-.141 0-.305-.019-.469-.019-.164 0-.438.058-.672.305-.234.246-.887.867-.887 2.109s.906 2.441 1.023 2.617c.118.176 1.77 2.899 4.293 4.098 2.522 1.199 2.522.797 2.969.762.447-.039 1.66-.672 1.898-1.32.238-.648.238-1.199.16-1.319-.078-.121-.281-.188-.586-.328z" />
     </svg>
 );
+
+const fetchTutorAccountDetails = async (token: string | null) => {
+  if (!token) throw new Error("No authentication token found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/tutor/account`, {
+    headers: { "Authorization": `Bearer ${token}`, "accept": "*/*" },
+  });
+  if (!response.ok) throw new Error("Failed to fetch tutor account data.");
+  return response.json();
+};
 
 const getInitials = (name?: string): string => {
   if (!name) return "?";
@@ -93,21 +103,11 @@ export default function TutorMyAccountPage() {
   const { toast } = useToast();
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
-  const [tutorProfile, setTutorProfile] = useAtom(tutorProfileAtom);
+  const [tutorProfileFromState] = useAtom(tutorProfileAtom);
 
   const { data: tutorAccountData, isLoading, error } = useQuery({
     queryKey: ["tutorAccountDetails", token],
-    queryFn: async () => {
-      if (!token) throw new Error("No authentication token found.");
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-      const response = await fetch(`${apiBaseUrl}/api/tutor/account`, {
-        headers: { "Authorization": `Bearer ${token}`, "accept": "*/*" },
-      });
-      if (!response.ok) throw new Error("Failed to fetch tutor account data.");
-      const data = await response.json();
-      setTutorProfile(data); // Store in global state
-      return data;
-    },
+    queryFn: () => fetchTutorAccountDetails(token),
     enabled: !!token && !isCheckingAuth,
   });
 
@@ -118,9 +118,9 @@ export default function TutorMyAccountPage() {
   }, [isLoading, hideLoader]);
 
   const handleOpenOtpModal = (type: "email" | "phone") => {
-    if (!tutorProfile?.userDetails) return;
+    if (!tutorAccountData?.userDetails) return;
     setOtpVerificationType(type);
-    setOtpIdentifier(type === "email" ? tutorProfile.userDetails.email! : tutorProfile.userDetails.phone!);
+    setOtpIdentifier(type === "email" ? tutorAccountData.userDetails.email! : tutorAccountData.userDetails.phone!);
     setIsOtpModalOpen(true);
   };
   
@@ -143,57 +143,27 @@ export default function TutorMyAccountPage() {
     );
   }
   
-  if (error || !tutorProfile) {
+  if (error || !tutorAccountData || !tutorProfileFromState) {
     return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
   }
 
-  const { userDetails, tutoringDetails, bankDetails } = tutorProfile;
+  const { userDetails, bankDetails } = tutorAccountData;
+  const { tutoringDetails } = tutorProfileFromState;
 
   const maskAccountNumber = (number?: string) => {
     if (!number) return 'Not Provided';
     return `**** **** **** ${number.slice(-4)}`;
   }
   
-  const legacyTutorObject: ApiTutor = {
-      id: userDetails.id || "",
-      displayName: userDetails.name,
-      name: userDetails.name,
-      email: userDetails.email,
-      countryCode: userDetails.countryCode,
-      phone: userDetails.phone,
-      profilePicUrl: userDetails.profilePicUrl,
-      emailVerified: userDetails.emailVerified,
-      phoneVerified: userDetails.phoneVerified,
-      whatsappEnabled: userDetails.whatsappEnabled,
-      registeredDate: userDetails.registeredDate,
-      createdBy: userDetails.createdBy,
-      subjectsList: tutoringDetails.subjects,
-      gradesList: tutoringDetails.grades,
-      boardsList: tutoringDetails.boards,
-      qualificationList: tutoringDetails.qualifications,
-      availabilityDaysList: tutoringDetails.availabilityDays,
-      availabilityTimeList: tutoringDetails.availabilityTime,
-      yearOfExperience: tutoringDetails.yearOfExperience,
-      bio: tutoringDetails.tutorBio,
-      addressName: tutoringDetails.addressName,
-      address: tutoringDetails.address,
-      city: tutoringDetails.city,
-      state: tutoringDetails.state,
-      area: tutoringDetails.area,
-      pincode: tutoringDetails.pincode,
-      country: tutoringDetails.country,
-      googleMapsLink: tutoringDetails.googleMapsLink,
-      hourlyRate: tutoringDetails.hourlyRate,
-      languagesList: tutoringDetails.languages,
-      profileCompletion: tutoringDetails.profileCompletion,
-      isActive: tutoringDetails.active,
-      isRateNegotiable: tutoringDetails.rateNegotiable,
-      isBioReviewed: tutoringDetails.bioReviewed,
-      online: tutoringDetails.online,
-      offline: tutoringDetails.offline,
-      isHybrid: tutoringDetails.hybrid,
-      gender: userDetails.gender,
-      isVerified: tutoringDetails.verified,
+  // Create the legacy ApiTutor object for props that require it
+  const legacyTutorObject: User = {
+    id: userDetails.id || "",
+    name: userDetails.name,
+    email: userDetails.email,
+    countryCode: userDetails.countryCode,
+    phone: userDetails.phone,
+    profilePicUrl: userDetails.profilePicUrl,
+    role: "tutor", // Assuming role
   };
 
 
@@ -397,7 +367,7 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={tutorProfile}
+                initialData={tutorProfileFromState}
                 onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
