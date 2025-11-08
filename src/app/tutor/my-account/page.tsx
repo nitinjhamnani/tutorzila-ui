@@ -10,8 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall, MoreVertical, Lock } from "lucide-react";
-import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
-import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
@@ -30,6 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
 
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
@@ -67,6 +66,7 @@ const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor>
     whatsappEnabled: userDetails.whatsappEnabled,
     registeredDate: userDetails.registeredDate,
     createdBy: userDetails.createdBy,
+    createdByUsername: userDetails.createdByUsername,
     subjectsList: ensureArray(tutoringDetails.subjects),
     gradesList: ensureArray(tutoringDetails.grades),
     boardsList: ensureArray(tutoringDetails.boards),
@@ -154,6 +154,7 @@ export default function TutorMyAccountPage() {
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("email");
   const [otpIdentifier, setOtpIdentifier] = useState("");
   const { toast } = useToast();
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
 
 
   const { data: tutor, isLoading, error } = useQuery({
@@ -217,7 +218,7 @@ export default function TutorMyAccountPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => toast({ title: "Reset Password (Mock)", description: "Password reset instructions would be sent." })}>
+                            <DropdownMenuItem onClick={() => setIsResetPasswordModalOpen(true)}>
                                 <KeyRound className="mr-2 h-4 w-4" />
                                 <span>Reset Password</span>
                             </DropdownMenuItem>
@@ -386,6 +387,7 @@ export default function TutorMyAccountPage() {
           console.log("Mock resend OTP");
         }}
       />
+      <ResetPasswordModal isOpen={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen} />
     </>
   );
 }
