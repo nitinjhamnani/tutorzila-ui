@@ -89,7 +89,7 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
 };
 
 export default function TutorMyAccountPage() {
-  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isCheckingAuth } = useAuthMock();
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
   const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
@@ -155,7 +155,6 @@ export default function TutorMyAccountPage() {
     return `**** **** **** ${number.slice(-4)}`;
   }
   
-  // Create the legacy ApiTutor object for props that require it
   const legacyTutorObject: User = {
     id: userDetails.id || "",
     name: userDetails.name,
@@ -163,7 +162,7 @@ export default function TutorMyAccountPage() {
     countryCode: userDetails.countryCode,
     phone: userDetails.phone,
     profilePicUrl: userDetails.profilePicUrl,
-    role: "tutor", // Assuming role
+    role: "tutor",
   };
 
 
@@ -376,3 +375,5 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
+    
