@@ -17,7 +17,6 @@ import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetail
 import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { BreadcrumbHeader } from "@/components/shared/BreadcrumbHeader";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ApiTutor } from "@/types";
@@ -179,12 +178,6 @@ export default function TutorMyAccountPage() {
     <>
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-          <BreadcrumbHeader
-            segments={[
-              { label: "Dashboard", href: "/tutor/dashboard" },
-              { label: "My Account" },
-            ]}
-          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500 ease-out">
             <div className="md:col-span-1 space-y-6">
               <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
