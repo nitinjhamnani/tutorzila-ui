@@ -29,6 +29,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
+import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
+import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
@@ -242,7 +244,7 @@ export default function TutorMyAccountPage() {
                     </AvatarFallback>
                   </Avatar>
                   <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
-                  <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
+                   <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
                     <VenetianMask className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0"/>
                     <span className="capitalize">{tutor.gender || 'Not Specified'}</span>
                   </div>
