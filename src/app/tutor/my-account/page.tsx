@@ -22,6 +22,7 @@ import Link from "next/link";
 import type { ApiTutor } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+import { useToast } from "@/hooks/use-toast";
 
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
@@ -357,5 +358,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-
-    
