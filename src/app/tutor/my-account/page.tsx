@@ -244,7 +244,7 @@ export default function TutorMyAccountPage() {
                     </AvatarFallback>
                   </Avatar>
                   <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
-                   <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
+                  <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
                     <VenetianMask className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0"/>
                     <span className="capitalize">{tutor.gender || 'Not Specified'}</span>
                   </div>
@@ -257,7 +257,7 @@ export default function TutorMyAccountPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Personal & Contact</CardTitle>
+                  <CardTitle>Personal &amp; Contact</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <InfoItem icon={Mail} label="Email">
@@ -266,9 +266,11 @@ export default function TutorMyAccountPage() {
                         <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
-                                  <span onClick={() => handleOpenOtpModal('email')} className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
-                                )}
+                                <span onClick={() => { if(!tutor.emailVerified) { handleOpenOtpModal('email');}}}>
+                                    {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
+                                        <button className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</button>
+                                    )}
+                                </span>
                             </TooltipTrigger>
                             <TooltipContent>
                             <p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p>
@@ -284,9 +286,11 @@ export default function TutorMyAccountPage() {
                           <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                  {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
-                                      <span onClick={() => handleOpenOtpModal('phone')} className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
-                                  )}
+                                    <span onClick={() => { if(!tutor.phoneVerified) { handleOpenOtpModal('phone');}}}>
+                                        {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
+                                            <button className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</button>
+                                        )}
+                                    </span>
                                 </TooltipTrigger>
                               <TooltipContent>
                                 <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
@@ -298,12 +302,6 @@ export default function TutorMyAccountPage() {
                       </div>
                   </InfoItem>
                 </CardContent>
-                <CardFooter className="border-t p-3">
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => setIsEditPersonalModalOpen(true)}>
-                    <Edit3 className="mr-2 h-4 w-4"/>
-                    Edit Details
-                  </Button>
-                </CardFooter>
               </Card>
 
               <Card>
@@ -371,14 +369,6 @@ export default function TutorMyAccountPage() {
                       <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor.availabilityDaysList}/>
                       <InfoBadgeList icon={Clock} label="Available Times" items={tutor.availabilityTimeList}/>
                   </CardContent>
-                   <CardFooter className="border-t p-3 flex justify-end">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href="/tutor/edit-tutoring-details">
-                            <Edit3 className="mr-2 h-4 w-4"/>
-                            Edit Tutoring Details
-                        </Link>
-                      </Button>
-                   </CardFooter>
               </Card>
             </div>
           </div>
