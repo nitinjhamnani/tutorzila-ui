@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ApiTutor } from "@/types";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -235,6 +235,10 @@ export default function TutorMyAccountPage() {
                                 <Briefcase className="mr-2 h-4 w-4" />
                                 <span>Edit Tutoring Details</span>
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsUpdateBankDetailsModalOpen(true)}>
+                                <Landmark className="mr-2 h-4 w-4" />
+                                <span>Update Bank Details</span>
+                            </DropdownMenuItem>
                              <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                                 <Lock className="mr-2 h-4 w-4" />
@@ -322,12 +326,6 @@ export default function TutorMyAccountPage() {
                   <InfoItem icon={Landmark} label="Payment Mode">{tutor.paymentType || "Not Set"}</InfoItem>
                   <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(tutor.accountNumber)}</InfoItem>
                 </CardContent>
-                <CardFooter className="border-t p-3">
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => setIsUpdateBankDetailsModalOpen(true)}>
-                    <Edit3 className="mr-2 h-4 w-4"/>
-                    Update Bank Details
-                  </Button>
-                </CardFooter>
               </Card>
             </div>
 
@@ -409,7 +407,7 @@ export default function TutorMyAccountPage() {
         >
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
-              <EditTutoringDetailsForm
+              <EditTutoringDetailsForm 
                 initialData={{ tutoringDetails: tutor }}
                 onSuccess={() => setIsEditTutoringModalOpen(false)}
               />
