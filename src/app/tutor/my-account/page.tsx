@@ -143,13 +143,13 @@ export default function TutorMyAccountPage() {
     );
   }
   
-  if (error || !tutorAccountData || !tutorProfileFromState) {
+  if (error || !tutorAccountData || !tutorProfileFromState || !tutorProfileFromState.tutoringDetails) {
     return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
   }
 
   const { userDetails, bankDetails } = tutorAccountData;
   const { tutoringDetails } = tutorProfileFromState;
-
+  
   const maskAccountNumber = (number?: string) => {
     if (!number) return 'Not Provided';
     return `**** **** **** ${number.slice(-4)}`;
@@ -366,7 +366,7 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={tutorProfileFromState}
+                initialData={tutorProfileFromState?.tutoringDetails}
                 onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
@@ -375,5 +375,7 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
+    
 
     
