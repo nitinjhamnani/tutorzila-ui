@@ -34,8 +34,6 @@ const adminNavItems = [
   { href: "/admin/parents", label: "Parents", icon: UsersRound },
   { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
   { href: "/admin/demos", label: "Demos", icon: Presentation },
-  { href: "/admin/approvals", label: "Approvals", icon: ShieldCheck, disabled: true },
-  { href: "/admin/reports", label: "Reports", icon: BarChart2, disabled: true },
   { href: "/admin/support", label: "Support", icon: Ticket, disabled: true },
 ];
 
