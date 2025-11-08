@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ApiTutor } from "@/types";
-import { Tooltip, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -231,11 +231,11 @@ export default function TutorMyAccountPage() {
                                 <UserCircle className="mr-2 h-4 w-4" />
                                 <span>Edit Personal Details</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsEditTutoringModalOpen(true)}>
+                             <DropdownMenuItem onClick={() => setIsEditTutoringModalOpen(true)}>
                                 <Briefcase className="mr-2 h-4 w-4" />
                                 <span>Edit Tutoring Details</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsUpdateBankDetailsModalOpen(true)}>
+                             <DropdownMenuItem onClick={() => setIsUpdateBankDetailsModalOpen(true)}>
                                 <Landmark className="mr-2 h-4 w-4" />
                                 <span>Update Bank Details</span>
                             </DropdownMenuItem>
@@ -417,3 +417,5 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
+    
