@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import * as z from "zod";
@@ -59,9 +59,10 @@ type BankDetailsFormValues = z.infer<typeof bankDetailsSchema>;
 interface UpdateBankDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  initialAccountName?: string;
 }
 
-export function UpdateBankDetailsModal({ isOpen, onOpenChange }: UpdateBankDetailsModalProps) {
+export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountName }: UpdateBankDetailsModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -70,11 +71,23 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange }: UpdateBankDetai
     defaultValues: {
       paymentMode: "UPI",
       upiId: "",
-      accountName: "",
+      accountName: initialAccountName || "",
       accountNumber: "",
       ifscCode: "",
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        paymentMode: "UPI",
+        upiId: "",
+        accountName: initialAccountName || "",
+        accountNumber: "",
+        ifscCode: "",
+      });
+    }
+  }, [isOpen, initialAccountName, form]);
 
   const paymentMode = form.watch("paymentMode");
 

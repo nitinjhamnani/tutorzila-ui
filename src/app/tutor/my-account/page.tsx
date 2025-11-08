@@ -19,7 +19,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ApiTutor } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -31,6 +30,7 @@ import {
 import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
@@ -283,11 +283,11 @@ export default function TutorMyAccountPage() {
                           <span>{tutor.countryCode} {tutor.phone}</span>
                           <TooltipProvider>
                             <Tooltip>
-                              <TooltipTrigger asChild>
-                                {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
-                                    <span onClick={() => handleOpenOtpModal('phone')} className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
-                                )}
-                              </TooltipTrigger>
+                                <TooltipTrigger asChild>
+                                  {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
+                                      <span onClick={() => handleOpenOtpModal('phone')} className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
+                                  )}
+                                </TooltipTrigger>
                               <TooltipContent>
                                 <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
                               </TooltipContent>
@@ -378,7 +378,7 @@ export default function TutorMyAccountPage() {
       <UpdatePhoneModal isOpen={isUpdatePhoneModalOpen} onOpenChange={setIsUpdatePhoneModalOpen} currentPhone={tutor.phone} currentCountryCode={tutor.countryCode} />
       <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={tutor.displayName} userId={tutor.id} />
       <EditPersonalDetailsModal isOpen={isEditPersonalModalOpen} onOpenChange={setIsEditPersonalModalOpen} user={tutor as any} />
-      <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} />
+      <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} initialAccountName={tutor.displayName} />
       <OtpVerificationModal
         isOpen={isOtpModalOpen}
         onOpenChange={setIsOtpModalOpen}
