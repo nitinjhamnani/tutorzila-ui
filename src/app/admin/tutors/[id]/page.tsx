@@ -73,6 +73,8 @@ import {
   MoreVertical,
   Lock,
   Ban,
+  Landmark,
+  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -100,7 +102,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
     }
     const data = await response.json();
     
-    const { userDetails, tutoringDetails } = data;
+    const { userDetails, tutoringDetails, bankDetails } = data;
 
     return {
       id: tutorId,
@@ -146,6 +148,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       
       gender: userDetails.gender,
       isVerified: tutoringDetails.verified,
+      bankDetails: bankDetails || undefined,
     } as ApiTutor;
 };
 
@@ -323,6 +326,11 @@ export default function AdminTutorProfilePage() {
         }
     };
     
+    const maskAccountNumber = (number?: string) => {
+      if (!number) return 'Not Provided';
+      return `**** **** **** ${number.slice(-4)}`;
+    }
+
     if (isLoading) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
@@ -457,6 +465,15 @@ export default function AdminTutorProfilePage() {
                                 )}
                             </div>
                         </InfoItem>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Payment Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <InfoItem icon={Landmark} label="Payment Mode">{tutor.bankDetails?.paymentType || "Not Set"}</InfoItem>
+                        <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(tutor.bankDetails?.accountNumber)}</InfoItem>
                     </CardContent>
                 </Card>
             </div>

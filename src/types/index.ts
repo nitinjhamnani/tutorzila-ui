@@ -119,53 +119,49 @@ export interface TuitionRequirement {
 }
 
 export interface ApiTutor {
-  userDetails: {
-    id: string;
-    name: string;
-    email: string;
-    countryCode: string;
-    phone: string;
-    profilePicUrl: string;
-    emailVerified: boolean;
-    phoneVerified: boolean;
-    whatsappEnabled: boolean;
-    registeredDate: string;
-    createdBy: string;
-    createdByUsername?: string;
-    gender: string;
-  };
-  tutoringDetails: {
-    subjects: string[];
-    grades: string[];
-    boards: string[];
-    qualifications: string[];
-    availabilityDays: string[];
-    availabilityTime: string[];
-    yearOfExperience: string;
-    tutorBio: string;
-    addressName?: string;
-    address: string;
-    city: string;
-    state: string;
-    area: string;
-    pincode: string;
-    country: string;
-    googleMapsLink: string;
-    hourlyRate: number;
-    languages: string[];
-    profileCompletion: number;
-    active: boolean;
-    rateNegotiable: boolean;
-    bioReviewed: boolean;
-    online: boolean;
-    offline: boolean;
-    hybrid: boolean;
-    verified: boolean;
-  };
-  bankDetails: {
+  id: string;
+  displayName: string;
+  name: string;
+  email: string;
+  countryCode: string;
+  phone: string;
+  profilePicUrl?: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  whatsappEnabled: boolean;
+  registeredDate: string;
+  createdBy: string;
+  subjectsList: string[];
+  gradesList: string[];
+  boardsList: string[];
+  qualificationList: string[];
+  availabilityDaysList: string[];
+  availabilityTimeList: string[];
+  yearOfExperience: string;
+  bio: string;
+  addressName?: string;
+  address: string;
+  city: string;
+  state: string;
+  area: string;
+  pincode: string;
+  country: string;
+  googleMapsLink?: string;
+  hourlyRate: number;
+  languagesList: string[];
+  profileCompletion: number;
+  isActive: boolean;
+  isRateNegotiable: boolean;
+  isBioReviewed: boolean;
+  online: boolean;
+  offline: boolean;
+  isHybrid: boolean;
+  gender: string;
+  isVerified: boolean;
+  bankDetails?: {
     paymentType?: 'UPI' | 'NEFT/IMPS';
     accountNumber?: string;
-  }
+  };
 }
 
 export interface Testimonial {
