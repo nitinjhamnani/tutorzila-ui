@@ -31,6 +31,7 @@ import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 
 
@@ -292,11 +293,14 @@ export default function TutorMyAccountPage() {
                           <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button onClick={() => { if(!tutor.phoneVerified) { handleOpenOtpModal('phone');}}} className="flex items-center">
+                                    <span
+                                        className={!tutor.phoneVerified ? "cursor-pointer" : ""}
+                                        onClick={() => { if(!tutor.phoneVerified) { handleOpenOtpModal('phone');}}}
+                                    >
                                         {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
-                                            <span className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
+                                            <span className="text-primary hover:underline text-xs">(Verify Now)</span>
                                         )}
-                                    </button>
+                                    </span>
                                 </TooltipTrigger>
                               <TooltipContent>
                                 <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
@@ -397,9 +401,22 @@ export default function TutorMyAccountPage() {
         }}
       />
       <ResetPasswordModal isOpen={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen} />
-      <EditTutoringDetailsForm onSuccess={() => setIsEditTutoringModalOpen(false)} initialData={{tutoringDetails: tutor}} />
+      <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
+        <DialogContent
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          className="sm:max-w-3xl p-0 flex flex-col max-h-[90vh]"
+        >
+          <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
+          <div className="overflow-y-auto flex-grow h-full">
+              <EditTutoringDetailsForm 
+                initialData={{tutoringDetails: tutor}}
+                onSuccess={() => setIsEditTutoringModalOpen(false)} 
+              />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
 
-    
