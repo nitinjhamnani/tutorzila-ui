@@ -22,10 +22,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ApiTutor } from "@/types";
 
-const fetchTutorDashboardData = async (token: string | null): Promise<ApiTutor> => {
+const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
   if (!token) throw new Error("No authentication token found.");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-  const response = await fetch(`${apiBaseUrl}/api/tutor/dashboard`, {
+  const response = await fetch(`${apiBaseUrl}/api/tutor/account`, {
     headers: {
       "Authorization": `Bearer ${token}`,
       "accept": "*/*",
@@ -33,10 +33,16 @@ const fetchTutorDashboardData = async (token: string | null): Promise<ApiTutor> 
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch tutor dashboard data.");
+    throw new Error("Failed to fetch tutor account data.");
   }
   const data = await response.json();
-  const { userDetails, tutoringDetails } = data;
+  const { userDetails, tutoringDetails, bankDetails } = data;
+
+  const ensureArray = (value: any): string[] => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string' && value.trim() !== '') return value.split(',').map(item => item.trim()).filter(item => item);
+    return [];
+  };
 
   return {
     id: userDetails.id || "",
@@ -51,12 +57,12 @@ const fetchTutorDashboardData = async (token: string | null): Promise<ApiTutor> 
     whatsappEnabled: userDetails.whatsappEnabled,
     registeredDate: userDetails.registeredDate,
     createdBy: userDetails.createdBy,
-    subjectsList: tutoringDetails.subjects,
-    gradesList: tutoringDetails.grades,
-    boardsList: tutoringDetails.boards,
-    qualificationList: tutoringDetails.qualifications,
-    availabilityDaysList: tutoringDetails.availabilityDays,
-    availabilityTimeList: tutoringDetails.availabilityTime,
+    subjectsList: ensureArray(tutoringDetails.subjects),
+    gradesList: ensureArray(tutoringDetails.grades),
+    boardsList: ensureArray(tutoringDetails.boards),
+    qualificationList: ensureArray(tutoringDetails.qualifications),
+    availabilityDaysList: ensureArray(tutoringDetails.availabilityDays),
+    availabilityTimeList: ensureArray(tutoringDetails.availabilityTime),
     yearOfExperience: tutoringDetails.yearOfExperience,
     bio: tutoringDetails.tutorBio,
     addressName: tutoringDetails.addressName,
@@ -68,7 +74,7 @@ const fetchTutorDashboardData = async (token: string | null): Promise<ApiTutor> 
     country: tutoringDetails.country,
     googleMapsLink: tutoringDetails.googleMapsLink,
     hourlyRate: tutoringDetails.hourlyRate,
-    languagesList: tutoringDetails.languages,
+    languagesList: ensureArray(tutoringDetails.languages),
     profileCompletion: tutoringDetails.profileCompletion,
     isActive: tutoringDetails.active,
     isRateNegotiable: tutoringDetails.rateNegotiable,
@@ -78,6 +84,9 @@ const fetchTutorDashboardData = async (token: string | null): Promise<ApiTutor> 
     isHybrid: tutoringDetails.hybrid,
     gender: userDetails.gender,
     isVerified: tutoringDetails.verified,
+    // Bank Details
+    paymentType: bankDetails?.paymentType,
+    accountNumber: bankDetails?.accountNumber,
   };
 };
 
@@ -133,8 +142,8 @@ export default function TutorMyAccountPage() {
   const queryClient = useQueryClient();
 
   const { data: tutor, isLoading, error } = useQuery({
-    queryKey: ["tutorDashboard", token],
-    queryFn: () => fetchTutorDashboardData(token),
+    queryKey: ["tutorAccountDetails", token],
+    queryFn: () => fetchTutorAccountDetails(token),
     enabled: !!token && !isCheckingAuth,
   });
 
@@ -159,6 +168,11 @@ export default function TutorMyAccountPage() {
   
   if (error || !tutor) {
     return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
+  }
+
+  const maskAccountNumber = (number?: string) => {
+    if (!number) return 'Not Provided';
+    return `**** **** **** ${number.slice(-4)}`;
   }
 
   return (
@@ -213,16 +227,18 @@ export default function TutorMyAccountPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Account Settings</CardTitle>
+                  <CardTitle>Payment Details</CardTitle>
                 </CardHeader>
-                 <CardContent className="flex flex-col space-y-2">
-                    <Button variant="outline" size="sm" onClick={() => setIsUpdateEmailModalOpen(true)}>Update Email</Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsUpdatePhoneModalOpen(true)}>Update Phone</Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsUpdateBankDetailsModalOpen(true)}>Update Bank Details</Button>
-                 </CardContent>
-                 <CardFooter className="border-t p-3">
-                    <Button variant="destructive" size="sm" className="w-full" onClick={() => setIsDeactivationModalOpen(true)}>Deactivate Account</Button>
-                 </CardFooter>
+                <CardContent className="space-y-4">
+                  <InfoItem icon={Landmark} label="Payment Mode">{tutor.paymentType || "Not Set"}</InfoItem>
+                  <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(tutor.accountNumber)}</InfoItem>
+                </CardContent>
+                <CardFooter className="border-t p-3">
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => setIsUpdateBankDetailsModalOpen(true)}>
+                    <Edit3 className="mr-2 h-4 w-4"/>
+                    Update Bank Details
+                  </Button>
+                </CardFooter>
               </Card>
             </div>
 
