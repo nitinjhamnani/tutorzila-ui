@@ -191,8 +191,7 @@ export default function TutorMyAccountPage() {
                     </AvatarFallback>
                   </Avatar>
                   <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
-                  <p className="text-sm text-muted-foreground capitalize">{tutor.gender || 'Not specified'}</p>
-                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
+                  <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                       <Badge variant={tutor.isActive ? "default" : "destructive"}>{tutor.isActive ? 'Active' : 'Inactive'}</Badge>
                       <Badge variant={tutor.isVerified ? "default" : "destructive"}>{tutor.isVerified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
@@ -204,6 +203,9 @@ export default function TutorMyAccountPage() {
                   <CardTitle>Personal & Contact</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <InfoItem icon={VenetianMask} label="Gender">
+                      <span className="capitalize">{tutor.gender || 'Not Specified'}</span>
+                  </InfoItem>
                   <InfoItem icon={Mail} label="Email">
                     <div className="flex items-center gap-2">
                       <span>{tutor.email}</span>
