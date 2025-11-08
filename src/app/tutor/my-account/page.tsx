@@ -145,6 +145,7 @@ export default function TutorMyAccountPage() {
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("email");
   const [otpIdentifier, setOtpIdentifier] = useState("");
+  const { toast } = useToast();
 
 
   const { data: tutor, isLoading, error } = useQuery({
@@ -229,10 +230,10 @@ export default function TutorMyAccountPage() {
                         <span>{tutor.email}</span>
                         <TooltipProvider>
                         <Tooltip>
-                            <TooltipTrigger>
-                            {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
-                               <button onClick={() => handleOpenOtpModal('email')} className="text-primary hover:underline text-xs">(Verify Now)</button>
-                            )}
+                            <TooltipTrigger asChild>
+                                {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
+                                  <span onClick={() => handleOpenOtpModal('email')} className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
+                                )}
                             </TooltipTrigger>
                             <TooltipContent>
                             <p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p>
@@ -247,9 +248,9 @@ export default function TutorMyAccountPage() {
                           <span>{tutor.countryCode} {tutor.phone}</span>
                           <TooltipProvider>
                             <Tooltip>
-                              <TooltipTrigger>
+                              <TooltipTrigger asChild>
                                 {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
-                                    <button onClick={() => handleOpenOtpModal('phone')} className="text-primary hover:underline text-xs">(Verify Now)</button>
+                                    <span onClick={() => handleOpenOtpModal('phone')} className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
                                 )}
                               </TooltipTrigger>
                               <TooltipContent>
