@@ -119,61 +119,54 @@ export interface TuitionRequirement {
 }
 
 export interface ApiTutor {
-  // Fields for list view from /api/search/tutors/all
-  id: string; 
-  displayName: string;
-  name: string;
-  subjectsList: string[];
-  gradesList: string[];
-  boardsList: string[];
-  area: string;
-  city: string;
-  state: string;
-  googleMapsLink?: string;
-  createdAt: string; // This was from the list view API
-  registeredDate: string;
-  createdBy?: string;
-  createdByUsername?: string;
-  profilePicUrl?: string;
-  isBioReviewed: boolean;
-  online: boolean;
-  offline: boolean;
-
-  // Additional fields for detail view from /api/manage/tutor/{id}
-  qualificationList?: string[];
-  availabilityDaysList?: string[];
-  availabilityTimeList?: string[];
-  yearOfExperience?: string;
-  bio?: string;
-  addressName?: string;
-  address?: string;
-  pincode?: string;
-  country?: string;
-  hourlyRate?: number;
-  languagesList?: string[];
-  profileCompletion?: number;
-  isRateNegotiable?: boolean;
-  isHybrid?: boolean;
-
-  // Fields that might come from other sources (like initial user data or userDetails in detail view)
-  email?: string;
-  phone?: string;
-  countryCode?: string;
-  gender?: string;
-  documentsUrl?: string;
-  updatedAt?: string;
-  whatsappEnabled?: boolean;
-  isActive: boolean; // Both list and detail responses have this
-  isVerified: boolean; // Both list and detail responses should have this
-  emailVerified?: boolean;
-  phoneVerified?: boolean;
-  active?: boolean; // Can be deprecated if isActive is used consistently
-  
-  // Bank Details
-  paymentType?: 'UPI' | 'NEFT/IMPS';
-  accountNumber?: string;
+  userDetails: {
+    id: string;
+    name: string;
+    email: string;
+    countryCode: string;
+    phone: string;
+    profilePicUrl: string;
+    emailVerified: boolean;
+    phoneVerified: boolean;
+    whatsappEnabled: boolean;
+    registeredDate: string;
+    createdBy: string;
+    createdByUsername?: string;
+    gender: string;
+  };
+  tutoringDetails: {
+    subjects: string[];
+    grades: string[];
+    boards: string[];
+    qualifications: string[];
+    availabilityDays: string[];
+    availabilityTime: string[];
+    yearOfExperience: string;
+    tutorBio: string;
+    addressName?: string;
+    address: string;
+    city: string;
+    state: string;
+    area: string;
+    pincode: string;
+    country: string;
+    googleMapsLink: string;
+    hourlyRate: number;
+    languages: string[];
+    profileCompletion: number;
+    active: boolean;
+    rateNegotiable: boolean;
+    bioReviewed: boolean;
+    online: boolean;
+    offline: boolean;
+    hybrid: boolean;
+    verified: boolean;
+  };
+  bankDetails: {
+    paymentType?: 'UPI' | 'NEFT/IMPS';
+    accountNumber?: string;
+  }
 }
-
 
 export interface Testimonial {
   id: string;
@@ -337,4 +330,11 @@ export interface AdminDashboardData {
   noOfTutors: number;
   noOfOpenEnquiries: number;
   noOfActiveEnquiries: number;
+}
+
+export interface TutorDashboardMetrics {
+  enquiriesAssigned: number;
+  demoScheduled: number;
+  profileViews: number;
+  averageRating: number;
 }

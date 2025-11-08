@@ -5,7 +5,7 @@ import type { ReactNode, ElementType } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import type { User, TutorProfile, DemoSession, MyClass, EnquiryDemo } from "@/types";
+import type { User, TutorProfile, DemoSession, MyClass, EnquiryDemo, TutorDashboardMetrics } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -77,6 +77,8 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
 import { format, addMinutes, parse } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { useAtom } from "jotai";
+import { tutorProfileAtom } from "@/lib/state/tutor";
 
 interface QuickActionCardProps {
   title: string;
@@ -121,11 +123,10 @@ function QuickActionCard({ title, description, IconEl, href, disabled, buttonTex
   );
 }
 
-const fetchTutorDashboardData = async (token: string | null) => {
+const fetchTutorMetrics = async (token: string | null): Promise<TutorDashboardMetrics> => {
   if (!token) throw new Error("No authentication token found.");
-  // NOTE: This URL should be in an environment variable in a real application
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/tutor/dashboard`, {
+  const response = await fetch(`${apiBaseUrl}/api/tutor/metrics`, {
     headers: {
       "Authorization": `Bearer ${token}`,
       "accept": "*/*",
@@ -133,8 +134,7 @@ const fetchTutorDashboardData = async (token: string | null) => {
   });
 
   if (!response.ok) {
-    // It's better to get a specific error message from the API if possible
-    throw new Error("Failed to fetch tutor dashboard data.");
+    throw new Error("Failed to fetch tutor dashboard metrics.");
   }
   return response.json();
 };
@@ -216,6 +216,7 @@ export default function TutorDashboardPage() {
   const { hideLoader } = useGlobalLoader();
   const { toast } = useToast();
   const [isFetchingTutorId, setIsFetchingTutorId] = useState(false);
+  const [tutorProfile, setTutorProfile] = useAtom(tutorProfileAtom);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -224,11 +225,11 @@ export default function TutorDashboardPage() {
   const [isManageDemoModalOpen, setIsManageDemoModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
 
-  const { data: dashboardData, isLoading: isLoadingDashboard, error: dashboardError } = useQuery({
-    queryKey: ['tutorDashboard', token],
-    queryFn: () => fetchTutorDashboardData(token),
+  const { data: metricsData, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
+    queryKey: ['tutorMetrics', token],
+    queryFn: () => fetchTutorMetrics(token),
     enabled: !!token,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, 
     refetchOnWindowFocus: false, 
   });
 
@@ -241,7 +242,7 @@ export default function TutorDashboardPage() {
 
   useEffect(() => {
     setHasMounted(true);
-    hideLoader(); // Ensure loader is hidden when dashboard mounts
+    hideLoader(); 
   }, [hideLoader]);
 
   useEffect(() => {
@@ -321,8 +322,10 @@ export default function TutorDashboardPage() {
   }
 
   const dashboardMetrics = [
-    { title: "Enquiries Assigned", value: String(dashboardData?.tutorMetrics?.enquiriesAssigned ?? 0), IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Demo Scheduled", value: String(dashboardData?.tutorMetrics?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Enquiries Assigned", value: String(metricsData?.enquiriesAssigned ?? 0), IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Demos Scheduled", value: String(metricsData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Profile Views", value: String(metricsData?.profileViews ?? 0), IconEl: UsersIcon, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Average Rating", value: String(metricsData?.averageRating?.toFixed(1) ?? 'N/A'), IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
   ];
 
   const quickActions: QuickActionCardProps[] = [
@@ -335,16 +338,16 @@ export default function TutorDashboardPage() {
     { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "/tutor/support", buttonText: "Get Support" },
   ];
 
-  const profileCompletion = dashboardData?.tutoringDetails?.profileCompletion ?? 0;
-  const isTutorActive = dashboardData?.tutoringDetails?.active ?? false;
-  const isVerified = dashboardData?.tutoringDetails?.verified ?? false;
+  const profileCompletion = tutorProfile?.tutoringDetails?.profileCompletion ?? 0;
+  const isTutorActive = tutorProfile?.tutoringDetails?.active ?? false;
+  const isVerified = tutorProfile?.tutoringDetails?.verified ?? false;
 
   return (
     <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
           
-          {!isTutorActive && !isLoadingDashboard && (
+          {!isTutorActive && !isLoadingMetrics && (
              <ActivationStatusCard 
                 onActivate={() => console.log("Activate button clicked - mock action")} 
                 className="mb-6"
@@ -356,7 +359,7 @@ export default function TutorDashboardPage() {
               <div className="flex items-center gap-4 flex-1">
                 <div className="relative group shrink-0">
                   <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                    <AvatarImage src={dashboardData?.profilePicture || tutorUser.avatar} alt={tutorUser.name} />
+                    <AvatarImage src={tutorProfile?.userDetails?.profilePicUrl || tutorUser.avatar} alt={tutorUser.name} />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
                       {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                     </AvatarFallback>
@@ -383,7 +386,7 @@ export default function TutorDashboardPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs text-muted-foreground">Profile Completion</p>
-                      {isLoadingDashboard ? (
+                      {tutorProfile === null ? (
                           <Skeleton className="h-8 w-16 mt-1 rounded-md" />
                       ) : (
                           <p className={cn("text-2xl font-bold", "text-primary")}>{profileCompletion}%</p>
@@ -405,17 +408,17 @@ export default function TutorDashboardPage() {
           </div>
           <div className="mb-6 md:mb-8">
             <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">My Insights</h2>
-            {isLoadingDashboard ? (
+            {isLoadingMetrics ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
                   {[...Array(4)].map((_, index) => <Skeleton key={index} className="h-[96px] w-full rounded-xl" />)}
               </div>
-            ) : dashboardError ? (
+            ) : metricsError ? (
               <Card className="bg-destructive/10 border-destructive/20 text-destructive-foreground p-4">
                   <p className="text-sm font-semibold">Could not load insights</p>
                   <p className="text-xs">There was an error fetching your dashboard metrics. Please try again later.</p>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {dashboardMetrics.map((metric, index) => (
                   <Card key={index} className="bg-card rounded-xl shadow-lg p-5 border-0">
                     <div className="flex items-start justify-between">
@@ -501,7 +504,7 @@ export default function TutorDashboardPage() {
         <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <div className="overflow-y-auto flex-grow h-full">
             <EditTutoringDetailsForm 
-              initialData={dashboardData}
+              initialData={tutorProfile}
               onSuccess={() => setIsEditTutoringModalOpen(false)} 
             />
         </div>
