@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower } from "lucide-react";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall } from "lucide-react";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
@@ -20,6 +20,8 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ApiTutor } from "@/types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
   if (!token) throw new Error("No authentication token found.");
@@ -204,23 +206,33 @@ export default function TutorMyAccountPage() {
                 <CardContent className="space-y-4">
                   <InfoItem icon={Mail} label="Email">
                     <div className="flex items-center gap-2">
-                        <span>{tutor.email}</span>
-                        {tutor.emailVerified ? (
-                            <Badge variant="secondary" className="py-0.5 px-2 bg-green-100 text-green-700 border-green-300">Verified</Badge>
-                        ) : (
-                            <Badge variant="destructive" className="py-0.5 px-2">Not Verified</Badge>
-                        )}
+                      <span>{tutor.email}</span>
+                       <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : <MailCheck className="h-4 w-4 text-muted-foreground/50" />}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                       </TooltipProvider>
                     </div>
                   </InfoItem>
                   <InfoItem icon={Phone} label="Phone">
                       <div className="flex flex-col items-start gap-1.5">
                         <div className="flex items-center gap-2">
-                            <span>{tutor.countryCode} {tutor.phone}</span>
-                            {tutor.phoneVerified ? (
-                                <Badge variant="secondary" className="py-0.5 px-2 bg-green-100 text-green-700 border-green-300">Verified</Badge>
-                            ) : (
-                                <Badge variant="destructive" className="py-0.5 px-2">Not Verified</Badge>
-                            )}
+                          <span>{tutor.countryCode} {tutor.phone}</span>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : <PhoneCall className="h-4 w-4 text-muted-foreground/50" />}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                           {tutor.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit"><WhatsAppIcon className="h-3 w-3 mr-1"/>WhatsApp</Badge>}
                       </div>
