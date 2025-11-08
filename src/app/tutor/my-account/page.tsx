@@ -223,10 +223,6 @@ export default function TutorMyAccountPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setIsResetPasswordModalOpen(true)}>
-                                <KeyRound className="mr-2 h-4 w-4" />
-                                <span>Reset Password</span>
-                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setIsEditPersonalModalOpen(true)}>
                                 <UserCircle className="mr-2 h-4 w-4" />
                                 <span>Edit Personal Details</span>
@@ -235,9 +231,13 @@ export default function TutorMyAccountPage() {
                                 <Briefcase className="mr-2 h-4 w-4" />
                                 <span>Edit Tutoring Details</span>
                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => setIsUpdateBankDetailsModalOpen(true)}>
+                            <DropdownMenuItem onClick={() => setIsUpdateBankDetailsModalOpen(true)}>
                                 <Landmark className="mr-2 h-4 w-4" />
                                 <span>Update Bank Details</span>
+                            </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => setIsResetPasswordModalOpen(true)}>
+                                <KeyRound className="mr-2 h-4 w-4" />
+                                <span>Reset Password</span>
                             </DropdownMenuItem>
                              <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
@@ -408,8 +408,8 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={{ tutoringDetails: tutor }}
-                onSuccess={() => setIsEditTutoringModalOpen(false)}
+                initialData={{tutoringDetails: tutor}}
+                onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
         </DialogContent>
@@ -417,5 +417,7 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
+    
 
     
