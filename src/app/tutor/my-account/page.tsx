@@ -33,23 +33,9 @@ import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
+import { useAtom } from "jotai";
+import { tutorProfileAtom } from "@/lib/state/tutor";
 
-
-const fetchTutorAccountDetails = async (token: string | null): Promise<{ userDetails: any, tutoringDetails: any, bankDetails: any }> => {
-  if (!token) throw new Error("No authentication token found.");
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-  const response = await fetch(`${apiBaseUrl}/api/tutor/account`, {
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "accept": "*/*",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch tutor account data.");
-  }
-  return await response.json();
-};
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -107,11 +93,21 @@ export default function TutorMyAccountPage() {
   const { toast } = useToast();
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
-
+  const [tutorProfile, setTutorProfile] = useAtom(tutorProfileAtom);
 
   const { data: tutorAccountData, isLoading, error } = useQuery({
     queryKey: ["tutorAccountDetails", token],
-    queryFn: () => fetchTutorAccountDetails(token),
+    queryFn: async () => {
+      if (!token) throw new Error("No authentication token found.");
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+      const response = await fetch(`${apiBaseUrl}/api/tutor/account`, {
+        headers: { "Authorization": `Bearer ${token}`, "accept": "*/*" },
+      });
+      if (!response.ok) throw new Error("Failed to fetch tutor account data.");
+      const data = await response.json();
+      setTutorProfile(data); // Store in global state
+      return data;
+    },
     enabled: !!token && !isCheckingAuth,
   });
 
@@ -122,9 +118,9 @@ export default function TutorMyAccountPage() {
   }, [isLoading, hideLoader]);
 
   const handleOpenOtpModal = (type: "email" | "phone") => {
-    if (!tutorAccountData?.userDetails) return;
+    if (!tutorProfile?.userDetails) return;
     setOtpVerificationType(type);
-    setOtpIdentifier(type === "email" ? tutorAccountData.userDetails.email! : tutorAccountData.userDetails.phone!);
+    setOtpIdentifier(type === "email" ? tutorProfile.userDetails.email! : tutorProfile.userDetails.phone!);
     setIsOtpModalOpen(true);
   };
   
@@ -147,18 +143,17 @@ export default function TutorMyAccountPage() {
     );
   }
   
-  if (error || !tutorAccountData) {
+  if (error || !tutorProfile) {
     return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
   }
 
-  const { userDetails, tutoringDetails, bankDetails } = tutorAccountData;
+  const { userDetails, tutoringDetails, bankDetails } = tutorProfile;
 
   const maskAccountNumber = (number?: string) => {
     if (!number) return 'Not Provided';
     return `**** **** **** ${number.slice(-4)}`;
   }
   
-  // Reconstruct the `tutor` object to pass to modals
   const legacyTutorObject: ApiTutor = {
       id: userDetails.id || "",
       displayName: userDetails.name,
@@ -172,7 +167,6 @@ export default function TutorMyAccountPage() {
       whatsappEnabled: userDetails.whatsappEnabled,
       registeredDate: userDetails.registeredDate,
       createdBy: userDetails.createdBy,
-      createdByUsername: userDetails.createdByUsername,
       subjectsList: tutoringDetails.subjects,
       gradesList: tutoringDetails.grades,
       boardsList: tutoringDetails.boards,
@@ -200,8 +194,6 @@ export default function TutorMyAccountPage() {
       isHybrid: tutoringDetails.hybrid,
       gender: userDetails.gender,
       isVerified: tutoringDetails.verified,
-      paymentType: bankDetails?.paymentType,
-      accountNumber: bankDetails?.accountNumber,
   };
 
 
@@ -405,7 +397,7 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={tutorAccountData}
+                initialData={tutorProfile}
                 onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
@@ -414,4 +406,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-

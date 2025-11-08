@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Loader2 } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Save, Loader2 } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
@@ -32,6 +32,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ApiTutor } from "@/types";
 import { allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions, qualificationsList } from "@/lib/constants";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { useAtom } from "jotai";
+import { tutorProfileAtom } from "@/lib/state/tutor";
 
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
 const boardsList: MultiSelectOption[] = boardOptions.map(b => ({ value: b, label: b }));
@@ -130,6 +132,7 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
   const { showLoader, hideLoader } = useGlobalLoader();
+  const [, setTutorProfile] = useAtom(tutorProfileAtom);
 
   const form = useForm<TutoringDetailsFormValues>({
     resolver: zodResolver(tutoringDetailsSchema),
@@ -157,7 +160,12 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       showLoader("Updating your profile...");
     },
     onSuccess: (updatedData) => {
-        queryClient.setQueryData(['tutorDetails', token], updatedData);
+        // Optimistically update the global state
+        setTutorProfile(prev => ({...prev, tutoringDetails: updatedData}));
+        
+        // Invalidate queries to refetch fresh data in the background
+        queryClient.invalidateQueries({ queryKey: ['tutorDetails', token] });
+        queryClient.invalidateQueries({ queryKey: ['tutorAccountDetails', token] });
         
         toast({
             title: "Tutoring Details Updated!",

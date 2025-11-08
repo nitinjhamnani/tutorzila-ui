@@ -77,6 +77,8 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
 import { format, addMinutes, parse } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { useAtom } from "jotai";
+import { tutorProfileAtom } from "@/lib/state/tutor";
 
 interface QuickActionCardProps {
   title: string;
@@ -231,6 +233,7 @@ export default function TutorDashboardPage() {
   const { hideLoader } = useGlobalLoader();
   const { toast } = useToast();
   const [isFetchingTutorId, setIsFetchingTutorId] = useState(false);
+  const [, setTutorProfile] = useAtom(tutorProfileAtom);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -252,6 +255,9 @@ export default function TutorDashboardPage() {
     queryFn: () => fetchTutorDetails(token),
     enabled: !!token,
     staleTime: 5 * 60 * 1000,
+    onSuccess: (data) => {
+      setTutorProfile({ tutoringDetails: data }); // Store fetched details in global state
+    },
   });
 
 
