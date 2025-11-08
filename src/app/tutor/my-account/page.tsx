@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall } from "lucide-react";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall, MoreVertical, Lock } from "lucide-react";
 import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
 import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
@@ -23,6 +23,13 @@ import type { ApiTutor } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
@@ -201,7 +208,31 @@ export default function TutorMyAccountPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500 ease-out">
             <div className="md:col-span-1 space-y-6">
-              <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+              <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden relative">
+                 <div className="absolute top-4 right-4">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => toast({ title: "Reset Password (Mock)", description: "Password reset instructions would be sent." })}>
+                                <KeyRound className="mr-2 h-4 w-4" />
+                                <span>Reset Password</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsEditPersonalModalOpen(true)}>
+                                <UserCircle className="mr-2 h-4 w-4" />
+                                <span>Edit Personal Details</span>
+                            </DropdownMenuItem>
+                             <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                <Lock className="mr-2 h-4 w-4" />
+                                <span>Deactivate Account</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
                 <CardContent className="p-5 md:p-6 text-center">
                   <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
                     <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
