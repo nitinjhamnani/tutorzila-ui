@@ -264,7 +264,7 @@ export default function TutorMyAccountPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Personal &amp; Contact</CardTitle>
+                  <CardTitle>Personal & Contact</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <InfoItem icon={Mail} label="Email">
@@ -419,5 +419,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-
-    
