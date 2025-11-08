@@ -157,12 +157,8 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       showLoader("Updating your profile...");
     },
     onSuccess: (updatedData) => {
-        // This will update both the 'tutorDashboard' and 'tutorAccountDetails' queries
-        // as they both will be invalidated and refetch, or we can set their data.
-        // For simplicity, invalidating is often safer.
-        queryClient.invalidateQueries({ queryKey: ['tutorDashboard', token] });
-        queryClient.invalidateQueries({ queryKey: ['tutorAccountDetails', token] });
-
+        queryClient.setQueryData(['tutorDetails', token], updatedData);
+        
         toast({
             title: "Tutoring Details Updated!",
             description: "Your tutoring information has been saved successfully.",
@@ -194,13 +190,13 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
       if (details.offline) modes.push("Offline (In-person)");
       
       form.reset({
-        subjects: ensureArray(details.subjects || details.subjectsList),
-        gradeLevelsTaught: ensureArray(details.grades || details.gradesList),
-        boardsTaught: ensureArray(details.boards || details.boardsList),
-        preferredDays: ensureArray(details.availabilityDays || details.availabilityDaysList),
-        preferredTimeSlots: ensureArray(details.availabilityTime || details.availabilityTimeList),
+        subjects: ensureArray(details.subjects),
+        gradeLevelsTaught: ensureArray(details.grades),
+        boardsTaught: ensureArray(details.boards),
+        preferredDays: ensureArray(details.availabilityDays),
+        preferredTimeSlots: ensureArray(details.availabilityTime),
         teachingMode: modes,
-        isHybrid: details.hybrid || details.isHybrid || false,
+        isHybrid: details.hybrid || false,
         location: {
             name: details.addressName || details.address || "",
             address: details.address || "",
@@ -212,9 +208,9 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
             googleMapsLink: details.googleMapsLink || "",
         },
         hourlyRate: details.hourlyRate ? String(details.hourlyRate) : "",
-        isRateNegotiable: details.rateNegotiable || details.isRateNegotiable || false,
-        qualifications: ensureArray(details.qualifications || details.qualificationList),
-        languages: ensureArray(details.languages || details.languagesList),
+        isRateNegotiable: details.rateNegotiable || false,
+        qualifications: ensureArray(details.qualifications),
+        languages: ensureArray(details.languages),
         yearOfExperience: details.yearOfExperience || "",
         bio: details.tutorBio || details.bio || "",
       });

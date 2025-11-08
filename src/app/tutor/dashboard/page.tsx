@@ -77,8 +77,6 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
 import { format, addMinutes, parse } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import { useAtom } from "jotai";
-import { tutorProfileAtom } from "@/lib/state/tutor";
 
 interface QuickActionCardProps {
   title: string;
@@ -138,6 +136,23 @@ const fetchTutorMetrics = async (token: string | null): Promise<TutorDashboardMe
   }
   return response.json();
 };
+
+const fetchTutorDetails = async (token: string | null) => {
+    if (!token) throw new Error("No authentication token found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/tutor/details`, {
+        headers: {
+        "Authorization": `Bearer ${token}`,
+        "accept": "*/*",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch tutor details.");
+    }
+    return response.json();
+};
+
 
 const fetchTutorId = async (token: string | null): Promise<string> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -216,7 +231,6 @@ export default function TutorDashboardPage() {
   const { hideLoader } = useGlobalLoader();
   const { toast } = useToast();
   const [isFetchingTutorId, setIsFetchingTutorId] = useState(false);
-  const [tutorProfile, setTutorProfile] = useAtom(tutorProfileAtom);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -232,6 +246,14 @@ export default function TutorDashboardPage() {
     staleTime: 5 * 60 * 1000, 
     refetchOnWindowFocus: false, 
   });
+  
+  const { data: tutoringDetails, isLoading: isLoadingDetails, error: detailsError } = useQuery({
+    queryKey: ['tutorDetails', token],
+    queryFn: () => fetchTutorDetails(token),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+
 
   const { data: demosData, isLoading: isLoadingDemos } = useQuery({
     queryKey: ['tutorScheduledDemos', token],
@@ -333,21 +355,21 @@ export default function TutorDashboardPage() {
     { title: "Demo Sessions", description: "Manage all your demo class activities", IconEl: Presentation, href: "/tutor/demo-sessions", buttonText: "Manage Demos" },
     { title: "My Classes", description: "Organize your scheduled classes", IconEl: CalendarDays, href: "/tutor/classes", buttonText: "Manage Classes" },
     { title: "My Payments", description: "Track your earnings and payment status", IconEl: DollarSign, href: "/tutor/payments", buttonText: "View Payments" },
-    { title: "Edit Tutoring Profile", description: "Showcase your expertise", IconEl: BookOpenIcon, href: "/tutor/edit-tutoring-details", buttonText: "Update Profile" },
+    { title: "Edit Tutoring Profile", description: "Showcase your expertise", IconEl: BookOpenIcon, onClick: () => setIsEditTutoringModalOpen(true), buttonText: "Update Profile" },
     { title: "View Public Profile", description: "See how your profile looks to parents", IconEl: Eye, onClick: handleViewProfileClick, buttonText: "View Profile" },
     { title: "Support", description: "Get help or report issues", IconEl: LifeBuoy, href: "/tutor/support", buttonText: "Get Support" },
   ];
 
-  const profileCompletion = tutorProfile?.tutoringDetails?.profileCompletion ?? 0;
-  const isTutorActive = tutorProfile?.tutoringDetails?.active ?? false;
-  const isVerified = tutorProfile?.tutoringDetails?.verified ?? false;
+  const profileCompletion = tutoringDetails?.profileCompletion ?? 0;
+  const isTutorActive = tutoringDetails?.active ?? false;
+  const isVerified = tutoringDetails?.verified ?? false;
 
   return (
     <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
           
-          {!isTutorActive && !isLoadingMetrics && (
+          {!isTutorActive && !isLoadingDetails && (
              <ActivationStatusCard 
                 onActivate={() => console.log("Activate button clicked - mock action")} 
                 className="mb-6"
@@ -359,7 +381,7 @@ export default function TutorDashboardPage() {
               <div className="flex items-center gap-4 flex-1">
                 <div className="relative group shrink-0">
                   <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
-                    <AvatarImage src={tutorProfile?.userDetails?.profilePicUrl || tutorUser.avatar} alt={tutorUser.name} />
+                    <AvatarImage src={tutorUser.avatar} alt={tutorUser.name} />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
                       {tutorUser.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                     </AvatarFallback>
@@ -386,7 +408,7 @@ export default function TutorDashboardPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs text-muted-foreground">Profile Completion</p>
-                      {tutorProfile === null ? (
+                      {isLoadingDetails ? (
                           <Skeleton className="h-8 w-16 mt-1 rounded-md" />
                       ) : (
                           <p className={cn("text-2xl font-bold", "text-primary")}>{profileCompletion}%</p>
@@ -504,7 +526,7 @@ export default function TutorDashboardPage() {
         <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <div className="overflow-y-auto flex-grow h-full">
             <EditTutoringDetailsForm 
-              initialData={tutorProfile}
+              initialData={tutoringDetails ? { tutoringDetails } : null}
               onSuccess={() => setIsEditTutoringModalOpen(false)} 
             />
         </div>
