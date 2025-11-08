@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ApiTutor } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 
 
 const fetchTutorAccountDetails = async (token: string | null): Promise<ApiTutor> => {
@@ -141,6 +142,10 @@ export default function TutorMyAccountPage() {
   const [isUpdateBankDetailsModalOpen, setIsUpdateBankDetailsModalOpen] = useState(false);
   const { hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("email");
+  const [otpIdentifier, setOtpIdentifier] = useState("");
+
 
   const { data: tutor, isLoading, error } = useQuery({
     queryKey: ["tutorAccountDetails", token],
@@ -153,6 +158,18 @@ export default function TutorMyAccountPage() {
       hideLoader();
     }
   }, [isLoading, hideLoader]);
+
+  const handleOpenOtpModal = (type: "email" | "phone") => {
+    setOtpVerificationType(type);
+    setOtpIdentifier(type === "email" ? tutor!.email! : tutor!.phone!);
+    setIsOtpModalOpen(true);
+  };
+  
+  const handleOtpSuccess = async () => {
+    toast({ title: "Verification Successful!", description: `Your ${otpVerificationType} has been verified.` });
+    queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
+  };
+
 
   if (isCheckingAuth || isLoading) {
     return (
@@ -209,17 +226,19 @@ export default function TutorMyAccountPage() {
                 <CardContent className="space-y-4">
                   <InfoItem icon={Mail} label="Email">
                     <div className="flex items-center gap-2">
-                      <span>{tutor.email}</span>
-                       <TooltipProvider>
+                        <span>{tutor.email}</span>
+                        <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger>
-                            {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : <MailCheck className="h-4 w-4 text-muted-foreground/50" />}
-                          </TooltipTrigger>
-                          <TooltipContent>
+                            <TooltipTrigger>
+                            {tutor.emailVerified ? <MailCheck className="h-4 w-4 text-primary" /> : (
+                               <button onClick={() => handleOpenOtpModal('email')} className="text-primary hover:underline text-xs">(Verify Now)</button>
+                            )}
+                            </TooltipTrigger>
+                            <TooltipContent>
                             <p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p>
-                          </TooltipContent>
+                            </TooltipContent>
                         </Tooltip>
-                       </TooltipProvider>
+                        </TooltipProvider>
                     </div>
                   </InfoItem>
                   <InfoItem icon={Phone} label="Phone">
@@ -229,7 +248,9 @@ export default function TutorMyAccountPage() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger>
-                                {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : <PhoneCall className="h-4 w-4 text-muted-foreground/50" />}
+                                {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
+                                    <button onClick={() => handleOpenOtpModal('phone')} className="text-primary hover:underline text-xs">(Verify Now)</button>
+                                )}
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
@@ -299,7 +320,7 @@ export default function TutorMyAccountPage() {
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutor.qualificationList} />
-                      <InfoBadgeList icon={Languages} label="Languages" items={tutor.languagesList} />
+                      <InfoBadgeList icon={Languages} label="Languages" items={tutor.languagesList || []} />
                       <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor.availabilityDaysList}/>
                       <InfoBadgeList icon={Clock} label="Available Times" items={tutor.availabilityTimeList}/>
                   </CardContent>
@@ -322,6 +343,18 @@ export default function TutorMyAccountPage() {
       <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={tutor.displayName} userId={tutor.id} />
       <EditPersonalDetailsModal isOpen={isEditPersonalModalOpen} onOpenChange={setIsEditPersonalModalOpen} user={tutor as any} />
       <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} />
+      <OtpVerificationModal
+        isOpen={isOtpModalOpen}
+        onOpenChange={setIsOtpModalOpen}
+        verificationType={otpVerificationType}
+        identifier={otpIdentifier}
+        onSuccess={handleOtpSuccess}
+        onResend={async () => {
+          console.log("Mock resend OTP");
+        }}
+      />
     </>
   );
 }
+
+    
