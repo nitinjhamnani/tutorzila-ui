@@ -293,14 +293,14 @@ export default function TutorMyAccountPage() {
                           <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <span
+                                    <button
                                         className={!tutor.phoneVerified ? "cursor-pointer" : ""}
                                         onClick={() => { if(!tutor.phoneVerified) { handleOpenOtpModal('phone');}}}
                                     >
                                         {tutor.phoneVerified ? <PhoneCall className="h-4 w-4 text-primary" /> : (
                                             <span className="text-primary hover:underline text-xs">(Verify Now)</span>
                                         )}
-                                    </span>
+                                    </button>
                                 </TooltipTrigger>
                               <TooltipContent>
                                 <p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p>
