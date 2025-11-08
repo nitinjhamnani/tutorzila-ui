@@ -26,7 +26,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { KeyRound, Lock, Loader2, Check, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const resetPasswordSchema = z
   .object({
@@ -48,6 +49,34 @@ interface ResetPasswordModalProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
+const resetPasswordApi = async ({
+  password,
+  token,
+}: {
+  password: string;
+  token: string | null;
+}) => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/user/password`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'TZ-USER-PASS': password,
+      'accept': '*/*',
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to reset password." }));
+    throw new Error(errorData.message);
+  }
+  
+  return true; 
+};
+
+
 const PasswordCheck = ({ label, isMet }: { label: string; isMet: boolean }) => (
   <div className={cn("flex items-center text-xs", isMet ? "text-green-600" : "text-muted-foreground")}>
     {isMet ? <Check className="mr-2 h-3.5 w-3.5" /> : <Circle className="mr-2 h-3.5 w-3.5" />}
@@ -57,7 +86,8 @@ const PasswordCheck = ({ label, isMet }: { label: string; isMet: boolean }) => (
 
 export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalProps) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { logout, token } = useAuthMock();
+  const queryClient = useQueryClient();
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -75,6 +105,26 @@ export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalP
     uppercase: /[A-Z]/.test(newPassword || ""),
     specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword || ""),
   };
+  
+  const mutation = useMutation({
+    mutationFn: (data: ResetPasswordFormValues) => resetPasswordApi({ password: data.newPassword, token }),
+    onSuccess: () => {
+      toast({
+        title: "Password Reset Successful!",
+        description: "Your password has been changed. Please log in again with your new credentials.",
+      });
+      logout();
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Password Reset Failed",
+        description: error.message,
+      });
+    },
+  });
+
 
   useEffect(() => {
     if (!isOpen) {
@@ -84,18 +134,7 @@ export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalP
 
 
   const onSubmit: SubmitHandler<ResetPasswordFormValues> = async (data) => {
-    setIsSubmitting(true);
-    // Mock API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log("Resetting password with new password:", data.newPassword);
-
-    toast({
-      title: "Password Reset Successful!",
-      description: "Your password has been changed. Please use it for your next login.",
-    });
-
-    setIsSubmitting(false);
-    onOpenChange(false);
+    mutation.mutate(data);
   };
 
   return (
@@ -126,7 +165,7 @@ export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalP
                       type="password"
                       placeholder="••••••••"
                       {...field}
-                      disabled={isSubmitting}
+                      disabled={mutation.isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -154,7 +193,7 @@ export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalP
                       type="password"
                       placeholder="••••••••"
                       {...field}
-                      disabled={isSubmitting}
+                      disabled={mutation.isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -162,8 +201,8 @@ export function ResetPasswordModal({ isOpen, onOpenChange }: ResetPasswordModalP
               )}
             />
             <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
-                {isSubmitting ? (
+              <Button type="submit" disabled={mutation.isPending || !form.formState.isValid}>
+                {mutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Resetting...
