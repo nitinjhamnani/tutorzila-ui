@@ -325,8 +325,19 @@ export default function TutorMyAccountPage() {
 
             <div className="md:col-span-2 space-y-6">
               <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-start justify-between gap-2">
                   <CardTitle>About Me</CardTitle>
+                   {tutor.isBioReviewed ? (
+                     <Badge variant="secondary" className="text-xs py-1 px-2.5 bg-primary/10 text-primary border-primary/20">
+                       <CheckCircle className="mr-1 h-3 w-3"/>
+                       Approved
+                     </Badge>
+                   ) : (
+                     <Badge variant="destructive" className="text-xs py-1 px-2.5">
+                       <ShieldAlert className="mr-1 h-3 w-3"/>
+                       Pending Approval
+                     </Badge>
+                   )}
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutor.bio || "No biography provided."}</p>
