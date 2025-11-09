@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings, PlusCircle, Edit3 } from "lucide-react";
+import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings, PlusCircle, Edit3, Unlock } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
@@ -47,6 +47,7 @@ import { EditParentModal } from "@/components/admin/modals/EditParentModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ModalTitle, DialogDescription as ModalDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { CreateEnquiryModal, type CreateEnquiryFormValues } from "@/components/admin/modals/CreateEnquiryModal";
+import { ParentActivationModal } from "@/components/admin/modals/ParentActivationModal";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -195,6 +196,7 @@ export default function AdminParentDetailPage() {
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isAddEnquiryModalOpen, setIsAddEnquiryModalOpen] = useState(false);
+    const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
     const { data, isLoading: isLoadingParent, error: parentError } = useQuery({
         queryKey: ['parentDetails', parentId],
@@ -315,6 +317,12 @@ export default function AdminParentDetailPage() {
                                       {parent.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
                                       {parent.status}
                                     </Badge>
+                                    {parent.status !== 'Active' && (
+                                        <Button variant="secondary" size="sm" className="h-7 text-xs" onClick={() => setIsActivationModalOpen(true)}>
+                                            <Unlock className="mr-1.5 h-3.5 w-3.5" />
+                                            Activate
+                                        </Button>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2 text-sm text-muted-foreground mt-2">
                                     <div className="flex items-center gap-2 flex-wrap">
@@ -470,7 +478,16 @@ export default function AdminParentDetailPage() {
               onOpenChange={setIsEditModalOpen}
               parent={parent}
             />
+            {parent.status !== 'Active' && (
+                <ParentActivationModal
+                    isOpen={isActivationModalOpen}
+                    onOpenChange={setIsActivationModalOpen}
+                    parentName={parent.name}
+                    parentId={parent.id}
+                />
+            )}
         </TooltipProvider>
         </>
     );
 }
+
