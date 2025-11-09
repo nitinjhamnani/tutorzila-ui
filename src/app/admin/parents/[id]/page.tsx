@@ -213,8 +213,7 @@ export default function AdminParentDetailPage() {
         queryKey: ['parentDetails', parentId],
         queryFn: () => fetchParentDetails(parentId, token),
         enabled: !!parentId && !!token,
-        staleTime: Infinity,
-        refetchOnWindowFocus: false,
+        staleTime: 0,
     });
     
     useEffect(() => {
