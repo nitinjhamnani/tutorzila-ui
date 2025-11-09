@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { PlusCircle, LifeBuoy, Ticket, AlertTriangle, CheckCircle2, Clock, Send, Eye, Loader2 } from "lucide-react";
+import { PlusCircle, LifeBuoy, Ticket, AlertTriangle, CheckCircle2, Clock, Send, Eye, Loader2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -129,6 +129,8 @@ export default function TutorSupportPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { hideLoader, showLoader } = useGlobalLoader();
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const { data: tickets = [], isLoading, error } = useQuery({
     queryKey: ['supportTickets', token],
@@ -184,6 +186,11 @@ export default function TutorSupportPage() {
   async function onSubmit(values: TicketFormValues) {
     mutation.mutate(values);
   }
+
+  const handleViewDetails = (ticket: SupportTicket) => {
+    setSelectedTicket(ticket);
+    setIsDetailsModalOpen(true);
+  };
 
   const StatusBadge = ({ status, resolved }: { status: string; resolved?: boolean }) => {
     let text = status;
@@ -320,8 +327,8 @@ export default function TutorSupportPage() {
                   <TableCell><StatusBadge status={ticket.status} resolved={ticket.resolved} /></TableCell>
                   <TableCell>{format(new Date(ticket.createdAt), "MMM d, yyyy")}</TableCell>
                   <TableCell>
-                    <Button variant="outline" size="icon" className="h-8 w-8">
-                      <Eye className="h-4 w-4" />
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewDetails(ticket)}>
+                      <Info className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -340,6 +347,31 @@ export default function TutorSupportPage() {
           </Table>
         </CardContent>
       </Card>
+       {selectedTicket && (
+        <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+          <DialogContent className="sm:max-w-md bg-card">
+            <DialogHeader>
+              <DialogTitle>{selectedTicket.subject}</DialogTitle>
+              <DialogDescription>
+                Details for your support ticket regarding "{selectedTicket.category}".
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+              <div>
+                <Label className="text-xs font-semibold text-muted-foreground">Your Description</Label>
+                <p className="text-sm p-3 bg-muted/50 border rounded-md mt-1">{selectedTicket.description}</p>
+              </div>
+              <div>
+                <Label className="text-xs font-semibold text-muted-foreground">Admin Remarks</Label>
+                <p className="text-sm p-3 bg-muted/50 border rounded-md mt-1">{selectedTicket.remarks || "No remarks from admin yet."}</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setIsDetailsModalOpen(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
