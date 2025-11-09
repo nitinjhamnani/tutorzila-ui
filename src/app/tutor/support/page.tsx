@@ -299,14 +299,10 @@ export default function TutorSupportPage() {
       </Card>
       
       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-        <CardHeader>
-            <CardTitle>My Tickets</CardTitle>
-            <CardDescription>A list of all your submitted support tickets.</CardDescription>
-        </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-muted/50">
                 <TableHead>Category</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Status</TableHead>
