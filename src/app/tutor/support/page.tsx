@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,6 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -60,11 +60,11 @@ const ticketSchema = z.object({
 type TicketFormValues = z.infer<typeof ticketSchema>;
 
 interface SupportTicket {
-  id: string; // Added for React key
+  id: string;
   category: string;
   subject: string;
   description: string;
-  createdAt: string; // ISO date string
+  createdAt: string;
   status: string;
   remarks: string;
   resolved: boolean;
@@ -96,7 +96,7 @@ const fetchSupportTickets = async (token: string | null): Promise<SupportTicket[
   const data = await response.json();
   return data.map((ticket: any, index: number) => ({
     ...ticket,
-    id: `TKT-${index}-${new Date(ticket.createdAt).getTime()}`, // Create a unique ID
+    id: `TKT-${index}-${new Date(ticket.createdAt).getTime()}`,
   }));
 };
 
@@ -118,7 +118,7 @@ const createSupportTicket = async (token: string | null, data: TicketFormValues)
     const errorData = await response.json().catch(() => ({ message: 'Failed to create ticket.' }));
     throw new Error(errorData.message || 'An unknown error occurred.');
   }
-  // No response body, so we return true on success
+  
   return true;
 };
 
