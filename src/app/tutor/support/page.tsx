@@ -176,7 +176,7 @@ export default function TutorSupportPage() {
   const selectedCategory = form.watch("category");
   
   useEffect(() => {
-    if (isOpen) {
+    if (isModalOpen) {
       form.reset();
     }
   }, [isModalOpen, form]);
