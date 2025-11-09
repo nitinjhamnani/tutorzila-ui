@@ -50,9 +50,8 @@ import { cn } from "@/lib/utils";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const ticketSchema = z.object({
-  subject: z.string().min(5, "Subject must be at least 5 characters."),
-  relatedId: z.string().optional(),
-  priority: z.enum(["Low", "Medium", "High"]),
+  category: z.string().min(1, "Please select a category."),
+  subject: z.string().min(1, "Please select a subject."),
   description: z.string().min(20, "Description must be at least 20 characters."),
 });
 
@@ -60,18 +59,25 @@ type TicketFormValues = z.infer<typeof ticketSchema>;
 
 interface SupportTicket {
   id: string;
+  category: string;
   subject: string;
-  relatedId?: string;
   status: "Pending" | "In Progress" | "Resolved";
-  priority: "Low" | "Medium" | "High";
   lastUpdated: string;
 }
 
 const mockTickets: SupportTicket[] = [
-  { id: "TKT-001", subject: "Payment issue for Enquiry #12345", relatedId: "12345", status: "In Progress", priority: "High", lastUpdated: new Date(Date.now() - 86400000).toISOString() },
-  { id: "TKT-002", subject: "Tutor not responding for Demo #D-678", relatedId: "D-678", status: "Pending", priority: "Medium", lastUpdated: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { id: "TKT-003", subject: "Question about commission structure", status: "Resolved", priority: "Low", lastUpdated: new Date(Date.now() - 86400000 * 5).toISOString() },
+  { id: "TKT-001", category: "Payment", subject: "My Earnings", status: "In Progress", lastUpdated: new Date(Date.now() - 86400000).toISOString() },
+  { id: "TKT-002", category: "Demo", subject: "Technical Issue", status: "Pending", lastUpdated: new Date(Date.now() - 86400000 * 2).toISOString() },
+  { id: "TKT-003", category: "Others", subject: "General Feedback", status: "Resolved", lastUpdated: new Date(Date.now() - 86400000 * 5).toISOString() },
 ];
+
+const ticketCategories = {
+  "Enquiry": ["General Enquiry", "Tutor Application", "Requirement Details"],
+  "Payment": ["My Earnings", "Fee Structure", "Transaction Issue"],
+  "Demo": ["Scheduling Conflict", "Technical Issue", "Feedback"],
+  "Classes": ["Student Attendance", "Syllabus Query", "Class Timings"],
+  "Others": ["General Feedback", "Report an Issue", "Account Help"],
+};
 
 export default function TutorSupportPage() {
   const { toast } = useToast();
@@ -84,26 +90,25 @@ export default function TutorSupportPage() {
     hideLoader();
   }, [hideLoader]);
 
-
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
+      category: "",
       subject: "",
-      relatedId: "",
-      priority: "Medium",
       description: "",
     },
   });
+
+  const selectedCategory = form.watch("category");
 
   async function onSubmit(values: TicketFormValues) {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     const newTicket: SupportTicket = {
       id: `TKT-${String(tickets.length + 1).padStart(3, '0')}`,
+      category: values.category,
       subject: values.subject,
-      relatedId: values.relatedId,
       status: "Pending",
-      priority: values.priority,
       lastUpdated: new Date().toISOString(),
     };
     setTickets(prev => [newTicket, ...prev]);
@@ -115,16 +120,7 @@ export default function TutorSupportPage() {
     setIsModalOpen(false);
     form.reset();
   }
-  
-  const PriorityIcon = ({ priority }: { priority: "Low" | "Medium" | "High" }) => {
-    switch (priority) {
-      case "High": return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case "Medium": return <Clock className="h-4 w-4 text-yellow-500" />;
-      case "Low": return <CheckCircle2 className="h-4 w-4 text-gray-500" />;
-      default: return null;
-    }
-  };
-  
+
   const StatusBadge = ({ status }: { status: "Pending" | "In Progress" | "Resolved" }) => {
     const statusClasses = {
       "Pending": "bg-yellow-100 text-yellow-800 border-yellow-300",
@@ -164,47 +160,41 @@ export default function TutorSupportPage() {
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-                  <FormField
-                    control={form.control}
-                    name="subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subject</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Payment issue for Enquiry #..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="relatedId"
+                      name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Related ID (Optional)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enquiry, Demo, or Tutor ID" {...field} />
-                          </FormControl>
+                          <FormLabel>Category</FormLabel>
+                          <Select onValueChange={(value) => { field.onChange(value); form.setValue("subject", ""); }} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.keys(ticketCategories).map(cat => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField
+                     <FormField
                       control={form.control}
-                      name="priority"
+                      name="subject"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Priority</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormLabel>Subject</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCategory}>
                             <FormControl>
-                              <SelectTrigger><SelectValue placeholder="Select priority" /></SelectTrigger>
+                              <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="Low">Low</SelectItem>
-                              <SelectItem value="Medium">Medium</SelectItem>
-                              <SelectItem value="High">High</SelectItem>
+                              {selectedCategory && ticketCategories[selectedCategory as keyof typeof ticketCategories].map(subj => (
+                                <SelectItem key={subj} value={subj}>{subj}</SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -252,7 +242,6 @@ export default function TutorSupportPage() {
                 <TableHead>Ticket ID</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
                 <TableHead>Last Updated</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -263,7 +252,6 @@ export default function TutorSupportPage() {
                   <TableCell className="font-medium text-primary">{ticket.id}</TableCell>
                   <TableCell>{ticket.subject}</TableCell>
                   <TableCell><StatusBadge status={ticket.status} /></TableCell>
-                  <TableCell className="flex items-center gap-2"><PriorityIcon priority={ticket.priority} /> {ticket.priority}</TableCell>
                   <TableCell>{format(new Date(ticket.lastUpdated), "MMM d, yyyy")}</TableCell>
                   <TableCell>
                     <Button variant="outline" size="icon" className="h-8 w-8">
