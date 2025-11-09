@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings, PlusCircle, Edit3, Unlock } from "lucide-react";
+import { ArrowLeft, Loader2, User as UserIcon, Mail, Phone, CalendarDays, Briefcase, School, MailCheck, PhoneCall, CheckCircle, XCircle, Eye, UserPlus, KeyRound, UserX, RadioTower, MapPin, Settings, PlusCircle, Edit3, Unlock, MoreVertical, Lock } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminEnquiryCard } from "@/components/admin/AdminEnquiryCard";
@@ -42,12 +42,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EditParentModal } from "@/components/admin/modals/EditParentModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle as ModalTitle, DialogDescription as ModalDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { CreateEnquiryModal, type CreateEnquiryFormValues } from "@/components/admin/modals/CreateEnquiryModal";
 import { ParentActivationModal } from "@/components/admin/modals/ParentActivationModal";
+import { DeactivationModal } from "@/components/modals/DeactivationModal";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -197,6 +205,7 @@ export default function AdminParentDetailPage() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isAddEnquiryModalOpen, setIsAddEnquiryModalOpen] = useState(false);
     const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
+    const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
 
     const { data, isLoading: isLoadingParent, error: parentError } = useQuery({
         queryKey: ['parentDetails', parentId],
@@ -291,10 +300,32 @@ export default function AdminParentDetailPage() {
             <div className="space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0">
                     <CardHeader className="relative">
-                        <div className="absolute top-4 right-4">
-                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsEditModalOpen(true)}>
-                              <Edit3 className="h-4 w-4" />
-                          </Button>
+                         <div className="absolute top-4 right-4">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                               <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
+                                  <Edit3 className="mr-2 h-4 w-4" />
+                                  <span>Edit User Details</span>
+                                </DropdownMenuItem>
+                               <DropdownMenuSeparator />
+                               {parent.status === 'Active' ? (
+                                  <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                      <Lock className="mr-2 h-4 w-4" />
+                                      <span>Deactivate</span>
+                                  </DropdownMenuItem>
+                               ) : (
+                                  <DropdownMenuItem onClick={() => setIsActivationModalOpen(true)}>
+                                      <Unlock className="mr-2 h-4 w-4" />
+                                      <span>Activate</span>
+                                  </DropdownMenuItem>
+                               )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                             <Avatar className="h-20 w-20 border-2 border-primary/20 shrink-0">
@@ -317,12 +348,6 @@ export default function AdminParentDetailPage() {
                                       {parent.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
                                       {parent.status}
                                     </Badge>
-                                    {parent.status !== 'Active' && (
-                                        <Button variant="secondary" size="sm" className="h-7 text-xs" onClick={() => setIsActivationModalOpen(true)}>
-                                            <Unlock className="mr-1.5 h-3.5 w-3.5" />
-                                            Activate
-                                        </Button>
-                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2 text-sm text-muted-foreground mt-2">
                                     <div className="flex items-center gap-2 flex-wrap">
@@ -478,14 +503,18 @@ export default function AdminParentDetailPage() {
               onOpenChange={setIsEditModalOpen}
               parent={parent}
             />
-            {parent.status !== 'Active' && (
-                <ParentActivationModal
-                    isOpen={isActivationModalOpen}
-                    onOpenChange={setIsActivationModalOpen}
-                    parentName={parent.name}
-                    parentId={parent.id}
-                />
-            )}
+            <ParentActivationModal
+                isOpen={isActivationModalOpen}
+                onOpenChange={setIsActivationModalOpen}
+                parentName={parent.name}
+                parentId={parent.id}
+            />
+            <DeactivationModal
+                isOpen={isDeactivationModalOpen}
+                onOpenChange={setIsDeactivationModalOpen}
+                userName={parent.name}
+                userId={parent.id}
+            />
         </TooltipProvider>
         </>
     );

@@ -17,6 +17,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Trash2, Loader2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 interface DeactivationModalProps {
   isOpen: boolean;
@@ -26,19 +28,75 @@ interface DeactivationModalProps {
 }
 
 const deactivationReasons = [
-  { id: "not_finding_tutors", label: "Not finding suitable tutors/students." },
-  { id: "taking_a_break", label: "I'm just taking a break." },
-  { id: "found_elsewhere", label: "Found a better platform elsewhere." },
-  { id: "cost_issues", label: "Costs and fees are an issue." },
-  { id: "other", label: "Other reason." },
+  { id: "tutor_request", label: "User requested deactivation" },
+  { id: "terms_violation", label: "Violation of platform terms" },
+  { id: "poor_performance", label: "Poor performance or reviews" },
+  { id: "other", label: "Other (requires manual note)" },
 ];
+
+const updateTutorActivation = async ({
+  userId,
+  reason,
+  token,
+  activate,
+}: {
+  userId: string;
+  reason: string;
+  token: string | null;
+  activate: boolean;
+}) => {
+  if (!token) throw new Error("Authentication token not found.");
+  if (!userId) throw new Error("User ID is missing.");
+  if (!reason) throw new Error("A reason is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/activate/${userId}?activated=${activate}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to update user status." }));
+    throw new Error(errorData.message);
+  }
+
+  return response.json();
+};
 
 export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: DeactivationModalProps) {
   const { toast } = useToast();
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
   const [reason, setReason] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleDeactivation = async () => {
+  const mutation = useMutation({
+    mutationFn: (deactivationReason: string) => updateTutorActivation({ userId, reason: deactivationReason, token, activate: false }),
+    onSuccess: (updatedDetails) => {
+      // Invalidate both possible query keys
+      queryClient.invalidateQueries({ queryKey: ['tutorProfile', userId] });
+      queryClient.invalidateQueries({ queryKey: ['parentDetails', userId] });
+
+      toast({
+        title: "User Deactivated",
+        description: `${userName} has been successfully deactivated.`,
+      });
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Deactivation Failed",
+        description: error.message,
+      });
+    },
+  });
+
+  const handleDeactivation = () => {
     if (!reason) {
       toast({
         variant: "destructive",
@@ -47,21 +105,7 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
       });
       return;
     }
-    
-    setIsSubmitting(true);
-    console.log(`Deactivating user ${userId} for reason: ${reason}`);
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    toast({
-      title: `Account Deactivated`,
-      description: `The account for ${userName} has been deactivated. (This is a mock action)`,
-    });
-    
-    setIsSubmitting(false);
-    onOpenChange(false);
-    // In a real app, you would likely call a logout function here and redirect.
+    mutation.mutate(reason);
   };
 
   return (
@@ -80,7 +124,7 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
             onValueChange={setReason}
             value={reason || ""}
             className="flex flex-col space-y-2"
-            disabled={isSubmitting}
+            disabled={mutation.isPending}
           >
             {deactivationReasons.map((option) => (
               <div key={option.id} className="flex items-center space-x-3 space-y-0">
@@ -91,13 +135,13 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
           </RadioGroup>
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={mutation.isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleDeactivation} 
-            disabled={!reason || isSubmitting}
+            disabled={!reason || mutation.isPending}
           >
-            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Lock className="mr-2 h-4 w-4" />}
-            {isSubmitting ? 'Deactivating...' : 'Confirm Deactivation'}
+            {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Lock className="mr-2 h-4 w-4" />}
+            {mutation.isPending ? 'Deactivating...' : 'Confirm Deactivation'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
