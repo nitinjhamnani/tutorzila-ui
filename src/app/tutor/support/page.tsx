@@ -307,6 +307,7 @@ export default function TutorSupportPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Category</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Resolved</TableHead>
@@ -317,6 +318,7 @@ export default function TutorSupportPage() {
             <TableBody>
               {tickets.length > 0 ? tickets.map(ticket => (
                 <TableRow key={ticket.id}>
+                  <TableCell>{ticket.category}</TableCell>
                   <TableCell>{ticket.subject}</TableCell>
                   <TableCell><StatusBadge status={ticket.status} /></TableCell>
                   <TableCell><StatusBadge status={ticket.status} resolved={ticket.resolved} /></TableCell>
@@ -329,7 +331,7 @@ export default function TutorSupportPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10">
+                    <TableCell colSpan={6} className="text-center py-10">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <Ticket className="h-10 w-10" />
                             <p className="font-semibold">No tickets found.</p>
