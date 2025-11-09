@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import { Label } from "@/components/ui/label";
 
 const ticketSchema = z.object({
   category: z.string().min(1, "Please select a category."),
