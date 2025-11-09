@@ -185,16 +185,17 @@ export default function TutorSupportPage() {
     mutation.mutate(values);
   }
 
-  const StatusBadge = ({ status }: { status: string }) => {
-    const lowerCaseStatus = status.toLowerCase();
-    const statusClasses = {
-      "pending": "bg-yellow-100 text-yellow-800 border-yellow-300",
-      "in progress": "bg-blue-100 text-blue-800 border-blue-300",
-      "resolved": "bg-green-100 text-green-800 border-green-300",
-    };
-    const style = statusClasses[lowerCaseStatus as keyof typeof statusClasses] || "bg-gray-100 text-gray-800 border-gray-300";
-
-    return <Badge className={cn("text-xs", style)}>{status}</Badge>;
+  const StatusBadge = ({ status, resolved }: { status: string; resolved?: boolean }) => {
+    let text = status;
+    if (resolved !== undefined) {
+      text = resolved ? "Resolved" : "Not Resolved";
+    }
+    
+    return (
+      <Badge className={cn("text-xs", "bg-primary text-primary-foreground")}>
+        {text}
+      </Badge>
+    );
   };
 
 
@@ -306,9 +307,9 @@ export default function TutorSupportPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Ticket ID</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Resolved</TableHead>
                 <TableHead>Last Updated</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -316,9 +317,9 @@ export default function TutorSupportPage() {
             <TableBody>
               {tickets.length > 0 ? tickets.map(ticket => (
                 <TableRow key={ticket.id}>
-                  <TableCell className="font-medium text-primary">{ticket.id.split('-')[1]}</TableCell>
                   <TableCell>{ticket.subject}</TableCell>
                   <TableCell><StatusBadge status={ticket.status} /></TableCell>
+                  <TableCell><StatusBadge status={ticket.status} resolved={ticket.resolved} /></TableCell>
                   <TableCell>{format(new Date(ticket.createdAt), "MMM d, yyyy")}</TableCell>
                   <TableCell>
                     <Button variant="outline" size="icon" className="h-8 w-8">
@@ -328,7 +329,7 @@ export default function TutorSupportPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10">
+                    <TableCell colSpan={5} className="text-center py-10">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <Ticket className="h-10 w-10" />
                             <p className="font-semibold">No tickets found.</p>
