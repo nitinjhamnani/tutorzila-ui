@@ -78,15 +78,17 @@ const updateParentDetails = async ({
 
   const requestBody = {
     ...formData,
+    userType: "PARENT",
     countryCode: selectedCountryData?.countryCode || '',
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/admin/user/update/${userId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/user/update`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
+      'TZ-USER-ID': userId,
       'accept': '*/*',
     },
     body: JSON.stringify(requestBody),
@@ -118,11 +120,12 @@ export function EditParentModal({ isOpen, onOpenChange, parent }: EditParentModa
 
   useEffect(() => {
     if (parent && isOpen) {
+      const parentCountry = MOCK_COUNTRIES.find(c => c.countryCode === parent.countryCode)?.country || "IN";
       form.reset({
         name: parent.name || "",
         email: parent.email || "",
         phone: parent.phone || "",
-        country: "IN", 
+        country: parentCountry, 
         whatsappEnabled: parent.whatsappEnabled || false,
       });
     }
@@ -210,7 +213,7 @@ export function EditParentModal({ isOpen, onOpenChange, parent }: EditParentModa
                     name="country"
                     render={({ field }) => (
                       <FormItem className="w-auto min-w-[120px]">
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={mutation.isPending}>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={mutation.isPending}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Country" /></SelectTrigger>
                           </FormControl>
