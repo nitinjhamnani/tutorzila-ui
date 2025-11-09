@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: 'Tutorzila - Find Your Perfect Tutor',
   description: 'Tutorzila is the leading platform connecting parents with qualified, passionate tutors for personalized learning. Post tuition requirements, browse tutor profiles, and start learning today.',
   icons: {
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>',
+    icon: '/favicon.ico',
   },
 };
 
