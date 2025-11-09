@@ -35,7 +35,7 @@ const activateParentApi = async ({
   if (!userId) throw new Error("User ID is missing.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/admin/user/activate/${userId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/user/activate/${userId}?isActive=true`, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -106,4 +106,3 @@ export function ParentActivationModal({ isOpen, onOpenChange, parentName, parent
     </Dialog>
   );
 }
-

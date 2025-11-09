@@ -28,13 +28,13 @@ interface DeactivationModalProps {
 }
 
 const deactivationReasons = [
-  { id: "tutor_request", label: "User requested deactivation" },
+  { id: "user_request", label: "User requested deactivation" },
   { id: "terms_violation", label: "Violation of platform terms" },
   { id: "poor_performance", label: "Poor performance or reviews" },
   { id: "other", label: "Other (requires manual note)" },
 ];
 
-const updateTutorActivation = async ({
+const updateUserActivation = async ({
   userId,
   reason,
   token,
@@ -50,7 +50,7 @@ const updateTutorActivation = async ({
   if (!reason) throw new Error("A reason is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/activate/${userId}?activated=${activate}`, {
+  const response = await fetch(`${apiBaseUrl}/api/user/activate/${userId}?isActive=${activate}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -75,9 +75,9 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
   const [reason, setReason] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (deactivationReason: string) => updateTutorActivation({ userId, reason: deactivationReason, token, activate: false }),
+    mutationFn: (deactivationReason: string) => updateUserActivation({ userId, reason: deactivationReason, token, activate: false }),
     onSuccess: (updatedDetails) => {
-      // Invalidate both possible query keys
+      // Invalidate both possible query keys since this modal is generic
       queryClient.invalidateQueries({ queryKey: ['tutorProfile', userId] });
       queryClient.invalidateQueries({ queryKey: ['parentDetails', userId] });
 
@@ -114,7 +114,7 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
         <AlertDialogHeader>
           <AlertDialogTitle>Deactivate Account: {userName}</AlertDialogTitle>
           <AlertDialogDescription>
-            We're sorry to see you go. Please let us know why you're deactivating. This will temporarily disable your account.
+            Please let us know why you're deactivating. This will temporarily disable the account.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4 space-y-4">
