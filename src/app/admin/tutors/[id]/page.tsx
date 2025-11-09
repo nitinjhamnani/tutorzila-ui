@@ -81,7 +81,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ActivationModal } from "@/components/admin/modals/ActivationModal";
-import { DeactivationModal } from "@/components/admin/modals/DeactivationModal";
+import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
 import { AdminUpdateBioModal } from "@/components/admin/modals/AdminUpdateBioModal";
@@ -203,7 +203,9 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 const getInitials = (name?: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
-  return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
+  return parts.length > 1
+    ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+    : name.slice(0, 2).toUpperCase();
 };
 
 const InfoSection = ({ icon: Icon, title, children, className }: { icon: React.ElementType; title: string; children: React.ReactNode; className?:string }) => (
@@ -564,8 +566,8 @@ export default function AdminTutorProfilePage() {
         <DeactivationModal
             isOpen={isDeactivationModalOpen}
             onOpenChange={setIsDeactivationModalOpen}
-            tutorName={tutor?.name || ""}
-            tutorId={tutorId}
+            userName={tutor?.name || ""}
+            userId={tutorId}
         />
 
         <AdminUpdateTutorModal

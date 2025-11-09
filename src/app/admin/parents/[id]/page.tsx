@@ -188,7 +188,9 @@ const createEnquiry = async ({ parentId, token, formData }: { parentId: string; 
 const getInitials = (name: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
-  return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
+  return parts.length > 1
+    ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+    : name.slice(0, 2).toUpperCase();
 };
 
 export default function AdminParentDetailPage() {

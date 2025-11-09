@@ -1,14 +1,14 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from 'date-fns';
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import type { ApiTutor } from "@/types";
 
 import {
     Table,
@@ -81,8 +81,8 @@ const getInitials = (name: string): string => {
     if (!name) return "?";
     const parts = name.split(" ");
     return parts.length > 1
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-      : name.slice(0, 2);
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+      : name.slice(0, 2).toUpperCase();
 };
 
 

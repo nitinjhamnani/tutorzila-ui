@@ -46,8 +46,8 @@ const getInitials = (name: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
   return parts.length > 1
-    ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-    : parts[0].slice(0, 2);
+    ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+    : parts[0].slice(0, 2).toUpperCase();
 };
 
 export function TutorContactModal({ isOpen, onOpenChange, tutor }: TutorContactModalProps) {
