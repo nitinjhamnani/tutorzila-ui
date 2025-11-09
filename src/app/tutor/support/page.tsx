@@ -48,6 +48,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthMock } from "@/hooks/use-auth-mock";
 
 const ticketSchema = z.object({
   category: z.string().min(1, "Please select a category."),
@@ -58,18 +60,15 @@ const ticketSchema = z.object({
 type TicketFormValues = z.infer<typeof ticketSchema>;
 
 interface SupportTicket {
-  id: string;
+  id: string; // Added for React key
   category: string;
   subject: string;
-  status: "Pending" | "In Progress" | "Resolved";
-  lastUpdated: string;
+  description: string;
+  createdAt: string; // ISO date string
+  status: string;
+  remarks: string;
+  resolved: boolean;
 }
-
-const mockTickets: SupportTicket[] = [
-  { id: "TKT-001", category: "Payment", subject: "My Earnings", status: "In Progress", lastUpdated: new Date(Date.now() - 86400000).toISOString() },
-  { id: "TKT-002", category: "Demo", subject: "Technical Issue", status: "Pending", lastUpdated: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { id: "TKT-003", category: "Others", subject: "General Feedback", status: "Resolved", lastUpdated: new Date(Date.now() - 86400000 * 5).toISOString() },
-];
 
 const ticketCategories = {
   "Enquiry": ["General Enquiry", "Tutor Application", "Requirement Details"],
@@ -79,16 +78,91 @@ const ticketCategories = {
   "Others": ["General Feedback", "Report an Issue", "Account Help"],
 };
 
+const fetchSupportTickets = async (token: string | null): Promise<SupportTicket[]> => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/support/list`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch support tickets.");
+  }
+
+  const data = await response.json();
+  return data.map((ticket: any, index: number) => ({
+    ...ticket,
+    id: `TKT-${index}-${new Date(ticket.createdAt).getTime()}`, // Create a unique ID
+  }));
+};
+
+const createSupportTicket = async (token: string | null, data: TicketFormValues) => {
+  if (!token) throw new Error("Authentication token not found.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/support/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Failed to create ticket.' }));
+    throw new Error(errorData.message || 'An unknown error occurred.');
+  }
+  // No response body, so we return true on success
+  return true;
+};
+
+
 export default function TutorSupportPage() {
   const { toast } = useToast();
-  const [tickets, setTickets] = useState(mockTickets);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { hideLoader } = useGlobalLoader();
+  const { hideLoader, showLoader } = useGlobalLoader();
+
+  const { data: tickets = [], isLoading, error } = useQuery({
+    queryKey: ['supportTickets', token],
+    queryFn: () => fetchSupportTickets(token),
+    enabled: !!token,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (data: TicketFormValues) => createSupportTicket(token, data),
+    onSuccess: () => {
+      toast({
+        title: "Ticket Created!",
+        description: `Your support ticket has been successfully created.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['supportTickets', token] });
+      setIsModalOpen(false);
+      form.reset();
+    },
+    onError: (error: Error) => {
+       toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: error.message,
+      });
+    }
+  });
 
   useEffect(() => {
-    hideLoader();
-  }, [hideLoader]);
+    if (isLoading) {
+      showLoader('Loading tickets...');
+    } else {
+      hideLoader();
+    }
+  }, [isLoading, showLoader, hideLoader]);
 
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
@@ -100,34 +174,27 @@ export default function TutorSupportPage() {
   });
 
   const selectedCategory = form.watch("category");
+  
+  useEffect(() => {
+    if (isOpen) {
+      form.reset();
+    }
+  }, [isModalOpen, form]);
 
   async function onSubmit(values: TicketFormValues) {
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const newTicket: SupportTicket = {
-      id: `TKT-${String(tickets.length + 1).padStart(3, '0')}`,
-      category: values.category,
-      subject: values.subject,
-      status: "Pending",
-      lastUpdated: new Date().toISOString(),
-    };
-    setTickets(prev => [newTicket, ...prev]);
-    toast({
-      title: "Ticket Created!",
-      description: `Support ticket #${newTicket.id} has been successfully created.`,
-    });
-    setIsSubmitting(false);
-    setIsModalOpen(false);
-    form.reset();
+    mutation.mutate(values);
   }
 
-  const StatusBadge = ({ status }: { status: "Pending" | "In Progress" | "Resolved" }) => {
+  const StatusBadge = ({ status }: { status: string }) => {
+    const lowerCaseStatus = status.toLowerCase();
     const statusClasses = {
-      "Pending": "bg-yellow-100 text-yellow-800 border-yellow-300",
-      "In Progress": "bg-blue-100 text-blue-800 border-blue-300",
-      "Resolved": "bg-green-100 text-green-800 border-green-300",
+      "pending": "bg-yellow-100 text-yellow-800 border-yellow-300",
+      "in progress": "bg-blue-100 text-blue-800 border-blue-300",
+      "resolved": "bg-green-100 text-green-800 border-green-300",
     };
-    return <Badge className={cn("text-xs", statusClasses[status])}>{status}</Badge>;
+    const style = statusClasses[lowerCaseStatus as keyof typeof statusClasses] || "bg-gray-100 text-gray-800 border-gray-300";
+
+    return <Badge className={cn("text-xs", style)}>{status}</Badge>;
   };
 
 
@@ -219,8 +286,8 @@ export default function TutorSupportPage() {
                     <DialogClose asChild>
                         <Button type="button" variant="outline">Cancel</Button>
                     </DialogClose>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Submitting...</> : <><Send className="mr-2 h-4 w-4"/>Submit Ticket</>}
+                    <Button type="submit" disabled={mutation.isPending}>
+                      {mutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Submitting...</> : <><Send className="mr-2 h-4 w-4"/>Submit Ticket</>}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -249,10 +316,10 @@ export default function TutorSupportPage() {
             <TableBody>
               {tickets.length > 0 ? tickets.map(ticket => (
                 <TableRow key={ticket.id}>
-                  <TableCell className="font-medium text-primary">{ticket.id}</TableCell>
+                  <TableCell className="font-medium text-primary">{ticket.id.split('-')[1]}</TableCell>
                   <TableCell>{ticket.subject}</TableCell>
                   <TableCell><StatusBadge status={ticket.status} /></TableCell>
-                  <TableCell>{format(new Date(ticket.lastUpdated), "MMM d, yyyy")}</TableCell>
+                  <TableCell>{format(new Date(ticket.createdAt), "MMM d, yyyy")}</TableCell>
                   <TableCell>
                     <Button variant="outline" size="icon" className="h-8 w-8">
                       <Eye className="h-4 w-4" />
