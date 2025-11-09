@@ -16,7 +16,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import {
@@ -350,27 +349,35 @@ export default function TutorSupportPage() {
       </Card>
        {selectedTicket && (
         <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-          <DialogContent className="sm:max-w-md bg-card">
-            <DialogHeader>
-              <DialogTitle>{selectedTicket.subject}</DialogTitle>
-              <DialogDescription>
-                Details for your support ticket regarding "{selectedTicket.category}".
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4 space-y-4">
-              <div>
-                <Label className="text-xs font-semibold text-muted-foreground">Your Description</Label>
-                <p className="text-sm p-3 bg-muted/50 border rounded-md mt-1">{selectedTicket.description}</p>
+            <DialogContent className="sm:max-w-xl bg-card">
+              <DialogHeader className="p-6 pb-4 border-b">
+                <DialogTitle className="text-xl font-semibold text-primary">{selectedTicket.subject}</DialogTitle>
+                <DialogDescription>
+                    Details for your support ticket regarding "{selectedTicket.category}".
+                </DialogDescription>
+              </DialogHeader>
+              <div className="max-h-[60vh] overflow-y-auto pr-2">
+                <div className="p-6 pt-0 space-y-5">
+                    <section className="space-y-3">
+                        <h3 className="text-base font-semibold text-foreground flex items-center">
+                            <Info className="w-4 h-4 mr-2 text-primary/80" />
+                            Your Description
+                        </h3>
+                        <p className="text-sm text-foreground/80 leading-relaxed pl-6">{selectedTicket.description}</p>
+                    </section>
+                    <section className="space-y-3">
+                        <h3 className="text-base font-semibold text-foreground flex items-center">
+                            <Info className="w-4 h-4 mr-2 text-primary/80" />
+                            Admin Remarks
+                        </h3>
+                        <p className="text-sm text-foreground/80 leading-relaxed pl-6">{selectedTicket.remarks || "No remarks from admin yet."}</p>
+                    </section>
+                </div>
               </div>
-              <div>
-                <Label className="text-xs font-semibold text-muted-foreground">Admin Remarks</Label>
-                <p className="text-sm p-3 bg-muted/50 border rounded-md mt-1">{selectedTicket.remarks || "No remarks from admin yet."}</p>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={() => setIsDetailsModalOpen(false)}>Close</Button>
-            </DialogFooter>
-          </DialogContent>
+               <DialogFooter>
+                <Button onClick={() => setIsDetailsModalOpen(false)}>Close</Button>
+              </DialogFooter>
+            </DialogContent>
         </Dialog>
       )}
     </div>
