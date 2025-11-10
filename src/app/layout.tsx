@@ -14,11 +14,15 @@ export const metadata: Metadata = {
   icons: {
     icon: '/IconOnly_Transparent.png?v=1',
   },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="theme-color" content="#DE6262" />
+      </head>
       <body>
         <Providers>
           <AppLayoutClient>{children}</AppLayoutClient>
