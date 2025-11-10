@@ -20,7 +20,6 @@ const localStorageJSONStorage = createJSONStorage<any>(() => {
     getItem: () => null,
     setItem: () => {},
     removeItem: () => {},
-    subscribe: () => () => {},
   };
 });
 
