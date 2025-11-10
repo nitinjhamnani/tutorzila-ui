@@ -31,9 +31,11 @@ import {
   Eye,
   Loader2,
   LifeBuoy,
+  ArrowDownCircle, // Added icon
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 import { useToast } from "@/hooks/use-toast";
+import { AddToHomeScreenModal } from "@/components/modals/AddToHomeScreenModal"; // Import the new modal
 
 
 const fetchTutorId = async (token: string | null): Promise<string> => {
@@ -64,6 +66,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isFetchingTutorId, setIsFetchingTutorId] = useState(false);
+  const [isAddToHomeScreenModalOpen, setIsAddToHomeScreenModalOpen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -186,6 +189,16 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 variant="ghost" 
                 size="icon" 
                 className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" 
+                onClick={() => setIsAddToHomeScreenModalOpen(true)}
+                aria-label="Add to Home Screen"
+              >
+                <ArrowDownCircle className="w-4 h-4" />
+                <span className="sr-only">Add to Home Screen</span>
+              </Button>
+               <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" 
                 onClick={handleViewProfileClick}
                 disabled={isFetchingTutorId}
                 aria-label="View Public Profile"
@@ -241,6 +254,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
           />
         )}
       </div>
+      <AddToHomeScreenModal isOpen={isAddToHomeScreenModalOpen} onOpenChange={setIsAddToHomeScreenModalOpen} />
     </>
   );
 }
