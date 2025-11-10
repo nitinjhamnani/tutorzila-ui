@@ -1,19 +1,20 @@
 {
   "name": "Tutorzila",
   "short_name": "Tutorzila",
-  "description": "Tutorzila - Find Your Perfect Tutor",
+  "description": "Connecting parents with qualified tutors.",
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#DE6262",
   "theme_color": "#DE6262",
   "icons": [
     {
-      "src": "/IconOnly_Transparent.png?v=1",
+      "src": "/IconOnly_Transparent.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/IconOnly_Transparent.png?v=1",
+      "src": "/IconOnly_Transparent.png",
       "sizes": "512x512",
       "type": "image/png"
     }
