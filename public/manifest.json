@@ -1,19 +1,19 @@
 {
   "name": "Tutorzila",
   "short_name": "Tutorzila",
-  "description": "Connecting parents with qualified and passionate tutors. Post your tuition needs or find students to teach.",
-  "start_url": "/",
+  "description": "Tutorzila - Find Your Perfect Tutor",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#f5ebeb",
+  "background_color": "#DE6262",
   "theme_color": "#DE6262",
   "icons": [
     {
-      "src": "/IconOnly_Transparent.png",
+      "src": "/IconOnly_Transparent.png?v=1",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/IconOnly_Transparent.png",
+      "src": "/IconOnly_Transparent.png?v=1",
       "sizes": "512x512",
       "type": "image/png"
     }
