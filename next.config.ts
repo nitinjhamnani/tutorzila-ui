@@ -9,6 +9,7 @@ const withPWA = withPWAConstructor({
   register: true,
   skipWaiting: true,
   disable: isDev,
+  scope: '.', // By setting the scope to '.', we allow the PWA to be installed from any sub-directory.
 });
 
 const nextConfig: NextConfig = {
