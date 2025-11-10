@@ -13,8 +13,15 @@ export const metadata: Metadata = {
   description: 'Tutorzila is the leading platform connecting parents with qualified, passionate tutors for personalized learning. Post tuition requirements, browse tutor profiles, and start learning today.',
   icons: {
     icon: '/IconOnly_Transparent.png?v=1',
+    apple: '/IconOnly_Transparent.png?v=1',
   },
   manifest: '/manifest.json',
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+    'apple-mobile-web-app-title': 'Tutorzila',
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
