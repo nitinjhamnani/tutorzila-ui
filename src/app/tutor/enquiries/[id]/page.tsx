@@ -5,7 +5,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import type { TuitionRequirement, LocationDetails } from "@/types";
+import type { TuitionRequirement, LocationDetails, ApiTutor } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -52,6 +52,70 @@ import {
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
+
+const fetchTutorDetails = async (token: string | null): Promise<ApiTutor> => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/tutor/details`, {
+        headers: {
+        "Authorization": `Bearer ${token}`,
+        "accept": "*/*",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch tutor details.");
+    }
+    const data = await response.json();
+    const { userDetails, tutoringDetails, bankDetails } = data;
+
+    return {
+      id: userDetails.id,
+      displayName: userDetails.name,
+      name: userDetails.name,
+      email: userDetails.email,
+      countryCode: userDetails.countryCode,
+      phone: userDetails.phone,
+      profilePicUrl: userDetails.profilePicUrl,
+      emailVerified: userDetails.emailVerified,
+      phoneVerified: userDetails.phoneVerified,
+      whatsappEnabled: userDetails.whatsappEnabled,
+      registeredDate: userDetails.registeredDate,
+      createdBy: userDetails.createdBy,
+
+      subjectsList: tutoringDetails.subjects,
+      gradesList: tutoringDetails.grades,
+      boardsList: tutoringDetails.boards,
+      qualificationList: tutoringDetails.qualifications,
+      availabilityDaysList: tutoringDetails.availabilityDays,
+      availabilityTimeList: tutoringDetails.availabilityTime,
+      yearOfExperience: tutoringDetails.yearOfExperience,
+      bio: tutoringDetails.tutorBio,
+      addressName: tutoringDetails.addressName,
+      address: tutoringDetails.address,
+      city: tutoringDetails.city,
+      state: tutoringDetails.state,
+      area: tutoringDetails.area,
+      pincode: tutoringDetails.pincode,
+      country: tutoringDetails.country,
+      googleMapsLink: tutoringDetails.googleMapsLink,
+      hourlyRate: tutoringDetails.hourlyRate,
+      languagesList: tutoringDetails.languages,
+      profileCompletion: tutoringDetails.profileCompletion,
+      isActive: tutoringDetails.active,
+      isRateNegotiable: tutoringDetails.rateNegotiable,
+      isBioReviewed: tutoringDetails.bioReviewed,
+      online: tutoringDetails.online,
+      offline: tutoringDetails.offline,
+      isHybrid: tutoringDetails.hybrid,
+      
+      gender: userDetails.gender,
+      isVerified: tutoringDetails.verified,
+      bankDetails: bankDetails || undefined,
+    } as ApiTutor;
+};
+
 
 const fetchEnquiryDetails = async (
   enquiryId: string,
@@ -324,9 +388,16 @@ export default function TutorEnquiryDetailPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const { data: tutorDetails, isLoading: isLoadingTutor } = useQuery({
+    queryKey: ["tutorDetails", token],
+    queryFn: () => fetchTutorDetails(token),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const {
     data: enquiryData,
-    isLoading,
+    isLoading: isLoadingEnquiry,
     isCheckingAuth,
     error,
   } = useQuery({
@@ -335,6 +406,8 @@ export default function TutorEnquiryDetailPage() {
     enabled: !!id && !!token,
     staleTime: 5 * 60 * 1000,
   });
+
+  const isLoading = isLoadingEnquiry || isLoadingTutor;
 
   const applyMutation = useMutation({
     mutationFn: () => applyToEnquiry(id, token),
@@ -436,6 +509,8 @@ export default function TutorEnquiryDetailPage() {
     );
   }
 
+  const isTutorActive = tutorDetails?.isActive ?? false;
+
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
   const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
@@ -445,6 +520,12 @@ export default function TutorEnquiryDetailPage() {
 
   return (
     <div className={containerPadding}>
+        {!isTutorActive && (
+          <ActivationStatusCard 
+            onActivate={() => queryClient.invalidateQueries({ queryKey: ["tutorDetails", token] })}
+            className="mb-6"
+          />
+        )}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6 lg:sticky lg:top-[calc(var(--header-height)+1.5rem)]">
                 <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
@@ -487,7 +568,7 @@ export default function TutorEnquiryDetailPage() {
                       {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button size="sm" className="w-full">
+                            <Button size="sm" className="w-full" disabled={!isTutorActive}>
                                 <Send className="mr-2 h-4 w-4" />
                                 Apply Now
                               </Button>
