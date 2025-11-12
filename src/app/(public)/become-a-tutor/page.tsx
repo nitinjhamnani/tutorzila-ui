@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, School, Phone, CheckCircle, Info, BriefcaseBusiness, Briefcase, CalendarCheck, GraduationCap, Lock, Check, Circle } from "lucide-react";
+import { Mail, User, School, Phone, CheckCircle, Info, BriefcaseBusiness, Briefcase, CalendarCheck, GraduationCap, Lock, Check, Circle, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from 'react';
 
@@ -92,6 +92,7 @@ export default function BecomeTutorPage() {
   const { showLoader, hideLoader } = useGlobalLoader();
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<TutorSignUpFormValues>({
     resolver: zodResolver(tutorSignUpSchema),
@@ -284,7 +285,10 @@ export default function BecomeTutorPage() {
                         <FormControl>
                           <div className="relative">
                             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                            <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="pl-12 pr-10 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                            <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground" onClick={() => setShowPassword(prev => !prev)}>
+                              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            </Button>
                           </div>
                         </FormControl>
                         <FormDescription className="text-xs text-muted-foreground pt-1">
