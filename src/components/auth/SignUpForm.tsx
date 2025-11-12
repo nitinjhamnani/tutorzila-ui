@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, Users, School, CheckSquare, Phone, MessageSquare } from "lucide-react"; 
+import { Mail, User, Users, School, CheckSquare, Phone, MessageSquare, Lock, Eye, EyeOff } from "lucide-react"; 
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -48,11 +48,15 @@ const signUpSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   country: z.string().min(2, "Country is required."),
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  password: z.string()
+      .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
+      .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol."),
   role: z.enum(["parent", "tutor"], { required_error: "You must select a role (Parent or Tutor)." }),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
-  whatsAppNotifications: z.boolean().default(true),
+  whatsappEnabled: z.boolean().default(true),
 });
 
 interface SignUpFormProps { 
@@ -79,6 +83,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
   const { showLoader, hideLoader } = useGlobalLoader();
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -87,10 +92,12 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       email: "",
       country: "IN",
       localPhoneNumber: "",
+      password: "",
       role: undefined, 
       acceptTerms: false,
-      whatsAppNotifications: true,
+      whatsappEnabled: true,
     },
+    mode: "onTouched",
   });
 
   const handleOtpSuccess = async (otp: string) => {
@@ -124,25 +131,16 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === values.country);
 
-    const apiRequestBody: {
-        name: string;
-        email: string;
-        userType: 'PARENT' | 'TUTOR';
-        country: string;
-        countryCode: string;
-        phone?: string;
-        whatsappEnabled: boolean;
-    } = {
+    const apiRequestBody = {
       name: values.name,
       email: values.email,
+      password: values.password,
       userType: values.role.toUpperCase() as 'PARENT' | 'TUTOR',
       country: values.country,
       countryCode: selectedCountryData?.countryCode || '',
-      whatsappEnabled: values.whatsAppNotifications,
+      phone: values.localPhoneNumber,
+      whatsappEnabled: values.whatsappEnabled,
     };
-    if (values.localPhoneNumber && values.localPhoneNumber.trim() !== "") {
-      apiRequestBody.phone = values.localPhoneNumber;
-    }
 
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -285,8 +283,31 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="pl-12 pr-10 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                      <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground" onClick={() => setShowPassword(prev => !prev)}>
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-xs text-muted-foreground pt-1">
+                      Must be at least 8 characters long and include an uppercase letter and a special symbol.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
-            <FormItem>
+            <div className="space-y-2">
               <FormLabel className="text-foreground">Phone Number</FormLabel>
               <div className="flex gap-2">
                 <FormField
@@ -326,31 +347,27 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
                   )}
                 />
               </div>
-            </FormItem>
-
-            <FormField
-              control={form.control}
-              name="whatsAppNotifications"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-sm flex items-center">
-                      <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
-                      WhatsApp Notifications
-                    </FormLabel>
-                    <FormDescription className="text-xs">
-                      Receive updates on this number.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="whatsappEnabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm flex items-center">
+                        <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
+                        Available on WhatsApp
+                      </FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <FormField
               control={form.control}
