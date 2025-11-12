@@ -345,7 +345,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
                 )}
               />
             </div>
-
+            
             <FormField
               control={form.control}
               name="password"
@@ -378,12 +378,12 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      id="acceptTerms"
+                      id="acceptTerms-signup-modal"
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel
-                      htmlFor="acceptTerms"
+                      htmlFor="acceptTerms-signup-modal"
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       Accept terms and conditions
