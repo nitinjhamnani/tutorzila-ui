@@ -163,13 +163,7 @@ export function PostRequirementModal({
   
   useEffect(() => {
     if (startFromStep === 2 && isAuthenticated && user) {
-        form.reset({
-            ...form.getValues(),
-            name: user.name,
-            email: user.email,
-            country: MOCK_COUNTRIES.find(c => c.countryCode === user.countryCode)?.country || "IN",
-            localPhoneNumber: user.phone,
-        });
+        // No pre-filling to respect user request
     }
   }, [startFromStep, isAuthenticated, user, form]);
 
@@ -200,7 +194,6 @@ export function PostRequirementModal({
     showLoader();
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === data.country);
-    
     const locationDetails = data.location;
     
     const enquiryRequest = {
@@ -208,8 +201,8 @@ export function PostRequirementModal({
         subjects: data.subject,
         grade: data.gradeLevel,
         board: data.board,
+        addressName: locationDetails?.name || locationDetails?.address || "",
         address: locationDetails?.address,
-        addressName: locationDetails?.name,
         city: locationDetails?.city,
         state: locationDetails?.state,
         country: locationDetails?.country,
@@ -218,10 +211,10 @@ export function PostRequirementModal({
         googleMapsLink: locationDetails?.googleMapsUrl,
         availabilityDays: data.preferredDays,
         availabilityTime: data.preferredTimeSlots,
-        online: data.teachingMode.includes("Online"),
-        offline: data.teachingMode.includes("Offline (In-person)"),
         genderPreference: data.tutorGenderPreference,
         startPreference: data.startDatePreference,
+        online: data.teachingMode.includes("Online"),
+        offline: data.teachingMode.includes("Offline (In-person)"),
     };
     
     const signupRequest = {
@@ -248,14 +241,13 @@ export function PostRequirementModal({
         body: body,
       });
 
-      hideLoader(); // Hide loader once we get a response
+      hideLoader(); 
+
+      const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
 
       if (!response.ok) {
-        const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
-
-      const responseData = await response.json();
       
       if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
           onTriggerSignIn(data.email);
@@ -607,6 +599,26 @@ export function PostRequirementModal({
                     )}
                   />
                 </div>
+                 <FormField
+                  control={form.control}
+                  name="whatsAppNotifications"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm flex items-center">
+                           <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
+                           Available on WhatsApp
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </FormItem>
               <FormField
                 control={form.control}
@@ -627,29 +639,6 @@ export function PostRequirementModal({
                         Must be at least 8 characters long and include an uppercase letter and a special symbol.
                     </FormDescription>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="whatsAppNotifications"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-sm flex items-center">
-                        <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
-                        WhatsApp Notifications
-                      </FormLabel>
-                      <FormDescription className="text-xs">
-                        Receive updates on this number.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
                   </FormItem>
                 )}
               />
@@ -726,3 +715,5 @@ export function PostRequirementModal({
     </>
   );
 }
+
+    
