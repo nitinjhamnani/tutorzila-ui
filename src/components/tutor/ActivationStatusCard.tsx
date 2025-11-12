@@ -61,6 +61,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         description: message || "Your account has been activated.",
       });
       queryClient.invalidateQueries({ queryKey: ['tutorDashboard', token] });
+      queryClient.invalidateQueries({ queryKey: ['tutorDetails', token] });
       onActivate();
     } else {
       toast({
