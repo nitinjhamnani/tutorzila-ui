@@ -280,17 +280,17 @@ export default function BecomeTutorPage() {
                       name="whatsappEnabled"
                       render={({ field }) => (
                         <FormItem className="flex items-center space-x-2 pt-2">
-                          <FormControl>
+                          <label htmlFor="whatsapp-enabled-checkbox" className="text-xs font-medium text-muted-foreground cursor-pointer flex items-center">
+                             <WhatsAppIcon className="h-4 w-4 mr-1.5 text-primary" />
+                            Available on WhatsApp for notifications
+                          </label>
+                           <FormControl>
                             <Checkbox
                               id="whatsapp-enabled-checkbox"
                               checked={field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          <label htmlFor="whatsapp-enabled-checkbox" className="text-xs font-medium text-muted-foreground cursor-pointer flex items-center">
-                             <WhatsAppIcon className="h-4 w-4 mr-1.5 text-primary" />
-                            Available on WhatsApp for notifications
-                          </label>
                         </FormItem>
                       )}
                     />
