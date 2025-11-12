@@ -33,9 +33,6 @@ import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
-import { useAtom } from "jotai";
-import { tutorProfileAtom } from "@/lib/state/tutor";
-
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -53,6 +50,23 @@ const fetchTutorAccountDetails = async (token: string | null) => {
   if (!response.ok) throw new Error("Failed to fetch tutor account data.");
   return response.json();
 };
+
+const fetchTutorDetails = async (token: string | null) => {
+    if (!token) throw new Error("No authentication token found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/tutor/details`, {
+        headers: {
+        "Authorization": `Bearer ${token}`,
+        "accept": "*/*",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch tutor details.");
+    }
+    return response.json();
+};
+
 
 const getInitials = (name?: string): string => {
   if (!name) return "?";
@@ -103,20 +117,21 @@ export default function TutorMyAccountPage() {
   const { toast } = useToast();
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
-  const [tutorProfileFromState, setTutorProfile] = useAtom(tutorProfileAtom);
 
-  const { data: tutorAccountData, isLoading, error } = useQuery({
+  const { data: tutorAccountData, isLoading: isLoadingAccount, error: accountError } = useQuery({
     queryKey: ["tutorAccountDetails", token],
     queryFn: () => fetchTutorAccountDetails(token),
     enabled: !!token && !isCheckingAuth,
-    onSuccess: (data) => {
-      // When data is fetched successfully, populate the global atom state
-      // This ensures the data is available even if the dashboard wasn't visited first
-      if (data?.tutoringDetails) {
-        setTutorProfile({ tutoringDetails: data.tutoringDetails });
-      }
-    }
   });
+
+  const { data: tutoringDetailsData, isLoading: isLoadingTutoring, error: tutoringError } = useQuery({
+    queryKey: ['tutorDetails', token],
+    queryFn: () => fetchTutorDetails(token),
+    enabled: !!token && !isCheckingAuth,
+  });
+
+  const isLoading = isLoadingAccount || isLoadingTutoring;
+  const error = accountError || tutoringError;
 
   useEffect(() => {
     if (!isLoading) {
@@ -150,12 +165,12 @@ export default function TutorMyAccountPage() {
     );
   }
   
-  if (error || !tutorAccountData || !tutorProfileFromState?.tutoringDetails) {
+  if (error || !tutorAccountData || !tutoringDetailsData) {
     return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
   }
 
   const { userDetails, bankDetails } = tutorAccountData;
-  const { tutoringDetails } = tutorProfileFromState;
+  const tutoringDetails = tutoringDetailsData;
   
   const maskAccountNumber = (number?: string) => {
     if (!number) return 'Not Provided';
@@ -373,7 +388,7 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={tutorProfileFromState?.tutoringDetails}
+                initialData={tutoringDetails}
                 onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
