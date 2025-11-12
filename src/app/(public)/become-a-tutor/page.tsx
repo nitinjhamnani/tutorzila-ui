@@ -40,31 +40,19 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-const PasswordCheck = ({ label, isMet }: { label: string; isMet: boolean }) => (
-  <div className={cn("flex items-center text-xs", isMet ? "text-green-600" : "text-muted-foreground")}>
-    {isMet ? <Check className="mr-2 h-3.5 w-3.5" /> : <Circle className="mr-2 h-3.5 w-3.5" />}
-    <span>{label}</span>
-  </div>
-);
-
-
 const tutorSignUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
   country: z.string().min(2, "Country is required."),
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   password: z.string()
-      .min(8, "Password must be at least 8 characters.")
-      .regex(/[A-Z]/, "Must contain at least one uppercase letter.")
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character."),
-  confirmPassword: z.string(),
+      .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
+      .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol."),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
   whatsappEnabled: z.boolean().default(true),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
-    path: ["confirmPassword"],
 });
 
 
@@ -113,21 +101,12 @@ export default function BecomeTutorPage() {
       country: "IN",
       localPhoneNumber: "",
       password: "",
-      confirmPassword: "",
       acceptTerms: false,
       whatsappEnabled: true,
     },
      mode: "onTouched",
   });
   
-  const passwordValue = form.watch("password");
-
-  const validationChecks = {
-    length: (passwordValue || "").length >= 8,
-    uppercase: /[A-Z]/.test(passwordValue || ""),
-    specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(passwordValue || ""),
-  };
-
   const handleOtpSuccess = async (otp: string) => {
     // This logic is now handled directly inside OtpVerificationModal
     // This function can be kept for future use or removed if not needed elsewhere.
@@ -308,32 +287,13 @@ export default function BecomeTutorPage() {
                             <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                           </div>
                         </FormControl>
+                        <FormDescription className="text-xs text-muted-foreground pt-1">
+                            Must be at least 8 characters long and include an uppercase letter and a special symbol.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="p-3 bg-muted/50 rounded-md space-y-1.5 border border-border/50">
-                    <PasswordCheck label="At least 8 characters long" isMet={validationChecks.length} />
-                    <PasswordCheck label="At least one uppercase letter" isMet={validationChecks.uppercase} />
-                    <PasswordCheck label="At least one special symbol" isMet={validationChecks.specialChar} />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground">Confirm Password</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
 
                   <FormField
                     control={form.control}
