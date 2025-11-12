@@ -524,6 +524,7 @@ export default function TutorEnquiryDetailPage() {
           <ActivationStatusCard 
             onActivate={() => queryClient.invalidateQueries({ queryKey: ["tutorDetails", token] })}
             className="mb-6"
+            message="You can apply for this enquiry only after your account is activated."
           />
         )}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">

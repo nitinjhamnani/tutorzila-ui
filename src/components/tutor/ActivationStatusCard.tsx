@@ -21,11 +21,12 @@ declare global {
 interface ActivationStatusCardProps {
   onActivate: () => void;
   className?: string;
+  message?: string;
 }
 
 type VerificationStatus = 'idle' | 'verifying' | 'success' | 'failed' | 'timeout';
 
-export function ActivationStatusCard({ onActivate, className }: ActivationStatusCardProps) {
+export function ActivationStatusCard({ onActivate, className, message }: ActivationStatusCardProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -60,6 +61,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         title: "Payment Successful!",
         description: message || "Your account has been activated.",
       });
+      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['tutorDashboard', token] });
       queryClient.invalidateQueries({ queryKey: ['tutorDetails', token] });
       onActivate();
@@ -115,7 +117,6 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
         if(window.PhonePeCheckout && typeof window.PhonePeCheckout.closePage === 'function') window.PhonePeCheckout.closePage();
         cleanupAndClose(true, "Transaction is completed.");
-        queryClient.invalidateQueries({ queryKey: ['tutorDashboard'] });
       } else if (attempts >= maxAttempts) {
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
         if (concludedByUser) {
@@ -210,7 +211,7 @@ export function ActivationStatusCard({ onActivate, className }: ActivationStatus
           <div>
             <CardTitle className="text-xl font-semibold text-destructive">Account Activation Required</CardTitle>
             <CardDescription className="text-destructive/80 mt-1">
-              Your account is currently inactive. Please complete the activation to start receiving student enquiries.
+              {message || "Your account is currently inactive. Please complete the activation to start receiving student enquiries."}
             </CardDescription>
           </div>
         </div>
