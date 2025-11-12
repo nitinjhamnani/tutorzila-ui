@@ -103,12 +103,19 @@ export default function TutorMyAccountPage() {
   const { toast } = useToast();
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
-  const [tutorProfileFromState] = useAtom(tutorProfileAtom);
+  const [tutorProfileFromState, setTutorProfile] = useAtom(tutorProfileAtom);
 
   const { data: tutorAccountData, isLoading, error } = useQuery({
     queryKey: ["tutorAccountDetails", token],
     queryFn: () => fetchTutorAccountDetails(token),
     enabled: !!token && !isCheckingAuth,
+    onSuccess: (data) => {
+      // When data is fetched successfully, populate the global atom state
+      // This ensures the data is available even if the dashboard wasn't visited first
+      if (data?.tutoringDetails) {
+        setTutorProfile({ tutoringDetails: data.tutoringDetails });
+      }
+    }
   });
 
   useEffect(() => {
@@ -143,7 +150,7 @@ export default function TutorMyAccountPage() {
     );
   }
   
-  if (error || !tutorAccountData || !tutorProfileFromState || !tutorProfileFromState.tutoringDetails) {
+  if (error || !tutorAccountData || !tutorProfileFromState?.tutoringDetails) {
     return <div className="text-center py-10 text-destructive">Error: {(error as Error)?.message || "Could not load user data."}</div>
   }
 
@@ -375,7 +382,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-
-    
-
-    
