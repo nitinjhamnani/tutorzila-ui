@@ -36,7 +36,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone, Mail, X, GraduationCap, Building, RadioTower, VenetianMask } from "lucide-react";
+import { User, BookOpen, Settings2, ArrowLeft, ArrowRight, Send, CalendarDays, Clock, MapPin, Info, Phone, Mail, X, GraduationCap, Building, RadioTower, VenetianMask, Lock, Eye, EyeOff } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -45,6 +45,7 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 import { Switch } from "@/components/ui/switch";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { allSubjectsList, gradeLevelsList, boardsList, teachingModeOptions, daysOptions, timeSlotsOptions, startDatePreferenceOptions, tutorGenderPreferenceOptions } from "@/lib/constants";
+import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -83,6 +84,10 @@ const postRequirementSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
   country: z.string().min(2, "Country is required."),
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  password: z.string()
+      .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
+      .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol."),
   whatsAppNotifications: z.boolean().default(true),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
@@ -122,6 +127,10 @@ export function PostRequirementModal({
   const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
   const { setSession } = useAuthMock();
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpIdentifier, setOtpIdentifier] = useState("");
 
   const form = useForm<PostRequirementFormValues>({
     resolver: zodResolver(postRequirementSchema),
@@ -131,6 +140,7 @@ export function PostRequirementModal({
       email: "",
       country: "IN",
       localPhoneNumber: "",
+      password: "",
       subject: initialSubject || [],
       gradeLevel: "",
       board: "",
@@ -150,6 +160,19 @@ export function PostRequirementModal({
       form.setValue('subject', initialSubject);
     }
   }, [initialSubject, form]);
+  
+  useEffect(() => {
+    if (startFromStep === 2 && isAuthenticated && user) {
+        form.reset({
+            ...form.getValues(),
+            name: user.name,
+            email: user.email,
+            country: MOCK_COUNTRIES.find(c => c.countryCode === user.countryCode)?.country || "IN",
+            localPhoneNumber: user.phone,
+        });
+    }
+  }, [startFromStep, isAuthenticated, user, form]);
+
 
   const handleNext = async () => {
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
@@ -204,6 +227,7 @@ export function PostRequirementModal({
     const signupRequest = {
         name: data.name,
         email: data.email,
+        password: data.password,
         country: data.country,
         countryCode: selectedCountryData?.countryCode || '',
         phone: data.localPhoneNumber,
@@ -224,19 +248,24 @@ export function PostRequirementModal({
         body: body,
       });
 
+      hideLoader(); // Hide loader once we get a response
+
       if (!response.ok) {
         const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
 
       const responseData = await response.json();
-      if (responseData.token && responseData.type === 'PARENT') {
-          setSession(responseData.token, responseData.type, data.email, data.name, data.localPhoneNumber, responseData.profilePicture);
-          sessionStorage.setItem('showNewRequirementToast', 'true');
-          router.push("/parent/dashboard");
-      } else if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
-          hideLoader();
+      
+      if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
           onTriggerSignIn(data.email);
+          return;
+      }
+
+      if (response.ok) {
+        setOtpIdentifier(data.email);
+        setIsOtpModalOpen(true);
+        onSuccess();
       }
 
     } catch (error) {
@@ -254,6 +283,7 @@ export function PostRequirementModal({
   const isFinalStep = currentStep === totalSteps;
 
   return (
+    <>
     <div className="bg-card p-0 rounded-lg relative">
       <DialogHeader className="text-left pt-6 px-6">
         <DialogTitle className="text-2xl font-semibold">Post Your Tuition Requirement</DialogTitle>
@@ -578,6 +608,28 @@ export function PostRequirementModal({
                   />
                 </div>
               </FormItem>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Set Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className="pl-12 pr-10 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                        <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground" onClick={() => setShowPassword(prev => !prev)}>
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-xs text-muted-foreground pt-1">
+                        Must be at least 8 characters long and include an uppercase letter and a special symbol.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                <FormField
                 control={form.control}
                 name="whatsAppNotifications"
@@ -664,6 +716,13 @@ export function PostRequirementModal({
         </form>
       </Form>
     </div>
+    <OtpVerificationModal
+        isOpen={isOtpModalOpen}
+        onOpenChange={setIsOtpModalOpen}
+        verificationType="email"
+        identifier={otpIdentifier}
+        onSuccess={async (otp) => { console.log('OTP success', otp); }}
+    />
+    </>
   );
 }
-
