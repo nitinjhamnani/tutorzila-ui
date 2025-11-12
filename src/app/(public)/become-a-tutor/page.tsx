@@ -6,8 +6,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, User, School, Phone, CheckCircle, Info, BriefcaseBusiness, Briefcase, CalendarCheck, GraduationCap } from "lucide-react";
+import { Mail, User, School, Phone, CheckCircle, Info, BriefcaseBusiness, Briefcase, CalendarCheck, GraduationCap, Lock, Check, Circle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,13 +25,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Switch } from "@/components/ui/switch";
 import AuthModal from "@/components/auth/AuthModal";
 import bannerImage from '@/assets/images/banner-11.png';
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal"; // Import the new modal
+import { cn } from "@/lib/utils";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -39,17 +40,33 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+const PasswordCheck = ({ label, isMet }: { label: string; isMet: boolean }) => (
+  <div className={cn("flex items-center text-xs", isMet ? "text-green-600" : "text-muted-foreground")}>
+    {isMet ? <Check className="mr-2 h-3.5 w-3.5" /> : <Circle className="mr-2 h-3.5 w-3.5" />}
+    <span>{label}</span>
+  </div>
+);
+
 
 const tutorSignUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
   country: z.string().min(2, "Country is required."),
   localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  password: z.string()
+      .min(8, "Password must be at least 8 characters.")
+      .regex(/[A-Z]/, "Must contain at least one uppercase letter.")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character."),
+  confirmPassword: z.string(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
   whatsappEnabled: z.boolean().default(true),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
 });
+
 
 type TutorSignUpFormValues = z.infer<typeof tutorSignUpSchema>;
 
@@ -95,10 +112,21 @@ export default function BecomeTutorPage() {
       email: "",
       country: "IN",
       localPhoneNumber: "",
+      password: "",
+      confirmPassword: "",
       acceptTerms: false,
       whatsappEnabled: true,
     },
+     mode: "onTouched",
   });
+  
+  const passwordValue = form.watch("password");
+
+  const validationChecks = {
+    length: (passwordValue || "").length >= 8,
+    uppercase: /[A-Z]/.test(passwordValue || ""),
+    specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(passwordValue || ""),
+  };
 
   const handleOtpSuccess = async (otp: string) => {
     // This logic is now handled directly inside OtpVerificationModal
@@ -121,6 +149,7 @@ export default function BecomeTutorPage() {
     const apiRequestBody = {
       name: values.name,
       email: values.email,
+      password: values.password,
       userType: 'TUTOR',
       country: values.country,
       countryCode: selectedCountryData?.countryCode || '',
@@ -267,6 +296,44 @@ export default function BecomeTutorPage() {
                       />
                     </div>
                   </FormItem>
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground">Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="p-3 bg-muted/50 rounded-md space-y-1.5 border border-border/50">
+                    <PasswordCheck label="At least 8 characters long" isMet={validationChecks.length} />
+                    <PasswordCheck label="At least one uppercase letter" isMet={validationChecks.uppercase} />
+                    <PasswordCheck label="At least one special symbol" isMet={validationChecks.specialChar} />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground">Confirm Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input type="password" placeholder="••••••••" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
 
                   <FormField
                     control={form.control}
