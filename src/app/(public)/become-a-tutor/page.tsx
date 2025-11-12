@@ -235,7 +235,7 @@ export default function BecomeTutorPage() {
                     )}
                   />
                   
-                  <FormItem>
+                  <div className="space-y-2">
                     <FormLabel className="text-foreground">Phone Number</FormLabel>
                     <div className="flex gap-2">
                       <FormField
@@ -275,7 +275,27 @@ export default function BecomeTutorPage() {
                         )}
                       />
                     </div>
-                  </FormItem>
+                    <FormField
+                      control={form.control}
+                      name="whatsappEnabled"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2 pt-2">
+                          <FormControl>
+                            <Checkbox
+                              id="whatsapp-enabled-checkbox"
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <label htmlFor="whatsapp-enabled-checkbox" className="text-xs font-medium text-muted-foreground cursor-pointer flex items-center">
+                             <WhatsAppIcon className="h-4 w-4 mr-1.5 text-primary" />
+                            Available on WhatsApp for notifications
+                          </label>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <FormField
                     control={form.control}
                     name="password"
@@ -295,31 +315,6 @@ export default function BecomeTutorPage() {
                             Must be at least 8 characters long and include an uppercase letter and a special symbol.
                         </FormDescription>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="whatsappEnabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-input/50">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-sm flex items-center">
-                            <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
-                            WhatsApp Notifications
-                          </FormLabel>
-                          <FormDescription className="text-xs">
-                            Receive updates on this number.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="data-[state=unchecked]:bg-destructive/50"
-                          />
-                        </FormControl>
                       </FormItem>
                     )}
                   />
