@@ -49,7 +49,7 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
   }, []);
 
 
-  const cleanupAndClose = (success: boolean, message?: string) => {
+  const cleanupAndClose = (success: boolean, toastMessage?: string) => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
@@ -59,17 +59,16 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
     if (success) {
       toast({
         title: "Payment Successful!",
-        description: message || "Your account has been activated.",
+        description: toastMessage || "Your account has been activated.",
       });
-      // Invalidate queries to refresh data
+      // Invalidate queries to refresh data. Let parent component handle refetching.
       queryClient.invalidateQueries({ queryKey: ['tutorDashboard', token] });
-      queryClient.invalidateQueries({ queryKey: ['tutorDetails', token] });
       onActivate();
     } else {
       toast({
           variant: "destructive",
           title: "Payment Failed",
-          description: message || "Your payment could not be completed. Please try again.",
+          description: toastMessage || "Your payment could not be completed. Please try again.",
       });
     }
   };

@@ -393,6 +393,7 @@ export default function TutorEnquiryDetailPage() {
     queryFn: () => fetchTutorDetails(token),
     enabled: !!token,
     staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true, // Refetch on window focus
   });
 
   const {
