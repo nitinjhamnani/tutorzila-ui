@@ -116,7 +116,7 @@ export function PostRequirementModal({
   
   const [currentStep, setCurrentStep] = useState(startFromStep);
   const totalSteps = 3;
-  const { user } = useAuthMock();
+  const { user, isAuthenticated } = useAuthMock();
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -146,7 +146,7 @@ export function PostRequirementModal({
   });
   
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated && user) {
         form.reset({
             ...form.getValues(),
             name: user.name || "",
@@ -154,7 +154,7 @@ export function PostRequirementModal({
             localPhoneNumber: user.phone || ""
         });
     }
-  }, [user, form]);
+  }, [user, isAuthenticated, form]);
   
   useEffect(() => {
     if (initialSubject) {
@@ -677,3 +677,4 @@ export function PostRequirementModal({
     </div>
   );
 }
+
