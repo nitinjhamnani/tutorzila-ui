@@ -146,17 +146,6 @@ export function PostRequirementModal({
   });
   
   useEffect(() => {
-    if (isAuthenticated && user) {
-        form.reset({
-            ...form.getValues(),
-            name: user.name || "",
-            email: user.email || "",
-            localPhoneNumber: user.phone || ""
-        });
-    }
-  }, [user, isAuthenticated, form]);
-  
-  useEffect(() => {
     if (initialSubject) {
       form.setValue('subject', initialSubject);
     }
