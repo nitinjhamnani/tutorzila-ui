@@ -62,7 +62,7 @@ export default function TutorTransactionsPage() {
     queryKey: ['tutorTransactions', token],
     queryFn: () => fetchTutorTransactions(token),
     enabled: !!token && !!tutorUser,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, 
     refetchOnWindowFocus: false,
   });
 
