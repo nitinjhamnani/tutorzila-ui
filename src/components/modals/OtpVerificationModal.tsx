@@ -51,7 +51,7 @@ interface OtpVerificationModalProps {
   onOpenChange: (isOpen: boolean) => void;
   verificationType: "email" | "phone";
   identifier: string;
-  onSuccess: (otp: string) => Promise<void>; 
+  onSuccess: () => Promise<void> | void; 
   onResend?: () => Promise<void>; 
 }
 
@@ -125,6 +125,11 @@ export function OtpVerificationModal({
                 description: "Welcome to your dashboard.",
             });
             
+            // Call the onSuccess callback passed from the parent.
+            if (onSuccess) {
+              await onSuccess();
+            }
+
             const role = responseData.type.toLowerCase();
             if (role === 'tutor') {
                 router.push("/tutor/dashboard");

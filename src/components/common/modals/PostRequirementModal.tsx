@@ -257,7 +257,8 @@ export function PostRequirementModal({
       if (response.ok) {
         setOtpIdentifier(data.email);
         setIsOtpModalOpen(true);
-        onSuccess();
+        // We do NOT call onSuccess() here anymore.
+        // It will be called by the OTP modal upon successful verification.
       }
 
     } catch (error) {
@@ -706,14 +707,15 @@ export function PostRequirementModal({
       </Form>
     </div>
     <OtpVerificationModal
-        isOpen={isOtpModalOpen}
-        onOpenChange={setIsOtpModalOpen}
-        verificationType="email"
-        identifier={otpIdentifier}
-        onSuccess={async (otp) => { console.log('OTP success', otp); }}
+      isOpen={isOtpModalOpen}
+      onOpenChange={setIsOtpModalOpen}
+      verificationType="email"
+      identifier={otpIdentifier}
+      onSuccess={async () => { 
+        // Now that OTP is verified, we can call the original onSuccess to close the PostRequirementModal
+        onSuccess();
+      }}
     />
     </>
   );
 }
-
-    
