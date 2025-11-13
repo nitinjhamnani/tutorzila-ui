@@ -81,7 +81,7 @@ const InfoItem = ({ icon: Icon, label, children, className }: { icon: React.Elem
       <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
       <div className="flex flex-col flex-grow text-xs">
         <span className="font-medium text-foreground">{label}</span>
-        <div className="text-muted-foreground">{hasContent ? children : "-"}</div>
+        <div className="text-muted-foreground">{hasContent ? children : "Not Provided"}</div>
       </div>
     </div>
   );
@@ -95,7 +95,7 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
       <div className="flex flex-col">
         <span className="font-medium text-foreground mb-1 text-xs">{label}</span>
         <div className="flex flex-wrap gap-1">
-          {hasItems ? items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>) : <span className="text-xs text-muted-foreground">-</span>}
+          {hasItems ? items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>) : <span className="text-xs text-muted-foreground">Not Provided</span>}
         </div>
       </div>
     </div>
@@ -237,7 +237,7 @@ export default function TutorMyAccountPage() {
                   <CardTitle className="text-xl font-bold text-foreground mt-4">{userDetails.name}</CardTitle>
                   <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
                     <VenetianMask className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0"/>
-                    <span className="capitalize">{userDetails.gender || 'Not Specified'}</span>
+                    <span className="capitalize">{userDetails.gender || 'Not Provided'}</span>
                   </div>
                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                       <Badge variant={tutoringDetails.active ? "default" : "destructive"}>{tutoringDetails.active ? 'Active' : 'Inactive'}</Badge>
@@ -326,7 +326,7 @@ export default function TutorMyAccountPage() {
                    )}
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutoringDetails.tutorBio || "-"}</p>
+                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutoringDetails.tutorBio || "Not Provided"}</p>
                 </CardContent>
               </Card>
               <Card>
@@ -342,7 +342,7 @@ export default function TutorMyAccountPage() {
                           {tutoringDetails.online && <Badge>Online</Badge>}
                           {tutoringDetails.offline && <Badge>Offline</Badge>}
                           {tutoringDetails.hybrid && <Badge variant="outline">Hybrid</Badge>}
-                          {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && "-"}
+                          {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && "Not Provided"}
                       </div>
                     </InfoItem>
                     <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address}</InfoItem>
