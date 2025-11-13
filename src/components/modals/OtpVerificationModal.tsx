@@ -116,48 +116,60 @@ export function OtpVerificationModal({
             headers: { 'accept': '*/*' },
         });
 
-        const responseData = await response.json();
+        if (response.ok) {
+            const responseData = await response.json();
+            if (responseData.token) {
+                setSession(responseData.token, responseData.type, identifier, responseData.name, responseData.profilePicture);
+                toast({
+                    title: "Sign In Successful!",
+                    description: "Welcome to your dashboard.",
+                });
+                
+                if (onSuccess) {
+                  await onSuccess();
+                }
 
-        if (response.ok && responseData.token) {
-            setSession(responseData.token, responseData.type, identifier, responseData.name, responseData.profilePicture);
-            toast({
-                title: "Sign In Successful!",
-                description: "Welcome to your dashboard.",
-            });
-            
-            // Call the onSuccess callback passed from the parent.
-            if (onSuccess) {
-              await onSuccess();
-            }
-
-            const role = responseData.type.toLowerCase();
-            if (role === 'tutor') {
-                router.push("/tutor/dashboard");
-            } else if (role === 'parent') {
-                router.push("/parent/dashboard");
+                const role = responseData.type.toLowerCase();
+                if (role === 'tutor') {
+                    router.push("/tutor/dashboard");
+                } else if (role === 'parent') {
+                    router.push("/parent/dashboard");
+                } else {
+                    router.push("/");
+                }
             } else {
-                router.push("/");
+                 throw new Error("Invalid response from server during verification.");
             }
         } else {
             if (response.status === 400) { // Bad Request, likely invalid OTP
-              hideLoader();
               form.setError("otp", {
                 type: "manual",
                 message: "Invalid OTP provided. Please check the code and try again.",
               });
             } else {
-              throw new Error(responseData.message || "OTP verification failed.");
+              // Try to get a message, but have a fallback.
+              let errorMessage = "An unexpected error occurred during verification.";
+              try {
+                const errorData = await response.json();
+                if (errorData && errorData.message) {
+                  errorMessage = errorData.message;
+                }
+              } catch (e) {
+                // Ignore if response body is not JSON or empty
+                errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
+              }
+              throw new Error(errorMessage);
             }
         }
     } catch (error) {
-        hideLoader(); // Ensure loader is hidden on any error
         toast({
             variant: "destructive",
             title: "Verification Failed",
-            description: (error as Error).message || "An unexpected error occurred.",
+            description: (error as Error).message,
         });
     } finally {
         setIsVerifying(false);
+        hideLoader();
     }
   };
 
@@ -223,7 +235,7 @@ export function OtpVerificationModal({
                       {...field}
                       type="text" 
                       inputMode="numeric"
-                      pattern="\d*"
+                      pattern="\\d*"
                       maxLength={6}
                       placeholder="••••••"
                       className="text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-md"
