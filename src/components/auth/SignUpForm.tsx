@@ -146,7 +146,9 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
         if (onShowOtp) {
           onShowOtp(values.email);
         }
-        if (onSuccess) onSuccess();
+        // Success handling is now managed by the parent modal
+        // if (onSuccess) onSuccess();
+        // if (onClose) onClose(); 
       } else {
         toast({
           variant: "destructive",
@@ -175,7 +177,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
 
   return (
     <>
-    <Card className="w-full max-w-lg shadow-lg bg-card border rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
+    <Card className="w-full max-w-lg shadow-lg bg-card border-0 rounded-lg animate-in fade-in zoom-in-95 duration-500 ease-out">
       <CardHeader className="p-0 pt-0 pb-0 space-y-1.5 flex flex-col items-center bg-card rounded-t-lg">
         <Link href="/" className="hover:opacity-90 transition-opacity inline-block">
           <Image src={logoAsset} alt="Tutorzila Logo" width={180} height={45} priority className="h-auto" />
