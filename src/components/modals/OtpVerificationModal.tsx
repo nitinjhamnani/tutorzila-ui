@@ -142,26 +142,33 @@ export function OtpVerificationModal({
             }
         } else {
             if (response.status === 400) { // Bad Request, likely invalid OTP
-              form.setError("otp", {
-                type: "manual",
-                message: "Invalid OTP provided. Please check the code and try again.",
-              });
+              throw new Error("Invalid OTP provided. Please try again.");
             } else {
               // Try to get a message, but have a fallback.
               let errorMessage = "An unexpected error occurred during verification.";
               try {
-                const errorData = await response.json();
-                if (errorData && errorData.message) {
-                  errorMessage = errorData.message;
+                // Don't assume the body is JSON
+                const errorText = await response.text();
+                if (errorText) {
+                  // Attempt to parse, but fallback to text
+                  try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.message || errorText;
+                  } catch {
+                    errorMessage = errorText;
+                  }
+                } else {
+                   errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
                 }
               } catch (e) {
-                // Ignore if response body is not JSON or empty
+                // Ignore if reading response body fails
                 errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
               }
               throw new Error(errorMessage);
             }
         }
     } catch (error) {
+        hideLoader();
         toast({
             variant: "destructive",
             title: "Verification Failed",
@@ -169,7 +176,6 @@ export function OtpVerificationModal({
         });
     } finally {
         setIsVerifying(false);
-        hideLoader();
     }
   };
 
