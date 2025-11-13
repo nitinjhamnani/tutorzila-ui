@@ -210,6 +210,9 @@ export default function TutorMyAccountPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500 ease-out">
             <div className="md:col-span-1 space-y-6">
               <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden relative">
+                <div className="absolute top-4 left-4">
+                  <Badge variant={userDetails.live ? "default" : "destructive"}>{userDetails.live ? 'Live' : 'Not Live'}</Badge>
+                </div>
                  <div className="absolute top-4 right-4">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -243,9 +246,6 @@ export default function TutorMyAccountPage() {
                     </DropdownMenu>
                 </div>
                 <CardContent className="p-5 md:p-6 text-center relative pt-8">
-                  <div className="absolute top-4 left-4">
-                    <Badge variant={userDetails.live ? "default" : "destructive"}>{userDetails.live ? 'Live' : 'Not Live'}</Badge>
-                  </div>
                   <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
                     <AvatarImage src={userDetails.profilePicUrl} alt={userDetails.name} />
                     <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
@@ -270,8 +270,25 @@ export default function TutorMyAccountPage() {
               </Card>
 
               <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Personal & Contact</CardTitle>
+                   <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setIsUpdateEmailModalOpen(true)}>
+                            <Mail className="mr-2 h-4 w-4" />
+                            <span>Change Email</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setIsUpdatePhoneModalOpen(true)}>
+                            <Phone className="mr-2 h-4 w-4" />
+                            <span>Change Phone</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <InfoItem icon={Mail} label="Email">

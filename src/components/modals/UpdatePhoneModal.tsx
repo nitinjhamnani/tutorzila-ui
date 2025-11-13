@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -34,13 +35,6 @@ const MOCK_COUNTRIES = [
   { country: "JP", countryCode: "+81", label: "Japan (+81)" },
 ];
 
-const updatePhoneSchema = z.object({
-  country: z.string().min(1, "Country is required."),
-  phone: z.string().min(10, "Phone number must be at least 10 digits.").regex(/^\d+$/, "Phone number must be numeric."),
-});
-
-type UpdatePhoneFormValues = z.infer<typeof updatePhoneSchema>;
-
 interface UpdatePhoneModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -54,11 +48,28 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
   
   const defaultCountry = MOCK_COUNTRIES.find(c => c.countryCode === currentCountryCode)?.country || "IN";
 
+  const updatePhoneSchema = z.object({
+    country: z.string().min(1, "Country is required."),
+    phone: z.string().min(10, "Phone number must be at least 10 digits.").regex(/^\d+$/, "Phone number must be numeric."),
+  }).refine(
+    (data) => {
+      const selectedCountry = MOCK_COUNTRIES.find(c => c.country === data.country);
+      return !(selectedCountry?.countryCode === currentCountryCode && data.phone === currentPhone);
+    },
+    {
+      message: "New phone number must be different from the current one.",
+      path: ["phone"], 
+    }
+  );
+
+  type UpdatePhoneFormValues = z.infer<typeof updatePhoneSchema>;
+
   const form = useForm<UpdatePhoneFormValues>({
     resolver: zodResolver(updatePhoneSchema),
+    mode: "onChange",
     defaultValues: {
       country: defaultCountry,
-      phone: currentPhone || "",
+      phone: "",
     },
   });
 
@@ -66,10 +77,10 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
     if (isOpen) {
       form.reset({
         country: defaultCountry,
-        phone: currentPhone || "",
+        phone: "", // Start with an empty field to force user input
       });
     }
-  }, [isOpen, currentPhone, currentCountryCode, defaultCountry, form]);
+  }, [isOpen, defaultCountry, form]);
 
   const onSubmit: SubmitHandler<UpdatePhoneFormValues> = async (data) => {
     setIsSubmitting(true);
@@ -137,7 +148,7 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
                 </div>
             </FormItem>
             <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {isSubmitting ? "Sending OTP..." : "Send OTP"}
               </Button>

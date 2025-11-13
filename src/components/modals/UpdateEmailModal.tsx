@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -25,12 +26,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Loader2 } from "lucide-react";
 
-const updateEmailSchema = z.object({
-  newEmail: z.string().email("Please enter a valid email address."),
-});
-
-type UpdateEmailFormValues = z.infer<typeof updateEmailSchema>;
-
 interface UpdateEmailModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -41,8 +36,18 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const updateEmailSchema = z.object({
+    newEmail: z.string().email("Please enter a valid email address.").refine(
+      (email) => email.toLowerCase() !== currentEmail.toLowerCase(),
+      { message: "New email must be different from the current one." }
+    ),
+  });
+
+  type UpdateEmailFormValues = z.infer<typeof updateEmailSchema>;
+
   const form = useForm<UpdateEmailFormValues>({
     resolver: zodResolver(updateEmailSchema),
+    mode: "onChange",
     defaultValues: {
       newEmail: "",
     },
@@ -98,7 +103,7 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
               )}
             />
             <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {isSubmitting ? "Sending..." : "Send Verification Link"}
               </Button>
