@@ -62,7 +62,7 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
         description: toastMessage || "Your account has been activated.",
       });
       // Invalidate queries to refresh data. Let parent component handle refetching.
-      queryClient.invalidateQueries({ queryKey: ['tutorDashboard', token] });
+      queryClient.invalidateQueries({ queryKey: ['tutorDetails'] });
       onActivate();
     } else {
       toast({
@@ -87,7 +87,7 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
         const responseText = await response.text();
         if (responseText) {
             const result = JSON.parse(responseText);
-            if (result.transactionStatus === "COMPLETED") {
+            if (result.paymentDetails?.transactionStatus === "COMPLETED") {
                 setVerificationStatus('success');
                 return 'success';
             }
