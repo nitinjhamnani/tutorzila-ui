@@ -24,8 +24,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, Loader2 } from "lucide-react";
+import { Phone, Loader2, Save } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const MOCK_COUNTRIES = [
   { country: "IN", countryCode: "+91", label: "India (+91)" },
@@ -42,10 +44,45 @@ interface UpdatePhoneModalProps {
   currentCountryCode?: string;
 }
 
+const updatePhoneApi = async ({
+  token,
+  newPhoneNumber,
+}: {
+  token: string | null;
+  newPhoneNumber: string;
+}) => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/user/change`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({
+      changeType: "PHONE",
+      value: newPhoneNumber,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to update phone number." }));
+    if (response.status === 400) {
+      throw new Error("A user with this phone number already exists.");
+    }
+    throw new Error(errorData.message);
+  }
+  
+  return response.json();
+};
+
 export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCountryCode }: UpdatePhoneModalProps) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
+
   const defaultCountry = MOCK_COUNTRIES.find(c => c.countryCode === currentCountryCode)?.country || "IN";
 
   const updatePhoneSchema = z.object({
@@ -58,7 +95,7 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
     },
     {
       message: "New phone number must be different from the current one.",
-      path: ["phone"], 
+      path: ["phone"],
     }
   );
 
@@ -73,28 +110,49 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
     },
   });
 
+  const mutation = useMutation({
+    mutationFn: (data: UpdatePhoneFormValues) => {
+      const selectedCountry = MOCK_COUNTRIES.find(c => c.country === data.country);
+      const fullPhoneNumber = `${selectedCountry?.countryCode}${data.phone}`;
+      return updatePhoneApi({ token, newPhoneNumber: fullPhoneNumber });
+    },
+    onSuccess: (updatedUserDetails) => {
+      queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
+        if (!oldData) return undefined;
+        return {
+          ...oldData,
+          userDetails: {
+            ...oldData.userDetails,
+            ...updatedUserDetails,
+          }
+        };
+      });
+      toast({
+        title: "Phone Number Updated!",
+        description: "Your phone number has been successfully updated.",
+      });
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message,
+      });
+    },
+  });
+
   useEffect(() => {
     if (isOpen) {
       form.reset({
         country: defaultCountry,
-        phone: "", // Start with an empty field to force user input
+        phone: "",
       });
     }
   }, [isOpen, defaultCountry, form]);
 
   const onSubmit: SubmitHandler<UpdatePhoneFormValues> = async (data) => {
-    setIsSubmitting(true);
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Updating phone to:", data.country, data.phone);
-
-    // On mock success
-    toast({
-      title: "OTP Sent!",
-      description: `An OTP has been sent to your new phone number for verification.`,
-    });
-    setIsSubmitting(false);
-    onOpenChange(false);
+    mutation.mutate(data);
   };
 
   return (
@@ -103,7 +161,7 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
         <DialogHeader>
           <DialogTitle>Update Your Phone Number</DialogTitle>
           <DialogDescription>
-            Your current number is <strong>{currentCountryCode} {currentPhone}</strong>. An OTP will be sent to the new number for verification.
+            Your current number is <strong>{currentCountryCode} {currentPhone}</strong>. Enter the new number you'd like to use.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -116,7 +174,7 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
                     name="country"
                     render={({ field }) => (
                       <FormItem className="w-auto min-w-[120px]">
-                        <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={mutation.isPending}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Country" /></SelectTrigger>
                           </FormControl>
@@ -138,7 +196,7 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
                         <FormControl>
                           <div className="relative">
                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-10" disabled={isSubmitting}/>
+                            <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-10" disabled={mutation.isPending}/>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -148,9 +206,9 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
                 </div>
             </FormItem>
             <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {isSubmitting ? "Sending OTP..." : "Send OTP"}
+              <Button type="submit" disabled={mutation.isPending || !form.formState.isValid}>
+                {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                {mutation.isPending ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
           </form>

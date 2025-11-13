@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import * as z from "zod";
@@ -24,7 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Loader2 } from "lucide-react";
+import { Mail, Loader2, Save } from "lucide-react";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface UpdateEmailModalProps {
   isOpen: boolean;
@@ -32,9 +34,44 @@ interface UpdateEmailModalProps {
   currentEmail: string;
 }
 
+const updateEmailApi = async ({
+  token,
+  newEmail,
+}: {
+  token: string | null;
+  newEmail: string;
+}) => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/user/change`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({
+      changeType: "EMAIL",
+      value: newEmail,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to update email." }));
+    if (response.status === 400) {
+      throw new Error("A user with this email address already exists.");
+    }
+    throw new Error(errorData.message);
+  }
+
+  return response.json();
+};
+
 export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateEmailModalProps) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
 
   const updateEmailSchema = z.object({
     newEmail: z.string().email("Please enter a valid email address.").refine(
@@ -53,20 +90,42 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
     },
   });
 
-  const onSubmit: SubmitHandler<UpdateEmailFormValues> = async (data) => {
-    setIsSubmitting(true);
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Updating email to:", data.newEmail);
+  const mutation = useMutation({
+    mutationFn: (data: UpdateEmailFormValues) => updateEmailApi({ token, newEmail: data.newEmail }),
+    onSuccess: (updatedUserDetails) => {
+      queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
+        if (!oldData) return undefined;
+        return {
+          ...oldData,
+          userDetails: {
+            ...oldData.userDetails,
+            ...updatedUserDetails,
+          }
+        };
+      });
+      toast({
+        title: "Email Updated!",
+        description: "Your email address has been successfully updated.",
+      });
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message,
+      });
+    },
+  });
 
-    // On mock success
-    toast({
-      title: "Verification Sent!",
-      description: `A verification link has been sent to ${data.newEmail}. Please check your inbox.`,
-    });
-    setIsSubmitting(false);
-    onOpenChange(false);
-    form.reset();
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    }
+  }, [isOpen, form]);
+
+  const onSubmit: SubmitHandler<UpdateEmailFormValues> = async (data) => {
+    mutation.mutate(data);
   };
 
   return (
@@ -75,7 +134,7 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
         <DialogHeader>
           <DialogTitle>Update Your Email Address</DialogTitle>
           <DialogDescription>
-            Your current email is <strong>{currentEmail}</strong>. A verification link will be sent to the new email address.
+            Your current email is <strong>{currentEmail}</strong>. Enter the new email address you'd like to use.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -94,7 +153,7 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
                         placeholder="new.email@example.com"
                         {...field}
                         className="pl-10"
-                        disabled={isSubmitting}
+                        disabled={mutation.isPending}
                       />
                     </div>
                   </FormControl>
@@ -103,9 +162,9 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
               )}
             />
             <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {isSubmitting ? "Sending..." : "Send Verification Link"}
+              <Button type="submit" disabled={mutation.isPending || !form.formState.isValid}>
+                {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
+                {mutation.isPending ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
           </form>
