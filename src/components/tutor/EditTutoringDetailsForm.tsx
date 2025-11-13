@@ -192,6 +192,7 @@ const mutation = useMutation({
 
 
   React.useEffect(() => {
+    // Handle both data shapes: one from dashboard, one from my-account
     const details = initialData?.tutoringDetails || initialData;
     if (details) {
       const modes = [];
@@ -199,7 +200,7 @@ const mutation = useMutation({
       if (details.offline) modes.push("Offline (In-person)");
       
       form.reset({
-        gender: details.gender, // Correctly map gender from details
+        gender: details.gender,
         subjects: ensureArray(details.subjects),
         gradeLevelsTaught: ensureArray(details.grades),
         boardsTaught: ensureArray(details.boards),
@@ -595,4 +596,3 @@ const mutation = useMutation({
   );
 }
 
-    
