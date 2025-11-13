@@ -76,12 +76,23 @@ const getInitials = (name?: string): string => {
 
 const InfoItem = ({ icon: Icon, label, children, className }: { icon: React.ElementType; label: string; children?: React.ReactNode; className?:string }) => {
   const hasContent = children || typeof children === 'number';
+  if (!hasContent) {
+    return (
+      <div className={cn("flex items-start", className)}>
+        <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
+        <div className="flex flex-col flex-grow text-xs">
+          <span className="font-medium text-foreground">{label}</span>
+          <div className="text-muted-foreground italic">Not Provided</div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={cn("flex items-start", className)}>
       <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
       <div className="flex flex-col flex-grow text-xs">
         <span className="font-medium text-foreground">{label}</span>
-        <div className="text-muted-foreground">{hasContent ? children : "Not Provided"}</div>
+        <div className="text-muted-foreground">{children}</div>
       </div>
     </div>
   );
@@ -95,7 +106,7 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
       <div className="flex flex-col">
         <span className="font-medium text-foreground mb-1 text-xs">{label}</span>
         <div className="flex flex-wrap gap-1">
-          {hasItems ? items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>) : <span className="text-xs text-muted-foreground">Not Provided</span>}
+          {hasItems ? items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>) : <span className="text-xs text-muted-foreground italic">Not Provided</span>}
         </div>
       </div>
     </div>
@@ -123,12 +134,16 @@ export default function TutorMyAccountPage() {
     queryKey: ["tutorAccountDetails", token],
     queryFn: () => fetchTutorAccountDetails(token),
     enabled: !!token && !isCheckingAuth,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: tutoringDetailsData, isLoading: isLoadingTutoring, error: tutoringError } = useQuery({
     queryKey: ['tutorDetails', token],
     queryFn: () => fetchTutorDetails(token),
     enabled: !!token && !isCheckingAuth,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const isLoading = isLoadingAccount || isLoadingTutoring;
@@ -360,7 +375,7 @@ export default function TutorMyAccountPage() {
                           {tutoringDetails.online && <Badge variant="secondary" className="font-normal">Online</Badge>}
                           {tutoringDetails.offline && <Badge variant="secondary" className="font-normal">Offline</Badge>}
                           {tutoringDetails.hybrid && <Badge variant="secondary" className="font-normal">Hybrid</Badge>}
-                          {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && <span className="text-xs text-muted-foreground">Not Provided</span>}
+                          {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && <span className="text-xs text-muted-foreground italic">Not Provided</span>}
                       </div>
                     </InfoItem>
                     <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}</InfoItem>
