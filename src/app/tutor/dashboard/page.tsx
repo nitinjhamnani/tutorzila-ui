@@ -367,7 +367,7 @@ export default function TutorDashboardPage() {
   ];
 
   const profileCompletion = tutoringDetails?.profileCompletion ?? 0;
-  const isTutorActive = tutoringDetails?.active ?? false;
+  const isTutorRegistered = tutoringDetails?.registered ?? false;
   const isVerified = tutoringDetails?.verified ?? false;
 
   return (
@@ -375,7 +375,7 @@ export default function TutorDashboardPage() {
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
           
-          {!isTutorActive && !isLoadingDetails && (
+          {!isTutorRegistered && !isLoadingDetails && (
              <ActivationStatusCard 
                 onActivate={() => console.log("Activate button clicked - mock action")} 
                 className="mb-6"
@@ -397,9 +397,9 @@ export default function TutorDashboardPage() {
                   <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {tutorUser.name} <span className="inline-block ml-1">👋</span></h1>
                   <p className="text-xs text-muted-foreground mt-1">Welcome back to your dashboard</p>
                   <div className="mt-3 flex items-center space-x-2 flex-wrap">
-                      <Badge className={cn("text-xs py-0.5 px-2 border", isTutorActive ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500")}>
-                        {isTutorActive ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                        {isTutorActive ? "Active" : "Inactive"}
+                      <Badge className={cn("text-xs py-0.5 px-2 border", isTutorRegistered ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500")}>
+                        {isTutorRegistered ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                        {isTutorRegistered ? "Registered" : "Not Registered"}
                       </Badge>
                       <Badge className={cn("text-xs py-0.5 px-2 border", isVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50")}>
                         {isVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
@@ -540,3 +540,5 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
+
+    

@@ -208,18 +208,18 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
             <ShieldAlert className="h-6 w-6 text-destructive" />
           </div>
           <div>
-            <CardTitle className="text-xl font-semibold text-destructive">Account Activation Required</CardTitle>
+            <CardTitle className="text-xl font-semibold text-destructive">Account Registration Required</CardTitle>
             <CardDescription className="text-destructive/80 mt-1">
-              {message || "Your account is currently inactive. Please complete the activation to start receiving student enquiries."}
+              {message || "Your account is currently not registered. Please complete the registration process to start apply for student enquiries."}
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-destructive/10 p-4 border-t border-destructive/20">
         <div className="flex-grow">
-          <p className="text-sm font-semibold text-destructive">One-Time Activation Fee: <span className="text-lg">₹{activationFee}</span></p>
+          <p className="text-sm font-semibold text-destructive">One-Time Registration Fee: <span className="text-lg">₹{activationFee}</span></p>
           <p className="text-xs text-destructive/80 mt-1">
-            By activating, you agree to our{' '}
+            By registering, you agree to our{' '}
             <Link href="/terms-and-conditions" className="underline hover:text-destructive transition-colors" target="_blank">Terms & Conditions</Link>.
           </p>
         </div>
@@ -242,10 +242,12 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
             disabled={isInitiatingPayment}
           >
             {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
-            {isInitiatingPayment ? "Initiating..." : "Activate My Account Now"}
+            {isInitiatingPayment ? "Initiating..." : "Register My Account Now"}
           </Button>
         )}
       </CardFooter>
     </Card>
   );
 }
+
+    
