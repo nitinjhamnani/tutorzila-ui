@@ -261,6 +261,11 @@ export default function TutorMyAccountPage() {
                       <Badge variant={tutoringDetails.registered ? "default" : "destructive"}>{tutoringDetails.registered ? 'Registered' : 'Not Registered'}</Badge>
                       <Badge variant={tutoringDetails.verified ? "default" : "destructive"}>{tutoringDetails.verified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
+                  <Separator className="my-4" />
+                  <div className="text-left space-y-3">
+                    <InfoItem icon={Briefcase} label="Experience">{tutoringDetails.yearOfExperience}</InfoItem>
+                    <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutoringDetails.hourlyRate} ${tutoringDetails.rateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                  </div>
                 </CardContent>
               </Card>
 
