@@ -242,7 +242,10 @@ export default function TutorMyAccountPage() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <CardContent className="p-5 md:p-6 text-center">
+                <CardContent className="p-5 md:p-6 text-center relative pt-8">
+                  <div className="absolute top-4 left-4">
+                    <Badge variant={userDetails.live ? "default" : "destructive"}>{userDetails.live ? 'Live' : 'Not Live'}</Badge>
+                  </div>
                   <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
                     <AvatarImage src={userDetails.profilePicUrl} alt={userDetails.name} />
                     <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
@@ -255,7 +258,6 @@ export default function TutorMyAccountPage() {
                     <span className="capitalize">{userDetails.gender || 'Not Provided'}</span>
                   </div>
                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                      <Badge variant={userDetails.live ? "default" : "destructive"}>{userDetails.live ? 'Live' : 'Not Live'}</Badge>
                       <Badge variant={tutoringDetails.registered ? "default" : "destructive"}>{tutoringDetails.registered ? 'Registered' : 'Not Registered'}</Badge>
                       <Badge variant={tutoringDetails.verified ? "default" : "destructive"}>{tutoringDetails.verified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
@@ -293,7 +295,7 @@ export default function TutorMyAccountPage() {
                           <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button
+                                           <button
                                         className={!userDetails.phoneVerified ? "cursor-pointer" : ""}
                                         onClick={() => { if(!userDetails.phoneVerified) { handleOpenOtpModal('phone');}}}
                                     >
@@ -384,7 +386,7 @@ export default function TutorMyAccountPage() {
                               {tutoringDetails.addressName || tutoringDetails.address}
                           </a>
                       ) : (
-                          <span>{tutoringDetails.addressName || tutoringDetails.address}</span>
+                          <span>{tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}</span>
                       )}
                     </InfoItem>
                     {(tutoringDetails.area || tutoringDetails.city || tutoringDetails.state) && (
