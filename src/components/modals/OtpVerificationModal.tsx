@@ -41,7 +41,7 @@ import { ShieldCheck, RefreshCw, Mail, Phone, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const otpSchema = z.object({
-  otp: z.string().length(6, { message: "OTP must be 6 digits." }).regex(/^\d{6}$/, "OTP must be numeric and 6 digits long."),
+  otp: z.string().length(6, { message: "OTP must be 6 digits." }),
 });
 
 type OtpFormValues = z.infer<typeof otpSchema>;
@@ -53,7 +53,6 @@ interface OtpVerificationModalProps {
   identifier: string;
   onSuccess: () => Promise<void> | void; 
   onResend?: () => Promise<void>; 
-  isInsideAuthModal?: boolean;
 }
 
 export function OtpVerificationModal({
@@ -63,7 +62,6 @@ export function OtpVerificationModal({
   identifier,
   onSuccess,
   onResend,
-  isInsideAuthModal = false,
 }: OtpVerificationModalProps) {
   const { toast } = useToast();
   const [isVerifying, setIsVerifying] = useState(false);
@@ -191,22 +189,24 @@ export function OtpVerificationModal({
     }
   };
 
-  const Icon = verificationType === "email" ? Mail : Phone;
   const typeTitle = verificationType.charAt(0).toUpperCase() + verificationType.slice(1);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
 
-  const content = (
-      <>
-        <DialogHeader className={cn("p-6 pb-4 text-left border-b", isInsideAuthModal && "text-center")}>
-          <div className={cn("flex items-center gap-3", isInsideAuthModal && "justify-center")}>
-            {!isInsideAuthModal && (
+  return (
+    <>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent 
+        className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
+        <DialogHeader className={cn("p-6 pb-4 text-left border-b")}>
+          <div className={cn("flex items-center gap-3")}>
               <div className="p-2 bg-primary/10 rounded-full text-primary">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-            )}
             <div>
-              <DialogTitle className={cn("text-lg font-semibold text-foreground", isInsideAuthModal && "text-2xl")}>
+              <DialogTitle className={cn("text-lg font-semibold text-foreground")}>
                 Verify Your {typeTitle}
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground mt-0.5">
@@ -263,39 +263,6 @@ export function OtpVerificationModal({
             </DialogFooter>
           </form>
         </Form>
-      </>
-  );
-
-  if (isInsideAuthModal) {
-    return (
-        <>
-            {content}
-            <AlertDialog open={isConfirmingClose} onOpenChange={setIsConfirmingClose}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Closing this will cancel the verification process. You will need to start the registration again.
-                    </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setIsConfirmingClose(false)} className="bg-white hover:bg-accent hover:text-accent-foreground">No, continue verification</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleConfirmClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Yes, cancel</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        </>
-    )
-  }
-
-  return (
-    <>
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent 
-        className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden"
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
-        {content}
       </DialogContent>
     </Dialog>
     <AlertDialog open={isConfirmingClose} onOpenChange={setIsConfirmingClose}>
