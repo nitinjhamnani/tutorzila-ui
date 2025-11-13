@@ -89,6 +89,7 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
             const result = JSON.parse(responseText);
             if (result.transactionStatus === "COMPLETED") {
                 setVerificationStatus('success');
+                hideLoader();
                 return 'success';
             }
         }
