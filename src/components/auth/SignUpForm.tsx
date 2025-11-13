@@ -63,6 +63,7 @@ interface SignUpFormProps {
   onSuccess?: () => void;
   onSwitchForm: (formType: 'signin' | 'signup') => void; 
   onClose?: () => void;
+  onShowOtp?: (email: string) => void;
 }
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
@@ -74,15 +75,13 @@ const MOCK_COUNTRIES = [
   { country: "JP", countryCode: "+81", label: "Japan (+81)" },
 ];
 
-export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps) {
+export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: SignUpFormProps) {
   const { setSession } = useAuthMock();
   const { toast } = useToast();
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<UserRole | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showLoader, hideLoader } = useGlobalLoader();
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpIdentifier, setOtpIdentifier] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<SignUpFormValues>({
@@ -99,20 +98,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
     },
     mode: "onTouched",
   });
-
-  const handleOtpSuccess = async (otp: string) => {
-    // This logic is now handled by the OTP modal itself.
-    // This function can be used for any additional actions on success if needed later.
-    console.log("OTP verification successful in sign-up context.");
-  };
   
-  const handleResendOtp = async () => {
-    // In a real app, you'd call an API to resend the OTP
-    console.log("Resending OTP to", form.getValues("email"));
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  };
-
-
   useEffect(() => {
     form.setValue("role", selectedRole);
   }, [selectedRole, form]);
@@ -157,10 +143,10 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
       hideLoader();
 
       if (response.ok) {
-        setOtpIdentifier(values.email);
-        setIsOtpModalOpen(true);
+        if (onShowOtp) {
+          onShowOtp(values.email);
+        }
         if (onSuccess) onSuccess();
-        if (onClose) onClose();
       } else {
         toast({
           variant: "destructive",
@@ -420,14 +406,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose }: SignUpFormProps
         </p>
       </CardFooter>
     </Card>
-    <OtpVerificationModal
-        isOpen={isOtpModalOpen}
-        onOpenChange={setIsOtpModalOpen}
-        verificationType="email"
-        identifier={otpIdentifier}
-        onSuccess={handleOtpSuccess}
-        onResend={handleResendOtp}
-    />
     </>
   );
 }

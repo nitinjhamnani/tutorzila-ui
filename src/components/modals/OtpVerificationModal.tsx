@@ -53,6 +53,7 @@ interface OtpVerificationModalProps {
   identifier: string;
   onSuccess: () => Promise<void> | void; 
   onResend?: () => Promise<void>; 
+  isInsideAuthModal?: boolean;
 }
 
 export function OtpVerificationModal({
@@ -62,6 +63,7 @@ export function OtpVerificationModal({
   identifier,
   onSuccess,
   onResend,
+  isInsideAuthModal = false,
 }: OtpVerificationModalProps) {
   const { toast } = useToast();
   const [isVerifying, setIsVerifying] = useState(false);
@@ -116,6 +118,10 @@ export function OtpVerificationModal({
             headers: { 'accept': '*/*' },
         });
 
+        if (response.status === 400) {
+          throw new Error("Invalid OTP provided. Please try again.");
+        }
+
         if (response.ok) {
             const responseData = await response.json();
             if (responseData.token) {
@@ -133,6 +139,7 @@ export function OtpVerificationModal({
                 if (role === 'tutor') {
                     router.push("/tutor/dashboard");
                 } else if (role === 'parent') {
+                    sessionStorage.setItem('showNewRequirementToast', 'true');
                     router.push("/parent/dashboard");
                 } else {
                     router.push("/");
@@ -141,27 +148,23 @@ export function OtpVerificationModal({
                  throw new Error("Invalid response from server during verification.");
             }
         } else {
-            if (response.status === 400) { 
-              throw new Error("Invalid OTP provided. Please try again.");
-            } else {
-              let errorMessage = "An unexpected error occurred during verification.";
-              try {
-                const errorText = await response.text();
-                if (errorText) {
-                  try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorText;
-                  } catch {
-                    errorMessage = errorText;
-                  }
-                } else {
-                   errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
+            let errorMessage = "An unexpected error occurred during verification.";
+            try {
+              const errorText = await response.text();
+              if (errorText) {
+                try {
+                  const errorJson = JSON.parse(errorText);
+                  errorMessage = errorJson.message || errorText;
+                } catch {
+                  errorMessage = errorText;
                 }
-              } catch (e) {
-                errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
+              } else {
+                  errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
               }
-              throw new Error(errorMessage);
+            } catch (e) {
+              errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
             }
+            throw new Error(errorMessage);
         }
     } catch (error) {
         hideLoader();
@@ -200,6 +203,78 @@ export function OtpVerificationModal({
   const typeTitle = verificationType.charAt(0).toUpperCase() + verificationType.slice(1);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
+  
+  const content = (
+    <>
+      <DialogHeader className={cn("p-6 pb-4 text-left", !isInsideAuthModal && "border-b")}>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-full text-primary">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <DialogTitle className="text-lg font-semibold text-foreground">
+              Verify Your {typeTitle}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground mt-0.5">
+              An OTP has been sent to <span className="font-medium text-foreground">{identifier}</span>.
+            </DialogDescription>
+          </div>
+        </div>
+      </DialogHeader>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="px-6 pt-5 pb-6 space-y-5">
+          <FormField
+            control={form.control}
+            name="otp"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-foreground">Enter 6-Digit OTP</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="text" 
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="••••••"
+                    className="text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-md"
+                    disabled={isVerifying}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+            <div className="text-center text-sm text-muted-foreground">
+              OTP is valid for: <span className="font-semibold text-primary">{`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`}</span>
+            </div>
+          <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-between pt-2">
+            <Button
+              type="button"
+              variant="link"
+              onClick={handleResendOtp}
+              disabled={isResending || isVerifying || timer > 540 || !onResend} // Disable resend for the first minute
+              className="text-xs text-primary hover:text-primary/80 p-0 h-auto self-center sm:self-auto"
+            >
+              <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isResending ? "animate-spin" : ""}`} />
+              {isResending ? "Resending..." : "Resend OTP"}
+            </Button>
+            <Button
+              type="submit"
+              disabled={isVerifying || !form.formState.isValid}
+              className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-sm py-2.5"
+            >
+              {isVerifying ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Verifying...</> : "Verify Code"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </Form>
+    </>
+  );
+
+  if (isInsideAuthModal) {
+    return content;
+  }
 
   return (
     <>
@@ -208,69 +283,7 @@ export function OtpVerificationModal({
         className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="p-6 pb-4 text-left border-b">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-full text-primary">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <DialogTitle className="text-lg font-semibold text-foreground">
-                Verify Your {typeTitle}
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground mt-0.5">
-                An OTP has been sent to <span className="font-medium text-foreground">{identifier}</span>.
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="px-6 pt-5 pb-6 space-y-5">
-            <FormField
-              control={form.control}
-              name="otp"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-foreground">Enter 6-Digit OTP</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="text" 
-                      inputMode="numeric"
-                      maxLength={6}
-                      placeholder="••••••"
-                      className="text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-md"
-                      disabled={isVerifying}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <div className="text-center text-sm text-muted-foreground">
-                OTP is valid for: <span className="font-semibold text-primary">{`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`}</span>
-             </div>
-            <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-between pt-2">
-              <Button
-                type="button"
-                variant="link"
-                onClick={handleResendOtp}
-                disabled={isResending || isVerifying || timer > 540 || !onResend} // Disable resend for the first minute
-                className="text-xs text-primary hover:text-primary/80 p-0 h-auto self-center sm:self-auto"
-              >
-                <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isResending ? "animate-spin" : ""}`} />
-                {isResending ? "Resending..." : "Resend OTP"}
-              </Button>
-              <Button
-                type="submit"
-                disabled={isVerifying || !form.formState.isValid}
-                className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 text-sm py-2.5"
-              >
-                {isVerifying ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Verifying...</> : "Verify Code"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        {content}
       </DialogContent>
     </Dialog>
     <AlertDialog open={isConfirmingClose} onOpenChange={setIsConfirmingClose}>
