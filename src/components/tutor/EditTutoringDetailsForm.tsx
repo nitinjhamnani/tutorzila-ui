@@ -192,7 +192,7 @@ const mutation = useMutation({
 
 
   React.useEffect(() => {
-    // Handle both data shapes: one from dashboard, one from my-account
+    // This logic now handles both the nested and flat structure for the initial data.
     const details = initialData?.tutoringDetails || initialData;
     if (details) {
       const modes = [];
@@ -595,4 +595,3 @@ const mutation = useMutation({
     </Card>
   );
 }
-
