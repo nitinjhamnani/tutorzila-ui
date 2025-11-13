@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall, MoreVertical, Lock } from "lucide-react";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall, MoreVertical, Lock, Eye, EyeOff } from "lucide-react";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
@@ -117,6 +117,7 @@ export default function TutorMyAccountPage() {
   const { toast } = useToast();
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
+  const [isAccountNumberVisible, setIsAccountNumberVisible] = useState(false);
 
   const { data: tutorAccountData, isLoading: isLoadingAccount, error: accountError } = useQuery({
     queryKey: ["tutorAccountDetails", token],
@@ -173,7 +174,7 @@ export default function TutorMyAccountPage() {
   const tutoringDetails = tutoringDetailsData;
   
   const maskAccountNumber = (number?: string) => {
-    if (!number) return null;
+    if (!number) return "Not Provided";
     return `**** **** **** ${number.slice(-4)}`;
   }
   
@@ -300,11 +301,28 @@ export default function TutorMyAccountPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Payment Details</CardTitle>
+                    <CardTitle>Payment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <InfoItem icon={Landmark} label="Payment Mode">{bankDetails?.paymentType}</InfoItem>
-                  <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(bankDetails?.accountNumber)}</InfoItem>
+                    <InfoItem icon={Landmark} label="Payment Mode">
+                        {bankDetails?.paymentType || "Not Provided"}
+                    </InfoItem>
+                    <div className="flex items-start">
+                        <KeyRound className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
+                        <div className="flex flex-col flex-grow text-xs">
+                            <span className="font-medium text-foreground">Account / UPI ID</span>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                    {isAccountNumberVisible ? bankDetails?.accountNumber || 'Not Provided' : maskAccountNumber(bankDetails?.accountNumber)}
+                                </span>
+                                {bankDetails?.accountNumber && (
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsAccountNumberVisible(prev => !prev)}>
+                                    {isAccountNumberVisible ? <EyeOff className="h-4 w-4 text-muted-foreground"/> : <Eye className="h-4 w-4 text-muted-foreground"/>}
+                                </Button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
               </Card>
             </div>
@@ -342,10 +360,10 @@ export default function TutorMyAccountPage() {
                           {tutoringDetails.online && <Badge variant="secondary" className="font-normal">Online</Badge>}
                           {tutoringDetails.offline && <Badge variant="secondary" className="font-normal">Offline</Badge>}
                           {tutoringDetails.hybrid && <Badge variant="secondary" className="font-normal">Hybrid</Badge>}
-                          {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && "Not Provided"}
+                          {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && <span className="text-xs text-muted-foreground">Not Provided</span>}
                       </div>
                     </InfoItem>
-                    <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address}</InfoItem>
+                    <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}</InfoItem>
                 </CardContent>
               </Card>
                <Card>
