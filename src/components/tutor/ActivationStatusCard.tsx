@@ -87,7 +87,7 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
         const responseText = await response.text();
         if (responseText) {
             const result = JSON.parse(responseText);
-            if (result.paymentDetails?.transactionStatus === "COMPLETED") {
+            if (result.transactionStatus === "COMPLETED") {
                 setVerificationStatus('success');
                 return 'success';
             }
