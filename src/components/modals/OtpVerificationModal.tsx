@@ -141,16 +141,13 @@ export function OtpVerificationModal({
                  throw new Error("Invalid response from server during verification.");
             }
         } else {
-            if (response.status === 400) { // Bad Request, likely invalid OTP
+            if (response.status === 400) { 
               throw new Error("Invalid OTP provided. Please try again.");
             } else {
-              // Try to get a message, but have a fallback.
               let errorMessage = "An unexpected error occurred during verification.";
               try {
-                // Don't assume the body is JSON
                 const errorText = await response.text();
                 if (errorText) {
-                  // Attempt to parse, but fallback to text
                   try {
                     const errorJson = JSON.parse(errorText);
                     errorMessage = errorJson.message || errorText;
@@ -161,7 +158,6 @@ export function OtpVerificationModal({
                    errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
                 }
               } catch (e) {
-                // Ignore if reading response body fails
                 errorMessage = `An error occurred: ${response.statusText} (${response.status})`;
               }
               throw new Error(errorMessage);
@@ -241,7 +237,6 @@ export function OtpVerificationModal({
                       {...field}
                       type="text" 
                       inputMode="numeric"
-                      pattern="\\d*"
                       maxLength={6}
                       placeholder="••••••"
                       className="text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm hover:shadow-md focus:shadow-lg rounded-md"
