@@ -75,8 +75,7 @@ const getInitials = (name?: string): string => {
 };
 
 const InfoItem = ({ icon: Icon, label, children, className }: { icon: React.ElementType; label: string; children?: React.ReactNode; className?:string }) => {
-  const hasContent = children || typeof children === 'number';
-  if (!hasContent) {
+  if (!children && typeof children !== 'number') {
     return (
       <div className={cn("flex items-start", className)}>
         <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
@@ -256,7 +255,8 @@ export default function TutorMyAccountPage() {
                     <span className="capitalize">{userDetails.gender || 'Not Provided'}</span>
                   </div>
                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                      <Badge variant={tutoringDetails.active ? "default" : "destructive"}>{tutoringDetails.active ? 'Active' : 'Inactive'}</Badge>
+                      <Badge variant={userDetails.live ? "default" : "destructive"}>{userDetails.live ? 'Live' : 'Not Live'}</Badge>
+                      <Badge variant={tutoringDetails.registered ? "default" : "destructive"}>{tutoringDetails.registered ? 'Registered' : 'Not Registered'}</Badge>
                       <Badge variant={tutoringDetails.verified ? "default" : "destructive"}>{tutoringDetails.verified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
                 </CardContent>
@@ -381,10 +381,10 @@ export default function TutorMyAccountPage() {
                     <InfoItem icon={MapPin} label="Address">
                       {tutoringDetails.googleMapsLink ? (
                           <a href={tutoringDetails.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                              {tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}
+                              {tutoringDetails.addressName || tutoringDetails.address}
                           </a>
                       ) : (
-                          <span>{tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}</span>
+                          <span>{tutoringDetails.addressName || tutoringDetails.address}</span>
                       )}
                     </InfoItem>
                     {(tutoringDetails.area || tutoringDetails.city || tutoringDetails.state) && (
