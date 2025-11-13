@@ -113,7 +113,7 @@ export function UpdatePhoneModal({ isOpen, onOpenChange, currentPhone, currentCo
   const mutation = useMutation({
     mutationFn: (data: UpdatePhoneFormValues) => {
       const selectedCountry = MOCK_COUNTRIES.find(c => c.country === data.country);
-      const fullPhoneNumber = `${selectedCountry?.countryCode}${data.phone}`;
+      const fullPhoneNumber = `${data.country}-${selectedCountry?.countryCode}-${data.phone}`;
       return updatePhoneApi({ token, newPhoneNumber: fullPhoneNumber });
     },
     onSuccess: (updatedUserDetails) => {
