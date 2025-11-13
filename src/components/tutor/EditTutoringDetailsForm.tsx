@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Save, Loader2 } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Save, Loader2, VenetianMask } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
@@ -42,6 +42,7 @@ const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 yea
 const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
 
 const tutoringDetailsSchema = z.object({
+  gender: z.enum(["MALE", "FEMALE"], { required_error: "Gender is required." }),
   subjects: z.array(z.string()).min(1, "Please select at least one subject."),
   gradeLevelsTaught: z.array(z.string()).min(1, "Please select at least one grade level you teach."),
   boardsTaught: z.array(z.string()).min(1, "Please select at least one board."),
@@ -84,6 +85,7 @@ const updateTutoringDetailsApi = async (token: string | null, data: TutoringDeta
 
     const locationDetails = data.location;
     const requestBody = {
+      gender: data.gender,
       subjects: data.subjects,
       grades: data.gradeLevelsTaught,
       boards: data.boardsTaught,
@@ -197,6 +199,7 @@ const mutation = useMutation({
       if (details.offline) modes.push("Offline (In-person)");
       
       form.reset({
+        gender: initialData.userDetails?.gender,
         subjects: ensureArray(details.subjects),
         gradeLevelsTaught: ensureArray(details.grades),
         boardsTaught: ensureArray(details.boards),
@@ -244,6 +247,27 @@ const mutation = useMutation({
           
           <CardContent className="p-6">
             <div className="space-y-6">
+              <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                      <FormItem>
+                          <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80"/>Gender</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                  <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
+                                      <SelectValue placeholder="Select gender" />
+                                  </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                  <SelectItem value="MALE">Male</SelectItem>
+                                  <SelectItem value="FEMALE">Female</SelectItem>
+                              </SelectContent>
+                          </Select>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
               <FormField
                 control={form.control}
                 name="subjects"
@@ -570,3 +594,5 @@ const mutation = useMutation({
     </Card>
   );
 }
+
+    
