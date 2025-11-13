@@ -16,13 +16,15 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName, initialForm = 'signin' }) => {
-  const [currentForm, setCurrentForm] = useState<'signin' | 'signup' | 'otp'>(initialForm);
+  const [currentForm, setCurrentForm] = useState<'signin' | 'signup'>(initialForm);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       setCurrentForm(initialForm);
       setOtpIdentifier("");
+      setIsOtpModalOpen(false); // Reset OTP state when main modal opens
     }
   }, [isOpen, initialForm]);
 
@@ -32,48 +34,43 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName
   
   const handleShowOtp = (email: string) => {
     setOtpIdentifier(email);
-    setCurrentForm('otp');
+    onOpenChange(false); // Close the main AuthModal
+    setIsOtpModalOpen(true); // Open the separate OTP modal
   };
 
   const handleOtpSuccess = () => {
-    onOpenChange(false);
+    setIsOtpModalOpen(false); // Close OTP modal on success
+    onOpenChange(false); // Ensure main modal is also closed
   }
 
-  const handleClose = () => {
-    if (currentForm === 'otp') {
-      setCurrentForm('signup');
-    } else {
-      onOpenChange(false);
-    }
-  }
+  return (
+      <>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+          <DialogContent className="p-0 flex flex-col visible max-h-[90vh]">
+            {/* This DialogTitle is for accessibility and will be visually hidden */}
+            <DialogTitle className="sr-only">Authentication</DialogTitle>
+            {/* The forms SignInForm and SignUpForm provide their own visual titles */}
+            <div className="overflow-y-auto flex-grow h-full">
+              {currentForm === 'signin' && (
+                <SignInForm onSwitchForm={handleSwitchForm} onClose={() => onOpenChange(false)} initialName={initialName} />
+              )}
+              {currentForm === 'signup' && (
+                <SignUpForm onSwitchForm={handleSwitchForm} onClose={() => onOpenChange(false)} onShowOtp={handleShowOtp}/>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
- return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="p-0 flex flex-col visible max-h-[90vh]">
-          {/* This DialogTitle is for accessibility and will be visually hidden */}
-          <DialogTitle className="sr-only">Authentication</DialogTitle>
-          {/* The forms SignInForm and SignUpForm provide their own visual titles */}
-          <div className="overflow-y-auto flex-grow h-full">
-            {currentForm === 'signin' && (
-              <SignInForm onSwitchForm={handleSwitchForm} onClose={() => onOpenChange(false)} initialName={initialName} />
-            )}
-            {currentForm === 'signup' && (
-               <SignUpForm onSwitchForm={handleSwitchForm} onClose={() => onOpenChange(false)} onShowOtp={handleShowOtp}/>
-            )}
-            {currentForm === 'otp' && (
-              <OtpVerificationModal
-                isOpen={true} // It's controlled by parent state
-                onOpenChange={(open) => { if (!open) handleClose() }} // If closed, trigger our close logic
-                verificationType="email"
-                identifier={otpIdentifier}
-                onSuccess={handleOtpSuccess}
-                onResend={async () => { console.log("OTP Resend (AuthModal)") }} // Mock or implement resend logic
-                isInsideAuthModal={true}
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+        {/* OTP Modal is now a separate, self-contained dialog */}
+        <OtpVerificationModal
+            isOpen={isOtpModalOpen}
+            onOpenChange={setIsOtpModalOpen}
+            verificationType="email"
+            identifier={otpIdentifier}
+            onSuccess={handleOtpSuccess}
+            onResend={async () => { console.log("OTP Resend (AuthModal)") }}
+        />
+      </>
   );
 };
 
