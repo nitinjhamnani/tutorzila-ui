@@ -242,12 +242,10 @@ export function ActivationStatusCard({ onActivate, className, message }: Activat
             disabled={isInitiatingPayment}
           >
             {isInitiatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Unlock className="mr-2 h-4 w-4" />}
-            {isInitiatingPayment ? "Initiating..." : "Register My Account Now"}
+            {isInitiatingPayment ? "Initiating..." : "Register Now"}
           </Button>
         )}
       </CardFooter>
     </Card>
   );
 }
-
-    
