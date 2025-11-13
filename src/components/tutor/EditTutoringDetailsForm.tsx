@@ -154,18 +154,17 @@ export function EditTutoringDetailsForm({ onSuccess, initialData }: EditTutoring
     },
   });
   
-  const mutation = useMutation({
+const mutation = useMutation({
     mutationFn: (data: TutoringDetailsFormValues) => updateTutoringDetailsApi(token, data),
     onMutate: () => {
       showLoader("Updating your profile...");
     },
     onSuccess: (updatedData) => {
-        // Optimistically update the global state
+        // Optimistically update the global atom state
         setTutorProfile(prev => ({...prev, tutoringDetails: updatedData}));
         
-        // Invalidate queries to refetch fresh data in the background
-        queryClient.invalidateQueries({ queryKey: ['tutorDetails', token] });
-        queryClient.invalidateQueries({ queryKey: ['tutorAccountDetails', token] });
+        // Manually update the react-query cache for 'tutorDetails'
+        queryClient.setQueryData(['tutorDetails', token], updatedData);
         
         toast({
             title: "Tutoring Details Updated!",
