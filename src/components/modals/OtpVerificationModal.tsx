@@ -140,6 +140,7 @@ export function OtpVerificationModal({
             }
         } else {
             if (response.status === 400) { // Bad Request, likely invalid OTP
+              hideLoader();
               form.setError("otp", {
                 type: "manual",
                 message: "Invalid OTP provided. Please check the code and try again.",
@@ -149,20 +150,14 @@ export function OtpVerificationModal({
             }
         }
     } catch (error) {
-        // Only show toast for non-400 errors, as 400 is handled inline.
-        if (form.formState.errors.otp?.message !== "Invalid OTP provided. Please check the code and try again.") {
-            toast({
-                variant: "destructive",
-                title: "Verification Failed",
-                description: (error as Error).message || "An unexpected error occurred.",
-            });
-        }
+        hideLoader(); // Ensure loader is hidden on any error
+        toast({
+            variant: "destructive",
+            title: "Verification Failed",
+            description: (error as Error).message || "An unexpected error occurred.",
+        });
     } finally {
         setIsVerifying(false);
-        // Hide loader in finally, but only if we are NOT successfully redirecting
-        if (!form.formState.isValid || form.formState.errors.otp) {
-            hideLoader();
-        }
     }
   };
 
