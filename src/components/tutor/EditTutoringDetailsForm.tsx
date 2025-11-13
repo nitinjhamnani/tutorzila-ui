@@ -199,7 +199,7 @@ const mutation = useMutation({
       if (details.offline) modes.push("Offline (In-person)");
       
       form.reset({
-        gender: initialData.userDetails?.gender,
+        gender: details.gender, // Correctly map gender from details
         subjects: ensureArray(details.subjects),
         gradeLevelsTaught: ensureArray(details.grades),
         boardsTaught: ensureArray(details.boards),
