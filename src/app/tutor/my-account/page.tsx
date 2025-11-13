@@ -339,9 +339,9 @@ export default function TutorMyAccountPage() {
                     <InfoBadgeList icon={Building} label="Boards" items={tutoringDetails.boards}/>
                     <InfoItem icon={RadioTower} label="Teaching Mode">
                       <div className="flex items-center gap-2">
-                          {tutoringDetails.online && <Badge>Online</Badge>}
-                          {tutoringDetails.offline && <Badge>Offline</Badge>}
-                          {tutoringDetails.hybrid && <Badge variant="outline">Hybrid</Badge>}
+                          {tutoringDetails.online && <Badge variant="secondary" className="font-normal">Online</Badge>}
+                          {tutoringDetails.offline && <Badge variant="secondary" className="font-normal">Offline</Badge>}
+                          {tutoringDetails.hybrid && <Badge variant="secondary" className="font-normal">Hybrid</Badge>}
                           {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && "Not Provided"}
                       </div>
                     </InfoItem>
