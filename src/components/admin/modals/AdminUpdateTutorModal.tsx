@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Save, Loader2 } from "lucide-react";
+import { BookOpen, GraduationCap, Briefcase, DollarSign, Info, RadioTower, MapPin, Edit, CalendarDays, Clock, ShieldCheck, X, Languages, CheckSquare, ChevronDown, Save, Loader2, VenetianMask } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -107,6 +107,7 @@ const updateTutorDetails = async ({ tutorId, token, formData }: { tutorId: strin
 
   const locationDetails = formData.location;
   const requestBody = {
+    gender: formData.gender,
     subjects: formData.subjects,
     grades: formData.grades,
     boards: formData.boards,
@@ -189,6 +190,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
         const tutoringDetails = response.tutoringDetails || response;
         return {
           ...oldData, 
+          gender: response.userDetails?.gender || oldData.gender,
           subjectsList: tutoringDetails.subjects,
           gradesList: tutoringDetails.grades,
           boardsList: tutoringDetails.boards,
@@ -282,6 +284,27 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
             <div className="flex-grow overflow-y-auto">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} id="update-tutor-form" className="p-6 space-y-6">
+                        <FormField
+                            control={form.control}
+                            name="gender"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80"/>Gender</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
+                                                <SelectValue placeholder="Select gender" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="MALE">Male</SelectItem>
+                                            <SelectItem value="FEMALE">Female</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="bio"
