@@ -119,7 +119,7 @@ export default function TutorMyAccountPage() {
   const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
   const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
   const [isUpdateBankDetailsModalOpen, setIsUpdateBankDetailsModalOpen] = useState(false);
-  const { hideLoader } = useGlobalLoader();
+  const { hideLoader, showLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("email");
@@ -252,13 +252,13 @@ export default function TutorMyAccountPage() {
                   <CardTitle className="text-xl font-bold text-foreground mt-4">{userDetails.name}</CardTitle>
                   <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
                     <VenetianMask className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0"/>
-                    <span className="capitalize">{userDetails.gender || 'Not Provided'}</span>
+                    <span className="capitalize">{tutoringDetails.gender || 'Not Provided'}</span>
                   </div>
                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                       <Badge variant={tutoringDetails.registered ? "default" : "destructive"}>{tutoringDetails.registered ? 'Registered' : 'Not Registered'}</Badge>
                       <Badge variant={tutoringDetails.verified ? "default" : "destructive"}>{tutoringDetails.verified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
-                  <Separator className="my-4" />
+                   <Separator className="my-4" />
                   <div className="text-left space-y-3">
                     <InfoItem icon={Briefcase} label="Experience">{tutoringDetails.yearOfExperience}</InfoItem>
                     <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutoringDetails.hourlyRate} ${tutoringDetails.rateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
@@ -469,3 +469,5 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
+    
