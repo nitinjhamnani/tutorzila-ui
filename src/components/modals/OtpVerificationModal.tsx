@@ -68,7 +68,7 @@ export function OtpVerificationModal({
   const [isResending, setIsResending] = useState(false);
   const [timer, setTimer] = useState(600); // 10 minutes in seconds
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
-  const { showLoader } = useGlobalLoader();
+  const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
   const { setSession } = useAuthMock();
 
@@ -139,20 +139,29 @@ export function OtpVerificationModal({
                 router.push("/");
             }
         } else {
-            throw new Error(responseData.message || "OTP verification failed.");
+            if (response.status === 400) { // Bad Request, likely invalid OTP
+              form.setError("otp", {
+                type: "manual",
+                message: "Invalid OTP provided. Please check the code and try again.",
+              });
+            } else {
+              throw new Error(responseData.message || "OTP verification failed.");
+            }
         }
     } catch (error) {
-        toast({
-            variant: "destructive",
-            title: "Verification Failed",
-            description: (error as Error).message || "An unexpected error occurred.",
-        });
+        // Only show toast for non-400 errors, as 400 is handled inline.
+        if (form.formState.errors.otp?.message !== "Invalid OTP provided. Please check the code and try again.") {
+            toast({
+                variant: "destructive",
+                title: "Verification Failed",
+                description: (error as Error).message || "An unexpected error occurred.",
+            });
+        }
     } finally {
         setIsVerifying(false);
-        // hideLoader() is called by the destination page's useEffect on success, so we don't call it here.
-        // It is needed in the catch block if that's where we stop.
-        if (form.formState.errors.otp) { // Example of a failure case where we would hide the loader
-             // hideLoader() should be called if an error occurs and we are not redirecting
+        // Hide loader in finally, but only if we are NOT successfully redirecting
+        if (!form.formState.isValid || form.formState.errors.otp) {
+            hideLoader();
         }
     }
   };
