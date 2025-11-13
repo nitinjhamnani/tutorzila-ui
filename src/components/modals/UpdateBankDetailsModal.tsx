@@ -28,15 +28,17 @@ import { Loader2, Landmark, Save } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const bankDetailsSchema = z.object({
-  paymentMode: z.enum(["UPI", "NEFT/IMPS"]),
+  paymentType: z.enum(["UPI", "BANK"]),
   upiId: z.string().optional(),
   accountName: z.string().optional(),
   accountNumber: z.string().optional(),
   ifscCode: z.string().optional(),
 }).refine(data => {
-    if (data.paymentMode === 'UPI') {
+    if (data.paymentType === 'UPI') {
       return !!data.upiId && data.upiId.includes('@');
     }
     return true;
@@ -44,7 +46,7 @@ const bankDetailsSchema = z.object({
     message: "A valid UPI ID is required.",
     path: ["upiId"],
 }).refine(data => {
-    if (data.paymentMode === 'NEFT/IMPS') {
+    if (data.paymentType === 'BANK') {
       return !!data.accountName && !!data.accountNumber && !!data.ifscCode;
     }
     return true;
@@ -52,7 +54,6 @@ const bankDetailsSchema = z.object({
     message: "Account name, number, and IFSC code are required for bank transfer.",
     path: ["accountName"], 
 });
-
 
 type BankDetailsFormValues = z.infer<typeof bankDetailsSchema>;
 
@@ -62,25 +63,88 @@ interface UpdateBankDetailsModalProps {
   initialAccountName?: string;
 }
 
+const updateTutorBankDetails = async ({ token, formData }: { token: string | null; formData: BankDetailsFormValues; }) => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  let requestBody;
+  if (formData.paymentType === "UPI") {
+    requestBody = {
+      paymentType: "UPI",
+      accountNumber: formData.upiId, // As per requirement
+    };
+  } else { // BANK
+    requestBody = {
+      paymentType: "BANK",
+      accountNumber: formData.accountNumber,
+      ifsc: formData.ifscCode,
+      accountHolderName: formData.accountName,
+    };
+  }
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/tutor/bank`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to update bank details." }));
+    throw new Error(errorData.message);
+  }
+  
+  return response.json();
+};
+
 export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountName }: UpdateBankDetailsModalProps) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
 
   const form = useForm<BankDetailsFormValues>({
     resolver: zodResolver(bankDetailsSchema),
     defaultValues: {
-      paymentMode: "UPI",
+      paymentType: "UPI",
       upiId: "",
       accountName: initialAccountName || "",
       accountNumber: "",
       ifscCode: "",
     },
   });
+  
+  const mutation = useMutation({
+    mutationFn: (data: BankDetailsFormValues) => updateTutorBankDetails({ token, formData: data }),
+    onSuccess: (newBankDetails) => {
+      queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          bankDetails: newBankDetails,
+        };
+      });
+      toast({
+        title: "Bank Details Saved!",
+        description: "Your payment information has been successfully updated.",
+      });
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message,
+      });
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        paymentMode: "UPI",
+        paymentType: "UPI",
         upiId: "",
         accountName: initialAccountName || "",
         accountNumber: "",
@@ -89,21 +153,10 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
     }
   }, [isOpen, initialAccountName, form]);
 
-  const paymentMode = form.watch("paymentMode");
+  const paymentMode = form.watch("paymentType");
 
-  const onSubmit: SubmitHandler<BankDetailsFormValues> = async (data) => {
-    setIsSubmitting(true);
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Submitting Bank Details:", data);
-    
-    toast({
-      title: "Bank Details Saved!",
-      description: "Your payment information has been updated.",
-    });
-    
-    setIsSubmitting(false);
-    onOpenChange(false);
+  const onSubmit: SubmitHandler<BankDetailsFormValues> = (data) => {
+    mutation.mutate(data);
   };
 
   return (
@@ -122,7 +175,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
             <FormField
               control={form.control}
-              name="paymentMode"
+              name="paymentType"
               render={({ field }) => (
                 <FormItem className="space-y-2">
                   <FormLabel>Payment Mode</FormLabel>
@@ -131,7 +184,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
                       onValueChange={field.onChange}
                       value={field.value}
                       className="grid grid-cols-2 gap-4"
-                      disabled={isSubmitting}
+                      disabled={mutation.isPending}
                     >
                       <FormItem>
                         <RadioGroupItem value="UPI" id="mode-upi" className="sr-only" />
@@ -148,12 +201,12 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
                         </Label>
                       </FormItem>
                       <FormItem>
-                        <RadioGroupItem value="NEFT/IMPS" id="mode-bank" className="sr-only" />
+                        <RadioGroupItem value="BANK" id="mode-bank" className="sr-only" />
                         <Label
                           htmlFor="mode-bank"
                            className={cn(
                             "flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer transition-colors",
-                            field.value === "NEFT/IMPS"
+                            field.value === "BANK"
                               ? "bg-primary text-primary-foreground border-primary"
                               : "border-border hover:bg-accent/50"
                           )}
@@ -176,7 +229,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
                   <FormItem>
                     <FormLabel>UPI ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="yourname@bank" {...field} disabled={isSubmitting} />
+                      <Input placeholder="yourname@bank" {...field} disabled={mutation.isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -184,7 +237,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
               />
             )}
 
-            {paymentMode === "NEFT/IMPS" && (
+            {paymentMode === "BANK" && (
               <div className="space-y-4 pt-2 border-t mt-4">
                 <FormField
                   control={form.control}
@@ -193,7 +246,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
                     <FormItem>
                       <FormLabel>Account Holder Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} disabled={isSubmitting} />
+                        <Input placeholder="John Doe" {...field} disabled={mutation.isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -206,7 +259,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
                     <FormItem>
                       <FormLabel>Account Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter account number" {...field} disabled={isSubmitting} />
+                        <Input placeholder="Enter account number" {...field} disabled={mutation.isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -219,7 +272,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
                     <FormItem>
                       <FormLabel>IFSC Code</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter IFSC code" {...field} disabled={isSubmitting} />
+                        <Input placeholder="Enter IFSC code" {...field} disabled={mutation.isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -229,8 +282,8 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
             )}
             
             <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : <><Save className="mr-2 h-4 w-4" /> Save Details</>}
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : <><Save className="mr-2 h-4 w-4" /> Save Details</>}
               </Button>
             </DialogFooter>
           </form>
