@@ -75,27 +75,27 @@ const getInitials = (name?: string): string => {
 };
 
 const InfoItem = ({ icon: Icon, label, children, className }: { icon: React.ElementType; label: string; children?: React.ReactNode; className?:string }) => {
-  if (!children && typeof children !== 'number') return null;
+  const hasContent = children || typeof children === 'number';
   return (
     <div className={cn("flex items-start", className)}>
       <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
       <div className="flex flex-col flex-grow text-xs">
         <span className="font-medium text-foreground">{label}</span>
-        <div className="text-muted-foreground">{children}</div>
+        <div className="text-muted-foreground">{hasContent ? children : "-"}</div>
       </div>
     </div>
   );
 };
 
 const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items?: string[] }) => {
-  if (!items || items.length === 0) return null;
+  const hasItems = items && items.length > 0;
   return (
     <div className="flex items-start">
        <Icon className="w-4 h-4 mr-2.5 mt-1 text-muted-foreground shrink-0" />
       <div className="flex flex-col">
         <span className="font-medium text-foreground mb-1 text-xs">{label}</span>
         <div className="flex flex-wrap gap-1">
-          {items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>)}
+          {hasItems ? items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>) : <span className="text-xs text-muted-foreground">-</span>}
         </div>
       </div>
     </div>
@@ -173,7 +173,7 @@ export default function TutorMyAccountPage() {
   const tutoringDetails = tutoringDetailsData;
   
   const maskAccountNumber = (number?: string) => {
-    if (!number) return 'Not Provided';
+    if (!number) return null;
     return `**** **** **** ${number.slice(-4)}`;
   }
   
@@ -303,7 +303,7 @@ export default function TutorMyAccountPage() {
                   <CardTitle>Payment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <InfoItem icon={Landmark} label="Payment Mode">{bankDetails?.paymentType || "Not Set"}</InfoItem>
+                  <InfoItem icon={Landmark} label="Payment Mode">{bankDetails?.paymentType}</InfoItem>
                   <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(bankDetails?.accountNumber)}</InfoItem>
                 </CardContent>
               </Card>
@@ -326,7 +326,7 @@ export default function TutorMyAccountPage() {
                    )}
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutoringDetails.tutorBio || "No biography provided."}</p>
+                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{tutoringDetails.tutorBio || "-"}</p>
                 </CardContent>
               </Card>
               <Card>
@@ -342,9 +342,10 @@ export default function TutorMyAccountPage() {
                           {tutoringDetails.online && <Badge>Online</Badge>}
                           {tutoringDetails.offline && <Badge>Offline</Badge>}
                           {tutoringDetails.hybrid && <Badge variant="outline">Hybrid</Badge>}
+                          {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && "-"}
                       </div>
                     </InfoItem>
-                    {tutoringDetails.offline && <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address}</InfoItem>}
+                    <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address}</InfoItem>
                 </CardContent>
               </Card>
                <Card>
