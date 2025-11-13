@@ -378,7 +378,20 @@ export default function TutorMyAccountPage() {
                           {!tutoringDetails.online && !tutoringDetails.offline && !tutoringDetails.hybrid && <span className="text-xs text-muted-foreground italic">Not Provided</span>}
                       </div>
                     </InfoItem>
-                    <InfoItem icon={MapPin} label="Address">{tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}</InfoItem>
+                    <InfoItem icon={MapPin} label="Address">
+                      {tutoringDetails.googleMapsLink ? (
+                          <a href={tutoringDetails.googleMapsLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                              {tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}
+                          </a>
+                      ) : (
+                          <span>{tutoringDetails.addressName || tutoringDetails.address || "Not Provided"}</span>
+                      )}
+                    </InfoItem>
+                    {(tutoringDetails.area || tutoringDetails.city || tutoringDetails.state) && (
+                      <InfoItem icon={MapPin} label="Location">
+                        {[tutoringDetails.area, tutoringDetails.city, tutoringDetails.state].filter(Boolean).join(' - ')}
+                      </InfoItem>
+                    )}
                 </CardContent>
               </Card>
                <Card>
@@ -422,7 +435,7 @@ export default function TutorMyAccountPage() {
           <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
           <div className="overflow-y-auto flex-grow h-full">
               <EditTutoringDetailsForm 
-                initialData={tutoringDetails}
+                initialData={tutoringDetailsData}
                 onSuccess={() => setIsEditTutoringModalOpen(false)} 
               />
           </div>
