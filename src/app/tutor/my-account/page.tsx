@@ -33,6 +33,7 @@ import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
+import { UpdateNameModal } from "@/components/modals/UpdateNameModal";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -117,7 +118,6 @@ export default function TutorMyAccountPage() {
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
   const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
-  const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
   const [isUpdateBankDetailsModalOpen, setIsUpdateBankDetailsModalOpen] = useState(false);
   const { hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
@@ -128,6 +128,7 @@ export default function TutorMyAccountPage() {
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
   const [isAccountNumberVisible, setIsAccountNumberVisible] = useState(false);
+  const [isUpdateNameModalOpen, setIsUpdateNameModalOpen] = useState(false);
 
   const { data: tutorAccountData, isLoading: isLoadingAccount, error: accountError } = useQuery({
     queryKey: ["tutorAccountDetails", token],
@@ -221,11 +222,7 @@ export default function TutorMyAccountPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setIsEditPersonalModalOpen(true)}>
-                                <UserCircle className="mr-2 h-4 w-4" />
-                                <span>Edit Personal Details</span>
-                            </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => setIsEditTutoringModalOpen(true)}>
+                            <DropdownMenuItem onClick={() => setIsEditTutoringModalOpen(true)}>
                                 <Briefcase className="mr-2 h-4 w-4" />
                                 <span>Edit Tutoring Details</span>
                             </DropdownMenuItem>
@@ -279,6 +276,10 @@ export default function TutorMyAccountPage() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
+                            <UserCircle className="mr-2 h-4 w-4" />
+                            <span>Change Name</span>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setIsUpdateEmailModalOpen(true)}>
                             <Mail className="mr-2 h-4 w-4" />
                             <span>Change Email</span>
@@ -437,7 +438,7 @@ export default function TutorMyAccountPage() {
       <UpdateEmailModal isOpen={isUpdateEmailModalOpen} onOpenChange={setIsUpdateEmailModalOpen} currentEmail={userDetails.email || ""} />
       <UpdatePhoneModal isOpen={isUpdatePhoneModalOpen} onOpenChange={setIsUpdatePhoneModalOpen} currentPhone={userDetails.phone} currentCountryCode={userDetails.countryCode} />
       <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={userDetails.name} userId={userDetails.id} />
-      <EditPersonalDetailsModal isOpen={isEditPersonalModalOpen} onOpenChange={setIsEditPersonalModalOpen} user={legacyTutorObject as any} />
+      <UpdateNameModal isOpen={isUpdateNameModalOpen} onOpenChange={setIsUpdateNameModalOpen} currentName={userDetails.name} />
       <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} initialAccountName={userDetails.name} />
       <OtpVerificationModal
         isOpen={isOtpModalOpen}

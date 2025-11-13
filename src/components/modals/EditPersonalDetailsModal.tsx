@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,161 +23,154 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, UserCircle, Mail, Phone, VenetianMask } from "lucide-react"; 
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { User as UserIcon, Loader2, Edit3, VenetianMask } from "lucide-react";
-import { useEffect } from "react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { User } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { TutorProfile } from "@/types";
+import React from "react";
 
-const editPersonalDetailsSchema = z.object({
-  name: z.string().min(2, "Full name is required."),
+const personalDetailsSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Invalid email address."), 
+  phone: z.string().min(10, "Phone number must be at least 10 digits.").optional().or(z.literal("")),
   gender: z.enum(["male", "female", "other", "not_specified"]).optional(),
+  dateOfBirth: z.date().optional(),
 });
 
-type EditPersonalDetailsFormValues = z.infer<typeof editPersonalDetailsSchema>;
+type PersonalDetailsFormValues = z.infer<typeof personalDetailsSchema>;
 
-interface EditPersonalDetailsModalProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  user: User | null;
-}
-
-const mapGenderToForm = (genderValue?: string | null): "male" | "female" | "other" | "not_specified" => {
-    const lowerGender = genderValue?.toLowerCase();
-    if (lowerGender === "male" || lowerGender === "female" || lowerGender === "other") {
-        return lowerGender;
-    }
-    return "not_specified";
-};
-
-const updateUserPersonalDetails = async ({
-  userId,
-  token,
-  formData,
-}: {
-  userId: string;
-  token: string | null;
-  formData: EditPersonalDetailsFormValues;
-}) => {
-  if (!token) throw new Error("Authentication token not found.");
-  if (!userId) throw new Error("User ID is missing.");
-  
-  const requestBody = {
-    name: formData.name,
-    gender: formData.gender === "not_specified" ? "" : formData.gender?.toUpperCase(),
-  };
-
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  // This endpoint is assumed based on user update patterns.
-  // It might need to be /api/user/update or similar.
-  const response = await fetch(`${apiBaseUrl}/api/admin/user/update/${userId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      'accept': '*/*',
-    },
-    body: JSON.stringify(requestBody),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: "Failed to update details." }));
-    throw new Error(errorData.message);
-  }
-  
-  return response.json();
-};
-
-export function EditPersonalDetailsModal({ isOpen, onOpenChange, user }: EditPersonalDetailsModalProps) {
+export function EditPersonalDetailsModal() {
+  const { user, isAuthenticated } = useAuthMock(); 
   const { toast } = useToast();
-  const { token } = useAuthMock();
-  const queryClient = useQueryClient();
+  const tutorUser = user as TutorProfile | null;
 
-  const form = useForm<EditPersonalDetailsFormValues>({
-    resolver: zodResolver(editPersonalDetailsSchema),
+  const mapGenderToForm = (genderValue?: string | null) => {
+    if (genderValue === "" || genderValue === undefined || genderValue === null) {
+      return "not_specified";
+    }
+    return genderValue as "male" | "female" | "other" | "not_specified";
+  };
+
+  const form = useForm<PersonalDetailsFormValues>({
+    resolver: zodResolver(personalDetailsSchema),
     defaultValues: {
-      name: user?.name || "",
-      gender: mapGenderToForm(user?.gender),
+      name: tutorUser?.name || "",
+      email: tutorUser?.email || "",
+      phone: tutorUser?.phone || "",
+      gender: mapGenderToForm(tutorUser?.gender),
+      dateOfBirth: tutorUser?.dateOfBirth ? new Date(tutorUser.dateOfBirth) : undefined,
     },
   });
 
-  useEffect(() => {
-    if (user && isOpen) {
+  React.useEffect(() => {
+    if (tutorUser) {
       form.reset({
-        name: user.name || "",
-        gender: mapGenderToForm(user.gender),
+        name: tutorUser.name || "",
+        email: tutorUser.email || "",
+        phone: tutorUser.phone || "",
+        gender: mapGenderToForm(tutorUser.gender),
+        dateOfBirth: tutorUser.dateOfBirth ? new Date(tutorUser.dateOfBirth) : undefined,
       });
     }
-  }, [user, isOpen, form]);
+  }, [tutorUser, form]);
 
-  const mutation = useMutation({
-    mutationFn: (data: EditPersonalDetailsFormValues) => updateUserPersonalDetails({ userId: user!.id, token, formData: data }),
-    onSuccess: (updatedUserDetails) => {
-      queryClient.setQueryData(['userDetails', token], (oldData: User | undefined) => {
-        if (!oldData) return updatedUserDetails;
-        return {
-          ...oldData,
-          ...updatedUserDetails,
-        };
-      });
-      toast({
-        title: "Details Updated!",
-        description: "Your personal details have been successfully updated.",
-      });
-      onOpenChange(false);
-    },
-    onError: (error: Error) => {
-      toast({
-        variant: "destructive",
-        title: "Update Failed",
-        description: error.message,
-      });
-    },
-  });
-  
-  const onSubmit = (data: EditPersonalDetailsFormValues) => {
-    mutation.mutate(data);
-  };
-  
-  if (!user) return null;
+
+  function onSubmit(data: PersonalDetailsFormValues) {
+    const dataToSubmit = {
+      ...data,
+      gender: data.gender === "not_specified" ? "" : data.gender,
+    };
+    console.log("Personal Details Submitted:", dataToSubmit);
+    // Mock API call
+    toast({
+      title: "Personal Details Updated!",
+      description: "Your personal information has been saved.",
+    });
+  }
+
+  if (!isAuthenticated || !user) {
+    // This should ideally be handled by the dashboard layout's auth check
+    return <p className="text-center py-10">Loading user data or please sign in.</p>;
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card">
-        <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Edit3 className="mr-2 h-5 w-5" />
-            Edit Personal Details
-          </DialogTitle>
-          <DialogDescription>
-            Update your name and gender information.
-          </DialogDescription>
-        </DialogHeader>
+    <Card className="w-full max-w-2xl mx-auto shadow-lg rounded-xl border bg-card">
+      <CardHeader className="p-6 border-b">
+        <CardTitle className="text-xl font-semibold text-primary flex items-center">
+          <UserCircle className="mr-2.5 h-6 w-6" />
+          Edit Personal Details
+        </CardTitle>
+        <CardDescription className="text-sm text-muted-foreground mt-1">Update your personal information below.</CardDescription>
+      </CardHeader>
+      <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><UserIcon className="mr-2 h-4 w-4 text-primary/80" />Full Name</FormLabel>
+                  <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} disabled={mutation.isPending} />
+                    <div className="relative">
+                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Your full name" {...field} className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                     <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="your.email@example.com" {...field} readOnly className="pl-10 bg-muted/30 cursor-not-allowed border-border shadow-sm" />
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-xs">Email address cannot be changed.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input type="tel" placeholder="Your phone number" {...field} className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="flex items-center"><VenetianMask className="mr-2 h-4 w-4 text-primary/80" />Gender</FormLabel>
+                    <FormLabel>Gender</FormLabel>
+                    <div className="relative">
+                      <VenetianMask className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
                       <Select onValueChange={field.onChange} value={field.value || "not_specified"}>
                         <FormControl>
-                          <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
+                          <SelectTrigger className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm">
                             <SelectValue placeholder="Select gender" />
                           </SelectTrigger>
                         </FormControl>
@@ -187,18 +181,62 @@ export function EditPersonalDetailsModal({ isOpen, onOpenChange, user }: EditPer
                           <SelectItem value="not_specified">Prefer not to say</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            <DialogFooter className="pt-4">
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : "Save Changes"}
-              </Button>
-            </DialogFooter>
+              <FormField
+                control={form.control}
+                name="dateOfBirth"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date of Birth</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal pl-3 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                          captionLayout="dropdown-buttons"
+                          fromYear={new Date().getFullYear() - 100}
+                          toYear={new Date().getFullYear()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button type="submit" className="w-full mt-8 py-2.5 text-base" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 }
