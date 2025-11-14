@@ -112,41 +112,26 @@ export function OtpVerificationModal({
     showLoader("Verifying your code...");
     try {
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const response = await fetch(`${apiBaseUrl}/api/auth/verify?email=${encodeURIComponent(identifier)}&otp=${data.otp}`, {
+        let verifyUrl = "";
+        
+        if (verificationType === "email") {
+            verifyUrl = `${apiBaseUrl}/api/auth/verify?email=${encodeURIComponent(identifier)}&otp=${data.otp}`;
+        } else { // phone
+            verifyUrl = `${apiBaseUrl}/api/auth/verify/phone?phone=${encodeURIComponent(identifier)}&otp=${data.otp}`;
+        }
+        
+        const response = await fetch(verifyUrl, {
             method: 'GET',
             headers: { 'accept': '*/*' },
         });
-
+        
         if (response.status === 400) {
           throw new Error("Invalid OTP provided. Please try again.");
         }
-
-        if (response.ok) {
-            const responseData = await response.json();
-            if (responseData.token) {
-                setSession(responseData.token, responseData.type, identifier, responseData.name, responseData.profilePicture);
-                toast({
-                    title: "Sign In Successful!",
-                    description: "Welcome to your dashboard.",
-                });
-                
-                if (onSuccess) {
-                  await onSuccess();
-                }
-
-                const role = responseData.type.toLowerCase();
-                if (role === 'tutor') {
-                    router.push("/tutor/dashboard");
-                } else if (role === 'parent') {
-                    sessionStorage.setItem('showNewRequirementToast', 'true');
-                    router.push("/parent/dashboard");
-                } else {
-                    router.push("/");
-                }
-            } else {
-                 throw new Error("Invalid response from server during verification.");
-            }
-        } else {
+        if (response.status === 500) {
+            throw new Error("Failed to validate otp, please try again after some time.");
+        }
+        if (!response.ok) {
             let errorMessage = "An unexpected error occurred during verification.";
             try {
               const errorText = await response.text();
@@ -156,6 +141,34 @@ export function OtpVerificationModal({
             }
             throw new Error(errorMessage);
         }
+
+        const responseData = await response.json();
+        if (responseData.token) {
+            // For phone verification, the identifier is just the phone number, email might not be available
+            const userIdentifier = verificationType === 'email' ? identifier : responseData.email || 'user';
+            setSession(responseData.token, responseData.type, userIdentifier, responseData.name, responseData.profilePicture);
+            toast({
+                title: "Sign In Successful!",
+                description: "Welcome to your dashboard.",
+            });
+            
+            if (onSuccess) {
+              await onSuccess();
+            }
+
+            const role = responseData.type.toLowerCase();
+            if (role === 'tutor') {
+                router.push("/tutor/dashboard");
+            } else if (role === 'parent') {
+                sessionStorage.setItem('showNewRequirementToast', 'true');
+                router.push("/parent/dashboard");
+            } else {
+                router.push("/");
+            }
+        } else {
+             throw new Error("Invalid response from server during verification.");
+        }
+        
     } catch (error) {
         hideLoader();
         toast({
