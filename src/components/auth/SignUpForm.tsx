@@ -47,7 +47,7 @@ const signUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
   country: z.string().min(2, "Country is required."),
-  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  localPhoneNumber: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   password: z.string()
       .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
       .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
@@ -56,7 +56,6 @@ const signUpSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
-  whatsappEnabled: z.boolean().default(true),
 });
 
 interface SignUpFormProps { 
@@ -94,7 +93,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
       password: "",
       role: undefined, 
       acceptTerms: false,
-      whatsappEnabled: true,
     },
     mode: "onTouched",
   });
@@ -125,7 +123,6 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
       country: values.country,
       countryCode: selectedCountryData?.countryCode || '',
       phone: values.localPhoneNumber,
-      whatsappEnabled: values.whatsappEnabled,
     };
 
     try {
@@ -255,23 +252,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Email Address</FormLabel>
-                  <FormControl>
-                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+            
             <div className="space-y-2">
               <FormLabel className="text-foreground">Phone Number</FormLabel>
               <div className="flex gap-2">
@@ -304,7 +285,19 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
                       <FormControl>
                         <div className="relative">
                           <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                          <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                          <Input
+                            type="tel"
+                            pattern="[0-9]*"
+                            placeholder="XXXXXXXXXX"
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              // Allow only numeric input
+                              const numericValue = value.replace(/[^0-9]/g, '');
+                              field.onChange(numericValue);
+                            }}
+                            className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
+                          />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -312,34 +305,31 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="whatsappEnabled"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-sm flex items-center">
-                        <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
-                        Available on WhatsApp
-                      </FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
             </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Email Address</FormLabel>
+                  <FormControl>
+                     <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Password</FormLabel>
+                  <FormLabel className="text-foreground">Create Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
