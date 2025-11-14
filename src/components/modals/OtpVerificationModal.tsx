@@ -117,7 +117,8 @@ export function OtpVerificationModal({
         if (verificationType === "email") {
             verifyUrl = `${apiBaseUrl}/api/auth/verify?email=${encodeURIComponent(identifier)}&otp=${data.otp}`;
         } else { // phone
-            verifyUrl = `${apiBaseUrl}/api/auth/verify/phone?phone=${encodeURIComponent(identifier)}&otp=${data.otp}`;
+            const phoneNumberOnly = identifier.split(" ").pop() || identifier;
+            verifyUrl = `${apiBaseUrl}/api/auth/verify/phone?phone=${encodeURIComponent(phoneNumberOnly)}&otp=${data.otp}`;
         }
         
         const response = await fetch(verifyUrl, {
