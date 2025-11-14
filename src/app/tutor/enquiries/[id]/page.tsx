@@ -441,7 +441,7 @@ export default function TutorEnquiryDetailPage() {
     );
   }
 
-  const isTutorRegistered = tutorProfile?.tutoringDetails?.registered ?? false;
+  const isTutorRegistered = tutorProfile?.registered ?? false;
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');

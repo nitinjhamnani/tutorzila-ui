@@ -256,7 +256,7 @@ export default function TutorDashboardPage() {
     enabled: !!token,
     staleTime: 5 * 60 * 1000,
     onSuccess: (data) => {
-      setTutorProfile({ tutoringDetails: data }); // Store fetched details in global state
+      setTutorProfile(data); // Store fetched details in global state
     },
   });
 
