@@ -103,13 +103,13 @@ export function useAuthMock() {
       setUser(userObject);
   };
 
-  const login = async (email: string, password?: string) => {
+  const login = async (username: string, password?: string) => {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
     });
 
     const responseData = await response.json();
@@ -119,7 +119,8 @@ export function useAuthMock() {
     }
 
     if (responseData.token && responseData.type) {
-        setSession(responseData.token, responseData.type, email, responseData.name, responseData.phone, responseData.profilePicture);
+        // Since username is phone, we pass it to setSession which expects an email param to construct the user object
+        setSession(responseData.token, responseData.type, responseData.email, responseData.name, username, responseData.profilePicture);
         // Redirect after successful login
         const role = responseData.type.toLowerCase();
         if (role === 'tutor') {

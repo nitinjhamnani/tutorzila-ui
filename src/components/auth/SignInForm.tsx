@@ -140,7 +140,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
     setIsSubmitting(true);
     showLoader();
     try {
-      // Use localPhoneNumber for login
       const result = await login(values.localPhoneNumber, values.password);
       toast({
         title: "Signed In!",
@@ -148,9 +147,8 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       });
       if (onSuccess) onSuccess();
       if (onClose) onClose();
-      // Do not hide loader here; the destination dashboard page will handle it.
     } catch (error) {
-      hideLoader(); // Only hide loader on failure
+      hideLoader();
       toast({
         variant: "destructive",
         title: "Sign In Failed",
