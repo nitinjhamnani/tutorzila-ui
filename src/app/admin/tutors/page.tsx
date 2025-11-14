@@ -84,7 +84,6 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
     registeredDate: tutor.createdAt,
     gender: tutor.gender,
     isActive: tutor.active,
-    registered: tutor.registered, // Added registered flag
     isBioReviewed: tutor.bioReviewed,
     online: tutor.online,
     offline: tutor.offline,
