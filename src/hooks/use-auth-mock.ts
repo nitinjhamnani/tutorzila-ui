@@ -118,8 +118,9 @@ export function useAuthMock() {
       throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
     }
 
-    if (responseData.token && responseData.type && responseData.email) {
-        setSession(responseData.token, responseData.type, responseData.email, responseData.name, username, responseData.profilePicture);
+    if (responseData.token && responseData.type) {
+        // Use username (phone number) as a placeholder for email since it's not in the response
+        setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
         
         const role = responseData.type.toLowerCase();
         if (role === 'tutor') {
@@ -132,7 +133,7 @@ export function useAuthMock() {
             router.push("/");
         }
     } else {
-        throw new Error("Invalid response from server during login. Missing token, type, or email.");
+        throw new Error("Invalid response from server during login. Missing token or user type.");
     }
 
     return responseData;
