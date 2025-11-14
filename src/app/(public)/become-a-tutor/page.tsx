@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -106,7 +107,7 @@ export default function BecomeTutorPage() {
 
   const handleResendOtp = async () => {
     // In a real app, you'd call an API to resend the OTP
-    console.log("Resending OTP to", form.getValues("email"));
+    console.log("Resending OTP to", otpIdentifier);
     await new Promise(resolve => setTimeout(resolve, 1000));
   };
 
@@ -115,6 +116,7 @@ export default function BecomeTutorPage() {
     showLoader();
 
     const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === values.country);
+    const fullPhoneNumber = `${selectedCountryData?.countryCode || ''} ${values.localPhoneNumber}`;
 
     const apiRequestBody = {
       name: values.name,
@@ -138,7 +140,7 @@ export default function BecomeTutorPage() {
       hideLoader();
 
       if (response.ok) {
-        setOtpIdentifier(values.email);
+        setOtpIdentifier(fullPhoneNumber);
         setIsOtpModalOpen(true);
       } else {
         toast({
@@ -382,7 +384,7 @@ export default function BecomeTutorPage() {
       <OtpVerificationModal
         isOpen={isOtpModalOpen}
         onOpenChange={setIsOtpModalOpen}
-        verificationType="email"
+        verificationType="phone"
         identifier={otpIdentifier}
         onSuccess={handleOtpSuccess}
         onResend={handleResendOtp}
