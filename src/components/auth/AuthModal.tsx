@@ -19,6 +19,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName
   const [currentForm, setCurrentForm] = useState<'signin' | 'signup'>(initialForm);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
+  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("email");
 
   useEffect(() => {
     if (isOpen) {
@@ -32,8 +33,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName
     setCurrentForm(formType);
   };
   
-  const handleShowOtp = (email: string) => {
-    setOtpIdentifier(email);
+  const handleShowOtp = (identifier: string, type: "email" | "phone") => {
+    setOtpIdentifier(identifier);
+    setOtpVerificationType(type);
     setIsOtpModalOpen(true);
   };
   
@@ -75,7 +77,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName
                 setIsOtpModalOpen(true);
               }
             }}
-            verificationType="email"
+            verificationType={otpVerificationType}
             identifier={otpIdentifier}
             onSuccess={handleOtpSuccess}
         />
