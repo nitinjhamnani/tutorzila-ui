@@ -147,5 +147,6 @@ declare module "lucide-react" {
     export const KeyRound: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Share: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Check: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Radio: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }

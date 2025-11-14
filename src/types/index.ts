@@ -153,9 +153,11 @@ export interface ApiTutor {
   isActive: boolean;
   isRateNegotiable: boolean;
   isBioReviewed: boolean;
+  isLive?: boolean;
   online: boolean;
   offline: boolean;
   isHybrid: boolean;
+  
   gender: string;
   isVerified: boolean;
   bankDetails?: {

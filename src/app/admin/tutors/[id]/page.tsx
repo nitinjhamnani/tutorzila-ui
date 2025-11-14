@@ -75,6 +75,7 @@ import {
   Ban,
   Landmark,
   KeyRound,
+  Radio,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -118,6 +119,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       whatsappEnabled: userDetails.whatsappEnabled,
       registeredDate: userDetails.registeredDate,
       createdBy: userDetails.createdBy,
+      isLive: userDetails.live,
 
       // From tutoringDetails
       subjectsList: tutoringDetails.subjects,
@@ -192,6 +194,28 @@ const verifyTutorPhoneApi = async ({ tutorId, token }: { tutorId: string; token:
     return response.json();
 };
 
+const updateTutorLiveStatus = async ({ tutorId, token, isLive }: { tutorId: string; token: string | null; isLive: boolean; }) => {
+  if (!token) throw new Error("Authentication token not found.");
+  if (!tutorId) throw new Error("Tutor ID is missing.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/tutor/live/${tutorId}?isLive=${isLive}`, {
+      method: 'PUT',
+      headers: {
+          'Authorization': `Bearer ${token}`,
+          'accept': '*/*',
+      },
+  });
+
+  if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: "Failed to update live status." }));
+      throw new Error(errorData.message);
+  }
+
+  return response.json();
+};
+
+
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
         <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.885-.002 2.024.63 3.965 1.739 5.618l-1.187 4.349 4.443-1.152z" />
@@ -264,6 +288,7 @@ export default function AdminTutorProfilePage() {
     const [isUpdateBioModalOpen, setIsUpdateBioModalOpen] = useState(false);
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
+    const [isLiveStatusModalOpen, setIsLiveStatusModalOpen] = useState(false);
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
@@ -319,12 +344,37 @@ export default function AdminTutorProfilePage() {
         },
     });
 
+    const liveStatusMutation = useMutation({
+      mutationFn: (isLive: boolean) => updateTutorLiveStatus({ tutorId, token, isLive }),
+      onSuccess: (updatedUserDetails) => {
+        queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
+          if (!oldData) return undefined;
+          return { ...oldData, isLive: updatedUserDetails.live };
+        });
+        toast({
+          title: "Status Updated!",
+          description: `${tutor?.displayName} is now ${updatedUserDetails.live ? 'Live' : 'Offline'}.`,
+        });
+      },
+      onError: (error: Error) => {
+        toast({ variant: "destructive", title: "Status Update Failed", description: error.message });
+      },
+      onSettled: () => {
+        setIsLiveStatusModalOpen(false);
+      }
+    });
 
     const handleConfirmVerification = () => {
         if (verificationType === 'email') {
             emailVerificationMutation.mutate();
         } else if (verificationType === 'phone') {
             phoneVerificationMutation.mutate();
+        }
+    };
+    
+    const handleToggleLiveStatus = () => {
+        if (tutor) {
+            liveStatusMutation.mutate(!tutor.isLive);
         }
     };
     
@@ -380,6 +430,10 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
+                            <Badge variant={tutor.isLive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                                {tutor.isLive ? <Radio className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                {tutor.isLive ? 'Live' : 'Offline'}
+                            </Badge>
                             <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
@@ -403,6 +457,10 @@ export default function AdminTutorProfilePage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
+                                  {tutor.isLive ? <Radio className="mr-2 h-4 w-4 text-destructive" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
+                                  <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
+                                </DropdownMenuItem>
                                 {tutor.isActive ? (
                                     <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
                                         <Lock className="mr-2 h-4 w-4" />
@@ -614,6 +672,23 @@ export default function AdminTutorProfilePage() {
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
+      <AlertDialog open={isLiveStatusModalOpen} onOpenChange={setIsLiveStatusModalOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to change {tutor.displayName}'s status to <span className="font-semibold">{tutor.isLive ? 'Offline' : 'Live'}</span>?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleToggleLiveStatus} disabled={liveStatusMutation.isPending}>
+                {liveStatusMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </AlertDialog>
     );
 }
