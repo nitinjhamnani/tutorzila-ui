@@ -53,69 +53,8 @@ import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
-
-const fetchTutorDetails = async (token: string | null): Promise<ApiTutor> => {
-    if (!token) throw new Error("Authentication token not found.");
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const response = await fetch(`${apiBaseUrl}/api/tutor/details`, {
-        headers: {
-        "Authorization": `Bearer ${token}`,
-        "accept": "*/*",
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch tutor details.");
-    }
-    const data = await response.json();
-    const { userDetails, tutoringDetails, bankDetails } = data;
-
-    return {
-      id: userDetails.id,
-      displayName: userDetails.name,
-      name: userDetails.name,
-      email: userDetails.email,
-      countryCode: userDetails.countryCode,
-      phone: userDetails.phone,
-      profilePicUrl: userDetails.profilePicUrl,
-      emailVerified: userDetails.emailVerified,
-      phoneVerified: userDetails.phoneVerified,
-      whatsappEnabled: userDetails.whatsappEnabled,
-      registeredDate: userDetails.registeredDate,
-      createdBy: userDetails.createdBy,
-
-      subjectsList: tutoringDetails.subjects,
-      gradesList: tutoringDetails.grades,
-      boardsList: tutoringDetails.boards,
-      qualificationList: tutoringDetails.qualifications,
-      availabilityDaysList: tutoringDetails.availabilityDays,
-      availabilityTimeList: tutoringDetails.availabilityTime,
-      yearOfExperience: tutoringDetails.yearOfExperience,
-      bio: tutoringDetails.tutorBio,
-      addressName: tutoringDetails.addressName,
-      address: tutoringDetails.address,
-      city: tutoringDetails.city,
-      state: tutoringDetails.state,
-      area: tutoringDetails.area,
-      pincode: tutoringDetails.pincode,
-      country: tutoringDetails.country,
-      googleMapsLink: tutoringDetails.googleMapsLink,
-      hourlyRate: tutoringDetails.hourlyRate,
-      languagesList: tutoringDetails.languages,
-      profileCompletion: tutoringDetails.profileCompletion,
-      isActive: tutoringDetails.active,
-      isRateNegotiable: tutoringDetails.rateNegotiable,
-      isBioReviewed: tutoringDetails.bioReviewed,
-      online: tutoringDetails.online,
-      offline: tutoringDetails.offline,
-      isHybrid: tutoringDetails.hybrid,
-      
-      gender: userDetails.gender,
-      isVerified: tutoringDetails.verified,
-      bankDetails: bankDetails || undefined,
-    } as ApiTutor;
-};
-
+import { useAtom } from "jotai";
+import { tutorProfileAtom } from "@/lib/state/tutor";
 
 const fetchEnquiryDetails = async (
   enquiryId: string,
@@ -387,19 +326,11 @@ export default function TutorEnquiryDetailPage() {
   const { showLoader, hideLoader } = useGlobalLoader();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  const { data: tutorDetails, isLoading: isLoadingTutor } = useQuery({
-    queryKey: ["tutorDetails", token],
-    queryFn: () => fetchTutorDetails(token),
-    enabled: !!token,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true, // Refetch on window focus
-  });
+  const [tutorProfile] = useAtom(tutorProfileAtom);
 
   const {
     data: enquiryData,
     isLoading: isLoadingEnquiry,
-    isCheckingAuth,
     error,
   } = useQuery({
     queryKey: ["enquiryDetails", id, token],
@@ -408,7 +339,7 @@ export default function TutorEnquiryDetailPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const isLoading = isLoadingEnquiry || isLoadingTutor;
+  const isLoading = isLoadingEnquiry;
 
   const applyMutation = useMutation({
     mutationFn: () => applyToEnquiry(id, token),
@@ -481,7 +412,7 @@ export default function TutorEnquiryDetailPage() {
 
   const containerPadding = "py-6 md:py-8 px-4 sm:px-6 md:px-8"; 
 
-  if (isLoading || isCheckingAuth) {
+  if (isLoading) {
     return (
         <div className={containerPadding}>
           <Skeleton className="h-[400px] w-full rounded-lg mt-4" />
@@ -510,7 +441,7 @@ export default function TutorEnquiryDetailPage() {
     );
   }
 
-  const isTutorActive = tutorDetails?.isActive ?? false;
+  const isTutorRegisteredAndActive = tutorProfile?.tutoringDetails?.registered && tutorProfile?.tutoringDetails?.active;
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
@@ -521,11 +452,11 @@ export default function TutorEnquiryDetailPage() {
 
   return (
     <div className={containerPadding}>
-        {!isTutorActive && (
+        {!isTutorRegisteredAndActive && (
           <ActivationStatusCard 
             onActivate={() => queryClient.invalidateQueries({ queryKey: ["tutorDetails", token] })}
             className="mb-6"
-            message="You can apply for this enquiry only after your account is activated."
+            message="You must register and activate your account before you can apply for enquiries."
           />
         )}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
@@ -570,7 +501,7 @@ export default function TutorEnquiryDetailPage() {
                       {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button size="sm" className="w-full" disabled={!isTutorActive}>
+                            <Button size="sm" className="w-full" disabled={!isTutorRegisteredAndActive}>
                                 <Send className="mr-2 h-4 w-4" />
                                 Apply Now
                               </Button>
@@ -656,7 +587,7 @@ export default function TutorEnquiryDetailPage() {
                             {locationInfo && (locationInfo.city || locationInfo.state) && (
                                 <EnquiryInfoItem label="City/State" value={[locationInfo.city, locationInfo.state].filter(Boolean).join(', ')} icon={MapPinned} />
                             )}
-                            {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
+                             {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
                         </div>
                     </DetailSectionCard>
                 )}
