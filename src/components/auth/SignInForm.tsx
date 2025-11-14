@@ -72,7 +72,10 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       localPhoneNumber: initialName || "",
       password: "",
     },
+    mode: "onTouched", // Added mode to track validity
   });
+
+  const isPhoneNumberValidForOtp = form.watch("localPhoneNumber").length === 10 && /^\d{10}$/.test(form.watch("localPhoneNumber"));
 
   const handleOtpLogin = async () => {
     const localPhoneNumber = form.getValues("localPhoneNumber");
@@ -92,9 +95,8 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
         const fullPhoneNumberForDisplay = `${selectedCountryData?.countryCode || ''} ${localPhoneNumber}`;
 
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        // The API endpoint seems to expect `email` as the query param based on OtpVerificationModal,
-        // but for login, it should likely be phone. Assuming API can handle phone number in 'email' param.
-        const response = await fetch(`${apiBaseUrl}/api/auth/otplogin?email=${encodeURIComponent(localPhoneNumber)}`, {
+        
+        const response = await fetch(`${apiBaseUrl}/api/auth/otplogin?username=${encodeURIComponent(localPhoneNumber)}`, {
             method: 'GET',
             headers: { 'accept': '*/*' },
         });
@@ -243,18 +245,16 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
                 </FormItem>
               )}
             />
-             <div className="flex justify-start">
-               <Button type="button" variant="link" className="p-0 h-auto text-xs text-primary font-semibold" onClick={handleOtpLogin} disabled={isOtpSubmitting}>
-                    {isOtpSubmitting ? 'Sending OTP...' : 'Get OTP to Login'}
-               </Button>
-            </div>
             
             <Button type="submit" className="w-full py-3.5 text-lg font-semibold tracking-wide transform transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2" disabled={isSubmitting}>
               <LogIn className="mr-2 h-5 w-5" /> 
               {isSubmitting ? 'Logging In...' : 'Login with Password'}
             </Button>
-            <div className="text-center">
-              <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
+             <div className="flex justify-between items-center">
+               <Button type="button" variant="link" className="p-0 h-auto text-xs text-primary font-semibold" onClick={handleOtpLogin} disabled={isOtpSubmitting || !isPhoneNumberValidForOtp}>
+                    {isOtpSubmitting ? 'Sending OTP...' : 'Get OTP to Login'}
+               </Button>
+               <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
                 <Link href="#">
                   Forgot Password?
                 </Link>
