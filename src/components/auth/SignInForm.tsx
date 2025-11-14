@@ -35,13 +35,23 @@ import { cn } from "@/lib/utils";
 import { useState } from 'react';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const signInSchema = z.object({
-  email: z.string().min(10, { message: "Phone number must be at least 10 digits." }),
+  country: z.string().min(1, "Country is required."),
+  localPhoneNumber: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   password: z.string().min(1, { message: "Password is required." }),
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
+
+const MOCK_COUNTRIES = [
+  { country: "IN", countryCode: "+91", label: "India (+91)" },
+  { country: "US", countryCode: "+1", label: "USA (+1)" },
+  { country: "GB", countryCode: "+44", label: "UK (+44)" },
+  { country: "AU", countryCode: "+61", label: "Australia (+61)" },
+  { country: "JP", countryCode: "+81", label: "Japan (+81)" },
+];
 
 export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { onSuccess?: () => void, onSwitchForm: (formType: 'signin' | 'signup') => void, onClose?: () => void, initialName?: string }) {
   const { login, setSession } = useAuthMock();
@@ -58,17 +68,19 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: initialName || "",
+      country: "IN",
+      localPhoneNumber: initialName || "",
       password: "",
     },
   });
 
   const handleOtpLogin = async () => {
-    const email = form.getValues("email");
-    const isEmailValid = await form.trigger("email");
+    const localPhoneNumber = form.getValues("localPhoneNumber");
+    const country = form.getValues("country");
 
-    if (!isEmailValid) {
-        form.setFocus("email");
+    const isPhoneValid = await form.trigger("localPhoneNumber");
+    if (!isPhoneValid) {
+        form.setFocus("localPhoneNumber");
         return;
     }
 
@@ -76,8 +88,13 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
     showLoader("Sending OTP...");
 
     try {
+        const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === country);
+        const fullPhoneNumberForDisplay = `${selectedCountryData?.countryCode || ''} ${localPhoneNumber}`;
+
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const response = await fetch(`${apiBaseUrl}/api/auth/otplogin?email=${encodeURIComponent(email)}`, {
+        // The API endpoint seems to expect `email` as the query param based on OtpVerificationModal,
+        // but for login, it should likely be phone. Assuming API can handle phone number in 'email' param.
+        const response = await fetch(`${apiBaseUrl}/api/auth/otplogin?email=${encodeURIComponent(localPhoneNumber)}`, {
             method: 'GET',
             headers: { 'accept': '*/*' },
         });
@@ -88,9 +105,9 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
         if (response.ok) {
             toast({
                 title: "OTP Sent!",
-                description: responseData.message || `An OTP has been sent to ${email}.`,
+                description: responseData.message || `An OTP has been sent to ${fullPhoneNumberForDisplay}.`,
             });
-            setOtpIdentifier(email);
+            setOtpIdentifier(fullPhoneNumberForDisplay); // For display in OTP modal
             setIsOtpModalOpen(true);
         } else {
             throw new Error(responseData.message || "Failed to send OTP.");
@@ -108,14 +125,11 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   };
   
   const handleOtpSuccess = async (otp: string) => {
-    // This function is now handled by the OTP modal itself, but we keep it
-    // in case we need to add logic here later.
     console.log("OTP verified successfully in sign-in form context.");
   };
 
   const handleResendOtp = async () => {
-    // This is a mock resend function.
-    console.log("Resending OTP for login to", form.getValues("email"));
+    console.log("Resending OTP for login to", form.getValues("localPhoneNumber"));
     await new Promise(resolve => setTimeout(resolve, 1000));
   };
 
@@ -124,7 +138,8 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
     setIsSubmitting(true);
     showLoader();
     try {
-      const result = await login(values.email, values.password);
+      // Use localPhoneNumber for login
+      const result = await login(values.localPhoneNumber, values.password);
       toast({
         title: "Signed In!",
         description: result.message,
@@ -157,22 +172,58 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       <CardContent className="px-8 pb-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-6">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground text-left block w-full">Phone Number</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input type="tel" placeholder="Enter your phone number" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+                <FormLabel className="text-foreground">Phone Number</FormLabel>
+                <div className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className="w-auto min-w-[120px]"> 
+                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
+                          <FormControl>
+                            <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
+                              <SelectValue placeholder="Country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {MOCK_COUNTRIES.map(c => (
+                              <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="localPhoneNumber"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <div className="relative">
+                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input
+                              type="tel"
+                              pattern="[0-9]*"
+                              placeholder="XXXXXXXXXX"
+                              {...field}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const numericValue = value.replace(/[^0-9]/g, '');
+                                field.onChange(numericValue);
+                              }}
+                              className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+            </div>
             <FormField
               control={form.control}
               name="password"
@@ -226,7 +277,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
      <OtpVerificationModal
         isOpen={isOtpModalOpen}
         onOpenChange={setIsOtpModalOpen}
-        verificationType="email"
+        verificationType="phone"
         identifier={otpIdentifier}
         onSuccess={handleOtpSuccess}
         onResend={handleResendOtp}
