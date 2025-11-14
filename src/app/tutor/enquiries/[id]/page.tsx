@@ -125,6 +125,23 @@ const fetchEnquiryDetails = async (
   return { requirement, assignedStatus: data.assignedEnquiryStatus };
 };
 
+const fetchTutorDetails = async (token: string | null) => {
+    if (!token) throw new Error("No authentication token found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/tutor/details`, {
+        headers: {
+        "Authorization": `Bearer ${token}`,
+        "accept": "*/*",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch tutor details.");
+    }
+    return response.json();
+};
+
+
 const applyToEnquiry = async (
   enquiryId: string,
   token: string | null
@@ -326,7 +343,14 @@ export default function TutorEnquiryDetailPage() {
   const { showLoader, hideLoader } = useGlobalLoader();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [tutorProfile] = useAtom(tutorProfileAtom);
+
+  const { data: tutorProfile, isLoading: isLoadingTutorProfile } = useQuery({
+    queryKey: ['tutorDetails', token],
+    queryFn: () => fetchTutorDetails(token),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000, 
+    refetchOnWindowFocus: false,
+  });
 
   const {
     data: enquiryData,
@@ -339,7 +363,7 @@ export default function TutorEnquiryDetailPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const isLoading = isLoadingEnquiry;
+  const isLoading = isLoadingEnquiry || isLoadingTutorProfile;
 
   const applyMutation = useMutation({
     mutationFn: () => applyToEnquiry(id, token),
