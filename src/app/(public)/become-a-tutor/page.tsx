@@ -262,9 +262,6 @@ export default function BecomeTutorPage() {
                         )}
                       />
                     </div>
-                    <FormDescription className="text-xs text-muted-foreground pt-1">
-                        An OTP will be sent to this number for verification.
-                    </FormDescription>
                   </div>
 
                   <FormField
@@ -289,7 +286,7 @@ export default function BecomeTutorPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-foreground">Password</FormLabel>
+                        <FormLabel className="text-foreground">Create Password</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
