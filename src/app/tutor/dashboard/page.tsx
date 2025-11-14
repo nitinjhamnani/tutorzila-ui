@@ -377,7 +377,7 @@ export default function TutorDashboardPage() {
           
           {!isTutorRegistered && !isLoadingDetails && (
              <ActivationStatusCard 
-                onActivate={() => console.log("Activate button clicked - mock action")} 
+                onActivate={() => queryClient.invalidateQueries({ queryKey: ['tutorDetails', token] })}
                 className="mb-6"
              />
           )}
@@ -532,7 +532,7 @@ export default function TutorDashboardPage() {
         <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <div className="overflow-y-auto flex-grow h-full">
             <EditTutoringDetailsForm 
-              initialData={tutoringDetails ? { tutoringDetails } : null}
+              initialData={tutoringDetails}
               onSuccess={() => setIsEditTutoringModalOpen(false)} 
             />
         </div>
