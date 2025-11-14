@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, LogIn, Users, School, KeyRound, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, LogIn, Users, School, KeyRound, Eye, EyeOff, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 
 const signInSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
+  email: z.string().min(10, { message: "Phone number must be at least 10 digits." }),
   password: z.string().min(1, { message: "Password is required." }),
 });
 
@@ -162,11 +162,11 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground text-left block w-full">Email Address</FormLabel>
+                  <FormLabel className="text-foreground text-left block w-full">Phone Number</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input placeholder="your.email@example.com" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input type="tel" placeholder="Enter your phone number" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
                     </div>
                   </FormControl>
                   <FormMessage />
