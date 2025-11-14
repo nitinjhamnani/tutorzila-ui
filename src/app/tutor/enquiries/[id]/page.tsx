@@ -441,7 +441,7 @@ export default function TutorEnquiryDetailPage() {
     );
   }
 
-  const isTutorRegisteredAndActive = tutorProfile?.tutoringDetails?.registered && tutorProfile?.tutoringDetails?.active;
+  const isTutorRegistered = tutorProfile?.tutoringDetails?.registered ?? false;
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
@@ -452,11 +452,11 @@ export default function TutorEnquiryDetailPage() {
 
   return (
     <div className={containerPadding}>
-        {!isTutorRegisteredAndActive && (
+        {!isTutorRegistered && (
           <ActivationStatusCard 
             onActivate={() => queryClient.invalidateQueries({ queryKey: ["tutorDetails", token] })}
             className="mb-6"
-            message="You must register and activate your account before you can apply for enquiries."
+            message="You must register your account before you can apply for enquiries."
           />
         )}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
@@ -501,7 +501,7 @@ export default function TutorEnquiryDetailPage() {
                       {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button size="sm" className="w-full" disabled={!isTutorRegisteredAndActive}>
+                            <Button size="sm" className="w-full" disabled={!isTutorRegistered}>
                                 <Send className="mr-2 h-4 w-4" />
                                 Apply Now
                               </Button>
