@@ -197,9 +197,9 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, enquiryId, sour
                             <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
                             <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
                             <div className="mt-2 flex items-center gap-2">
-                                <Badge variant={tutor.isActive ? "default" : "destructive"}>
-                                    {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                    {tutor.isActive ? 'Active' : 'Inactive'}
+                                <Badge variant={tutor.registered ? "default" : "destructive"}>
+                                    {tutor.registered ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                    {tutor.registered ? 'Registered' : 'Not Registered'}
                                 </Badge>
                                 <Badge variant={tutor.isVerified ? "default" : "destructive"}>
                                     {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
@@ -247,7 +247,7 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, enquiryId, sour
             <InfoSection title="Tutoring Details">
               <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
               <InfoItem icon={GraduationCap} label="Qualifications">{tutor.qualificationList?.join(', ')}</InfoItem>
-              <InfoItem icon={Briefcase} label="Experience">{tutor.experienceYears}</InfoItem>
+              <InfoItem icon={Briefcase} label="Experience">{tutor.yearOfExperience}</InfoItem>
             </InfoSection>
           </div>
           

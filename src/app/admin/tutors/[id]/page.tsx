@@ -141,7 +141,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       hourlyRate: tutoringDetails.hourlyRate,
       languagesList: tutoringDetails.languages,
       profileCompletion: tutoringDetails.profileCompletion,
-      isActive: tutoringDetails.active,
+      registered: tutoringDetails.registered, // Added registered flag
       isRateNegotiable: tutoringDetails.rateNegotiable,
       isBioReviewed: tutoringDetails.bioReviewed,
       online: tutoringDetails.online,
@@ -436,10 +436,9 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                            
-                            <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                                {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                {tutor.isActive ? 'Active' : 'Inactive'}
+                            <Badge variant={tutor.registered ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                                {tutor.registered ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                {tutor.registered ? 'Registered' : 'Not Registered'}
                             </Badge>
                              <Badge variant={tutor.isVerified ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                                 {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
@@ -464,7 +463,7 @@ export default function AdminTutorProfilePage() {
                                   {tutor.isLive ? <Radio className="mr-2 h-4 w-4 text-destructive" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
                                   <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
                                 </DropdownMenuItem>
-                                {tutor.isActive ? (
+                                {tutor.registered ? (
                                     <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Deactivate</span>
