@@ -19,7 +19,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName
   const [currentForm, setCurrentForm] = useState<'signin' | 'signup'>(initialForm);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
-  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("email");
+  const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("phone");
 
   useEffect(() => {
     if (isOpen) {
@@ -54,6 +54,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onOpenChange, initialName
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
           <DialogContent 
             className="p-0 flex flex-col visible max-h-[90vh]"
+            onPointerDownOutside={(e) => e.preventDefault()}
           >
             <DialogTitle className="sr-only">Authentication</DialogTitle>
             <div className="overflow-y-auto flex-grow h-full">
