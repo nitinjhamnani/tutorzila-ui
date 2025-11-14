@@ -229,16 +229,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex justify-between items-center">
-                    <FormLabel className="text-foreground text-left block w-full">Password</FormLabel>
-                    <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
-                      <Link
-                          href="#" 
-                      >
-                          Forgot Password?
-                      </Link>
-                    </Button>
-                  </div>
+                  <FormLabel className="text-foreground text-left block w-full">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -262,6 +253,13 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
               <LogIn className="mr-2 h-5 w-5" /> 
               {isSubmitting ? 'Logging In...' : 'Login with Password'}
             </Button>
+            <div className="text-center">
+              <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
+                <Link href="#">
+                  Forgot Password?
+                </Link>
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
