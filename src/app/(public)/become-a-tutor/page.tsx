@@ -44,7 +44,7 @@ const tutorSignUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
   country: z.string().min(2, "Country is required."),
-  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  localPhoneNumber: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   password: z.string()
       .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
       .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
@@ -243,7 +243,7 @@ export default function BecomeTutorPage() {
                         name="country"
                         render={({ field }) => (
                           <FormItem className="w-auto min-w-[120px]"> 
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
                               <FormControl>
                                 <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
                                   <SelectValue placeholder="Country" />
