@@ -256,7 +256,8 @@ export default function TutorDashboardPage() {
     enabled: !!token,
     staleTime: 5 * 60 * 1000,
     onSuccess: (data) => {
-      setTutorProfile(data); // Store fetched details in global state
+      // Store the fetched details in the global state, wrapped in the expected nested structure.
+      setTutorProfile({ tutoringDetails: data });
     },
   });
 
@@ -341,6 +342,8 @@ export default function TutorDashboardPage() {
       setIsFetchingTutorId(false);
     }
   };
+
+  const queryClient = useQueryClient();
 
   if (isCheckingAuth || !hasMounted || !isAuthenticated || !tutorUser) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Dashboard...</div>;
@@ -532,7 +535,7 @@ export default function TutorDashboardPage() {
         <DialogTitle className="sr-only">Edit Tutoring Details</DialogTitle>
         <div className="overflow-y-auto flex-grow h-full">
             <EditTutoringDetailsForm 
-              initialData={tutoringDetails}
+              initialData={tutoringDetails ? { tutoringDetails } : null}
               onSuccess={() => setIsEditTutoringModalOpen(false)} 
             />
         </div>
