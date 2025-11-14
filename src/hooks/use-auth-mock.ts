@@ -118,23 +118,24 @@ export function useAuthMock() {
       throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
     }
 
-    if (responseData.token && responseData.type) {
-        // Since username is phone, we pass it to setSession which expects an email param to construct the user object
+    if (responseData.token && responseData.type && responseData.email) {
         setSession(responseData.token, responseData.type, responseData.email, responseData.name, username, responseData.profilePicture);
-        // Redirect after successful login
+        
         const role = responseData.type.toLowerCase();
         if (role === 'tutor') {
             router.push("/tutor/dashboard");
         } else if (role === 'parent') {
             router.push("/parent/dashboard");
+        } else if (role === 'admin') {
+            router.push("/admin/dashboard");
         } else {
             router.push("/");
         }
     } else {
-        throw new Error("Invalid response from server during login.");
+        throw new Error("Invalid response from server during login. Missing token, type, or email.");
     }
 
-    return responseData; // Return the full response data on success
+    return responseData;
   };
 
   const logout = () => {
