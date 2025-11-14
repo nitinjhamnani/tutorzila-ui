@@ -267,7 +267,13 @@ export default function BecomeTutorPage() {
                             <FormControl>
                               <div className="relative">
                                 <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input type="tel" placeholder="XXXXXXXXXX" {...field} className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg" />
+                                <Input
+                                  type="tel"
+                                  pattern="[0-9]*"
+                                  placeholder="XXXXXXXXXX"
+                                  {...field}
+                                  className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
+                                />
                               </div>
                             </FormControl>
                             <FormMessage />
