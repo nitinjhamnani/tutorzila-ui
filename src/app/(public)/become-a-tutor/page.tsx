@@ -272,6 +272,12 @@ export default function BecomeTutorPage() {
                                   pattern="[0-9]*"
                                   placeholder="XXXXXXXXXX"
                                   {...field}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    // Allow only numeric input
+                                    const numericValue = value.replace(/[^0-9]/g, '');
+                                    field.onChange(numericValue);
+                                  }}
                                   className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
                                 />
                               </div>
