@@ -421,7 +421,13 @@ export default function AdminTutorProfilePage() {
             {/* Left Column */}
             <div className="md:col-span-1 space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden relative">
-                    <CardContent className="p-5 md:p-6 text-center">
+                    <div className="absolute top-4 left-4">
+                      <Badge variant={tutor.isLive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                          {tutor.isLive ? <Radio className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                          {tutor.isLive ? 'Live' : 'Offline'}
+                      </Badge>
+                    </div>
+                    <CardContent className="p-5 md:p-6 text-center pt-14">
                         <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
                             <AvatarImage src={tutor.profilePicUrl} alt={tutor.displayName} />
                             <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
@@ -430,10 +436,7 @@ export default function AdminTutorProfilePage() {
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
-                            <Badge variant={tutor.isLive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                                {tutor.isLive ? <Radio className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                {tutor.isLive ? 'Live' : 'Offline'}
-                            </Badge>
+                            
                             <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                                 {tutor.isActive ? 'Active' : 'Inactive'}
