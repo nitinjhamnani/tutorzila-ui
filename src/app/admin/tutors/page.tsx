@@ -301,9 +301,9 @@ export default function AdminTutorsPage() {
               </TooltipProvider>
             </TableCell>
              <TableCell>
-               <Badge variant={tutor.registered ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                {tutor.registered ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                {tutor.registered ? 'Registered' : 'Not Registered'}
+               <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                {tutor.isActive ? 'Registered' : 'Not Registered'}
                </Badge>
             </TableCell>
             <TableCell>
