@@ -28,8 +28,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
-import { UpdateEmailModal } from "@/components/modals/UpdateEmailModal";
-import { UpdatePhoneModal } from "@/components/modals/UpdatePhoneModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
@@ -115,8 +113,6 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
 
 export default function TutorMyAccountPage() {
   const { user, token, isCheckingAuth } = useAuthMock();
-  const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
-  const [isUpdatePhoneModalOpen, setIsUpdatePhoneModalOpen] = useState(false);
   const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
   const [isUpdateBankDetailsModalOpen, setIsUpdateBankDetailsModalOpen] = useState(false);
   const { hideLoader, showLoader } = useGlobalLoader();
@@ -193,17 +189,6 @@ export default function TutorMyAccountPage() {
     return `**** **** **** ${number.slice(-4)}`;
   }
   
-  const legacyTutorObject: User = {
-    id: userDetails.id || "",
-    name: userDetails.name,
-    email: userDetails.email,
-    countryCode: userDetails.countryCode,
-    phone: userDetails.phone,
-    profilePicUrl: userDetails.profilePicUrl,
-    role: "tutor",
-  };
-
-
   return (
     <>
       <main className="flex-grow">
@@ -222,6 +207,10 @@ export default function TutorMyAccountPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
+                                <UserCircle className="mr-2 h-4 w-4" />
+                                <span>Edit Personal Details</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setIsEditTutoringModalOpen(true)}>
                                 <Briefcase className="mr-2 h-4 w-4" />
                                 <span>Edit Tutoring Details</span>
@@ -267,29 +256,8 @@ export default function TutorMyAccountPage() {
               </Card>
 
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader>
                   <CardTitle>Personal & Contact</CardTitle>
-                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
-                            <UserCircle className="mr-2 h-4 w-4" />
-                            <span>Change Name</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setIsUpdateEmailModalOpen(true)}>
-                            <Mail className="mr-2 h-4 w-4" />
-                            <span>Change Email</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setIsUpdatePhoneModalOpen(true)}>
-                            <Phone className="mr-2 h-4 w-4" />
-                            <span>Change Phone</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <InfoItem icon={Mail} label="Email">
@@ -435,8 +403,6 @@ export default function TutorMyAccountPage() {
         </div>
       </main>
 
-      <UpdateEmailModal isOpen={isUpdateEmailModalOpen} onOpenChange={setIsUpdateEmailModalOpen} currentEmail={userDetails.email || ""} />
-      <UpdatePhoneModal isOpen={isUpdatePhoneModalOpen} onOpenChange={setIsUpdatePhoneModalOpen} currentPhone={userDetails.phone} currentCountryCode={userDetails.countryCode} />
       <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={userDetails.name} userId={userDetails.id} />
       <UpdateNameModal isOpen={isUpdateNameModalOpen} onOpenChange={setIsUpdateNameModalOpen} currentName={userDetails.name} />
       <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} initialAccountName={userDetails.name} />

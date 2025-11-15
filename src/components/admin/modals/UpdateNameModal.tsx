@@ -24,22 +24,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Loader2, Save } from "lucide-react";
+import { UserCircle, Loader2, Save } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-interface UpdateEmailModalProps {
+interface UpdateNameModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  currentEmail: string;
+  currentName: string;
 }
 
-const updateEmailApi = async ({
+const updateNameApi = async ({
   token,
-  newEmail,
+  newName,
 }: {
   token: string | null;
-  newEmail: string;
+  newName: string;
 }) => {
   if (!token) throw new Error("Authentication token not found.");
 
@@ -52,46 +52,43 @@ const updateEmailApi = async ({
       'accept': '*/*',
     },
     body: JSON.stringify({
-      changeType: "EMAIL",
-      value: newEmail,
+      changeType: "NAME",
+      value: newName,
     }),
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: "Failed to update email." }));
-    if (response.status === 400) {
-      throw new Error("A user with this email address already exists.");
-    }
+    const errorData = await response.json().catch(() => ({ message: "Failed to update name." }));
     throw new Error(errorData.message);
   }
 
   return response.json();
 };
 
-export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateEmailModalProps) {
+export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNameModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
 
-  const updateEmailSchema = z.object({
-    newEmail: z.string().email("Please enter a valid email address.").refine(
-      (email) => email.toLowerCase() !== currentEmail.toLowerCase(),
-      { message: "New email must be different from the current one." }
+  const updateNameSchema = z.object({
+    newName: z.string().min(2, "Name must be at least 2 characters.").refine(
+      (name) => name !== currentName,
+      { message: "New name must be different from the current one." }
     ),
   });
 
-  type UpdateEmailFormValues = z.infer<typeof updateEmailSchema>;
+  type UpdateNameFormValues = z.infer<typeof updateNameSchema>;
 
-  const form = useForm<UpdateEmailFormValues>({
-    resolver: zodResolver(updateEmailSchema),
+  const form = useForm<UpdateNameFormValues>({
+    resolver: zodResolver(updateNameSchema),
     mode: "onChange",
     defaultValues: {
-      newEmail: "",
+      newName: "",
     },
   });
 
   const mutation = useMutation({
-    mutationFn: (data: UpdateEmailFormValues) => updateEmailApi({ token, newEmail: data.newEmail }),
+    mutationFn: (data: UpdateNameFormValues) => updateNameApi({ token, newName: data.newName }),
     onSuccess: (updatedUserDetails) => {
       queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
         if (!oldData) return undefined;
@@ -104,8 +101,8 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
         };
       });
       toast({
-        title: "Email Updated!",
-        description: "Your email address has been successfully updated.",
+        title: "Name Updated!",
+        description: "Your name has been successfully updated.",
       });
       onOpenChange(false);
     },
@@ -121,10 +118,12 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
   useEffect(() => {
     if (!isOpen) {
       form.reset();
+    } else {
+        form.setValue("newName", currentName);
     }
-  }, [isOpen, form]);
+  }, [isOpen, currentName, form]);
 
-  const onSubmit: SubmitHandler<UpdateEmailFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<UpdateNameFormValues> = async (data) => {
     mutation.mutate(data);
   };
 
@@ -132,25 +131,24 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card">
         <DialogHeader>
-          <DialogTitle>Update Your Email Address</DialogTitle>
+          <DialogTitle>Update Your Name</DialogTitle>
           <DialogDescription>
-            Your current email is <strong>{currentEmail}</strong>. Enter the new email address you'd like to use.
+            Your current name is <strong>{currentName}</strong>. Enter the new name you'd like to use.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
             <FormField
               control={form.control}
-              name="newEmail"
+              name="newName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Email Address</FormLabel>
+                  <FormLabel>New Full Name</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                        type="email"
-                        placeholder="new.email@example.com"
+                        placeholder="Enter your new name"
                         {...field}
                         className="pl-10"
                         disabled={mutation.isPending}
@@ -164,7 +162,7 @@ export function UpdateEmailModal({ isOpen, onOpenChange, currentEmail }: UpdateE
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={mutation.isPending || !form.formState.isValid}>
                 {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
-                {mutation.isPending ? "Saving..." : "Save"}
+                {mutation.isPending ? "Saving..." : "Save Name"}
               </Button>
             </DialogFooter>
           </form>
