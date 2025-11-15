@@ -10,13 +10,15 @@ export function AppLayoutClient({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   const pathsWithDedicatedLayouts = [
-    '/parent',
-    '/tutor',
-    '/auth',
-    '/admin',
+    '/parent/',
+    '/tutor/',
+    '/auth/',
+    '/admin/',
   ];
 
-  const showPublicNavigation = !pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
+  const isDedicatedLayout = pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
+
+  const showPublicNavigation = !isDedicatedLayout;
 
   return (
     <>
