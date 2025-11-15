@@ -494,7 +494,7 @@ export default function AdminTutorProfilePage() {
                           <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         </div>
                     </CardContent>
-                     <CardFooter className="p-3 border-t relative h-12">
+                     <CardFooter className="p-3 relative h-12">
                         <Button variant="ghost" size="icon" className="absolute right-3 bottom-2 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full" onClick={handleOpenShareModal}>
                             <Share2 className="h-4 w-4" />
                         </Button>
@@ -507,12 +507,12 @@ export default function AdminTutorProfilePage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                               <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)} className={cn(tutor.isLive && "focus:text-foreground")}>
+                               <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
                                   <Radio className="mr-2 h-4 w-4" />
                                   <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="focus:text-foreground">
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="focus:text-destructive">
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
@@ -593,7 +593,7 @@ export default function AdminTutorProfilePage() {
                                         WhatsApp
                                     </Badge>
                                 )}
-                            </div>
+                              </div>
                         </InfoItem>
                     </CardContent>
                 </Card>
