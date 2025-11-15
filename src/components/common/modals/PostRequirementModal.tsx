@@ -120,7 +120,7 @@ export function PostRequirementModal({
   
   const { user, isAuthenticated, token } = useAuthMock();
   const [currentStep, setCurrentStep] = useState(startFromStep);
-  const totalSteps = isAuthenticated ? 2 : 3;
+  const totalSteps = 3; 
   
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -171,7 +171,7 @@ export function PostRequirementModal({
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
-    } else if (currentStep === 2 && !isAuthenticated) { 
+    } else if (currentStep === 2) { 
       fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference'];
     }
 
@@ -707,3 +707,5 @@ export function PostRequirementModal({
     </>
   );
 }
+
+    
