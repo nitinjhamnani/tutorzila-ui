@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -42,6 +42,7 @@ import {
   DollarSign,
   UsersRound,
   ClipboardEdit,
+  Users,
 } from "lucide-react";
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import bannerImage from "@/assets/images/banner-9.png";
@@ -109,6 +110,66 @@ const whyChooseUsBenefits = [
         description: "Tutors create customized learning plans to cater to each student's unique pace and style.",
     },
 ];
+
+const Counter = ({ end, duration = 2, suffix = "" } : { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLParagraphElement>(null);
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const endValue = end;
+      const frameDuration = 1000 / 60;
+      const totalFrames = Math.round((duration * 1000) / frameDuration);
+      const increment = endValue / totalFrames;
+
+      const counter = setInterval(() => {
+        start += increment;
+        if (start >= endValue) {
+          setCount(endValue);
+          clearInterval(counter);
+        } else {
+          setCount(Math.ceil(start));
+        }
+      }, frameDuration);
+
+      return () => clearInterval(counter);
+    }
+  }, [isInView, end, duration]);
+
+  return (
+    <p ref={ref} className="text-4xl font-bold text-foreground">
+      {count.toLocaleString()}{suffix}
+    </p>
+  );
+};
+
+const useInView = (ref: React.RefObject<Element>, options: IntersectionObserverInit) => {
+    const [isInView, setIsInView] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setIsInView(true);
+                observer.unobserve(entry.target);
+            }
+        }, options);
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current);
+            }
+        };
+    }, [ref, options]);
+
+    return isInView;
+};
+
 
 export default function TutorsInBangalorePage() {
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] =
@@ -334,6 +395,24 @@ export default function TutorsInBangalorePage() {
                 </div>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Counter Section */}
+      <section className={`w-full bg-secondary ${sectionPadding}`}>
+        <div className={`${containerPadding}`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="flex flex-col items-center text-center p-8 bg-card rounded-xl shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl">
+              <Users className="w-12 h-12 text-primary mb-4" />
+              <Counter end={2000} suffix="+" />
+              <p className="text-md text-muted-foreground mt-1">Verified Tutors in Bangalore</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-8 bg-card rounded-xl shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl">
+              <UsersRound className="w-12 h-12 text-primary mb-4" />
+              <Counter end={1000} suffix="+" />
+              <p className="text-md text-muted-foreground mt-1">Students Served</p>
+            </div>
           </div>
         </div>
       </section>
