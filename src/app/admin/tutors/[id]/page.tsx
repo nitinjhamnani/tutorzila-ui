@@ -39,6 +39,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader as DialogHeaderPrimitive, // Use primitive to avoid name conflict
+  DialogTitle as DialogTitlePrimitive,
+  DialogDescription as DialogDescriptionPrimitive,
+  DialogFooter as DialogFooterPrimitive,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import {
   Briefcase,
   BookOpen,
   GraduationCap,
@@ -76,6 +85,7 @@ import {
   Landmark,
   KeyRound,
   Radio,
+  Copy,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -200,17 +210,17 @@ const verifyTutorPhoneApi = async ({ tutorId, token }: { tutorId: string; token:
 const updateTutorLiveStatus = async ({
   tutorId,
   token,
-  isLive,
+  isActive,
 }: {
   tutorId: string;
   token: string | null;
-  isLive: boolean;
+  isActive: boolean;
 }) => {
   if (!token) throw new Error("Authentication token not found.");
   if (!tutorId) throw new Error("Tutor ID is missing.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/user/activate/${tutorId}?isActive=${isLive}`, {
+  const response = await fetch(`${apiBaseUrl}/api/user/activate/${tutorId}?isActive=${isActive}`, {
       method: 'PUT',
       headers: {
           'Authorization': `Bearer ${token}`,
@@ -303,6 +313,8 @@ export default function AdminTutorProfilePage() {
     const [isLiveStatusModalOpen, setIsLiveStatusModalOpen] = useState(false);
     const [isUpdateNameModalOpen, setIsUpdateNameModalOpen] = useState(false);
     const [isUpdateBankModalOpen, setIsUpdateBankModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [shareableText, setShareableText] = useState("");
 
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
@@ -360,7 +372,7 @@ export default function AdminTutorProfilePage() {
     });
 
     const liveStatusMutation = useMutation({
-      mutationFn: (isLive: boolean) => updateTutorLiveStatus({ tutorId, token, isLive }),
+      mutationFn: (isActive: boolean) => updateTutorLiveStatus({ tutorId, token, isActive }),
       onSuccess: (updatedUserDetails) => {
         queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
           if (!oldData) return undefined;
@@ -393,34 +405,21 @@ export default function AdminTutorProfilePage() {
         }
     };
     
-    const handleShareProfile = async () => {
+    const handleOpenShareModal = () => {
       if (!tutor || typeof window === 'undefined') return;
       
       const profileUrl = `${window.location.origin}/tutors/${tutor.id}`;
-      
-      const shareText = `Check out this tutor profile on Tutorzila:\n\n*Name:* ${tutor.name}\n*Subjects:* ${tutor.subjectsList.join(', ')}\n*Experience:* ${tutor.yearOfExperience}\n\nView full profile: ${profileUrl}`;
+      const text = `Check out this tutor profile on Tutorzila:\n\n*Name:* ${tutor.name}\n*Subjects:* ${tutor.subjectsList.join(', ')}\n*Experience:* ${tutor.yearOfExperience}\n\nView full profile: ${profileUrl}`;
+      setShareableText(text);
+      setIsShareModalOpen(true);
+    };
 
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: `Tutor Profile: ${tutor.name}`,
-            text: shareText,
-          });
-        } catch (err) {
-          console.error('Share failed:', err);
-          // Fallback to clipboard if share fails
-          await navigator.clipboard.writeText(shareText);
-          toast({ title: "Share Failed", description: "Profile details copied to clipboard instead." });
-        }
-      } else {
-        // Fallback for browsers that don't support the Web Share API
-        try {
-          await navigator.clipboard.writeText(shareText);
-          toast({ title: "Copied to Clipboard!", description: "Tutor details and profile link copied." });
-        } catch (err) {
-          toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy profile details." });
-        }
-      }
+    const handleCopyShareText = () => {
+      navigator.clipboard.writeText(shareableText).then(() => {
+        toast({ title: "Copied to Clipboard!", description: "Tutor details and profile link copied." });
+      }).catch(err => {
+        toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy profile details." });
+      });
     };
     
     if (isLoading) {
@@ -455,7 +454,7 @@ export default function AdminTutorProfilePage() {
 
 
     return (
-      <AlertDialog open={isVerificationModalOpen} onOpenChange={setIsVerificationModalOpen}>
+      <>
       <TooltipProvider>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Left Column */}
@@ -495,10 +494,9 @@ export default function AdminTutorProfilePage() {
                           <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         </div>
                     </CardContent>
-                    <CardFooter className="p-3 border-t">
-                        <Button variant="outline" size="sm" className="w-full h-8" onClick={handleShareProfile}>
-                            <Share2 className="mr-2 h-4 w-4"/>
-                            Share Profile
+                     <CardFooter className="p-3 border-t relative h-12">
+                        <Button variant="ghost" size="icon" className="absolute right-3 bottom-2 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full" onClick={handleOpenShareModal}>
+                            <Share2 className="h-4 w-4" />
                         </Button>
                     </CardFooter>
                      <div className="absolute top-4 right-4">
@@ -509,12 +507,12 @@ export default function AdminTutorProfilePage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)} className={cn(tutor.isLive && "text-destructive focus:text-destructive")}>
+                               <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)} className={cn(tutor.isLive && "focus:text-foreground")}>
                                   <Radio className="mr-2 h-4 w-4" />
                                   <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:text-destructive">
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="focus:text-foreground">
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
@@ -750,21 +748,23 @@ export default function AdminTutorProfilePage() {
         />
       </TooltipProvider>
 
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Confirm Verification</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to manually mark this {verificationType} as verified? This action should only be taken if you have externally confirmed its validity.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setVerificationType(null)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirmVerification} disabled={emailVerificationMutation.isPending || phoneVerificationMutation.isPending}>
-            {(emailVerificationMutation.isPending || phoneVerificationMutation.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {(emailVerificationMutation.isPending || phoneVerificationMutation.isPending) ? 'Verifying...' : 'Confirm'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+      <AlertDialog open={isVerificationModalOpen} onOpenChange={setIsVerificationModalOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Verification</AlertDialogTitle>
+            <AlertDialogDescription>
+                Are you sure you want to manually mark this {verificationType} as verified? This action should only be taken if you have externally confirmed its validity.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setVerificationType(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmVerification} disabled={emailVerificationMutation.isPending || phoneVerificationMutation.isPending}>
+                {(emailVerificationMutation.isPending || phoneVerificationMutation.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {(emailVerificationMutation.isPending || phoneVerificationMutation.isPending) ? 'Verifying...' : 'Confirm'}
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <AlertDialog open={isLiveStatusModalOpen} onOpenChange={setIsLiveStatusModalOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -782,7 +782,30 @@ export default function AdminTutorProfilePage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </AlertDialog>
+        <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeaderPrimitive>
+                    <DialogTitlePrimitive>Share Tutor Profile</DialogTitlePrimitive>
+                    <DialogDescriptionPrimitive>
+                    Copy the text below and share it with parents to review this tutor's profile.
+                    </DialogDescriptionPrimitive>
+                </DialogHeaderPrimitive>
+                <div className="py-4">
+                    <Textarea
+                    readOnly
+                    value={shareableText}
+                    className="h-40 text-sm bg-muted/50"
+                    />
+                </div>
+                <DialogFooterPrimitive>
+                    <Button onClick={handleCopyShareText} className="w-full">
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy to Clipboard
+                    </Button>
+                </DialogFooterPrimitive>
+            </DialogContent>
+        </Dialog>
+      </>
     );
 }
 
