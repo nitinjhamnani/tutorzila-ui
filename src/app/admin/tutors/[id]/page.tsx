@@ -659,6 +659,7 @@ export default function AdminTutorProfilePage() {
             isOpen={isUpdateNameModalOpen}
             onOpenChange={setIsUpdateNameModalOpen}
             currentName={tutor.name}
+            tutorId={tutor.id}
         />
 
         <EditPersonalDetailsModal
@@ -671,6 +672,7 @@ export default function AdminTutorProfilePage() {
             isOpen={isUpdateBankModalOpen}
             onOpenChange={setIsUpdateBankModalOpen}
             initialAccountName={tutor.name}
+            tutorId={tutor.id}
         />
 
         <ApproveBioModal

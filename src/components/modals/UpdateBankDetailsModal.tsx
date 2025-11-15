@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { ApiTutor } from "@/types";
 
 const bankDetailsSchema = z.object({
   paymentType: z.enum(["UPI", "BANK"]),
@@ -61,9 +62,18 @@ interface UpdateBankDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   initialAccountName?: string;
+  tutorId?: string; // Add tutorId prop
 }
 
-const updateTutorBankDetails = async ({ token, formData }: { token: string | null; formData: BankDetailsFormValues; }) => {
+const updateTutorBankDetails = async ({
+  tutorId,
+  token,
+  formData,
+}: {
+  tutorId: string;
+  token: string | null;
+  formData: BankDetailsFormValues;
+}) => {
   if (!token) throw new Error("Authentication token not found.");
 
   let requestBody;
@@ -82,7 +92,7 @@ const updateTutorBankDetails = async ({ token, formData }: { token: string | nul
   }
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/tutor/bank`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/bank/${tutorId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -100,7 +110,7 @@ const updateTutorBankDetails = async ({ token, formData }: { token: string | nul
   return response.json();
 };
 
-export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountName }: UpdateBankDetailsModalProps) {
+export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountName, tutorId }: UpdateBankDetailsModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
@@ -117,9 +127,12 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
   });
   
   const mutation = useMutation({
-    mutationFn: (data: BankDetailsFormValues) => updateTutorBankDetails({ token, formData: data }),
+    mutationFn: (data: BankDetailsFormValues) => {
+        if (!tutorId) throw new Error("Tutor ID is not available.");
+        return updateTutorBankDetails({ tutorId, token, formData: data });
+    },
     onSuccess: (newBankDetails) => {
-      queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
+      queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
@@ -128,7 +141,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
       });
       toast({
         title: "Bank Details Saved!",
-        description: "Your payment information has been successfully updated.",
+        description: "The payment information has been successfully updated.",
       });
       onOpenChange(false);
     },
@@ -168,7 +181,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
             Update Bank Details
           </DialogTitle>
           <DialogDescription>
-            This information will be used to process your payments.
+            This information will be used to process payments for the tutor.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

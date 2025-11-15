@@ -27,17 +27,21 @@ import { useToast } from "@/hooks/use-toast";
 import { UserCircle, Loader2, Save } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { User, ApiTutor } from "@/types";
 
 interface UpdateNameModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   currentName: string;
+  tutorId: string;
 }
 
 const updateNameApi = async ({
+  tutorId,
   token,
   newName,
 }: {
+  tutorId: string;
   token: string | null;
   newName: string;
 }) => {
@@ -49,6 +53,7 @@ const updateNameApi = async ({
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
+      'TZ-USER-ID': tutorId, // Using tutorId from props
       'accept': '*/*',
     },
     body: JSON.stringify({
@@ -65,7 +70,7 @@ const updateNameApi = async ({
   return response.json();
 };
 
-export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNameModalProps) {
+export function UpdateNameModal({ isOpen, onOpenChange, currentName, tutorId }: UpdateNameModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
@@ -88,17 +93,30 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
   });
 
   const mutation = useMutation({
-    mutationFn: (data: UpdateNameFormValues) => updateNameApi({ token, newName: data.newName }),
+    mutationFn: (data: UpdateNameFormValues) => updateNameApi({ tutorId, token, newName: data.newName }),
     onSuccess: (updatedUserDetails) => {
-      // Invalidate queries to refetch data for tutor and admin pages
-      queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
-      queryClient.invalidateQueries({ queryKey: ["tutorProfile", updatedUserDetails.id] });
-      
-      toast({
-        title: "Name Updated!",
-        description: "The name has been successfully updated.",
-      });
-      onOpenChange(false);
+        // Optimistically update the user's name in the tutor profile query data
+        queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
+            if (!oldData) return undefined;
+            return {
+                ...oldData,
+                name: updatedUserDetails.name,
+                displayName: updatedUserDetails.name,
+                // also update userDetails if it exists nested
+                userDetails: {
+                    ...oldData,
+                    name: updatedUserDetails.name,
+                }
+            };
+        });
+        
+        queryClient.invalidateQueries({ queryKey: ['adminAllTutors'] });
+
+        toast({
+            title: "Name Updated!",
+            description: "The name has been successfully updated.",
+        });
+        onOpenChange(false);
     },
     onError: (error: Error) => {
       toast({
@@ -127,7 +145,7 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
         <DialogHeader>
           <DialogTitle>Update Name</DialogTitle>
           <DialogDescription>
-            Current name is <strong>{currentName}</strong>. Enter the new name you'd like to use.
+            Current name is <strong>{currentName}</strong>. Enter the new name for this user.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
