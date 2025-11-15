@@ -42,7 +42,7 @@ const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 yea
 const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
 
 const tutoringDetailsSchema = z.object({
-  gender: z.enum(["MALE", "FEMALE"], { required_error: "Gender is required." }),
+  gender: z.enum(["MALE", "FEMALE"], { required_error: "Tutor gender is required." }),
   subjects: z.array(z.string()).min(1, "Please select at least one subject."),
   gradeLevelsTaught: z.array(z.string()).min(1, "Please select at least one grade level you teach."),
   boardsTaught: z.array(z.string()).min(1, "Please select at least one board."),
@@ -257,7 +257,7 @@ const mutation = useMutation({
                           <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                   <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm">
-                                      <SelectValue placeholder="Select gender" />
+                                      <SelectValue placeholder="Select Your Gender" />
                                   </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -595,3 +595,5 @@ const mutation = useMutation({
     </Card>
   );
 }
+
+    
