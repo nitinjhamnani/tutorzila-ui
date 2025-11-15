@@ -88,7 +88,6 @@ const postRequirementSchema = z.object({
       .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
       .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
       .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol."),
-  whatsAppNotifications: z.boolean().default(true),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
   }),
@@ -150,7 +149,6 @@ export function PostRequirementModal({
       startDatePreference: undefined,
       preferredDays: [],
       preferredTimeSlots: [],
-      whatsAppNotifications: true,
       acceptTerms: false,
     },
   });
@@ -226,7 +224,6 @@ export function PostRequirementModal({
         countryCode: selectedCountryData?.countryCode || '',
         phone: data.localPhoneNumber,
         userType: "PARENT",
-        whatsappEnabled: data.whatsAppNotifications,
     };
     
     try {
@@ -704,7 +701,6 @@ export function PostRequirementModal({
       verificationType="phone"
       identifier={otpIdentifier}
       onSuccess={async () => { 
-        // Now that OTP is verified, we can call the original onSuccess to close the PostRequirementModal
         onSuccess();
       }}
     />
