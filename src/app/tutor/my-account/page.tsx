@@ -201,7 +201,6 @@ export default function TutorMyAccountPage() {
   
   const handleOtpSuccess = async () => {
     toast({ title: "Verification Successful!", description: `Your ${otpVerificationType} has been verified.` });
-    queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
   };
   
   const handleOpenShareModal = () => {
@@ -522,4 +521,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-
