@@ -118,9 +118,9 @@ export function PostRequirementModal({
   startFromStep = 1,
 }: PostRequirementModalProps) {
   
-  const { user, isAuthenticated, token } = useAuthMock();
   const [currentStep, setCurrentStep] = useState(startFromStep);
-  const totalSteps = 3; 
+  const { user, isAuthenticated, token } = useAuthMock();
+  const totalSteps = isAuthenticated ? 2 : 3; 
   
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -145,8 +145,8 @@ export function PostRequirementModal({
       board: "",
       teachingMode: [],
       location: null,
-      tutorGenderPreference: undefined,
-      startDatePreference: undefined,
+      tutorGenderPreference: "NO_PREFERENCE",
+      startDatePreference: "IMMEDIATELY",
       preferredDays: [],
       preferredTimeSlots: [],
       acceptTerms: false,
@@ -160,11 +160,11 @@ export function PostRequirementModal({
   }, [initialSubject, form]);
   
   useEffect(() => {
-    if (startFromStep === 2 && isAuthenticated && user) {
+    if (isAuthenticated && user) {
         form.setValue("name", user.name || "");
         form.setValue("email", user.email || "");
     }
-  }, [startFromStep, isAuthenticated, user, form]);
+  }, [isAuthenticated, user, form]);
 
 
   const handleNext = async () => {
@@ -508,7 +508,7 @@ export function PostRequirementModal({
                        <MultiSelectCommand
                           options={daysOptions}
                           selectedValues={field.value || []}
-                          onValueChange={(values) => field.onChange(values)}
+                          onValueChange={field.onChange}
                           placeholder="Select preferred days..."
                           className="bg-input border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30"
                         />
@@ -708,4 +708,3 @@ export function PostRequirementModal({
   );
 }
 
-    
