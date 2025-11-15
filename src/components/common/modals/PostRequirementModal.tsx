@@ -119,10 +119,10 @@ export function PostRequirementModal({
   startFromStep = 1,
 }: PostRequirementModalProps) {
   
+  const { user, isAuthenticated, token } = useAuthMock();
   const [currentStep, setCurrentStep] = useState(startFromStep);
   const totalSteps = isAuthenticated ? 2 : 3;
-  const { user, isAuthenticated, token } = useAuthMock();
-
+  
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
   const router = useRouter();
