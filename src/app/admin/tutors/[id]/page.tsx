@@ -122,7 +122,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       registeredDate: userDetails.registeredDate,
       createdBy: userDetails.createdBy,
       isLive: userDetails.live,
-      isActive: userDetails.active, // This is for registration status
+      isActive: userDetails.active,
 
       // From tutoringDetails
       subjectsList: tutoringDetails.subjects,
@@ -197,20 +197,21 @@ const verifyTutorPhoneApi = async ({ tutorId, token }: { tutorId: string; token:
     return response.json();
 };
 
-const updateTutorActivationStatus = async ({
+const updateTutorLiveStatus = async ({
   tutorId,
   token,
-  isActive,
+  isLive,
 }: {
   tutorId: string;
   token: string | null;
-  isActive: boolean;
+  isLive: boolean;
 }) => {
   if (!token) throw new Error("Authentication token not found.");
   if (!tutorId) throw new Error("Tutor ID is missing.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/user/activate/${tutorId}?isActive=${isActive}`, {
+  // Use the API endpoint for activation status to control the 'live' state
+  const response = await fetch(`${apiBaseUrl}/api/user/activate/${tutorId}?isActive=${isLive}`, {
       method: 'PUT',
       headers: {
           'Authorization': `Bearer ${token}`,
@@ -300,10 +301,9 @@ export default function AdminTutorProfilePage() {
     const [isUpdateBioModalOpen, setIsUpdateBioModalOpen] = useState(false);
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
-    const [isActivationStatusModalOpen, setIsActivationStatusModalOpen] = useState(false);
+    const [isLiveStatusModalOpen, setIsLiveStatusModalOpen] = useState(false);
     const [isUpdateNameModalOpen, setIsUpdateNameModalOpen] = useState(false);
     const [isUpdateBankModalOpen, setIsUpdateBankModalOpen] = useState(false);
-    const [isAccountNumberVisible, setIsAccountNumberVisible] = useState(false);
 
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
@@ -360,8 +360,8 @@ export default function AdminTutorProfilePage() {
         },
     });
 
-    const activationStatusMutation = useMutation({
-      mutationFn: (isActive: boolean) => updateTutorActivationStatus({ tutorId, token, isActive }),
+    const liveStatusMutation = useMutation({
+      mutationFn: (isLive: boolean) => updateTutorLiveStatus({ tutorId, token, isLive }),
       onSuccess: (updatedUserDetails) => {
         queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
           if (!oldData) return undefined;
@@ -369,14 +369,14 @@ export default function AdminTutorProfilePage() {
         });
         toast({
           title: "Status Updated!",
-          description: `${tutor?.displayName} is now ${updatedUserDetails.active ? 'Active' : 'Inactive'} and ${updatedUserDetails.live ? 'Live' : 'Offline'}.`,
+          description: `${tutor?.displayName} is now ${updatedUserDetails.live ? 'Live' : 'Offline'}.`,
         });
       },
       onError: (error: Error) => {
         toast({ variant: "destructive", title: "Status Update Failed", description: error.message });
       },
       onSettled: () => {
-        setIsActivationStatusModalOpen(false);
+        setIsLiveStatusModalOpen(false);
       }
     });
 
@@ -388,9 +388,9 @@ export default function AdminTutorProfilePage() {
         }
     };
     
-    const handleToggleActivationStatus = () => {
+    const handleToggleLiveStatus = () => {
         if (tutor) {
-            activationStatusMutation.mutate(!tutor.isActive);
+            liveStatusMutation.mutate(!tutor.isLive);
         }
     };
     
@@ -433,9 +433,9 @@ export default function AdminTutorProfilePage() {
             <div className="md:col-span-1 space-y-6">
                 <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden relative">
                     <div className="absolute top-4 left-4">
-                      <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                          {tutor.isActive ? <Radio className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                          {tutor.isActive ? 'Active' : 'Inactive'}
+                      <Badge variant={tutor.isLive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                          {tutor.isLive ? <Radio className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                          {tutor.isLive ? 'Live' : 'Not Live'}
                       </Badge>
                     </div>
                     <CardContent className="p-5 md:p-6 text-center pt-14">
@@ -474,12 +474,12 @@ export default function AdminTutorProfilePage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setIsActivationStatusModalOpen(true)}>
-                                  {tutor.isActive ? <Radio className="mr-2 h-4 w-4 text-destructive" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
-                                  <span>{tutor.isActive ? 'Mark Inactive' : 'Mark Active'}</span>
+                                <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
+                                  {tutor.isLive ? <Radio className="mr-2 h-4 w-4 text-destructive" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
+                                  <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
@@ -717,18 +717,18 @@ export default function AdminTutorProfilePage() {
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
-      <AlertDialog open={isActivationStatusModalOpen} onOpenChange={setIsActivationStatusModalOpen}>
+      <AlertDialog open={isLiveStatusModalOpen} onOpenChange={setIsLiveStatusModalOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to change {tutor.displayName}'s status to <span className="font-semibold">{tutor.isActive ? 'Inactive' : 'Active'}</span>?
+                Are you sure you want to change {tutor.displayName}'s status to <span className="font-semibold">{tutor.isLive ? 'Offline' : 'Live'}</span>?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleToggleActivationStatus} disabled={activationStatusMutation.isPending}>
-                {activationStatusMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              <AlertDialogAction onClick={handleToggleLiveStatus} disabled={liveStatusMutation.isPending}>
+                {liveStatusMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Confirm
               </AlertDialogAction>
             </AlertDialogFooter>
