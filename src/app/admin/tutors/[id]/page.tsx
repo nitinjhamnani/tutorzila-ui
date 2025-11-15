@@ -442,6 +442,10 @@ export default function AdminTutorProfilePage() {
                             </AvatarFallback>
                         </Avatar>
                         <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
+                        <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
+                            <VenetianMask className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0"/>
+                            <span className="capitalize">{tutor.gender || 'Not Provided'}</span>
+                        </div>
                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                             <Badge variant={tutor.registered ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                                 {tutor.registered ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
