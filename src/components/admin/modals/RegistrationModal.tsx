@@ -28,8 +28,8 @@ interface RegistrationModalProps {
 
 const registrationReasons = [
   { id: "profile_complete", label: "Profile verified and complete" },
-  { id: "payment_received", label: "Registration payment received" },
-  { id: "re-activated", label: "Re-registering a previously unregistered account" },
+  { id: "payment_received", label: "Activation payment received" },
+  { id: "re-activated", label: "Re-activating a previously deactivated account" },
   { id: "other", label: "Other (Manual Override)" },
 ];
 
@@ -49,7 +49,7 @@ const updateTutorRegistration = async ({
   if (!reason) throw new Error("A reason is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/register/${tutorId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/register/${tutorId}?register=${register}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',

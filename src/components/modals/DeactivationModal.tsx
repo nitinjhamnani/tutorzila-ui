@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Trash2, Loader2 } from "lucide-react";
+import { XCircle, Loader2, Lock } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import type { ApiTutor, User } from "@/types";
