@@ -34,11 +34,40 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Tutorzila',
+  url: 'https://www.tutorzila.com',
+  logo: 'https://www.tutorzila.com/logo.png', // Replace with your actual logo URL
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+91-89711-26362',
+    contactType: 'Customer Service',
+  },
+  areaServed: {
+    '@type': 'Country',
+    name: 'India',
+  },
+  sameAs: [
+    // Add your social media links here
+  ],
+};
+
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
         <meta name="theme-color" content="#DE6262" />
+        <meta name="geo.region" content="IN-KA" />
+        <meta name="geo.placename" content="Bangalore" />
+        <meta name="geo.position" content="12.9716;77.5946" />
+        <meta name="ICBM" content="12.9716, 77.5946" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body>
         <Providers>
