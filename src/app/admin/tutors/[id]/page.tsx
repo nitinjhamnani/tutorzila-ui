@@ -475,11 +475,11 @@ export default function AdminTutorProfilePage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
-                                  {tutor.isLive ? <Radio className="mr-2 h-4 w-4 text-destructive" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
+                                  <Radio className={cn("mr-2 h-4 w-4", tutor.isLive && "text-destructive")} />
                                   <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
@@ -501,6 +501,12 @@ export default function AdminTutorProfilePage() {
                                     <Landmark className="mr-2 h-4 w-4" />
                                     <span>Edit Bank Details</span>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/tutors/${tutor.id}`} target="_blank">
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    <span>View Public Profile</span>
+                                  </Link>
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -514,6 +520,7 @@ export default function AdminTutorProfilePage() {
                          <InfoItem icon={Mail} label="Email">
                             <div className="flex items-center gap-2">
                                 <span>{tutor.email}</span>
+                                <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <button onClick={() => { if(!tutor.emailVerified) { setVerificationType('email'); setIsVerificationModalOpen(true);}}}>
@@ -524,15 +531,20 @@ export default function AdminTutorProfilePage() {
                                     </TooltipTrigger>
                                     <TooltipContent><p>Email {tutor.emailVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
                                 </Tooltip>
+                                </TooltipProvider>
                             </div>
                         </InfoItem>
                         <InfoItem icon={Phone} label="Phone">
                            <div className="flex flex-col items-start gap-1.5">
                                 <div className="flex items-center gap-2">
                                   <span>{tutor.countryCode} {tutor.phone}</span>
+                                  <TooltipProvider>
                                   <Tooltip>
                                       <TooltipTrigger asChild>
-                                           <button onClick={() => { if(!tutor.phoneVerified) { setVerificationType('phone'); setIsVerificationModalOpen(true);}}}>
+                                           <button
+                                        className={!tutor.phoneVerified ? "cursor-pointer" : ""}
+                                        onClick={() => { if(!tutor.phoneVerified) { setVerificationType('phone'); setIsVerificationModalOpen(true);}}}
+                                    >
                                                 <Badge variant={tutor.phoneVerified ? "secondary" : "destructive"} className={cn("py-1 px-2.5", tutor.phoneVerified ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20", !tutor.phoneVerified && "cursor-pointer hover:bg-destructive/20")}>
                                                     <PhoneCall className="h-3 w-3"/>
                                                 </Badge>
@@ -540,6 +552,7 @@ export default function AdminTutorProfilePage() {
                                       </TooltipTrigger>
                                       <TooltipContent><p>Phone {tutor.phoneVerified ? 'Verified' : 'Not Verified'}</p></TooltipContent>
                                   </Tooltip>
+                                  </TooltipProvider>
                                 </div>
                                 {tutor.whatsappEnabled && (
                                     <Badge variant="default" className={cn("mt-1 w-fit bg-primary/10 text-primary border-primary/20 text-xs flex items-center gap-1.5")}>
@@ -737,3 +750,5 @@ export default function AdminTutorProfilePage() {
       </AlertDialog>
     );
 }
+
+    
