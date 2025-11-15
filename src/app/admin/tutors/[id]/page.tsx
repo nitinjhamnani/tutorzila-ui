@@ -495,9 +495,9 @@ export default function AdminTutorProfilePage() {
                         </div>
                     </CardContent>
                      <CardFooter className="p-3 relative h-12">
-                        <Button variant="ghost" size="icon" className="absolute right-3 bottom-2 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full" onClick={handleOpenShareModal}>
+                        <button className="absolute right-3 bottom-2 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full flex items-center justify-center" onClick={handleOpenShareModal}>
                             <Share2 className="h-4 w-4" />
-                        </Button>
+                        </button>
                     </CardFooter>
                      <div className="absolute top-4 right-4">
                         <DropdownMenu>
@@ -511,18 +511,7 @@ export default function AdminTutorProfilePage() {
                                   <Radio className="mr-2 h-4 w-4" />
                                   <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
                                 </DropdownMenuItem>
-                                {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="focus:text-destructive">
-                                        <Lock className="mr-2 h-4 w-4" />
-                                        <span>Unregister Tutor</span>
-                                    </DropdownMenuItem>
-                                ) : (
-                                    <DropdownMenuItem onClick={() => setIsRegistrationModalOpen(true)}>
-                                        <Unlock className="mr-2 h-4 w-4" />
-                                        <span>Register Tutor</span>
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
+                               <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Edit Name</span>
                                 </DropdownMenuItem>
@@ -534,6 +523,17 @@ export default function AdminTutorProfilePage() {
                                     <Landmark className="mr-2 h-4 w-4" />
                                     <span>Edit Bank Details</span>
                                 </DropdownMenuItem>
+                                {tutor.registered ? (
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
+                                        <Lock className="mr-2 h-4 w-4" />
+                                        <span>Unregister Tutor</span>
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <DropdownMenuItem onClick={() => setIsRegistrationModalOpen(true)}>
+                                        <Unlock className="mr-2 h-4 w-4" />
+                                        <span>Register Tutor</span>
+                                    </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem asChild>
                                   <Link href={`/tutors/${tutor.id}`} target="_blank">
                                     <Eye className="mr-2 h-4 w-4" />
@@ -808,5 +808,7 @@ export default function AdminTutorProfilePage() {
       </>
     );
 }
+
+    
 
     
