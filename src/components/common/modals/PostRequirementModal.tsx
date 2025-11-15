@@ -120,8 +120,8 @@ export function PostRequirementModal({
 }: PostRequirementModalProps) {
   
   const [currentStep, setCurrentStep] = useState(startFromStep);
-  const totalSteps = 3;
-  const { user, isAuthenticated } = useAuthMock();
+  const totalSteps = isAuthenticated ? 2 : 3;
+  const { user, isAuthenticated, token } = useAuthMock();
 
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -163,7 +163,8 @@ export function PostRequirementModal({
   
   useEffect(() => {
     if (startFromStep === 2 && isAuthenticated && user) {
-        // No pre-filling to respect user request
+        form.setValue("name", user.name || "");
+        form.setValue("email", user.email || "");
     }
   }, [startFromStep, isAuthenticated, user, form]);
 
@@ -172,7 +173,7 @@ export function PostRequirementModal({
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
-    } else if (currentStep === 2) { 
+    } else if (currentStep === 2 && !isAuthenticated) { 
       fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference'];
     }
 
@@ -230,10 +231,16 @@ export function PostRequirementModal({
     
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const endpoint = '/api/auth/enquiry';
+      const endpoint = isAuthenticated ? '/api/enquiry/create' : '/api/auth/enquiry';
       
       const headers: HeadersInit = { 'Content-Type': 'application/json', 'accept': '*/*' };
-      const body = JSON.stringify({ enquiryRequest, signupRequest });
+      if(isAuthenticated && token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const body = isAuthenticated 
+        ? JSON.stringify(enquiryRequest) 
+        : JSON.stringify({ enquiryRequest, signupRequest });
 
       const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         method: 'POST',
@@ -243,22 +250,25 @@ export function PostRequirementModal({
 
       hideLoader(); 
 
-      const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
-
       if (!response.ok) {
+        const responseData = await response.json().catch(() => ({ message: "An unexpected error occurred." }));
+        if (response.status === 409 && responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
+            onTriggerSignIn(data.email);
+            return;
+        }
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
       
-      if (responseData.message && responseData.message.toLowerCase().includes("user already exists") && onTriggerSignIn) {
-          onTriggerSignIn(data.email);
-          return;
-      }
-
-      if (response.ok) {
-        setOtpIdentifier(data.email);
+      if (isAuthenticated) {
+        toast({
+          title: "Requirement Posted!",
+          description: "Your new tuition requirement has been successfully submitted.",
+        });
+        onSuccess();
+      } else {
+        const fullPhoneNumber = `${selectedCountryData?.countryCode || ''} ${data.localPhoneNumber}`;
+        setOtpIdentifier(fullPhoneNumber);
         setIsOtpModalOpen(true);
-        // We do NOT call onSuccess() here anymore.
-        // It will be called by the OTP modal upon successful verification.
       }
 
     } catch (error) {
@@ -390,31 +400,33 @@ export function PostRequirementModal({
                           key={option.id}
                           control={form.control}
                           name="teachingMode"
-                          render={({ field }) => (
-                            <FormItem>
-                              <Label
-                                htmlFor={`teaching-mode-modal-${option.id}`}
-                                className={cn(
-                                  "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
-                                  field.value?.includes(option.id) && "bg-primary/10 border-primary ring-1 ring-primary"
-                                )}
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    id={`teaching-mode-modal-${option.id}`}
-                                    checked={field.value?.includes(option.id)}
-                                    onCheckedChange={(checked) => {
-                                      const currentValues = field.value || [];
-                                      return checked
-                                        ? field.onChange([...currentValues, option.id])
-                                        : field.onChange(currentValues.filter(v => v !== option.id));
-                                    }}
-                                  />
-                                </FormControl>
-                                <span className="font-normal text-sm">{option.label}</span>
-                              </Label>
-                            </FormItem>
-                          )}
+                          render={({ field }) => {
+                            return (
+                              <FormItem key={option.id}>
+                                <Label
+                                  htmlFor={`teaching-mode-${option.id}`}
+                                  className={cn(
+                                    "flex flex-row items-center space-x-3 space-y-0 p-3 border rounded-md bg-input/30 hover:bg-accent/50 transition-colors cursor-pointer",
+                                    field.value?.includes(option.id) && "bg-primary/10 border-primary ring-1 ring-primary"
+                                  )}
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      id={`teaching-mode-${option.id}`}
+                                      checked={field.value?.includes(option.id)}
+                                      onCheckedChange={(checked) => {
+                                        const currentValues = field.value || [];
+                                        return checked
+                                          ? field.onChange([...currentValues, option.id])
+                                          : field.onChange(currentValues.filter(v => v !== option.id));
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <span className="font-normal text-sm">{option.label}</span>
+                                </Label>
+                              </FormItem>
+                            );
+                          }}
                         />
                       ))}
                     </div>
@@ -606,7 +618,7 @@ export function PostRequirementModal({
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Set Password</FormLabel>
+                    <FormLabel className="flex items-center"><Lock className="mr-2 h-4 w-4 text-primary/80" />Set Password</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -689,7 +701,7 @@ export function PostRequirementModal({
     <OtpVerificationModal
       isOpen={isOtpModalOpen}
       onOpenChange={setIsOtpModalOpen}
-      verificationType="email"
+      verificationType="phone"
       identifier={otpIdentifier}
       onSuccess={async () => { 
         // Now that OTP is verified, we can call the original onSuccess to close the PostRequirementModal
