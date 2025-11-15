@@ -21,15 +21,15 @@ import type { ApiTutor, User } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 import { UpdateNameModal } from "@/components/modals/UpdateNameModal";
 import { UserOtpVerificationModal } from "@/components/modals/UserOtpVerificationModal";
@@ -515,3 +515,4 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
