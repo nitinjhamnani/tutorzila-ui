@@ -1,0 +1,179 @@
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import * as z from "zod";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useAuthMock } from "@/hooks/use-auth-mock";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { ShieldCheck, RefreshCw, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const otpSchema = z.object({
+  otp: z.string().length(6, { message: "OTP must be 6 digits." }),
+});
+
+type OtpFormValues = z.infer<typeof otpSchema>;
+
+interface UserOtpVerificationModalProps {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  verificationType: "email" | "phone";
+  identifier: string;
+  onSuccess: () => Promise<void> | void;
+}
+
+const verifyOtpApi = async (token: string | null, verificationId: string, otp: string) => {
+    if (!token) throw new Error("Authentication token is required.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/verify/otp?verificationId=${encodeURIComponent(verificationId)}&otp=${otp}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'accept': '*/*',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Invalid OTP or an error occurred.' }));
+        throw new Error(errorData.message);
+    }
+
+    return response.json();
+};
+
+export function UserOtpVerificationModal({
+  isOpen,
+  onOpenChange,
+  verificationType,
+  identifier,
+  onSuccess,
+}: UserOtpVerificationModalProps) {
+  const { toast } = useToast();
+  const { token } = useAuthMock();
+  const queryClient = useQueryClient();
+
+  const form = useForm<OtpFormValues>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: { otp: "" },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (otp: string) => verifyOtpApi(token, identifier, otp),
+    onSuccess: (updatedUserDetails) => {
+        queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
+            if (!oldData) return undefined;
+            return {
+                ...oldData,
+                userDetails: {
+                    ...oldData.userDetails,
+                    ...updatedUserDetails,
+                }
+            };
+        });
+        onSuccess();
+        onOpenChange(false);
+    },
+    onError: (error: Error) => {
+        toast({
+            variant: "destructive",
+            title: "Verification Failed",
+            description: error.message,
+        });
+    }
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset();
+    }
+  }, [isOpen, form]);
+
+  const onSubmit: SubmitHandler<OtpFormValues> = async (data) => {
+    mutation.mutate(data.otp);
+  };
+  
+  const typeTitle = verificationType.charAt(0).toUpperCase() + verificationType.slice(1);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent 
+        className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
+        <DialogHeader className={cn("p-6 pb-4 text-left border-b")}>
+          <div className={cn("flex items-center gap-3")}>
+              <div className="p-2 bg-primary/10 rounded-full text-primary">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+            <div>
+              <DialogTitle className={cn("text-lg font-semibold text-foreground")}>
+                Verify Your {typeTitle}
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground mt-0.5">
+                An OTP has been sent to <span className="font-medium text-foreground">{identifier}</span>.
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="px-6 pt-5 pb-6 space-y-5">
+            <FormField
+              control={form.control}
+              name="otp"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground">Enter 6-Digit OTP</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="text" 
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="••••••"
+                      className="text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
+                      disabled={mutation.isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-end pt-2">
+              <Button
+                type="submit"
+                disabled={mutation.isPending || !form.formState.isValid}
+                className="w-full sm:w-auto"
+              >
+                {mutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Verifying...</> : "Verify Code"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 import { UpdateNameModal } from "@/components/modals/UpdateNameModal";
+import { UserOtpVerificationModal } from "@/components/modals/UserOtpVerificationModal";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -66,6 +67,25 @@ const fetchTutorDetails = async (token: string | null) => {
     return response.json();
 };
 
+const sendVerificationOtpApi = async (token: string | null, verificationType: 'EMAIL' | 'PHONE') => {
+  if (!token) throw new Error("Authentication token is required.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/verify/otp?verificationType=${verificationType}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Failed to send OTP.' }));
+    throw new Error(errorData.message);
+  }
+
+  return true; // No response body, just success status
+};
 
 const getInitials = (name?: string): string => {
   if (!name) return "?";
@@ -117,7 +137,7 @@ export default function TutorMyAccountPage() {
   const [isUpdateBankDetailsModalOpen, setIsUpdateBankDetailsModalOpen] = useState(false);
   const { hideLoader, showLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [isUserOtpModalOpen, setIsUserOtpModalOpen] = useState(false);
   const [otpVerificationType, setOtpVerificationType] = useState<"email" | "phone">("email");
   const [otpIdentifier, setOtpIdentifier] = useState("");
   const { toast } = useToast();
@@ -145,6 +165,20 @@ export default function TutorMyAccountPage() {
   const isLoading = isLoadingAccount || isLoadingTutoring;
   const error = accountError || tutoringError;
 
+  const sendOtpMutation = useMutation({
+    mutationFn: (type: 'EMAIL' | 'PHONE') => sendVerificationOtpApi(token, type),
+    onSuccess: (_, type) => {
+        const identifier = type === 'EMAIL' ? tutorAccountData.userDetails.email : tutorAccountData.userDetails.phone;
+        setOtpVerificationType(type.toLowerCase() as 'email' | 'phone');
+        setOtpIdentifier(identifier);
+        setIsUserOtpModalOpen(true);
+        toast({ title: "OTP Sent", description: `An OTP has been sent to your ${type.toLowerCase()}.`});
+    },
+    onError: (error: Error) => {
+        toast({ variant: "destructive", title: "Failed to Send OTP", description: error.message });
+    }
+  });
+
   useEffect(() => {
     if (!isLoading) {
       hideLoader();
@@ -152,10 +186,7 @@ export default function TutorMyAccountPage() {
   }, [isLoading, hideLoader]);
 
   const handleOpenOtpModal = (type: "email" | "phone") => {
-    if (!tutorAccountData?.userDetails) return;
-    setOtpVerificationType(type);
-    setOtpIdentifier(type === "email" ? tutorAccountData.userDetails.email! : tutorAccountData.userDetails.phone!);
-    setIsOtpModalOpen(true);
+    sendOtpMutation.mutate(type.toUpperCase() as 'EMAIL' | 'PHONE');
   };
   
   const handleOtpSuccess = async () => {
@@ -406,15 +437,12 @@ export default function TutorMyAccountPage() {
       <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={userDetails.name} userId={userDetails.id} />
       <UpdateNameModal isOpen={isUpdateNameModalOpen} onOpenChange={setIsUpdateNameModalOpen} currentName={userDetails.name} />
       <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} initialAccountName={userDetails.name} />
-      <OtpVerificationModal
-        isOpen={isOtpModalOpen}
-        onOpenChange={setIsOtpModalOpen}
+      <UserOtpVerificationModal
+        isOpen={isUserOtpModalOpen}
+        onOpenChange={setIsUserOtpModalOpen}
         verificationType={otpVerificationType}
         identifier={otpIdentifier}
         onSuccess={handleOtpSuccess}
-        onResend={async () => {
-          console.log("Mock resend OTP");
-        }}
       />
       <ResetPasswordModal isOpen={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen} />
       <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
@@ -435,3 +463,4 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
+
