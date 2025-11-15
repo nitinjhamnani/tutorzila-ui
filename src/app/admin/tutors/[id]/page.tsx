@@ -152,7 +152,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       offline: tutoringDetails.offline,
       isHybrid: tutoringDetails.hybrid,
       
-      gender: userDetails.gender,
+      gender: tutoringDetails.gender,
       isVerified: tutoringDetails.verified,
       bankDetails: bankDetails || undefined,
     } as ApiTutor;
@@ -490,7 +490,7 @@ export default function AdminTutorProfilePage() {
                                     <Edit3 className="mr-2 h-4 w-4" />
                                     <span>Edit Tutoring Details</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setIsEditPersonalModalOpen(true)}>
+                                <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Edit Personal Details</span>
                                 </DropdownMenuItem>
