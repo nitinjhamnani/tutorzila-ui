@@ -464,7 +464,7 @@ export default function AdminTutorProfilePage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
-                                  {tutor.isLive ? <Radio className="mr-2 h-4 w-4 text-destructive" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
+                                  {tutor.isLive ? <Radio className="mr-2 h-4 w-4" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
                                   <span>{tutor.isLive ? 'Mark Inactive' : 'Mark Active'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
@@ -481,7 +481,7 @@ export default function AdminTutorProfilePage() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
                                     <User className="mr-2 h-4 w-4" />
-                                    <span>Edit Personal Details</span>
+                                    <span>Edit Name</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
                                     <Edit3 className="mr-2 h-4 w-4" />
@@ -594,10 +594,17 @@ export default function AdminTutorProfilePage() {
                         <CardTitle>Tutoring Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <InfoTextItem icon={BookOpen} label="Subjects" value={tutor.subjectsList.join(', ')} />
-                        <InfoTextItem icon={GraduationCap} label="Grades" value={tutor.gradesList.join(', ')} />
-                        <InfoTextItem icon={Building} label="Boards" value={tutor.boardsList.join(', ')} />
-                        <InfoTextItem icon={RadioTower} label="Teaching Mode" value={[tutor.online && 'Online', tutor.offline && 'Offline', tutor.isHybrid && 'Hybrid'].filter(Boolean).join(' & ')} />
+                        <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjectsList}/>
+                        <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradesList}/>
+                        <InfoBadgeList icon={Building} label="Boards" items={tutor.boardsList}/>
+                        <InfoItem icon={RadioTower} label="Teaching Mode">
+                            <div className="flex items-center gap-2">
+                                {tutor.online && <Badge variant="secondary" className="font-normal">Online</Badge>}
+                                {tutor.offline && <Badge variant="secondary" className="font-normal">Offline</Badge>}
+                                {tutor.isHybrid && <Badge variant="secondary" className="font-normal">Hybrid</Badge>}
+                                {!tutor.online && !tutor.offline && !tutor.isHybrid && <span className="text-xs text-muted-foreground italic">Not Provided</span>}
+                            </div>
+                        </InfoItem>
                         {tutor.offline && (
                         <InfoItem icon={MapPin} label="Address">
                             {tutor.googleMapsLink ? (
@@ -619,10 +626,10 @@ export default function AdminTutorProfilePage() {
                         <CardTitle>Other Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <InfoTextItem icon={GraduationCap} label="Qualifications" value={tutor?.qualificationList?.join(', ')} />
-                        <InfoTextItem icon={Languages} label="Languages" value={tutor?.languagesList?.join(', ')} />
-                        <InfoTextItem icon={CalendarDays} label="Available Days" value={tutor?.availabilityDaysList?.join(', ')} />
-                        <InfoTextItem icon={Clock} label="Available Times" value={tutor?.availabilityTimeList?.join(', ')} />
+                        <InfoBadgeList icon={GraduationCap} label="Qualifications" items={tutor?.qualificationList}/>
+                        <InfoBadgeList icon={Languages} label="Languages" items={tutor?.languagesList}/>
+                        <InfoBadgeList icon={CalendarDays} label="Available Days" items={tutor?.availabilityDaysList}/>
+                        <InfoBadgeList icon={Clock} label="Available Times" items={tutor?.availabilityTimeList}/>
                     </CardContent>
                 </Card>
             </div>
