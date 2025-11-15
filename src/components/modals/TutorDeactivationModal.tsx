@@ -25,10 +25,10 @@ interface TutorDeactivationModalProps {
 }
 
 const deactivationReasons = [
-  { id: "not_enough_students", label: "Not getting enough student leads" },
-  { id: "taking_a_break", label: "Taking a temporary break from tutoring" },
-  { id: "dissatisfied", label: "Dissatisfied with the platform" },
-  { id: "personal_reasons", label: "Personal reasons" },
+  { id: "not_enough_leads", label: "Not receiving enough relevant student leads" },
+  { id: "dissatisfied_platform", label: "Dissatisfied with the platform's features or policies" },
+  { id: "found_opportunities", label: "Found tutoring opportunities elsewhere" },
+  { id: "taking_break", label: "Taking a temporary break from tutoring" },
   { id: "other", label: "Other" },
 ];
 
