@@ -475,7 +475,7 @@ export default function TutorEnquiryDetailPage() {
 
 
   return (
-    <div className={containerPadding}>
+    <div className={cn(containerPadding, "max-w-4xl mx-auto")}>
         {!isTutorRegistered && (
           <ActivationStatusCard 
             onActivate={() => queryClient.invalidateQueries({ queryKey: ["tutorDetails", token] })}
@@ -483,147 +483,144 @@ export default function TutorEnquiryDetailPage() {
             message="You must register your account before you can apply for enquiries."
           />
         )}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-            <div className="lg:col-span-2 space-y-6 lg:sticky lg:top-[calc(var(--header-height)+1.5rem)]">
-                <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-                    <CardHeader className="bg-card p-4 sm:p-5">
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
-                            <CardTitle className="text-xl font-semibold text-primary">
-                            {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-                            </CardTitle>
-                            {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED' || assignedStatus === 'ASSIGNED') && (
-                            <Badge variant="default" className="text-xs w-fit bg-primary text-primary-foreground">
-                                <CheckCircle className="mr-1 h-3 w-3"/>
-                                {assignedStatus === 'APPLIED' ? 'Applied' : assignedStatus === 'SHORTLISTED' ? 'Shortlisted' : 'Assigned'}
-                            </Badge>
-                            )}
-                        </div>
-                        <div className="space-y-2 pt-2">
-                            <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                                <UsersRound className="w-4 h-4"/> {requirement.studentName}
+        <div className="space-y-6">
+            <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+                <CardHeader className="bg-card p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
+                        <CardTitle className="text-xl font-semibold text-primary">
+                        {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                        </CardTitle>
+                        {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED' || assignedStatus === 'ASSIGNED') && (
+                        <Badge variant="default" className="text-xs w-fit bg-primary text-primary-foreground">
+                            <CheckCircle className="mr-1 h-3 w-3"/>
+                            {assignedStatus === 'APPLIED' ? 'Applied' : assignedStatus === 'SHORTLISTED' ? 'Shortlisted' : 'Assigned'}
+                        </Badge>
+                        )}
+                    </div>
+                    <div className="space-y-2 pt-2">
+                        <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
+                            <UsersRound className="w-4 h-4"/> {requirement.studentName}
+                        </CardDescription>
+                        {requirement.postedAt && (
+                            <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                                <Clock className="w-3.5 h-3.5" /> 
+                                Posted on {format(postedDate, "MMM d, yyyy")}
                             </CardDescription>
-                            {requirement.postedAt && (
-                                <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                                    <Clock className="w-3.5 h-3.5" /> 
-                                    Posted on {format(postedDate, "MMM d, yyyy")}
-                                </CardDescription>
-                            )}
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-4 md:p-5 space-y-3 border-t">
-                        <h3 className="text-base font-semibold text-foreground flex items-center">
-                            <BookOpen className="w-4 h-4 mr-2 text-primary/80" />
-                            Academic Details
-                        </h3>
-                        <div className="grid grid-cols-1 gap-x-6 gap-y-3 pl-6">
-                            <EnquiryInfoItem label="Grade Level" value={requirement.gradeLevel} icon={GraduationCap} />
-                            {requirement.board && <EnquiryInfoItem label="Board" value={requirement.board} icon={Building} />}
-                            {requirement.teachingMode && requirement.teachingMode.length > 0 && <EnquiryInfoItem label="Mode(s)" value={requirement.teachingMode.join(', ')} icon={RadioTower}/>}
-                        </div>
-                    </CardContent>
-                    <CardFooter className="p-4 md:p-5 border-t bg-card flex flex-col gap-2">
-                      {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" className="w-full" disabled={!isTutorRegistered}>
-                                <Send className="mr-2 h-4 w-4" />
-                                Apply Now
-                              </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
+                        )}
+                    </div>
+                </CardHeader>
+                <CardContent className="p-4 md:p-5 space-y-3 border-t">
+                    <h3 className="text-base font-semibold text-foreground flex items-center">
+                        <BookOpen className="w-4 h-4 mr-2 text-primary/80" />
+                        Academic Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                        <EnquiryInfoItem label="Grade Level" value={requirement.gradeLevel} icon={GraduationCap} />
+                        {requirement.board && <EnquiryInfoItem label="Board" value={requirement.board} icon={Building} />}
+                        {requirement.teachingMode && requirement.teachingMode.length > 0 && <EnquiryInfoItem label="Mode(s)" value={requirement.teachingMode.join(', ')} icon={RadioTower}/>}
+                    </div>
+                </CardContent>
+                <CardFooter className="p-4 md:p-5 border-t bg-card flex flex-col gap-2">
+                    {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                        <Button size="sm" className="w-full" disabled={!isTutorRegistered}>
+                            <Send className="mr-2 h-4 w-4" />
+                            Apply Now
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirm Application</AlertDialogTitle>
+                            <AlertDialogDescription>
+                            Are you sure you want to apply for this tuition enquiry? The parent will be notified of your interest.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => applyMutation.mutate()} disabled={applyMutation.isPending}>
+                            {applyMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</> : "Confirm & Apply"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    )}
+                    {(assignedStatus === "APPLIED" || assignedStatus === "SHORTLISTED" || assignedStatus === "ASSIGNED") && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="destructive-outline" className="w-full">
+                                <Ban className="mr-2 h-4 w-4" />
+                                Not Interested
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Confirm Application</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to apply for this tuition enquiry? The parent will be notified of your interest.
-                              </AlertDialogDescription>
+                            <AlertDialogTitle>Revoke Application</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to withdraw your application for this enquiry? This action cannot be undone.
+                            </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => applyMutation.mutate()} disabled={applyMutation.isPending}>
-                                {applyMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</> : "Confirm & Apply"}
-                              </AlertDialogAction>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => revokeMutation.mutate()} disabled={revokeMutation.isPending}>
+                                {revokeMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Revoking...</> : "Confirm Revoke"}
+                            </AlertDialogAction>
                             </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                      {(assignedStatus === "APPLIED" || assignedStatus === "SHORTLISTED" || assignedStatus === "ASSIGNED") && (
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button size="sm" variant="destructive-outline" className="w-full">
-                                  <Ban className="mr-2 h-4 w-4" />
-                                  Not Interested
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Revoke Application</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to withdraw your application for this enquiry? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => revokeMutation.mutate()} disabled={revokeMutation.isPending}>
-                                  {revokeMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Revoking...</> : "Confirm Revoke"}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                      <Button variant="link" asChild className="text-xs p-0 h-auto text-primary hover:text-primary/80 mt-2">
-                        <Link href="/tutor/enquiries">
-                          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-                          Back to All Enquiries
-                        </Link>
-                      </Button>
-                    </CardFooter>
-                </Card>
-            </div>
-            <div className="lg:col-span-3 space-y-6">
-                 {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
-                    <DetailSectionCard icon={DollarSign} title="Budget">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
-                            {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
-                        </div>
-                    </DetailSectionCard>
-                )}
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    )}
+                    <Button variant="link" asChild className="text-xs p-0 h-auto text-primary hover:text-primary/80 mt-2">
+                    <Link href="/tutor/enquiries">
+                        <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+                        Back to All Enquiries
+                    </Link>
+                    </Button>
+                </CardFooter>
+            </Card>
 
-                {(hasPreferences || hasScheduleInfo) && (
-                    <DetailSectionCard icon={Info} title="Tuition Preferences">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {genderValue && <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />}
-                            {startValue && <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />}
-                            {requirement.preferredDays && requirement.preferredDays.length > 0 && (
-                                <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
-                            )}
-                            {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
-                                <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
-                            )}
-                        </div>
-                    </DetailSectionCard>
-                )}
-                
-                {hasLocationInfo && (
-                    <DetailSectionCard icon={MapPin} title="Location Details">
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
-                            {locationInfo && (locationInfo.city || locationInfo.state) && (
-                                <EnquiryInfoItem label="City/State" value={[locationInfo.city, locationInfo.state].filter(Boolean).join(', ')} icon={MapPinned} />
-                            )}
-                             {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
-                        </div>
-                    </DetailSectionCard>
-                )}
+            {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
+                <DetailSectionCard icon={DollarSign} title="Budget">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
+                        {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
+                    </div>
+                </DetailSectionCard>
+            )}
 
-                {requirement.additionalNotes && (
-                    <DetailSectionCard icon={Info} title="Additional Notes from Parent">
-                        <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                            {requirement.additionalNotes}
-                        </p>
-                    </DetailSectionCard>
-                )}
-            </div>
+            {(hasPreferences || hasScheduleInfo) && (
+                <DetailSectionCard icon={Info} title="Tuition Preferences">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {genderValue && <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />}
+                        {startValue && <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />}
+                        {requirement.preferredDays && requirement.preferredDays.length > 0 && (
+                            <EnquiryInfoItem label="Preferred Days" value={requirement.preferredDays.join(', ')} icon={CalendarDays} />
+                        )}
+                        {requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0 && (
+                            <EnquiryInfoItem label="Preferred Time" value={requirement.preferredTimeSlots.join(', ')} icon={Clock} />
+                        )}
+                    </div>
+                </DetailSectionCard>
+            )}
+            
+            {hasLocationInfo && (
+                <DetailSectionCard icon={MapPin} title="Location Details">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
+                        {locationInfo && (locationInfo.city || locationInfo.state) && (
+                            <EnquiryInfoItem label="City/State" value={[locationInfo.city, locationInfo.state].filter(Boolean).join(', ')} icon={MapPinned} />
+                        )}
+                         {locationInfo?.address && <EnquiryInfoItem value={locationInfo} className="md:col-span-2" />}
+                    </div>
+                </DetailSectionCard>
+            )}
+
+            {requirement.additionalNotes && (
+                <DetailSectionCard icon={Info} title="Additional Notes from Parent">
+                    <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                        {requirement.additionalNotes}
+                    </p>
+                </DetailSectionCard>
+            )}
         </div>
     </div>
   );
