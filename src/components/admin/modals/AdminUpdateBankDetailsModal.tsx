@@ -58,17 +58,19 @@ const bankDetailsSchema = z.object({
 
 type BankDetailsFormValues = z.infer<typeof bankDetailsSchema>;
 
-interface UpdateBankDetailsModalProps {
+interface AdminUpdateBankDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   initialAccountName?: string;
-  tutorId?: string; // Add tutorId prop
+  tutorId: string;
 }
 
 const updateTutorBankDetails = async ({
+  tutorId,
   token,
   formData,
 }: {
+  tutorId: string;
   token: string | null;
   formData: BankDetailsFormValues;
 }) => {
@@ -78,7 +80,7 @@ const updateTutorBankDetails = async ({
   if (formData.paymentType === "UPI") {
     requestBody = {
       paymentType: "UPI",
-      accountNumber: formData.upiId, // As per requirement
+      accountNumber: formData.upiId, 
     };
   } else { // BANK
     requestBody = {
@@ -90,7 +92,7 @@ const updateTutorBankDetails = async ({
   }
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/tutor/bank/update`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/bank/${tutorId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -108,7 +110,7 @@ const updateTutorBankDetails = async ({
   return response.json();
 };
 
-export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountName, tutorId }: UpdateBankDetailsModalProps) {
+export function AdminUpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountName, tutorId }: AdminUpdateBankDetailsModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
@@ -125,7 +127,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
   });
   
   const mutation = useMutation({
-    mutationFn: (data: BankDetailsFormValues) => updateTutorBankDetails({ token, formData: data }),
+    mutationFn: (data: BankDetailsFormValues) => updateTutorBankDetails({ tutorId, token, formData: data }),
     onSuccess: (newBankDetails) => {
       queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
         if (!oldData) return oldData;
@@ -136,7 +138,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
       });
       toast({
         title: "Bank Details Saved!",
-        description: "Your payment information has been successfully updated.",
+        description: "The payment information has been successfully updated.",
       });
       onOpenChange(false);
     },
@@ -176,7 +178,7 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
             Update Bank Details
           </DialogTitle>
           <DialogDescription>
-            This information will be used to process your payments.
+            This information will be used to process payments for the tutor.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

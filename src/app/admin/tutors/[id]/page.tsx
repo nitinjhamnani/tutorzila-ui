@@ -88,7 +88,7 @@ import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
 import { AdminUpdateBioModal } from "@/components/admin/modals/AdminUpdateBioModal";
 import { DisapproveBioModal } from "@/components/admin/modals/DisapproveBioModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
-import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
+import { AdminUpdateBankDetailsModal } from "@/components/admin/modals/AdminUpdateBankDetailsModal";
 import { UpdateNameModal } from "@/components/modals/UpdateNameModal";
 import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 
@@ -668,7 +668,7 @@ export default function AdminTutorProfilePage() {
             currentGender={tutor.gender as "MALE" | "FEMALE" | undefined}
         />
 
-        <UpdateBankDetailsModal
+        <AdminUpdateBankDetailsModal
             isOpen={isUpdateBankModalOpen}
             onOpenChange={setIsUpdateBankModalOpen}
             initialAccountName={tutor.name}
