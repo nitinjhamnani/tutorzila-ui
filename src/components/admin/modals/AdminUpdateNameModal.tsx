@@ -29,7 +29,6 @@ import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ApiTutor } from "@/types";
 
-
 interface AdminUpdateNameModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -47,11 +46,27 @@ const updateNameApi = async ({
   newName: string;
 }) => {
   if (!token) throw new Error("Authentication token not found.");
-  // This is a placeholder for the actual API call.
-  // Replace with your actual API endpoint and logic.
-  console.log("Admin updating name for", tutorId, "to", newName);
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return { id: tutorId, name: newName }; // Mock response
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/admin/change/user/${tutorId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({
+      changeType: "NAME",
+      value: newName,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to update name." }));
+    throw new Error(errorData.message);
+  }
+
+  return response.json();
 };
 
 export function AdminUpdateNameModal({ isOpen, onOpenChange, currentName, tutorId }: AdminUpdateNameModalProps) {
@@ -72,10 +87,10 @@ export function AdminUpdateNameModal({ isOpen, onOpenChange, currentName, tutorI
     resolver: zodResolver(updateNameSchema),
     mode: "onChange",
     defaultValues: {
-      newName: "",
+      newName: currentName,
     },
   });
-
+  
   const mutation = useMutation({
     mutationFn: (data: UpdateNameFormValues) => updateNameApi({ tutorId, token, newName: data.newName }),
     onSuccess: (updatedDetails) => {
@@ -83,8 +98,19 @@ export function AdminUpdateNameModal({ isOpen, onOpenChange, currentName, tutorI
         if (!oldData) return undefined;
         return {
           ...oldData,
-          displayName: updatedDetails.name,
           name: updatedDetails.name,
+          displayName: updatedDetails.name,
+          email: updatedDetails.email,
+          countryCode: updatedDetails.countryCode,
+          phone: updatedDetails.phone,
+          registeredDate: updatedDetails.registeredDate,
+          createdBy: updatedDetails.createdBy,
+          profilePicUrl: updatedDetails.profilePicUrl,
+          gender: updatedDetails.gender,
+          isLive: updatedDetails.live,
+          emailVerified: updatedDetails.emailVerified,
+          phoneVerified: updatedDetails.phoneVerified,
+          whatsappEnabled: updatedDetails.whatsappEnabled,
         };
       });
       toast({
@@ -105,8 +131,6 @@ export function AdminUpdateNameModal({ isOpen, onOpenChange, currentName, tutorI
   useEffect(() => {
     if (isOpen) {
         form.setValue("newName", currentName);
-    } else {
-        form.reset();
     }
   }, [isOpen, currentName, form]);
 
