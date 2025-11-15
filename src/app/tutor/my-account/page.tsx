@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall, MoreVertical, Lock, Eye, EyeOff } from "lucide-react";
-import { DeactivationModal } from "@/components/modals/DeactivationModal";
+import { TutorDeactivationModal } from "@/components/modals/TutorDeactivationModal";
 import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
 import { Badge } from "@/components/ui/badge";
@@ -434,7 +434,7 @@ export default function TutorMyAccountPage() {
         </div>
       </main>
 
-      <DeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} userName={userDetails.name} userId={userDetails.id} />
+      <TutorDeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} />
       <UpdateNameModal isOpen={isUpdateNameModalOpen} onOpenChange={setIsUpdateNameModalOpen} currentName={userDetails.name} />
       <UpdateBankDetailsModal isOpen={isUpdateBankDetailsModalOpen} onOpenChange={setIsUpdateBankDetailsModalOpen} initialAccountName={userDetails.name} />
       <UserOtpVerificationModal
@@ -463,4 +463,3 @@ export default function TutorMyAccountPage() {
     </>
   );
 }
-
