@@ -74,6 +74,7 @@ export function UserOtpVerificationModal({
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
+  const [timer, setTimer] = useState(600);
 
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
@@ -108,14 +109,26 @@ export function UserOtpVerificationModal({
   useEffect(() => {
     if (isOpen) {
       form.reset();
+      setTimer(600);
     }
   }, [isOpen, form]);
+
+  useEffect(() => {
+    if (timer > 0 && isOpen) {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer, isOpen]);
 
   const onSubmit: SubmitHandler<OtpFormValues> = async (data) => {
     mutation.mutate(data.otp);
   };
   
   const typeTitle = verificationType.charAt(0).toUpperCase() + verificationType.slice(1);
+  const minutes = Math.floor(timer / 60);
+  const seconds = timer % 60;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -162,6 +175,9 @@ export function UserOtpVerificationModal({
                 </FormItem>
               )}
             />
+             <div className="text-center text-sm text-muted-foreground">
+                OTP is valid for: <span className="font-semibold text-primary">{`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`}</span>
+              </div>
             <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-end pt-2">
               <Button
                 type="submit"
