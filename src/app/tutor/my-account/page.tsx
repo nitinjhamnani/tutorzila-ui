@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall, MoreVertical, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Phone, UserCircle, VenetianMask, CheckCircle, Loader2, Edit3, Landmark, KeyRound, Briefcase, BookOpen, GraduationCap, DollarSign, Languages, Clock, CalendarDays, MapPin, ShieldCheck, ShieldAlert, Building, RadioTower, MailCheck, PhoneCall, MoreVertical, Lock, Eye, EyeOff, Share2, Copy } from "lucide-react";
 import { TutorDeactivationModal } from "@/components/modals/TutorDeactivationModal";
 import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
@@ -29,10 +29,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
 import { UpdateNameModal } from "@/components/modals/UpdateNameModal";
 import { UserOtpVerificationModal } from "@/components/modals/UserOtpVerificationModal";
+import { Textarea } from "@/components/ui/textarea";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -145,6 +146,8 @@ export default function TutorMyAccountPage() {
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
   const [isAccountNumberVisible, setIsAccountNumberVisible] = useState(false);
   const [isUpdateNameModalOpen, setIsUpdateNameModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareableText, setShareableText] = useState("");
 
   const { data: tutorAccountData, isLoading: isLoadingAccount, error: accountError } = useQuery({
     queryKey: ["tutorAccountDetails", token],
@@ -183,7 +186,7 @@ export default function TutorMyAccountPage() {
     if (!isLoading) {
       hideLoader();
     }
-  }, [isLoading, hideLoader]);
+  }, [isLoading, showLoader, hideLoader]);
 
   const handleOpenOtpModal = (type: "email" | "phone") => {
     sendOtpMutation.mutate(type.toUpperCase() as 'EMAIL' | 'PHONE');
@@ -193,6 +196,25 @@ export default function TutorMyAccountPage() {
     toast({ title: "Verification Successful!", description: `Your ${otpVerificationType} has been verified.` });
     queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
   };
+  
+  const handleOpenShareModal = () => {
+      if (!tutorAccountData || !tutoringDetailsData || typeof window === 'undefined') return;
+      const { userDetails } = tutorAccountData;
+      const { subjects, yearOfExperience } = tutoringDetailsData;
+      
+      const profileUrl = `${window.location.origin}/tutors/${userDetails.id}`;
+      const text = `Check out this tutor profile on Tutorzila:\n\n*Name:* ${userDetails.name}\n*Subjects:* ${subjects?.join(', ')}\n*Experience:* ${yearOfExperience}\n\nView full profile: ${profileUrl}`;
+      setShareableText(text);
+      setIsShareModalOpen(true);
+    };
+
+    const handleCopyShareText = () => {
+      navigator.clipboard.writeText(shareableText).then(() => {
+        toast({ title: "Copied to Clipboard!", description: "Tutor details and profile link copied." });
+      }).catch(err => {
+        toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy profile details." });
+      });
+    };
 
 
   if (isCheckingAuth || isLoading) {
@@ -284,6 +306,11 @@ export default function TutorMyAccountPage() {
                     <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutoringDetails.hourlyRate} ${tutoringDetails.rateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                   </div>
                 </CardContent>
+                <CardFooter className="p-3 relative h-12 border-t-0">
+                    <button className="absolute right-3 bottom-2 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full flex items-center justify-center" onClick={handleOpenShareModal}>
+                        <Share2 className="h-4 w-4" />
+                    </button>
+                </CardFooter>
               </Card>
 
               <Card>
@@ -433,6 +460,31 @@ export default function TutorMyAccountPage() {
           </div>
         </div>
       </main>
+      
+      <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Share Your Tutor Profile</DialogTitle>
+                <DialogDescription>
+                Copy the text below and share it with parents to showcase your profile.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+                <Textarea
+                readOnly
+                value={shareableText}
+                className="h-40 text-sm bg-muted/50"
+                />
+            </div>
+            <DialogFooter>
+                <Button onClick={handleCopyShareText} className="w-full">
+                <Copy className="mr-2 h-4 w-4" />
+                Copy to Clipboard
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <TutorDeactivationModal isOpen={isDeactivationModalOpen} onOpenChange={setIsDeactivationModalOpen} />
       <UpdateNameModal isOpen={isUpdateNameModalOpen} onOpenChange={setIsUpdateNameModalOpen} currentName={userDetails.name} />
