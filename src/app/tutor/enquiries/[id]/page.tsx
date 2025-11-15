@@ -581,61 +581,63 @@ export default function TutorEnquiryDetailPage() {
                       </>
                     )}
                 </CardContent>
-                <CardFooter className="p-4 md:p-5 border-t bg-card flex flex-col gap-2">
-                    {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                        <Button size="sm" className="w-full" disabled={!isTutorRegistered}>
-                            <Send className="mr-2 h-4 w-4" />
-                            Apply Now
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Confirm Application</AlertDialogTitle>
-                            <AlertDialogDescription>
-                            Are you sure you want to apply for this tuition enquiry? The parent will be notified of your interest.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => applyMutation.mutate()} disabled={applyMutation.isPending}>
-                            {applyMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</> : "Confirm & Apply"}
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                    )}
-                    {(assignedStatus === "APPLIED" || assignedStatus === "SHORTLISTED" || assignedStatus === "ASSIGNED") && (
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="destructive-outline" className="w-full">
-                                <Ban className="mr-2 h-4 w-4" />
-                                Not Interested
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
+                <CardFooter className="p-4 md:p-5 border-t bg-card flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <Button variant="link" asChild className="text-xs p-0 h-auto text-primary hover:text-primary/80">
+                        <Link href="/tutor/enquiries">
+                            <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+                            Back to All Enquiries
+                        </Link>
+                    </Button>
+                    <div className="flex items-center gap-2">
+                        {assignedStatus !== "APPLIED" && assignedStatus !== "SHORTLISTED" && assignedStatus !== "ASSIGNED" && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                            <Button size="sm" disabled={!isTutorRegistered}>
+                                <Send className="mr-2 h-4 w-4" />
+                                Apply Now
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
                             <AlertDialogHeader>
-                            <AlertDialogTitle>Revoke Application</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Are you sure you want to withdraw your application for this enquiry? This action cannot be undone.
-                            </AlertDialogDescription>
+                                <AlertDialogTitle>Confirm Application</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                Are you sure you want to apply for this tuition enquiry? The parent will be notified of your interest.
+                                </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => revokeMutation.mutate()} disabled={revokeMutation.isPending}>
-                                {revokeMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Revoking...</> : "Confirm Revoke"}
-                            </AlertDialogAction>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => applyMutation.mutate()} disabled={applyMutation.isPending}>
+                                {applyMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</> : "Confirm & Apply"}
+                                </AlertDialogAction>
                             </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                    )}
-                    <Button variant="link" asChild className="text-xs p-0 h-auto text-primary hover:text-primary/80 mt-2">
-                    <Link href="/tutor/enquiries">
-                        <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-                        Back to All Enquiries
-                    </Link>
-                    </Button>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                        )}
+                        {(assignedStatus === "APPLIED" || assignedStatus === "SHORTLISTED" || assignedStatus === "ASSIGNED") && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive-outline">
+                                    <Ban className="mr-2 h-4 w-4" />
+                                    Not Interested
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Revoke Application</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to withdraw your application for this enquiry? This action cannot be undone.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => revokeMutation.mutate()} disabled={revokeMutation.isPending}>
+                                    {revokeMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Revoking...</> : "Confirm Revoke"}
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                        )}
+                    </div>
                 </CardFooter>
             </Card>
         </div>
