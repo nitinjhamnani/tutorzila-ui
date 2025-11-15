@@ -89,8 +89,7 @@ import { AdminUpdateBioModal } from "@/components/admin/modals/AdminUpdateBioMod
 import { DisapproveBioModal } from "@/components/admin/modals/DisapproveBioModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { AdminUpdateBankDetailsModal } from "@/components/admin/modals/AdminUpdateBankDetailsModal";
-import { UpdateNameModal } from "@/components/modals/UpdateNameModal";
-import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
+import { AdminUpdateNameModal } from "@/components/admin/modals/AdminUpdateNameModal";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -295,7 +294,6 @@ export default function AdminTutorProfilePage() {
     const [isLiveStatusModalOpen, setIsLiveStatusModalOpen] = useState(false);
     const [isUpdateNameModalOpen, setIsUpdateNameModalOpen] = useState(false);
     const [isUpdateBankModalOpen, setIsUpdateBankModalOpen] = useState(false);
-    const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
@@ -486,13 +484,13 @@ export default function AdminTutorProfilePage() {
                                     </DropdownMenuItem>
                                 )}
                                 <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
+                                    <User className="mr-2 h-4 w-4" />
+                                    <span>Edit Name</span>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
                                     <Edit3 className="mr-2 h-4 w-4" />
                                     <span>Edit Tutoring Details</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
-                                    <User className="mr-2 h-4 w-4" />
-                                    <span>Edit Personal Details</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setIsUpdateBankModalOpen(true)}>
                                     <Landmark className="mr-2 h-4 w-4" />
@@ -655,17 +653,11 @@ export default function AdminTutorProfilePage() {
             tutor={tutor}
         />
         
-        <UpdateNameModal
+        <AdminUpdateNameModal
             isOpen={isUpdateNameModalOpen}
             onOpenChange={setIsUpdateNameModalOpen}
             currentName={tutor.name}
             tutorId={tutor.id}
-        />
-
-        <EditPersonalDetailsModal
-            isOpen={isEditPersonalModalOpen}
-            onOpenChange={setIsEditPersonalModalOpen}
-            currentGender={tutor.gender as "MALE" | "FEMALE" | undefined}
         />
 
         <AdminUpdateBankDetailsModal

@@ -169,3 +169,4 @@ export function EditPersonalDetailsModal({ isOpen, onOpenChange, currentGender }
     </Dialog>
   );
 }
+
