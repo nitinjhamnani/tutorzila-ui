@@ -45,16 +45,16 @@ export function AppHeader() {
     };
   }, []);
 
-  const transparentHeaderPaths = ["/", "/become-a-tutor"];
+  const transparentHeaderPaths = ["/", "/become-a-tutor", "/tutors-in-bangalore"];
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
   
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
-  const headerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
+  const headerDynamicClasses = isTransparentPath && !isScrolled
     ? "bg-transparent shadow-none border-transparent"
     : "bg-card shadow-md border-b border-border/20";
     
-  const mobileMenuTriggerDynamicClasses = hasMounted && isTransparentPath && !isScrolled
+  const mobileMenuTriggerDynamicClasses = isTransparentPath && !isScrolled
     ? "text-card-foreground hover:bg-white/10 active:bg-white/20"
     : "text-foreground hover:bg-accent";
     
