@@ -210,15 +210,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 )}
                 <span className="sr-only">View Public Profile</span>
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                className="text-muted-foreground hover:text-white hover:bg-destructive/80 h-8 w-8"
-                aria-label="Log out"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
             </div>
           </header>
         )}
