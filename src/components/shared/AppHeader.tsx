@@ -66,7 +66,7 @@ export function AppHeader() {
   const mobileButtonClass = cn(mobileLinkClass, "w-full justify-start");
 
   return (
-    <header className={cn(headerBaseClasses, headerDynamicClasses)}>
+    <header className={cn(headerBaseClasses, hasMounted ? headerDynamicClasses : 'bg-card shadow-md border-b border-border/20')}>
       <div className="container mx-auto flex h-[var(--header-height)] items-center justify-between px-4 md:px-6">
         <Link href="/" onClick={() => setMobileMenuOpen(false)}>
           <Image
@@ -93,7 +93,7 @@ export function AppHeader() {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn(
                   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  mobileMenuTriggerDynamicClasses
+                  hasMounted ? mobileMenuTriggerDynamicClasses : 'text-foreground hover:bg-accent'
                 )}>
                   <Menu className="h-6 w-6" />
                 </Button>
