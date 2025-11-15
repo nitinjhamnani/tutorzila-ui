@@ -275,19 +275,6 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
   );
 };
 
-const InfoTextItem = ({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value?: string }) => {
-    if (!value) return null;
-    return (
-        <div className="flex items-start">
-        <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
-        <div className="flex flex-col">
-            <span className="font-medium text-foreground">{label}</span>
-            <p className="text-muted-foreground text-xs">{value}</p>
-        </div>
-        </div>
-    );
-};
-
 
 export default function AdminTutorProfilePage() {
     const params = useParams();
@@ -483,7 +470,7 @@ export default function AdminTutorProfilePage() {
                                   <span>{tutor.isLive ? 'Mark Offline' : 'Mark Live'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="focus:bg-destructive/10 focus:text-destructive">
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
@@ -493,7 +480,6 @@ export default function AdminTutorProfilePage() {
                                         <span>Register Tutor</span>
                                     </DropdownMenuItem>
                                 )}
-                                <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Edit Name</span>
