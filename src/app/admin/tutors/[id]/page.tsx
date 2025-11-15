@@ -383,11 +383,6 @@ export default function AdminTutorProfilePage() {
         }
     };
     
-    const maskAccountNumber = (number?: string) => {
-      if (!number) return 'Not Provided';
-      return `**** **** **** ${number.slice(-4)}`;
-    }
-
     if (isLoading) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
@@ -552,7 +547,7 @@ export default function AdminTutorProfilePage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <InfoItem icon={Landmark} label="Payment Mode">{tutor.bankDetails?.paymentType || "Not Set"}</InfoItem>
-                        <InfoItem icon={KeyRound} label="Account / UPI ID">{maskAccountNumber(tutor.bankDetails?.accountNumber)}</InfoItem>
+                        <InfoItem icon={KeyRound} label="Account / UPI ID">{tutor.bankDetails?.accountNumber || "Not Provided"}</InfoItem>
                     </CardContent>
                 </Card>
             </div>
@@ -725,4 +720,3 @@ export default function AdminTutorProfilePage() {
       </AlertDialog>
     );
 }
-
