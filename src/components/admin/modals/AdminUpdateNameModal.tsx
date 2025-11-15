@@ -93,29 +93,26 @@ export function AdminUpdateNameModal({ isOpen, onOpenChange, currentName, tutorI
   
   const mutation = useMutation({
     mutationFn: (data: UpdateNameFormValues) => updateNameApi({ tutorId, token, newName: data.newName }),
-    onSuccess: (updatedDetails) => {
+    onSuccess: (updatedUserDetails) => {
       queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
         if (!oldData) return undefined;
         return {
           ...oldData,
-          name: updatedDetails.name,
-          displayName: updatedDetails.name,
-          email: updatedDetails.email,
-          countryCode: updatedDetails.countryCode,
-          phone: updatedDetails.phone,
-          registeredDate: updatedDetails.registeredDate,
-          createdBy: updatedDetails.createdBy,
-          profilePicUrl: updatedDetails.profilePicUrl,
-          gender: updatedDetails.gender,
-          isLive: updatedDetails.live,
-          emailVerified: updatedDetails.emailVerified,
-          phoneVerified: updatedDetails.phoneVerified,
-          whatsappEnabled: updatedDetails.whatsappEnabled,
+          // Only update fields that come from the userDetails part of the API response
+          name: updatedUserDetails.name,
+          displayName: updatedUserDetails.name,
+          email: updatedUserDetails.email,
+          countryCode: updatedUserDetails.countryCode,
+          phone: updatedUserDetails.phone,
+          profilePicUrl: updatedUserDetails.profilePicUrl,
+          emailVerified: updatedUserDetails.emailVerified,
+          phoneVerified: updatedUserDetails.phoneVerified,
+          whatsappEnabled: updatedUserDetails.whatsappEnabled,
         };
       });
       toast({
         title: "Name Updated!",
-        description: `Tutor's name has been updated to ${updatedDetails.name}.`,
+        description: `Tutor's name has been updated to ${updatedUserDetails.name}.`,
       });
       onOpenChange(false);
     },
@@ -182,4 +179,3 @@ export function AdminUpdateNameModal({ isOpen, onOpenChange, currentName, tutorI
     </Dialog>
   );
 }
-

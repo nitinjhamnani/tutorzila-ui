@@ -486,7 +486,7 @@ export default function AdminTutorProfilePage() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setIsUpdateNameModalOpen(true)}>
                                     <User className="mr-2 h-4 w-4" />
-                                    <span>Edit Name</span>
+                                    <span>Edit Personal Details</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
                                     <Edit3 className="mr-2 h-4 w-4" />
