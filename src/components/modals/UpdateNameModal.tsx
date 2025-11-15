@@ -27,21 +27,17 @@ import { useToast } from "@/hooks/use-toast";
 import { UserCircle, Loader2, Save } from "lucide-react";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { User, ApiTutor } from "@/types";
 
 interface UpdateNameModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   currentName: string;
-  tutorId: string;
 }
 
 const updateNameApi = async ({
-  tutorId,
   token,
   newName,
 }: {
-  tutorId: string;
   token: string | null;
   newName: string;
 }) => {
@@ -53,7 +49,6 @@ const updateNameApi = async ({
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
-      'TZ-USER-ID': tutorId, // Using tutorId from props
       'accept': '*/*',
     },
     body: JSON.stringify({
@@ -70,7 +65,7 @@ const updateNameApi = async ({
   return response.json();
 };
 
-export function UpdateNameModal({ isOpen, onOpenChange, currentName, tutorId }: UpdateNameModalProps) {
+export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNameModalProps) {
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
@@ -93,30 +88,16 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName, tutorId }: 
   });
 
   const mutation = useMutation({
-    mutationFn: (data: UpdateNameFormValues) => updateNameApi({ tutorId, token, newName: data.newName }),
-    onSuccess: (updatedUserDetails) => {
-        // Optimistically update the user's name in the tutor profile query data
-        queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
-            if (!oldData) return undefined;
-            return {
-                ...oldData,
-                name: updatedUserDetails.name,
-                displayName: updatedUserDetails.name,
-                // also update userDetails if it exists nested
-                userDetails: {
-                    ...oldData,
-                    name: updatedUserDetails.name,
-                }
-            };
-        });
-        
-        queryClient.invalidateQueries({ queryKey: ['adminAllTutors'] });
-
-        toast({
-            title: "Name Updated!",
-            description: "The name has been successfully updated.",
-        });
-        onOpenChange(false);
+    mutationFn: (data: UpdateNameFormValues) => updateNameApi({ token, newName: data.newName }),
+    onSuccess: () => {
+      // Invalidate the query that fetches the tutor's own account details
+      queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
+      
+      toast({
+        title: "Name Updated!",
+        description: "Your name has been successfully updated.",
+      });
+      onOpenChange(false);
     },
     onError: (error: Error) => {
       toast({
@@ -143,9 +124,9 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName, tutorId }: 
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card">
         <DialogHeader>
-          <DialogTitle>Update Name</DialogTitle>
+          <DialogTitle>Update Your Name</DialogTitle>
           <DialogDescription>
-            Current name is <strong>{currentName}</strong>. Enter the new name for this user.
+            Your current name is <strong>{currentName}</strong>. Enter the new name you'd like to use.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -160,7 +141,7 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName, tutorId }: 
                     <div className="relative">
                       <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Enter new name"
+                        placeholder="Enter your new name"
                         {...field}
                         className="pl-10"
                         disabled={mutation.isPending}
