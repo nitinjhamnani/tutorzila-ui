@@ -78,7 +78,7 @@ const updateTutorBankDetails = async ({
   if (formData.paymentType === "UPI") {
     requestBody = {
       paymentType: "UPI",
-      accountNumber: formData.upiId, // As per requirement
+      accountNumber: formData.upiId, 
     };
   } else { // BANK
     requestBody = {
@@ -90,7 +90,7 @@ const updateTutorBankDetails = async ({
   }
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/tutor/bank/update`, {
+  const response = await fetch(`${apiBaseUrl}/api/tutor/bank`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -127,13 +127,9 @@ export function UpdateBankDetailsModal({ isOpen, onOpenChange, initialAccountNam
   const mutation = useMutation({
     mutationFn: (data: BankDetailsFormValues) => updateTutorBankDetails({ token, formData: data }),
     onSuccess: (newBankDetails) => {
-      queryClient.setQueryData(['tutorProfile', tutorId], (oldData: ApiTutor | undefined) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          bankDetails: newBankDetails,
-        };
-      });
+      // Since this is the tutor's own view, let's invalidate the broader account details query
+      // which will refetch all tutor data.
+      queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
       toast({
         title: "Bank Details Saved!",
         description: "Your payment information has been successfully updated.",
