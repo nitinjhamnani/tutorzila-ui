@@ -246,7 +246,7 @@ export default function TutorDashboardPage() {
     queryKey: ['tutorMetrics', token],
     queryFn: () => fetchTutorMetrics(token),
     enabled: !!token,
-    staleTime: 5 * 60 * 1000, 
+    staleTime: 0, 
     refetchOnWindowFocus: false, 
   });
   
@@ -254,7 +254,7 @@ export default function TutorDashboardPage() {
     queryKey: ['tutorDetails', token],
     queryFn: () => fetchTutorDetails(token),
     enabled: !!token,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     onSuccess: (data) => {
       // Store the fetched details in the global state, wrapped in the expected nested structure.
       setTutorProfile({ tutoringDetails: data });
@@ -266,7 +266,7 @@ export default function TutorDashboardPage() {
     queryKey: ['tutorScheduledDemos', token],
     queryFn: () => fetchTutorScheduledDemos(token),
     enabled: !!tutorUser,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   useEffect(() => {
