@@ -83,7 +83,7 @@ const postRequirementSchema = z.object({
   name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
   country: z.string().min(2, "Country is required."),
-  localPhoneNumber: z.string().min(5, { message: "Phone number must be at least 5 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  localPhoneNumber: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   password: z.string()
       .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
       .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
@@ -548,19 +548,6 @@ export function PostRequirementModal({
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Mail className="mr-2 h-4 w-4 text-primary/80" />Email Address</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="e.g., jane.doe@example.com" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormItem>
                 <FormLabel className="flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80" />Phone Number</FormLabel>
                 <div className="flex gap-2">
@@ -600,27 +587,20 @@ export function PostRequirementModal({
                     )}
                   />
                 </div>
-                 <FormField
-                  control={form.control}
-                  name="whatsAppNotifications"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm flex items-center">
-                           <WhatsAppIcon className="h-4 w-4 mr-2 text-primary" />
-                           Available on WhatsApp
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
               </FormItem>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Mail className="mr-2 h-4 w-4 text-primary/80" />Email Address</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="e.g., jane.doe@example.com" {...field} className="bg-input border-border focus:border-primary focus:ring-primary/30" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="password"
