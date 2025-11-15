@@ -501,10 +501,9 @@ export default function AdminTutorProfilePage() {
 
                  <Card>
                     <CardHeader>
-                        <CardTitle>Personal & Contact</CardTitle>
+                        <CardTitle>Contact Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoItem icon={VenetianMask} label="Gender">{tutor.gender || 'Not Specified'}</InfoItem>
                          <InfoItem icon={Mail} label="Email">
                             <div className="flex items-center gap-2">
                                 <span>{tutor.email}</span>
