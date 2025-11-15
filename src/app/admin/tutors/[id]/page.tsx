@@ -210,7 +210,6 @@ const updateTutorLiveStatus = async ({
   if (!tutorId) throw new Error("Tutor ID is missing.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  // Use the API endpoint for activation status to control the 'live' state
   const response = await fetch(`${apiBaseUrl}/api/user/activate/${tutorId}?isActive=${isLive}`, {
       method: 'PUT',
       headers: {
@@ -269,14 +268,14 @@ const InfoItem = ({ icon: Icon, label, children }: { icon: React.ElementType; la
 };
 
 const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items?: string[] }) => {
-  const hasItems = items && items.length > 0;
+  if (!items || items.length === 0) return null;
   return (
     <div className="flex items-start">
        <Icon className="w-4 h-4 mr-2.5 mt-1 text-muted-foreground shrink-0" />
       <div className="flex flex-col">
         <span className="font-medium text-foreground mb-1 text-xs">{label}</span>
         <div className="flex flex-wrap gap-1">
-          {hasItems ? items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>) : <span className="text-xs text-muted-foreground italic">Not Provided</span>}
+          {items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>)}
         </div>
       </div>
     </div>
@@ -394,6 +393,36 @@ export default function AdminTutorProfilePage() {
         }
     };
     
+    const handleShareProfile = async () => {
+      if (!tutor || typeof window === 'undefined') return;
+      
+      const profileUrl = `${window.location.origin}/tutors/${tutor.id}`;
+      
+      const shareText = `Check out this tutor profile on Tutorzila:\n\n*Name:* ${tutor.name}\n*Subjects:* ${tutor.subjectsList.join(', ')}\n*Experience:* ${tutor.yearOfExperience}\n\nView full profile: ${profileUrl}`;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: `Tutor Profile: ${tutor.name}`,
+            text: shareText,
+          });
+        } catch (err) {
+          console.error('Share failed:', err);
+          // Fallback to clipboard if share fails
+          await navigator.clipboard.writeText(shareText);
+          toast({ title: "Share Failed", description: "Profile details copied to clipboard instead." });
+        }
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        try {
+          await navigator.clipboard.writeText(shareText);
+          toast({ title: "Copied to Clipboard!", description: "Tutor details and profile link copied." });
+        } catch (err) {
+          toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy profile details." });
+        }
+      }
+    };
+    
     if (isLoading) {
       return (
          <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
@@ -466,6 +495,12 @@ export default function AdminTutorProfilePage() {
                           <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         </div>
                     </CardContent>
+                    <CardFooter className="p-3 border-t">
+                        <Button variant="outline" size="sm" className="w-full h-8" onClick={handleShareProfile}>
+                            <Share2 className="mr-2 h-4 w-4"/>
+                            Share Profile
+                        </Button>
+                    </CardFooter>
                      <div className="absolute top-4 right-4">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -474,12 +509,12 @@ export default function AdminTutorProfilePage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
-                                  <Radio className={cn("mr-2 h-4 w-4", tutor.isLive && "text-destructive")} />
+                                <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)} className={cn(tutor.isLive && "text-destructive focus:text-destructive")}>
+                                  <Radio className="mr-2 h-4 w-4" />
                                   <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:text-destructive">
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
