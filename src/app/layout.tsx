@@ -10,11 +10,20 @@ import { AppLayoutClient } from '@/components/shared/AppLayoutClient';
 
 export const metadata: Metadata = {
   title: 'Tutorzila - Find Your Perfect Tutor',
-  description: 'Tutorzila is the leading platform connecting parents with qualified, passionate tutors for personalized learning. Post tuition requirements, browse tutor profiles, and start learning today.',
+  description:
+    'Tutorzila is the leading platform connecting parents with qualified, passionate tutors for personalized learning. Post tuition requirements, browse tutor profiles, and start learning today.',
+  // register multiple icons (array) + apple touch icon
   icons: {
-    icon: '/IconOnly_Transparent.png?v=1',
-    apple: '/IconOnly_Transparent.png?v=1',
+    icon: [
+      { url: '/favicon-96x96.png', type: 'image/png', sizes: '96x96' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      // you can also keep your PNG logo if needed:
+      { url: '/IconOnly_Transparent.png?v=1', type: 'image/png' },
+    ],
+    apple: { url: '/apple-touch-icon.png', sizes: '180x180' },
   },
+  // point to your manifest (keep whichever filename you actually have in public/)
   manifest: '/manifest.json',
   other: {
     'mobile-web-app-capable': 'yes',

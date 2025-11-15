@@ -1,21 +1,24 @@
 {
   "name": "Tutorzila",
   "short_name": "Tutorzila",
-  "description": "Tutorzila is the leading platform connecting parents with qualified, passionate tutors for personalized learning. Post tuition requirements, browse tutor profiles, and start learning today.",
-  "scope": ".",
+  "description": "Tutorzila is the leading platform connecting parents with qualified, passionate tutors for personalized learning.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#DE6262",
   "theme_color": "#DE6262",
   "icons": [
     {
-      "src": "/IconOnly_Transparent.png?v=1",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/IconOnly_Transparent.png?v=1",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
