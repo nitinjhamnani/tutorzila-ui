@@ -81,7 +81,6 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { RegistrationModal } from "@/components/admin/modals/RegistrationModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
@@ -90,6 +89,7 @@ import { DisapproveBioModal } from "@/components/admin/modals/DisapproveBioModal
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { AdminUpdateBankDetailsModal } from "@/components/admin/modals/AdminUpdateBankDetailsModal";
 import { AdminUpdateNameModal } from "@/components/admin/modals/AdminUpdateNameModal";
+import { RegistrationModal } from "@/components/admin/modals/RegistrationModal";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -255,6 +255,21 @@ const InfoItem = ({ icon: Icon, label, children }: { icon: React.ElementType; la
             <span className="font-medium text-foreground">{label}</span>
         </div>
         <div className="text-muted-foreground text-xs">{children}</div>
+      </div>
+    </div>
+  );
+};
+
+const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items?: string[] }) => {
+  const hasItems = items && items.length > 0;
+  return (
+    <div className="flex items-start">
+       <Icon className="w-4 h-4 mr-2.5 mt-1 text-muted-foreground shrink-0" />
+      <div className="flex flex-col">
+        <span className="font-medium text-foreground mb-1 text-xs">{label}</span>
+        <div className="flex flex-wrap gap-1">
+          {hasItems ? items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>) : <span className="text-xs text-muted-foreground italic">Not Provided</span>}
+        </div>
       </div>
     </div>
   );
@@ -465,10 +480,10 @@ export default function AdminTutorProfilePage() {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
                                   {tutor.isLive ? <Radio className="mr-2 h-4 w-4" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
-                                  <span>{tutor.isLive ? 'Mark Inactive' : 'Mark Active'}</span>
+                                  <span>{tutor.isLive ? 'Mark Offline' : 'Mark Live'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
-                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
+                                    <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                                         <Lock className="mr-2 h-4 w-4" />
                                         <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
@@ -712,7 +727,7 @@ export default function AdminTutorProfilePage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to change {tutor.displayName}'s status to <span className="font-semibold">{tutor.isLive ? 'Inactive' : 'Active'}</span>?
+                Are you sure you want to change {tutor.displayName}'s status to <span className="font-semibold">{tutor.isLive ? 'Offline' : 'Live'}</span>?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
