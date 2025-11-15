@@ -90,6 +90,7 @@ export interface PublicTutorProfileResponse {
 
 export interface TuitionRequirement {
   id:string;
+  enquiryCode?: string;
   parentId?: string;
   parentName?: string;
   parentEmail?: string;

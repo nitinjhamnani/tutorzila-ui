@@ -46,6 +46,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
   
   return data.map((item: any, index: number) => ({
     id: item.enquiryId || `enq-${index}-${Date.now()}`,
+    enquiryCode: item.enquiryCode,
     parentName: item.parentName || "A Parent", 
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
@@ -94,6 +95,7 @@ export default function AdminAllEnquiriesPage() {
              <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Enquiry Code</TableHead>
                     <TableHead>Subject</TableHead>
                     <TableHead>Grade</TableHead>
                     <TableHead>Board</TableHead>
@@ -106,6 +108,7 @@ export default function AdminAllEnquiriesPage() {
                 <TableBody>
                   {[...Array(5)].map((_, i) => (
                     <TableRow key={i}>
+                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-16" /></TableCell>
@@ -154,6 +157,7 @@ export default function AdminAllEnquiriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Enquiry Code</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Grade</TableHead>
                 <TableHead>Board</TableHead>
@@ -166,6 +170,7 @@ export default function AdminAllEnquiriesPage() {
             <TableBody>
               {allRequirements.map((req) => (
                 <TableRow key={req.id}>
+                  <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
                   <TableCell className="font-medium">
                     <div className="text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</div>
                     {req.teachingMode?.includes("Offline (In-person)") && req.location?.area && req.location?.city && (
