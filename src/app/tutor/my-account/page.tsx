@@ -28,6 +28,13 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ResetPasswordModal } from "@/components/modals/ResetPasswordModal";
 import { OtpVerificationModal } from "@/components/modals/OtpVerificationModal";
 import { EditTutoringDetailsForm } from "@/components/tutor/EditTutoringDetailsForm";
