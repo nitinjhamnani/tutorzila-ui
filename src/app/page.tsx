@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -108,6 +107,8 @@ export default function HomePage() {
     setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
     setIsPostRequirementModalOpen(true);
   };
+  
+  const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
 
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">
@@ -139,7 +140,7 @@ export default function HomePage() {
                     onPointerDownOutside={(e) => e.preventDefault()}
                   >
                     <PostRequirementModal 
-                      startFromStep={1} 
+                      startFromStep={postRequirementStartStep} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
                       onTriggerSignIn={handleTriggerSignIn}
                       initialSubject={initialSubjectForModal}
@@ -245,7 +246,7 @@ export default function HomePage() {
                        onPointerDownOutside={(e) => e.preventDefault()}
                      >
                        <PostRequirementModal 
-                         startFromStep={1} 
+                         startFromStep={postRequirementStartStep} 
                          onSuccess={() => setIsPostRequirementModalOpen(false)} 
                          onTriggerSignIn={handleTriggerSignIn}
                          initialSubject={initialSubjectForModal}
@@ -366,4 +367,3 @@ export default function HomePage() {
     
   );
 }
-

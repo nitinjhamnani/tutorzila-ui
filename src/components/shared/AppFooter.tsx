@@ -66,6 +66,9 @@ export function AppFooter() {
   const handleOpenRequirementModal = () => {
     setIsRequirementModalOpen(true);
   };
+  
+  const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
+
 
   if (!hasMounted) {
     return null;
@@ -162,7 +165,7 @@ export function AppFooter() {
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <PostRequirementModal 
-            startFromStep={isAuthenticated && user?.role === 'parent' ? 2 : 1}
+            startFromStep={postRequirementStartStep}
             onSuccess={() => setIsRequirementModalOpen(false)} 
             onTriggerSignIn={handleTriggerSignIn}
           />
