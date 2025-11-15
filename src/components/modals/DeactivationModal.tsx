@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Lock, Trash2, Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import type { ApiTutor, User } from "@/types";
 
 interface DeactivationModalProps {
   isOpen: boolean;
@@ -34,23 +35,23 @@ const deactivationReasons = [
   { id: "other", label: "Other (requires manual note)" },
 ];
 
-const updateUserActivation = async ({
+const updateUserRegistration = async ({
   userId,
   reason,
   token,
-  activate,
+  register,
 }: {
   userId: string;
   reason: string;
   token: string | null;
-  activate: boolean;
+  register: boolean;
 }) => {
   if (!token) throw new Error("Authentication token not found.");
   if (!userId) throw new Error("User ID is missing.");
   if (!reason) throw new Error("A reason is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/user/activate/${userId}?isActive=${activate}`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/register/${userId}?register=${register}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -75,22 +76,35 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
   const [reason, setReason] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (deactivationReason: string) => updateUserActivation({ userId, reason: deactivationReason, token, activate: false }),
+    mutationFn: (deactivationReason: string) => updateUserRegistration({ userId, reason: deactivationReason, token, register: false }),
     onSuccess: (updatedDetails) => {
-      // Invalidate both possible query keys since this modal is generic
-      queryClient.invalidateQueries({ queryKey: ['tutorProfile', userId] });
-      queryClient.invalidateQueries({ queryKey: ['parentDetails', userId] });
+      // Check if it's a tutor or parent being deactivated
+      const tutorQueryKey = ['tutorProfile', userId];
+      const parentQueryKey = ['parentDetails', userId];
+
+      const existingTutorData = queryClient.getQueryData<ApiTutor>(tutorQueryKey);
+      
+      if (existingTutorData) {
+        queryClient.setQueryData(tutorQueryKey, (oldData: ApiTutor | undefined) => {
+          if (!oldData) return undefined;
+           // The API for unregister returns tutoring details
+          return { ...oldData, ...updatedDetails };
+        });
+      } else {
+        // If it's a parent, their details might be cached differently
+        queryClient.invalidateQueries({ queryKey: parentQueryKey });
+      }
 
       toast({
-        title: "User Deactivated",
-        description: `${userName} has been successfully deactivated.`,
+        title: "User Unregistered",
+        description: `${userName} has been successfully unregistered.`,
       });
       onOpenChange(false);
     },
     onError: (error: Error) => {
       toast({
         variant: "destructive",
-        title: "Deactivation Failed",
+        title: "Unregistration Failed",
         description: error.message,
       });
     },
@@ -101,7 +115,7 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
       toast({
         variant: "destructive",
         title: "Reason Required",
-        description: "Please select a reason for deactivation.",
+        description: "Please select a reason for this action.",
       });
       return;
     }
@@ -112,13 +126,13 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent className="sm:max-w-md bg-card">
         <AlertDialogHeader>
-          <AlertDialogTitle>Deactivate Account: {userName}</AlertDialogTitle>
+          <AlertDialogTitle>Unregister Account: {userName}</AlertDialogTitle>
           <AlertDialogDescription>
-            Please let us know why you're deactivating. This will temporarily disable the account.
+            Please provide a reason for unregistering this user. This will make the tutor inactive and remove them from public listings.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4 space-y-4">
-          <Label htmlFor="deactivation-reason">Reason for Deactivation</Label>
+          <Label htmlFor="deactivation-reason">Reason for Unregistering</Label>
           <RadioGroup
             id="deactivation-reason"
             onValueChange={setReason}
@@ -139,9 +153,10 @@ export function DeactivationModal({ isOpen, onOpenChange, userName, userId }: De
           <AlertDialogAction 
             onClick={handleDeactivation} 
             disabled={!reason || mutation.isPending}
+            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >
             {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Lock className="mr-2 h-4 w-4" />}
-            {mutation.isPending ? 'Deactivating...' : 'Confirm Deactivation'}
+            {mutation.isPending ? 'Processing...' : 'Confirm Unregister'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
