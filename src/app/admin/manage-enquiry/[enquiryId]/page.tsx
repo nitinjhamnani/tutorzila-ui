@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -202,6 +203,7 @@ const fetchAdminEnquiryDetails = async (enquiryId: string, token: string | null)
   
   return {
     id: enquirySummary.enquiryId,
+    enquiryCode: enquirySummary.enquiryCode,
     parentId: data.parentId,
     parentName: "A Parent", 
     studentName: enquiryDetails.studentName,
@@ -678,6 +680,7 @@ function ManageEnquiryContent() {
             return {
                 ...oldData,
                 id: enquirySummary.enquiryId,
+                enquiryCode: enquirySummary.enquiryCode,
                 studentName: enquiryDetails.studentName,
                 subject: transformStringToArray(enquirySummary.subjects),
                 gradeLevel: enquirySummary.grade,
@@ -748,6 +751,7 @@ const closeEnquiryMutation = useMutation({
             return {
                 ...oldData,
                 id: enquirySummary.enquiryId,
+                enquiryCode: enquirySummary.enquiryCode,
                 studentName: enquiryDetails.studentName,
                 subject: transformStringToArray(enquirySummary.subjects),
                 gradeLevel: enquirySummary.grade,
@@ -800,6 +804,7 @@ const closeEnquiryMutation = useMutation({
             return {
                 ...oldData,
                 id: enquirySummary.enquiryId,
+                enquiryCode: enquirySummary.enquiryCode,
                 studentName: enquiryDetails.studentName,
                 subject: transformStringToArray(enquirySummary.subjects),
                 gradeLevel: enquirySummary.grade,
@@ -847,6 +852,7 @@ const closeEnquiryMutation = useMutation({
         const transformedData: TuitionRequirement = {
           ...oldData,
           id: enquiryResponse.enquirySummary.enquiryId,
+          enquiryCode: enquiryResponse.enquirySummary.enquiryCode,
           parentId: oldData.parentId,
           parentName: "A Parent", 
           studentName: enquiryResponse.enquiryDetails.studentName,
@@ -1309,7 +1315,7 @@ const closeEnquiryMutation = useMutation({
                   <div className="flex-grow">
                       <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-xl font-semibold text-primary">
-                        {Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject}
+                          {enquiry.enquiryCode} ({Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject})
                         </CardTitle>
                          {enquiry.status && (
                             <Badge variant="default" className="text-xs">
@@ -1797,3 +1803,6 @@ export default function ManageEnquiryPage() {
     )
 }
 
+
+
+    
