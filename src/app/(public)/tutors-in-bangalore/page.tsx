@@ -37,6 +37,11 @@ import {
   MessageSquareQuote,
   UserRoundCheck,
   PlusCircle,
+  ShieldCheck,
+  Presentation,
+  DollarSign,
+  UsersRound,
+  ClipboardEdit,
 } from "lucide-react";
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import bannerImage from "@/assets/images/banner-9.png";
@@ -75,6 +80,34 @@ const howItWorksSteps = [
     title: "Start Learning",
     description: "Finalize with your chosen tutor and begin personalized sessions.",
   },
+];
+
+const whyChooseUsBenefits = [
+    {
+        icon: ShieldCheck,
+        title: "Verified Tutors",
+        description: "Every tutor on our platform is thoroughly verified for their qualifications and experience.",
+    },
+    {
+        icon: Presentation,
+        title: "Demo Class",
+        description: "Schedule a free demo session to ensure the tutor is the perfect fit for your learning needs.",
+    },
+    {
+        icon: DollarSign,
+        title: "Affordable Fees",
+        description: "We offer competitive and transparent pricing with no hidden costs.",
+    },
+    {
+        icon: UsersRound,
+        title: "Tutor Match Guarantee",
+        description: "Our system helps you find the most suitable tutor based on your specific requirements.",
+    },
+    {
+        icon: ClipboardEdit,
+        title: "Personalized Learning",
+        description: "Tutors create customized learning plans to cater to each student's unique pace and style.",
+    },
 ];
 
 export default function TutorsInBangalorePage() {
@@ -276,6 +309,31 @@ export default function TutorsInBangalorePage() {
                 </DialogContent>
               </Dialog>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className={`w-full bg-background ${sectionPadding}`}>
+        <div className={`${containerPadding}`}>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Why Choose Tutorzila in Bangalore</h2>
+            <p className="mt-4 max-w-3xl mx-auto text-foreground/80 md:text-lg">
+              We provide a reliable, affordable, and efficient way to connect with the best home and online tutors across the city.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {whyChooseUsBenefits.map((benefit, index) => (
+              <Card key={index} className="group bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.05]">
+                <div className="flex flex-col items-center text-center">
+                  <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm mb-4">
+                    <benefit.icon className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">{benefit.title}</h3>
+                  <p className="text-xs text-foreground/70 mt-2">{benefit.description}</p>
+                </div>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
