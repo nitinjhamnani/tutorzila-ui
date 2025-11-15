@@ -28,8 +28,8 @@ interface RegistrationModalProps {
 
 const registrationReasons = [
   { id: "profile_complete", label: "Profile verified and complete" },
-  { id: "payment_received", label: "Activation payment received" },
-  { id: "re-activated", label: "Re-activating a previously deactivated account" },
+  { id: "payment_received", label: "Registration payment received" },
+  { id: "re-activated", label: "Re-registering a previously unregistered account" },
   { id: "other", label: "Other (Manual Override)" },
 ];
 
@@ -100,6 +100,7 @@ export function RegistrationModal({ isOpen, onOpenChange, tutorName, tutorId }: 
           hourlyRate: updatedTutoringDetails.hourlyRate,
           languagesList: updatedTutoringDetails.languages,
           profileCompletion: updatedTutoringDetails.profileCompletion,
+          registered: updatedTutoringDetails.registered,
           isActive: updatedTutoringDetails.active,
           isRateNegotiable: updatedTutoringDetails.rateNegotiable,
           isBioReviewed: updatedTutoringDetails.bioReviewed,

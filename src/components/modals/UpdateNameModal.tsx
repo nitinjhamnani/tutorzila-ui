@@ -90,19 +90,13 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
   const mutation = useMutation({
     mutationFn: (data: UpdateNameFormValues) => updateNameApi({ token, newName: data.newName }),
     onSuccess: (updatedUserDetails) => {
-      queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
-        if (!oldData) return undefined;
-        return {
-          ...oldData,
-          userDetails: {
-            ...oldData.userDetails,
-            ...updatedUserDetails,
-          }
-        };
-      });
+      // Invalidate queries to refetch data for tutor and admin pages
+      queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
+      queryClient.invalidateQueries({ queryKey: ["tutorProfile", updatedUserDetails.id] });
+      
       toast({
         title: "Name Updated!",
-        description: "Your name has been successfully updated.",
+        description: "The name has been successfully updated.",
       });
       onOpenChange(false);
     },
@@ -116,10 +110,10 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
   });
 
   useEffect(() => {
-    if (!isOpen) {
-      form.reset();
+    if (isOpen) {
+      form.setValue("newName", currentName);
     } else {
-        form.setValue("newName", currentName);
+      form.reset();
     }
   }, [isOpen, currentName, form]);
 
@@ -131,9 +125,9 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card">
         <DialogHeader>
-          <DialogTitle>Update Your Name</DialogTitle>
+          <DialogTitle>Update Name</DialogTitle>
           <DialogDescription>
-            Your current name is <strong>{currentName}</strong>. Enter the new name you'd like to use.
+            Current name is <strong>{currentName}</strong>. Enter the new name you'd like to use.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -148,7 +142,7 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
                     <div className="relative">
                       <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Enter your new name"
+                        placeholder="Enter new name"
                         {...field}
                         className="pl-10"
                         disabled={mutation.isPending}

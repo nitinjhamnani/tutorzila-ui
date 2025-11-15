@@ -81,13 +81,16 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { ActivationModal } from "@/components/admin/modals/ActivationModal";
+import { RegistrationModal } from "@/components/admin/modals/RegistrationModal";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { AdminUpdateTutorModal } from "@/components/admin/modals/AdminUpdateTutorModal";
 import { ApproveBioModal } from "@/components/admin/modals/ApproveBioModal";
 import { AdminUpdateBioModal } from "@/components/admin/modals/AdminUpdateBioModal";
 import { DisapproveBioModal } from "@/components/admin/modals/DisapproveBioModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { UpdateBankDetailsModal } from "@/components/modals/UpdateBankDetailsModal";
+import { UpdateNameModal } from "@/components/modals/UpdateNameModal";
+import { EditPersonalDetailsModal } from "@/components/modals/EditPersonalDetailsModal";
 
 const fetchTutorProfile = async (tutorId: string, token: string | null): Promise<ApiTutor> => {
     if (!token) throw new Error("Authentication token not found.");
@@ -120,6 +123,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       registeredDate: userDetails.registeredDate,
       createdBy: userDetails.createdBy,
       isLive: userDetails.live,
+      isActive: userDetails.active, // This is for registration status
 
       // From tutoringDetails
       subjectsList: tutoringDetails.subjects,
@@ -141,7 +145,7 @@ const fetchTutorProfile = async (tutorId: string, token: string | null): Promise
       hourlyRate: tutoringDetails.hourlyRate,
       languagesList: tutoringDetails.languages,
       profileCompletion: tutoringDetails.profileCompletion,
-      registered: tutoringDetails.registered, // Added registered flag
+      registered: tutoringDetails.registered,
       isRateNegotiable: tutoringDetails.rateNegotiable,
       isBioReviewed: tutoringDetails.bioReviewed,
       online: tutoringDetails.online,
@@ -281,7 +285,7 @@ export default function AdminTutorProfilePage() {
     const { hideLoader } = useGlobalLoader();
     
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-    const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
+    const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
     const [isDeactivationModalOpen, setIsDeactivationModalOpen] = useState(false);
     const [isApproveBioModalOpen, setIsApproveBioModalOpen] = useState(false);
     const [isDisapproveBioModalOpen, setIsDisapproveBioModalOpen] = useState(false);
@@ -289,6 +293,9 @@ export default function AdminTutorProfilePage() {
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [verificationType, setVerificationType] = useState<'email' | 'phone' | null>(null);
     const [isLiveStatusModalOpen, setIsLiveStatusModalOpen] = useState(false);
+    const [isUpdateNameModalOpen, setIsUpdateNameModalOpen] = useState(false);
+    const [isUpdateBankModalOpen, setIsUpdateBankModalOpen] = useState(false);
+    const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
 
     const { data: tutor, isLoading, error } = useQuery<ApiTutor>({
         queryKey: ['tutorProfile', tutorId],
@@ -461,22 +468,31 @@ export default function AdminTutorProfilePage() {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => setIsLiveStatusModalOpen(true)}>
                                   {tutor.isLive ? <Radio className="mr-2 h-4 w-4 text-destructive" /> : <Radio className="mr-2 h-4 w-4 text-green-500" />}
-                                  <span>{tutor.isLive ? 'Take Offline' : 'Make Live'}</span>
+                                  <span>{tutor.isLive ? 'Mark Inactive' : 'Mark Active'}</span>
                                 </DropdownMenuItem>
                                 {tutor.registered ? (
                                     <DropdownMenuItem onClick={() => setIsDeactivationModalOpen(true)}>
                                         <Lock className="mr-2 h-4 w-4" />
-                                        <span>Deactivate</span>
+                                        <span>Unregister Tutor</span>
                                     </DropdownMenuItem>
                                 ) : (
-                                    <DropdownMenuItem onClick={() => setIsActivationModalOpen(true)}>
+                                    <DropdownMenuItem onClick={() => setIsRegistrationModalOpen(true)}>
                                         <Unlock className="mr-2 h-4 w-4" />
-                                        <span>Activate</span>
+                                        <span>Register Tutor</span>
                                     </DropdownMenuItem>
                                 )}
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
                                     <Edit3 className="mr-2 h-4 w-4" />
-                                    <span>Update</span>
+                                    <span>Edit Tutoring Details</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setIsEditPersonalModalOpen(true)}>
+                                    <User className="mr-2 h-4 w-4" />
+                                    <span>Edit Personal Details</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setIsUpdateBankModalOpen(true)}>
+                                    <Landmark className="mr-2 h-4 w-4" />
+                                    <span>Edit Bank Details</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -616,9 +632,9 @@ export default function AdminTutorProfilePage() {
             </div>
         </div>
         
-        <ActivationModal
-            isOpen={isActivationModalOpen}
-            onOpenChange={setIsActivationModalOpen}
+        <RegistrationModal
+            isOpen={isRegistrationModalOpen}
+            onOpenChange={setIsRegistrationModalOpen}
             tutorName={tutor?.name || ""}
             tutorId={tutorId}
         />
@@ -634,6 +650,24 @@ export default function AdminTutorProfilePage() {
             isOpen={isUpdateModalOpen}
             onOpenChange={setIsUpdateModalOpen}
             tutor={tutor}
+        />
+        
+        <UpdateNameModal
+            isOpen={isUpdateNameModalOpen}
+            onOpenChange={setIsUpdateNameModalOpen}
+            currentName={tutor.name}
+        />
+
+        <EditPersonalDetailsModal
+            isOpen={isEditPersonalModalOpen}
+            onOpenChange={setIsEditPersonalModalOpen}
+            currentGender={tutor.gender as "MALE" | "FEMALE" | undefined}
+        />
+
+        <UpdateBankDetailsModal
+            isOpen={isUpdateBankModalOpen}
+            onOpenChange={setIsUpdateBankModalOpen}
+            initialAccountName={tutor.name}
         />
 
         <ApproveBioModal
@@ -679,7 +713,7 @@ export default function AdminTutorProfilePage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to change {tutor.displayName}'s status to <span className="font-semibold">{tutor.isLive ? 'Offline' : 'Live'}</span>?
+                Are you sure you want to change {tutor.displayName}'s status to <span className="font-semibold">{tutor.isLive ? 'Inactive' : 'Active'}</span>?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -694,3 +728,4 @@ export default function AdminTutorProfilePage() {
       </AlertDialog>
     );
 }
+

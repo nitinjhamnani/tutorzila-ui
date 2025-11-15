@@ -46,7 +46,7 @@ interface EditPersonalDetailsModalProps {
   currentGender: "MALE" | "FEMALE" | undefined;
 }
 
-const updateTutorGender = async ({
+const updateUserGender = async ({
   token,
   gender,
 }: {
@@ -96,18 +96,10 @@ export function EditPersonalDetailsModal({ isOpen, onOpenChange, currentGender }
   }, [isOpen, currentGender, form]);
 
   const mutation = useMutation({
-    mutationFn: (data: PersonalDetailsFormValues) => updateTutorGender({ token, gender: data.gender }),
+    mutationFn: (data: PersonalDetailsFormValues) => updateUserGender({ token, gender: data.gender }),
     onSuccess: (updatedUserDetails) => {
-      queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
-        if (!oldData) return undefined;
-        return {
-          ...oldData,
-          userDetails: {
-            ...oldData.userDetails,
-            ...updatedUserDetails,
-          }
-        };
-      });
+      queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
+      queryClient.invalidateQueries({ queryKey: ["tutorProfile", updatedUserDetails.id] });
       toast({
         title: "Details Updated!",
         description: "Your personal details have been updated.",
@@ -136,7 +128,7 @@ export function EditPersonalDetailsModal({ isOpen, onOpenChange, currentGender }
             Edit Personal Details
           </DialogTitle>
           <DialogDescription>
-            Update your gender information.
+            Update your personal information.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
