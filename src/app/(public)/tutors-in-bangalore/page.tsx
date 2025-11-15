@@ -403,12 +403,12 @@ export default function TutorsInBangalorePage() {
       <section className={`w-full bg-secondary ${sectionPadding}`}>
         <div className={`${containerPadding}`}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="flex flex-col items-center text-center p-8 bg-card rounded-xl shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl">
+            <div className="flex flex-col items-center text-center p-8">
               <Users className="w-12 h-12 text-primary mb-4" />
               <Counter end={2000} suffix="+" />
               <p className="text-md text-muted-foreground mt-1">Verified Tutors in Bangalore</p>
             </div>
-            <div className="flex flex-col items-center text-center p-8 bg-card rounded-xl shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl">
+            <div className="flex flex-col items-center text-center p-8">
               <UsersRound className="w-12 h-12 text-primary mb-4" />
               <Counter end={1000} suffix="+" />
               <p className="text-md text-muted-foreground mt-1">Students Served</p>
