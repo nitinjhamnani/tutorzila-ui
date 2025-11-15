@@ -69,7 +69,10 @@ export default function AdminLoginPage() {
           'accept': '*/*',
           'TZ-USER-TYPE': 'ADMIN'
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          username: values.email,
+          password: values.password
+        }),
       });
 
       const result = await response.json();
