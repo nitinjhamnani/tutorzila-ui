@@ -49,7 +49,7 @@ const updateTutorRegistration = async ({
   if (!reason) throw new Error("A reason is required.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/register/${tutorId}?register=${register}`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/register/${tutorId}?registered=${register}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
