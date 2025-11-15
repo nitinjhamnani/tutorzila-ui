@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -67,9 +68,6 @@ export function AppFooter() {
     setIsRequirementModalOpen(true);
   };
   
-  const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
-
-
   if (!hasMounted) {
     return null;
   }
@@ -165,7 +163,7 @@ export function AppFooter() {
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <PostRequirementModal 
-            startFromStep={postRequirementStartStep}
+            startFromStep={1}
             onSuccess={() => setIsRequirementModalOpen(false)} 
             onTriggerSignIn={handleTriggerSignIn}
           />

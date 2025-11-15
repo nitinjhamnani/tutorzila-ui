@@ -47,7 +47,7 @@ export function FloatingPostRequirementButton({ className }: FloatingPostRequire
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <PostRequirementModal 
-            startFromStep={isAuthenticated && user ? 2 : 1}
+            startFromStep={1}
             onSuccess={() => setIsRequirementModalOpen(false)} 
             onTriggerSignIn={handleTriggerSignIn}
           />
