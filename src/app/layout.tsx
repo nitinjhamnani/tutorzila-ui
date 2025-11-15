@@ -9,9 +9,9 @@ import { GlobalLoader } from '@/components/shared/GlobalLoader';
 import { AppLayoutClient } from '@/components/shared/AppLayoutClient';
 
 export const metadata: Metadata = {
-  title: 'Tutorzila - Find Your Perfect Tutor',
+  title: 'Tutorzila - Find Home Tutors in Bangalore & Online Tutors Across India',
   description:
-    'Tutorzila is the leading platform connecting parents with qualified, passionate tutors for personalized learning. Post tuition requirements, browse tutor profiles, and start learning today.',
+    'Find the best online and home tutors in Bangalore and across India. Tutorzila connects you with qualified tutors for Math, Science, English, and more. Post your tuition needs and find the perfect match today.',
   // register multiple icons (array) + apple touch icon
   icons: {
     icon: [
@@ -26,6 +26,7 @@ export const metadata: Metadata = {
   // point to your manifest (keep whichever filename you actually have in public/)
   manifest: '/manifest.json',
   other: {
+    'keywords': 'home tutor, online tutor, home tutors in Bangalore, math tutor, science tutor, english tutor, private tutor, tuition, Bangalore, all subjects',
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
