@@ -89,9 +89,17 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
 
   const mutation = useMutation({
     mutationFn: (data: UpdateNameFormValues) => updateNameApi({ token, newName: data.newName }),
-    onSuccess: () => {
-      // Invalidate the query that fetches the tutor's own account details
-      queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
+    onSuccess: (updatedUserDetails) => {
+      queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
+        if (!oldData) return undefined;
+        return {
+          ...oldData,
+          userDetails: {
+            ...oldData.userDetails,
+            ...updatedUserDetails,
+          }
+        };
+      });
       
       toast({
         title: "Name Updated!",
@@ -110,7 +118,7 @@ export function UpdateNameModal({ isOpen, onOpenChange, currentName }: UpdateNam
 
   useEffect(() => {
     if (isOpen) {
-      form.setValue("newName", currentName);
+        form.setValue("newName", currentName);
     } else {
       form.reset();
     }
