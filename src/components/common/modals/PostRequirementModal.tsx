@@ -120,7 +120,7 @@ export function PostRequirementModal({
   
   const [currentStep, setCurrentStep] = useState(startFromStep);
   const { user, isAuthenticated, token } = useAuthMock();
-  const totalSteps = isAuthenticated ? 2 : 3; 
+  const totalSteps = 3; 
   
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -451,7 +451,7 @@ export function PostRequirementModal({
                   )}
                 />
               )}
-
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <FormField
                   control={form.control}
