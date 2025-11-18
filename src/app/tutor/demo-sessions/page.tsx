@@ -146,6 +146,7 @@ export default function TutorDemoSessionsPage() {
     queryKey: ['tutorDemos', token, activeDemoCategoryFilter],
     queryFn: () => fetchTutorDemos(token, activeDemoCategoryFilter),
     enabled: !!token && !!tutorUser,
+    refetchOnWindowFocus: false,
   });
   
   useEffect(() => {

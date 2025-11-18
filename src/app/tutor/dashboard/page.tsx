@@ -279,6 +279,7 @@ export default function TutorDashboardPage() {
     queryFn: () => fetchTutorDetails(token),
     enabled: !!token,
     staleTime: 0,
+    refetchOnWindowFocus: false,
     onSuccess: (data) => {
       // Store the fetched details in the global state, wrapped in the expected nested structure.
       setTutorProfile({ tutoringDetails: data });
@@ -290,6 +291,7 @@ export default function TutorDashboardPage() {
     queryFn: () => fetchTutorScheduledDemos(token),
     enabled: !!tutorUser,
     staleTime: 0,
+    refetchOnWindowFocus: false,
   });
 
   const cancelMutation = useMutation({
