@@ -274,7 +274,6 @@ export default function TutorMyAccountPage() {
                   </div>
                   <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
                       <Badge variant={tutoringDetails.registered ? "default" : "destructive"}>{tutoringDetails.registered ? 'Registered' : 'Not Registered'}</Badge>
-                      <Badge variant={tutoringDetails.verified ? "default" : "destructive"}>{tutoringDetails.verified ? 'Verified' : 'Not Verified'}</Badge>
                   </div>
                    <Separator className="my-4" />
                   <div className="text-left space-y-3">
@@ -342,9 +341,7 @@ export default function TutorMyAccountPage() {
                     <CardTitle>Payment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <InfoItem icon={Landmark} label="Payment Mode">
-                        {bankDetails?.paymentType || "Not Provided"}
-                    </InfoItem>
+                    <InfoItem icon={Landmark} label="Payment Mode">{bankDetails?.paymentType || "Not Provided"}</InfoItem>
                     <div className="flex items-start">
                         <KeyRound className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
                         <div className="flex flex-col flex-grow text-xs">

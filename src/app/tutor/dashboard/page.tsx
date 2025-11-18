@@ -410,7 +410,6 @@ export default function TutorDashboardPage() {
 
   const profileCompletion = tutoringDetails?.profileCompletion ?? 0;
   const isTutorRegistered = tutoringDetails?.registered ?? false;
-  const isVerified = tutoringDetails?.verified ?? false;
 
   return (
     <Dialog open={isEditTutoringModalOpen} onOpenChange={setIsEditTutoringModalOpen}>
@@ -442,10 +441,6 @@ export default function TutorDashboardPage() {
                       <Badge className={cn("text-xs py-0.5 px-2 border", isTutorRegistered ? "bg-primary text-primary-foreground border-primary" : "bg-red-100 text-red-700 border-red-500")}>
                         {isTutorRegistered ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
                         {isTutorRegistered ? "Registered" : "Not Registered"}
-                      </Badge>
-                      <Badge className={cn("text-xs py-0.5 px-2 border", isVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50")}>
-                        {isVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                        {isVerified ? "Verified" : "Not Verified"}
                       </Badge>
                   </div>
                 </div>
@@ -582,5 +577,3 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
-
-    
