@@ -81,8 +81,8 @@ const getInitials = (name: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
   return parts.length > 1
-    ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-    : parts[0].slice(0, 2);
+    ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+    : name.slice(0, 2).toUpperCase();
 };
 
 const InfoSection = ({ title, children, className }: { title: string; children: React.ReactNode; className?:string }) => (
@@ -197,13 +197,9 @@ export function TutorProfileModal({ isOpen, onOpenChange, tutor, enquiryId, sour
                             <DialogTitle className="text-2xl font-bold text-foreground">{tutor.displayName}</DialogTitle>
                             <DialogDescription className="text-sm text-muted-foreground">{tutor.gender}</DialogDescription>
                             <div className="mt-2 flex items-center gap-2">
-                                <Badge variant={tutor.registered ? "default" : "destructive"}>
-                                    {tutor.registered ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                    {tutor.registered ? 'Registered' : 'Not Registered'}
-                                </Badge>
-                                <Badge variant={tutor.isVerified ? "default" : "destructive"}>
-                                    {tutor.isVerified ? <ShieldCheck className="mr-1 h-3 w-3"/> : <ShieldAlert className="mr-1 h-3 w-3"/>}
-                                    {tutor.isVerified ? 'Verified' : 'Not Verified'}
+                                <Badge variant={tutor.isActive ? "default" : "destructive"}>
+                                    {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                                    {tutor.isActive ? 'Registered' : 'Not Registered'}
                                 </Badge>
                             </div>
                         </div>
