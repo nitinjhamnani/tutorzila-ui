@@ -32,6 +32,7 @@ import {
   Loader2,
   LifeBuoy,
   ArrowDownCircle, // Added icon
+  FileText, // Import FileText for the icon
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -210,6 +211,12 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 )}
                 <span className="sr-only">View Public Profile</span>
               </Button>
+               <Button asChild variant="link" className="hidden sm:inline-flex text-muted-foreground hover:text-primary p-2 h-auto text-xs">
+                <Link href="/terms-and-conditions" target="_blank">
+                  <FileText className="w-4 h-4 mr-1.5"/>
+                  Terms & Conditions
+                </Link>
+               </Button>
             </div>
           </header>
         )}
