@@ -14,10 +14,10 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { XCircle, Check, ChevronDown } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -61,8 +61,8 @@ export function MultiSelectCommand({
   );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
@@ -71,7 +71,7 @@ export function MultiSelectCommand({
             "w-full justify-between h-auto min-h-10 py-2 px-3 text-left font-normal hover:bg-background flex items-start gap-1 flex-wrap group",
             className
           )}
-          onClick={() => setOpen(!open)}
+          onClick={() => setOpen(true)}
         >
           <div className="flex gap-1.5 flex-wrap flex-grow">
             {selectedValues.length > 0 ? (
@@ -98,8 +98,8 @@ export function MultiSelectCommand({
                         e.stopPropagation();
                       }}
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent the main button click
-                        handleUnselect(value)
+                        e.stopPropagation(); // Prevent opening the dialog
+                        handleUnselect(value);
                       }}
                     >
                       <XCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
@@ -115,9 +115,9 @@ export function MultiSelectCommand({
           </div>
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-auto transition-colors group-hover:text-primary group-hover:opacity-100" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-[--radix-popover-trigger-width] p-0"
+      </DialogTrigger>
+      <DialogContent 
+        className="w-[90vw] max-w-md p-0"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <Command>
@@ -126,8 +126,9 @@ export function MultiSelectCommand({
             value={inputValue}
             onValueChange={setInputValue}
           />
-          <CommandList className="max-h-[200px]">
-            <CommandEmpty>No results found.</CommandEmpty>
+          <CommandList>
+            <ScrollArea className="h-48">
+              <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
                 {filteredOptions.map((option) => (
                   <CommandItem
@@ -149,9 +150,10 @@ export function MultiSelectCommand({
                   </CommandItem>
                 ))}
               </CommandGroup>
+            </ScrollArea>
           </CommandList>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }
