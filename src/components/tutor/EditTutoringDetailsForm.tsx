@@ -230,8 +230,7 @@ const mutation = useMutation({
   const onSubmit = (data: TutoringDetailsFormValues) => {
     mutation.mutate(data);
   };
-
-  const formValues = form.watch();
+  
 
   return (
     <Card className="border-0 shadow-none rounded-none">
@@ -279,7 +278,7 @@ const mutation = useMutation({
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select subjects..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                      <FormDescription className="text-xs">Select all subjects you are proficient in teaching.</FormDescription>
                     <FormMessage />
@@ -297,7 +296,7 @@ const mutation = useMutation({
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select grade levels..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormDescription className="text-xs">Select all grade levels you are comfortable teaching.</FormDescription>
                     <FormMessage />
@@ -315,7 +314,7 @@ const mutation = useMutation({
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select boards..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                     <FormMessage />
                   </FormItem>
