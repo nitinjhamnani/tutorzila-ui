@@ -19,7 +19,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,11 +34,12 @@ import {
   Loader2,
   ShieldAlert,
   ListFilter,
+  UsersRound,
   UserPlus,
+  Settings,
   RadioTower,
   Users as UsersIcon,
   ShieldCheck,
-  Settings,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -305,7 +306,7 @@ export default function AdminTutorsPage() {
                 {tutor.isActive ? 'Registered' : 'Not Registered'}
                </Badge>
             </TableCell>
-            <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy") : 'N/A'}</TableCell>
+            <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy p") : 'N/A'}</TableCell>
             <TableCell>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
                   <Settings className="h-4 h-4" />
