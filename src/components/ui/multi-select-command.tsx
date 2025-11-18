@@ -116,7 +116,10 @@ export function MultiSelectCommand({
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-auto transition-colors group-hover:text-primary group-hover:opacity-100" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+      <PopoverContent 
+        className="w-[--radix-popover-trigger-width] p-0"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <Command>
           <CommandInput
             placeholder="Search options..."
