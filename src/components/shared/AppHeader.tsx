@@ -45,11 +45,20 @@ export function AppHeader() {
     };
   }, []);
 
-  const transparentHeaderPaths = ["/", "/become-a-tutor", "/tutors-in-bangalore"];
+  const transparentHeaderPaths = [
+    "/", 
+    "/become-a-tutor", 
+    "/tutors-in-bangalore", 
+    "/terms-and-conditions",
+    "/privacy-policy",
+    "/faq",
+    "/contact-us"
+  ];
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
   
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
+  // This logic is now safe because `hasMounted` gates its application.
   const headerDynamicClasses = isTransparentPath && !isScrolled
     ? "bg-transparent shadow-none border-transparent"
     : "bg-card shadow-md border-b border-border/20";
