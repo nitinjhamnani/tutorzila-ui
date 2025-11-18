@@ -70,8 +70,8 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
-import React, { useEffect, useState, useMemo, useRef, ChangeEvent } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useState, useMemo, useRef, ChangeEvent, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { ActivationStatusCard } from "@/components/tutor/ActivationStatusCard";
@@ -226,11 +226,33 @@ const fetchTutorScheduledDemos = async (token: string | null): Promise<DemoSessi
   });
 };
 
+const cancelDemoApi = async ({ demoId, reason, token }: { demoId: string; reason: string; token: string | null }) => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+    const response = await fetch(`${apiBaseUrl}/api/demo/cancel`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'TZ-DMO-ID': demoId,
+            'accept': '*/*',
+        },
+        body: JSON.stringify({ message: reason }),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to cancel the demo session.");
+    }
+    
+    return true; // Assuming success on 2xx status
+};
+
+
 export default function TutorDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const tutorUser = user as TutorProfile | null;
-  const { hideLoader } = useGlobalLoader();
+  const { hideLoader, showLoader } = useGlobalLoader();
   const { toast } = useToast();
   const [isFetchingTutorId, setIsFetchingTutorId] = useState(false);
   const [, setTutorProfile] = useAtom(tutorProfileAtom);
@@ -241,6 +263,8 @@ export default function TutorDashboardPage() {
   const [selectedDemoForModal, setSelectedDemoForModal] = useState<DemoSession | null>(null);
   const [isManageDemoModalOpen, setIsManageDemoModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const { data: metricsData, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
     queryKey: ['tutorMetrics', token],
@@ -261,12 +285,35 @@ export default function TutorDashboardPage() {
     },
   });
 
-
   const { data: demosData, isLoading: isLoadingDemos } = useQuery({
     queryKey: ['tutorScheduledDemos', token],
     queryFn: () => fetchTutorScheduledDemos(token),
     enabled: !!tutorUser,
     staleTime: 0,
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: cancelDemoApi,
+    onMutate: () => {
+      showLoader("Cancelling demo...");
+    },
+    onSuccess: () => {
+        toast({
+            title: "Demo Cancelled",
+            description: "The demo session has been successfully cancelled.",
+        });
+        queryClient.invalidateQueries({ queryKey: ['tutorScheduledDemos', token] });
+    },
+    onError: (error: Error) => {
+        toast({
+            variant: "destructive",
+            title: "Cancellation Failed",
+            description: error.message,
+        });
+    },
+    onSettled: () => {
+        hideLoader();
+    },
   });
 
   useEffect(() => {
@@ -311,17 +358,11 @@ export default function TutorDashboardPage() {
     );
     setIsManageDemoModalOpen(false);
   };
+  
+  const handleCancelDemoSession = useCallback((sessionId: string, reason: string) => {
+    cancelMutation.mutate({ demoId: sessionId, reason, token });
+  }, [cancelMutation, token]);
 
-  const handleCancelDemoSession = (sessionId: string) => {
-    setUpcomingSessions(prevSessions =>
-      prevSessions.map(session =>
-        session.type === 'demo' && session.data.id === sessionId
-          ? { ...session, data: { ...session.data, status: "Cancelled" as const } }
-          : session
-      )
-    );
-    setIsManageDemoModalOpen(false);
-  };
 
   const handleViewProfileClick = async () => {
     setIsFetchingTutorId(true);
@@ -342,8 +383,6 @@ export default function TutorDashboardPage() {
       setIsFetchingTutorId(false);
     }
   };
-
-  const queryClient = useQueryClient();
 
   if (isCheckingAuth || !hasMounted || !isAuthenticated || !tutorUser) {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Tutor Dashboard...</div>;
@@ -543,3 +582,5 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
+
+    
