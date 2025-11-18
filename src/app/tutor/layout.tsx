@@ -31,12 +31,12 @@ import {
   Eye,
   Loader2,
   LifeBuoy,
-  ArrowDownCircle, // Added icon
-  FileText, // Import FileText for the icon
+  ArrowDownCircle, 
+  FileText, 
 } from "lucide-react";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 import { useToast } from "@/hooks/use-toast";
-import { AddToHomeScreenModal } from "@/components/modals/AddToHomeScreenModal"; // Import the new modal
+import { AddToHomeScreenModal } from "@/components/modals/AddToHomeScreenModal"; 
 
 
 const fetchTutorId = async (token: string | null): Promise<string> => {
@@ -115,7 +115,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
     router.push('/');
   };
 
-  const headerHeight = "4rem"; // For h-16 or p-4 header
+  const headerHeight = "4rem"; 
 
   useEffect(() => {
     if (hasMounted) {
@@ -143,12 +143,11 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   }
 
   if (hasMounted && (!isAuthenticated || user?.role !== 'tutor')) {
-    // This return handles the case where auth status changes after mount, leading to redirection.
-    // The useEffect above handles the initial redirection.
+    
     return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
 
-   if (!user && hasMounted) { // Should ideally be caught by !isAuthenticated, but as a safeguard
+   if (!user && hasMounted) { 
     return <div className="flex h-screen items-center justify-center">User data not available. Redirecting...</div>;
   }
 
@@ -162,7 +161,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
         }}
       />
       <div className="flex flex-col h-screen bg-secondary">
-        {/* Integrated Header - Sticky */}
+        
         {hasMounted && (
           <header
             className={cn(
@@ -171,7 +170,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
             )}
           >
             <div className="flex items-center gap-2">
-              {/* Combined Mobile Nav Open and Desktop Collapse Trigger */}
+              
               <Button
                 variant="ghost"
                 size="icon"
@@ -211,17 +210,11 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 )}
                 <span className="sr-only">View Public Profile</span>
               </Button>
-               <Button asChild variant="link" className="hidden sm:inline-flex text-muted-foreground hover:text-primary p-2 h-auto text-xs">
-                <Link href="/terms-and-conditions" target="_blank">
-                  <FileText className="w-4 h-4 mr-1.5"/>
-                  Terms & Conditions
-                </Link>
-               </Button>
             </div>
           </header>
         )}
 
-        {/* This div contains the sidebar and the main page content. */}
+        
         <div className={cn("flex flex-1 overflow-hidden")}>
           <TutorSidebar
             isMobile={isMobile}
