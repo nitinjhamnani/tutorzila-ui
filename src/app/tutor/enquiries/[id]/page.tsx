@@ -48,6 +48,7 @@ import {
   Send,
   CheckCircle,
   Ban,
+  Copy,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -411,6 +412,14 @@ export default function TutorEnquiryDetailPage() {
   
   const requirement = enquiryData?.requirement;
   const assignedStatus = enquiryData?.assignedStatus;
+
+  const handleCopyToClipboard = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Copied to Clipboard", description: `${fieldName} has been copied.` });
+    }, (err) => {
+      toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy text." });
+    });
+  };
   
   const postedDate = requirement?.postedAt ? parseISO(requirement.postedAt) : new Date();
   const genderDisplayMap: Record<string, string> = {
@@ -481,9 +490,14 @@ export default function TutorEnquiryDetailPage() {
                             {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
                             </CardTitle>
                             {requirement.enquiryCode && (
-                                <span className="text-xs font-mono text-muted-foreground mt-1">
-                                    Enquiry Code: <span className="font-semibold">{requirement.enquiryCode}</span>
-                                </span>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-xs font-mono text-muted-foreground">
+                                        Enquiry Code: <span className="font-semibold">{requirement.enquiryCode}</span>
+                                    </span>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopyToClipboard(requirement.enquiryCode!, 'Enquiry Code')}>
+                                        <Copy className="h-3.5 w-3.5" />
+                                    </Button>
+                                </div>
                             )}
                         </div>
                         {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED' || assignedStatus === 'ASSIGNED') && (
