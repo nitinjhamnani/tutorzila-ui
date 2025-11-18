@@ -2,10 +2,39 @@
 import type { Option as MultiSelectOption } from '@/components/ui/multi-select-command';
 
 export const allSubjectsList: MultiSelectOption[] = [
-    "Mathematics", "Physics", "Chemistry", "Biology", "English", "History", 
-    "Geography", "Computer Science", "Art", "Music", "Economics", 
-    "Business Studies", "Accountancy", "Social Studies", "Environmental Science",
-    "French", "Spanish", "German", "Hindi", "Coding", "Robotics", "Other"
+    "Mathematics",
+    "Science",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "Hindi",
+    "English",
+    "Kannada",
+    "Computer Science",
+    "Social Studies",
+    "History",
+    "Geography",
+    "Civics / Political Science",
+    "Sociology",
+    "EVS (Environmental Studies)",
+    "Commerce",
+    "Statistics",
+    "Sanskrit",
+    "Home Science",
+    "Physical Education",
+    "Psychology",
+    "Tamil",
+    "Telugu",
+    "Malayalam",
+    "Economics",
+    "Business Studies",
+    "Accountancy",
+    "Environmental Science",
+    "French",
+    "Spanish",
+    "German",
+    "Coding",
+    "Other"
 ].map(s => ({ value: s, label: s }));
 
 export const gradeLevelsList: string[] = [
