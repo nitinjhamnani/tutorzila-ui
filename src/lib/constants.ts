@@ -71,6 +71,10 @@ export const qualificationsList: MultiSelectOption[] = [
     "Other"
 ].map(q => ({ value: q, label: q }));
 
+export const languagesList: MultiSelectOption[] = [
+    "English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"
+].map(l => ({ value: l, label: l }));
+
 export const teachingModeOptions: { id: string; label: string }[] = [
   { id: "Online", label: "Online" },
   { id: "Offline (In-person)", label: "Offline (In-person)" },

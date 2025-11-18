@@ -30,7 +30,7 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ApiTutor } from "@/types";
-import { allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions, qualificationsList } from "@/lib/constants";
+import { allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions, qualificationsList, languagesList } from "@/lib/constants";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useAtom } from "jotai";
 import { tutorProfileAtom } from "@/lib/state/tutor";
@@ -39,7 +39,6 @@ const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grad
 const boardsList: MultiSelectOption[] = boardOptions.map(b => ({ value: b, label: b }));
 
 const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
-const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
 
 const tutoringDetailsSchema = z.object({
   gender: z.enum(["MALE", "FEMALE"], { required_error: "Tutor gender is required." }),
@@ -595,5 +594,3 @@ const mutation = useMutation({
     </Card>
   );
 }
-
-    
