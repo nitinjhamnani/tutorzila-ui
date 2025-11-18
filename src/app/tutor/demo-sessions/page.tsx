@@ -301,20 +301,20 @@ export default function TutorDemoSessionsPage() {
                     View, schedule, and update your demo class details.
                 </CardDescription>
             </div>
-            {allTutorDemos.length > 0 && (
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
-                    variant="default"
-                    className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
+                  variant="default"
+                  size="sm"
+                  className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                    <span className="text-primary-foreground">
-                        {selectedCategoryLabel} 
-                    </span>
-                    <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
+                  <span className="text-primary-foreground">
+                      {selectedCategoryLabel} 
+                  </span>
+                  <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
                 </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[220px]">
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[220px]">
                 <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {filterCategoriesForDropdown.map((category) => (
@@ -330,9 +330,8 @@ export default function TutorDemoSessionsPage() {
                     {category.label}
                     </DropdownMenuItem>
                 ))}
-                </DropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
-            )}
           </CardHeader>
         </Card>
 
