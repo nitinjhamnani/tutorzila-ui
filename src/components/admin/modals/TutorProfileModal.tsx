@@ -77,12 +77,13 @@ const assignTutorToEnquiry = async ({
 };
 
 
-const getInitials = (name: string): string => {
+const getInitials = (name?: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
-  return parts.length > 1
-    ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-    : name.slice(0, 2).toUpperCase();
+  if (parts.length > 1) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
 };
 
 const InfoSection = ({ title, children, className }: { title: string; children: React.ReactNode; className?:string }) => (
