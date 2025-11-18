@@ -189,7 +189,7 @@ export default function AdminTutorsPage() {
       return (
         <TableBody>
           <TableRow>
-            <TableCell colSpan={7} className="h-64 text-center">
+            <TableCell colSpan={8} className="h-64 text-center">
               <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <span className="font-semibold">Loading Tutors...</span>
@@ -204,7 +204,7 @@ export default function AdminTutorsPage() {
       return (
         <TableBody>
           <TableRow>
-            <TableCell colSpan={7} className="h-24 text-center">
+            <TableCell colSpan={8} className="h-24 text-center">
               <div className="flex flex-col items-center justify-center gap-2 text-destructive">
                 <ShieldAlert className="h-8 w-8" />
                 <span className="font-semibold">Failed to load tutors</span>
@@ -220,7 +220,7 @@ export default function AdminTutorsPage() {
       return (
          <TableBody>
           <TableRow>
-            <TableCell colSpan={7} className="h-24 text-center">
+            <TableCell colSpan={8} className="h-24 text-center">
                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <Users className="h-8 w-8" />
                 <span className="font-semibold">No Tutors Found</span>
@@ -305,6 +305,7 @@ export default function AdminTutorsPage() {
                 {tutor.isActive ? 'Registered' : 'Not Registered'}
                </Badge>
             </TableCell>
+            <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy") : 'N/A'}</TableCell>
             <TableCell>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
                   <Settings className="h-4 h-4" />
@@ -447,6 +448,7 @@ export default function AdminTutorsPage() {
                 <TableHead>Boards</TableHead>
                 <TableHead>Mode</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Created At</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
