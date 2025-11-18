@@ -1,11 +1,4 @@
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
 
 const faqItems = [
@@ -50,31 +43,30 @@ export default function FAQPage() {
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   return (
     <div className={`${containerPadding} max-w-4xl py-12`}>
-      <Card className="bg-card border rounded-lg shadow-md">
-        <CardHeader className="bg-muted/30 p-6 rounded-t-lg">
-          <div className="flex items-center gap-3">
-            <HelpCircle className="w-8 h-8 text-primary" />
-            <CardTitle className="text-3xl font-bold">Frequently Asked Questions</CardTitle>
-          </div>
-          <CardDescription className="text-md text-muted-foreground mt-1">
-            Find answers to common questions about Tutorzila.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 md:p-8">
-          <Accordion type="single" collapsible className="w-full space-y-3">
-            {faqItems.map((item, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border-b border-border/50 last:border-b-0 bg-background/50 rounded-md px-4 shadow-sm hover:shadow-md transition-shadow">
-                <AccordionTrigger className="text-left hover:no-underline text-base font-semibold text-foreground/90">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-foreground/80 leading-relaxed pt-2 pb-4">
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
+      <div className="text-center mb-12 animate-in fade-in duration-500 ease-out">
+        <h1 className="text-4xl font-bold text-primary tracking-tight">Frequently Asked Questions</h1>
+        <p className="mt-2 text-md text-muted-foreground">
+          Find answers to common questions about Tutorzila.
+        </p>
+      </div>
+
+      <div className="space-y-8">
+        {faqItems.map((item, index) => (
+          <section key={index} className="p-6 bg-card border rounded-lg shadow-sm animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out" style={{animationDelay: `${index * 100}ms`}}>
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-primary/10 rounded-full text-primary mt-1">
+                <HelpCircle className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold mb-2 text-foreground">{item.question}</h2>
+                <div className="text-sm text-foreground/80 leading-relaxed space-y-3">
+                  <p>{item.answer}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
