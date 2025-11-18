@@ -123,9 +123,8 @@ export function MultiSelectCommand({
             value={inputValue}
             onValueChange={setInputValue}
           />
-          <CommandList>
+          <CommandList className="max-h-[200px]">
             <CommandEmpty>No results found.</CommandEmpty>
-            <ScrollArea className="max-h-[200px]">
               <CommandGroup>
                 {filteredOptions.map((option) => (
                   <CommandItem
@@ -147,7 +146,6 @@ export function MultiSelectCommand({
                   </CommandItem>
                 ))}
               </CommandGroup>
-            </ScrollArea>
           </CommandList>
         </Command>
       </PopoverContent>
