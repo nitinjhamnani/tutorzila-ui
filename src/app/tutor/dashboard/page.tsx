@@ -263,6 +263,7 @@ export default function TutorDashboardPage() {
   const [selectedDemoForModal, setSelectedDemoForModal] = useState<DemoSession | null>(null);
   const [isManageDemoModalOpen, setIsManageDemoModalOpen] = useState(false);
   const [isEditTutoringModalOpen, setIsEditTutoringModalOpen] = useState(false);
+  const [hasTriggeredModal, setHasTriggeredModal] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -293,6 +294,13 @@ export default function TutorDashboardPage() {
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+  
+  useEffect(() => {
+    if (!isLoadingDetails && tutoringDetails && tutoringDetails.profileCompletion < 100 && !hasTriggeredModal) {
+      setIsEditTutoringModalOpen(true);
+      setHasTriggeredModal(true); // Ensure it only triggers once per page load
+    }
+  }, [isLoadingDetails, tutoringDetails, hasTriggeredModal]);
 
   const cancelMutation = useMutation({
     mutationFn: cancelDemoApi,
