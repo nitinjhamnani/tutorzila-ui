@@ -91,6 +91,7 @@ const fetchEnquiryDetails = async (
 
   const requirement: TuitionRequirement = {
     id: enquiryResponse.enquirySummary.enquiryId,
+    enquiryCode: enquiryResponse.enquirySummary.enquiryCode,
     parentId: data.parentId,
     parentName: "A Parent", 
     studentName: enquiryResponse.enquiryDetails.studentName,
@@ -170,6 +171,7 @@ const applyToEnquiry = async (
 
   const requirement: TuitionRequirement = {
     id: enquiryResponse.enquirySummary.enquiryId,
+    enquiryCode: enquiryResponse.enquirySummary.enquiryCode,
     parentId: data.parentId,
     parentName: "A Parent",
     studentName: enquiryResponse.enquiryDetails.studentName,
@@ -232,6 +234,7 @@ const revokeApplication = async (
 
   const requirement: TuitionRequirement = {
     id: enquiryResponse.enquirySummary.enquiryId,
+    enquiryCode: enquiryResponse.enquirySummary.enquiryCode,
     parentId: data.parentId,
     parentName: "A Parent",
     studentName: enquiryResponse.enquiryDetails.studentName,
@@ -473,9 +476,16 @@ export default function TutorEnquiryDetailPage() {
             <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
                 <CardHeader className="bg-card p-4 sm:p-5">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
-                        <CardTitle className="text-xl font-semibold text-primary">
-                        {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-                        </CardTitle>
+                        <div className="flex flex-col">
+                            <CardTitle className="text-xl font-semibold text-primary">
+                            {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                            </CardTitle>
+                            {requirement.enquiryCode && (
+                                <span className="text-xs font-mono text-muted-foreground mt-1">
+                                    Enquiry Code: {requirement.enquiryCode}
+                                </span>
+                            )}
+                        </div>
                         {(assignedStatus === 'APPLIED' || assignedStatus === 'SHORTLISTED' || assignedStatus === 'ASSIGNED') && (
                         <Badge variant="default" className="text-xs w-fit bg-primary text-primary-foreground">
                             <CheckCircle className="mr-1 h-3 w-3"/>
