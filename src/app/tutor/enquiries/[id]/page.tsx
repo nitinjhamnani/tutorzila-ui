@@ -482,7 +482,7 @@ export default function TutorEnquiryDetailPage() {
                             </CardTitle>
                             {requirement.enquiryCode && (
                                 <span className="text-xs font-mono text-muted-foreground mt-1">
-                                    Enquiry Code: {requirement.enquiryCode}
+                                    Enquiry Code: <span className="font-semibold">{requirement.enquiryCode}</span>
                                 </span>
                             )}
                         </div>
