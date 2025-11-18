@@ -147,8 +147,7 @@ export function useAuthMock() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem("tutorzila_user");
       localStorage.removeItem("tutorzila_token");
-      localStorage.removeItem("jotai-tutorzila_user"); // Clear Jotai's specific key
-      localStorage.removeItem("jotai-tutorzila_token"); // Clear Jotai's specific key
+      localStorage.removeItem("tutorzila_tutor_profile"); // Clear tutor profile details
       window.location.href = '/'; // Force a full page reload to clear everything
     } else {
       router.push("/"); 
