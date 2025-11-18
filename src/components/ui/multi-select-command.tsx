@@ -16,6 +16,8 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -120,6 +122,9 @@ export function MultiSelectCommand({
         className="w-[90vw] max-w-md p-0"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
+        <DialogHeader className="px-4 pt-4 pb-2 border-b">
+          <DialogTitle>{placeholder}</DialogTitle>
+        </DialogHeader>
         <Command>
           <CommandInput
             placeholder="Search options..."
@@ -127,7 +132,7 @@ export function MultiSelectCommand({
             onValueChange={setInputValue}
           />
           <CommandList>
-            <ScrollArea className="h-48">
+            <ScrollArea className="max-h-[200px] overflow-y-auto">
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
                 {filteredOptions.map((option) => (
