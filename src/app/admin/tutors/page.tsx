@@ -300,11 +300,8 @@ export default function AdminTutorsPage() {
                 </div>
               </TooltipProvider>
             </TableCell>
-             <TableCell>
-               <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                {tutor.isActive ? 'Paid' : 'Unpaid'}
-               </Badge>
+             <TableCell className="text-xs">
+               {tutor.isActive ? 'Yes' : 'No'}
             </TableCell>
             <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy, p") : 'N/A'}</TableCell>
             <TableCell>
@@ -448,7 +445,7 @@ export default function AdminTutorsPage() {
                 <TableHead>Grades</TableHead>
                 <TableHead>Boards</TableHead>
                 <TableHead>Mode</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Registered</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
