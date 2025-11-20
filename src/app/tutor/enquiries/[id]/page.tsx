@@ -533,17 +533,19 @@ export default function TutorEnquiryDetailPage() {
                       </div>
                     </section>
 
-                    {budgetInfo && (budgetInfo.totalFees || 0) > 0 && (
+                    {budgetInfo && (
                       <>
                         <Separator />
                         <section className="space-y-3">
                           <h3 className="text-base font-semibold text-foreground flex items-center">
                             <DollarSign className="w-4 h-4 mr-2 text-primary/80" />
-                            Budget
+                            Session Details
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                            <EnquiryInfoItem label="Estimated Monthly Fee" value={`₹${budgetInfo.totalFees?.toLocaleString()}`} icon={Coins} />
-                            {budgetInfo.finalRate && budgetInfo.finalRate > 0 && <EnquiryInfoItem label="Estimated Hourly Rate" value={`≈ ₹${Math.round(budgetInfo.finalRate).toLocaleString()}/hr`} icon={DollarSign} />}
+                            {budgetInfo.daysPerWeek && <EnquiryInfoItem label="No of Sessions / Classes in Week" value={`${budgetInfo.daysPerWeek}`} icon={CalendarDays} />}
+                            {budgetInfo.hoursPerDay && <EnquiryInfoItem label="Each Session Duration" value={`${budgetInfo.hoursPerDay} hour(s)`} icon={Clock} />}
+                            {budgetInfo.totalDays && <EnquiryInfoItem label="Estimated Days in Month" value={`${budgetInfo.totalDays}`} icon={CalendarDays} />}
+                            {budgetInfo.totalFees && <EnquiryInfoItem label="Fees Per Month" value={`₹${budgetInfo.totalFees.toLocaleString()}`} icon={Coins} />}
                           </div>
                         </section>
                       </>
