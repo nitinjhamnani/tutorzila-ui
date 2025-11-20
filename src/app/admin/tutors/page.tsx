@@ -40,6 +40,7 @@ import {
   RadioTower,
   Users as UsersIcon,
   ShieldCheck,
+  Search,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -50,6 +51,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { allSubjectsList, boardsList, gradeLevelsList } from "@/lib/constants";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Input } from "@/components/ui/input";
 
 
 const fetchAdminTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
@@ -93,6 +95,14 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
   }));
 };
 
+const getInitials = (name: string): string => {
+    if (!name) return "?";
+    const parts = name.split(" ");
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+      : name.slice(0, 2).toUpperCase();
+};
+
 
 export default function AdminTutorsPage() {
   const { token } = useAuthMock();
@@ -104,6 +114,7 @@ export default function AdminTutorsPage() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
   const initialFilters = {
+    searchTerm: "",
     subjects: [],
     grade: '',
     board: '',
@@ -118,6 +129,7 @@ export default function AdminTutorsPage() {
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
+    if (appliedFilters.searchTerm) params.append('name', appliedFilters.searchTerm);
     if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
     if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
     if(appliedFilters.board) params.append('boards', appliedFilters.board);
@@ -161,6 +173,19 @@ export default function AdminTutorsPage() {
     setAppliedFilters(initialFilters);
     setIsFilterModalOpen(false);
   };
+  
+  const handleDebouncedSearch = useCallback(
+    debounce((value: string) => {
+      setAppliedFilters(prev => ({ ...prev, searchTerm: value }));
+    }, 500),
+    []
+  );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFilters(prev => ({...prev, searchTerm: value}));
+    handleDebouncedSearch(value);
+  }
 
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
       setFilters(prev => ({ ...prev, [key]: value }));
@@ -314,6 +339,15 @@ export default function AdminTutorsPage() {
       </TableBody>
     );
   };
+  
+  function debounce<F extends (...args: any[]) => any>(func: F, wait: number): (...args: Parameters<F>) => void {
+    let timeout: NodeJS.Timeout;
+    return function(this: any, ...args: Parameters<F>) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
 
   return (
     <>
@@ -334,6 +368,17 @@ export default function AdminTutorsPage() {
             <span className="hidden sm:inline">Add Tutor</span>
           </Button>
         </CardHeader>
+        <CardContent className="p-0 mt-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name, subject, grade..."
+                value={filters.searchTerm}
+                onChange={handleSearchChange}
+                className="pl-10 w-full"
+              />
+            </div>
+        </CardContent>
       </Card>
       
       <div className="flex justify-end gap-2">
