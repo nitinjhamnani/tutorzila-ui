@@ -246,10 +246,15 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const getInitials = (name?: string): string => {
   if (!name) return "?";
-  const parts = name.split(" ");
-  return parts.length > 1
-    ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-    : name.slice(0, 2).toUpperCase();
+  const trimmedName = name.trim();
+  const parts = trimmedName.split(/\s+/);
+  if (parts.length === 1 && parts[0]) {
+    return parts[0][0].toUpperCase();
+  }
+  if (parts.length > 1 && parts[0] && parts[parts.length - 1]) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+  return trimmedName.slice(0, 2).toUpperCase();
 };
 
 const InfoSection = ({ icon: Icon, title, children, className }: { icon: React.ElementType; title: string; children: React.ReactNode; className?:string }) => (
@@ -491,23 +496,24 @@ export default function AdminTutorProfilePage() {
                                 {getInitials(tutor.displayName)}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="flex items-center justify-center gap-2 flex-wrap mt-4">
-                            <CardTitle className="text-xl font-bold text-foreground">{tutor.displayName}</CardTitle>
-                            <Badge variant={tutor.registered ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                                {tutor.registered ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                                {tutor.registered ? 'Registered' : 'Not Registered'}
-                            </Badge>
-                        </div>
+                        <CardTitle className="text-xl font-bold text-foreground mt-4">{tutor.displayName}</CardTitle>
 
                         <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
                             <VenetianMask className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0"/>
                             <span className="capitalize">{tutor.gender || 'Not Provided'}</span>
                         </div>
                         
+                         <div className="mt-2.5 flex justify-center items-center gap-2 flex-wrap">
+                          <Badge variant={tutor.registered ? "default" : "destructive"} className="text-xs py-1 px-2.5">
+                              {tutor.registered ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
+                              {tutor.registered ? 'Registered' : 'Not Registered'}
+                          </Badge>
+                        </div>
+                        
                         <Separator className="my-4" />
                         <div className="text-left space-y-3">
-                          <InfoItem icon={Briefcase} label="Experience">{tutor.yearOfExperience}</InfoItem>
-                          <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
+                          <InfoItem icon={Briefcase} label="Experience">{tutor.yearOfExperience || "Not Provided"}</InfoItem>
+                          <InfoItem icon={DollarSign} label="Hourly Rate">{`₹${tutor.hourlyRate || "N/A"} ${tutor.isRateNegotiable ? '(Negotiable)' : ''}`}</InfoItem>
                         </div>
                     </CardContent>
                      <CardFooter className="p-3 relative h-12">
@@ -568,7 +574,7 @@ export default function AdminTutorProfilePage() {
                     <CardContent className="space-y-4">
                          <InfoItem icon={Mail} label="Email">
                             <div className="flex items-center gap-2">
-                                <span>{tutor.email}</span>
+                                <span>{tutor.email || "Not Provided"}</span>
                                 <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -586,7 +592,7 @@ export default function AdminTutorProfilePage() {
                         <InfoItem icon={Phone} label="Phone">
                            <div className="flex flex-col items-start gap-1.5">
                                 <div className="flex items-center gap-2">
-                                  <span>{tutor.countryCode} {tutor.phone}</span>
+                                  <span>{tutor.countryCode} {tutor.phone || "Not Provided"}</span>
                                   <TooltipProvider>
                                   <Tooltip>
                                       <TooltipTrigger asChild>
@@ -618,7 +624,7 @@ export default function AdminTutorProfilePage() {
                         <CardTitle>Payment Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoItem icon={Landmark} label="Payment Mode">{tutor.bankDetails?.paymentType || "Not Set"}</InfoItem>
+                        <InfoItem icon={Landmark} label="Payment Mode">{tutor.bankDetails?.paymentType || "Not Provided"}</InfoItem>
                         <InfoItem icon={KeyRound} label="Account / UPI ID">{tutor.bankDetails?.accountNumber || "Not Provided"}</InfoItem>
                     </CardContent>
                 </Card>
