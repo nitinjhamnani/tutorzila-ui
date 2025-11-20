@@ -380,7 +380,7 @@ export default function AdminTutorsPage() {
             placeholder="Search by name, subject, etc..."
             value={filters.searchTerm}
             onChange={handleSearchChange}
-            className="pl-10 w-full"
+            className="pl-10 w-full bg-card"
           />
         </div>
         <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
