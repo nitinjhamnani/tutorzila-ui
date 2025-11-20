@@ -115,7 +115,6 @@ export default function AdminTutorsPage() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
   const initialFilters = {
-    searchTerm: "",
     subjects: [],
     grade: '',
     board: '',
@@ -125,12 +124,12 @@ export default function AdminTutorsPage() {
     area: "",
   };
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
-    if (appliedFilters.searchTerm) params.append('name', appliedFilters.searchTerm);
     if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
     if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
     if(appliedFilters.board) params.append('boards', appliedFilters.board);
@@ -148,6 +147,18 @@ export default function AdminTutorsPage() {
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+  
+  const filteredTutors = useMemo(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return tutors.filter((tutor) => {
+      const includesName = tutor.displayName.toLowerCase().includes(lowercasedFilter);
+      const includesSubject = tutor.subjectsList.some(s => s.toLowerCase().includes(lowercasedFilter));
+      const includesGrade = tutor.gradesList.some(g => g.toLowerCase().includes(lowercasedFilter));
+      const includesMode = (tutor.online && 'online'.includes(lowercasedFilter)) || (tutor.offline && 'offline'.includes(lowercasedFilter));
+      return includesName || includesSubject || includesGrade || includesMode;
+    });
+  }, [searchTerm, tutors]);
+
 
   useEffect(() => {
     if (!isLoading) {
@@ -174,30 +185,6 @@ export default function AdminTutorsPage() {
     setAppliedFilters(initialFilters);
     setIsFilterModalOpen(false);
   };
-  
-  const debounce = useCallback(
-    <F extends (...args: any[]) => any>(func: F, wait: number): ((...args: Parameters<F>) => void) => {
-      let timeout: NodeJS.Timeout;
-      return function(this: any, ...args: Parameters<F>) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-    },
-    []
-  );
-
-  const handleDebouncedSearch = useCallback(
-    debounce((value: string) => {
-      setAppliedFilters(prev => ({ ...prev, searchTerm: value }));
-    }, 500),
-    []
-  );
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFilters(prev => ({...prev, searchTerm: value}));
-    handleDebouncedSearch(value);
-  }
 
   const handleFilterChange = (key: keyof typeof filters, value: string | boolean | string[]) => {
       setFilters(prev => ({ ...prev, [key]: value }));
@@ -254,7 +241,7 @@ export default function AdminTutorsPage() {
       );
     }
 
-    if (tutors.length === 0) {
+    if (filteredTutors.length === 0) {
       return (
          <TableBody>
           <TableRow>
@@ -272,7 +259,7 @@ export default function AdminTutorsPage() {
 
     return (
       <TableBody>
-        {tutors.map((tutor) => (
+        {filteredTutors.map((tutor) => (
           <TableRow key={tutor.id}>
             <TableCell>
               <div className="flex items-center gap-3">
@@ -378,8 +365,8 @@ export default function AdminTutorsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by name, subject, etc..."
-            value={filters.searchTerm}
-            onChange={handleSearchChange}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 w-full bg-card"
           />
         </div>
