@@ -303,10 +303,10 @@ export default function AdminTutorsPage() {
              <TableCell>
                <Badge variant={tutor.isActive ? "default" : "destructive"} className="text-xs py-1 px-2.5">
                 {tutor.isActive ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                {tutor.isActive ? 'Registered' : 'Not Registered'}
+                {tutor.isActive ? 'Paid' : 'Unpaid'}
                </Badge>
             </TableCell>
-            <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy p") : 'N/A'}</TableCell>
+            <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy, p") : 'N/A'}</TableCell>
             <TableCell>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
                   <Settings className="h-4 h-4" />
