@@ -87,6 +87,7 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
     registeredDate: tutor.createdAt,
     gender: tutor.gender,
     isActive: tutor.active,
+    registered: tutor.registered,
     isBioReviewed: tutor.bioReviewed,
     online: tutor.online,
     offline: tutor.offline,
@@ -174,6 +175,17 @@ export default function AdminTutorsPage() {
     setIsFilterModalOpen(false);
   };
   
+  const debounce = useCallback(
+    <F extends (...args: any[]) => any>(func: F, wait: number): ((...args: Parameters<F>) => void) => {
+      let timeout: NodeJS.Timeout;
+      return function(this: any, ...args: Parameters<F>) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    },
+    []
+  );
+
   const handleDebouncedSearch = useCallback(
     debounce((value: string) => {
       setAppliedFilters(prev => ({ ...prev, searchTerm: value }));
@@ -326,7 +338,7 @@ export default function AdminTutorsPage() {
               </TooltipProvider>
             </TableCell>
              <TableCell className="text-xs">
-               {tutor.isActive ? 'Yes' : 'No'}
+               {tutor.registered ? 'Yes' : 'No'}
             </TableCell>
             <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy, p") : 'N/A'}</TableCell>
             <TableCell>
@@ -340,15 +352,6 @@ export default function AdminTutorsPage() {
     );
   };
   
-  function debounce<F extends (...args: any[]) => any>(func: F, wait: number): (...args: Parameters<F>) => void {
-    let timeout: NodeJS.Timeout;
-    return function(this: any, ...args: Parameters<F>) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-  }
-
-
   return (
     <>
     <div className="space-y-6">
@@ -368,23 +371,21 @@ export default function AdminTutorsPage() {
             <span className="hidden sm:inline">Add Tutor</span>
           </Button>
         </CardHeader>
-        <CardContent className="p-0 mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, subject, grade..."
-                value={filters.searchTerm}
-                onChange={handleSearchChange}
-                className="pl-10 w-full"
-              />
-            </div>
-        </CardContent>
       </Card>
-      
-      <div className="flex justify-end gap-2">
+
+      <div className="flex flex-col sm:flex-row items-center gap-4 justify-between">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, subject, etc..."
+            value={filters.searchTerm}
+            onChange={handleSearchChange}
+            className="pl-10 w-full"
+          />
+        </div>
         <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 w-9 p-0 sm:w-auto sm:px-4 sm:py-1.5 bg-card text-primary border-primary">
+              <Button variant="outline" size="sm" className="h-9 w-full sm:w-auto flex-shrink-0 bg-card text-primary border-primary">
                 <ListFilter className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Filter</span>
               </Button>
@@ -479,7 +480,7 @@ export default function AdminTutorsPage() {
             </DialogContent>
           </Dialog>
       </div>
-
+      
       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
         <CardContent className="p-0">
           <Table>
