@@ -227,11 +227,8 @@ export default function AdminParentsPage() {
                 </div>
               </TooltipProvider>
             </TableCell>
-             <TableCell>
-               <Badge variant={parent.active ? "default" : "destructive"} className="text-xs py-1 px-2.5">
-                {parent.active ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                {parent.active ? 'Active' : 'Inactive'}
-               </Badge>
+             <TableCell className="text-xs">
+              {parent.active ? 'Yes' : 'No'}
             </TableCell>
             <TableCell>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewParent(parent.id)}>
@@ -286,7 +283,7 @@ export default function AdminParentsPage() {
                   <TableHead>Contact</TableHead>
                   <TableHead>Registered</TableHead>
                   <TableHead>Verification</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Active</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
