@@ -149,6 +149,7 @@ export default function AdminTutorsPage() {
   });
   
   const filteredTutors = useMemo(() => {
+    if (!searchTerm) return tutors;
     const lowercasedFilter = searchTerm.toLowerCase();
     return tutors.filter((tutor) => {
       const includesName = tutor.displayName.toLowerCase().includes(lowercasedFilter);
@@ -325,7 +326,7 @@ export default function AdminTutorsPage() {
               </TooltipProvider>
             </TableCell>
              <TableCell className="text-xs">
-               {tutor.registered ? 'Yes' : 'No'}
+               {tutor.isActive ? 'Yes' : 'No'}
             </TableCell>
             <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy, p") : 'N/A'}</TableCell>
             <TableCell>
@@ -497,3 +498,5 @@ export default function AdminTutorsPage() {
     </>
   );
 }
+
+    
