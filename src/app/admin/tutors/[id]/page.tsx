@@ -263,22 +263,40 @@ const InfoSection = ({ icon: Icon, title, children, className }: { icon: React.E
 );
 
 const InfoItem = ({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children?: React.ReactNode }) => {
-  if (!children && typeof children !== 'number') return null;
+  if (!children && typeof children !== 'number') {
+    return (
+      <div className="flex items-start">
+        <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
+        <div className="flex flex-col flex-grow text-xs">
+          <span className="font-medium text-foreground">{label}</span>
+          <div className="text-muted-foreground italic">Not Provided</div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex items-start">
       <Icon className="w-4 h-4 mr-2.5 mt-0.5 text-muted-foreground shrink-0" />
-      <div className="flex flex-col flex-grow">
-        <div className="flex justify-between items-center">
-            <span className="font-medium text-foreground">{label}</span>
-        </div>
-        <div className="text-muted-foreground text-xs">{children}</div>
+      <div className="flex flex-col flex-grow text-xs">
+        <span className="font-medium text-foreground">{label}</span>
+        <div className="text-muted-foreground">{children}</div>
       </div>
     </div>
   );
 };
 
 const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; label: string; items?: string[] }) => {
-  if (!items || items.length === 0) return null;
+  if (!items || items.length === 0) {
+    return (
+      <div className="flex items-start">
+        <Icon className="w-4 h-4 mr-2.5 mt-1 text-muted-foreground shrink-0" />
+        <div className="flex flex-col">
+          <span className="font-medium text-foreground mb-1 text-xs">{label}</span>
+          <div className="text-xs text-muted-foreground italic">Not Provided</div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex items-start">
        <Icon className="w-4 h-4 mr-2.5 mt-1 text-muted-foreground shrink-0" />
@@ -806,6 +824,8 @@ export default function AdminTutorProfilePage() {
       </>
     );
 }
+
+    
 
     
 
