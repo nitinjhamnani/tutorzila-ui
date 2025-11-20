@@ -14,7 +14,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2, Settings } from "lucide-react";
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2, Settings, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Input } from "@/components/ui/input";
 
 const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -72,6 +73,7 @@ export default function AdminAllEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { hideLoader } = useGlobalLoader();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: allRequirements = [], isLoading, error } = useQuery({
     queryKey: ['adminAllEnquiries', token],
@@ -80,6 +82,18 @@ export default function AdminAllEnquiriesPage() {
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+  
+  const filteredRequirements = useMemo(() => {
+    if (!searchTerm) return allRequirements;
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return allRequirements.filter((req) => {
+      const includesEnquiryCode = req.enquiryCode?.toLowerCase().includes(lowercasedFilter);
+      const includesSubject = req.subject.some(s => s.toLowerCase().includes(lowercasedFilter));
+      const includesGrade = req.gradeLevel.toLowerCase().includes(lowercasedFilter);
+      const includesMode = req.teachingMode?.some(m => m.toLowerCase().includes(lowercasedFilter));
+      return includesEnquiryCode || includesSubject || includesGrade || includesMode;
+    });
+  }, [searchTerm, allRequirements]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -137,14 +151,14 @@ export default function AdminAllEnquiriesPage() {
       );
     }
 
-    if (allRequirements.length === 0) {
+    if (filteredRequirements.length === 0) {
       return (
         <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out col-span-full">
           <CardContent className="flex flex-col items-center">
             <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-5" />
             <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              There are currently no open tuition enquiries on the platform.
+              There are currently no tuition enquiries matching your search.
             </p>
           </CardContent>
         </Card>
@@ -168,7 +182,7 @@ export default function AdminAllEnquiriesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allRequirements.map((req) => (
+              {filteredRequirements.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
                   <TableCell className="font-medium">
@@ -219,6 +233,18 @@ export default function AdminAllEnquiriesPage() {
             </CardHeader>
         </Card>
         
+        <div className="flex flex-col sm:flex-row items-center gap-4 justify-between">
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by code, subject, grade..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full bg-card"
+              />
+            </div>
+        </div>
+
         {renderEnquiryList()}
     </div>
   );
