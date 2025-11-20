@@ -37,10 +37,12 @@ import {
   UsersRound,
   UserPlus,
   Settings,
+  Search,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Input } from "@/components/ui/input";
 
 interface ApiParent {
   id: string;
@@ -92,6 +94,7 @@ export default function AdminParentsPage() {
   const queryClient = useQueryClient();
   const { hideLoader, showLoader } = useGlobalLoader();
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: parents = [], isLoading, error } = useQuery<ApiParent[]>({
     queryKey: ['adminAllParents', token],
@@ -100,6 +103,17 @@ export default function AdminParentsPage() {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  const filteredParents = useMemo(() => {
+    if (!searchTerm) return parents;
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return parents.filter((parent) => {
+      const includesName = parent.name.toLowerCase().includes(lowercasedFilter);
+      const includesPhone = parent.phone.includes(lowercasedFilter);
+      return includesName || includesPhone;
+    });
+  }, [searchTerm, parents]);
+
 
   useEffect(() => {
     if (!isLoading) {
@@ -150,7 +164,7 @@ export default function AdminParentsPage() {
       );
     }
 
-    if (parents.length === 0) {
+    if (filteredParents.length === 0) {
       return (
          <TableBody>
           <TableRow>
@@ -158,7 +172,7 @@ export default function AdminParentsPage() {
                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <Users className="h-8 w-8" />
                 <span className="font-semibold">No Parents Found</span>
-                <span className="text-sm">There are no parents registered on the platform yet.</span>
+                <span className="text-sm">There are no parents matching your search.</span>
               </div>
             </TableCell>
           </TableRow>
@@ -168,7 +182,7 @@ export default function AdminParentsPage() {
 
     return (
       <TableBody>
-        {parents.map((parent) => (
+        {filteredParents.map((parent) => (
           <TableRow key={parent.id}>
             <TableCell>
               <div className="flex items-center gap-3">
@@ -250,6 +264,18 @@ export default function AdminParentsPage() {
             </Button>
           </CardHeader>
         </Card>
+        
+        <div className="flex items-center justify-start">
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or phone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full bg-card"
+              />
+            </div>
+        </div>
 
         <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
           <CardContent className="p-0">
