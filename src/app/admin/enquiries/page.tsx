@@ -14,7 +14,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2, Settings, Search } from "lucide-react";
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2, Settings, Search, User as UserIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
@@ -40,7 +40,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
     if (response.status === 504) {
       throw new Error("The server took too long to respond (504 Gateway Timeout). Please try again later.");
     }
-    throw new Error("Failed to fetch enquiries. The server returned an error.");
+    throw new Error("Failed to fetch enquiries.");
   }
   
   const data = await response.json();
@@ -49,6 +49,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
     id: item.enquiryId || `enq-${index}-${Date.now()}`,
     enquiryCode: item.enquiryCode,
     parentName: item.parentName || "A Parent", 
+    studentName: item.studentName,
     subject: typeof item.subjects === 'string' ? item.subjects.split(',').map((s: string) => s.trim()) : [],
     gradeLevel: item.grade,
     scheduleDetails: "Details not provided by API",
@@ -187,11 +188,11 @@ export default function AdminAllEnquiriesPage() {
                   <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
                   <TableCell className="font-medium">
                     <div className="text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</div>
-                    {req.teachingMode?.includes("Offline (In-person)") && req.location?.area && req.location?.city && (
-                      <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                        <MapPin className="h-3 w-3" />
-                        {req.location.area}, {req.location.city}
-                      </div>
+                    {req.studentName && (
+                        <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <UserIcon className="h-3 w-3" />
+                            {req.studentName}
+                        </div>
                     )}
                   </TableCell>
                   <TableCell className="text-xs">{req.gradeLevel}</TableCell>
@@ -250,3 +251,4 @@ export default function AdminAllEnquiriesPage() {
   );
 }
     
+
