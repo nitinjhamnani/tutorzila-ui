@@ -390,6 +390,28 @@ const fetchParentContact = async (parentId: string, token: string | null): Promi
     return response.json();
 };
 
+const cancelDemoApi = async ({ demoId, reason, token }: { demoId: string; reason: string; token: string | null }) => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/demo/cancel`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-DMO-ID': demoId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to cancel the demo session.");
+  }
+  
+  return true; 
+};
+
+
 const EnquiryInfoItem = ({
   icon: Icon,
   label,
@@ -894,6 +916,18 @@ const closeEnquiryMutation = useMutation({
     onError: (error: any) => toast({ variant: "destructive", title: "Budget Update Failed", description: error.message }),
   });
 
+  const cancelDemoMutation = useMutation({
+    mutationFn: ({ demoId, reason }: { demoId: string; reason: string; }) => cancelDemoApi({ demoId, reason, token }),
+    onSuccess: () => {
+      toast({ title: "Demo Cancelled", description: "The demo session has been cancelled." });
+      queryClient.invalidateQueries({ queryKey: ['enquiryDemos', enquiryId] });
+      setDemoToCancel(null);
+    },
+    onError: (error: any) => {
+      toast({ variant: "destructive", title: "Cancellation Failed", description: error.message });
+    }
+  });
+
   
   const handleViewProfile = (tutor: ApiTutor, currentTab: string) => {
     setSelectedTutor(tutor);
@@ -1003,10 +1037,7 @@ const closeEnquiryMutation = useMutation({
 
   const confirmCancelDemo = () => {
     if (!demoToCancel) return;
-    console.log("Cancelling demo:", demoToCancel.demoId);
-    toast({ title: "Demo Cancelled (Mock)", description: `Demo with ${demoToCancel.demoDetails.tutorName} has been cancelled.`});
-    queryClient.invalidateQueries({ queryKey: ['enquiryDemos', enquiryId] });
-    setDemoToCancel(null);
+    cancelDemoMutation.mutate({ demoId: demoToCancel.demoId, reason: "Cancelled by Admin" });
   };
 
   const handleOpenShareModal = () => {
@@ -1685,7 +1716,10 @@ const closeEnquiryMutation = useMutation({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Back</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmCancelDemo}>Confirm Cancellation</AlertDialogAction>
+              <AlertDialogAction onClick={confirmCancelDemo} disabled={cancelDemoMutation.isPending}>
+                {cancelDemoMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                Confirm Cancellation
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -1831,3 +1865,4 @@ export default function ManageEnquiryPage() {
 
 
     
+
