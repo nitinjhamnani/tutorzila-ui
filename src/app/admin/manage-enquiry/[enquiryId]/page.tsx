@@ -1357,9 +1357,6 @@ const closeEnquiryMutation = useMutation({
     );
   };
 
-  const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
-  const budgetInfo = enquiry?.budget;
-
   const renderDemoTable = () => {
     return (
     <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
@@ -1438,12 +1435,12 @@ const closeEnquiryMutation = useMutation({
                               <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
                                 <CalendarClock className="w-4 h-4" />
                               </Button>
-                              <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
+                              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
                                 <XCircle className="w-4 h-4" />
                               </Button>
                             </>
                           )}
-                          <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveDemo(demo)}>
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveDemo(demo)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -1458,6 +1455,9 @@ const closeEnquiryMutation = useMutation({
     </Card>
     )
   };
+
+  const locationInfo = typeof enquiry.location === 'object' && enquiry.location ? enquiry.location : null;
+  const budgetInfo = enquiry?.budget;
 
   return (
     <div className="space-y-6">
