@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -94,6 +93,7 @@ import {
   Edit2,
   CalendarClock,
   Share2,
+  Trash2,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -411,6 +411,25 @@ const cancelDemoApi = async ({ demoId, reason, token }: { demoId: string; reason
   return true; 
 };
 
+const removeTutorFromEnquiryApi = async ({ enquiryId, tutorId, token }: { enquiryId: string; tutorId: string; token: string | null; }) => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/remove/tutor`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'TZ-TUTOR-ID': tutorId,
+      'accept': '*/*',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to remove tutor from the enquiry.");
+  }
+  return true;
+};
+
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -496,6 +515,8 @@ function ManageEnquiryContent() {
   const [isScheduleDemoModalOpen, setIsScheduleDemoModalOpen] = useState(false);
   const [demoToReschedule, setDemoToReschedule] = useState<EnquiryDemo | null>(null);
   const [demoToCancel, setDemoToCancel] = useState<EnquiryDemo | null>(null);
+  const [isRemoveTutorModalOpen, setIsRemoveTutorModalOpen] = useState(false);
+  const [tutorToRemove, setTutorToRemove] = useState<ApiTutor | null>(null);
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
@@ -928,6 +949,19 @@ const closeEnquiryMutation = useMutation({
     }
   });
 
+  const removeTutorMutation = useMutation({
+    mutationFn: (tutorId: string) => removeTutorFromEnquiryApi({ enquiryId, tutorId, token }),
+    onSuccess: (_, tutorId) => {
+      queryClient.invalidateQueries({ queryKey: ['enquiryTutors', enquiryId] });
+      toast({ title: "Tutor Removed", description: "The tutor has been removed from this enquiry."});
+      setTutorToRemove(null);
+      setIsRemoveTutorModalOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ variant: "destructive", title: "Removal Failed", description: error.message });
+    }
+  });
+
   
   const handleViewProfile = (tutor: ApiTutor, currentTab: string) => {
     setSelectedTutor(tutor);
@@ -1034,6 +1068,17 @@ const closeEnquiryMutation = useMutation({
   const handleCancelDemo = (demo: EnquiryDemo) => {
     setDemoToCancel(demo);
   };
+  
+  const handleRemoveTutor = (tutor: ApiTutor) => {
+    setTutorToRemove(tutor);
+    setIsRemoveTutorModalOpen(true);
+  };
+  
+  const confirmRemoveTutor = () => {
+    if (tutorToRemove) {
+      removeTutorMutation.mutate(tutorToRemove.id);
+    }
+  };
 
   const confirmCancelDemo = () => {
     if (!demoToCancel) return;
@@ -1114,6 +1159,9 @@ const closeEnquiryMutation = useMutation({
                                     <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewProfile(tutor, tabName)}><Eye className="w-4 h-4" /></Button>
                                     <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button>
                                     {tabName === "assigned" && <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleScheduleDemo(tutor)}><CalendarIcon className="w-4 h-4" /></Button>}
+                                    {(tabName === "assigned" || tabName === "shortlisted") && (
+                                      <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveTutor(tutor)}><Trash2 className="w-4 h-4"/></Button>
+                                    )}
                                 </div></TableCell>
                             </TableRow>
                         )))}
@@ -1341,7 +1389,7 @@ const closeEnquiryMutation = useMutation({
                           <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
                             <CalendarClock className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
+                          <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
                             <XCircle className="w-4 h-4" />
                           </Button>
                         </div>
@@ -1724,6 +1772,24 @@ const closeEnquiryMutation = useMutation({
           </AlertDialogContent>
         </AlertDialog>
 
+        <AlertDialog open={isRemoveTutorModalOpen} onOpenChange={setIsRemoveTutorModalOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Remove Tutor?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure you want to remove <strong>{tutorToRemove?.displayName}</strong> from this enquiry? This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setTutorToRemove(null)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmRemoveTutor} disabled={removeTutorMutation.isPending} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                        {removeTutorMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Remove
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
         <Dialog open={isReopenModalOpen} onOpenChange={setIsReopenModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
               <DialogHeader className="p-6 pb-4">
@@ -1865,4 +1931,5 @@ export default function ManageEnquiryPage() {
 
 
     
+
 
