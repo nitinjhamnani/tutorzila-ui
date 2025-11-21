@@ -22,33 +22,11 @@ import {
   XCircle,
   MapPinned,
   UsersRound,
+  Coins,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface PublicEnquiryDetails {
-  enquiryCode: string;
-  subjects: string;
-  board: string;
-  grade: string;
-  area: string;
-  state: string;
-  city: string;
-  country: string;
-  createdOn: string;
-  studentName: string;
-  notes: string;
-  availabilityDays: string;
-  availabilityTime: string;
-  addressName?: string;
-  address: string;
-  googleMapsLink?: string;
-  pincode?: string;
-  additionalNotes?: string;
-  tutorGenderPreference: string;
-  startDatePreference: string;
-  online: boolean;
-  offline: boolean;
-}
+import type { PublicEnquiryDetails } from "@/types";
 
 const fetchEnquiryByCode = async (code: string): Promise<PublicEnquiryDetails> => {
   if (!code) throw new Error("Enquiry code is required.");
@@ -74,13 +52,21 @@ const EnquiryInfoItem = ({
 }: {
   icon?: React.ElementType;
   label?: string;
-  value?: string | string[] | null;
+  value?: string | string[] | number | null;
   children?: React.ReactNode;
   className?: string;
 }) => {
-  if (!value && !children) return null;
+  if (!value && !children && value !== 0) return null;
   
   let displayText: React.ReactNode = Array.isArray(value) ? value.join(", ") : value;
+  
+  if (typeof value === 'number') {
+    displayText = value.toLocaleString();
+  }
+  if (label?.toLowerCase().includes('fees')) {
+    displayText = `₹${displayText}`;
+  }
+
 
   return (
     <div className={cn("space-y-0.5", className)}>
@@ -153,6 +139,7 @@ export default function PublicEnquiryPage() {
   const hasScheduleInfo = enquiry.availabilityDays || enquiry.availabilityTime;
   const hasPreferences = enquiry.tutorGenderPreference || enquiry.startDatePreference;
   const hasLocationInfo = enquiry.address || enquiry.city || enquiry.state;
+  const hasBudgetInfo = enquiry.daysPerWeek || enquiry.hoursPerDay || enquiry.totalFees || enquiry.totalDays;
 
   return (
     <div className={`${containerPadding} animate-in fade-in duration-500 ease-out`}>
@@ -190,7 +177,7 @@ export default function PublicEnquiryPage() {
               </div>
           </section>
 
-          {(hasPreferences || hasScheduleInfo) && <Separator />}
+          {(hasPreferences || hasScheduleInfo || hasBudgetInfo) && <Separator />}
 
           {hasPreferences && (
             <section className="space-y-3">
@@ -214,6 +201,21 @@ export default function PublicEnquiryPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
                 <EnquiryInfoItem label="Preferred Days" value={transformStringToArray(enquiry.availabilityDays)} icon={CalendarDays} />
                 <EnquiryInfoItem label="Preferred Time" value={transformStringToArray(enquiry.availabilityTime)} icon={Clock} />
+              </div>
+            </section>
+          )}
+
+          {hasBudgetInfo && (
+            <section className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground flex items-center">
+                <DollarSign className="w-4 h-4 mr-2 text-primary/80" />
+                Session & Budget
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                <EnquiryInfoItem label="Sessions per Week" value={enquiry.daysPerWeek} icon={CalendarDays} />
+                <EnquiryInfoItem label="Hours per Session" value={enquiry.hoursPerDay} icon={Clock} />
+                <EnquiryInfoItem label="Total Monthly Fees" value={enquiry.totalFees} icon={Coins} />
+                <EnquiryInfoItem label="Total Days per Month" value={enquiry.totalDays} icon={CalendarDays} />
               </div>
             </section>
           )}
@@ -253,4 +255,3 @@ export default function PublicEnquiryPage() {
     </div>
   );
 }
-

@@ -65,6 +65,36 @@ export interface TutorProfile extends User {
   mockIsShortlistedByCurrentUser?: boolean;
 }
 
+export interface PublicEnquiryDetails {
+  enquiryCode: string;
+  subjects: string;
+  board: string;
+  grade: string;
+  area: string;
+  state: string;
+  city: string;
+  country: string;
+  createdOn: string;
+  studentName: string;
+  notes: string;
+  availabilityDays: string;
+  availabilityTime: string;
+  addressName?: string;
+  address: string;
+  googleMapsLink?: string;
+  pincode?: string;
+  additionalNotes?: string;
+  tutorGenderPreference: string;
+  startDatePreference: string;
+  online: boolean;
+  offline: boolean;
+  daysPerWeek?: number;
+  hoursPerDay?: number;
+  totalFees?: number;
+  totalDays?: number;
+}
+
+
 export interface PublicTutorProfileResponse {
   tutorName: string;
   subjects: string;
@@ -337,6 +367,3 @@ export interface TutorDashboardMetrics {
   profileViews: number;
   averageRating: number;
 }
-
-
-    
