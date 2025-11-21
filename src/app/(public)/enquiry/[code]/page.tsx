@@ -150,6 +150,13 @@ export default function PublicEnquiryPage() {
   const hasLocationInfo = enquiry.address || enquiry.city || enquiry.state;
   const hasBudgetInfo = enquiry.daysPerWeek || enquiry.hoursPerDay || enquiry.totalFees || enquiry.totalDays;
 
+  const genderDisplayMap: Record<string, string> = { "MALE": "Male", "FEMALE": "Female", "NO_PREFERENCE": "No Preference" };
+  const genderValue = enquiry.tutorGenderPreference ? genderDisplayMap[enquiry.tutorGenderPreference.toUpperCase()] || enquiry.tutorGenderPreference : "No Preference";
+
+  const startDisplayMap: Record<string, string> = { "IMMEDIATELY": "Immediately", "WITHIN_A_MONTH": "Within a month", "JUST_EXPLORING": "Just exploring" };
+  const startValue = enquiry.startDatePreference ? startDisplayMap[enquiry.startDatePreference.toUpperCase()] || enquiry.startDatePreference : "Immediately";
+
+
   return (
     <div className={`${containerPadding} animate-in fade-in duration-500 ease-out`}>
       <Card className="max-w-4xl mx-auto bg-card rounded-xl shadow-lg border-0 overflow-hidden">
@@ -220,8 +227,8 @@ export default function PublicEnquiryPage() {
                 Preferences
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                <EnquiryInfoItem label="Tutor Gender" value={enquiry.tutorGenderPreference} icon={VenetianMask} />
-                <EnquiryInfoItem label="Start Date" value={enquiry.startDatePreference?.replace(/_/g, ' ')} icon={CalendarDays} />
+                <EnquiryInfoItem label="Tutor Gender" value={genderValue} icon={VenetianMask} />
+                <EnquiryInfoItem label="Start Date" value={startValue} icon={CalendarDays} />
                 <EnquiryInfoItem label="Preferred Days" value={transformStringToArray(enquiry.availabilityDays)} icon={CalendarDays} />
                 <EnquiryInfoItem label="Preferred Time" value={transformStringToArray(enquiry.availabilityTime)} icon={Clock} />
               </div>
