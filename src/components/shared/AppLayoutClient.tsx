@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { AppHeader } from '@/components/shared/AppHeader';
 import { AppFooter } from '@/components/shared/AppFooter';
+import { Provider as JotaiProvider } from "jotai";
 
 export function AppLayoutClient({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -21,12 +22,12 @@ export function AppLayoutClient({ children }: { children: ReactNode }) {
   const showPublicNavigation = !isDedicatedLayout;
 
   return (
-    <>
+    <JotaiProvider>
       {showPublicNavigation && <AppHeader />}
       <main className="flex-grow">
         {children}
       </main>
       {showPublicNavigation && <AppFooter />}
-    </>
+    </JotaiProvider>
   );
 }
