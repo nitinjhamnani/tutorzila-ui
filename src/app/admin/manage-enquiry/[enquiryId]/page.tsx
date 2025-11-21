@@ -92,7 +92,8 @@ import {
   Calendar as CalendarIcon,
   MessageSquareQuote,
   Edit2,
-  CalendarClock
+  CalendarClock,
+  Share2,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -481,6 +482,8 @@ function ManageEnquiryContent() {
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const totalFeesInputRef = useRef<HTMLInputElement>(null);
   const [sourceTab, setSourceTab] = useState("recommended");
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareableText, setShareableText] = useState("");
   
   useEffect(() => {
       hideLoader();
@@ -1006,6 +1009,24 @@ const closeEnquiryMutation = useMutation({
     setDemoToCancel(null);
   };
 
+  const handleOpenShareModal = () => {
+    if (!enquiry || typeof window === 'undefined') return;
+    
+    const profileUrl = `${window.location.origin}/enquiry/${enquiry.enquiryCode}`;
+    const subjectText = Array.isArray(enquiry.subject) ? enquiry.subject.join(', ') : enquiry.subject;
+    const text = `A new tuition enquiry is available on Tutorzila:\n\n*Subject:* ${subjectText}\n*Grade:* ${enquiry.gradeLevel}\n*Mode:* ${enquiry.teachingMode?.join(', ')}\n\nView full details and apply here: ${profileUrl}`;
+    setShareableText(text);
+    setIsShareModalOpen(true);
+  };
+
+  const handleCopyShareText = () => {
+    navigator.clipboard.writeText(shareableText).then(() => {
+      toast({ title: "Copied to Clipboard!", description: "Enquiry details and link copied." });
+    }).catch(err => {
+      toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy enquiry details." });
+    });
+  };
+
   const genderDisplayMap: Record<string, string> = {
     "MALE": "Male",
     "FEMALE": "Female",
@@ -1362,14 +1383,17 @@ const closeEnquiryMutation = useMutation({
                           </div>
                       </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <button className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full flex items-center justify-center" onClick={handleOpenShareModal}>
+                        <Share2 className="h-4 w-4" />
+                    </button>
+                    <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
+                      <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
+                        {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
               </div>
-               <div className="absolute top-4 right-4">
-                  <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
-                    <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
-                      {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
             </div>
             <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {(enquiry.status === "open" || enquiry.status === "reopened") && (
@@ -1788,6 +1812,30 @@ const closeEnquiryMutation = useMutation({
                     {updateBudgetMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Confirm Budget"}
                 </Button>
               </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Share Enquiry</DialogTitle>
+                    <DialogDescription>
+                    Copy the text below and share it with tutors to review this requirement.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    <Textarea
+                    readOnly
+                    value={shareableText}
+                    className="h-40 text-sm bg-muted/50"
+                    />
+                </div>
+                <DialogFooter>
+                    <Button onClick={handleCopyShareText} className="w-full">
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy to Clipboard
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
 
