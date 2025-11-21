@@ -42,7 +42,6 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
 export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
-  const { toast } = useToast();
   const { showLoader } = useGlobalLoader();
 
   const subjectInitials = getInitials(requirement.subject);
@@ -54,26 +53,29 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
   return (
     <Card className="bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
       <CardHeader className="p-0 pb-3 sm:pb-4 relative">
-        <div className="flex items-start space-x-3">
-          <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
-              {subjectInitials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-grow min-w-0">
-            <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
-               {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
-            </CardTitle>
-            {requirement.studentName && (
-              <CardDescription className="text-xs text-muted-foreground mt-0.5 flex items-center">
-                  <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
-                  {requirement.studentName}
-              </CardDescription>
-            )}
-            <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
-              <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
-            </CardDescription>
-          </div>
+        <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start space-x-3 flex-grow min-w-0">
+                <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
+                    {subjectInitials}
+                    </AvatarFallback>
+                </Avatar>
+                <div className="flex-grow min-w-0">
+                    <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+                        {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
+                    </CardTitle>
+                    {requirement.studentName && (
+                      <CardDescription className="text-xs text-muted-foreground mt-0.5 flex items-center">
+                          <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
+                          {requirement.studentName}
+                      </CardDescription>
+                    )}
+                </div>
+            </div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground flex items-center shrink-0">
+              <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" />{" "}
+              {timeAgo}
+            </div>
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 text-xs flex-grow">
