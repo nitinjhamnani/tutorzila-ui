@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, Suspense, useRef } from "react";
@@ -1442,7 +1443,7 @@ const closeEnquiryMutation = useMutation({
                               </Button>
                             </>
                           )}
-                          <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => handleRemoveDemo(demo)}>
+                          <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveDemo(demo)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -1806,7 +1807,7 @@ const closeEnquiryMutation = useMutation({
             </DialogContent>
         </Dialog>
         
-        <AlertDialog open={!!demoToCancel} onOpenChange={(open) => !open && setDemoToCancel(null)}>
+         <AlertDialog open={!!demoToCancel} onOpenChange={(open) => !open && setDemoToCancel(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
