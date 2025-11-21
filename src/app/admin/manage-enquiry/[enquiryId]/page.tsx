@@ -1208,7 +1208,7 @@ const closeEnquiryMutation = useMutation({
                                     <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleContactTutor(tutor)}><Phone className="w-4 h-4" /></Button>
                                     {tabName === "assigned" && <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleScheduleDemo(tutor)}><CalendarIcon className="w-4 h-4" /></Button>}
                                     {(tabName === "assigned" || tabName === "shortlisted") && (
-                                      <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveTutor(tutor)}><Trash2 className="w-4 h-4"/></Button>
+                                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveTutor(tutor)}><Trash2 className="w-4 h-4"/></Button>
                                     )}
                                 </div></TableCell>
                             </TableRow>
