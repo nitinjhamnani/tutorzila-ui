@@ -4,7 +4,7 @@
 import type { TuitionRequirement } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Send, Bookmark, Building } from "lucide-react";
+import { GraduationCap, MapPin, Users as UsersIcon, Clock, Eye, RadioTower, Send, Bookmark, Building, User } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -64,6 +64,12 @@ export function TutorEnquiryCard({ requirement }: TutorEnquiryCardProps) {
             <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
                {Array.isArray(requirement.subject) ? requirement.subject.join(', ') : requirement.subject}
             </CardTitle>
+            {requirement.studentName && (
+              <CardDescription className="text-xs text-muted-foreground mt-0.5 flex items-center">
+                  <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
+                  {requirement.studentName}
+              </CardDescription>
+            )}
             <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
               <Clock className="w-3 h-3 mr-1 text-muted-foreground/80" /> Posted {timeAgo}
             </CardDescription>

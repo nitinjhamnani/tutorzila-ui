@@ -100,6 +100,7 @@ const fetchTutorEnquiries = async (
     id: item.enquiryId,
     parentId: `p-${item.enquiryId}`, // Mock parentId
     parentName: "A Parent",
+    studentName: item.studentName,
     subject:
       typeof item.subjects === "string"
         ? item.subjects.split(",").map((s: string) => s.trim())
