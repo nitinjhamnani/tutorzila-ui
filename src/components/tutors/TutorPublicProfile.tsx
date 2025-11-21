@@ -32,8 +32,12 @@ interface TutorPublicProfileProps {
 const getInitials = (name?: string): string => {
   if (!name) return "?";
   const parts = name.split(" ");
-  return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : name.slice(0, 2);
+  if (parts.length > 1 && parts[0] && parts[parts.length - 1]) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`;
+  }
+  return name.slice(0, 1);
 };
+
 
 const InfoSection = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
   <div>
