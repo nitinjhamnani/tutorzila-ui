@@ -430,6 +430,24 @@ const removeTutorFromEnquiryApi = async ({ enquiryId, tutorId, token }: { enquir
   return true;
 };
 
+const removeDemoApi = async ({ demoId, token }: { demoId: string; token: string | null; }) => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/demo/remove`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'TZ-DMO-ID': demoId,
+            'accept': '*/*',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to remove the demo.");
+    }
+    return true;
+};
+
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -517,6 +535,8 @@ function ManageEnquiryContent() {
   const [demoToCancel, setDemoToCancel] = useState<EnquiryDemo | null>(null);
   const [isRemoveTutorModalOpen, setIsRemoveTutorModalOpen] = useState(false);
   const [tutorToRemove, setTutorToRemove] = useState<ApiTutor | null>(null);
+  const [isRemoveDemoModalOpen, setIsRemoveDemoModalOpen] = useState(false);
+  const [demoToRemove, setDemoToRemove] = useState<EnquiryDemo | null>(null);
   
   const [sessionsPerWeek, setSessionsPerWeek] = useState(0);
   const [hoursPerSession, setHoursPerSession] = useState(0);
@@ -962,6 +982,21 @@ const closeEnquiryMutation = useMutation({
     }
   });
 
+  const removeDemoMutation = useMutation({
+    mutationFn: (demoId: string) => removeDemoApi({ demoId, token }),
+    onSuccess: () => {
+        toast({ title: "Demo Removed", description: "The demo has been successfully removed." });
+        queryClient.invalidateQueries({ queryKey: ['enquiryDemos', enquiryId] });
+    },
+    onError: (error: any) => {
+        toast({ variant: "destructive", title: "Removal Failed", description: error.message });
+    },
+    onSettled: () => {
+        setDemoToRemove(null);
+        setIsRemoveDemoModalOpen(false);
+    }
+  });
+
   
   const handleViewProfile = (tutor: ApiTutor, currentTab: string) => {
     setSelectedTutor(tutor);
@@ -1084,6 +1119,18 @@ const closeEnquiryMutation = useMutation({
     if (!demoToCancel) return;
     cancelDemoMutation.mutate({ demoId: demoToCancel.demoId, reason: "Cancelled by Admin" });
   };
+  
+  const handleRemoveDemo = (demo: EnquiryDemo) => {
+    setDemoToRemove(demo);
+    setIsRemoveDemoModalOpen(true);
+  };
+
+  const confirmRemoveDemo = () => {
+    if (demoToRemove) {
+      removeDemoMutation.mutate(demoToRemove.demoId);
+    }
+  };
+
 
   const handleOpenShareModal = () => {
     if (!enquiry || typeof window === 'undefined') return;
@@ -1384,16 +1431,21 @@ const closeEnquiryMutation = useMutation({
                         </TooltipProvider>
                     </TableCell>
                     <TableCell>
-                      {!isCancelled && (
                         <div className="flex items-center gap-1.5">
-                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
-                            <CalendarClock className="w-4 h-4" />
-                          </Button>
-                          <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
-                            <XCircle className="w-4 h-4" />
+                          {!isCancelled && (
+                            <>
+                              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRescheduleDemo(demo)}>
+                                <CalendarClock className="w-4 h-4" />
+                              </Button>
+                              <Button variant="destructive-outline" size="icon" className="h-8 w-8" onClick={() => handleCancelDemo(demo)}>
+                                <XCircle className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
+                          <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => handleRemoveDemo(demo)}>
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                      )}
                     </TableCell>
                     </TableRow>
                 )
@@ -1789,6 +1841,24 @@ const closeEnquiryMutation = useMutation({
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
+        
+         <AlertDialog open={isRemoveDemoModalOpen} onOpenChange={setIsRemoveDemoModalOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Remove Demo?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure you want to permanently remove this demo session? This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setDemoToRemove(null)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmRemoveDemo} disabled={removeDemoMutation.isPending} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                        {removeDemoMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Remove
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
 
         <Dialog open={isReopenModalOpen} onOpenChange={setIsReopenModalOpen}>
             <DialogContent className="sm:max-w-md bg-card">
@@ -1934,5 +2004,7 @@ export default function ManageEnquiryPage() {
 
 
 
+
+    
 
     
