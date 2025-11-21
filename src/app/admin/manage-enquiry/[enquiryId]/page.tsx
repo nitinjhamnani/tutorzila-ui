@@ -1331,7 +1331,6 @@ const closeEnquiryMutation = useMutation({
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg border-0">
         <CardHeader className="p-4 sm:p-5 relative">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex items-center gap-4 flex-grow">
               <div className="flex-grow">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -1383,30 +1382,12 @@ const closeEnquiryMutation = useMutation({
                   </div>
                 </div>
               </div>
-              <Avatar className="h-10 w-10 border-2 border-primary/20 shrink-0">
-                <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
-                  {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
-                </AvatarFallback>
-              </Avatar>
             </div>
-          </div>
-          <div className="sm:hidden mt-4 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            {(enquiry.status === "open" || enquiry.status === "reopened") && (
-              <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenAcceptModal}>
-                <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
-              </Button>
-            )}
-            {enquiry.status !== "closed" && (
-              <Button variant="destructive-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenCloseModal}>
-                <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close
-              </Button>
-            )}
-            {enquiry.status === "closed" && (
-              <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenReopenModal}>
-                <Archive className="mr-1.5 h-3.5 w-3.5" /> Reopen
-              </Button>
-            )}
-          </div>
+            <Avatar className="absolute top-4 right-4 h-10 w-10 border-2 border-primary/20 shrink-0">
+                <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
+                    {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
+                </AvatarFallback>
+            </Avatar>
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-between gap-2 p-4 sm:p-5 border-t">
           <div className="flex flex-wrap gap-2">
