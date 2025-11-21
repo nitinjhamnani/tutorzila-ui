@@ -7,7 +7,7 @@ import { format, parseISO } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   BookOpen,
@@ -24,9 +24,11 @@ import {
   UsersRound,
   Coins,
   DollarSign,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PublicEnquiryDetails } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 
 const fetchEnquiryByCode = async (code: string): Promise<PublicEnquiryDetails> => {
   if (!code) throw new Error("Enquiry code is required.");
@@ -67,7 +69,6 @@ const EnquiryInfoItem = ({
     displayText = `₹${displayText}`;
   }
 
-
   return (
     <div className={cn("space-y-0.5", className)}>
       {label && (
@@ -83,10 +84,10 @@ const EnquiryInfoItem = ({
   );
 };
 
-
 export default function PublicEnquiryPage() {
   const params = useParams();
   const code = params.code as string;
+  const { toast } = useToast();
 
   const { data: enquiry, isLoading, error } = useQuery({
     queryKey: ['publicEnquiry', code],
@@ -94,6 +95,14 @@ export default function PublicEnquiryPage() {
     enabled: !!code,
     refetchOnWindowFocus: false,
   });
+
+  const handleCopyToClipboard = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Copied to Clipboard", description: `${fieldName} has been copied.` });
+    }, (err) => {
+      toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy text." });
+    });
+  };
 
   const containerPadding = "container mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-10";
 
@@ -147,10 +156,17 @@ export default function PublicEnquiryPage() {
         <CardHeader className="bg-card p-4 sm:p-5 relative">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex-grow">
-              <div className="flex items-center gap-2 flex-wrap">
-                <CardTitle className="text-xl font-semibold text-primary">{enquiry.subjects}</CardTitle>
-                <Badge variant="default" className="text-xs">Open</Badge>
-              </div>
+              <CardTitle className="text-xl font-semibold text-primary">{enquiry.subjects}</CardTitle>
+               {enquiry.enquiryCode && (
+                  <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-mono text-muted-foreground">
+                          Enquiry Code: <span className="font-semibold">{enquiry.enquiryCode}</span>
+                      </span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopyToClipboard(enquiry.enquiryCode!, 'Enquiry Code')}>
+                          <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                  </div>
+              )}
               <div className="space-y-2 pt-2">
                 <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
                   <UsersRound className="w-4 h-4"/> {enquiry.studentName}
@@ -177,35 +193,9 @@ export default function PublicEnquiryPage() {
               </div>
           </section>
 
-          {(hasPreferences || hasScheduleInfo || hasBudgetInfo) && <Separator />}
-
-          {hasPreferences && (
-            <section className="space-y-3">
-              <h3 className="text-base font-semibold text-foreground flex items-center">
-                <Info className="w-4 h-4 mr-2 text-primary/80" />
-                Preferences
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                <EnquiryInfoItem label="Tutor Gender" value={enquiry.tutorGenderPreference} icon={VenetianMask} />
-                <EnquiryInfoItem label="Start Date" value={enquiry.startDatePreference?.replace(/_/g, ' ')} icon={CalendarDays} />
-              </div>
-            </section>
-          )}
-
-          {hasScheduleInfo && (
-            <section className="space-y-3">
-              <h3 className="text-base font-semibold text-foreground flex items-center">
-                <CalendarDays className="w-4 h-4 mr-2 text-primary/80" />
-                Schedule
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
-                <EnquiryInfoItem label="Preferred Days" value={transformStringToArray(enquiry.availabilityDays)} icon={CalendarDays} />
-                <EnquiryInfoItem label="Preferred Time" value={transformStringToArray(enquiry.availabilityTime)} icon={Clock} />
-              </div>
-            </section>
-          )}
-
           {hasBudgetInfo && (
+            <>
+            <Separator />
             <section className="space-y-3">
               <h3 className="text-base font-semibold text-foreground flex items-center">
                 <DollarSign className="w-4 h-4 mr-2 text-primary/80" />
@@ -216,6 +206,24 @@ export default function PublicEnquiryPage() {
                 <EnquiryInfoItem label="Hours per Session" value={enquiry.hoursPerDay} icon={Clock} />
                 <EnquiryInfoItem label="Total Monthly Fees" value={enquiry.totalFees} icon={Coins} />
                 <EnquiryInfoItem label="Total Days per Month" value={enquiry.totalDays} icon={CalendarDays} />
+              </div>
+            </section>
+            </>
+          )}
+
+          {(hasPreferences || hasScheduleInfo) && <Separator />}
+
+          {(hasPreferences || hasScheduleInfo) && (
+            <section className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground flex items-center">
+                <Info className="w-4 h-4 mr-2 text-primary/80" />
+                Preferences
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                <EnquiryInfoItem label="Tutor Gender" value={enquiry.tutorGenderPreference} icon={VenetianMask} />
+                <EnquiryInfoItem label="Start Date" value={enquiry.startDatePreference?.replace(/_/g, ' ')} icon={CalendarDays} />
+                <EnquiryInfoItem label="Preferred Days" value={transformStringToArray(enquiry.availabilityDays)} icon={CalendarDays} />
+                <EnquiryInfoItem label="Preferred Time" value={transformStringToArray(enquiry.availabilityTime)} icon={Clock} />
               </div>
             </section>
           )}
