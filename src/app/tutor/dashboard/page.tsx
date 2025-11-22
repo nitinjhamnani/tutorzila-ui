@@ -69,6 +69,7 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  Activity,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo, useRef, ChangeEvent, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -404,7 +405,7 @@ export default function TutorDashboardPage() {
   const dashboardMetrics = [
     { title: "Enquiries Assigned", value: String(metricsData?.enquiriesAssigned ?? 0), IconEl: Briefcase, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Demos Scheduled", value: String(metricsData?.demoScheduled ?? 0), IconEl: CalendarDays, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Profile Views", value: String(metricsData?.profileViews ?? 0), IconEl: UsersIcon, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Active Classes", value: String(metricsData?.activeClasses ?? 0), IconEl: Activity, iconBg: "bg-primary/10", iconColor: "text-primary" },
     { title: "Average Rating", value: String(metricsData?.averageRating?.toFixed(1) ?? 'N/A'), IconEl: Star, iconBg: "bg-primary/10", iconColor: "text-primary" },
   ];
 
@@ -587,3 +588,4 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
+
