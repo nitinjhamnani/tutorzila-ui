@@ -7,7 +7,7 @@ import { AppHeader } from '@/components/shared/AppHeader';
 import { AppFooter } from '@/components/shared/AppFooter';
 import { Provider as JotaiProvider } from "jotai";
 import { useAuthMock } from '@/hooks/use-auth-mock';
-import { useGlobalLoader } from '@/hooks/use-global-loader';
+import { GlobalLoader } from '@/components/shared/GlobalLoader';
 import { useEffect } from 'react';
 
 function LayoutVisibilityController({ children }: { children: ReactNode }) {
@@ -32,7 +32,7 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const isDedicatedLayout = pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
   
   if (isCheckingAuth) {
-    return null; // Render nothing on the server and during initial client-side auth check
+    return <GlobalLoader forceShow={true} />; // Always show loader during auth check
   }
   
   // Show the public layout (header/footer) only for non-dedicated layout paths
