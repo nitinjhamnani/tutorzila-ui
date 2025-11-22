@@ -15,24 +15,13 @@ import { loaderAtom } from "@/lib/state/loader";
 function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
-  const [loaderState] = useAtom(loaderAtom);
-
-  useEffect(() => {
-    // This effect ensures the loader is hidden after initial auth checks are done.
-  }, [isCheckingAuth, pathname]);
-
-  // When the global loader is active, show only the loader.
-  if (loaderState.isLoading) {
-    return <GlobalLoader forceShow={true} />;
-  }
-
+  
   const pathsWithDedicatedLayouts = [
     '/parent/',
     '/tutor/',
     '/admin/',
   ];
 
-  // The login page is a special case that shouldn't show public nav
   if (pathname === '/admin/login') {
     return <main className="flex-grow">{children}</main>;
   }
@@ -40,10 +29,9 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const isDedicatedLayout = pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
   
   if (isCheckingAuth) {
-    return <GlobalLoader forceShow={true} />; // Always show loader during initial auth check
+    return <GlobalLoader forceShow={true} />; 
   }
   
-  // Show the public layout (header/footer) only for non-dedicated layout paths
   const showPublicNavigation = !isDedicatedLayout;
 
   return (
@@ -63,6 +51,8 @@ export function AppLayoutClient({ children }: { children: ReactNode }) {
       <LayoutVisibilityController>
         {children}
       </LayoutVisibilityController>
+      {/* GlobalLoader is now a sibling to ensure it can overlay everything */}
+      <GlobalLoader />
     </JotaiProvider>
   );
 }

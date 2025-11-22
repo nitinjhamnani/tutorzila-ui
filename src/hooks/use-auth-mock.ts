@@ -127,10 +127,14 @@ export function useAuthMock() {
     showLoader("Logging out...");
     setTimeout(() => {
       if (typeof window !== 'undefined') {
+        // Clear user from state and storage
+        setUser(null);
+        setToken(null);
+        // Then redirect with a full page reload
         window.location.href = "/";
       }
     }, 100);
-  }, [showLoader]);
+  }, [showLoader, setUser, setToken]);
 
 
   return {
