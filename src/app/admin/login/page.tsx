@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
 
   async function onSubmit(values: AdminLoginFormValues) {
     setIsSubmitting(true);
-    showLoader();
+    showLoader("Logging in...");
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
