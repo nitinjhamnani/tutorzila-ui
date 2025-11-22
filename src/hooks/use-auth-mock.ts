@@ -39,7 +39,7 @@ export function useAuthMock() {
   const [token, setToken] = useAtom(tokenAtom);
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { showLoader, hideLoader } = useGlobalLoader();
+  const { showLoader } = useGlobalLoader();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("tutorzila_user");
@@ -101,47 +101,34 @@ export function useAuthMock() {
   };
 
   const login = useCallback(async (username: string, password?: string) => {
-    try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      
-      const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
-          body: JSON.stringify({ username, password }),
-      });
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    
+    const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+        body: JSON.stringify({ username, password }),
+    });
 
-      const responseData = await response.json();
+    const responseData = await response.json();
 
-      if (!response.ok) {
-        throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
-      }
+    if (!response.ok) {
+      throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
+    }
 
-      if (responseData.token && responseData.type) {
-          setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
-          return responseData; // Return data on success
-      } else {
-          throw new Error("Invalid response from server during login. Missing token or user type.");
-      }
-    } catch (error) {
-        throw error;
+    if (responseData.token && responseData.type) {
+        setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
+        return responseData; // Return data on success
+    } else {
+        throw new Error("Invalid response from server during login. Missing token or user type.");
     }
   }, [setSession]);
 
   const logout = useCallback(() => {
     showLoader("Logging out...");
-    // Clear state
-    setUser(null);
-    setToken(null);
-
-    // Clear persisted state from localStorage
     if (typeof window !== 'undefined') {
-      localStorage.removeItem("tutorzila_user");
-      localStorage.removeItem("tutorzila_token");
-      localStorage.removeItem("tutorzila_tutor_profile");
-      // Force a full page reload to the homepage
       window.location.href = "/";
     }
-  }, [setUser, setToken, showLoader]);
+  }, [showLoader]);
 
 
   return {

@@ -17,9 +17,9 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const { showLoader, hideLoader, loaderState } = useGlobalLoader();
 
   useEffect(() => {
-    // This effect handles redirection logic
+    // This effect handles redirection logic for authenticated users on public pages
     if (!isCheckingAuth && isAuthenticated && user) {
-      const publicPaths = ['/', '/become-a-tutor', '/tutors-in-bangalore'];
+      const publicPaths = ['/', '/become-a-tutor', '/tutors-in-bangalore', '/terms-and-conditions', '/privacy-policy', '/faq', '/contact-us'];
       if (publicPaths.includes(pathname)) {
         showLoader("Redirecting to your dashboard...");
         let targetPath = "/";
@@ -34,6 +34,7 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
             targetPath = '/parent/dashboard';
             break;
           default:
+            // If role is unknown, hide loader and stay on the page
             hideLoader();
             break;
         }
@@ -42,7 +43,8 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
         }
       }
     } else if (!isCheckingAuth) {
-        // If we are done checking and the user is not authenticated on a protected page, or if a page just needs the loader to hide on mount.
+        // If auth check is complete and user is not being redirected, ensure loader is hidden.
+        // This is crucial for pages that don't trigger redirects but might have shown a loader initially.
         hideLoader();
     }
   }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader, pathname]);
@@ -50,21 +52,21 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const pathsWithDedicatedLayouts = [
     '/parent/',
     '/tutor/',
-    '/auth/',
     '/admin/',
   ];
 
-  const isDedicatedLayout = pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
-
-  // If the loader is active, we want to show the current page content underneath it, not a blank screen.
-  if (loaderState.isLoading) {
+  // The login page is a special case that shouldn't show public nav
+  if (pathname === '/admin/login') {
     return <main className="flex-grow">{children}</main>;
   }
+
+  const isDedicatedLayout = pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
   
   if (isCheckingAuth) {
-    return null; // Render nothing while we wait for auth state to be confirmed client-side
+    return null; // Render nothing on the server and during initial client-side auth check
   }
-
+  
+  // Show the public layout (header/footer) only for non-dedicated layout paths
   const showPublicNavigation = !isDedicatedLayout;
 
   return (
