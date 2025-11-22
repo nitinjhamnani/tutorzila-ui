@@ -158,11 +158,9 @@ export function OtpVerificationModal({
             }
 
             const role = responseData.type.toLowerCase();
-            if (role === 'tutor') {
-                router.push("/tutor/dashboard");
-            } else if (role === 'parent') {
-                sessionStorage.setItem('showNewRequirementToast', 'true');
-                router.push("/parent/dashboard");
+            if (role === 'tutor' || role === 'parent' || role === 'admin') {
+                showLoader("Redirecting to your dashboard...");
+                router.push(`/${role}/dashboard`);
             } else {
                 router.push("/");
             }
@@ -296,3 +294,5 @@ export function OtpVerificationModal({
     </>
   );
 }
+
+    
