@@ -2,14 +2,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon, ListFilter, ChevronDown, CheckSquare, Eye, Edit, Ban, Settings } from "lucide-react";
+import { Loader2, Presentation, XCircle, Clock, CheckCircle, RadioTower, Users as UsersIcon, ListFilter, ChevronDown, CheckSquare, Eye, Edit, Ban, Settings, Trash2 } from "lucide-react";
 import type { EnquiryDemo } from "@/types";
 import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -21,8 +21,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
+import { useToast } from "@/hooks/use-toast";
 
 const demoStatusCategories = [
   { value: "SCHEDULED", label: "Scheduled", icon: Clock },
@@ -56,6 +67,46 @@ const fetchAdminDemos = async (token: string | null, status: DemoStatusCategory)
   return data;
 };
 
+const cancelDemoApi = async ({ demoId, reason, token }: { demoId: string; reason: string; token: string | null }) => {
+  if (!token) throw new Error("Authentication token not found.");
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/demo/cancel`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'TZ-DMO-ID': demoId,
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: reason }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to cancel the demo session.");
+  }
+  
+  return true; 
+};
+
+const removeDemoApi = async ({ demoId, token }: { demoId: string; token: string | null; }) => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(`${apiBaseUrl}/api/demo/remove`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'TZ-DMO-ID': demoId,
+            'accept': '*/*',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to remove the demo.");
+    }
+    return true;
+};
+
+
 const StatusIcon = ({ status }: { status: string }) => {
     const iconProps = "w-3 h-3 mr-1";
     switch (status) {
@@ -71,7 +122,11 @@ const StatusIcon = ({ status }: { status: string }) => {
 export default function AdminAllDemosPage() {
     const { token } = useAuthMock();
     const { hideLoader, showLoader } = useGlobalLoader();
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
     const [activeFilterCategory, setActiveFilterCategory] = useState<DemoStatusCategory>("SCHEDULED");
+    const [demoToCancel, setDemoToCancel] = useState<EnquiryDemo | null>(null);
+    const [demoToRemove, setDemoToRemove] = useState<EnquiryDemo | null>(null);
 
 
     const { data: allDemos = [], isLoading, error } = useQuery({
@@ -90,9 +145,47 @@ export default function AdminAllDemosPage() {
         }
     }, [isLoading, showLoader, hideLoader]);
 
+    const cancelDemoMutation = useMutation({
+        mutationFn: ({ demoId, reason }: { demoId: string; reason: string; }) => cancelDemoApi({ demoId, reason, token }),
+        onSuccess: () => {
+        toast({ title: "Demo Cancelled", description: "The demo session has been cancelled." });
+        queryClient.invalidateQueries({ queryKey: ['adminAllDemos', token, activeFilterCategory] });
+        setDemoToCancel(null);
+        },
+        onError: (error: any) => {
+        toast({ variant: "destructive", title: "Cancellation Failed", description: error.message });
+        }
+    });
+
+    const removeDemoMutation = useMutation({
+        mutationFn: (demoId: string) => removeDemoApi({ demoId, token }),
+        onSuccess: () => {
+            toast({ title: "Demo Removed", description: "The demo has been successfully removed." });
+            queryClient.invalidateQueries({ queryKey: ['adminAllDemos', token, activeFilterCategory] });
+        },
+        onError: (error: any) => {
+            toast({ variant: "destructive", title: "Removal Failed", description: error.message });
+        },
+        onSettled: () => {
+            setDemoToRemove(null);
+        }
+    });
+
     const selectedCategoryData = useMemo(() => {
         return demoStatusCategories.find(cat => cat.value === activeFilterCategory) || demoStatusCategories[0];
     }, [activeFilterCategory]);
+    
+    const confirmCancelDemo = () => {
+        if (!demoToCancel) return;
+        cancelDemoMutation.mutate({ demoId: demoToCancel.demoId, reason: "Cancelled by Admin" });
+    };
+
+    const confirmRemoveDemo = () => {
+        if (demoToRemove) {
+            removeDemoMutation.mutate(demoToRemove.demoId);
+        }
+    };
+
 
     const renderDemoTable = () => {
         if (isLoading) {
@@ -174,11 +267,21 @@ export default function AdminAllDemosPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
+                                  <div className="flex items-center gap-1.5">
                                     <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                                      <Link href={`/admin/demos/${demo.demoId}`}>
+                                      <Link href={`/admin/manage-enquiry/${demo.demoDetails.enquiryId}`}>
                                         <Settings className="h-4 w-4" />
                                       </Link>
                                     </Button>
+                                    {demo.demoStatus === 'SCHEDULED' && (
+                                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setDemoToCancel(demo)}>
+                                        <XCircle className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setDemoToRemove(demo)}>
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -191,6 +294,7 @@ export default function AdminAllDemosPage() {
     };
 
     return (
+      <>
         <div className="space-y-6">
             <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
                 <CardHeader className="p-0 flex flex-row items-start sm:items-center justify-between gap-3">
@@ -238,5 +342,41 @@ export default function AdminAllDemosPage() {
             </Card>
             {renderDemoTable()}
         </div>
+        <AlertDialog open={!!demoToCancel} onOpenChange={(open) => !open && setDemoToCancel(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will cancel the demo session scheduled with {demoToCancel?.demoDetails.tutorName}. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Back</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmCancelDemo} disabled={cancelDemoMutation.isPending}>
+                {cancelDemoMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                Confirm Cancellation
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={!!demoToRemove} onOpenChange={(open) => !open && setDemoToRemove(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Remove Demo?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure you want to permanently remove this demo session? This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setDemoToRemove(null)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmRemoveDemo} disabled={removeDemoMutation.isPending} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                        {removeDemoMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Remove
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
 }
