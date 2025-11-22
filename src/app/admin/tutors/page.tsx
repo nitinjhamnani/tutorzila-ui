@@ -292,7 +292,9 @@ export default function AdminTutorsPage() {
                         )}
                       {tutor.displayName}
                     </div>
-                    <div className="text-xs text-muted-foreground">{tutor.area}, {tutor.city}</div>
+                    <div className="text-xs text-muted-foreground">
+                        {[tutor.area, tutor.city].filter(Boolean).join(', ')}
+                    </div>
                 </div>
               </div>
             </TableCell>
