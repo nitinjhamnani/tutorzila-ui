@@ -55,29 +55,25 @@ const fetchAllSupportTickets = async (token: string | null): Promise<SupportTick
   }));
 };
 
-const StatusBadge = ({ status, resolved }: { status: string; resolved?: boolean }) => {
-    let text = status;
+const StatusBadge = ({ status }: { status: string; }) => {
     let variant: "default" | "secondary" | "destructive" | "outline" = "secondary";
     let icon = <Clock className="mr-1.5 h-3 w-3" />;
 
-    if (resolved) {
-        text = "Resolved";
+    const lowerStatus = status.toLowerCase();
+
+    if (lowerStatus === 'open') {
+        variant = "destructive";
+    } else if (lowerStatus === 'in progress') {
+        variant = "outline";
+    } else if (lowerStatus === 'resolved' || lowerStatus === 'closed') {
         variant = "default";
         icon = <CheckCircle2 className="mr-1.5 h-3 w-3" />;
-    } else if (status.toLowerCase() === 'open') {
-        text = "Open";
-        variant = "destructive";
-        icon = <Clock className="mr-1.5 h-3 w-3" />;
-    } else {
-        text = "In Progress";
-        variant = "outline";
-        icon = <Clock className="mr-1.5 h-3 w-3" />;
     }
     
     return (
-      <Badge variant={variant} className={cn("text-xs")}>
+      <Badge variant={variant} className={cn("text-xs capitalize")}>
         {icon}
-        {text}
+        {status}
       </Badge>
     );
 };
@@ -145,7 +141,12 @@ export default function AdminSupportTicketsPage() {
             <TableRow key={ticket.id}>
                 <TableCell className="font-medium text-foreground">{ticket.category}</TableCell>
                 <TableCell>{ticket.subject}</TableCell>
-                <TableCell><StatusBadge status={ticket.status} resolved={ticket.resolved}/></TableCell>
+                <TableCell><StatusBadge status={ticket.status} /></TableCell>
+                <TableCell>
+                  <Badge variant={ticket.resolved ? "default" : "secondary"}>
+                    {ticket.resolved ? "Yes" : "No"}
+                  </Badge>
+                </TableCell>
                 <TableCell>{format(parseISO(ticket.createdAt), "MMM d, yyyy - h:mm a")}</TableCell>
                 <TableCell>
                     <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewDetails(ticket)}>
@@ -175,10 +176,11 @@ export default function AdminSupportTicketsPage() {
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
-                            <TableRow>
+                            <TableRow className="bg-muted/50">
                                 <TableHead>Category</TableHead>
                                 <TableHead>Subject</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Resolved</TableHead>
                                 <TableHead>Created At</TableHead>
                                 <TableHead>Actions</TableHead>
                             </TableRow>
