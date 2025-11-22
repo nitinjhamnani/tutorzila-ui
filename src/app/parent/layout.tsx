@@ -58,7 +58,6 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   
   const handleLogout = () => {
     logout();
-    router.push('/'); // Redirect to home page after logout
   };  const parentNavItems = [
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
@@ -98,9 +97,9 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   }
   
   if (hasMounted && (!isAuthenticated || (user && user.role !== 'parent'))) {
-    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
+    return null;
   }
-   if (!user && hasMounted) {
+   if (!user && hasMounted) { 
      return <div className="flex h-screen items-center justify-center">User data not available. Redirecting...</div>;
   }
 
@@ -121,7 +120,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               size="icon"
               onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
               className="text-gray-600 hover:text-white hover:bg-primary/80"
-              aria-label={isMobile ? (isNavbarOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
+              aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
             >
               <MenuIcon className="h-6 w-6" />
             </Button>

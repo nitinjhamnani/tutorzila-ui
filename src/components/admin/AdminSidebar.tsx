@@ -55,7 +55,6 @@ export function AdminSidebar({
   };
   
   const handleLogout = () => {
-    showLoader("Logging out...");
     logoutNavItem.onClick();
     if (isMobile && isMobileNavOpen) {
       toggleMobileNav();

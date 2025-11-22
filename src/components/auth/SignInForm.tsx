@@ -162,11 +162,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
         title: "Sign In Failed",
         description: (error as Error).message || "An unexpected error occurred.",
       });
-    } finally {
-      // Don't set isSubmitting to false on success because we are navigating away
-      if (!form.formState.isSubmitSuccessful) {
-        setIsSubmitting(false);
-      }
+      setIsSubmitting(false);
     }
   }
 

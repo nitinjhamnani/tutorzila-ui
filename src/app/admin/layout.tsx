@@ -68,7 +68,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   
   const handleLogout = () => {
     logout();
-    router.push('/admin/login'); 
   };
   
   logoutNavItem.onClick = handleLogout;
@@ -97,7 +96,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   
   // Logic for authenticated dashboard view
   if (isCheckingAuth || !hasMounted || !isAuthenticated || user?.role !== 'admin') {
-    return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Admin Area...</div>;
+    return null;
   }
 
   return (

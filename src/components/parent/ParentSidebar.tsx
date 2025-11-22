@@ -52,7 +52,6 @@ export function ParentSidebar(props: ParentSidebarProps) {
   };
 
   const handleLogout = () => {
-    showLoader("Logging out...");
     props.logoutNavItem.onClick();
     if (props.isMobile && props.isMobileNavOpen) {
       props.toggleMobileNav();

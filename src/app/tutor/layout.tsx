@@ -114,7 +114,6 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
 
   const handleLogout = () => {
-    showLoader("Logging out...");
     logout();
   };
 
@@ -147,7 +146,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
 
   if (hasMounted && (!isAuthenticated || user?.role !== 'tutor')) {
     
-    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
+    return null;
   }
 
    if (!user && hasMounted) { 

@@ -14,40 +14,14 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
-  const { showLoader, hideLoader, loaderState } = useGlobalLoader();
+  const { hideLoader } = useGlobalLoader();
 
   useEffect(() => {
-    // This effect handles redirection logic for authenticated users on public pages
-    if (!isCheckingAuth && isAuthenticated && user) {
-      const publicPaths = ['/', '/become-a-tutor', '/tutors-in-bangalore', '/terms-and-conditions', '/privacy-policy', '/faq', '/contact-us'];
-      if (publicPaths.includes(pathname)) {
-        showLoader("Redirecting to your dashboard...");
-        let targetPath = "/";
-        switch (user.role) {
-          case 'admin':
-            targetPath = '/admin/dashboard';
-            break;
-          case 'tutor':
-            targetPath = '/tutor/dashboard';
-            break;
-          case 'parent':
-            targetPath = '/parent/dashboard';
-            break;
-          default:
-            // If role is unknown, hide loader and stay on the page
-            hideLoader();
-            break;
-        }
-        if (targetPath !== "/") {
-          router.replace(targetPath);
-        }
-      }
-    } else if (!isCheckingAuth) {
-        // If auth check is complete and user is not being redirected, ensure loader is hidden.
-        // This is crucial for pages that don't trigger redirects but might have shown a loader initially.
-        hideLoader();
+    // This effect ensures the loader is hidden after initial auth checks are done.
+    if (!isCheckingAuth) {
+      hideLoader();
     }
-  }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader, pathname]);
+  }, [isCheckingAuth, hideLoader, pathname]);
 
   const pathsWithDedicatedLayouts = [
     '/parent/',
@@ -64,14 +38,6 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   
   if (isCheckingAuth) {
     return null; // Render nothing on the server and during initial client-side auth check
-  }
-  
-  // Don't render "Redirecting..." text. Let the loader handle the visual state.
-  if (isAuthenticated && !isCheckingAuth && user) {
-    const publicPaths = ['/', '/become-a-tutor', '/tutors-in-bangalore', '/terms-and-conditions', '/privacy-policy', '/faq', '/contact-us'];
-    if (publicPaths.includes(pathname)) {
-      return null;
-    }
   }
   
   // Show the public layout (header/footer) only for non-dedicated layout paths
