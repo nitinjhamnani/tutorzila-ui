@@ -29,7 +29,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
   if (!token) throw new Error("Authentication token not found.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/enquiry/list`, {
+  const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/list`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -252,5 +252,6 @@ export default function AdminAllEnquiriesPage() {
   );
 }
     
+
 
 
