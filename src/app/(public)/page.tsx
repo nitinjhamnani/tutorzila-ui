@@ -140,8 +140,6 @@ export default function HomePage() {
     setIsPostRequirementModalOpen(true);
   };
   
-  const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
-  
   // If authentication is being checked or if the user is authenticated and about to be redirected, show a blank screen as the global loader will cover it.
   if (isCheckingAuth || (isAuthenticated && user)) {
     return <div className="w-full h-screen bg-background" />;
@@ -177,7 +175,6 @@ export default function HomePage() {
                     onPointerDownOutside={(e) => e.preventDefault()}
                   >
                     <PostRequirementModal 
-                      startFromStep={postRequirementStartStep} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
                       onTriggerSignIn={handleTriggerSignIn}
                       initialSubject={initialSubjectForModal}
@@ -283,7 +280,6 @@ export default function HomePage() {
                        onPointerDownOutside={(e) => e.preventDefault()}
                      >
                        <PostRequirementModal 
-                         startFromStep={postRequirementStartStep} 
                          onSuccess={() => setIsPostRequirementModalOpen(false)} 
                          onTriggerSignIn={handleTriggerSignIn}
                          initialSubject={initialSubjectForModal}

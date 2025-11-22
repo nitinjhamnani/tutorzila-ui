@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -47,6 +48,7 @@ import { PostRequirementModal } from "@/components/common/modals/PostRequirement
 import bannerImage from "@/assets/images/banner-9.png";
 import hireTutorImage from "@/assets/images/banner-8.png";
 import { useAuthMock } from "@/hooks/use-auth-mock";
+import AuthModal from "@/components/auth/AuthModal";
 
 const popularSubjects = [
   { name: "Mathematics", icon: Calculator },
@@ -177,18 +179,24 @@ export default function TutorsInBangalorePage() {
     string[] | undefined
   >(undefined);
   const { user, isAuthenticated } = useAuthMock();
-
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  
   const handleOpenRequirementModal = (subjectName?: string) => {
     setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
     setIsPostRequirementModalOpen(true);
   };
+  
+  const handleTriggerSignIn = () => {
+    setIsPostRequirementModalOpen(false);
+    setIsAuthModalOpen(true);
+  };
 
-  const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
 
   const sectionPadding = "py-10 md:py-16";
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
 
   return (
+    <>
     <div className="bg-secondary">
       {/* Hero Section */}
       <section className={`w-full bg-secondary ${sectionPadding}`}>
@@ -227,9 +235,9 @@ export default function TutorsInBangalorePage() {
                   onPointerDownOutside={(e) => e.preventDefault()}
                 >
                   <PostRequirementModal
-                    startFromStep={postRequirementStartStep}
                     onSuccess={() => setIsPostRequirementModalOpen(false)}
                     initialSubject={initialSubjectForModal}
+                    onTriggerSignIn={handleTriggerSignIn}
                   />
                 </DialogContent>
               </Dialog>
@@ -362,9 +370,9 @@ export default function TutorsInBangalorePage() {
                   onPointerDownOutside={(e) => e.preventDefault()}
                 >
                   <PostRequirementModal
-                    startFromStep={postRequirementStartStep}
                     onSuccess={() => setIsPostRequirementModalOpen(false)}
                     initialSubject={initialSubjectForModal}
+                     onTriggerSignIn={handleTriggerSignIn}
                   />
                 </DialogContent>
               </Dialog>
@@ -416,5 +424,12 @@ export default function TutorsInBangalorePage() {
         </div>
       </section>
     </div>
+      {isAuthModalOpen && (
+        <AuthModal 
+          isOpen={isAuthModalOpen} 
+          onOpenChange={setIsAuthModalOpen} 
+        />
+      )}
+    </>
   );
 }

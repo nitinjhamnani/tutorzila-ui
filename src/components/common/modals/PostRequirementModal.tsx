@@ -108,19 +108,16 @@ interface PostRequirementModalProps {
   onSuccess: () => void;
   onTriggerSignIn?: (name?: string) => void;
   initialSubject?: string[];
-  startFromStep?: number;
 }
 
 export function PostRequirementModal({ 
   onSuccess, 
   onTriggerSignIn, 
   initialSubject,
-  startFromStep = 1,
 }: PostRequirementModalProps) {
   
-  const [currentStep, setCurrentStep] = useState(startFromStep);
-  const { user, isAuthenticated, token } = useAuthMock();
-  const totalSteps = isAuthenticated ? 2 : 3; 
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3; 
   
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -164,7 +161,7 @@ export function PostRequirementModal({
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
-    } else if (currentStep === 2 && !isAuthenticated) { // Only validate this step if not authenticated
+    } else if (currentStep === 2) {
       fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference'];
     }
 
@@ -209,7 +206,7 @@ export function PostRequirementModal({
         offline: data.teachingMode.includes("Offline (In-person)"),
     };
     
-    const signupRequest = !isAuthenticated ? {
+    const signupRequest = {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -217,20 +214,15 @@ export function PostRequirementModal({
         countryCode: selectedCountryData?.countryCode || '',
         phone: data.localPhoneNumber,
         userType: "PARENT",
-    } : null;
+    };
     
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const endpoint = isAuthenticated ? '/api/enquiry/create' : '/api/auth/enquiry';
+      const endpoint = '/api/auth/enquiry';
       
       const headers: HeadersInit = { 'Content-Type': 'application/json', 'accept': '*/*' };
-      if(isAuthenticated && token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
       
-      const body = isAuthenticated 
-        ? JSON.stringify(enquiryRequest) 
-        : JSON.stringify({ enquiryRequest, signupRequest });
+      const body = JSON.stringify({ enquiryRequest, signupRequest });
 
       const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         method: 'POST',
@@ -249,16 +241,9 @@ export function PostRequirementModal({
         throw new Error(responseData.message || "An unexpected error occurred.");
       }
       
-      if (isAuthenticated) {
-        sessionStorage.setItem('showNewRequirementToast', 'true');
-        onSuccess();
-        router.push("/parent/dashboard");
-
-      } else {
-        const fullPhoneNumber = `${selectedCountryData?.countryCode || ''} ${data.localPhoneNumber}`;
-        setOtpIdentifier(fullPhoneNumber);
-        setIsOtpModalOpen(true);
-      }
+      const fullPhoneNumber = `${selectedCountryData?.countryCode || ''} ${data.localPhoneNumber}`;
+      setOtpIdentifier(fullPhoneNumber);
+      setIsOtpModalOpen(true);
 
     } catch (error) {
       hideLoader();
@@ -373,7 +358,7 @@ export function PostRequirementModal({
             </div>
           )}
 
-          {(currentStep === 2) && (
+          {currentStep === 2 && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><Settings2 className="mr-2 h-5 w-5" />Tuition Preferences</h3>
 
@@ -533,7 +518,7 @@ export function PostRequirementModal({
             </div>
           )}
 
-          {(currentStep === 3) && (
+          {currentStep === 3 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <h3 className="text-lg font-semibold flex items-center text-primary"><User className="mr-2 h-5 w-5" />Your Contact Details</h3>
               <FormField
