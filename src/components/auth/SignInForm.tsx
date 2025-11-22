@@ -59,6 +59,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
+  const { showLoader } = useGlobalLoader();
 
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
@@ -134,6 +135,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
+    showLoader("Logging in...");
     try {
       const result = await login(values.localPhoneNumber, values.password);
       

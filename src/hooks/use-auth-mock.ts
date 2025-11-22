@@ -125,13 +125,10 @@ export function useAuthMock() {
 
   const logout = useCallback(() => {
     showLoader("Logging out...");
-    setUser(null);
-    setToken(null);
-    // Use a timeout to ensure the state update has time to process before full navigation
     if (typeof window !== 'undefined') {
         window.location.href = "/";
     }
-  }, [setUser, setToken, showLoader]);
+  }, [showLoader]);
 
 
   return {
