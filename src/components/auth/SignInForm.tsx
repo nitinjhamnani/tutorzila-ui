@@ -58,8 +58,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
-  const { showLoader, hideLoader } = useGlobalLoader();
-  const router = useRouter();
 
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
@@ -88,7 +86,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
     }
 
     setIsOtpSubmitting(true);
-    showLoader("Sending OTP...");
 
     try {
         const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === country);
@@ -102,7 +99,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
         });
 
         const responseData = await response.json();
-        hideLoader();
 
         if (response.ok) {
             toast({
@@ -115,7 +111,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
             throw new Error(responseData.message || "Failed to send OTP.");
         }
     } catch (error) {
-        hideLoader();
         toast({
             variant: "destructive",
             title: "Failed to Send OTP",
@@ -138,17 +133,12 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
-    showLoader("Signing in...");
     try {
       const result = await login(values.localPhoneNumber, values.password);
-      toast({
-        title: "Signed In!",
-        description: result.message,
-      });
+      // On success, the loader will persist through navigation. We don't need to do anything here.
       if (onSuccess) onSuccess();
       if (onClose) onClose();
     } catch (error) {
-      hideLoader(); 
       toast({
         variant: "destructive",
         title: "Sign In Failed",

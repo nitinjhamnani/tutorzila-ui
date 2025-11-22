@@ -43,20 +43,17 @@ export function AdminSidebar({
   logoutNavItem,
 }: AdminSidebarProps) {
   const pathname = usePathname();
-  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {
       return;
     }
-    // The loader will be shown by the destination page if needed.
     if (isMobile && isMobileNavOpen) {
       toggleMobileNav();
     }
   };
   
   const handleLogout = () => {
-    showLoader("Logging out...");
     logoutNavItem.onClick();
     if (isMobile && isMobileNavOpen) {
       toggleMobileNav();

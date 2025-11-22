@@ -106,10 +106,11 @@ export function useAuthMock() {
   };
 
   const login = async (username: string, password?: string) => {
-    // The caller (e.g., SignInForm) is now responsible for showLoader/hideLoader on failure
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    
+    showLoader("Signing in...");
+
     try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      
       const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
@@ -126,22 +127,25 @@ export function useAuthMock() {
           setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
           
           const role = responseData.type.toLowerCase();
-          if (role === 'tutor') {
-              router.push("/tutor/dashboard");
-          } else if (role === 'parent') {
-              router.push("/parent/dashboard");
-          } else if (role === 'admin') {
-              router.push("/admin/dashboard");
-          } else {
-              router.push("/");
-          }
-          // Do not hide loader here. Let the destination page handle it.
+          
+          setTimeout(() => {
+            if (role === 'tutor') {
+                router.push("/tutor/dashboard");
+            } else if (role === 'parent') {
+                router.push("/parent/dashboard");
+            } else if (role === 'admin') {
+                router.push("/admin/dashboard");
+            } else {
+                router.push("/");
+            }
+          }, 50);
+
       } else {
           throw new Error("Invalid response from server during login. Missing token or user type.");
       }
       return responseData;
     } catch (error) {
-        // We don't hide the loader here anymore. The caller does.
+        hideLoader(); // Hide loader only on failure
         throw error;
     }
   };
@@ -159,9 +163,10 @@ export function useAuthMock() {
       localStorage.removeItem("tutorzila_token");
       localStorage.removeItem("tutorzila_tutor_profile");
     }
-
-    router.push("/");
-    // Do not hide loader here. Let the destination page handle it.
+    
+    setTimeout(() => {
+      router.push("/");
+    }, 50);
   };
 
 
