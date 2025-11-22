@@ -106,7 +106,7 @@ export function useAuthMock() {
   };
 
   const login = async (username: string, password?: string) => {
-    showLoader("Signing in...");
+    // The caller (e.g., SignInForm) is now responsible for showLoader/hideLoader on failure
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     try {
@@ -135,14 +135,14 @@ export function useAuthMock() {
           } else {
               router.push("/");
           }
-           // Do not hide loader here, let the destination page handle it.
+          // Do not hide loader here. Let the destination page handle it.
       } else {
           throw new Error("Invalid response from server during login. Missing token or user type.");
       }
       return responseData;
     } catch (error) {
-        hideLoader(); // Hide loader only on failure
-        throw error; // Re-throw to be caught by the form
+        // We don't hide the loader here anymore. The caller does.
+        throw error;
     }
   };
 
@@ -160,8 +160,8 @@ export function useAuthMock() {
       localStorage.removeItem("tutorzila_tutor_profile");
     }
 
-    // Use router to navigate, which allows the loader to persist until the next page loads.
     router.push("/");
+    // Do not hide loader here. Let the destination page handle it.
   };
 
 

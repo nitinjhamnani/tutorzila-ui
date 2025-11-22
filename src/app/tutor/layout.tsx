@@ -37,6 +37,7 @@ import {
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { AddToHomeScreenModal } from "@/components/modals/AddToHomeScreenModal"; 
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
 const fetchTutorId = async (token: string | null): Promise<string> => {
@@ -62,6 +63,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   const router = useRouter();
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { showLoader } = useGlobalLoader();
 
   const [hasMounted, setHasMounted] = useState(false);
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false);
@@ -112,8 +114,8 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
 
   const handleLogout = () => {
+    showLoader("Logging out...");
     logout();
-    router.push('/');
   };
 
   const headerHeight = "4rem"; 

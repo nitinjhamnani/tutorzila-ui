@@ -138,10 +138,9 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
+    showLoader("Signing in...");
     try {
       const result = await login(values.localPhoneNumber, values.password);
-      // The login function now handles the loader and redirection.
-      // We don't call showLoader or hideLoader here.
       toast({
         title: "Signed In!",
         description: result.message,
@@ -149,7 +148,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       if (onSuccess) onSuccess();
       if (onClose) onClose();
     } catch (error) {
-      // The login function will hide the loader on failure.
+      hideLoader(); 
       toast({
         variant: "destructive",
         title: "Sign In Failed",
@@ -265,8 +264,8 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       <CardFooter className="flex flex-col items-center space-y-3 pt-6 pb-8 bg-card rounded-b-lg">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-            <Button variant="link" onClick={() => onSwitchForm('signup')} className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
-              Sign Up
+            <Button variant="link" asChild className="p-0 h-auto font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors">
+              <button type="button" onClick={() => onSwitchForm('signup')}>Sign Up</button>
             </Button>
         </p>
       </CardFooter>

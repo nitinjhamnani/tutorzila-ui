@@ -43,6 +43,7 @@ export function AdminSidebar({
   logoutNavItem,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {
@@ -55,6 +56,7 @@ export function AdminSidebar({
   };
   
   const handleLogout = () => {
+    showLoader("Logging out...");
     logoutNavItem.onClick();
     if (isMobile && isMobileNavOpen) {
       toggleMobileNav();
