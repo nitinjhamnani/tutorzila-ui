@@ -121,4 +121,4 @@ export const startDatePreferenceOptions = [
     { value: "JUST_EXPLORING", label: "Just exploring" }
 ];
 
-export const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
+export const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7-10 years", "10-15 years", "15+ years"];
