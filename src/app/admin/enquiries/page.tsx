@@ -73,7 +73,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
 export default function AdminAllEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
-  const { hideLoader } = useGlobalLoader();
+  const { showLoader, hideLoader } = useGlobalLoader();
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: allRequirements = [], isLoading, error } = useQuery({
@@ -98,47 +98,16 @@ export default function AdminAllEnquiriesPage() {
   }, [searchTerm, allRequirements]);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (isLoading) {
+      showLoader("Fetching enquiries...");
+    } else {
       hideLoader();
     }
-  }, [isLoading, hideLoader]);
+  }, [isLoading, showLoader, hideLoader]);
 
   const renderEnquiryList = () => {
     if (isLoading) {
-      return (
-        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-          <CardContent className="p-0">
-             <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Enquiry Code</TableHead>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Grade</TableHead>
-                    <TableHead>Board</TableHead>
-                    <TableHead>Mode</TableHead>
-                    <TableHead>Posted</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[...Array(5)].map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-8 w-8 rounded-md" /></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-          </CardContent>
-        </Card>
-      );
+      return null; // The global loader is now handling the loading state.
     }
 
     if (error) {
@@ -252,6 +221,7 @@ export default function AdminAllEnquiriesPage() {
   );
 }
     
+
 
 
 
