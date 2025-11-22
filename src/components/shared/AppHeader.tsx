@@ -14,7 +14,7 @@ import { Menu, LogIn, GraduationCap } from "lucide-react";
 import Image from 'next/image';
 import logoAsset from '@/assets/images/logo.png';
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
 import AuthModal from "@/components/auth/AuthModal";
 
@@ -25,7 +25,8 @@ export function AppHeader() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
-  useEffect(() => {
+  // Use useLayoutEffect for immediate visual updates before browser paint
+  useLayoutEffect(() => {
     setHasMounted(true);
 
     const handleScroll = () => {
@@ -33,16 +34,24 @@ export function AppHeader() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); 
+    handleScroll(); // Initial check
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('signin') === 'true') {
-      setIsAuthModalOpen(true);
-    }
+    // This part is crucial: re-check scroll position on path change
+    // This fixes the bug where the header is wrong after logout navigation
+    handleScroll();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
+  }, [pathname]); // Rerun this effect every time the path changes
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('signin') === 'true') {
+        setIsAuthModalOpen(true);
+      }
+    }
   }, []);
 
   const transparentHeaderPaths = [
@@ -58,7 +67,6 @@ export function AppHeader() {
   
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
-  // This logic is now safe because `hasMounted` gates its application.
   const headerDynamicClasses = isTransparentPath && !isScrolled
     ? "bg-transparent shadow-none border-transparent"
     : "bg-card shadow-md border-b border-border/20";
