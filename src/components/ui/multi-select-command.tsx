@@ -122,12 +122,10 @@ export function MultiSelectCommand({
         className="w-[90vw] max-w-md p-0 flex flex-col max-h-[90vh]"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
+        <DialogHeader className="sr-only">
+          <DialogTitle>{placeholder}</DialogTitle>
+        </DialogHeader>
         <Command>
-          <CommandInput
-            placeholder="Search options..."
-            value={inputValue}
-            onValueChange={setInputValue}
-          />
           <div className="p-2 border-b">
             {selectedValues.length > 0 ? (
               <div className="flex gap-1.5 flex-wrap">
@@ -168,6 +166,11 @@ export function MultiSelectCommand({
               <p className="text-xs text-muted-foreground text-center py-1">No options selected.</p>
             )}
           </div>
+          <CommandInput
+            placeholder="Search options..."
+            value={inputValue}
+            onValueChange={setInputValue}
+          />
           <CommandList className="flex-grow">
             <ScrollArea className="max-h-[250px] overflow-y-auto">
               <CommandEmpty>No results found.</CommandEmpty>
