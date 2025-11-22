@@ -25,7 +25,7 @@ export function AppHeader() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
-  // Use useLayoutEffect for immediate visual updates before browser paint
+  // This effect now correctly handles both initial load and path changes.
   useLayoutEffect(() => {
     setHasMounted(true);
 
@@ -33,17 +33,16 @@ export function AppHeader() {
       setIsScrolled(window.scrollY > 20);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Initial check
+    // Run on mount and on every path change
+    handleScroll(); 
 
-    // This part is crucial: re-check scroll position on path change
-    // This fixes the bug where the header is wrong after logout navigation
-    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [pathname]); // Rerun this effect every time the path changes
+  }, [pathname]); // Rerunning the entire effect on pathname change is the key.
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
