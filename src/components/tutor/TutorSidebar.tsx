@@ -40,7 +40,6 @@ interface TutorSidebarProps {
 
 export function TutorSidebar(props: TutorSidebarProps) {
   const pathname = usePathname();
-  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {
@@ -52,7 +51,6 @@ export function TutorSidebar(props: TutorSidebarProps) {
   };
 
   const handleLogout = () => {
-    showLoader("Logging out...");
     props.logoutNavItem.onClick();
     if (props.isMobile && props.isMobileNavOpen) {
       props.toggleMobileNav();

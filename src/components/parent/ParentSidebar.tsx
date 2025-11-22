@@ -39,7 +39,6 @@ interface ParentSidebarProps {
 
 export function ParentSidebar(props: ParentSidebarProps) {
   const pathname = usePathname();
-  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {
@@ -51,7 +50,6 @@ export function ParentSidebar(props: ParentSidebarProps) {
   };
 
   const handleLogout = () => {
-    showLoader("Logging out...");
     props.logoutNavItem.onClick();
     if (props.isMobile && props.isMobileNavOpen) {
       props.toggleMobileNav();
@@ -120,7 +118,7 @@ export function ParentSidebar(props: ParentSidebarProps) {
               )}
               title={!props.isMobile && props.isNavbarCollapsed ? item.label : undefined}
             >
-              <item.icon className={cn("h-5 w-5 shrink-0", (!props.isMobile && props.isNavbarCollapsed) ? "mr-0" : "mr-3", isActive && "text-primary-foreground")} />
+              <item.icon className={cn("h-5 w-5 shrink-0", (!props.isMobile && props.isNavbarCollapsed) ? "mr-0" : "mr-3")} />
               {(!props.isMobile && !props.isNavbarCollapsed || props.isMobile) && <span>{item.label}</span>}
             </Link>
           );

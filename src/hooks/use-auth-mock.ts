@@ -106,44 +106,44 @@ export function useAuthMock() {
   };
 
   const login = async (username: string, password?: string) => {
-    showLoader("Signing in..."); // Show loader immediately
+    showLoader("Signing in...");
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     
-    const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
-        body: JSON.stringify({ username, password }),
-    });
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+          body: JSON.stringify({ username, password }),
+      });
 
-    const responseData = await response.json();
+      const responseData = await response.json();
 
-    if (!response.ok) {
-      hideLoader(); // Hide loader on failure
-      throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
+      if (!response.ok) {
+        throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
+      }
+
+      if (responseData.token && responseData.type) {
+          setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
+          
+          const role = responseData.type.toLowerCase();
+          if (role === 'tutor') {
+              router.push("/tutor/dashboard");
+          } else if (role === 'parent') {
+              router.push("/parent/dashboard");
+          } else if (role === 'admin') {
+              router.push("/admin/dashboard");
+          } else {
+              router.push("/");
+          }
+           // Do not hide loader here, let the destination page handle it.
+      } else {
+          throw new Error("Invalid response from server during login. Missing token or user type.");
+      }
+      return responseData;
+    } catch (error) {
+        hideLoader(); // Hide loader only on failure
+        throw error; // Re-throw to be caught by the form
     }
-
-    if (responseData.token && responseData.type) {
-        // Use username (phone number) as a placeholder for email since it's not in the response
-        setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
-        
-        const role = responseData.type.toLowerCase();
-        // The loader will hide automatically on the next page load
-        if (role === 'tutor') {
-            router.push("/tutor/dashboard");
-        } else if (role === 'parent') {
-            router.push("/parent/dashboard");
-        } else if (role === 'admin') {
-            router.push("/admin/dashboard");
-        } else {
-            hideLoader(); // Hide loader if no specific redirect
-            router.push("/");
-        }
-    } else {
-        hideLoader(); // Hide loader on invalid response
-        throw new Error("Invalid response from server during login. Missing token or user type.");
-    }
-
-    return responseData;
   };
 
   const logout = () => {

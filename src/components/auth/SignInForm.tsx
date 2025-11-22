@@ -138,9 +138,10 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
-    showLoader("Signing in...");
     try {
       const result = await login(values.localPhoneNumber, values.password);
+      // The login function now handles the loader and redirection.
+      // We don't call showLoader or hideLoader here.
       toast({
         title: "Signed In!",
         description: result.message,
@@ -148,7 +149,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       if (onSuccess) onSuccess();
       if (onClose) onClose();
     } catch (error) {
-      hideLoader();
+      // The login function will hide the loader on failure.
       toast({
         variant: "destructive",
         title: "Sign In Failed",
