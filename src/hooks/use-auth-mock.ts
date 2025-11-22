@@ -7,6 +7,7 @@ import { useAtom } from "jotai";
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { useEffect, useState } from "react";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 const initialUser: User | null = null;
 const initialToken: string | null = null;
@@ -38,6 +39,7 @@ export function useAuthMock() {
   const [token, setToken] = useAtom(tokenAtom);
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const { showLoader } = useGlobalLoader();
 
   useEffect(() => {
     // This effect ensures state is synchronized with localStorage on mount
@@ -140,18 +142,21 @@ export function useAuthMock() {
   };
 
   const logout = () => {
-    // Immediately clear in-memory state
+    showLoader("Logging out...");
+    
+    // Clear state
     setUser(null);
     setToken(null);
+
     // Clear persisted state from localStorage
     if (typeof window !== 'undefined') {
       localStorage.removeItem("tutorzila_user");
       localStorage.removeItem("tutorzila_token");
-      localStorage.removeItem("tutorzila_tutor_profile"); // Clear tutor profile details
-      window.location.href = '/'; // Force a full page reload to clear everything
-    } else {
-      router.push("/"); 
+      localStorage.removeItem("tutorzila_tutor_profile");
     }
+
+    // Use router to navigate, which allows the loader to persist until the next page loads.
+    router.push("/");
   };
 
 
