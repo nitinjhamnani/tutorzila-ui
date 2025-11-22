@@ -122,9 +122,6 @@ export function MultiSelectCommand({
         className="w-[90vw] max-w-md p-0 flex flex-col max-h-[90vh]"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="px-4 pt-4 pb-2 border-b">
-          <DialogTitle>{placeholder}</DialogTitle>
-        </DialogHeader>
         <Command>
           <CommandInput
             placeholder="Search options..."
