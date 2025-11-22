@@ -129,7 +129,7 @@ export default function BecomeTutorPage() {
     };
 
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
       const response = await fetch(`${apiBaseUrl}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
