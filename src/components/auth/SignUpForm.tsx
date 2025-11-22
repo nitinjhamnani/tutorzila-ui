@@ -250,7 +250,7 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
                   name="country"
                   render={({ field }) => (
                     <FormItem className="w-auto min-w-[120px]"> 
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
                         <FormControl>
                           <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base">
                             <SelectValue placeholder="Country" />
