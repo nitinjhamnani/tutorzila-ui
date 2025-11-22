@@ -5,7 +5,7 @@ import type { ReactNode, ElementType } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import type { User } from "@/types";
+import type { User, TutorProfile, DemoSession, MyClass, EnquiryDemo, TutorDashboardMetrics } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -65,7 +65,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
+import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
 
 interface QuickActionCardProps {
   title: string;
@@ -231,6 +231,7 @@ export default function ParentDashboardPage() {
   const handleCreateEnquirySuccess = () => {
     setIsCreateEnquiryModalOpen(false);
     queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+    queryClient.invalidateQueries({ queryKey: ['parentDashboard'] });
   };
 
 
@@ -376,10 +377,7 @@ export default function ParentDashboardPage() {
         </div>
       </main>
       <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
-        <PostRequirementModal 
-            onSuccess={handleCreateEnquirySuccess}
-            startFromStep={1}
-        />
+        <ParentEnquiryModal onSuccess={handleCreateEnquirySuccess} />
       </DialogContent>
     </Dialog>
   );
