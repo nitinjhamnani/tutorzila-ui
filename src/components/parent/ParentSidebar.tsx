@@ -11,6 +11,7 @@ import type { User } from "@/types";
 import { PanelLeft, Menu as MenuIcon, LogOut } from "lucide-react";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
+// Define the structure for navigation items
 interface NavItem {
   href: string;
   label: string;
@@ -49,21 +50,28 @@ export function ParentSidebar(props: ParentSidebarProps) {
     }
   };
 
+  const handleLogout = () => {
+    showLoader("Logging out...");
+    props.logoutNavItem.onClick();
+    if (props.isMobile && props.isMobileNavOpen) {
+      props.toggleMobileNav();
+    }
+  };
+
   return (
     <nav
       className={cn(
-        "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out",
-        props.isMobile
-          ? cn(
-              "fixed inset-y-0 left-0 z-40 w-60 transform",
-              `top-[var(--header-height)] h-[calc(100vh_-_var(--header-height,0px))]`,
-              props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
-            )
-          : cn(
-              "relative md:flex md:flex-col", 
-              props.isNavbarCollapsed ? "w-20" : "w-60"
-            ),
-        props.isMobile ? "md:hidden" : "hidden md:flex"
+        "bg-card border-r border-border flex flex-col shadow-lg transition-all duration-300 ease-in-out", // Base common classes
+ props.isMobile
+ ? cn( // Mobile specific positioning & sizing
+ "fixed z-40 w-60 transform",
+ `top-[var(--header-height)] h-[calc(100vh_-_var(--header-height,0px))]`,
+ props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
+ )
+ : cn( // Desktop specific positioning & sizing
+ "relative md:flex md:flex-col", // Removed h-full
+ props.isNavbarCollapsed ? "w-20" : "w-60"
+ )
       )}
       aria-label="Parent Navigation"
     >
@@ -94,7 +102,7 @@ export function ParentSidebar(props: ParentSidebarProps) {
       </div>
 
       {/* User/Account Section */}
-      <div className="mt-auto p-3 border-t border-border shrink-0">
+ <div className="mt-auto p-3 border-t border-border shrink-0">
         {props.accountNavItems.map((item) => {
           const isActive = item.href ? pathname === item.href : false;
           return (
@@ -119,10 +127,7 @@ export function ParentSidebar(props: ParentSidebarProps) {
         })}
         <Button
           variant="ghost"
-          onClick={() => {
-            props.logoutNavItem.onClick();
-            if (props.isMobile && props.isMobileNavOpen) props.toggleMobileNav();
-          }}
+          onClick={handleLogout}
           className={cn(
             "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-destructive hover:bg-destructive/10",
             !props.isMobile && props.isNavbarCollapsed ? "justify-center" : "justify-start",

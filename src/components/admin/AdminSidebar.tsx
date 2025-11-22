@@ -54,6 +54,14 @@ export function AdminSidebar({
       toggleMobileNav();
     }
   };
+  
+  const handleLogout = () => {
+    showLoader("Logging out...");
+    logoutNavItem.onClick();
+    if (isMobile && isMobileNavOpen) {
+      toggleMobileNav();
+    }
+  };
 
   return (
     <nav
@@ -101,10 +109,7 @@ export function AdminSidebar({
       <div className="mt-auto p-3 border-t border-border shrink-0">
         <Button
           variant="ghost"
-          onClick={() => {
-            logoutNavItem.onClick();
-            if (isMobile && isMobileNavOpen) toggleMobileNav();
-          }}
+          onClick={handleLogout}
           className={cn(
             "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-destructive hover:bg-destructive/10",
             !isMobile && isNavbarCollapsed ? "justify-center" : "justify-start",

@@ -54,7 +54,7 @@ const MOCK_COUNTRIES = [
 ];
 
 export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { onSuccess?: () => void, onSwitchForm: (formType: 'signin' | 'signup') => void, onClose?: () => void, initialName?: string }) {
-  const { login, setSession } = useAuthMock();
+  const { login } = useAuthMock();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
@@ -94,7 +94,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
         const selectedCountryData = MOCK_COUNTRIES.find(c => c.country === country);
         const fullPhoneNumberForDisplay = `${selectedCountryData?.countryCode || ''} ${localPhoneNumber}`;
 
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
         
         const response = await fetch(`${apiBaseUrl}/api/auth/otplogin?username=${encodeURIComponent(localPhoneNumber)}`, {
             method: 'GET',
@@ -138,7 +138,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
-    showLoader();
+    showLoader("Signing in...");
     try {
       const result = await login(values.localPhoneNumber, values.password);
       toast({
