@@ -119,7 +119,7 @@ export function MultiSelectCommand({
         </Button>
       </DialogTrigger>
       <DialogContent 
-        className="w-[90vw] max-w-md p-0"
+        className="w-[90vw] max-w-md p-0 flex flex-col max-h-[90vh]"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
@@ -131,8 +131,48 @@ export function MultiSelectCommand({
             value={inputValue}
             onValueChange={setInputValue}
           />
-          <CommandList>
-            <ScrollArea className="max-h-[200px] overflow-y-auto">
+          <div className="p-2 border-b">
+            {selectedValues.length > 0 ? (
+              <div className="flex gap-1.5 flex-wrap">
+                {selectedValues.map((value) => {
+                    const option = options.find((opt) => opt.value === value);
+                    return (
+                        <Badge
+                            key={value}
+                            variant="secondary"
+                            className="rounded-md px-2 py-1 text-xs"
+                        >
+                            {option?.label || value}
+                            <span
+                            role="button"
+                            tabIndex={0}
+                            className="ml-1.5 rounded-full outline-none"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                handleUnselect(value);
+                                }
+                            }}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleUnselect(value);
+                            }}
+                            >
+                            <XCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                            </span>
+                        </Badge>
+                    );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground text-center py-1">No options selected.</p>
+            )}
+          </div>
+          <CommandList className="flex-grow">
+            <ScrollArea className="max-h-[250px] overflow-y-auto">
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
                 {filteredOptions.map((option) => (
