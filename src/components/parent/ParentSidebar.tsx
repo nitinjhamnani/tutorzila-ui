@@ -39,6 +39,7 @@ interface ParentSidebarProps {
 
 export function ParentSidebar(props: ParentSidebarProps) {
   const pathname = usePathname();
+  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {
@@ -50,6 +51,7 @@ export function ParentSidebar(props: ParentSidebarProps) {
   };
 
   const handleLogout = () => {
+    showLoader("Logging out...");
     props.logoutNavItem.onClick();
     if (props.isMobile && props.isMobileNavOpen) {
       props.toggleMobileNav();

@@ -56,6 +56,8 @@ const MOCK_COUNTRIES = [
 export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { onSuccess?: () => void, onSwitchForm: (formType: 'signin' | 'signup') => void, onClose?: () => void, initialName?: string }) {
   const { login } = useAuthMock();
   const { toast } = useToast();
+  const router = useRouter();
+  const { showLoader, hideLoader } = useGlobalLoader();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
 
@@ -133,19 +135,38 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
+    showLoader("Signing in...");
     try {
       const result = await login(values.localPhoneNumber, values.password);
-      // On success, the loader will persist through navigation. We don't need to do anything here.
+      
+      const role = result.type.toLowerCase();
+      let targetPath = "/";
+
+      if (role === 'tutor') {
+          targetPath = "/tutor/dashboard";
+      } else if (role === 'parent') {
+          targetPath = "/parent/dashboard";
+      } else if (role === 'admin') {
+          targetPath = "/admin/dashboard";
+      }
+      
+      router.push(targetPath);
+
       if (onSuccess) onSuccess();
       if (onClose) onClose();
+
     } catch (error) {
+      hideLoader(); // Hide loader only on failure
       toast({
         variant: "destructive",
         title: "Sign In Failed",
         description: (error as Error).message || "An unexpected error occurred.",
       });
     } finally {
-      setIsSubmitting(false);
+      // Don't set isSubmitting to false on success because we are navigating away
+      if (!form.formState.isSubmitSuccessful) {
+        setIsSubmitting(false);
+      }
     }
   }
 

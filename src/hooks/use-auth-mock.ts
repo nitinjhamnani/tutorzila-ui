@@ -5,7 +5,7 @@ import type { User, UserRole, TutorProfile } from "@/types";
 import { useRouter } from "next/navigation";
 import { useAtom } from "jotai";
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data"; 
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
@@ -42,7 +42,6 @@ export function useAuthMock() {
   const { showLoader, hideLoader } = useGlobalLoader();
 
   useEffect(() => {
-    // This effect ensures state is synchronized with localStorage on mount
     const storedUser = localStorage.getItem("tutorzila_user");
     const storedToken = localStorage.getItem("tutorzila_token");
     if (storedUser && storedToken) {
@@ -51,15 +50,12 @@ export function useAuthMock() {
         setToken(JSON.parse(storedToken));
       } catch (e) {
         console.error("Failed to parse auth data from storage", e);
-        localStorage.removeItem("tutorzila_user");
-        localStorage.removeItem("tutorzila_token");
         setUser(null);
         setToken(null);
       }
     }
     setIsCheckingAuth(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setUser, setToken]);
 
   const _constructUserObject = (email: string, role: UserRole, name?: string, phone?: string, profilePicture?: string): User | TutorProfile => {
       let baseUserData: User = {
@@ -67,7 +63,7 @@ export function useAuthMock() {
           name: name || email.split("@")[0],
           email,
           role,
-          avatar: profilePicture || undefined, // Set avatar ONLY from API response
+          avatar: profilePicture || undefined,
           status: "Active",
           phone: phone,
           isEmailVerified: false,
@@ -77,12 +73,11 @@ export function useAuthMock() {
       if (role === 'tutor') {
           const existingTutor = MOCK_TUTOR_PROFILES.find(t => t.email.toLowerCase() === email.toLowerCase());
           if (existingTutor) {
-            // Use existing tutor data but prioritize the new profile picture from the API
             return { 
                 ...existingTutor, 
                 name: name || existingTutor.name, 
                 role: 'tutor', 
-                avatar: profilePicture || undefined // Set avatar ONLY from API response
+                avatar: profilePicture || undefined
             };
           }
           
@@ -105,9 +100,7 @@ export function useAuthMock() {
       setUser(userObject);
   };
 
-  const login = async (username: string, password?: string) => {
-    showLoader("Signing in...");
-
+  const login = useCallback(async (username: string, password?: string) => {
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       
@@ -125,34 +118,16 @@ export function useAuthMock() {
 
       if (responseData.token && responseData.type) {
           setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
-          
-          const role = responseData.type.toLowerCase();
-          
-          setTimeout(() => {
-            if (role === 'tutor') {
-                router.push("/tutor/dashboard");
-            } else if (role === 'parent') {
-                router.push("/parent/dashboard");
-            } else if (role === 'admin') {
-                router.push("/admin/dashboard");
-            } else {
-                router.push("/");
-            }
-          }, 50);
-
+          return responseData; // Return data on success
       } else {
           throw new Error("Invalid response from server during login. Missing token or user type.");
       }
-      return responseData;
     } catch (error) {
-        hideLoader(); // Hide loader only on failure
         throw error;
     }
-  };
+  }, [setSession]);
 
-  const logout = () => {
-    showLoader("Logging out...");
-    
+  const logout = useCallback(() => {
     // Clear state
     setUser(null);
     setToken(null);
@@ -163,20 +138,18 @@ export function useAuthMock() {
       localStorage.removeItem("tutorzila_token");
       localStorage.removeItem("tutorzila_tutor_profile");
     }
+    router.push("/");
     
-    setTimeout(() => {
-      router.push("/");
-    }, 50);
-  };
+  }, [setUser, setToken, router]);
 
 
   return {
     user,
     token,
-    isAuthenticated: !!token, // Auth status is based on token presence
+    isAuthenticated: !!token,
     isCheckingAuth,
     login,
-    setSession, // Expose setSession for sign-up flow
+    setSession,
     logout,
   };
 }
