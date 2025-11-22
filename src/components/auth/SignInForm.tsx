@@ -259,15 +259,10 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
               <LogIn className="mr-2 h-5 w-5" /> 
               {isSubmitting ? 'Logging In...' : 'Login with Password'}
             </Button>
-             <div className="flex justify-between items-center">
+             <div className="flex justify-start items-center">
                <Button type="button" variant="link" className="p-0 h-auto text-xs text-primary font-semibold" onClick={handleOtpLogin} disabled={isOtpSubmitting || !isPhoneNumberValidForOtp}>
                     {isOtpSubmitting ? 'Sending OTP...' : 'Get OTP to Login'}
                </Button>
-               <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-primary transition-colors">
-                <Link href="#">
-                  Forgot Password?
-                </Link>
-              </Button>
             </div>
           </form>
         </Form>
