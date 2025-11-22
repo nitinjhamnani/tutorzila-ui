@@ -12,38 +12,55 @@ export default function TutorTermsPage() {
       content: (
         <div className="space-y-4">
           <div>
-            <h3 className="font-semibold text-foreground">Registration Fee</h3>
+            <h3 className="font-semibold text-foreground">3.1. Registration Fee</h3>
             <p>
               To join Tutorzila as a tutor, you are required to pay a one-time, non-refundable registration fee of
               ₹199. This fee covers the cost of profile verification and platform access. Payment of this fee
-              does not guarantee placement or a minimum number of tuitions.
+              does not guarantee placement or a minimum number of tuition.
             </p>
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">First Month’s Fee & Commission</h3>
+            <h3 className="font-semibold text-foreground">3.2. First Month’s Fee & Commission</h3>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>Tutorzila (Zilics Ventures Private Limited) shall collect the entire first month’s tuition fee
-              from the Parent in advance.</li>
+              <li>Tutorzila shall collect the entire first month’s tuition fee from the Parent in advance.</li>
               <li>The fee amount communicated to the Parent shall be considered the total payable tuition
-              fee. Tutorzila’s internal facilitation charge shall be applied to this amount as per its
-              standard policy. The remaining amount, referred to as the Tutor’s payable fee, will form
-              the basis of the Tutor’s payout.</li>
-              <li>For the first month, 50% of the Tutor’s payable fee will be released to the Tutor’s
-              registered bank account at the end of the month, subject to the successful completion of
-              scheduled classes.</li>
+              fee. Tutorzila’s internal facilitation charge will be applied to this amount as per its policy.
+              The remaining amount, referred to as the Tutor’s payable fee, will form the basis of the
+              Tutor’s payout.</li>
+              <li>For the first month, 50% of the Tutor’s payable fee will be released to the Tutor at the
+              end of the month, subject to successful completion of scheduled classes.</li>
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">From Second Month Onwards</h3>
+            <h3 className="font-semibold text-foreground">3.3. From Second Month Onwards</h3>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>From the second month onwards, Parents shall continue to make the tuition fee payment
-              in advance to Tutorzila as per the agreed rate.</li>
+              <li>From the second month onward, Parents shall continue to make the tuition fee payment
+              in advance to Tutorzila.</li>
               <li>Tutorzila shall disburse the Tutor’s payable fee (i.e., the tuition fee amount after
-              deduction of Tutorzila’s internal facilitation charge) to the Tutor at the end of each
-              monthly cycle, contingent upon successful completion of the agreed classes.</li>
-              <li>Tutors are strictly prohibited from collecting tuition fees directly from Parents under any
-              circumstances. All financial transactions between Parents and Tutors must be processed
-              exclusively through Tutorzila’s official payment channels.</li>
+              deduction of the internal facilitation charge) at the end of each monthly cycle, based on
+              successful class completion.</li>
+              <li>Tutors are strictly prohibited from collecting tuition fees directly from Parents. All financial
+              transactions must be processed only through Tutorzila.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">3.4. Tutor Engagement Status</h3>
+            <p>
+             Tutors associated with Tutorzila are not employees of Zilics Ventures Private Limited.
+             They operate as independent, self-employed service providers, responsible for their own taxes,
+             legal compliance, and professional conduct.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">3.5. One-on-One Teaching Requirement</h3>
+            <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
+              <li>Tutorzila offers personalized one-on-one tutoring to students.</li>
+              <li>Tutors must conduct all classes individually (1:1) and are not permitted to convert
+              Tutorial-referred students into group classes, batches, or combined sessions with any
+              other learner.</li>
+              <li>Any attempt to add extra students, merge sessions, or turn the class into a group without
+              written approval from Tutorzila will be treated as a serious violation and may result in
+              account suspension, termination, and withholding of pending payouts.</li>
             </ul>
           </div>
         </div>
@@ -55,13 +72,13 @@ export default function TutorTermsPage() {
       content: (
         <>
             <p>
-              Parents and Tutors are strictly prohibited from bypassing Tutorzila for direct payments or class
+              Parents and Tutors must not bypass Tutorzila for direct payment or independent class
               arrangements.
             </p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-              <li>Any attempt to bypass Tutorzila’s system will result in immediate suspension/termination
-              of the account.</li>
-              <li>Tutorzila reserves the right to withhold any pending payments in such cases.</li>
+              <li>Any attempt to bypass the platform will lead to immediate suspension or termination of
+              the account.</li>
+              <li>Tutorzila reserves the right to withhold pending payments in such cases.</li>
             </ul>
         </>
       ),
@@ -72,17 +89,15 @@ export default function TutorTermsPage() {
         content: (
             <>
             <p>
-              Tutorzila (Zilics Ventures Private Limited) is only a facilitator platform.
+              Tutorzila is a facilitator platform. We are not responsible for the conduct, behaviour, or
+              teaching quality of Tutors or Parents.
             </p>
              <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
-                <li>We are not responsible for the conduct, quality of teaching, or actions of Tutors or
-                Parents.</li>
-                <li>We do not conduct background checks on Tutors. Parents must ensure their presence at
-                home during offline tuition sessions.</li>
-                <li>Tutorzila provides only a service of connecting Parents and Tutors and handling fee
-                collection/disbursement.</li>
-                <li>Any disputes unrelated to academics (e.g., behavior, safety, or personal matters) must
-                be resolved directly between Parent and Tutor. Tutorzila has no role in such disputes.</li>
+                <li>No background verification is conducted by Tutorzila; Parents must ensure their
+                presence during offline classes for safety.</li>
+                <li>Any disputes unrelated to academics—such as behavioural issues or personal
+                disagreements—must be resolved directly between the Parent and Tutor. Tutorzila holds
+                no responsibility in such matters.</li>
             </ul>
             </>
         )
@@ -92,9 +107,8 @@ export default function TutorTermsPage() {
         title: "Governing Law & Jurisdiction",
         content: (
             <p>
-              These Terms will be governed by and interpreted in accordance with the laws of India. You
-              agree to submit to the exclusive jurisdiction of the courts located in Delhi for resolution of
-              disputes.
+              These Terms are governed by the laws of India. You agree to submit to the exclusive jurisdiction
+              of the courts located in Delhi.
             </p>
         )
     }
