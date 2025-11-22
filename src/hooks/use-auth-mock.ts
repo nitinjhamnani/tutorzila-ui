@@ -125,9 +125,11 @@ export function useAuthMock() {
 
   const logout = useCallback(() => {
     showLoader("Logging out...");
-    if (typeof window !== 'undefined') {
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
         window.location.href = "/";
-    }
+      }
+    }, 100);
   }, [showLoader]);
 
 

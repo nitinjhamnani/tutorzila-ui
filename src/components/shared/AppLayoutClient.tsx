@@ -9,14 +9,22 @@ import { Provider as JotaiProvider } from "jotai";
 import { useAuthMock } from '@/hooks/use-auth-mock';
 import { GlobalLoader } from '@/components/shared/GlobalLoader';
 import { useEffect } from 'react';
+import { useAtom } from "jotai";
+import { loaderAtom } from "@/lib/state/loader";
 
 function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const [loaderState] = useAtom(loaderAtom);
 
   useEffect(() => {
     // This effect ensures the loader is hidden after initial auth checks are done.
   }, [isCheckingAuth, pathname]);
+
+  // When the global loader is active, show only the loader.
+  if (loaderState.isLoading) {
+    return <GlobalLoader forceShow={true} />;
+  }
 
   const pathsWithDedicatedLayouts = [
     '/parent/',
@@ -32,7 +40,7 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const isDedicatedLayout = pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
   
   if (isCheckingAuth) {
-    return <GlobalLoader forceShow={true} />; // Always show loader during auth check
+    return <GlobalLoader forceShow={true} />; // Always show loader during initial auth check
   }
   
   // Show the public layout (header/footer) only for non-dedicated layout paths
