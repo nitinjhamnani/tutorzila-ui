@@ -23,6 +23,7 @@ import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";
 import { useEffect } from 'react';
 import { useRouter } from "next/navigation";
+import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
 const howItWorksSteps = [
@@ -94,24 +95,33 @@ export default function HomePage() {
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
   const router = useRouter();
+  const { showLoader, hideLoader } = useGlobalLoader();
   
   useEffect(() => {
     if (!isCheckingAuth && isAuthenticated && user) {
+      showLoader("Redirecting to your dashboard...");
+      let targetPath = "/";
       switch(user.role) {
         case 'admin':
-          router.replace('/admin/dashboard');
+          targetPath = '/admin/dashboard';
           break;
         case 'tutor':
-          router.replace('/tutor/dashboard');
+          targetPath = '/tutor/dashboard';
           break;
         case 'parent':
-          router.replace('/parent/dashboard');
+          targetPath = '/parent/dashboard';
           break;
         default:
+          hideLoader();
           break;
       }
+      if (targetPath !== "/") {
+        router.replace(targetPath);
+      }
+    } else if (!isCheckingAuth) {
+      hideLoader();
     }
-  }, [isCheckingAuth, isAuthenticated, user, router]);
+  }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader]);
 
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
@@ -132,7 +142,7 @@ export default function HomePage() {
   const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
 
   if (isCheckingAuth || (isAuthenticated && user)) {
-    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
+    return <div className="w-full h-screen bg-background" />;
   }
 
   return (
