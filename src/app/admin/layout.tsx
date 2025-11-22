@@ -34,7 +34,7 @@ const adminNavItems = [
   { href: "/admin/parents", label: "Parents", icon: UsersRound },
   { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
   { href: "/admin/demos", label: "Demos", icon: Presentation },
-  { href: "/admin/support", label: "Support", icon: Ticket, disabled: true },
+  { href: "/admin/support", label: "Support", icon: Ticket, disabled: false },
 ];
 
 const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: () => {} };
