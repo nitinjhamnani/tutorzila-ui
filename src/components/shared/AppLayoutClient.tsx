@@ -69,7 +69,7 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {showPublicNavigation && <AppHeader />}
+      {showPublicNavigation && <AppHeader key={pathname} />}
       <main className="flex-grow">
         {children}
       </main>
