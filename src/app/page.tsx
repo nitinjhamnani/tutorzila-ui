@@ -21,6 +21,8 @@ import { PostRequirementModal } from "@/components/common/modals/PostRequirement
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";
+import { useEffect } from 'react';
+import { useRouter } from "next/navigation";
 
 
 const howItWorksSteps = [
@@ -82,7 +84,7 @@ const popularSubjects = [
 
 
 export default function HomePage() {
-  const { user, isAuthenticated } = useAuthMock(); 
+  const { user, isAuthenticated, isCheckingAuth } = useAuthMock(); 
   const sectionPadding = "py-10 md:py-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
@@ -91,6 +93,25 @@ export default function HomePage() {
   const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!isCheckingAuth && isAuthenticated && user) {
+      switch(user.role) {
+        case 'admin':
+          router.replace('/admin/dashboard');
+          break;
+        case 'tutor':
+          router.replace('/tutor/dashboard');
+          break;
+        case 'parent':
+          router.replace('/parent/dashboard');
+          break;
+        default:
+          break;
+      }
+    }
+  }, [isCheckingAuth, isAuthenticated, user, router]);
 
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
@@ -109,6 +130,10 @@ export default function HomePage() {
   };
   
   const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
+
+  if (isCheckingAuth || (isAuthenticated && user)) {
+    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
+  }
 
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">

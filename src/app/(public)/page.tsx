@@ -108,6 +108,7 @@ export default function HomePage() {
           router.replace('/parent/dashboard');
           break;
         default:
+          // Stay on the page if role is not defined or is none of the above
           break;
       }
     }
@@ -128,9 +129,12 @@ export default function HomePage() {
     setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
     setIsPostRequirementModalOpen(true);
   };
-
-  if (isAuthenticated && user) {
-    return <div className="flex h-screen items-center justify-center">Redirecting to your dashboard...</div>;
+  
+  const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
+  
+  // If authentication is being checked or if the user is authenticated and about to be redirected, show a loader.
+  if (isCheckingAuth || (isAuthenticated && user)) {
+    return <div className="flex h-screen items-center justify-center">Redirecting...</div>;
   }
 
   return (
@@ -163,7 +167,7 @@ export default function HomePage() {
                     onPointerDownOutside={(e) => e.preventDefault()}
                   >
                     <PostRequirementModal 
-                      startFromStep={1} 
+                      startFromStep={postRequirementStartStep} 
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
                       onTriggerSignIn={handleTriggerSignIn}
                       initialSubject={initialSubjectForModal}
@@ -269,7 +273,7 @@ export default function HomePage() {
                        onPointerDownOutside={(e) => e.preventDefault()}
                      >
                        <PostRequirementModal 
-                         startFromStep={1} 
+                         startFromStep={postRequirementStartStep} 
                          onSuccess={() => setIsPostRequirementModalOpen(false)} 
                          onTriggerSignIn={handleTriggerSignIn}
                          initialSubject={initialSubjectForModal}

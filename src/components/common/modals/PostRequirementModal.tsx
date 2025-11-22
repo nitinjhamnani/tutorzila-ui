@@ -164,7 +164,7 @@ export function PostRequirementModal({
     let fieldsToValidate: (keyof PostRequirementFormValues)[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ['studentName', 'subject', 'gradeLevel', 'board'];
-    } else if (currentStep === 2) { 
+    } else if (currentStep === 2 && !isAuthenticated) { // Only validate this step if not authenticated
       fieldsToValidate = ['teachingMode', 'location', 'tutorGenderPreference', 'startDatePreference'];
     }
 
@@ -209,7 +209,7 @@ export function PostRequirementModal({
         offline: data.teachingMode.includes("Offline (In-person)"),
     };
     
-    const signupRequest = {
+    const signupRequest = !isAuthenticated ? {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -217,7 +217,7 @@ export function PostRequirementModal({
         countryCode: selectedCountryData?.countryCode || '',
         phone: data.localPhoneNumber,
         userType: "PARENT",
-    };
+    } : null;
     
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -250,11 +250,10 @@ export function PostRequirementModal({
       }
       
       if (isAuthenticated) {
-        toast({
-          title: "Requirement Posted!",
-          description: "Your new tuition requirement has been successfully submitted.",
-        });
+        sessionStorage.setItem('showNewRequirementToast', 'true');
         onSuccess();
+        router.push("/parent/dashboard");
+
       } else {
         const fullPhoneNumber = `${selectedCountryData?.countryCode || ''} ${data.localPhoneNumber}`;
         setOtpIdentifier(fullPhoneNumber);
