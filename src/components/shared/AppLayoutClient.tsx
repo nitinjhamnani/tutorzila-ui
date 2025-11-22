@@ -66,6 +66,14 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
     return null; // Render nothing on the server and during initial client-side auth check
   }
   
+  // Don't render "Redirecting..." text. Let the loader handle the visual state.
+  if (isAuthenticated && !isCheckingAuth && user) {
+    const publicPaths = ['/', '/become-a-tutor', '/tutors-in-bangalore', '/terms-and-conditions', '/privacy-policy', '/faq', '/contact-us'];
+    if (publicPaths.includes(pathname)) {
+      return null;
+    }
+  }
+  
   // Show the public layout (header/footer) only for non-dedicated layout paths
   const showPublicNavigation = !isDedicatedLayout;
 
