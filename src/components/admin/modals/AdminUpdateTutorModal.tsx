@@ -30,43 +30,11 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ApiTutor } from "@/types";
+import { experienceLevels, allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions, qualificationsList, languagesList } from "@/lib/constants";
 
 const subjectsList: MultiSelectOption[] = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography", "Computer Science", "Art", "Music", "Other"].map(s => ({ value: s, label: s }));
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
-const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
 const boardsList: MultiSelectOption[] = ["CBSE", "ICSE", "State Board", "IB", "IGCSE", "Other"].map(b => ({ value: b, label: b }));
-const qualificationsList: MultiSelectOption[] = ["Bachelor's Degree", "Master's Degree", "PhD", "Teaching Certification", "Subject Matter Expert", "Other"].map(q => ({ value: q, label: q }));
-const languagesList: MultiSelectOption[] = ["English", "Hindi", "Spanish", "French", "German", "Mandarin", "Japanese", "Other"].map(l => ({ value: l, label: l }));
-
-const teachingModeItems = [
-  { id: "Online", label: "Online" },
-  { id: "Offline", label: "Offline (In-person)" },
-];
-
-const daysOptionsList: MultiSelectOption[] = [
-    { value: "Monday", label: "Monday" },
-    { value: "Tuesday", label: "Tuesday" },
-    { value: "Wednesday", label: "Wednesday" },
-    { value: "Thursday", label: "Thursday" },
-    { value: "Friday", label: "Friday" },
-    { value: "Saturday", label: "Saturday" },
-    { value: "Sunday", label: "Sunday" },
-    { value: "Weekdays", label: "Weekdays" },
-    { value: "Weekends", label: "Weekends" },
-    { value: "Flexible", label: "Flexible" },
-];
-
-const timeSlotsOptionsList: MultiSelectOption[] = [
-  { value: "7:00 AM - 9:00 AM", label: "7:00 AM - 9:00 AM" },
-  { value: "9:00 AM - 11:00 AM", label: "9:00 AM - 11:00 AM" },
-  { value: "11:00 AM - 1:00 PM", label: "11:00 AM - 1:00 PM" },
-  { value: "1:00 PM - 3:00 PM", label: "1:00 PM - 3:00 PM" },
-  { value: "3:00 PM - 5:00 PM", label: "3:00 PM - 5:00 PM" },
-  { value: "5:00 PM - 7:00 PM", label: "5:00 PM - 7:00 PM" },
-  { value: "7:00 PM - 9:00 PM", label: "7:00 PM - 9:00 PM" },
-  { value: "Flexible", label: "Flexible" },
-];
-
 
 const adminTutorUpdateSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").optional().or(z.literal("")),
@@ -516,7 +484,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                                 <FormItem>
                                 <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-primary/80"/>Available Days</FormLabel>
                                 <MultiSelectCommand
-                                    options={daysOptionsList}
+                                    options={daysOptions}
                                     selectedValues={field.value}
                                     onValueChange={field.onChange}
                                     placeholder="Select days..."
@@ -533,7 +501,7 @@ export function AdminUpdateTutorModal({ isOpen, onOpenChange, tutor }: AdminUpda
                                 <FormItem>
                                 <FormLabel className="flex items-center"><Clock className="mr-2 h-4 w-4 text-primary/80"/>Available Time Slots</FormLabel>
                                 <MultiSelectCommand
-                                    options={timeSlotsOptionsList}
+                                    options={timeSlotsOptions}
                                     selectedValues={field.value}
                                     onValueChange={field.onChange}
                                     placeholder="Select time slots..."

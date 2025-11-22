@@ -30,15 +30,13 @@ import { LocationAutocompleteInput, type LocationDetails } from "@/components/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ApiTutor } from "@/types";
-import { allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions, qualificationsList, languagesList } from "@/lib/constants";
+import { allSubjectsList, boardsList as boardOptions, teachingModeOptions, daysOptions, timeSlotsOptions, qualificationsList, languagesList, experienceLevels } from "@/lib/constants";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useAtom } from "jotai";
 import { tutorProfileAtom } from "@/lib/state/tutor";
 
 const gradeLevelsList: MultiSelectOption[] = ["Kindergarten", "Grade 1-5", "Grade 6-8", "Grade 9-10", "Grade 11-12", "College Level", "Adult Learner", "Other"].map(gl => ({ value: gl, label: gl }));
 const boardsList: MultiSelectOption[] = boardOptions.map(b => ({ value: b, label: b }));
-
-const experienceLevels = ["Less than 1 year", "1-3 years", "3-5 years", "5-7 years", "7+ years", "10+ years"];
 
 const tutoringDetailsSchema = z.object({
   gender: z.enum(["MALE", "FEMALE"], { required_error: "Tutor gender is required." }),
@@ -469,7 +467,7 @@ const mutation = useMutation({
                         selectedValues={field.value || []}
                         onValueChange={field.onChange}
                         placeholder="Select qualifications..."
-                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                       />
                       <FormMessage />
                     </FormItem>
@@ -515,7 +513,7 @@ const mutation = useMutation({
                       selectedValues={field.value || []}
                       onValueChange={field.onChange}
                       placeholder="Select languages..."
-                      className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                      className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                     />
                      <FormDescription className="text-xs">Select all languages you can teach in.</FormDescription>
                     <FormMessage />
@@ -535,7 +533,7 @@ const mutation = useMutation({
                         selectedValues={field.value || []}
                         onValueChange={field.onChange}
                         placeholder="Select preferred days..."
-                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                       />
                       <FormMessage />
                     </FormItem>
@@ -552,7 +550,7 @@ const mutation = useMutation({
                         selectedValues={field.value || []}
                         onValueChange={(values) => field.onChange(values)}
                         placeholder="Select preferred time slots..."
-                        className="bg-input border-border focus-within:border-primary focus-within:ring-primary/30 shadow-sm"
+                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
                       />
                       <FormMessage />
                     </FormItem>
