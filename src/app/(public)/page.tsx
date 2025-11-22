@@ -17,13 +17,14 @@ import type { TutorProfile, Testimonial, User } from "@/types"; // Added User
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import { useState, useEffect } from "react"; 
-import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";
+import { useRouter } from "next/navigation";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+
 
 const howItWorksSteps = [
   {
@@ -85,7 +86,6 @@ const popularSubjects = [
 
 export default function HomePage() {
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock(); 
-  const router = useRouter();
   const sectionPadding = "py-10 md:py-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
@@ -93,36 +93,7 @@ export default function HomePage() {
   const [authModalInitialName, setAuthModalInitialName] = useState<string | undefined>(undefined);
   const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
-  const { showLoader, hideLoader } = useGlobalLoader();
-
-
-  useEffect(() => {
-    if (!isCheckingAuth && isAuthenticated && user) {
-      showLoader("Redirecting to your dashboard...");
-      let targetPath = "/";
-      switch(user.role) {
-        case 'admin':
-          targetPath = '/admin/dashboard';
-          break;
-        case 'tutor':
-          targetPath = '/tutor/dashboard';
-          break;
-        case 'parent':
-          targetPath = '/parent/dashboard';
-          break;
-        default:
-          hideLoader();
-          break;
-      }
-      if (targetPath !== "/") {
-        router.replace(targetPath);
-      }
-    } else if (!isCheckingAuth) {
-      hideLoader();
-    }
-  }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader]);
-
-
+  
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
     setAuthModalInitialView('signin');
@@ -139,8 +110,9 @@ export default function HomePage() {
     setIsPostRequirementModalOpen(true);
   };
   
-  // If authentication is being checked or if the user is authenticated and about to be redirected, show a blank screen as the global loader will cover it.
-  if (isCheckingAuth || (isAuthenticated && user)) {
+  // If we are checking auth or if the user is logged in (and will be redirected), show a blank screen.
+  // The actual GlobalLoader is shown by the root layout.
+  if (isCheckingAuth || isAuthenticated) {
     return <div className="w-full h-screen bg-background" />;
   }
 
@@ -400,4 +372,3 @@ export default function HomePage() {
   );
 }
 
-    
