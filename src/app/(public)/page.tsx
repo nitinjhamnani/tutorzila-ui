@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,8 @@ import becomeTutorImage from '@/assets/images/banner-11.png';
 import type { TutorProfile, Testimonial, User } from "@/types"; // Added User
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
-import { useState } from "react"; 
+import { useState, useEffect } from "react"; 
+import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
@@ -82,7 +84,8 @@ const popularSubjects = [
 
 
 export default function HomePage() {
-  const { user, isAuthenticated } = useAuthMock(); 
+  const { user, isAuthenticated, isCheckingAuth } = useAuthMock(); 
+  const router = useRouter();
   const sectionPadding = "py-10 md:py-16"; 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] = useState(false);
@@ -91,6 +94,24 @@ export default function HomePage() {
   const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
+
+  useEffect(() => {
+    if (!isCheckingAuth && isAuthenticated && user) {
+      switch(user.role) {
+        case 'admin':
+          router.replace('/admin/dashboard');
+          break;
+        case 'tutor':
+          router.replace('/tutor/dashboard');
+          break;
+        case 'parent':
+          router.replace('/parent/dashboard');
+          break;
+        default:
+          break;
+      }
+    }
+  }, [isCheckingAuth, isAuthenticated, user, router]);
 
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
@@ -107,6 +128,10 @@ export default function HomePage() {
     setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
     setIsPostRequirementModalOpen(true);
   };
+
+  if (isAuthenticated && user) {
+    return <div className="flex h-screen items-center justify-center">Redirecting to your dashboard...</div>;
+  }
 
   return (
     <div className="flex flex-col items-center overflow-x-hidden bg-secondary">

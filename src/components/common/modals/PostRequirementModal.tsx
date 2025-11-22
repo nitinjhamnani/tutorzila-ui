@@ -120,7 +120,7 @@ export function PostRequirementModal({
   
   const [currentStep, setCurrentStep] = useState(startFromStep);
   const { user, isAuthenticated, token } = useAuthMock();
-  const totalSteps = 3; 
+  const totalSteps = isAuthenticated ? 2 : 3; 
   
   const { toast } = useToast();
   const { showLoader, hideLoader } = useGlobalLoader();
@@ -158,13 +158,6 @@ export function PostRequirementModal({
       form.setValue('subject', initialSubject);
     }
   }, [initialSubject, form]);
-  
-  useEffect(() => {
-    if (isAuthenticated && user) {
-        form.setValue("name", user.name || "");
-        form.setValue("email", user.email || "");
-    }
-  }, [isAuthenticated, user, form]);
 
 
   const handleNext = async () => {
@@ -707,4 +700,3 @@ export function PostRequirementModal({
     </>
   );
 }
-
