@@ -5,14 +5,20 @@ import { useAtom } from "jotai";
 import { loaderAtom } from "@/lib/state/loader";
 import { cn } from "@/lib/utils";
 
-export function GlobalLoader() {
+interface GlobalLoaderProps {
+  forceShow?: boolean;
+}
+
+export function GlobalLoader({ forceShow = false }: GlobalLoaderProps) {
   const [loaderState] = useAtom(loaderAtom);
+
+  const isVisible = forceShow || loaderState.isLoading;
 
   return (
     <div
       className={cn(
         "fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300",
-        loaderState.isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
+        isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
       )}
     >
       <div className="flex flex-col items-center gap-4">

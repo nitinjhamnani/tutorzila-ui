@@ -40,7 +40,6 @@ interface ParentSidebarProps {
 
 export function ParentSidebar(props: ParentSidebarProps) {
   const pathname = usePathname();
-  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {

@@ -128,11 +128,9 @@ export function useAuthMock() {
     setUser(null);
     setToken(null);
     // Use a timeout to ensure the state update has time to process before full navigation
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
         window.location.href = "/";
-      }
-    }, 50);
+    }
   }, [setUser, setToken, showLoader]);
 
 

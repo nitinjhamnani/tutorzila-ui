@@ -43,7 +43,6 @@ export function AdminSidebar({
   logoutNavItem,
 }: AdminSidebarProps) {
   const pathname = usePathname();
-  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {

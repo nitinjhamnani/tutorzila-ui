@@ -57,7 +57,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   const { login } = useAuthMock();
   const { toast } = useToast();
   const router = useRouter();
-  const { showLoader, hideLoader } = useGlobalLoader();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
 
@@ -135,7 +134,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
 
   async function onSubmit(values: SignInFormValues) {
     setIsSubmitting(true);
-    showLoader("Signing in...");
     try {
       const result = await login(values.localPhoneNumber, values.password);
       
@@ -156,7 +154,6 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       if (onClose) onClose();
 
     } catch (error) {
-      hideLoader(); // Hide loader only on failure
       toast({
         variant: "destructive",
         title: "Sign In Failed",

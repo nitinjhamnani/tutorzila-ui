@@ -40,7 +40,6 @@ interface TutorSidebarProps {
 
 export function TutorSidebar(props: TutorSidebarProps) {
   const pathname = usePathname();
-  const { showLoader } = useGlobalLoader();
 
   const handleNavLinkClick = (href: string) => {
     if (pathname === href) {

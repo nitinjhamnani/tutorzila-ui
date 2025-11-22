@@ -12,16 +12,11 @@ import { useEffect } from 'react';
 
 function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
-  const { hideLoader } = useGlobalLoader();
 
   useEffect(() => {
     // This effect ensures the loader is hidden after initial auth checks are done.
-    if (!isCheckingAuth) {
-      hideLoader();
-    }
-  }, [isCheckingAuth, hideLoader, pathname]);
+  }, [isCheckingAuth, pathname]);
 
   const pathsWithDedicatedLayouts = [
     '/parent/',

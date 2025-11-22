@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";
 import { useEffect } from 'react';
 import { useRouter } from "next/navigation";
-import { useGlobalLoader } from "@/hooks/use-global-loader";
 
 
 const howItWorksSteps = [
@@ -95,11 +95,9 @@ export default function HomePage() {
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
   const parentContextBaseUrl = isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
   const router = useRouter();
-  const { showLoader, hideLoader } = useGlobalLoader();
   
   useEffect(() => {
     if (!isCheckingAuth && isAuthenticated && user) {
-      showLoader("Redirecting to your dashboard...");
       let targetPath = "/";
       switch(user.role) {
         case 'admin':
@@ -111,17 +109,12 @@ export default function HomePage() {
         case 'parent':
           targetPath = '/parent/dashboard';
           break;
-        default:
-          hideLoader();
-          break;
       }
       if (targetPath !== "/") {
         router.replace(targetPath);
       }
-    } else if (!isCheckingAuth) {
-      hideLoader();
     }
-  }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader]);
+  }, [isCheckingAuth, isAuthenticated, user, router]);
 
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
