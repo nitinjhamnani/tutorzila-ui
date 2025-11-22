@@ -24,9 +24,6 @@ import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
-import { useSetAtom } from "jotai";
-import { layoutVisibilityAtom } from "@/lib/state/layout";
-
 
 const howItWorksSteps = [
   {
@@ -97,16 +94,11 @@ export default function HomePage() {
   const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
   const { showLoader, hideLoader } = useGlobalLoader();
-  const setLayoutVisibility = useSetAtom(layoutVisibilityAtom);
 
 
   useEffect(() => {
-    // Ensure layout is visible by default when this page is active
-    setLayoutVisibility(true);
-
     if (!isCheckingAuth && isAuthenticated && user) {
       showLoader("Redirecting to your dashboard...");
-      setLayoutVisibility(false); // Hide layout during redirection
       let targetPath = "/";
       switch(user.role) {
         case 'admin':
@@ -120,7 +112,6 @@ export default function HomePage() {
           break;
         default:
           hideLoader();
-          setLayoutVisibility(true);
           break;
       }
       if (targetPath !== "/") {
@@ -129,9 +120,7 @@ export default function HomePage() {
     } else if (!isCheckingAuth) {
       hideLoader();
     }
-    // Cleanup function to reset visibility when navigating away
-    return () => setLayoutVisibility(true);
-  }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader, setLayoutVisibility]);
+  }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader]);
 
 
   const handleTriggerSignIn = (name?: string) => {
@@ -410,3 +399,5 @@ export default function HomePage() {
     
   );
 }
+
+    
