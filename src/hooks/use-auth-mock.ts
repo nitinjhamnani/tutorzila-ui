@@ -39,7 +39,7 @@ export function useAuthMock() {
   const [token, setToken] = useAtom(tokenAtom);
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { showLoader } = useGlobalLoader();
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   useEffect(() => {
     // This effect ensures state is synchronized with localStorage on mount
@@ -106,6 +106,7 @@ export function useAuthMock() {
   };
 
   const login = async (username: string, password?: string) => {
+    showLoader("Signing in..."); // Show loader immediately
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     const response = await fetch(`${apiBaseUrl}/api/auth/signin`, {
@@ -117,6 +118,7 @@ export function useAuthMock() {
     const responseData = await response.json();
 
     if (!response.ok) {
+      hideLoader(); // Hide loader on failure
       throw new Error(responseData.message || "Sign in failed. Please check your credentials.");
     }
 
@@ -125,6 +127,7 @@ export function useAuthMock() {
         setSession(responseData.token, responseData.type, username, responseData.name, username, responseData.profilePicture);
         
         const role = responseData.type.toLowerCase();
+        // The loader will hide automatically on the next page load
         if (role === 'tutor') {
             router.push("/tutor/dashboard");
         } else if (role === 'parent') {
@@ -132,9 +135,11 @@ export function useAuthMock() {
         } else if (role === 'admin') {
             router.push("/admin/dashboard");
         } else {
+            hideLoader(); // Hide loader if no specific redirect
             router.push("/");
         }
     } else {
+        hideLoader(); // Hide loader on invalid response
         throw new Error("Invalid response from server during login. Missing token or user type.");
     }
 
