@@ -89,10 +89,11 @@ export default function AdminAllEnquiriesPage() {
     const lowercasedFilter = searchTerm.toLowerCase();
     return allRequirements.filter((req) => {
       const includesEnquiryCode = req.enquiryCode?.toLowerCase().includes(lowercasedFilter);
+      const includesStudentName = req.studentName?.toLowerCase().includes(lowercasedFilter);
       const includesSubject = req.subject.some(s => s.toLowerCase().includes(lowercasedFilter));
       const includesGrade = req.gradeLevel.toLowerCase().includes(lowercasedFilter);
       const includesMode = req.teachingMode?.some(m => m.toLowerCase().includes(lowercasedFilter));
-      return includesEnquiryCode || includesSubject || includesGrade || includesMode;
+      return includesEnquiryCode || includesStudentName || includesSubject || includesGrade || includesMode;
     });
   }, [searchTerm, allRequirements]);
 
@@ -251,4 +252,5 @@ export default function AdminAllEnquiriesPage() {
   );
 }
     
+
 
