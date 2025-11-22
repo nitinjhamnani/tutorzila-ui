@@ -14,9 +14,10 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
-  const { showLoader, hideLoader } = useGlobalLoader();
+  const { showLoader, hideLoader, loaderState } = useGlobalLoader();
 
   useEffect(() => {
+    // This effect handles redirection logic
     if (!isCheckingAuth && isAuthenticated && user) {
       const publicPaths = ['/', '/become-a-tutor', '/tutors-in-bangalore'];
       if (publicPaths.includes(pathname)) {
@@ -33,7 +34,7 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
             targetPath = '/parent/dashboard';
             break;
           default:
-            hideLoader(); // Should not happen
+            hideLoader();
             break;
         }
         if (targetPath !== "/") {
@@ -41,7 +42,8 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
         }
       }
     } else if (!isCheckingAuth) {
-      hideLoader();
+        // If we are done checking and the user is not authenticated on a protected page, or if a page just needs the loader to hide on mount.
+        hideLoader();
     }
   }, [isCheckingAuth, isAuthenticated, user, router, showLoader, hideLoader, pathname]);
 
@@ -54,9 +56,13 @@ function LayoutVisibilityController({ children }: { children: ReactNode }) {
 
   const isDedicatedLayout = pathsWithDedicatedLayouts.some(path => pathname.startsWith(path));
 
-  // If we are checking auth or redirecting, show nothing but the children (which will be a loader or blank screen)
-  if (isCheckingAuth || (isAuthenticated && !isDedicatedLayout)) {
+  // If the loader is active, we want to show the current page content underneath it, not a blank screen.
+  if (loaderState.isLoading) {
     return <main className="flex-grow">{children}</main>;
+  }
+  
+  if (isCheckingAuth) {
+    return null; // Render nothing while we wait for auth state to be confirmed client-side
   }
 
   const showPublicNavigation = !isDedicatedLayout;

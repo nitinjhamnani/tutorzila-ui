@@ -6,15 +6,15 @@ import { loaderAtom } from "@/lib/state/loader";
 import { useCallback } from "react";
 
 export function useGlobalLoader() {
-  const [, setIsLoading] = useAtom(loaderAtom);
+  const [loaderState, setLoaderState] = useAtom(loaderAtom);
 
   const showLoader = useCallback((message?: string) => {
-    setIsLoading({ isLoading: true, message });
-  }, [setIsLoading]);
+    setLoaderState({ isLoading: true, message });
+  }, [setLoaderState]);
 
   const hideLoader = useCallback(() => {
-    setIsLoading({ isLoading: false, message: undefined });
-  }, [setIsLoading]);
+    setLoaderState({ isLoading: false, message: undefined });
+  }, [setLoaderState]);
 
-  return { showLoader, hideLoader };
+  return { showLoader, hideLoader, loaderState };
 }
