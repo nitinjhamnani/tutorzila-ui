@@ -128,6 +128,7 @@ export function useAuthMock() {
   }, [setSession]);
 
   const logout = useCallback(() => {
+    showLoader("Logging out...");
     // Clear state
     setUser(null);
     setToken(null);
@@ -137,10 +138,10 @@ export function useAuthMock() {
       localStorage.removeItem("tutorzila_user");
       localStorage.removeItem("tutorzila_token");
       localStorage.removeItem("tutorzila_tutor_profile");
+      // Force a full page reload to the homepage
+      window.location.href = "/";
     }
-    router.push("/");
-    
-  }, [setUser, setToken, router]);
+  }, [setUser, setToken, showLoader]);
 
 
   return {
