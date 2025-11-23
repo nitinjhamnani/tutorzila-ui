@@ -125,30 +125,31 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               <MenuIcon className="h-6 w-6" />
             </Button>
             <Link href="/parent/dashboard">
-              <Logo className="h-8 w-auto" />
+              <Logo className="h-16 w-auto p-0" />
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8">
-              <Bell className="w-4 h-4" />
-              <span className="sr-only">Notifications</span>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 px-3">
+              <Bell className="w-4 h-4 mr-1 md:hidden" />
+              <span className="hidden md:inline">Notifications</span>
               <span className="absolute top-1 right-1 flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
               </span>
             </Button>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white hover:bg-primary/80 h-8 w-8">
-              <SettingsIcon className="w-4 h-4" />
-              <span className="sr-only">Settings</span>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-white hover:bg-primary/80 h-8 px-3">
+              <SettingsIcon className="w-4 h-4 mr-1 md:hidden" />
+              <span className="hidden md:inline">Settings</span>
             </Button>
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={handleLogout}
-              className="text-muted-foreground hover:text-white hover:bg-destructive/80 h-8 w-8"
+              className="text-muted-foreground hover:text-white hover:bg-destructive/80 h-8 px-3"
               aria-label="Log out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 mr-1 md:hidden" />
+              <span className="hidden md:inline">Log Out</span>
             </Button>
           </div>
         </header>
