@@ -2,6 +2,7 @@
 import { Building, Users, BookOpen, Star, CheckCircle, Award, Target } from 'lucide-react';
 import Image from "next/image";
 import bannerImage from '@/assets/images/banner-9.png';
+import { Card } from "@/components/ui/card";
 
 export default function AboutUsPage() {
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
