@@ -10,7 +10,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarIcon, Clock, Loader2, Send, BookOpen, Link as LinkIcon, MapPin, RadioTower, DollarSign } from "lucide-react";
 import { format } from "date-fns";
@@ -249,9 +248,9 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="flex items-center"><CalendarIcon className="mr-2 h-4 w-4 text-primary/80"/>Select Date</FormLabel>
-                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
+                   <Dialog open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                      <DialogTrigger asChild>
+                         <FormControl>
                           <Button
                             variant={"outline"}
                             className={cn(
@@ -263,8 +262,11 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
+                      </DialogTrigger>
+                      <DialogContent className="w-auto p-0">
+                         <DialogHeader className="p-4 border-b">
+                          <DialogTitle>Select a Date</DialogTitle>
+                        </DialogHeader>
                          <Calendar
                             mode="single"
                             selected={field.value}
@@ -275,8 +277,8 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                             disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                             initialFocus
                           />
-                      </PopoverContent>
-                    </Popover>
+                      </DialogContent>
+                    </Dialog>
                   <FormMessage />
                 </FormItem>
               )}
