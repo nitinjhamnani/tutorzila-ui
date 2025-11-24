@@ -27,6 +27,7 @@ const footerLinks = [
   {
     title: "About",
     links: [
+      { label: "About Us", href: "/about-us", icon: Info },
       { label: "Privacy Policy", href: "/privacy-policy", icon: ShieldCheck },
       { label: "Terms & Conditions", href: "/terms-and-conditions", icon: FileText },
       { label: "FAQ", href: "/faq", icon: HelpCircle },

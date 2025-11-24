@@ -151,5 +151,6 @@ declare module "lucide-react" {
     export const Radio: React.FC<React.SVGProps<SVGSVGElement>>;
     export const FlaskConical: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Microscope: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Target: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
