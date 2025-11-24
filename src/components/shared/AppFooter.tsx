@@ -78,7 +78,7 @@ export function AppFooter() {
         <div className="container mx-auto px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             <div className="space-y-0 md:col-span-2 lg:col-span-1">
-              <Link href="/">
+              <Link href="/" style={{ position: 'relative', top: '-30px', left: '-15px' }}>
                 <Image
                   src={logoAsset}
                   alt="Tutorzila Logo"
