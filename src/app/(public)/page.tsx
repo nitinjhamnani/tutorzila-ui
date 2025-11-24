@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -522,18 +521,18 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
                     <div className="flex flex-col items-center text-center p-4 md:p-8">
                         <HomeIcon className="w-12 h-12 text-primary-foreground mb-4" />
-                        <Counter end={500} suffix="+" />
-                        <p className="text-md text-primary-foreground/80 mt-1">Home Tutors</p>
+                        <Counter end={2000} suffix="+" />
+                        <p className="text-lg font-semibold text-primary-foreground/90 mt-2">Home Tutors</p>
                     </div>
                     <div className="flex flex-col items-center text-center p-4 md:p-8">
                         <Laptop className="w-12 h-12 text-primary-foreground mb-4" />
                         <Counter end={1000} suffix="+" />
-                        <p className="text-md text-primary-foreground/80 mt-1">Online Tutors</p>
+                        <p className="text-lg font-semibold text-primary-foreground/90 mt-2">Online Tutors</p>
                     </div>
                     <div className="flex flex-col items-center text-center p-4 md:p-8">
                         <UsersRound className="w-12 h-12 text-primary-foreground mb-4" />
-                        <Counter end={5000} suffix="+" />
-                        <p className="text-md text-primary-foreground/80 mt-1">Happy Students</p>
+                        <Counter end={1000} suffix="+" />
+                        <p className="text-lg font-semibold text-primary-foreground/90 mt-2">Happy Students</p>
                     </div>
                 </div>
             </div>
