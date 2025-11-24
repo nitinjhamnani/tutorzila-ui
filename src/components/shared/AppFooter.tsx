@@ -77,18 +77,21 @@ export function AppFooter() {
       <footer className="bg-card border-t border-border/50 text-card-foreground animate-in fade-in duration-500 ease-out">
         <div className="container mx-auto px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            <div className="space-y-3 md:col-span-2 lg:col-span-1">
+            <div className="space-y-4 md:col-span-2 lg:col-span-1">
               <Link href="/">
-                {/* Replaced Logo component with direct Image import */}
                 <Image
                   src={logoAsset}
                   alt="Tutorzila Logo"
-                  width={405} // Intrinsic width of the logo image
-                  height={96} // Intrinsic height of the logo image
-                  className="h-[var(--logo-height)] w-auto" // Keep className for styling
+                  width={405}
+                  height={96}
+                  className="h-[var(--logo-height)] w-auto"
+                  priority
                 />
               </Link>
-              <div className="flex space-x-3">
+              <p className="text-sm text-muted-foreground leading-relaxed pt-2">
+                Tutorzila connects parents with qualified home and online tutors across India for personalised learning.
+              </p>
+              <div className="flex space-x-3 pt-2">
                 {socialLinks.map((social) => (
                   <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
                     <Link href={social.href} aria-label={social.label} target="_blank" rel="noopener noreferrer">
