@@ -75,7 +75,6 @@ declare module "lucide-react" {
     export const CalendarClock: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ShoppingBag: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Eye: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const EyeOff: React.FC<React.SVGProps<SVGSVGElement>>;
     export const CalendarDays: React.FC<React.SVGProps<SVGSVGElement>>;
     export const ClipboardEdit: React.FC<React.SVGProps<SVGSVGElement>>;
     export const UserCog: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -148,5 +147,9 @@ declare module "lucide-react" {
     export const KeyRound: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Share: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Check: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const EyeOff: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Radio: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const FlaskConical: React.FC<React.SVGProps<SVGSVGElement>>;
+    export const Microscope: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }

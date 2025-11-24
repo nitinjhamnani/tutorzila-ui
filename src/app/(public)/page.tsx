@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap, MessageSquareText, PhoneCall, Settings, ShieldCheck } from "lucide-react"; // Added GraduationCap, PhoneCall, Settings, ShieldCheck
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap, MessageSquareText, PhoneCall, Settings, ShieldCheck, FlaskConical, Microscope } from "lucide-react"; // Added FlaskConical, Microscope
 // BookUser was removed as it's not defined at runtime
 import Image from "next/image";
 import Link from "next/link";
@@ -132,11 +132,9 @@ const popularSubjects = [
   { name: "English", icon: Book, hoverColor: "hover:bg-red-600" },
   { name: "Coding", icon: Code, hoverColor: "hover:bg-purple-600" },
   { name: "History", icon: Globe, hoverColor: "hover:bg-yellow-600" },
-  { name: "Art", icon: Palette, hoverColor: "hover:bg-pink-600" },
-  { name: "Music", icon: Music, hoverColor: "hover:bg-indigo-600" },
   { name: "Physics", icon: Lightbulb, hoverColor: "hover:bg-teal-600" },
-  { name: "Chemistry", icon: Atom, hoverColor: "hover:bg-cyan-600" },
-  { name: "Biology", icon: Atom, hoverColor: "hover:bg-lime-600" },
+  { name: "Chemistry", icon: FlaskConical, hoverColor: "hover:bg-cyan-600" },
+  { name: "Biology", icon: Microscope, hoverColor: "hover:bg-lime-600" },
   { name: "Geography", icon: Globe, hoverColor: "hover:bg-orange-600" },
   { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
 ];
@@ -608,4 +606,5 @@ export default function HomePage() {
       </div>
   );
 }
+
 
