@@ -64,7 +64,7 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
     board: item.board,
     teachingMode: [
       ...(item.online ? ["Online"] : []),
-      ...(item.offline ? ["Offline (In-person)"] : []),
+      ...(item.offline ? ["Offline"] : []),
     ],
     applicantsCount: item.assignedTutors,
   }));
@@ -222,3 +222,6 @@ export default function AdminAllEnquiriesPage() {
 
 
 
+
+
+    
