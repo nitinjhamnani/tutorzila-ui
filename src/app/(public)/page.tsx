@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap, MessageSquareText } from "lucide-react"; // Added GraduationCap
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap, MessageSquareText, PhoneCall, Settings, ShieldCheck } from "lucide-react"; // Added GraduationCap, PhoneCall, Settings, ShieldCheck
 // BookUser was removed as it's not defined at runtime
 import Image from "next/image";
 import Link from "next/link";
@@ -24,6 +24,35 @@ import { useAuthMock } from "@/hooks/use-auth-mock"; // Added useAuthMock
 import AuthModal from "@/components/auth/AuthModal";
 import { useRouter } from "next/navigation";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+
+
+const whyParentsChooseUs = [
+  {
+    icon: SearchCheck,
+    title: "Fast Tutor Matching",
+    description: "Get the right tutor recommendation within minutes.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "3000+ Verified Tutors",
+    description: "Choose from a large pool of experienced and trusted educators.",
+  },
+  {
+    icon: PhoneCall,
+    title: "Counselling on Call",
+    description: "We guide you personally to understand your child’s needs and suggest the best tutor.",
+  },
+  {
+    icon: Settings,
+    title: "Dedicated Coordination",
+    description: "We handle communication, demo scheduling, and smooth onboarding for you.",
+  },
+  {
+    icon: HomeIcon,
+    title: "Home & Online Options",
+    description: "Select what suits your child—comfort of home or flexibility of online classes.",
+  },
+];
 
 
 const howItWorksSteps = [
@@ -262,8 +291,33 @@ export default function HomePage() {
           </div>
         </section>
 
-         {/* Get An Expert Tutor Section */}
+        {/* Why Parents Choose Us Section */}
         <section className={`w-full bg-secondary ${sectionPadding}`}>
+          <div className={`${containerPadding}`}>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Why Parents Choose Tutorzila</h2>
+              <p className="mt-4 max-w-3xl mx-auto text-foreground/80 md:text-lg">
+                We're committed to providing a seamless and trustworthy experience for finding the best educational support for your child.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-6xl mx-auto">
+              {whyParentsChooseUs.map((benefit, index) => (
+                <Card key={index} className="group bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.05]">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm mb-4">
+                      <benefit.icon className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">{benefit.title}</h3>
+                    <p className="text-xs text-foreground/70 mt-2">{benefit.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+         {/* Get An Expert Tutor Section */}
+        <section className={`w-full bg-background ${sectionPadding}`}>
           <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${containerPadding}`}>
             <div className="flex justify-center items-center animate-in fade-in zoom-in-90 duration-700 ease-out">
               <Image
@@ -320,7 +374,7 @@ export default function HomePage() {
         </section>
 
         {/* Why Join Us Section */}
-        <section className={`w-full bg-background ${sectionPadding}`}>
+        <section className={`w-full bg-secondary ${sectionPadding}`}>
           <div className={`${containerPadding}`}>
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Why Join Us as a Tutor?</h2>
@@ -345,7 +399,7 @@ export default function HomePage() {
         </section>
 
         {/* Become A Tutor Section */}
-        <section className={`w-full bg-secondary ${sectionPadding}`}>
+        <section className={`w-full bg-background ${sectionPadding}`}>
           <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${containerPadding}`}>
             <div className="flex flex-col justify-center space-y-6 animate-in fade-in slide-in-from-left-10 duration-700 ease-out">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Become A Tutor with Tutorzila</h2>
@@ -389,7 +443,7 @@ export default function HomePage() {
         </section>
 
         {/* Call to Action */}
-        <section className={`w-full text-center ${sectionPadding} bg-background`}>
+        <section className={`w-full text-center ${sectionPadding} bg-secondary`}>
           <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
             <div className="inline-block p-4 bg-primary/10 rounded-full mb-5 shadow-sm">
                 <Star className="w-9 h-9 text-primary"/>
@@ -409,7 +463,7 @@ export default function HomePage() {
         </section>
 
         {/* Testimonials Section */}
-        <section className={`w-full bg-secondary ${sectionPadding}`}>
+        <section className={`w-full bg-background ${sectionPadding}`}>
           <div className={`${containerPadding}`}>
             <div className="text-center mb-12 md:mb-16 animate-in fade-in duration-500 ease-out">
                  <div className="inline-block p-3.5 bg-primary/10 rounded-full mb-4 shadow-sm">
@@ -452,3 +506,4 @@ export default function HomePage() {
       </div>
   );
 }
+
