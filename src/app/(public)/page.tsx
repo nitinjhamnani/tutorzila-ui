@@ -586,10 +586,10 @@ export default function HomePage() {
                         <Input
                             type="email"
                             placeholder="Enter your email address"
-                            className="flex-grow bg-card/10 border-white/30 text-white placeholder:text-white/70 focus:bg-white focus:text-card-foreground py-3.5 text-base"
+                            className="flex-grow bg-card/10 border-white/30 text-white placeholder:text-white/70 focus:bg-white focus:text-card-foreground py-3.5 px-4 text-base h-auto"
                             aria-label="Email address"
                         />
-                        <Button type="submit" variant="secondary" size="lg" className="shrink-0 text-secondary-foreground shadow-md hover:shadow-lg transition-shadow py-3.5">
+                        <Button type="submit" variant="secondary" size="lg" className="shrink-0 text-secondary-foreground shadow-md hover:shadow-lg transition-shadow">
                             Subscribe
                         </Button>
                     </form>
@@ -608,3 +608,4 @@ export default function HomePage() {
       </div>
   );
 }
+
