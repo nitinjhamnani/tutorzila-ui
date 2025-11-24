@@ -53,6 +53,8 @@ import {
   HomeIcon,
   Laptop,
   Quote,
+  PhoneCall,
+  Settings,
 } from "lucide-react";
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import bannerImage from "@/assets/images/banner-9.png";
@@ -63,16 +65,16 @@ import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 
 const popularSubjects = [
-  { name: "Mathematics", icon: Calculator },
-  { name: "Science", icon: Atom },
-  { name: "English", icon: BookOpen },
-  { name: "Coding", icon: Code },
-  { name: "History", icon: Landmark },
-  { name: "Physics", icon: Lightbulb },
-  { name: "Chemistry", icon: FlaskConical },
-  { name: "Biology", icon: Microscope },
-  { name: "Geography", icon: Globe },
-  { name: "Economics", icon: TrendingUp },
+  { name: "Mathematics", icon: Calculator, hoverColor: "hover:bg-blue-600" },
+  { name: "Science", icon: Atom, hoverColor: "hover:bg-green-600" },
+  { name: "English", icon: BookOpen, hoverColor: "hover:bg-red-600" },
+  { name: "Coding", icon: Code, hoverColor: "hover:bg-purple-600" },
+  { name: "History", icon: Landmark, hoverColor: "hover:bg-yellow-600" },
+  { name: "Physics", icon: Lightbulb, hoverColor: "hover:bg-teal-600" },
+  { name: "Chemistry", icon: FlaskConical, hoverColor: "hover:bg-cyan-600" },
+  { name: "Biology", icon: Microscope, hoverColor: "hover:bg-lime-600" },
+  { name: "Geography", icon: Globe, hoverColor: "hover:bg-orange-600" },
+  { name: "Economics", icon: TrendingUp, hoverColor: "hover:bg-amber-600" },
 ];
 
 const howItWorksSteps = [
@@ -98,32 +100,32 @@ const howItWorksSteps = [
   },
 ];
 
-const whyChooseUsBenefits = [
-    {
-        icon: ShieldCheck,
-        title: "Verified Tutors",
-        description: "Every tutor on our platform is thoroughly verified for their qualifications and experience.",
-    },
-    {
-        icon: Presentation,
-        title: "Demo Class",
-        description: "Schedule a free demo session to ensure the tutor is the perfect fit for your learning needs.",
-    },
-    {
-        icon: DollarSign,
-        title: "Affordable Fees",
-        description: "We offer competitive and transparent pricing with no hidden costs.",
-    },
-    {
-        icon: UsersRound,
-        title: "Tutor Match Guarantee",
-        description: "Our system helps you find the most suitable tutor based on your specific requirements.",
-    },
-    {
-        icon: ClipboardEdit,
-        title: "Personalized Learning",
-        description: "Tutors create customized learning plans to cater to each student's unique pace and style.",
-    },
+const whyParentsChooseUs = [
+  {
+    icon: SearchCheck,
+    title: "Fast Tutor Matching",
+    description: "Get the right tutor recommendation within minutes.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "3000+ Verified Tutors",
+    description: "Choose from a large pool of experienced and trusted educators.",
+  },
+  {
+    icon: PhoneCall,
+    title: "Counselling on Call",
+    description: "We guide you personally to understand your child’s needs and suggest the best tutor.",
+  },
+  {
+    icon: Settings,
+    title: "Dedicated Coordination",
+    description: "We handle communication, demo scheduling, and smooth onboarding for you.",
+  },
+  {
+    icon: HomeIcon,
+    title: "Home & Online Options",
+    description: "Select what suits your child—comfort of home or flexibility of online classes.",
+  },
 ];
 
 const useInView = (ref: React.RefObject<Element>, options: IntersectionObserverInit) => {
@@ -255,9 +257,10 @@ export default function TutorsInBangalorePage() {
                   onPointerDownOutside={(e) => e.preventDefault()}
                 >
                   <PostRequirementModal
+                    startFromStep={isAuthenticated && user?.role === 'parent' ? 2 : 1}
                     onSuccess={() => setIsPostRequirementModalOpen(false)}
                     initialSubject={initialSubjectForModal}
-                    onTriggerSignIn={handleTriggerSignIn}
+                     onTriggerSignIn={handleTriggerSignIn}
                   />
                 </DialogContent>
               </Dialog>
@@ -390,6 +393,7 @@ export default function TutorsInBangalorePage() {
                   onPointerDownOutside={(e) => e.preventDefault()}
                 >
                   <PostRequirementModal
+                    startFromStep={isAuthenticated && user?.role === 'parent' ? 2 : 1}
                     onSuccess={() => setIsPostRequirementModalOpen(false)}
                     initialSubject={initialSubjectForModal}
                      onTriggerSignIn={handleTriggerSignIn}
@@ -407,11 +411,11 @@ export default function TutorsInBangalorePage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Why Choose Tutorzila in Bangalore</h2>
             <p className="mt-4 max-w-3xl mx-auto text-foreground/80 md:text-lg">
-              We provide a reliable, affordable, and efficient way to connect with the best home and online tutors across the city.
+              We're committed to providing a seamless and trustworthy experience for finding the best educational support for your child.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-6xl mx-auto">
-            {whyChooseUsBenefits.map((benefit, index) => (
+            {whyParentsChooseUs.map((benefit, index) => (
               <Card key={index} className="group bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.05]">
                 <div className="flex flex-col items-center text-center">
                   <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm mb-4">
