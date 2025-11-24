@@ -194,7 +194,7 @@ const Counter = ({ end, duration = 2, suffix = "" } : { end: number, duration?: 
   }, [isInView, end, duration]);
 
   return (
-    <p ref={ref} className="text-4xl font-bold text-foreground">
+    <p ref={ref} className="text-4xl font-bold text-primary-foreground">
       {count.toLocaleString()}{suffix}
     </p>
   );
@@ -497,19 +497,19 @@ export default function HomePage() {
         </section>
 
         {/* Call to Action */}
-        <section className={`w-full text-center ${sectionPadding} bg-secondary`}>
+        <section className={`w-full text-center ${sectionPadding} bg-primary`}>
           <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
-            <div className="inline-block p-4 bg-primary/10 rounded-full mb-5 shadow-sm">
-                <Star className="w-9 h-9 text-primary"/>
+            <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
+                <Star className="w-9 h-9 text-primary-foreground"/>
             </div>
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary-foreground">
               Ready to Start Your Journey?
             </h2>
-            <p className="mt-5 max-w-xl mx-auto text-foreground/80 md:text-lg">
+            <p className="mt-5 max-w-xl mx-auto text-primary-foreground/80 md:text-lg">
               Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
             </p>
             <div className="mt-10">
-               <Button size="lg" className="shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
+               <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
                    Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
               </Button>
             </div>
@@ -517,23 +517,23 @@ export default function HomePage() {
         </section>
 
         {/* Counter Section */}
-        <section className={`w-full bg-background ${sectionPadding}`}>
+        <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
             <div className={`${containerPadding}`}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
                     <div className="flex flex-col items-center text-center p-4 md:p-8">
-                        <HomeIcon className="w-12 h-12 text-primary mb-4" />
+                        <HomeIcon className="w-12 h-12 text-primary-foreground mb-4" />
                         <Counter end={500} suffix="+" />
-                        <p className="text-md text-muted-foreground mt-1">Home Tutors</p>
+                        <p className="text-md text-primary-foreground/80 mt-1">Home Tutors</p>
                     </div>
                     <div className="flex flex-col items-center text-center p-4 md:p-8">
-                        <Laptop className="w-12 h-12 text-primary mb-4" />
+                        <Laptop className="w-12 h-12 text-primary-foreground mb-4" />
                         <Counter end={1000} suffix="+" />
-                        <p className="text-md text-muted-foreground mt-1">Online Tutors</p>
+                        <p className="text-md text-primary-foreground/80 mt-1">Online Tutors</p>
                     </div>
                     <div className="flex flex-col items-center text-center p-4 md:p-8">
-                        <UsersRound className="w-12 h-12 text-primary mb-4" />
+                        <UsersRound className="w-12 h-12 text-primary-foreground mb-4" />
                         <Counter end={5000} suffix="+" />
-                        <p className="text-md text-muted-foreground mt-1">Happy Students</p>
+                        <p className="text-md text-primary-foreground/80 mt-1">Happy Students</p>
                     </div>
                 </div>
             </div>
@@ -583,6 +583,3 @@ export default function HomePage() {
       </div>
   );
 }
-
-
-
