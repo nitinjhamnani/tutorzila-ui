@@ -18,6 +18,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
   Search,
@@ -47,12 +48,19 @@ import {
   Microscope,
   Landmark,
   TrendingUp,
+  Star,
+  Send,
+  HomeIcon,
+  Laptop,
+  Quote,
 } from "lucide-react";
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import bannerImage from "@/assets/images/banner-9.png";
 import hireTutorImage from "@/assets/images/banner-8.png";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import AuthModal from "@/components/auth/AuthModal";
+import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
+import { TestimonialCard } from "@/components/shared/TestimonialCard";
 
 const popularSubjects = [
   { name: "Mathematics", icon: Calculator },
@@ -118,6 +126,65 @@ const whyChooseUsBenefits = [
     },
 ];
 
+const useInView = (ref: React.RefObject<Element>, options: IntersectionObserverInit) => {
+    const [isInView, setIsInView] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setIsInView(true);
+                observer.unobserve(entry.target);
+            }
+        }, options);
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current);
+            }
+        };
+    }, [ref, options]);
+
+    return isInView;
+};
+
+const Counter = ({ end, duration = 2, suffix = "" } : { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLParagraphElement>(null);
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const endValue = end;
+      const frameDuration = 1000 / 60;
+      const totalFrames = Math.round((duration * 1000) / frameDuration);
+      const increment = endValue / totalFrames;
+
+      const counter = setInterval(() => {
+        start += increment;
+        if (start >= endValue) {
+          setCount(endValue);
+          clearInterval(counter);
+        } else {
+          setCount(Math.ceil(start));
+        }
+      }, frameDuration);
+
+      return () => clearInterval(counter);
+    }
+  }, [isInView, end, duration]);
+
+  return (
+    <p ref={ref} className="text-4xl font-bold text-primary-foreground">
+      {count.toLocaleString()}{suffix}
+    </p>
+  );
+};
+
 
 export default function TutorsInBangalorePage() {
   const [isPostRequirementModalOpen, setIsPostRequirementModalOpen] =
@@ -127,6 +194,7 @@ export default function TutorsInBangalorePage() {
   >(undefined);
   const { user, isAuthenticated } = useAuthMock();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signup');
   
   const handleOpenRequirementModal = (subjectName?: string) => {
     setInitialSubjectForModal(subjectName ? [subjectName] : undefined);
@@ -135,6 +203,11 @@ export default function TutorsInBangalorePage() {
   
   const handleTriggerSignIn = () => {
     setIsPostRequirementModalOpen(false);
+    setIsAuthModalOpen(true);
+  };
+  
+  const handleTriggerSignUp = () => {
+    setAuthModalInitialView('signup');
     setIsAuthModalOpen(true);
   };
 
@@ -353,11 +426,112 @@ export default function TutorsInBangalorePage() {
         </div>
       </section>
       
+      {/* Call to Action */}
+      <section className={`w-full text-center ${sectionPadding} bg-primary`}>
+        <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
+          <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
+              <Star className="w-9 h-9 text-white"/>
+          </div>
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
+            Ready to Start Your Journey?
+          </h2>
+          <p className="mt-5 max-w-xl mx-auto text-white/90 md:text-lg">
+            Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
+          </p>
+          <div className="mt-10">
+             <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
+                 Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Counter Section */}
+      <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
+          <div className={`${containerPadding}`}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                  <div className="flex flex-col items-center text-center p-4 md:p-8">
+                      <HomeIcon className="w-12 h-12 text-primary-foreground mb-4" />
+                      <Counter end={2000} suffix="+" />
+                      <p className="text-lg font-semibold text-primary-foreground/90 mt-2">Home Tutors</p>
+                  </div>
+                  <div className="flex flex-col items-center text-center p-4 md:p-8">
+                      <Laptop className="w-12 h-12 text-primary-foreground mb-4" />
+                      <Counter end={1000} suffix="+" />
+                      <p className="text-lg font-semibold text-primary-foreground/90 mt-2">Online Tutors</p>
+                  </div>
+                  <div className="flex flex-col items-center text-center p-4 md:p-8">
+                      <UsersRound className="w-12 h-12 text-primary-foreground mb-4" />
+                      <Counter end={1000} suffix="+" />
+                      <p className="text-lg font-semibold text-primary-foreground/90 mt-2">Happy Students</p>
+                  </div>
+              </div>
+          </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className={`w-full bg-secondary ${sectionPadding}`}>
+        <div className={`${containerPadding}`}>
+          <div className="text-center mb-12 md:mb-16 animate-in fade-in duration-500 ease-out">
+               <div className="inline-block p-3.5 bg-primary/10 rounded-full mb-4 shadow-sm">
+                  <Quote className="w-8 h-8 text-primary"/>
+              </div>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">What Our Users Say</h2>
+          </div>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: MOCK_TESTIMONIALS.length > 2, 
+            }}
+            className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto"
+          >
+            <CarouselContent className="-ml-3.5 md:-ml-4.5">
+              {MOCK_TESTIMONIALS.map((testimonial, index) => (
+                <CarouselItem key={testimonial.id} className="basis-full sm:basis-1/2 lg:basis-1/3 pl-3.5 md:pl-4.5">
+                   <div className="p-1.5 h-full">
+                      <TestimonialCard testimonial={testimonial} />
+                   </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+             <div className="flex justify-center items-center mt-10 space-x-4">
+              <CarouselPrevious className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
+              <CarouselNext className="static transform-none w-11 h-11 bg-card hover:bg-primary/10 text-primary border-primary/60 hover:border-primary shadow-md hover:shadow-lg transition-all" />
+            </div>
+          </Carousel>
+        </div>
+      </section>
+      
+      {/* Newsletter Section */}
+      <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
+          <div className={`${containerPadding} text-center`}>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-white">
+                  Stay Updated with Tutorzila
+              </h2>
+              <p className="mt-4 max-w-xl mx-auto text-white/90 md:text-lg">
+                  Subscribe to our newsletter for the latest updates on tutors, special offers, and educational tips.
+              </p>
+              <div className="mt-8 max-w-lg mx-auto">
+                  <form className="flex flex-col sm:flex-row gap-3">
+                      <Input
+                          type="email"
+                          placeholder="Enter your email address"
+                          className="flex-grow bg-card/10 border-white/30 text-white placeholder:text-white/70 focus:bg-white focus:text-card-foreground py-3.5 px-4 text-base h-auto"
+                          aria-label="Email address"
+                      />
+                      <Button type="submit" variant="secondary" size="lg" className="shrink-0 text-secondary-foreground shadow-md hover:shadow-lg transition-shadow">
+                          Subscribe
+                      </Button>
+                  </form>
+              </div>
+          </div>
+      </section>
     </div>
       {isAuthModalOpen && (
         <AuthModal 
           isOpen={isAuthModalOpen} 
           onOpenChange={setIsAuthModalOpen} 
+          initialForm={authModalInitialView}
         />
       )}
     </>
