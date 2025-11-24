@@ -127,12 +127,20 @@ const fetchParentDashboardData = async (token: string | null) => {
   return response.json();
 };
 
+const getInitials = (name?: string): string => {
+  if (!name) return "?";
+  const parts = name.split(" ");
+  if (parts.length > 1) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+};
+
 
 export default function ParentDashboardPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { showLoader, hideLoader } = useGlobalLoader();
   const queryClient = useQueryClient();
 
@@ -196,17 +204,6 @@ export default function ParentDashboardPage() {
   if (isCheckingAuth || !hasMounted || !isAuthenticated || !user || user.role !== 'parent') {
     return <div className="flex h-screen items-center justify-center text-lg font-medium text-muted-foreground">Loading Parent Dashboard...</div>;
   }
-
-  const handleAvatarUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      toast({ title: "Profile Picture Selected", description: `Mock: ${file.name} would be uploaded.` });
-    }
-  };
   
   const handleOpenOtpModal = (type: "email" | "phone") => {
     if (!user) return;
@@ -258,20 +255,9 @@ export default function ParentDashboardPage() {
                   <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/30 shadow-sm">
                     <AvatarImage src={dashboardData?.profilePicture || user.avatar || undefined} alt={user.name} />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xl md:text-2xl">
-                      {user.name?.split(" ").map(n => n[0]).join("").toUpperCase()}
+                      {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <button
-                    onClick={handleAvatarUploadClick}
-                    className={cn(
-                      "absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 flex items-center justify-center p-1.5 rounded-full cursor-pointer shadow-md transition-colors",
-                      "bg-primary/20 hover:bg-primary/30 text-primary"
-                    )}
-                    aria-label="Update profile picture"
-                  >
-                    <Camera className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                  </button>
-                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                 </div>
                 <div>
                   <h1 className="text-xl md:text-2xl font-semibold text-foreground">Hello, {user.name} <span className="inline-block ml-1">👋</span></h1>
@@ -287,19 +273,6 @@ export default function ParentDashboardPage() {
                       >
                         {user.status === "Active" ? <CheckCircle className="mr-1 h-3 w-3 text-primary-foreground" /> : <XCircle className="mr-1 h-3 w-3" />}
                         {user.status}
-                      </Badge>
-                    )}
-                    {isLoadingDashboard ? (
-                      <Skeleton className="h-5 w-20 rounded-full" />
-                    ) : (
-                      <Badge
-                        className={cn(
-                          "text-xs py-0.5 px-2 border",
-                          isUserVerified ? "bg-green-600 text-white border-green-700" : "bg-destructive/10 text-destructive border-destructive/50"
-                        )}
-                      >
-                        {isUserVerified ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                        {isUserVerified ? "Verified" : "Not Verified"}
                       </Badge>
                     )}
                   </div>
