@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ApiTutor } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 
 import {
     Table,
@@ -24,6 +25,16 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Users,
   Eye,
@@ -41,6 +52,7 @@ import {
   Users as UsersIcon,
   ShieldCheck,
   Search,
+  Trash2,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -96,6 +108,24 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
   }));
 };
 
+const removeTutorApi = async ({ tutorId, token }: { tutorId: string, token: string | null }) => {
+  if (!token) throw new Error("Authentication token not found.");
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/remove/${tutorId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'accept': '*/*',
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to remove tutor.");
+  }
+  return true;
+};
+
 const getInitials = (name: string): string => {
     if (!name) return "?";
     const parts = name.split(" ");
@@ -107,11 +137,14 @@ const getInitials = (name: string): string => {
 
 export default function AdminTutorsPage() {
   const { token } = useAuthMock();
+  const { toast } = useToast();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const router = useRouter();
   const { hideLoader, showLoader } = useGlobalLoader();
-  
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tutorToRemove, setTutorToRemove] = useState<ApiTutor | null>(null);
+
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
   const initialFilters = {
@@ -124,7 +157,6 @@ export default function AdminTutorsPage() {
     area: "",
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
@@ -147,6 +179,28 @@ export default function AdminTutorsPage() {
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+
+  const removeTutorMutation = useMutation({
+    mutationFn: (tutorId: string) => removeTutorApi({ tutorId, token }),
+    onSuccess: (_, tutorId) => {
+      toast({
+        title: "Tutor Removed",
+        description: `The tutor has been successfully removed.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['adminAllTutors'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Removal Failed",
+        description: error.message,
+      });
+    },
+    onSettled: () => {
+      setTutorToRemove(null);
+    }
+  });
+
   
   const filteredTutors = useMemo(() => {
     if (!searchTerm) return tutors;
@@ -199,6 +253,16 @@ export default function AdminTutorsPage() {
       setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
   };
 
+  const handleRemoveClick = (tutor: ApiTutor) => {
+    setTutorToRemove(tutor);
+  };
+
+  const handleConfirmRemove = () => {
+    if (tutorToRemove) {
+      removeTutorMutation.mutate(tutorToRemove.id);
+    }
+  };
+
   const uniqueCities = useMemo(() => {
     if (!tutors) return [];
     return Array.from(new Set(tutors.map(tutor => tutor.city).filter(Boolean))).sort();
@@ -214,14 +278,11 @@ export default function AdminTutorsPage() {
     if (isLoading) {
       return (
         <TableBody>
-          <TableRow>
-            <TableCell colSpan={8} className="h-64 text-center">
-              <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="font-semibold">Loading Tutors...</span>
-              </div>
-            </TableCell>
-          </TableRow>
+          {[...Array(8)].map((_, i) => (
+            <TableRow key={i}>
+              <TableCell colSpan={8}><Skeleton className="h-10 w-full" /></TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       );
     }
@@ -332,9 +393,14 @@ export default function AdminTutorsPage() {
             </TableCell>
             <TableCell className="text-xs">{tutor.createdAt ? format(new Date(tutor.createdAt), "MMM d, yyyy, p") : 'N/A'}</TableCell>
             <TableCell>
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
-                  <Settings className="h-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
+                    <Settings className="h-4 h-4" />
+                </Button>
+                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveClick(tutor)}>
+                    <Trash2 className="h-4 h-4" />
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
@@ -497,6 +563,27 @@ export default function AdminTutorsPage() {
         userType="TUTOR"
         onSuccess={handleAddUserSuccess}
       />
+      <AlertDialog open={!!tutorToRemove} onOpenChange={() => setTutorToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will permanently remove the tutor <strong>{tutorToRemove?.displayName}</strong>. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTutorToRemove(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmRemove}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              disabled={removeTutorMutation.isPending}
+            >
+              {removeTutorMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
