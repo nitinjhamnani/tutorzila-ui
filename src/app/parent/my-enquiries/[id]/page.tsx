@@ -53,6 +53,8 @@ import {
   Loader2,
   UsersRound,
   VenetianMask,
+  Coins,
+  DollarSign,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -69,11 +71,11 @@ const EnquiryInfoItem = ({
 }: {
   icon?: React.ElementType;
   label?: string;
-  value?: string | string[] | LocationDetails | null;
+  value?: string | string[] | LocationDetails | number | null;
   children?: React.ReactNode;
   className?: string;
 }) => {
-  if (!value && !children) return null;
+  if (!value && !children && value !== 0) return null;
   
   let displayText: React.ReactNode = null;
 
@@ -95,8 +97,14 @@ const EnquiryInfoItem = ({
       );
   } else if (Array.isArray(value)) {
     displayText = value.join(", ");
+  } else if (typeof value === 'number') {
+    displayText = value.toLocaleString();
   } else {
     displayText = value as string;
+  }
+  
+  if (label?.toLowerCase().includes('fees') || label?.toLowerCase().includes('rate')) {
+    displayText = `₹${displayText}`;
   }
 
 
@@ -130,7 +138,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
   }
 
   const data = await response.json();
-  const { enquirySummary, enquiryDetails } = data;
+  const { enquirySummary, enquiryDetails, budget } = data;
   
   const transformStringToArray = (str: string | null | undefined): string[] => {
       if (typeof str === 'string' && str.trim() !== '') {
@@ -169,6 +177,7 @@ const fetchParentEnquiryDetails = async (enquiryId: string, token: string | null
     applicantsCount: enquirySummary.assignedTutors || 0,
     tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
     startDatePreference: enquiryDetails.startDatePreference,
+    budget: budget,
   };
 };
 
@@ -277,7 +286,7 @@ export default function ParentEnquiryDetailsPage() {
   const updateMutation = useMutation({
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId: id, token, formData }),
     onSuccess: (data) => {
-      const { enquirySummary, enquiryDetails } = data;
+      const { enquirySummary, enquiryDetails, budget } = data;
       const transformStringToArray = (str: string | null | undefined): string[] => {
           if (typeof str === 'string' && str.trim() !== '') return str.split(',').map(s => s.trim());
           return [];
@@ -313,6 +322,7 @@ export default function ParentEnquiryDetailsPage() {
         applicantsCount: enquirySummary.assignedTutors || 0,
         tutorGenderPreference: enquiryDetails.tutorGenderPreference?.toUpperCase() as 'MALE' | 'FEMALE' | 'NO_PREFERENCE' | undefined,
         startDatePreference: enquiryDetails.startDatePreference,
+        budget: budget,
       };
 
       queryClient.setQueryData(['parentEnquiryDetails', id], updatedRequirement);
@@ -428,7 +438,7 @@ export default function ParentEnquiryDetailsPage() {
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
   const hasPreferences = !!(genderValue || startValue || (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0));
-
+  const budgetInfo = requirement.budget;
 
   return (
     <main className="flex-grow">
@@ -466,6 +476,24 @@ export default function ParentEnquiryDetailsPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-4 md:p-5 space-y-5">
+                {budgetInfo && (
+                  <>
+                    <Separator />
+                    <section className="space-y-3">
+                      <h3 className="text-base font-semibold text-foreground flex items-center">
+                        <DollarSign className="w-4 h-4 mr-2 text-primary/80" />
+                        Session &amp; Budget Details
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
+                        {budgetInfo.daysPerWeek && <EnquiryInfoItem label="Sessions per Week" value={budgetInfo.daysPerWeek} icon={CalendarDays} />}
+                        {budgetInfo.hoursPerDay && <EnquiryInfoItem label="Hours per Session" value={budgetInfo.hoursPerDay} icon={Clock} />}
+                        {budgetInfo.totalFees && <EnquiryInfoItem label="Total Monthly Fees" value={budgetInfo.totalFees} icon={Coins} />}
+                        {budgetInfo.finalRate && <EnquiryInfoItem label="Final Hourly Rate" value={budgetInfo.finalRate} icon={DollarSign} />}
+                      </div>
+                    </section>
+                  </>
+                )}
+
                 {hasPreferences && (
                   <>
                     <Separator />
@@ -600,3 +628,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
