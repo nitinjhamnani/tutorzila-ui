@@ -37,7 +37,6 @@ const footerLinks = [
     title: "Connect",
     links: [
       { label: "Contact Us", href: "/contact-us", icon: Mail },
-      { label: "Sign In", href: "/?signin=true", icon: LogIn }, 
     ],
   },
 ];
@@ -109,6 +108,14 @@ export function AppFooter() {
                       </Button>
                     </li>
                   ))}
+                   {section.title === 'Connect' && (
+                    <li>
+                      <Button variant="link" onClick={() => setIsAuthModalOpen(true)} className="p-0 h-auto text-muted-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 text-sm group flex items-center">
+                        <LogIn className="w-4 h-4 mr-2 text-primary/70 group-hover:text-primary transition-colors" />
+                        Sign In
+                      </Button>
+                    </li>
+                  )}
                    {section.title === 'Explore' && (
                     <li>
                       <Button variant="link" onClick={handleOpenRequirementModal} className="p-0 h-auto text-muted-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 text-sm group flex items-center">
@@ -157,7 +164,7 @@ export function AppFooter() {
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <PostRequirementModal 
-            startFromStep={1}
+            startFromStep={isAuthenticated && user?.role === 'parent' ? 2 : 1}
             onSuccess={() => setIsRequirementModalOpen(false)} 
             onTriggerSignIn={handleTriggerSignIn}
           />
