@@ -1,16 +1,14 @@
 import {
-  Building,
   Users,
-  BookOpen,
-  Star,
   CheckCircle,
   Award,
   Target,
   GraduationCap,
   Sparkles,
   PhoneCall,
-  CalendarCheck,
   UserCheck,
+  BookOpen,
+  Star,
 } from 'lucide-react';
 import Image from 'next/image';
 import bannerImage from '@/assets/images/banner-9.png';
@@ -49,19 +47,6 @@ export default function AboutUsPage() {
   ];
 
   const sections = [
-    {
-      title: 'Our Tutors',
-      icon: Users,
-      points: [
-        'B.Ed, M.Ed, and teaching certifications',
-        'Graduates and postgraduates in Science, Commerce, Mathematics, English, and Humanities',
-        'Early Childhood Educators trained in phonics, pre-primary teaching, and foundational learning',
-        'Subject specialists with hands-on classroom experience',
-        'Experienced home tutors and online tutors who teach one student at a time for better results',
-      ],
-      outro:
-        'Every tutor is selected for their experience, teaching clarity, patience, communication skills, and ability to personalise lessons.',
-    },
     {
       title: 'Who We Support',
       icon: Target,
