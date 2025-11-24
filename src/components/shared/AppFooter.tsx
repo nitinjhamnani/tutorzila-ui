@@ -43,10 +43,10 @@ const footerLinks = [
 ];
 
 const socialLinks = [
-  { label: "Facebook", icon: Facebook, href: "#" },
-  { label: "Twitter", icon: Twitter, href: "#" },
-  { label: "Instagram", icon: Instagram, href: "#" },
-  { label: "Github", icon: Github, href: "#" },
+  { label: "Facebook", href: "#", icon: Facebook },
+  { label: "Twitter", href: "#", icon: Twitter },
+  { label: "Instagram", href: "#", icon: Instagram },
+  { label: "Github", href: "#", icon: Github },
 ];
 
 export function AppFooter() {
@@ -129,21 +129,6 @@ export function AppFooter() {
           <Separator className="my-8" /> 
           
           <div className="text-sm text-muted-foreground">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 md:mb-0 text-center w-full">
-              <a href="mailto:zilicsventures@gmail.com" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start text-sm text-muted-foreground group sm:w-1/3">
-                <Mail className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
-                zilicsventures@gmail.com
-              </a>
-              <a href="tel:+918971126362" className="flex items-center hover:text-primary transition-colors justify-center sm:justify-start text-sm text-muted-foreground group sm:w-1/3">
-                <Phone className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
-                +91 89711 26362
-              </a>
-              <p className="flex items-center justify-center sm:justify-start text-sm text-muted-foreground group sm:w-1/3">
-                <MapPin className="w-4 h-4 mr-2 text-primary/80 group-hover:text-primary transition-colors" />
-                Zilics Ventures Pvt. Ltd.
-              </p>
-            </div>
-            <Separator className="my-4" /> 
             <p className="text-xs text-center text-muted-foreground"> 
               &copy; {new Date().getFullYear()} Zilics Ventures Private Limited. All rights reserved.
             </p>
