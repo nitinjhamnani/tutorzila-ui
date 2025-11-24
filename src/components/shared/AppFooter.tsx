@@ -94,15 +94,6 @@ export function AppFooter() {
               >
                 Tutorzila connects parents with qualified home and online tutors across India for personalised learning.
               </p>
-              <div className="flex space-x-3 pt-2">
-                {socialLinks.map((social) => (
-                  <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
-                    <Link href={social.href} aria-label={social.label} target="_blank" rel="noopener noreferrer">
-                      <social.icon className="w-5 h-5" />
-                    </Link>
-                  </Button>
-                ))}
-              </div>
             </div>
 
             {footerLinks.map((section) => (
@@ -126,6 +117,21 @@ export function AppFooter() {
                         Post Requirement
                       </Button>
                     </li>
+                  )}
+                  {section.title === 'Connect' && (
+                    <>
+                    <Separator className="my-4"/>
+                     <h4 className="text-sm font-semibold text-foreground pt-2">Follow Us</h4>
+                      <div className="flex space-x-1 pt-1">
+                        {socialLinks.map((social) => (
+                          <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
+                            <Link href={social.href} aria-label={social.label} target="_blank" rel="noopener noreferrer">
+                              <social.icon className="w-5 h-5" />
+                            </Link>
+                          </Button>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </ul>
               </div>
