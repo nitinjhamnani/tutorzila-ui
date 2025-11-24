@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap, PhoneCall, MessageSquareText } from "lucide-react"; // Added GraduationCap
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap, MessageSquareText } from "lucide-react"; // Added GraduationCap
 // BookUser was removed as it's not defined at runtime
 import Image from "next/image";
 import Link from "next/link";
@@ -127,7 +127,28 @@ export default function HomePage() {
   const [authModalInitialName, setAuthModalInitialName] = useState<string | undefined>(undefined);
   const [initialSubjectForModal, setInitialSubjectForModal] = useState<string[] | undefined>(undefined);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signin');
-  
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isCheckingAuth && isAuthenticated && user) {
+      let targetPath = "/";
+      switch(user.role) {
+        case 'admin':
+          targetPath = '/admin/dashboard';
+          break;
+        case 'tutor':
+          targetPath = '/tutor/dashboard';
+          break;
+        case 'parent':
+          targetPath = '/parent/dashboard';
+          break;
+      }
+      if (targetPath !== "/") {
+        router.replace(targetPath);
+      }
+    }
+  }, [isCheckingAuth, isAuthenticated, user, router]);
+
   const handleTriggerSignIn = (name?: string) => {
     setAuthModalInitialName(name);
     setAuthModalInitialView('signin');
@@ -144,9 +165,9 @@ export default function HomePage() {
     setIsPostRequirementModalOpen(true);
   };
   
-  // If we are checking auth or if the user is logged in (and will be redirected), show a blank screen.
-  // The actual GlobalLoader is shown by the root layout.
-  if (isCheckingAuth || isAuthenticated) {
+  const postRequirementStartStep = isAuthenticated && user?.role === 'parent' ? 2 : 1;
+
+  if (isCheckingAuth || (isAuthenticated && user)) {
     return <div className="w-full h-screen bg-background" />;
   }
 
@@ -180,6 +201,7 @@ export default function HomePage() {
                     onPointerDownOutside={(e) => e.preventDefault()}
                   >
                     <PostRequirementModal 
+                      startFromStep={postRequirementStartStep}
                       onSuccess={() => setIsPostRequirementModalOpen(false)} 
                       onTriggerSignIn={handleTriggerSignIn}
                       initialSubject={initialSubjectForModal}
@@ -285,6 +307,7 @@ export default function HomePage() {
                        onPointerDownOutside={(e) => e.preventDefault()}
                      >
                        <PostRequirementModal 
+                         startFromStep={postRequirementStartStep}
                          onSuccess={() => setIsPostRequirementModalOpen(false)} 
                          onTriggerSignIn={handleTriggerSignIn}
                          initialSubject={initialSubjectForModal}
@@ -427,6 +450,5 @@ export default function HomePage() {
         />
       )}
       </div>
-    
   );
 }
