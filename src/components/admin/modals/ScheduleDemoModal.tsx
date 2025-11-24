@@ -23,6 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addMinutes, parse } from 'date-fns';
 
 
 const scheduleDemoSchema = z.object({
@@ -248,8 +249,8 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="flex items-center"><CalendarIcon className="mr-2 h-4 w-4 text-primary/80"/>Select Date</FormLabel>
-                    <Dialog open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                      <DialogTrigger asChild>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                      <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant={"outline"}
@@ -262,8 +263,8 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
-                      </DialogTrigger>
-                      <DialogContent className="w-auto p-0">
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
                          <Calendar
                             mode="single"
                             selected={field.value}
@@ -274,8 +275,8 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                             disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                             initialFocus
                           />
-                      </DialogContent>
-                    </Dialog>
+                      </PopoverContent>
+                    </Popover>
                   <FormMessage />
                 </FormItem>
               )}
