@@ -142,7 +142,8 @@ export default function AdminAllEnquiriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Enquiry Code</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Student</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Grade</TableHead>
                 <TableHead>Board</TableHead>
@@ -156,18 +157,13 @@ export default function AdminAllEnquiriesPage() {
               {filteredRequirements.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
+                  <TableCell className="font-medium text-foreground">{req.studentName}</TableCell>
                   <TableCell className="font-medium">
                     <div className="text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</div>
-                    {req.studentName && (
-                        <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <UserIcon className="h-3 w-3" />
-                            {req.studentName}
-                        </div>
-                    )}
                   </TableCell>
                   <TableCell className="text-xs">{req.gradeLevel}</TableCell>
                   <TableCell className="text-xs">{req.board}</TableCell>
-                  <TableCell className="text-xs">{req.teachingMode?.join(', ')}</TableCell>
+                  <TableCell className="text-xs">{req.teachingMode?.join(' / ')}</TableCell>
                   <TableCell className="text-xs">{format(new Date(req.postedAt), "MMM d, yyyy")}</TableCell>
                   <TableCell>
                     <Badge variant="default">{req.status.charAt(0).toUpperCase() + req.status.slice(1)}</Badge>
@@ -221,6 +217,7 @@ export default function AdminAllEnquiriesPage() {
   );
 }
     
+
 
 
 
