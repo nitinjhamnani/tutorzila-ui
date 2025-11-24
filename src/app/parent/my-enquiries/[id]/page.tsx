@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -475,7 +474,7 @@ export default function ParentEnquiryDetailsPage() {
                   </div>
                    <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-8 w-8 absolute top-4 right-4">
+                        <Button variant="default" size="icon" className="h-8 w-8 absolute top-4 right-4 text-primary-foreground bg-primary hover:bg-primary/90">
                           <Edit3 className="mr-0 h-4 w-4" />
                         </Button>
                       </DialogTrigger>
@@ -506,7 +505,7 @@ export default function ParentEnquiryDetailsPage() {
                   </>
                 )}
 
-                {hasPreferences && (
+                {(hasPreferences || hasScheduleInfo) && (
                   <>
                     <Separator />
                     <section className="space-y-3">
@@ -538,7 +537,7 @@ export default function ParentEnquiryDetailsPage() {
                     <section className="space-y-3">
                         <h3 className="text-base font-semibold text-foreground flex items-center">
                             <MapPin className="w-4 h-4 mr-2 text-primary/80" />
-                            Location
+                            Location Details
                         </h3>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
                             {locationInfo?.area && <EnquiryInfoItem label="Area" value={locationInfo.area} icon={MapPin} />}
