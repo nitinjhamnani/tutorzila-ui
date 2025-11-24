@@ -60,7 +60,8 @@ export function AppHeader() {
     "/terms-and-conditions",
     "/privacy-policy",
     "/faq",
-    "/contact-us"
+    "/contact-us",
+    "/about-us"
   ];
   const isTransparentPath = transparentHeaderPaths.includes(pathname);
   
