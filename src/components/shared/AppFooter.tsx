@@ -21,7 +21,7 @@ const footerLinks = [
     links: [
       { label: "Home", href: "/", icon: Home },
       { label: "Become a Tutor", href: "/become-a-tutor", icon: GraduationCap },
-      // Post Requirement is now handled separately
+      { label: "Tutors in Bangalore", href: "/tutors-in-bangalore", icon: MapPin },
     ],
   },
   {
