@@ -6,7 +6,7 @@ import Link from "next/link";
 // import { Logo } from "./Logo"; // Removed incorrect Logo import
 import Image from "next/image"; // Ensure Image is imported
 import logoAsset from '@/assets/images/logo.png';
-import { Github, Twitter, Facebook, Instagram, Home, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap } from "lucide-react";
+import { Github, Twitter, Facebook, Instagram, Home, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"; 
 import { useState } from "react";
@@ -44,10 +44,9 @@ const footerLinks = [
 ];
 
 const socialLinks = [
-  { label: "Facebook", href: "#", icon: Facebook },
-  { label: "Twitter", href: "#", icon: Twitter },
-  { label: "Instagram", href: "#", icon: Instagram },
-  { label: "Github", href: "#", icon: Github },
+  { label: "Facebook", href: "https://www.facebook.com/tutorzila", icon: Facebook },
+  { label: "Instagram", href: "https://www.instagram.com/tutorzila", icon: Instagram },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/tutorzila", icon: Linkedin },
 ];
 
 export function AppFooter() {
