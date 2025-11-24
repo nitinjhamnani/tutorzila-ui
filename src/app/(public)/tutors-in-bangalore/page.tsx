@@ -43,6 +43,10 @@ import {
   UsersRound,
   ClipboardEdit,
   Users,
+  FlaskConical,
+  Microscope,
+  Landmark,
+  TrendingUp,
 } from "lucide-react";
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
 import bannerImage from "@/assets/images/banner-9.png";
@@ -55,10 +59,12 @@ const popularSubjects = [
   { name: "Science", icon: Atom },
   { name: "English", icon: BookOpen },
   { name: "Coding", icon: Code },
-  { name: "History", icon: Globe },
-  { name: "Art", icon: Palette },
-  { name: "Music", icon: Music },
+  { name: "History", icon: Landmark },
   { name: "Physics", icon: Lightbulb },
+  { name: "Chemistry", icon: FlaskConical },
+  { name: "Biology", icon: Microscope },
+  { name: "Geography", icon: Globe },
+  { name: "Economics", icon: TrendingUp },
 ];
 
 const howItWorksSteps = [
