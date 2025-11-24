@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { User, BookOpen, Settings2, Save, Loader2, CalendarDays, Clock, MapPin, RadioTower, VenetianMask, Building } from "lucide-react";
+import { User, BookOpen, Settings2, Save, Loader2, CalendarDays, Clock, MapPin, RadioTower, VenetianMask, Building, GraduationCap } from "lucide-react";
 import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -381,6 +381,7 @@ export function ParentEnquiryModal({ onSuccess, initialSubject }: ParentEnquiryM
           </div>
 
           <DialogFooter className="pt-4">
+            <Button type="button" variant="outline" onClick={() => onSuccess()} disabled={form.formState.isSubmitting}>Cancel</Button>
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? (
                 <>
