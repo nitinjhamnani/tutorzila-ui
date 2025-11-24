@@ -500,12 +500,12 @@ export default function HomePage() {
         <section className={`w-full text-center ${sectionPadding} bg-primary`}>
           <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
             <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
-                <Star className="w-9 h-9 text-primary-foreground"/>
+                <Star className="w-9 h-9 text-white"/>
             </div>
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary-foreground">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
               Ready to Start Your Journey?
             </h2>
-            <p className="mt-5 max-w-xl mx-auto text-primary-foreground/80 md:text-lg">
+            <p className="mt-5 max-w-xl mx-auto text-white/90 md:text-lg">
               Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
             </p>
             <div className="mt-10">
