@@ -37,7 +37,6 @@ const footerLinks = [
     title: "Connect",
     links: [
       { label: "Contact Us", href: "/contact-us", icon: Mail },
-      { label: "Become a Tutor", href: "/become-a-tutor", icon: GraduationCap },
       { label: "Sign In", href: "/?signin=true", icon: LogIn }, 
     ],
   },
@@ -96,7 +95,7 @@ export function AppFooter() {
               </p>
             </div>
 
-            {footerLinks.map((section) => (
+            {footerLinks.slice(0, 2).map((section) => (
               <div key={section.title} className="space-y-3">
                 <h3 className="text-lg font-semibold text-primary">{section.title}</h3>
                 <ul className="space-y-2">
@@ -118,24 +117,36 @@ export function AppFooter() {
                       </Button>
                     </li>
                   )}
-                  {section.title === 'Connect' && (
-                    <>
-                    <Separator className="my-4"/>
-                     <h4 className="text-sm font-semibold text-foreground pt-2">Follow Us</h4>
-                      <div className="flex space-x-1 pt-1">
-                        {socialLinks.map((social) => (
-                          <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
-                            <Link href={social.href} aria-label={social.label} target="_blank" rel="noopener noreferrer">
-                              <social.icon className="w-5 h-5" />
-                            </Link>
-                          </Button>
-                        ))}
-                      </div>
-                    </>
-                  )}
                 </ul>
               </div>
             ))}
+            
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-primary">Connect</h3>
+               <ul className="space-y-2">
+                {footerLinks.find(f => f.title === 'Connect')?.links.map((link) => (
+                    <li key={link.label}>
+                      <Button variant="link" asChild className="p-0 h-auto text-muted-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 text-sm group">
+                        <Link href={link.href} className="flex items-center">
+                          <link.icon className="w-4 h-4 mr-2 text-primary/70 group-hover:text-primary transition-colors" />
+                          {link.label}
+                        </Link>
+                      </Button>
+                    </li>
+                  ))}
+               </ul>
+               <Separator className="my-4"/>
+               <h4 className="text-sm font-semibold text-foreground pt-2">Follow Us</h4>
+                <div className="flex space-x-1 pt-1">
+                  {socialLinks.map((social) => (
+                    <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
+                      <Link href={social.href} aria-label={social.label} target="_blank" rel="noopener noreferrer">
+                        <social.icon className="w-5 h-5" />
+                      </Link>
+                    </Button>
+                  ))}
+                </div>
+            </div>
           </div>
 
           <Separator className="my-8" /> 
