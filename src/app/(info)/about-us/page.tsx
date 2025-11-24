@@ -9,6 +9,8 @@ import {
   UserCheck,
   BookOpen,
   Star,
+  School,
+  ClipboardList,
 } from 'lucide-react';
 import Image from 'next/image';
 import bannerImage from '@/assets/images/banner-9.png';
@@ -46,17 +48,26 @@ export default function AboutUsPage() {
     },
   ];
 
-  const sections = [
+  const whoWeSupportPoints = [
     {
-      title: 'Who We Support',
-      icon: Target,
-      points: [
-        'Preschool and early learners',
-        'Primary and middle school students',
-        'Learners who need concept clarity and structured academic support',
-        'Students seeking regular home tuition in Bengaluru',
-        'Students needing online tuition across India and overseas',
-      ],
+      title: 'Preschool & Early Learners',
+      icon: Sparkles,
+    },
+    {
+      title: 'Primary & Middle School',
+      icon: School,
+    },
+    {
+      title: 'Academic Support Seekers',
+      icon: BookOpen,
+    },
+    {
+      title: 'Local Home Tuition',
+      icon: Users,
+    },
+    {
+      title: 'Global Online Tuition',
+      icon: ClipboardList,
     },
   ];
 
@@ -125,46 +136,28 @@ export default function AboutUsPage() {
           ))}
         </div>
       </section>
-
-      {/* Other Content Sections */}
-      <section
-        className={`w-full ${containerPadding} py-12 md:py-16 bg-secondary`}
-      >
-        <div className="space-y-10 max-w-4xl mx-auto">
-          {sections.map((section, index) => (
-            <section
-              key={index}
-              className="p-6 bg-card border rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out"
-              style={{ animationDelay: `${index * 100}ms` }}
+      
+      {/* Who We Support Section - REDESIGNED */}
+      <section className={`w-full bg-secondary ${containerPadding} py-12 md:py-16`}>
+        <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Who We Support</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {whoWeSupportPoints.map((item, index) => (
+            <Card
+                key={index}
+                className="group bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.05]"
             >
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-full text-primary mt-1 shadow-sm">
-                  <section.icon className="w-6 h-6" />
+                <div className="flex flex-col items-center text-center">
+                <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm mb-4">
+                    <item.icon className="w-8 h-8 text-primary" />
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold mb-3 text-foreground">
-                    {section.title}
-                  </h2>
-                  <ul className="space-y-2">
-                    {section.points.map((point, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start text-sm text-foreground/80"
-                      >
-                        <CheckCircle className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {section.outro && (
-                    <p className="mt-4 text-sm text-foreground/80 italic">
-                      {section.outro}
-                    </p>
-                  )}
+                <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors text-center">
+                    {item.title}
+                </h3>
                 </div>
-              </div>
-            </section>
-          ))}
+            </Card>
+            ))}
         </div>
       </section>
 
