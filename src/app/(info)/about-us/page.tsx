@@ -83,7 +83,7 @@ const whyParentsChooseUs = [
   {
     icon: SearchCheck,
     title: "Fast Tutor Matching",
-    description: "Get the right tutor recommendation within minutes.",
+    description: "Get the right tutor recommendation — faster than ever.",
   },
   {
     icon: ShieldCheck,
