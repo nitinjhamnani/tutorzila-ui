@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap } from "lucide-react"; // Added GraduationCap
+import { Search, NotebookPen, Book, Atom, Code, Globe, Palette, Music, Calculator, Lightbulb, SquarePen, MessageSquareQuote, UserRoundCheck, Send, SearchCheck, Users, Award, Share2, PlusCircle, Briefcase, CalendarCheck, DollarSign, TrendingUp, UsersRound, FileText, Star, Mail, UserPlus, Phone, MapPin, BriefcaseBusiness, Building, Laptop, TrendingUpIcon, Users2, Quote, UsersRoundIcon, BookOpen, CheckCircle, XCircle, HomeIcon, GraduationCap, MessageSquareText } from "lucide-react"; // Added GraduationCap
 // BookUser was removed as it's not defined at runtime
 import Image from "next/image";
 import Link from "next/link";
@@ -48,6 +48,40 @@ const howItWorksSteps = [
     description: "Finalize with your chosen tutor and begin personalized sessions.",
   },
 ];
+
+const whyJoinUsBenefits = [
+  {
+    icon: CheckCircle,
+    title: "Quality & Verified Leads",
+    description: "We share only genuine, pre-verified student enquiries so you never waste time on non-serious prospects."
+  },
+  {
+    icon: CalendarCheck,
+    title: "Guaranteed Demo Bookings",
+    description: "Our team coordinates everything with parents to ensure your demo sessions happen smoothly and on time."
+  },
+  {
+    icon: TrendingUp,
+    title: "Higher Earning Potential",
+    description: "Top-performing tutors get preference in recommendations and increased visibility, helping you earn more."
+  },
+  {
+    icon: MessageSquareText,
+    title: "No Cold Calling or Follow-Ups",
+    description: "We handle all parent communication so you can focus purely on teaching."
+  },
+  {
+    icon: Award,
+    title: "Performance-Based Boost",
+    description: "Your ratings, reviews, and teaching consistency help your profile rise to the top—bringing more opportunities your way."
+  },
+  {
+    icon: BriefcaseBusiness,
+    title: "Teach in Your Expertise Zone",
+    description: "We match you with students who fit your subject strengths, preferred grades, and teaching style."
+  }
+];
+
 
 const becomeTutorBenefits = [
   {
@@ -286,6 +320,31 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Why Join Us Section */}
+        <section className={`w-full bg-background ${sectionPadding}`}>
+          <div className={`${containerPadding}`}>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Why Join Us as a Tutor?</h2>
+              <p className="mt-4 max-w-3xl mx-auto text-foreground/80 md:text-lg">
+                We empower educators by providing the tools and opportunities you need to succeed in your tutoring career.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {whyJoinUsBenefits.map((benefit, index) => (
+                <Card key={index} className="group bg-card p-6 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border hover:border-primary/50 transform hover:scale-[1.05]">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors shadow-sm mb-4">
+                      <benefit.icon className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">{benefit.title}</h3>
+                    <p className="text-xs text-foreground/70 mt-2">{benefit.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Become A Tutor Section */}
         <section className={`w-full bg-secondary ${sectionPadding}`}>
           <div className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${containerPadding}`}>
@@ -395,3 +454,4 @@ export default function HomePage() {
     
   );
 }
+
