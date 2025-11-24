@@ -67,11 +67,6 @@ const howItWorksSteps = [
     description: "Review detailed tutor profiles, experience, and qualifications.",
   },
   {
-    icon: MessageSquareQuote,
-    title: "Connect & Discuss",
-    description: "Message tutors to discuss requirements and schedule a trial.",
-  },
-  {
     icon: UserRoundCheck,
     title: "Start Learning",
     description: "Finalize with your chosen tutor and begin personalized sessions.",
@@ -506,4 +501,5 @@ export default function HomePage() {
       </div>
   );
 }
+
 
