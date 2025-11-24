@@ -460,7 +460,7 @@ export default function ParentEnquiryDetailsPage() {
                           </div>
                           <div className="space-y-2 pt-2">
                               <CardDescription className="text-sm text-foreground/80 flex items-center gap-1.5">
-                                  <UsersRound className="w-4 h-4"/> {requirement.studentName}
+                                  <UsersRound className="w-4 h-4" /> {requirement.studentName}
                               </CardDescription>
                               
                               <div className="flex flex-col gap-2 pt-2 text-xs text-muted-foreground">
@@ -473,6 +473,18 @@ export default function ParentEnquiryDetailsPage() {
                           </div>
                       </div>
                   </div>
+                   <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="icon" className="h-8 w-8 absolute top-4 right-4">
+                          <Edit3 className="mr-0 h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <EditEnquiryModal
+                        enquiryData={requirement}
+                        onUpdateEnquiry={handleUpdateEnquiry}
+                        isUpdating={updateMutation.isPending}
+                      />
+                    </Dialog>
                 </div>
               </CardHeader>
               <CardContent className="p-4 md:p-5 space-y-5">
@@ -562,18 +574,6 @@ export default function ParentEnquiryDetailsPage() {
                     </CardDescription>
                 )}
                 <div className="flex flex-wrap justify-end gap-2">
-                    <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="xs" className="text-xs py-1.5 px-2.5 h-auto">
-                          <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
-                        </Button>
-                      </DialogTrigger>
-                      <EditEnquiryModal
-                        enquiryData={requirement}
-                        onUpdateEnquiry={handleUpdateEnquiry}
-                        isUpdating={updateMutation.isPending}
-                      />
-                    </Dialog>
                     {(requirement.applicantsCount ?? 0) > 0 && (
                       <Button asChild variant="default" size="sm">
                           <Link href={`/parent/my-tutors/${requirement.id}`}>
@@ -628,4 +628,3 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
-
