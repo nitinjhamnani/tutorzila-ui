@@ -112,7 +112,6 @@ html {
     letter-spacing: 0.025em;
   }
   h1, h2, h3, h4, h5, h6 {
-    color: #222 !important;
     font-family: "Montserrat", sans-serif !important;
     font-weight: 700;
     line-height: 1.2;
@@ -121,7 +120,6 @@ html {
   
   p {
     font-weight: 400 !important;
-    color: #333 !important; 
     font-size: 16px !important; 
     line-height: 26px !important; 
     font-family: "Montserrat", sans-serif !important; 
@@ -319,3 +317,5 @@ html, body {
 .pac-container {
     z-index: 9999 !important;
 }
+
+    
