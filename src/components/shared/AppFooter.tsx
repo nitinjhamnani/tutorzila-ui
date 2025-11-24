@@ -95,7 +95,7 @@ export function AppFooter() {
               </p>
             </div>
 
-            {footerLinks.slice(0, 2).map((section) => (
+            {footerLinks.map((section) => (
               <div key={section.title} className="space-y-3">
                 <h3 className="text-lg font-semibold text-primary">{section.title}</h3>
                 <ul className="space-y-2">
@@ -120,23 +120,11 @@ export function AppFooter() {
                 </ul>
               </div>
             ))}
-            
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-primary">Connect</h3>
-               <ul className="space-y-2">
-                {footerLinks.find(f => f.title === 'Connect')?.links.map((link) => (
-                    <li key={link.label}>
-                      <Button variant="link" asChild className="p-0 h-auto text-muted-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 text-sm group">
-                        <Link href={link.href} className="flex items-center">
-                          <link.icon className="w-4 h-4 mr-2 text-primary/70 group-hover:text-primary transition-colors" />
-                          {link.label}
-                        </Link>
-                      </Button>
-                    </li>
-                  ))}
-               </ul>
-               <Separator className="my-4"/>
-               <h4 className="text-sm font-semibold text-foreground pt-2">Follow Us</h4>
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-3">
+               <h4 className="text-sm font-semibold text-foreground pt-2 text-center md:text-left">Follow Us</h4>
                 <div className="flex space-x-1 pt-1">
                   {socialLinks.map((social) => (
                     <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
@@ -147,14 +135,12 @@ export function AppFooter() {
                   ))}
                 </div>
             </div>
-          </div>
 
-          <Separator className="my-8" /> 
-          
-          <div className="text-sm text-muted-foreground">
-            <p className="text-xs text-center text-muted-foreground"> 
-              &copy; {new Date().getFullYear()} Zilics Ventures Private Limited. All rights reserved.
-            </p>
+             <div className="text-sm text-muted-foreground">
+                <p className="text-xs text-center md:text-right text-muted-foreground"> 
+                  &copy; {new Date().getFullYear()} Zilics Ventures Private Limited. All rights reserved.
+                </p>
+              </div>
           </div>
         </div>
          <style jsx global>{`
