@@ -90,7 +90,7 @@ export function AppFooter() {
               </Link>
               <p 
                 className="text-muted-foreground leading-relaxed"
-                style={{ marginTop: '-25px', fontSize: '14px' }}
+                style={{ marginTop: '-40px', fontSize: '14px' }}
               >
                 Tutorzila connects parents with qualified home and online tutors across India for personalised learning.
               </p>
