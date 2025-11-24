@@ -91,7 +91,7 @@ export function AppFooter() {
               <div className="flex space-x-3">
                 {socialLinks.map((social) => (
                   <Button key={social.label} variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-primary hover:bg-primary/10 transform hover:scale-110 transition-all duration-200">
-                    <Link href={social.href} aria-label={social.label}>
+                    <Link href={social.href} aria-label={social.label} target="_blank" rel="noopener noreferrer">
                       <social.icon className="w-5 h-5" />
                     </Link>
                   </Button>
