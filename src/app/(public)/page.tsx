@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -569,6 +570,31 @@ export default function HomePage() {
               </div>
             </Carousel>
           </div>
+        </section>
+
+        {/* Newsletter Section */}
+        <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
+            <div className={`${containerPadding} text-center`}>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-white">
+                    Stay Updated with Tutorzila
+                </h2>
+                <p className="mt-4 max-w-xl mx-auto text-white/90 md:text-lg">
+                    Subscribe to our newsletter for the latest updates on tutors, special offers, and educational tips.
+                </p>
+                <div className="mt-8 max-w-lg mx-auto">
+                    <form className="flex flex-col sm:flex-row gap-3">
+                        <Input
+                            type="email"
+                            placeholder="Enter your email address"
+                            className="flex-grow bg-card/10 border-white/30 text-white placeholder:text-white/70 focus:bg-white focus:text-card-foreground py-3.5 text-base"
+                            aria-label="Email address"
+                        />
+                        <Button type="submit" variant="secondary" size="lg" className="shrink-0 text-secondary-foreground shadow-md hover:shadow-lg transition-shadow py-3.5">
+                            Subscribe
+                        </Button>
+                    </form>
+                </div>
+            </div>
         </section>
         
       {isAuthModalOpen && (
