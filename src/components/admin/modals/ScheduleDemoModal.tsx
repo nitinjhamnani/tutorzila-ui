@@ -110,6 +110,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
+  const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
 
   const scheduleMutation = useMutation({
     mutationFn: scheduleDemoApi,
@@ -247,7 +248,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="flex items-center"><CalendarIcon className="mr-2 h-4 w-4 text-primary/80"/>Select Date</FormLabel>
-                  <Popover>
+                  <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -266,7 +267,10 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={field.onChange}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setIsDatePopoverOpen(false);
+                        }}
                         disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                         initialFocus
                       />
@@ -338,13 +342,13 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
                               <FormControl>
                               <RadioGroupItem value="Online" id="demo-mode-online" className="sr-only"/>
                               </FormControl>
-                              <FormLabel htmlFor="demo-mode-online" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Online' && 'border-primary')}>Online</FormLabel>
+                              <Label htmlFor="demo-mode-online" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Online' && 'border-primary')}>Online</Label>
                           </FormItem>
                           <FormItem>
                               <FormControl>
                               <RadioGroupItem value="Offline (In-person)" id="demo-mode-offline" className="sr-only"/>
                               </FormControl>
-                              <FormLabel htmlFor="demo-mode-offline" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Offline (In-person)' && 'border-primary')}>Offline</FormLabel>
+                              <Label htmlFor="demo-mode-offline" className={cn("flex items-center justify-center rounded-md border-2 p-3 font-normal cursor-pointer", field.value === 'Offline (In-person)' && 'border-primary')}>Offline</Label>
                           </FormItem>
                       </RadioGroup>
                         <FormMessage />
