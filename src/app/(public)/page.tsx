@@ -16,7 +16,7 @@ import becomeTutorImage from '@/assets/images/banner-11.png';
 import type { TutorProfile, Testimonial, User } from "@/types"; // Added User
 import { TutorProfileCard } from "@/components/tutors/TutorProfileCard";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
-import { useState, useEffect } from "react"; 
+import { useState, useEffect, useRef } from "react"; 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
 import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal"; 
 import { MOCK_TUTOR_PROFILES, MOCK_TESTIMONIALS } from "@/lib/mock-data";
@@ -140,6 +140,65 @@ const popularSubjects = [
   { name: "Geography", icon: Globe, hoverColor: "hover:bg-orange-600" },
   { name: "Economics", icon: Calculator, hoverColor: "hover:bg-amber-600" },
 ];
+
+const useInView = (ref: React.RefObject<Element>, options: IntersectionObserverInit) => {
+    const [isInView, setIsInView] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setIsInView(true);
+                observer.unobserve(entry.target);
+            }
+        }, options);
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current);
+            }
+        };
+    }, [ref, options]);
+
+    return isInView;
+};
+
+const Counter = ({ end, duration = 2, suffix = "" } : { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLParagraphElement>(null);
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const endValue = end;
+      const frameDuration = 1000 / 60;
+      const totalFrames = Math.round((duration * 1000) / frameDuration);
+      const increment = endValue / totalFrames;
+
+      const counter = setInterval(() => {
+        start += increment;
+        if (start >= endValue) {
+          setCount(endValue);
+          clearInterval(counter);
+        } else {
+          setCount(Math.ceil(start));
+        }
+      }, frameDuration);
+
+      return () => clearInterval(counter);
+    }
+  }, [isInView, end, duration]);
+
+  return (
+    <p ref={ref} className="text-4xl font-bold text-foreground">
+      {count.toLocaleString()}{suffix}
+    </p>
+  );
+};
 
 
 export default function HomePage() {
@@ -457,8 +516,31 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Testimonials Section */}
+        {/* Counter Section */}
         <section className={`w-full bg-background ${sectionPadding}`}>
+            <div className={`${containerPadding}`}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div className="flex flex-col items-center text-center p-4 md:p-8">
+                        <HomeIcon className="w-12 h-12 text-primary mb-4" />
+                        <Counter end={500} suffix="+" />
+                        <p className="text-md text-muted-foreground mt-1">Home Tutors</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-4 md:p-8">
+                        <Laptop className="w-12 h-12 text-primary mb-4" />
+                        <Counter end={1000} suffix="+" />
+                        <p className="text-md text-muted-foreground mt-1">Online Tutors</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-4 md:p-8">
+                        <UsersRound className="w-12 h-12 text-primary mb-4" />
+                        <Counter end={5000} suffix="+" />
+                        <p className="text-md text-muted-foreground mt-1">Happy Students</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className={`w-full bg-secondary ${sectionPadding}`}>
           <div className={`${containerPadding}`}>
             <div className="text-center mb-12 md:mb-16 animate-in fade-in duration-500 ease-out">
                  <div className="inline-block p-3.5 bg-primary/10 rounded-full mb-4 shadow-sm">
@@ -501,5 +583,6 @@ export default function HomePage() {
       </div>
   );
 }
+
 
 
