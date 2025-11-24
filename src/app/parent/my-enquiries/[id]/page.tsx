@@ -487,7 +487,7 @@ export default function ParentEnquiryDetailsPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-4 md:p-5 space-y-5">
-                {budgetInfo && (
+                {budgetInfo && (budgetInfo.totalDays || 0) > 0 && (budgetInfo.totalFees || 0) > 0 && (
                   <>
                     <Separator />
                     <section className="space-y-3">
