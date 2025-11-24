@@ -77,7 +77,7 @@ export function AppFooter() {
       <footer className="bg-card border-t border-border/50 text-card-foreground animate-in fade-in duration-500 ease-out">
         <div className="container mx-auto px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            <div className="space-y-4 md:col-span-2 lg:col-span-1">
+            <div className="space-y-2 md:col-span-2 lg:col-span-1">
               <Link href="/">
                 <Image
                   src={logoAsset}
@@ -88,7 +88,7 @@ export function AppFooter() {
                   priority
                 />
               </Link>
-              <p className="text-sm text-muted-foreground leading-relaxed pt-2">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Tutorzila connects parents with qualified home and online tutors across India for personalised learning.
               </p>
               <div className="flex space-x-3 pt-2">
