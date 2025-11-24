@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,7 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
   const { toast } = useToast();
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
-  const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const scheduleMutation = useMutation({
     mutationFn: scheduleDemoApi,
@@ -248,34 +248,34 @@ export function ScheduleDemoModal({ isOpen, onOpenChange, tutor, enquiry }: Sche
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="flex items-center"><CalendarIcon className="mr-2 h-4 w-4 text-primary/80"/>Select Date</FormLabel>
-                  <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(date) => {
-                          field.onChange(date);
-                          setIsDatePopoverOpen(false);
-                        }}
-                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                    <Dialog open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                      <DialogTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </DialogTrigger>
+                      <DialogContent className="w-auto p-0">
+                         <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsCalendarOpen(false);
+                            }}
+                            disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                            initialFocus
+                          />
+                      </DialogContent>
+                    </Dialog>
                   <FormMessage />
                 </FormItem>
               )}
