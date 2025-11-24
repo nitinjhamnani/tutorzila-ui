@@ -472,18 +472,20 @@ export default function ParentEnquiryDetailsPage() {
                           </div>
                       </div>
                   </div>
-                   <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                      <DialogTrigger asChild>
+                    {requirement.status === "open" && (
+                    <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                        <DialogTrigger asChild>
                         <Button variant="default" size="icon" className="h-8 w-8 absolute top-4 right-4 text-primary-foreground bg-primary hover:bg-primary/90">
-                          <Edit3 className="mr-0 h-4 w-4" />
+                            <Edit3 className="mr-0 h-4 w-4" />
                         </Button>
-                      </DialogTrigger>
-                      <EditEnquiryModal
+                        </DialogTrigger>
+                        <EditEnquiryModal
                         enquiryData={requirement}
                         onUpdateEnquiry={handleUpdateEnquiry}
                         isUpdating={updateMutation.isPending}
-                      />
+                        />
                     </Dialog>
+                    )}
                 </div>
               </CardHeader>
               <CardContent className="p-4 md:p-5 space-y-5">
