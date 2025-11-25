@@ -52,7 +52,6 @@ import {
   Users as UsersIcon,
   ShieldCheck,
   Search,
-  Trash2,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -108,24 +107,6 @@ const fetchAdminTutors = async (token: string | null, params: URLSearchParams): 
   }));
 };
 
-const removeTutorApi = async ({ tutorId, token }: { tutorId: string, token: string | null }) => {
-  if (!token) throw new Error("Authentication token not found.");
-
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/manage/tutor/remove/${tutorId}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'accept': '*/*',
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to remove tutor.");
-  }
-  return true;
-};
-
 const getInitials = (name: string): string => {
     if (!name) return "?";
     const parts = name.split(" ");
@@ -143,7 +124,6 @@ export default function AdminTutorsPage() {
   const { hideLoader, showLoader } = useGlobalLoader();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [tutorToRemove, setTutorToRemove] = useState<ApiTutor | null>(null);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
@@ -180,28 +160,6 @@ export default function AdminTutorsPage() {
     refetchOnWindowFocus: false,
   });
 
-  const removeTutorMutation = useMutation({
-    mutationFn: (tutorId: string) => removeTutorApi({ tutorId, token }),
-    onSuccess: (_, tutorId) => {
-      toast({
-        title: "Tutor Removed",
-        description: `The tutor has been successfully removed.`,
-      });
-      queryClient.invalidateQueries({ queryKey: ['adminAllTutors'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        variant: "destructive",
-        title: "Removal Failed",
-        description: error.message,
-      });
-    },
-    onSettled: () => {
-      setTutorToRemove(null);
-    }
-  });
-
-  
   const filteredTutors = useMemo(() => {
     if (!searchTerm) return tutors;
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -251,16 +209,6 @@ export default function AdminTutorsPage() {
 
   const handleAreaChange = (area: string) => {
       setFilters(prev => ({ ...prev, area: area === 'all-areas' ? '' : area }));
-  };
-
-  const handleRemoveClick = (tutor: ApiTutor) => {
-    setTutorToRemove(tutor);
-  };
-
-  const handleConfirmRemove = () => {
-    if (tutorToRemove) {
-      removeTutorMutation.mutate(tutorToRemove.id);
-    }
   };
 
   const uniqueCities = useMemo(() => {
@@ -396,9 +344,6 @@ export default function AdminTutorsPage() {
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewTutor(tutor)}>
                     <Settings className="h-4 h-4" />
-                </Button>
-                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleRemoveClick(tutor)}>
-                    <Trash2 className="h-4 h-4" />
                 </Button>
               </div>
             </TableCell>
@@ -563,29 +508,6 @@ export default function AdminTutorsPage() {
         userType="TUTOR"
         onSuccess={handleAddUserSuccess}
       />
-      <AlertDialog open={!!tutorToRemove} onOpenChange={() => setTutorToRemove(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action will permanently remove the tutor <strong>{tutorToRemove?.displayName}</strong>. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setTutorToRemove(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmRemove}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-              disabled={removeTutorMutation.isPending}
-            >
-              {removeTutorMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Remove
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
-
-    
