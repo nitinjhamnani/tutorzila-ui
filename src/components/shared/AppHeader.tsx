@@ -63,7 +63,7 @@ export function AppHeader() {
     "/contact-us",
     "/about-us"
   ];
-  const isTransparentPath = transparentHeaderPaths.includes(pathname);
+  const isTransparentPath = transparentHeaderPaths.includes(pathname) || pathname.startsWith('/tutors/');
   
   const headerBaseClasses = "sticky z-50 w-full transition-all duration-300 ease-in-out top-[var(--verification-banner-height,0px)]";
   
