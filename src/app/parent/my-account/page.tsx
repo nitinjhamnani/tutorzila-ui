@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -27,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DeactivationModal } from "@/components/modals/DeactivationModal";
 import { ParentActivationModal } from "@/components/admin/modals/ParentActivationModal";
 import { useMutation } from "@tanstack/react-query";
+import { Separator } from "@/components/ui/separator";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -146,11 +148,8 @@ export default function ParentMyAccountPage() {
   if (isLoading || isCheckingAuth) {
     return (
         <main className="flex-grow">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-1 space-y-6"><Skeleton className="h-[350px] w-full rounded-xl" /></div>
-                <div className="md:col-span-2 space-y-6"><Skeleton className="h-[200px] w-full rounded-xl" /></div>
-             </div>
+          <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-8">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
           </div>
         </main>
     );
@@ -165,10 +164,9 @@ export default function ParentMyAccountPage() {
   return (
     <>
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500 ease-out">
-            <div className="md:col-span-1 space-y-6">
-              <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden relative">
+        <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-8">
+          <Card className="w-full shadow-lg border rounded-xl animate-in fade-in duration-500 ease-out">
+            <CardHeader className="relative p-6">
                  <div className="absolute top-4 right-4">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -193,70 +191,69 @@ export default function ParentMyAccountPage() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <CardContent className="p-5 md:p-6 text-center relative pt-8">
-                  <Avatar className="h-24 w-24 border-4 border-primary/20 mx-auto shadow-md">
-                    <AvatarImage src={userDetails.profilePicUrl} alt={userDetails.name} />
-                    <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
-                        {getInitials(userDetails.name)}
-                    </AvatarFallback>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <Avatar className="h-24 w-24 border-4 border-primary/20 shrink-0">
+                      <AvatarImage src={userDetails.profilePicUrl} alt={userDetails.name} />
+                      <AvatarFallback className="text-3xl bg-primary/10 text-primary font-bold">
+                          {getInitials(userDetails.name)}
+                      </AvatarFallback>
                   </Avatar>
-                  <CardTitle className="text-xl font-bold text-foreground mt-4">{userDetails.name}</CardTitle>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <InfoItem icon={Mail} label="Email">
-                    <div className="flex items-center gap-2">
-                        <span>{userDetails.email}</span>
-                        <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <button onClick={() => { if(!userDetails.emailVerified) { handleOpenOtpModal('email');}}}>
-                                    {userDetails.emailVerified ? <CheckCircle className="h-4 w-4 text-green-500" /> : (
-                                        <span className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
-                                    )}
-                                </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                            <p>Email {userDetails.emailVerified ? 'Verified' : 'Not Verified'}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                        </TooltipProvider>
-                    </div>
-                  </InfoItem>
-                  <InfoItem icon={Phone} label="Phone">
-                      <div className="flex flex-col items-start gap-1.5">
-                        <div className="flex items-center gap-2">
-                          <span>{userDetails.countryCode} {userDetails.phone}</span>
-                          <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                   <button className={!userDetails.phoneVerified ? "cursor-pointer" : ""} onClick={() => { if(!userDetails.phoneVerified) { handleOpenOtpModal('phone');}}}>
-                                        {userDetails.phoneVerified ? <CheckCircle className="h-4 w-4 text-green-500" /> : (
-                                            <span className="text-primary hover:underline text-xs">(Verify Now)</span>
-                                        )}
-                                   </button>
-                                </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Phone {userDetails.phoneVerified ? 'Verified' : 'Not Verified'}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                          {userDetails.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit"><WhatsAppIcon className="h-3 w-3 mr-1"/>WhatsApp</Badge>}
+                  <div className="w-full">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-2xl font-bold text-foreground">{userDetails.name}</CardTitle>
                       </div>
-                  </InfoItem>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="md:col-span-2 space-y-6">
-                <p className="text-center text-muted-foreground p-10">More account details will be shown here.</p>
-            </div>
-          </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                          {userDetails.email}
+                      </div>
+                  </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 pt-4 border-t">
+              <div className="space-y-4">
+                <InfoItem icon={Mail} label="Email">
+                  <div className="flex items-center gap-2">
+                      <span>{userDetails.email}</span>
+                      <TooltipProvider>
+                      <Tooltip>
+                          <TooltipTrigger asChild>
+                              <button onClick={() => { if(!userDetails.emailVerified) { handleOpenOtpModal('email');}}}>
+                                  {userDetails.emailVerified ? <CheckCircle className="h-4 w-4 text-green-500" /> : (
+                                      <span className="text-primary hover:underline text-xs cursor-pointer">(Verify Now)</span>
+                                  )}
+                              </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                          <p>Email {userDetails.emailVerified ? 'Verified' : 'Not Verified'}</p>
+                          </TooltipContent>
+                      </Tooltip>
+                      </TooltipProvider>
+                  </div>
+                </InfoItem>
+                <InfoItem icon={Phone} label="Phone">
+                    <div className="flex flex-col items-start gap-1.5">
+                      <div className="flex items-center gap-2">
+                        <span>{userDetails.countryCode} {userDetails.phone}</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                              <TooltipTrigger asChild>
+                                  <button className={!userDetails.phoneVerified ? "cursor-pointer" : ""} onClick={() => { if(!userDetails.phoneVerified) { handleOpenOtpModal('phone');}}}>
+                                      {userDetails.phoneVerified ? <CheckCircle className="h-4 w-4 text-green-500" /> : (
+                                          <span className="text-primary hover:underline text-xs">(Verify Now)</span>
+                                      )}
+                                  </button>
+                              </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Phone {userDetails.phoneVerified ? 'Verified' : 'Not Verified'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                        {userDetails.whatsappEnabled && <Badge variant="secondary" className="mt-1 w-fit"><WhatsAppIcon className="h-3 w-3 mr-1"/>WhatsApp</Badge>}
+                    </div>
+                </InfoItem>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
 
@@ -285,3 +282,4 @@ export default function ParentMyAccountPage() {
     </>
   );
 }
+
