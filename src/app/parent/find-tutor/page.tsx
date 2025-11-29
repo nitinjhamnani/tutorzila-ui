@@ -94,10 +94,10 @@ const fetchTutors = async (token: string | null): Promise<TutorProfile[]> => {
   const data: ApiTutorResponse[] = await response.json();
 
   // Transform API data to TutorProfile[]
-  return data.map((apiTutor, index) => ({
+  return data.map((apiTutor) => ({
     id: apiTutor.tutorId,
     name: apiTutor.tutorName,
-    email: "", // Not provided by this API
+    email: "", 
     role: "tutor",
     subjects: apiTutor.subjects ? apiTutor.subjects.split(',').map(s => s.trim()) : [],
     gradeLevelsTaught: apiTutor.grades ? apiTutor.grades.split(',').map(g => g.trim()) : [],
@@ -108,16 +108,14 @@ const fetchTutors = async (token: string | null): Promise<TutorProfile[]> => {
         ...(apiTutor.online ? ["Online"] : []),
         ...(apiTutor.offline ? ["Offline (In-person)"] : [])
     ],
-    // Add default values for fields not in API response
-    experience: `${Math.floor(Math.random() * 10) + 1}+ years`, // Mock data
-    hourlyRate: String(Math.floor(Math.random() * 1800) + 200), // Mock data
-    bio: "Experienced and passionate tutor dedicated to student success.", // Mock data
-    qualifications: ["Bachelor's Degree"], // Mock data
-    rating: parseFloat((Math.random() * (5 - 3.5) + 3.5).toFixed(1)), // Mock data
+    // The following fields are not in the API response and should not be relied upon.
+    // They are set to default values to satisfy the TutorProfile type.
+    experience: "",
+    hourlyRate: "",
+    bio: "",
+    qualifications: [],
+    rating: 0,
     status: "Active",
-    mockIsRecommendedBySystem: index % 3 === 0,
-    mockIsDemoRequestedByCurrentUser: index % 4 === 0,
-    mockIsShortlistedByCurrentUser: index % 5 === 0,
   }));
 };
 
@@ -145,13 +143,11 @@ export default function ParentFindTutorPage() {
   const [tempGradeFilter, setTempGradeFilter] = useState("All");
   const [tempBoardFilter, setTempBoardFilter] = useState("All");
   const [tempTeachingModeFilter, setTempTeachingModeFilter] = useState<string[]>([]);
-  const [tempFeeRange, setTempFeeRange] = useState<[number, number]>([200, 2000]);
 
   const [appliedSubjectFilter, setAppliedSubjectFilter] = useState<string[]>([]);
   const [appliedGradeFilter, setAppliedGradeFilter] = useState("All");
   const [appliedBoardFilter, setAppliedBoardFilter] = useState("All");
   const [appliedTeachingModeFilter, setAppliedTeachingModeFilter] = useState<string[]>([]);
-  const [appliedFeeRange, setAppliedFeeRange] = useState<[number, number]>([200, 2000]);
 
   const [activeStatusFilter, setActiveStatusFilter] = useState<TutorStatusCategory>("All Tutors");
   const [locationSearchTerm, setLocationSearchTerm] = useState("");
@@ -189,7 +185,6 @@ export default function ParentFindTutorPage() {
     setAppliedGradeFilter(tempGradeFilter);
     setAppliedBoardFilter(tempBoardFilter);
     setAppliedTeachingModeFilter([...tempTeachingModeFilter]);
-    setAppliedFeeRange([...tempFeeRange]);
     setIsFilterDialogOpen(false);
     toast({ title: "Filters Applied", description: "Tutor list has been updated." });
   };
@@ -199,12 +194,10 @@ export default function ParentFindTutorPage() {
     setTempGradeFilter("All");
     setTempBoardFilter("All");
     setTempTeachingModeFilter([]);
-    setTempFeeRange([200, 2000]);
     setAppliedSubjectFilter([]);
     setAppliedGradeFilter("All");
     setAppliedBoardFilter("All");
     setAppliedTeachingModeFilter([]);
-    setAppliedFeeRange([200, 2000]);
     setIsFilterDialogOpen(false);
     toast({ title: "Filters Cleared", description: "Showing all available tutors." });
   };
@@ -214,11 +207,9 @@ export default function ParentFindTutorPage() {
       appliedSubjectFilter.length > 0 ||
       appliedGradeFilter !== "All" ||
       appliedBoardFilter !== "All" ||
-      appliedTeachingModeFilter.length > 0 ||
-      appliedFeeRange[0] !== 200 ||
-      appliedFeeRange[1] !== 2000
+      appliedTeachingModeFilter.length > 0
     );
-  }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedFeeRange]);
+  }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter]);
 
   const tutorsFilteredByDialog = useMemo(() => {
     return tutorProfiles.filter((tutor) => {
@@ -234,12 +225,9 @@ export default function ParentFindTutorPage() {
         matchesMode = appliedTeachingModeFilter.some(mode => tutor.teachingMode?.includes(mode));
       }
 
-      const tutorRate = parseFloat(tutor.hourlyRate || "999999");
-      const matchesFee = appliedFeeRange[0] <= tutorRate && appliedFeeRange[1] >= tutorRate;
-
-      return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch && matchesFee;
+      return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch;
     });
-  }, [tutorProfiles, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedFeeRange, locationSearchTerm]);
+  }, [tutorProfiles, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, locationSearchTerm]);
 
   const statusCategoryCounts = useMemo(() => {
     return {
@@ -301,7 +289,7 @@ export default function ParentFindTutorPage() {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                 {[...Array(6)].map((_, i) => (
-                    <Card key={i} className="w-full h-[320px] p-4">
+                    <Card key={i} className="w-full h-[280px] p-4">
                         <div className="flex items-center gap-3">
                             <Skeleton className="w-14 h-14 rounded-full" />
                             <div className="space-y-2 flex-1">
@@ -330,7 +318,8 @@ export default function ParentFindTutorPage() {
             </Card>
         );
     }
-      if (filteredTutors.length > 0) {
+    
+    if (filteredTutors.length > 0) {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {filteredTutors.map((tutor) => (
@@ -347,6 +336,7 @@ export default function ParentFindTutorPage() {
         </div>
       );
     }
+
     return (
       <Card className="text-center py-12 bg-card border rounded-lg shadow-sm">
         <CardContent className="flex flex-col items-center">
@@ -464,23 +454,6 @@ export default function ParentFindTutorPage() {
                           </div>
                         ))}
                       </div>
-                    </div>
-                    <div className="space-y-2.5 pt-1">
-                      <Label className="text-xs font-medium text-muted-foreground flex items-center">
-                        <DollarSign className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Hourly Fee Range (₹)
-                      </Label>
-                      <div className="text-xs text-foreground/80 font-medium text-center pb-1">
-                        ₹{tempFeeRange[0]} – ₹{tempFeeRange[1]}
-                      </div>
-                      <Slider
-                        id="fee-range-filter"
-                        min={200}
-                        max={2000}
-                        step={50}
-                        value={tempFeeRange}
-                        onValueChange={(value: number[]) => setTempFeeRange(value as [number, number])}
-                        className="w-full"
-                      />
                     </div>
                   </div>
                 </ScrollArea>

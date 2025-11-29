@@ -1,11 +1,10 @@
-
 // src/components/tutors/TutorProfileCard.tsx
 "use client";
 
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Star, Laptop, Users, MapPin, Briefcase, ShieldCheck, Bookmark } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BookOpen, GraduationCap, Laptop, Users, MapPin, Briefcase, ShieldCheck, Bookmark } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -34,8 +33,6 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
 };
 
 export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = false, showFullName = false, showShortlistButton = false }: TutorProfileCardProps) {
-  const rating = tutor.rating || 0;
-  const [mockReviewCount, setMockReviewCount] = useState<number | 0>(0);
   const [isClient, setIsClient] = useState(false);
   const [isShortlisted, setIsShortlisted] = useState(false);
   const { toast } = useToast();
@@ -43,13 +40,6 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      setMockReviewCount(Math.floor(Math.random() * 50) + 5);
-    }
-  }, [isClient]);
-
 
   const TeachingModeIcon =
     Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
@@ -105,7 +95,7 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
               </Avatar>
               <div className={cn(
                 "flex-1 min-w-0",
-                showShortlistButton && "pr-8" // Add padding to the right if shortlist button is shown
+                showShortlistButton && "pr-8" 
               )}>
                 <CardTitle className={cn(
                   "text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors",
@@ -132,12 +122,6 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
                 <Bookmark className={cn("h-5 w-5 transition-colors", isShortlisted && "fill-primary text-primary")} />
               </Button>
             )}
-            {!hideRating && !showShortlistButton && ( 
-              <div className="flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors shrink-0 ml-2 mt-1">
-                <Star className="w-3.5 h-3.5 fill-primary text-primary mr-1" />
-                <span className="font-medium">{typeof rating === 'number' ? rating.toFixed(1) : 'N/A'} ({mockReviewCount})</span>
-              </div>
-            )}
           </CardHeader>
 
           <CardContent className="p-0 space-y-2 flex-grow">
@@ -151,11 +135,7 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">
             {tutor.location && <InfoItem icon={MapPin} text={tutor.location} />}
-            {tutor.hourlyRate && (
-              <Badge variant="outline" className="text-[11.5px] py-1 px-2.5 border-primary/40 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-semibold">
-                ₹{tutor.hourlyRate}/hr
-              </Badge>
-            )}
+            {/* Price badge removed */}
           </CardFooter>
         </Card>
       </a>
