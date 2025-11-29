@@ -56,7 +56,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Skeleton } from "@/components/ui/skeleton";
-import { boardsList as boardsConstant } from '@/lib/constants';
+import { allSubjectsList, boardsList as boardsConstant, gradeLevelsList as gradeLevelsConstant } from '@/lib/constants';
 import {
   Accordion,
   AccordionContent,
@@ -75,13 +75,19 @@ interface ApiTutorResponse {
   gender: string;
   online: boolean;
   offline: boolean;
+  experience?: string;
+  hourlyRate?: string;
+  bio?: string;
+  qualifications?: string[];
+  location?: string;
+  rating?: number;
 }
 
-const fetchTutors = async (token: string | null): Promise<TutorProfile[]> => {
+const fetchTutors = async (token: string | null, params: URLSearchParams): Promise<TutorProfile[]> => {
   if (!token) throw new Error("Authentication is required.");
   
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/parent/tutors`, {
+  const response = await fetch(`${apiBaseUrl}/api/parent/tutors?${params.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
 
@@ -91,7 +97,6 @@ const fetchTutors = async (token: string | null): Promise<TutorProfile[]> => {
 
   const data: ApiTutorResponse[] = await response.json();
 
-  // Transform API data to TutorProfile[]
   return data.map((apiTutor) => ({
     id: apiTutor.tutorId,
     name: apiTutor.tutorName,
@@ -101,29 +106,27 @@ const fetchTutors = async (token: string | null): Promise<TutorProfile[]> => {
     gradeLevelsTaught: apiTutor.grades ? apiTutor.grades.split(',').map(g => g.trim()) : [],
     boardsTaught: apiTutor.boards ? apiTutor.boards.split(',').map(b => b.trim()) : [],
     location: [apiTutor.city, apiTutor.state].filter(Boolean).join(', '),
-    gender: apiTutor.gender.toLowerCase() as "male" | "female" | "other",
+    gender: apiTutor.gender?.toLowerCase() as "male" | "female" | "other",
     teachingMode: [
         ...(apiTutor.online ? ["Online"] : []),
         ...(apiTutor.offline ? ["Offline (In-person)"] : [])
     ],
-    // The following fields are not in the API response and should not be relied upon.
-    // They are set to default values to satisfy the TutorProfile type.
-    experience: "",
-    hourlyRate: "",
-    bio: "",
-    qualifications: [],
-    rating: 0,
+    experience: apiTutor.experience || "",
+    hourlyRate: apiTutor.hourlyRate || "",
+    bio: apiTutor.bio || "",
+    qualifications: apiTutor.qualifications || [],
+    rating: apiTutor.rating || 0,
     status: "Active",
   }));
 };
 
 
 const modeOptionsList: { value: string; label: string }[] = [
-  { value: "All", label: "All Modes" },
   { value: "Online", label: "Online" },
   { value: "Offline (In-person)", label: "Offline (In-person)" },
 ];
 
+const gradeLevelsList: {value: string, label: string}[] = ["All", ...gradeLevelsConstant].map(g => ({value: g, label:g}));
 const boardsList: { value: string, label: string }[] = ["All", ...boardsConstant].map(b => ({value: b, label: b}));
 
 
@@ -131,7 +134,7 @@ export default function ParentFindTutorPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
-  const { hideLoader } = useGlobalLoader();
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [selectedTutorForDemo, setSelectedTutorForDemo] = useState<TutorProfile | null>(null);
@@ -142,23 +145,35 @@ export default function ParentFindTutorPage() {
   const [tempBoardFilter, setTempBoardFilter] = useState("All");
   const [tempTeachingModeFilter, setTempTeachingModeFilter] = useState<string[]>([]);
 
-  const [appliedSubjectFilter, setAppliedSubjectFilter] = useState<string[]>([]);
-  const [appliedGradeFilter, setAppliedGradeFilter] = useState("All");
-  const [appliedBoardFilter, setAppliedBoardFilter] = useState("All");
-  const [appliedTeachingModeFilter, setAppliedTeachingModeFilter] = useState<string[]>([]);
-  
-  const [locationSearchTerm, setLocationSearchTerm] = useState("");
+  const [appliedFilters, setAppliedFilters] = useState({
+    subjects: [] as string[],
+    grade: "All",
+    board: "All",
+    teachingMode: [] as string[],
+  });
+
+  const tutorSearchParams = useMemo(() => {
+    const params = new URLSearchParams();
+    if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
+    if(appliedFilters.grade && appliedFilters.grade !== 'All') params.append('grades', appliedFilters.grade);
+    if(appliedFilters.board && appliedFilters.board !== 'All') params.append('boards', appliedFilters.board);
+    if(appliedFilters.teachingMode.includes("Online")) params.append('isOnline', 'true');
+    if(appliedFilters.teachingMode.includes("Offline (In-person)")) params.append('isOffline', 'true');
+    return params;
+  }, [appliedFilters]);
 
   const { data: tutorProfiles = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
-    queryKey: ['parentTutors', token],
-    queryFn: () => fetchTutors(token),
+    queryKey: ['parentTutors', token, tutorSearchParams.toString()],
+    queryFn: () => fetchTutors(token, tutorSearchParams),
     enabled: !!token,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, 
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    hideLoader();
+    if (!isLoadingTutors) {
+      hideLoader();
+    }
   }, [hideLoader, isLoadingTutors]);
 
   useEffect(() => {
@@ -167,68 +182,42 @@ export default function ParentFindTutorPage() {
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
 
-  const uniqueSubjectsForFilter = useMemo(() => {
-    const subjects = new Set(tutorProfiles.flatMap(t => t.subjects).filter(Boolean));
-    return Array.from(subjects).map(s => ({ value: String(s), label: String(s) }));
-  }, [tutorProfiles]);
-
-  const uniqueGradeLevelsForFilter = useMemo(() => {
-    const grades = new Set(tutorProfiles.flatMap(t => t.gradeLevelsTaught).filter(Boolean));
-    return [{ value: "All", label: "All Grade Levels" }, ...Array.from(grades).map(g => ({ value: String(g), label: String(g) }))];
-  }, [tutorProfiles]);
-
   const handleApplyDetailedFilters = () => {
-    setAppliedSubjectFilter([...tempSubjectFilter]);
-    setAppliedGradeFilter(tempGradeFilter);
-    setAppliedBoardFilter(tempBoardFilter);
-    setAppliedTeachingModeFilter([...tempTeachingModeFilter]);
+    setAppliedFilters({
+      subjects: [...tempSubjectFilter],
+      grade: tempGradeFilter,
+      board: tempBoardFilter,
+      teachingMode: [...tempTeachingModeFilter]
+    });
     setIsFilterDialogOpen(false);
     toast({ title: "Filters Applied", description: "Tutor list has been updated." });
   };
 
   const handleClearDetailedFilters = () => {
-    setTempSubjectFilter([]);
-    setTempGradeFilter("All");
-    setTempBoardFilter("All");
-    setTempTeachingModeFilter([]);
-    setAppliedSubjectFilter([]);
-    setAppliedGradeFilter("All");
-    setAppliedBoardFilter("All");
-    setAppliedTeachingModeFilter([]);
-    setLocationSearchTerm("");
+    const clearedFilters = {
+      subjects: [],
+      grade: "All",
+      board: "All",
+      teachingMode: []
+    };
+    setTempSubjectFilter(clearedFilters.subjects);
+    setTempGradeFilter(clearedFilters.grade);
+    setTempBoardFilter(clearedFilters.board);
+    setTempTeachingModeFilter(clearedFilters.teachingMode);
+    setAppliedFilters(clearedFilters);
     setIsFilterDialogOpen(false);
     toast({ title: "Filters Cleared", description: "Showing all available tutors." });
   };
 
   const detailedFiltersApplied = useMemo(() => {
     return (
-      appliedSubjectFilter.length > 0 ||
-      appliedGradeFilter !== "All" ||
-      appliedBoardFilter !== "All" ||
-      appliedTeachingModeFilter.length > 0 ||
-      locationSearchTerm !== ""
+      appliedFilters.subjects.length > 0 ||
+      appliedFilters.grade !== "All" ||
+      appliedFilters.board !== "All" ||
+      appliedFilters.teachingMode.length > 0
     );
-  }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, locationSearchTerm]);
-
-  const filteredTutors = useMemo(() => {
-    return tutorProfiles.filter((tutor) => {
-      const locationSearchTermLower = locationSearchTerm.toLowerCase();
-      const matchesLocationSearch = locationSearchTerm === "" || (tutor.location && tutor.location.toLowerCase().includes(locationSearchTermLower));
-
-      const matchesSubject = appliedSubjectFilter.length === 0 || (Array.isArray(tutor.subjects) && tutor.subjects.some(sub => appliedSubjectFilter.includes(String(sub))));
-      const matchesGrade = appliedGradeFilter === "All" || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(appliedGradeFilter)) || (tutor.grade === appliedGradeFilter);
-      const matchesBoard = appliedBoardFilter === "All" || (Array.isArray(tutor.boardsTaught) && tutor.boardsTaught.includes(appliedBoardFilter));
-
-      let matchesMode = true;
-      if (appliedTeachingModeFilter.length > 0) {
-        matchesMode = appliedTeachingModeFilter.some(mode => tutor.teachingMode?.includes(mode));
-      }
-
-      return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch;
-    });
-  }, [tutorProfiles, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, locationSearchTerm]);
-
-
+  }, [appliedFilters]);
+  
   const handleScheduleDemoClick = (tutorToSchedule: TutorProfile) => {
     setSelectedTutorForDemo(tutorToSchedule);
     setIsDemoModalOpen(true);
@@ -238,13 +227,11 @@ export default function ParentFindTutorPage() {
     setIsDemoModalOpen(false);
     setSelectedTutorForDemo(null);
     if (selectedTutorForDemo) {
-      // In a real app with API, you'd invalidate queries.
-      // Here, we just give a toast.
+      toast({
+        title: "Demo Request Sent!",
+        description: "The tutor will be notified of your demo request.",
+      });
     }
-    toast({
-      title: "Demo Request Sent!",
-      description: "The tutor will be notified of your demo request.",
-    });
   };
   
   if (isCheckingAuth || !user) {
@@ -289,16 +276,15 @@ export default function ParentFindTutorPage() {
         );
     }
     
-    if (filteredTutors.length > 0) {
+    if (tutorProfiles.length > 0) {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-          {filteredTutors.map((tutor) => (
+          {tutorProfiles.map((tutor) => (
             <div key={tutor.id} className="relative group">
               <TutorProfileCard
                 tutor={tutor}
                 parentContextBaseUrl={parentContextBaseUrl}
-                hideRating={false} 
-                showFullName={true} 
+                showFullName={true}
               />
             </div>
           ))}
@@ -331,21 +317,21 @@ export default function ParentFindTutorPage() {
           <BookOpen className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Subjects
         </Label>
         <MultiSelectCommand
-          options={uniqueSubjectsForFilter}
+          options={allSubjectsList}
           selectedValues={tempSubjectFilter}
           onValueChange={setTempSubjectFilter}
           placeholder="Select subjects..."
           className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm rounded-lg h-auto min-h-9 text-xs" 
         />
       </div>
-      <FilterItem icon={GraduationCap} label="Grade Level" value={tempGradeFilter} onValueChange={setTempGradeFilter} options={uniqueGradeLevelsForFilter} />
+      <FilterItem icon={GraduationCap} label="Grade Level" value={tempGradeFilter} onValueChange={setTempGradeFilter} options={gradeLevelsList} />
       <FilterItem icon={ShieldCheck} label="Board" value={tempBoardFilter} onValueChange={setTempBoardFilter} options={boardsList} />
       <div className="space-y-1.5">
         <Label className="text-xs font-medium text-muted-foreground flex items-center">
           <RadioTower className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Teaching Mode
         </Label>
         <div className="grid grid-cols-2 gap-2 pt-1">
-          {modeOptionsList.slice(1).map(mode => ( // Exclude "All"
+          {modeOptionsList.map(mode => (
             <div key={mode.value} className="flex items-center space-x-2">
               <Checkbox
                 id={`mode-filter-${mode.value}`}
@@ -442,7 +428,6 @@ export default function ParentFindTutorPage() {
             <ScheduleDemoRequestModal
               tutor={selectedTutorForDemo}
               parentUser={user}
-              enquiryContext={undefined} 
               onSuccess={handleDemoRequestSuccess}
             />
           </DialogContent>
@@ -469,7 +454,7 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
       <Select value={value} onValueChange={onValueChange}>
         <FormSelectTrigger
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`}
-          className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm rounded-lg h-9 text-xs"
+          className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg h-9 text-xs"
         >
           <FormSelectValue />
         </FormSelectTrigger>
