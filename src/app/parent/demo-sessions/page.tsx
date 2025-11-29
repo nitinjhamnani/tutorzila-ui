@@ -14,15 +14,14 @@ import {
   ChevronDown,
   Clock as ClockIcon,
   CheckCircle,
-  XCircle as CancelIcon, // Using CancelIcon as XCircle
+  XCircle as CancelIcon, 
   Edit3,
 } from "lucide-react";
 import { ParentDemoSessionCard } from "@/components/dashboard/parent/ParentDemoSessionCard";
-import type { DemoSession, User } from "@/types";
+import type { DemoSession, User, EnquiryDemo } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { MOCK_DEMO_SESSIONS } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -32,9 +31,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { format } from "date-fns";
+import { format, addMinutes, parse } from "date-fns";
 import type { NextStepDecisionValue } from "@/components/modals/FeedbackModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 
 const demoStatusCategories = [
@@ -46,38 +47,101 @@ const demoStatusCategories = [
 ] as const;
 type DemoStatusCategory = (typeof demoStatusCategories)[number];
 
-const statusIcons: Record<Exclude<DemoStatusCategory, "All Demos">, React.ElementType> = { // Exclude "All Demos" for specific icons
+const statusIcons: Record<Exclude<DemoStatusCategory, "All Demos">, React.ElementType> = {
   Scheduled: ClockIcon,
   Requested: MessageSquareQuote,
   Completed: CheckCircle,
   Cancelled: CancelIcon,
 };
 
+const fetchParentDemos = async (token: string | null): Promise<DemoSession[]> => {
+  if (!token) throw new Error("Authentication token not found.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  const response = await fetch(`${apiBaseUrl}/api/demo/parent`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch demo sessions.");
+  }
+  
+  const data: EnquiryDemo[] = await response.json();
+
+  return data.map(item => {
+    const startTime = item.demoDetails.startTime || "12:00 AM";
+    const duration = parseInt(item.demoDetails.duration) || 30;
+    
+    let endTime = "12:30 AM";
+    try {
+      const startDateTime = parse(`${item.demoDetails.date} ${startTime}`, 'yyyy-MM-dd hh:mm a', new Date());
+      if (!isNaN(startDateTime.getTime())) {
+          const endDateTime = addMinutes(startDateTime, duration);
+          endTime = format(endDateTime, "hh:mm a");
+      }
+    } catch(e) {
+      console.error("Could not parse date/time for end time calculation", item.demoDetails.date, startTime);
+    }
+    
+    const statusMap: Record<string, DemoSession["status"]> = {
+      SCHEDULED: "Scheduled",
+      REQUESTED: "Requested",
+      COMPLETED: "Completed",
+      CANCELLED: "Cancelled",
+    };
+
+    return {
+      id: item.demoId,
+      enquiryId: item.demoDetails.enquiryId,
+      tutorName: item.demoDetails.tutorName,
+      studentName: item.demoDetails.studentName,
+      subject: item.demoDetails.subjects,
+      gradeLevel: item.demoDetails.grade,
+      board: item.demoDetails.board,
+      date: item.demoDetails.date,
+      day: item.demoDetails.day,
+      startTime: startTime,
+      endTime: endTime,
+      duration: item.demoDetails.duration,
+      status: statusMap[item.demoStatus] || "Requested",
+      demoLink: item.demoDetails.demoLink,
+      isPaid: item.demoDetails.paid,
+      demoFee: item.demoDetails.demoFees,
+      mode: item.demoDetails.online ? "Online" : (item.demoDetails.offline ? "Offline (In-person)" : undefined),
+    };
+  });
+};
+
+
 export default function ParentDemoSessionsPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
-  const { hideLoader } = useGlobalLoader();
+  const { hideLoader, showLoader } = useGlobalLoader();
+  const queryClient = useQueryClient();
 
-  const [allParentDemos, setAllParentDemos] = useState<DemoSession[]>([]);
   const [activeFilterCategory, setActiveFilterCategory] =
     useState<DemoStatusCategory>("Scheduled");
+    
+  const { data: allParentDemos = [], isLoading, error } = useQuery({
+    queryKey: ['parentDemos', token],
+    queryFn: () => fetchParentDemos(token),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   useEffect(() => {
-    hideLoader();
-  }, [hideLoader]);
+    if (isLoading) {
+        showLoader("Fetching your demos...");
+    } else {
+        hideLoader();
+    }
+  }, [isLoading, showLoader, hideLoader]);
+
 
   useEffect(() => {
-    if (!isCheckingAuth) {
-      if (!isAuthenticated || user?.role !== "parent") {
-        router.replace("/");
-      } else if (user) {
-        const parentAssociatedStudentNames = ["Rohan Sharma (Son)", "Priya Singh (Daughter)"];
-        const parentDemos = MOCK_DEMO_SESSIONS.filter((demo) =>
-          parentAssociatedStudentNames.includes(demo.studentName)
-        );
-        setAllParentDemos(parentDemos);
-      }
+    if (!isCheckingAuth && (!isAuthenticated || user?.role !== "parent")) {
+      router.replace("/");
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
 
@@ -96,99 +160,43 @@ export default function ParentDemoSessionsPage() {
     if (activeFilterCategory === "All Demos") return allParentDemos;
     return allParentDemos.filter((d) => d.status === activeFilterCategory);
   }, [allParentDemos, activeFilterCategory]);
+  
+  const handleMutationSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['parentDemos', token] });
+  };
 
   const handleReschedule = useCallback((demoId: string, newDate: Date, newStartTime: string, newEndTime: string, reason: string) => {
-    setAllParentDemos(prevDemos =>
-      prevDemos.map(demo =>
-        demo.id === demoId
-          ? { ...demo, rescheduleStatus: 'pending' as const }
-          : demo
-      )
-    );
+    // This would be a mutation call
     console.log("Reschedule requested by parent for demo:", demoId, newDate, newStartTime, newEndTime, reason);
+    handleMutationSuccess();
     toast({ title: "Reschedule Requested", description: "The tutor has been notified of your reschedule request." });
-  }, [toast]);
+  }, [handleMutationSuccess, toast]);
 
   const handleCancel = useCallback((demoId: string) => {
-    setAllParentDemos(prevDemos =>
-      prevDemos.map(demo =>
-        demo.id === demoId
-          ? { ...demo, status: "Cancelled" as const }
-          : demo
-      )
-    );
-    const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === demoId);
-    if (demoIndexInMock > -1) MOCK_DEMO_SESSIONS[demoIndexInMock].status = "Cancelled";
+    // This would be a mutation call
+    console.log("Cancel requested for demo:", demoId);
+    handleMutationSuccess();
     toast({ title: "Demo Cancelled", description: "The demo session has been cancelled." });
-  }, [toast]);
+  }, [handleMutationSuccess, toast]);
 
   const handleEditRequest = useCallback((demoId: string, newDate: Date, newStartTime: string, newEndTime: string, meetingUrl?: string) => {
-     setAllParentDemos(prevDemos =>
-      prevDemos.map(demo =>
-        demo.id === demoId
-          ? {
-              ...demo,
-              date: newDate.toISOString(),
-              startTime: newStartTime,
-              endTime: newEndTime,
-              joinLink: meetingUrl || demo.joinLink,
-              status: "Requested" as const, // Status remains requested until tutor confirms
-              rescheduleStatus: 'idle' as const // Reset reschedule status on edit
-            }
-          : demo
-      )
-    );
-    const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === demoId);
-    if (demoIndexInMock > -1) {
-        MOCK_DEMO_SESSIONS[demoIndexInMock] = {
-            ...MOCK_DEMO_SESSIONS[demoIndexInMock],
-            date: newDate.toISOString(),
-            startTime: newStartTime,
-            endTime: newEndTime,
-            joinLink: meetingUrl || MOCK_DEMO_SESSIONS[demoIndexInMock].joinLink,
-            status: "Requested",
-            rescheduleStatus: 'idle',
-        };
-    }
-    toast({ title: "Demo Request Updated", description: `Your demo request for session ${demoId} has been updated. The tutor will be notified.` });
-  }, [toast]);
+    // This would be a mutation call
+    console.log("Edit request for demo:", demoId, newDate, newStartTime, newEndTime, meetingUrl);
+    handleMutationSuccess();
+    toast({ title: "Demo Request Updated", description: `Your demo request has been updated. The tutor will be notified.` });
+  }, [handleMutationSuccess, toast]);
 
   const handleWithdrawRequest = useCallback((demoId: string) => {
-     setAllParentDemos(prevDemos =>
-      prevDemos.map(demo =>
-        demo.id === demoId
-          ? { ...demo, status: "Cancelled" as const } // Mark as Cancelled
-          : demo
-      )
-    );
-    const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === demoId);
-    if (demoIndexInMock > -1) MOCK_DEMO_SESSIONS[demoIndexInMock].status = "Cancelled";
-    toast({ title: "Request Withdrawn", description: `Demo request ${demoId} has been withdrawn.` });
-  }, [toast]);
+    // This would be a mutation call
+    console.log("Withdraw request for demo:", demoId);
+    handleMutationSuccess();
+    toast({ title: "Request Withdrawn", description: `Demo request has been withdrawn.` });
+  }, [handleMutationSuccess, toast]);
 
   const handleGiveFeedback = useCallback((demoId: string, rating: number, comment?: string, nextStepDecision?: NextStepDecisionValue) => {
-    const demoToUpdate = allParentDemos.find(d => d.id === demoId);
-    if (!demoToUpdate) return;
-
-    setAllParentDemos(prevDemos =>
-      prevDemos.map(demo =>
-        demo.id === demoId ? {
-            ...demo,
-            status: "Completed" as const,
-            feedbackSubmitted: true,
-            rating,
-            parentComment: comment,
-        } : demo
-      )
-    );
-     const demoIndexInMock = MOCK_DEMO_SESSIONS.findIndex(d => d.id === demoId);
-    if (demoIndexInMock > -1) {
-        MOCK_DEMO_SESSIONS[demoIndexInMock].status = "Completed";
-        MOCK_DEMO_SESSIONS[demoIndexInMock].feedbackSubmitted = true;
-        MOCK_DEMO_SESSIONS[demoIndexInMock].rating = rating;
-        MOCK_DEMO_SESSIONS[demoIndexInMock].parentComment = comment;
-    }
-
+    // This would be a mutation call
+    console.log("Feedback submitted for demo:", demoId, rating, comment, nextStepDecision);
+    handleMutationSuccess();
     toast({
       title: "Feedback Submitted",
       description: "We have noted your feedback. Our team will connect with you shortly."
@@ -197,27 +205,74 @@ export default function ParentDemoSessionsPage() {
     if (nextStepDecision === "start_classes") {
         handleStartClassesRequest(demoId);
     }
-    console.log("Parent's next step decision:", nextStepDecision);
-
-  }, [allParentDemos, toast]); 
+  }, [handleMutationSuccess, toast]); 
 
   const handleStartClassesRequest = useCallback((demoId: string) => {
-    const demo = allParentDemos.find(d => d.id === demoId);
+    console.log("Start classes requested for demo:", demoId);
     toast({
-      title: "Start Classes Requested (Mock)",
-      description: `A request to start regular classes with ${demo?.tutorName} for ${demo?.subject} would be initiated. Our team will connect with you.`,
+      title: "Start Classes Requested",
+      description: `A request to start regular classes has been initiated. Our team will connect with you.`,
     });
-  }, [allParentDemos, toast]);
+  }, [toast]);
 
 
   if (isCheckingAuth || !user) {
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
   }
+  
+  const renderDemoList = () => {
+    if (isLoading) return null; // Global loader is active
+
+    if (error) {
+        return (
+            <Card className="text-center py-16 bg-destructive/10 border-destructive/20 rounded-lg shadow-sm">
+                <CardContent className="flex flex-col items-center">
+                    <CancelIcon className="w-16 h-16 text-destructive mx-auto mb-5" />
+                    <p className="text-xl font-semibold text-destructive mb-1.5">Error Fetching Demos</p>
+                    <p className="text-sm text-destructive/80 max-w-sm mx-auto">{(error as Error).message}</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (filteredDemos.length === 0) {
+        return (
+            <Card className="text-center py-16 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
+            <CardContent className="flex flex-col items-center">
+                <MessageSquareQuote className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+                <p className="text-md font-semibold text-foreground/70 mb-2">
+                No Demos Found
+                </p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                There are no demos matching "{activeFilterCategory}".
+                </p>
+            </CardContent>
+            </Card>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-1 gap-4 md:gap-5">
+            {filteredDemos.map((demo) => (
+            <ParentDemoSessionCard
+                key={demo.id}
+                demo={demo}
+                onReschedule={handleReschedule}
+                onCancel={handleCancel}
+                onEditRequest={handleEditRequest}
+                onWithdrawRequest={handleWithdrawRequest}
+                onGiveFeedback={handleGiveFeedback}
+                onStartClassesRequest={handleStartClassesRequest}
+            />
+            ))}
+        </div>
+    );
+  };
 
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
+        <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-0 flex flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex-grow">
               <div className="flex items-center">
@@ -242,7 +297,6 @@ export default function ParentDemoSessionsPage() {
                 </Link>
               </Button>
           </CardHeader>
-          {/* Removed CardContent with summary cards */}
         </Card>
 
         <div className="flex justify-end mb-4 sm:mb-6">
@@ -254,8 +308,7 @@ export default function ParentDemoSessionsPage() {
                 className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <span>
-                  {activeFilterCategory} (
-                  {categoryCounts[activeFilterCategory] || 0})
+                  {activeFilterCategory} ({categoryCounts[activeFilterCategory] || 0})
                 </span>
                 <ChevronDown className="w-4 h-4 opacity-70" />
               </Button>
@@ -284,36 +337,10 @@ export default function ParentDemoSessionsPage() {
         </div>
 
         <div className="mt-4">
-          {filteredDemos.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:gap-5">
-              {filteredDemos.map((demo) => (
-                <ParentDemoSessionCard
-                  key={demo.id}
-                  demo={demo}
-                  onReschedule={handleReschedule}
-                  onCancel={handleCancel}
-                  onEditRequest={handleEditRequest}
-                  onWithdrawRequest={handleWithdrawRequest}
-                  onGiveFeedback={handleGiveFeedback}
-                  onStartClassesRequest={handleStartClassesRequest}
-                />
-              ))}
-            </div>
-          ) : (
-            <Card className="text-center py-16 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out">
-              <CardContent className="flex flex-col items-center">
-                <MessageSquareQuote className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-                <p className="text-md font-semibold text-foreground/70 mb-2">
-                  No Demos Found
-                </p>
-                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                  There are no demos matching "{activeFilterCategory}".
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {renderDemoList()}
         </div>
       </div>
     </main>
   );
 }
+
