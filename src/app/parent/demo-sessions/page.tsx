@@ -220,6 +220,8 @@ export default function ParentDemoSessionsPage() {
     return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
   }
   
+  const selectedCategoryData = statusIcons[activeFilterCategory as Exclude<DemoStatusCategory, "All Demos">];
+
   const renderDemoList = () => {
     if (isLoading) return null; // Global loader is active
 
@@ -285,56 +287,8 @@ export default function ParentDemoSessionsPage() {
                 View and manage your requested and scheduled demo classes.
               </CardDescription>
             </div>
-             <Button
-                asChild
-                variant="default"
-                size="sm"
-                className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-center gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <Link href="/parent/find-tutor">
-                  <PlusCircle className="w-4 h-4 opacity-90" />
-                  <span className="hidden md:inline">Request Demo</span>
-                </Link>
-              </Button>
           </CardHeader>
         </Card>
-
-        <div className="flex justify-end mb-4 sm:mb-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="default"
-                size="sm"
-                className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <span>
-                  {activeFilterCategory} ({categoryCounts[activeFilterCategory] || 0})
-                </span>
-                <ChevronDown className="w-4 h-4 opacity-70" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[220px]">
-              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {demoStatusCategories.map((category) => (
-                <DropdownMenuItem
-                  key={category}
-                  onClick={() => setActiveFilterCategory(category)}
-                  className={cn(
-                    "text-sm",
-                    activeFilterCategory === category && "bg-primary text-primary-foreground"
-                  )}
-                >
-                  { category !== "All Demos" ?
-                    React.createElement(statusIcons[category as Exclude<DemoStatusCategory, "All Demos">], { className: "mr-2 h-4 w-4" }) :
-                    <ListFilter className="mr-2 h-4 w-4" />
-                  }
-                  {category} ({categoryCounts[category] || 0})
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
 
         <div className="mt-4">
           {renderDemoList()}
@@ -343,4 +297,3 @@ export default function ParentDemoSessionsPage() {
     </main>
   );
 }
-
