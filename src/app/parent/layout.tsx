@@ -24,8 +24,11 @@ import {
   LogOut,
   Menu as MenuIcon,
   Bell,
+  PanelLeft,
+  ShoppingBag,
   SearchCheck, 
   LifeBuoy,
+  FileText,
 } from "lucide-react";
 
 export default function ParentSpecificLayout({ children }: { children: ReactNode }) {
@@ -59,7 +62,9 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   
   const handleLogout = () => {
     logout();
-  };  const parentNavItems = [
+  };
+  
+  const parentNavItems = [
     { href: "/parent/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
@@ -70,6 +75,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
 
   const accountSettingsNavItems = [
     { href: "/parent/my-account", label: "My Account", icon: UserCircle, disabled: false },
+    { href: "/parent/terms", label: "Terms", icon: FileText, disabled: false },
   ];
 
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: handleLogout };
