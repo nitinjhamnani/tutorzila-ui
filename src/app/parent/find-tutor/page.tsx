@@ -33,14 +33,6 @@ import {
   DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ScheduleDemoRequestModal } from "@/components/modals/ScheduleDemoRequestModal";
 import {
   Search,
@@ -65,6 +57,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { boardsList as boardsConstant } from '@/lib/constants';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ApiTutorResponse {
   tutorId: string;
@@ -148,8 +146,7 @@ export default function ParentFindTutorPage() {
   const [appliedGradeFilter, setAppliedGradeFilter] = useState("All");
   const [appliedBoardFilter, setAppliedBoardFilter] = useState("All");
   const [appliedTeachingModeFilter, setAppliedTeachingModeFilter] = useState<string[]>([]);
-
-  const [activeStatusFilter, setActiveStatusFilter] = useState<TutorStatusCategory>("All Tutors");
+  
   const [locationSearchTerm, setLocationSearchTerm] = useState("");
 
   const { data: tutorProfiles = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
@@ -198,6 +195,7 @@ export default function ParentFindTutorPage() {
     setAppliedGradeFilter("All");
     setAppliedBoardFilter("All");
     setAppliedTeachingModeFilter([]);
+    setLocationSearchTerm("");
     setIsFilterDialogOpen(false);
     toast({ title: "Filters Cleared", description: "Showing all available tutors." });
   };
@@ -207,11 +205,12 @@ export default function ParentFindTutorPage() {
       appliedSubjectFilter.length > 0 ||
       appliedGradeFilter !== "All" ||
       appliedBoardFilter !== "All" ||
-      appliedTeachingModeFilter.length > 0
+      appliedTeachingModeFilter.length > 0 ||
+      locationSearchTerm !== ""
     );
-  }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter]);
+  }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, locationSearchTerm]);
 
-  const tutorsFilteredByDialog = useMemo(() => {
+  const filteredTutors = useMemo(() => {
     return tutorProfiles.filter((tutor) => {
       const locationSearchTermLower = locationSearchTerm.toLowerCase();
       const matchesLocationSearch = locationSearchTerm === "" || (tutor.location && tutor.location.toLowerCase().includes(locationSearchTermLower));
@@ -228,25 +227,6 @@ export default function ParentFindTutorPage() {
       return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch;
     });
   }, [tutorProfiles, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, locationSearchTerm]);
-
-  const statusCategoryCounts = useMemo(() => {
-    return {
-      "All Tutors": tutorsFilteredByDialog.length,
-      "Recommended": tutorsFilteredByDialog.filter(t => t.mockIsRecommendedBySystem).length,
-      "Demo Requested": tutorsFilteredByDialog.filter(t => t.mockIsDemoRequestedByCurrentUser).length,
-      "Shortlisted": tutorsFilteredByDialog.filter(t => t.mockIsShortlistedByCurrentUser).length,
-    };
-  }, [tutorsFilteredByDialog]);
-
-  const filteredTutors = useMemo(() => {
-    if (activeStatusFilter === "All Tutors") return tutorsFilteredByDialog;
-    return tutorsFilteredByDialog.filter(tutor => {
-      if (activeStatusFilter === "Recommended") return tutor.mockIsRecommendedBySystem;
-      if (activeStatusFilter === "Demo Requested") return tutor.mockIsDemoRequestedByCurrentUser;
-      if (activeStatusFilter === "Shortlisted") return tutor.mockIsShortlistedByCurrentUser;
-      return true;
-    });
-  }, [tutorsFilteredByDialog, activeStatusFilter]);
 
 
   const handleScheduleDemoClick = (tutorToSchedule: TutorProfile) => {
@@ -266,14 +246,6 @@ export default function ParentFindTutorPage() {
       description: "The tutor will be notified of your demo request.",
     });
   };
-
-  const tutorStatusCategories = [
-    { label: "All Tutors", value: "All Tutors", icon: ListFilter },
-    { label: "Recommended", value: "Recommended", icon: StarIcon },
-    { label: "Demo Requested", value: "Demo Requested", icon: MessageSquareQuote },
-    { label: "Shortlisted", value: "Shortlisted", icon: BookmarkIcon },
-  ] as const;
-  type TutorStatusCategory = typeof tutorStatusCategories[number]['value'];
   
   if (isCheckingAuth || !user) {
     return <div className="flex h-screen items-center justify-center text-muted-foreground"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -281,8 +253,6 @@ export default function ParentFindTutorPage() {
   
   const parentContextBaseUrl: string | undefined = 
     isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
-
-  const selectedCategoryData = tutorStatusCategories.find(cat => cat.value === activeStatusFilter);
 
   const renderTutorList = () => {
     if (isLoadingTutors) {
@@ -329,7 +299,6 @@ export default function ParentFindTutorPage() {
                 parentContextBaseUrl={parentContextBaseUrl}
                 hideRating={false} 
                 showFullName={true} 
-                showShortlistButton={true}
               />
             </div>
           ))}
@@ -345,8 +314,8 @@ export default function ParentFindTutorPage() {
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             Try adjusting your search or filter criteria.
           </p>
-          {(detailedFiltersApplied || activeStatusFilter !== "All Tutors") && (
-            <Button onClick={() => { handleClearDetailedFilters(); setActiveStatusFilter("All Tutors"); }} variant="outline" className="mt-6 text-sm py-2 px-5">
+          {(detailedFiltersApplied) && (
+            <Button onClick={handleClearDetailedFilters} variant="outline" className="mt-6 text-sm py-2 px-5">
               <XIcon className="w-3.5 h-3.5 mr-1.5" /> Clear All Filters
             </Button>
           )}
@@ -354,6 +323,59 @@ export default function ParentFindTutorPage() {
       </Card>
     );
   };
+
+  const filterPanelContent = (
+    <>
+      <div className="space-y-1.5">
+        <Label htmlFor="location-search-filter" className="text-xs font-medium text-muted-foreground flex items-center">
+          <MapPin className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Location
+        </Label>
+        <Input
+          type="search"
+          id="location-search-filter"
+          placeholder="Enter city, area..."
+          value={locationSearchTerm}
+          onChange={(e) => setLocationSearchTerm(e.target.value)}
+          className="h-9 text-xs bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm rounded-lg"
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="subject-multi-filter" className="text-xs font-medium text-muted-foreground flex items-center">
+          <BookOpen className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Subjects
+        </Label>
+        <MultiSelectCommand
+          options={uniqueSubjectsForFilter}
+          selectedValues={tempSubjectFilter}
+          onValueChange={setTempSubjectFilter}
+          placeholder="Select subjects..."
+          className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm rounded-lg h-auto min-h-9 text-xs" 
+        />
+      </div>
+      <FilterItem icon={GraduationCap} label="Grade Level" value={tempGradeFilter} onValueChange={setTempGradeFilter} options={uniqueGradeLevelsForFilter} />
+      <FilterItem icon={ShieldCheck} label="Board" value={tempBoardFilter} onValueChange={setTempBoardFilter} options={boardsList} />
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground flex items-center">
+          <RadioTower className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Teaching Mode
+        </Label>
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          {modeOptionsList.slice(1).map(mode => ( // Exclude "All"
+            <div key={mode.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`mode-filter-${mode.value}`}
+                checked={tempTeachingModeFilter.includes(mode.value)}
+                onCheckedChange={(checked) => {
+                  setTempTeachingModeFilter(prev =>
+                    checked ? [...prev, mode.value] : prev.filter(s => s !== mode.value)
+                  );
+                }}
+              />
+              <Label htmlFor={`mode-filter-${mode.value}`} className="text-xs font-normal text-foreground cursor-pointer">{mode.label}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <main className="flex-grow">
@@ -394,67 +416,7 @@ export default function ParentFindTutorPage() {
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh]">
                   <div className="p-6 space-y-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="filter-subject" className="text-xs font-medium text-muted-foreground flex items-center">
-                        <BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Subject(s)
-                      </Label>
-                      <MultiSelectCommand
-                        options={uniqueSubjectsForFilter}
-                        selectedValues={tempSubjectFilter}
-                        onValueChange={setTempSubjectFilter}
-                        placeholder="Select subjects..."
-                        className="bg-input border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 shadow-sm"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label htmlFor="filter-grade" className="text-xs font-medium text-muted-foreground flex items-center">
-                          <GraduationCap className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Grade Level
-                        </Label>
-                        <Select value={tempGradeFilter} onValueChange={setTempGradeFilter}>
-                          <FormSelectTrigger id="filter-grade" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg">
-                            <FormSelectValue placeholder="All Grade Levels" />
-                          </FormSelectTrigger>
-                          <SelectContent>
-                            {uniqueGradeLevelsForFilter.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="filter-board" className="text-xs font-medium text-muted-foreground flex items-center">
-                          <ShieldCheck className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Board
-                        </Label>
-                        <Select value={tempBoardFilter} onValueChange={setTempBoardFilter}>
-                          <FormSelectTrigger id="filter-board" className="w-full text-xs h-9 px-3 py-1.5 bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg">
-                            <FormSelectValue placeholder="All Boards" />
-                          </FormSelectTrigger>
-                          <SelectContent>
-                            {boardsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground flex items-center">
-                        <RadioTower className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode
-                      </Label>
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        {modeOptionsList.slice(1).map(mode => ( // Exclude "All"
-                          <div key={mode.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`mode-filter-${mode.value}`}
-                              checked={tempTeachingModeFilter.includes(mode.value)}
-                              onCheckedChange={(checked) => {
-                                setTempTeachingModeFilter(prev =>
-                                  checked ? [...prev, mode.value] : prev.filter(s => s !== mode.value)
-                                );
-                              }}
-                            />
-                            <Label htmlFor={`mode-filter-${mode.value}`} className="text-xs font-normal text-foreground cursor-pointer">{mode.label}</Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {filterPanelContent}
                   </div>
                 </ScrollArea>
                 <DialogFooter className="p-6 pt-4 border-t gap-2 sm:justify-between">
@@ -469,40 +431,6 @@ export default function ParentFindTutorPage() {
           <CardContent className="p-0 mt-4">
           </CardContent>
         </Card>
-
-        <div className="flex justify-end mb-4 sm:mb-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="default"
-                size="sm"
-                className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <span>
-                  {selectedCategoryData?.label || "Filter"} ({selectedCategoryData ? statusCategoryCounts[selectedCategoryData.value] : 'N/A'})
-                </span>
-                <ChevronDown className="w-4 h-4 opacity-70 text-primary-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[220px]">
-              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {tutorStatusCategories.map((category) => (
-                <DropdownMenuItem
-                  key={category.value}
-                  onClick={() => setActiveStatusFilter(category.value)}
-                  className={cn(
-                    "text-sm",
-                    activeStatusFilter === category.value && "bg-primary text-primary-foreground"
-                  )}
-                >
-                  <category.icon className="mr-2 h-4 w-4" />
-                  {category.label} ({statusCategoryCounts[category.value]})
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
 
         {renderTutorList()}
       </div>
@@ -554,7 +482,7 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
       <Select value={value} onValueChange={onValueChange}>
         <FormSelectTrigger
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`}
-          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs"
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm rounded-lg h-9 text-xs"
         >
           <FormSelectValue />
         </FormSelectTrigger>
