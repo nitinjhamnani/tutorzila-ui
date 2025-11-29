@@ -17,7 +17,7 @@ import {
   XCircle as CancelIcon, 
   Edit3,
 } from "lucide-react";
-import { ParentDemoSessionCard } from "@/components/dashboard/parent/ParentDemoSessionCard";
+import { ParentDemoSessionCard } from "@/components/parent/ParentDemoSessionCard";
 import type { DemoSession, User, EnquiryDemo } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -246,7 +246,7 @@ export default function ParentDemoSessionsPage() {
                 No Demos Found
                 </p>
                 <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                There are no demos matching "{activeFilterCategory}".
+                There are no demos matching your current selection.
                 </p>
             </CardContent>
             </Card>
