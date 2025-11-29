@@ -59,7 +59,7 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
-  const { showLoader } = useGlobalLoader();
+  const { showLoader, hideLoader } = useGlobalLoader();
 
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpIdentifier, setOtpIdentifier] = useState("");
@@ -156,11 +156,13 @@ export function SignInForm({ onSuccess, onSwitchForm, onClose, initialName }: { 
       if (onClose) onClose();
 
     } catch (error) {
+      hideLoader(); // Hide loader on failure
       toast({
         variant: "destructive",
         title: "Sign In Failed",
         description: (error as Error).message || "An unexpected error occurred.",
       });
+    } finally {
       setIsSubmitting(false);
     }
   }
