@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { DemoSession } from "@/types";
@@ -138,19 +139,8 @@ export function ParentDemoSessionCard({
 
   const canMarkCompleted = isDemoTimePassed() && demo.status === 'Scheduled';
 
-  const getStatusBadgeClasses = () => {
-    if (localRescheduleStatus === 'pending') return "bg-orange-100 text-orange-700 border-orange-500/50 hover:bg-orange-200";
-    switch (demo.status) {
-      case "Scheduled": return "bg-blue-100 text-blue-700 border-blue-500/50 hover:bg-blue-200";
-      case "Requested": return "bg-yellow-100 text-yellow-700 border-yellow-500/50 hover:bg-yellow-200";
-      case "Completed": return "bg-green-100 text-green-700 border-green-500/50 hover:bg-green-200";
-      case "Cancelled": return "bg-red-100 text-red-700 border-red-500/50 hover:bg-red-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-500/50 hover:bg-gray-200";
-    }
-  };
-
   const StatusIcon = () => {
-    const iconClasses = "w-2.5 h-2.5 mr-1 text-muted-foreground/80";
+    const iconClasses = "w-2.5 h-2.5 mr-1";
     if (localRescheduleStatus === 'pending') return <Clock className={iconClasses} />;
     switch (demo.status) {
       case "Scheduled": return <Clock className={iconClasses} />;
@@ -231,8 +221,8 @@ export function ParentDemoSessionCard({
           </div>
           <div className="absolute top-0 right-0">
              <Badge
-                variant="outline"
-                className={cn("text-[10px] py-0.5 px-2 border font-semibold whitespace-nowrap", getStatusBadgeClasses())}
+                variant="default"
+                className={cn("text-[10px] py-0.5 px-2 border font-semibold whitespace-nowrap")}
               >
                 <StatusIcon />
                 {localRescheduleStatus === 'pending' ? 'Reschedule Pending' : demo.status}
@@ -348,7 +338,7 @@ export function ParentDemoSessionCard({
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
-                            disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                             captionLayout="dropdown-buttons"
                             fromYear={new Date().getFullYear()}
                             toYear={new Date().getFullYear() + 1}
@@ -482,3 +472,5 @@ function InfoItem({ icon: Icon, label, value }: InfoItemPropsLocal) {
     </div>
   );
 }
+
+    
