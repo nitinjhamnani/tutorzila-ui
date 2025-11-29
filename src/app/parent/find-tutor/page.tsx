@@ -327,19 +327,6 @@ export default function ParentFindTutorPage() {
   const filterPanelContent = (
     <>
       <div className="space-y-1.5">
-        <Label htmlFor="location-search-filter" className="text-xs font-medium text-muted-foreground flex items-center">
-          <MapPin className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Location
-        </Label>
-        <Input
-          type="search"
-          id="location-search-filter"
-          placeholder="Enter city, area..."
-          value={locationSearchTerm}
-          onChange={(e) => setLocationSearchTerm(e.target.value)}
-          className="h-9 text-xs bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm rounded-lg"
-        />
-      </div>
-      <div className="space-y-1.5">
         <Label htmlFor="subject-multi-filter" className="text-xs font-medium text-muted-foreground flex items-center">
           <BookOpen className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Subjects
         </Label>
