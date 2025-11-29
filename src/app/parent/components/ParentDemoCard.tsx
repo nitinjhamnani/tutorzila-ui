@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -66,13 +67,6 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
               </CardDescription>
             </div>
           </div>
-          {demo.status === "Scheduled" && (
-            <DialogTrigger asChild>
-              <Button size="icon" variant="outline" className="h-7 w-7">
-                <Settings className="w-4 h-4" />
-              </Button>
-            </DialogTrigger>
-          )}
         </CardHeader>
 
         <CardContent className="text-xs space-y-2">
@@ -88,11 +82,7 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
 
         <CardFooter className="flex justify-between items-center border-t pt-3 mt-2">
           <div className="flex gap-2 items-center">
-            <Badge className={cn("text-[10px] px-2 py-0.5", statusBadgeClasses)}>
-              <StatusIcon />
-              {demo.status}
-            </Badge>
-            <Badge className="text-[10px] px-2 py-0.5 bg-muted text-muted-foreground">
+             <Badge className="text-[10px] px-2 py-0.5 bg-muted text-muted-foreground">
               <ModeIcon />
               {demo.mode === "Offline (In-person)" ? "Offline" : demo.mode}
             </Badge>
