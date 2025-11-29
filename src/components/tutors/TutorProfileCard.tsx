@@ -99,7 +99,6 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
           <CardHeader className="flex flex-row items-start justify-between gap-3 p-0 mb-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <Avatar className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-primary/20 shadow-sm shrink-0">
-                <AvatarImage src={tutor.avatar || `https://picsum.photos/seed/${tutor.id}/128`} alt={tutor.name} />
                 <AvatarFallback className="text-sm sm:text-base bg-primary/10 text-primary font-semibold">
                   {tutor.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                 </AvatarFallback>
