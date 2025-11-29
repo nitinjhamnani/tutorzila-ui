@@ -229,18 +229,6 @@ export function ParentDemoSessionCard({
                 <span className="mr-1">With {demo.tutorName}</span> 
               </CardDescription>
             </div>
-            { ( (demo.status === "Scheduled" && localRescheduleStatus !== 'pending' && !canMarkCompleted) || (demo.status === "Requested") ) ? (
-              <DialogTrigger asChild>
-                <Button
-                  variant="default"
-                  size="icon"
-                  className="absolute top-0 right-0 h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90"
-                  title={demo.status === "Scheduled" ? "Manage Demo Session" : "Manage Demo Request"}
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-            ) : null}
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 text-xs flex-grow">
@@ -249,17 +237,11 @@ export function ParentDemoSessionCard({
           <InfoItem icon={CalendarDays} label="Date:" value={format(demoDate, "MMM d, yyyy")} />
           <InfoItem icon={Clock} label="Time:" value={`${demo.startTime} - ${demo.endTime}`} />
         </CardContent>
-        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
+        <CardFooter className={cn(
+            "border-t border-border/20 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2",
+            "p-0 pt-3 sm:pt-4 mt-3 sm:mt-4"
+            )}>
           <div className="flex items-center space-x-2 self-start sm:self-center">
-              <Badge
-                  className={cn(
-                      "py-0.5 px-1.5 border border-border/70 bg-background/50 font-normal text-muted-foreground text-[10px] flex items-center rounded-full",
-                      getStatusBadgeClasses()
-                  )}
-              >
-                  <StatusIcon />
-                  {localRescheduleStatus === 'pending' ? "Update Pending" : demo.status}
-              </Badge>
               {demo.mode && (
                 <Badge
                   className={cn(
@@ -274,7 +256,7 @@ export function ParentDemoSessionCard({
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-end">
               {demo.mode === "Online" && demo.status === "Scheduled" && localRescheduleStatus !== 'pending' && demo.joinLink && !canMarkCompleted && (
                   <Button asChild size="sm" className="flex-grow sm:flex-grow-0 text-xs py-1.5 px-2.5 h-auto transform transition-transform hover:scale-105 active:scale-95">
-                      <Link href={demo.joinLink} target="_blank" rel="noopener noreferrer">
+                      <Link href={demo.joinLink || "#"} target="_blank" rel="noopener noreferrer">
                       <Video className="w-3 h-3 mr-1" /> Join Now
                       </Link>
                   </Button>
