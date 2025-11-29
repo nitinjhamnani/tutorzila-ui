@@ -34,9 +34,7 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
 
 export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = false, showFullName = false, showShortlistButton = false }: TutorProfileCardProps) {
   const [isClient, setIsClient] = useState(false);
-  const [isShortlisted, setIsShortlisted] = useState(false);
-  const { toast } = useToast();
-
+  
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -63,19 +61,6 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
   }
   const linkHref = `${base}${tutor.id}`;
 
-  const handleShortlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault(); 
-    e.stopPropagation(); 
-    setIsShortlisted(prev => {
-      const newShortlistStatus = !prev;
-      toast({
-        title: newShortlistStatus ? "Tutor Shortlisted" : "Tutor Removed from Shortlist",
-        description: `${tutor.name} has been ${newShortlistStatus ? 'added to' : 'removed from'} your shortlist.`,
-      });
-      return newShortlistStatus;
-    });
-  };
-
   return (
     <Link href={linkHref} passHref legacyBehavior>
       <a className="block group cursor-pointer h-full">
@@ -93,10 +78,7 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
                   {tutor.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className={cn(
-                "flex-1 min-w-0",
-                showShortlistButton && "pr-8" 
-              )}>
+              <div className="flex-1 min-w-0">
                 <CardTitle className={cn(
                   "text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors",
                   !showFullName && "truncate"
@@ -111,17 +93,6 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
                 )}
               </div>
             </div>
-            {showShortlistButton && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleShortlistToggle}
-                className="absolute top-1 right-1 h-8 w-8 text-muted-foreground hover:text-primary z-10"
-                aria-label={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
-              >
-                <Bookmark className={cn("h-5 w-5 transition-colors", isShortlisted && "fill-primary text-primary")} />
-              </Button>
-            )}
           </CardHeader>
 
           <CardContent className="p-0 space-y-2 flex-grow">
