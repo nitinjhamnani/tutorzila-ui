@@ -68,7 +68,6 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
 
   const accountSettingsNavItems = [
     { href: "/parent/my-account", label: "My Account", icon: UserCircle, disabled: false },
-    { href: "/parent/settings", label: "Settings", icon: SettingsIcon, disabled: true },
   ];
 
   const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: handleLogout };
@@ -120,7 +119,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               size="icon"
               onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
               className="text-gray-600 hover:text-white hover:bg-primary/80"
-              aria-label={isMobile ? (isNavbarOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
+              aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
             >
               <MenuIcon className="h-6 w-6" />
             </Button>
