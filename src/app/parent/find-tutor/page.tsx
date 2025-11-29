@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { User, TutorProfile } from "@/types";
 import { useAuthMock } from "@/hooks/use-auth-mock";
-import { MOCK_TUTOR_PROFILES } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -58,35 +58,84 @@ import {
   Star as StarIcon, 
   Bookmark as BookmarkIcon, 
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Skeleton } from "@/components/ui/skeleton";
+import { boardsList as boardsConstant } from '@/lib/constants';
 
-const allSubjectsList: MultiSelectOption[] = [...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.subjects) ? t.subjects : [t.subjects]).filter(Boolean))].map(s => ({ value: String(s), label: String(s) }));
-const allGradeLevelsList: { value: string; label: string }[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => Array.isArray(t.gradeLevelsTaught) ? t.gradeLevelsTaught : (t.grade ? [t.grade] : [])).filter(Boolean))].map(g => ({ value: String(g), label: String(g) }));
-const allBoardsList: { value: string; label: string }[] = ["All", ...new Set(MOCK_TUTOR_PROFILES.flatMap(t => t.boardsTaught).filter(Boolean))].map(b => ({ value: String(b), label: String(b) }));
-const teachingModeOptions: { id: string; label: string }[] = [
-  { id: "Online", label: "Online" },
-  { id: "Offline (In-person)", label: "Offline (In-person)" },
+interface ApiTutorResponse {
+  tutorId: string;
+  tutorName: string;
+  subjects: string;
+  grades: string;
+  boards: string;
+  city: string;
+  state: string;
+  gender: string;
+  online: boolean;
+  offline: boolean;
+}
+
+const fetchTutors = async (token: string | null): Promise<TutorProfile[]> => {
+  if (!token) throw new Error("Authentication is required.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/parent/tutors`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch tutors.');
+  }
+
+  const data: ApiTutorResponse[] = await response.json();
+
+  // Transform API data to TutorProfile[]
+  return data.map((apiTutor, index) => ({
+    id: apiTutor.tutorId,
+    name: apiTutor.tutorName,
+    email: "", // Not provided by this API
+    role: "tutor",
+    subjects: apiTutor.subjects ? apiTutor.subjects.split(',').map(s => s.trim()) : [],
+    gradeLevelsTaught: apiTutor.grades ? apiTutor.grades.split(',').map(g => g.trim()) : [],
+    boardsTaught: apiTutor.boards ? apiTutor.boards.split(',').map(b => b.trim()) : [],
+    location: [apiTutor.city, apiTutor.state].filter(Boolean).join(', '),
+    gender: apiTutor.gender.toLowerCase() as "male" | "female" | "other",
+    teachingMode: [
+        ...(apiTutor.online ? ["Online"] : []),
+        ...(apiTutor.offline ? ["Offline (In-person)"] : [])
+    ],
+    // Add default values for fields not in API response
+    experience: `${Math.floor(Math.random() * 10) + 1}+ years`, // Mock data
+    hourlyRate: String(Math.floor(Math.random() * 1800) + 200), // Mock data
+    bio: "Experienced and passionate tutor dedicated to student success.", // Mock data
+    qualifications: ["Bachelor's Degree"], // Mock data
+    rating: parseFloat((Math.random() * (5 - 3.5) + 3.5).toFixed(1)), // Mock data
+    status: "Active",
+    mockIsRecommendedBySystem: index % 3 === 0,
+    mockIsDemoRequestedByCurrentUser: index % 4 === 0,
+    mockIsShortlistedByCurrentUser: index % 5 === 0,
+  }));
+};
+
+
+const modeOptionsList: { value: string; label: string }[] = [
+  { value: "All", label: "All Modes" },
+  { value: "Online", label: "Online" },
+  { value: "Offline (In-person)", label: "Offline (In-person)" },
 ];
 
-const tutorStatusCategories = [
-  { label: "All Tutors", value: "All Tutors", icon: ListFilter },
-  { label: "Recommended", value: "Recommended", icon: StarIcon },
-  { label: "Demo Requested", value: "Demo Requested", icon: MessageSquareQuote },
-  { label: "Shortlisted", value: "Shortlisted", icon: BookmarkIcon },
-] as const;
-type TutorStatusCategory = typeof tutorStatusCategories[number]['value'];
+const boardsList: { value: string, label: string }[] = ["All", ...boardsConstant].map(b => ({value: b, label: b}));
 
 
 export default function ParentFindTutorPage() {
-  const { user, isAuthenticated, isCheckingAuth } = useAuthMock();
+  const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
   const router = useRouter();
   const { toast } = useToast();
   const { hideLoader } = useGlobalLoader();
-
-  const [allTutors, setAllTutors] = useState<TutorProfile[]>([]);
 
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [selectedTutorForDemo, setSelectedTutorForDemo] = useState<TutorProfile | null>(null);
@@ -105,24 +154,35 @@ export default function ParentFindTutorPage() {
   const [appliedFeeRange, setAppliedFeeRange] = useState<[number, number]>([200, 2000]);
 
   const [activeStatusFilter, setActiveStatusFilter] = useState<TutorStatusCategory>("All Tutors");
+  const [locationSearchTerm, setLocationSearchTerm] = useState("");
+
+  const { data: tutorProfiles = [], isLoading: isLoadingTutors, error: tutorsError } = useQuery({
+    queryKey: ['parentTutors', token],
+    queryFn: () => fetchTutors(token),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     hideLoader();
-  }, [hideLoader]);
+  }, [hideLoader, isLoadingTutors]);
 
   useEffect(() => {
     if (!isCheckingAuth && (!isAuthenticated || user?.role !== 'parent')) {
-      // router.replace("/"); // Intentionally keeping this commented as per existing file state
-    } else if (isAuthenticated && user?.role === 'parent') {
-      const tutorsWithMockStatus = MOCK_TUTOR_PROFILES.map((tutor, index) => ({
-        ...tutor,
-        mockIsRecommendedBySystem: index % 3 === 0, 
-        mockIsDemoRequestedByCurrentUser: index % 4 === 0, 
-        mockIsShortlistedByCurrentUser: index % 5 === 0, 
-      }));
-      setAllTutors(tutorsWithMockStatus);
+      router.replace("/");
     }
   }, [isCheckingAuth, isAuthenticated, user, router]);
+
+  const uniqueSubjectsForFilter = useMemo(() => {
+    const subjects = new Set(tutorProfiles.flatMap(t => t.subjects).filter(Boolean));
+    return Array.from(subjects).map(s => ({ value: String(s), label: String(s) }));
+  }, [tutorProfiles]);
+
+  const uniqueGradeLevelsForFilter = useMemo(() => {
+    const grades = new Set(tutorProfiles.flatMap(t => t.gradeLevelsTaught).filter(Boolean));
+    return [{ value: "All", label: "All Grade Levels" }, ...Array.from(grades).map(g => ({ value: String(g), label: String(g) }))];
+  }, [tutorProfiles]);
 
   const handleApplyDetailedFilters = () => {
     setAppliedSubjectFilter([...tempSubjectFilter]);
@@ -161,7 +221,10 @@ export default function ParentFindTutorPage() {
   }, [appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedFeeRange]);
 
   const tutorsFilteredByDialog = useMemo(() => {
-    return allTutors.filter((tutor) => {
+    return tutorProfiles.filter((tutor) => {
+      const locationSearchTermLower = locationSearchTerm.toLowerCase();
+      const matchesLocationSearch = locationSearchTerm === "" || (tutor.location && tutor.location.toLowerCase().includes(locationSearchTermLower));
+
       const matchesSubject = appliedSubjectFilter.length === 0 || (Array.isArray(tutor.subjects) && tutor.subjects.some(sub => appliedSubjectFilter.includes(String(sub))));
       const matchesGrade = appliedGradeFilter === "All" || (Array.isArray(tutor.gradeLevelsTaught) && tutor.gradeLevelsTaught.includes(appliedGradeFilter)) || (tutor.grade === appliedGradeFilter);
       const matchesBoard = appliedBoardFilter === "All" || (Array.isArray(tutor.boardsTaught) && tutor.boardsTaught.includes(appliedBoardFilter));
@@ -171,13 +234,12 @@ export default function ParentFindTutorPage() {
         matchesMode = appliedTeachingModeFilter.some(mode => tutor.teachingMode?.includes(mode));
       }
 
-      const minTutorRate = parseFloat(tutor.minHourlyRate || "0");
-      const maxTutorRate = parseFloat(tutor.maxHourlyRate || "999999");
-      const matchesFee = appliedFeeRange[0] <= maxTutorRate && appliedFeeRange[1] >= minTutorRate;
+      const tutorRate = parseFloat(tutor.hourlyRate || "999999");
+      const matchesFee = appliedFeeRange[0] <= tutorRate && appliedFeeRange[1] >= tutorRate;
 
-      return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesFee;
+      return matchesSubject && matchesGrade && matchesBoard && matchesMode && matchesLocationSearch && matchesFee;
     });
-  }, [allTutors, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedFeeRange]);
+  }, [tutorProfiles, appliedSubjectFilter, appliedGradeFilter, appliedBoardFilter, appliedTeachingModeFilter, appliedFeeRange, locationSearchTerm]);
 
   const statusCategoryCounts = useMemo(() => {
     return {
@@ -208,9 +270,8 @@ export default function ParentFindTutorPage() {
     setIsDemoModalOpen(false);
     setSelectedTutorForDemo(null);
     if (selectedTutorForDemo) {
-      setAllTutors(prevTutors => prevTutors.map(t => 
-        t.id === selectedTutorForDemo.id ? { ...t, mockIsDemoRequestedByCurrentUser: true } : t
-      ));
+      // In a real app with API, you'd invalidate queries.
+      // Here, we just give a toast.
     }
     toast({
       title: "Demo Request Sent!",
@@ -218,14 +279,91 @@ export default function ParentFindTutorPage() {
     });
   };
 
+  const tutorStatusCategories = [
+    { label: "All Tutors", value: "All Tutors", icon: ListFilter },
+    { label: "Recommended", value: "Recommended", icon: StarIcon },
+    { label: "Demo Requested", value: "Demo Requested", icon: MessageSquareQuote },
+    { label: "Shortlisted", value: "Shortlisted", icon: BookmarkIcon },
+  ] as const;
+  type TutorStatusCategory = typeof tutorStatusCategories[number]['value'];
+  
   if (isCheckingAuth || !user) {
-    return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading...</div>;
+    return <div className="flex h-screen items-center justify-center text-muted-foreground"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
   
   const parentContextBaseUrl: string | undefined = 
     isAuthenticated && user?.role === 'parent' ? "/parent/tutors" : undefined;
 
   const selectedCategoryData = tutorStatusCategories.find(cat => cat.value === activeStatusFilter);
+
+  const renderTutorList = () => {
+    if (isLoadingTutors) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                {[...Array(6)].map((_, i) => (
+                    <Card key={i} className="w-full h-[320px] p-4">
+                        <div className="flex items-center gap-3">
+                            <Skeleton className="w-14 h-14 rounded-full" />
+                            <div className="space-y-2 flex-1">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-3 w-1/2" />
+                            </div>
+                        </div>
+                        <div className="space-y-2 mt-4">
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-5/6" />
+                            <Skeleton className="h-4 w-full" />
+                        </div>
+                    </Card>
+                ))}
+            </div>
+        );
+    }
+
+    if (tutorsError) {
+        return (
+            <Card className="text-center py-12 bg-destructive/10 border-destructive/20 rounded-lg shadow-sm">
+                <CardContent className="flex flex-col items-center">
+                    <p className="text-xl font-semibold text-destructive mb-1.5">Error Fetching Tutors</p>
+                    <p className="text-sm text-destructive/80 max-w-sm mx-auto">{(tutorsError as Error).message}</p>
+                </CardContent>
+            </Card>
+        );
+    }
+      if (filteredTutors.length > 0) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+          {filteredTutors.map((tutor) => (
+            <div key={tutor.id} className="relative group">
+              <TutorProfileCard
+                tutor={tutor}
+                parentContextBaseUrl={parentContextBaseUrl}
+                hideRating={false} 
+                showFullName={true} 
+                showShortlistButton={true}
+              />
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return (
+      <Card className="text-center py-12 bg-card border rounded-lg shadow-sm">
+        <CardContent className="flex flex-col items-center">
+          <ListFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" />
+          <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Tutors Found</p>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            Try adjusting your search or filter criteria.
+          </p>
+          {(detailedFiltersApplied || activeStatusFilter !== "All Tutors") && (
+            <Button onClick={() => { handleClearDetailedFilters(); setActiveStatusFilter("All Tutors"); }} variant="outline" className="mt-6 text-sm py-2 px-5">
+              <XIcon className="w-3.5 h-3.5 mr-1.5" /> Clear All Filters
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <main className="flex-grow">
@@ -271,7 +409,7 @@ export default function ParentFindTutorPage() {
                         <BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Subject(s)
                       </Label>
                       <MultiSelectCommand
-                        options={allSubjectsList}
+                        options={uniqueSubjectsForFilter}
                         selectedValues={tempSubjectFilter}
                         onValueChange={setTempSubjectFilter}
                         placeholder="Select subjects..."
@@ -288,7 +426,7 @@ export default function ParentFindTutorPage() {
                             <FormSelectValue placeholder="All Grade Levels" />
                           </FormSelectTrigger>
                           <SelectContent>
-                            {allGradeLevelsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
+                            {uniqueGradeLevelsForFilter.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
@@ -301,7 +439,7 @@ export default function ParentFindTutorPage() {
                             <FormSelectValue placeholder="All Boards" />
                           </FormSelectTrigger>
                           <SelectContent>
-                            {allBoardsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
+                            {boardsList.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
@@ -311,18 +449,18 @@ export default function ParentFindTutorPage() {
                         <RadioTower className="mr-1.5 h-3.5 w-3.5 text-primary/70" />Teaching Mode
                       </Label>
                       <div className="grid grid-cols-2 gap-2 pt-1">
-                        {teachingModeOptions.map(mode => (
-                          <div key={mode.id} className="flex items-center space-x-2">
+                        {modeOptionsList.slice(1).map(mode => ( // Exclude "All"
+                          <div key={mode.value} className="flex items-center space-x-2">
                             <Checkbox
-                              id={`mode-filter-${mode.id}`}
-                              checked={tempTeachingModeFilter.includes(mode.id)}
+                              id={`mode-filter-${mode.value}`}
+                              checked={tempTeachingModeFilter.includes(mode.value)}
                               onCheckedChange={(checked) => {
                                 setTempTeachingModeFilter(prev =>
-                                  checked ? [...prev, mode.id] : prev.filter(s => s !== mode.id)
+                                  checked ? [...prev, mode.value] : prev.filter(s => s !== mode.value)
                                 );
                               }}
                             />
-                            <Label htmlFor={`mode-filter-${mode.id}`} className="text-xs font-normal text-foreground cursor-pointer">{mode.label}</Label>
+                            <Label htmlFor={`mode-filter-${mode.value}`} className="text-xs font-normal text-foreground cursor-pointer">{mode.label}</Label>
                           </div>
                         ))}
                       </div>
@@ -335,6 +473,7 @@ export default function ParentFindTutorPage() {
                         ₹{tempFeeRange[0]} – ₹{tempFeeRange[1]}
                       </div>
                       <Slider
+                        id="fee-range-filter"
                         min={200}
                         max={2000}
                         step={50}
@@ -392,36 +531,7 @@ export default function ParentFindTutorPage() {
           </DropdownMenu>
         </div>
 
-        {filteredTutors.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {filteredTutors.map((tutor) => (
-              <div key={tutor.id} className="relative group">
-                <TutorProfileCard
-                  tutor={tutor}
-                  parentContextBaseUrl={parentContextBaseUrl}
-                  hideRating={false} 
-                  showFullName={true} 
-                  showShortlistButton={true}
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Card className="text-center py-12 bg-card border rounded-lg shadow-sm">
-            <CardContent className="flex flex-col items-center">
-              <ListFilter className="w-16 h-16 text-primary/30 mx-auto mb-5" />
-              <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Tutors Found</p>
-              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                Try adjusting your search or filter criteria.
-              </p>
-              {(detailedFiltersApplied || activeStatusFilter !== "All Tutors") && (
-                <Button onClick={() => { handleClearDetailedFilters(); setActiveStatusFilter("All Tutors"); }} variant="outline" className="mt-6 text-sm py-2 px-5">
-                  <XIcon className="w-3.5 h-3.5 mr-1.5" /> Clear All Filters
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
+        {renderTutorList()}
       </div>
       {selectedTutorForDemo && user && (
         <Dialog open={isDemoModalOpen} onOpenChange={setIsDemoModalOpen}>
@@ -433,10 +543,10 @@ export default function ParentFindTutorPage() {
                     </div>
                     <div>
                         <DialogTitle className="text-lg font-semibold text-foreground">
-                        Request a Demo with {selectedTutorForDemo.name}
+                         Request a Demo with {selectedTutorForDemo.name}
                         </DialogTitle>
                         <DialogDescription className="text-sm text-muted-foreground mt-0.5">
-                        Fill in your preferred details for the demo session.
+                         Fill in your preferred details for the demo session.
                         </DialogDescription>
                     </div>
                 </div>
@@ -444,12 +554,43 @@ export default function ParentFindTutorPage() {
             <ScheduleDemoRequestModal
               tutor={selectedTutorForDemo}
               parentUser={user}
-              onSuccess={handleDemoRequestSuccess}
               enquiryContext={undefined} 
+              onSuccess={handleDemoRequestSuccess}
             />
           </DialogContent>
         </Dialog>
       )}
     </main>
+  );
+}
+
+interface FilterItemProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: {value: string, label: string}[];
+}
+
+function FilterItem({ icon: Icon, label, value, onValueChange, options }: FilterItemProps) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`} className="text-xs font-medium text-muted-foreground flex items-center">
+        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>{label}
+      </Label>
+      <Select value={value} onValueChange={onValueChange}>
+        <FormSelectTrigger
+          id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`}
+          className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs"
+        >
+          <FormSelectValue />
+        </FormSelectTrigger>
+        <SelectContent>
+          <ScrollArea className="h-[180px]">
+            {options.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
+          </ScrollArea>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
