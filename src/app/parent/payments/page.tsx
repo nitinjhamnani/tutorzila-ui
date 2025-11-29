@@ -92,14 +92,13 @@ export default function ParentPaymentsPage() {
   }, [allPayments]);
 
   const categoryCounts = useMemo(() => {
-    const counts = {
+    return {
       All: allPayments.length,
       Paid: allPayments.filter((p) => p.status === "Paid").length,
       Due: allPayments.filter((p) => p.status === "Due").length,
       Upcoming: allPayments.filter((p) => p.status === "Upcoming").length,
       Overdue: allPayments.filter((p) => p.status === "Overdue").length,
     };
-    return counts;
   }, [allPayments]);
 
   const filteredPayments = useMemo(() => {
@@ -146,7 +145,7 @@ export default function ParentPaymentsPage() {
   return (
     <main className="flex-grow">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
+        <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div>
                 <div className="flex items-center">
