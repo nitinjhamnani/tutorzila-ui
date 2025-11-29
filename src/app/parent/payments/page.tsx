@@ -148,16 +148,16 @@ export default function ParentPaymentsPage() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Card className="bg-card rounded-none shadow-lg p-4 sm:p-5 mb-6 md:mb-8 border-0">
           <CardHeader className="p-0 mb-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-            <div className="flex-grow">
-              <div className="flex items-center">
-                <DollarSign className="w-5 h-5 mr-2.5 text-primary" />
-                <CardTitle className="text-xl font-semibold text-primary">
-                  My Payments
-                </CardTitle>
-              </div>
-              <CardDescription className="text-xs text-muted-foreground mt-1 ml-[calc(1.25rem+0.625rem)] sm:ml-0 sm:mt-0.5">
-                View your payment history and manage upcoming payments.
-              </CardDescription>
+            <div>
+                <div className="flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2.5 text-primary"/>
+                    <CardTitle className="text-xl font-semibold text-primary">
+                        My Payments
+                    </CardTitle>
+                </div>
+                 <CardDescription className="text-xs text-muted-foreground mt-1 ml-[calc(1.25rem+0.625rem)] sm:ml-0 sm:mt-0.5">
+                    View your payment history and manage upcoming payments.
+                </CardDescription>
             </div>
           </CardHeader>
            <CardContent className="p-0 mt-4">
@@ -168,43 +168,6 @@ export default function ParentPaymentsPage() {
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-end mb-4 sm:mb-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="default"
-                size="sm"
-                className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <span>
-                  {activeFilterCategory} ({categoryCounts[activeFilterCategory] || 0})
-                </span>
-                <ChevronDown className="w-4 h-4 opacity-70" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
-              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {paymentStatusCategories.map((category) => {
-                const IconComponent = statusIcons[category];
-                return (
-                    <DropdownMenuItem
-                    key={category}
-                    onClick={() => setActiveFilterCategory(category)}
-                    className={cn(
-                        "text-sm",
-                        activeFilterCategory === category && "bg-primary text-primary-foreground"
-                    )}
-                    >
-                    <IconComponent className="mr-2 h-4 w-4" />
-                    {category} ({categoryCounts[category] || 0})
-                    </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
 
         <div className="mt-4">
           {filteredPayments.length > 0 ? (
