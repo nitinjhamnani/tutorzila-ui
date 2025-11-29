@@ -126,7 +126,7 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
 
           <CardContent className="p-0 space-y-2 flex-grow">
             <InfoItem icon={BookOpen} text={Array.isArray(tutor.subjects) ? tutor.subjects.join(', ') : tutor.subjects} className="font-medium"/>
-            {tutor.grade && <InfoItem icon={GraduationCap} text={tutor.grade} className="font-medium"/>}
+            <InfoItem icon={GraduationCap} text={Array.isArray(tutor.gradeLevelsTaught) ? tutor.gradeLevelsTaught.join(", ") : tutor.grade} className="font-medium"/>
             {tutor.boardsTaught && tutor.boardsTaught.length > 0 && (
               <InfoItem icon={ShieldCheck} text={tutor.boardsTaught.join(', ')} className="font-medium"/>
             )}
@@ -135,7 +135,6 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">
             {tutor.location && <InfoItem icon={MapPin} text={tutor.location} />}
-            {/* Price badge removed */}
           </CardFooter>
         </Card>
       </a>
