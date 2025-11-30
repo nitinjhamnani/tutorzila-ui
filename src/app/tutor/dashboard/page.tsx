@@ -46,11 +46,11 @@ import {
   Globe as GlobeIcon,
   FileText,
   Palette,
-  Link as LinkIconLucide,
+  Link as LinkIcon,
   UploadCloud,
   Ruler,
   Filter as FilterIconLucide,
-  ListChecks,
+  ListChecks, 
   Users as UsersIcon,
   BarChart2,
   ShoppingBag,
@@ -297,7 +297,7 @@ export default function TutorDashboardPage() {
   });
   
   useEffect(() => {
-    if (!isLoadingDetails && tutoringDetails && tutoringDetails.profileCompletion < 100 && !hasTriggeredModal) {
+    if (!isLoadingDetails && tutoringDetails && tutoringDetails.profileCompletion < 90 && !hasTriggeredModal) {
       setIsEditTutoringModalOpen(true);
       setHasTriggeredModal(true); // Ensure it only triggers once per page load
     }
@@ -588,4 +588,3 @@ export default function TutorDashboardPage() {
     </Dialog>
   );
 }
-
