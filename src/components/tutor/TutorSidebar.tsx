@@ -64,7 +64,7 @@ export function TutorSidebar(props: TutorSidebarProps) {
  props.isMobile
  ? cn( // Mobile specific positioning & sizing
  "fixed z-40 w-60 transform",
- `top-[var(--header-height)] h-[calc(100vh_-_var(--header-height,0px))]`,
+ `top-[var(--header-height)] bottom-0`, // Changed from h-calc to bottom-0
  props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
  )
  : cn( // Desktop specific positioning & sizing
