@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -31,7 +30,6 @@ import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
-import AuthModal from "@/components/auth/AuthModal";
 import {
   Select,
   SelectContent,
@@ -39,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import AuthModal from "@/components/auth/AuthModal";
 
 
 const testimonialSchema = z.object({
@@ -123,7 +122,7 @@ export default function TestimonialsPage() {
     form.reset();
     setIsSubmitting(false);
   }
-  
+
   const handleTriggerSignUp = () => {
     setAuthModalInitialView('signup');
     setIsAuthModalOpen(true);
@@ -272,26 +271,6 @@ export default function TestimonialsPage() {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Call to Action */}
-      <section className={`w-full text-center ${sectionPadding} bg-primary`}>
-        <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
-          <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
-              <Star className="w-9 h-9 text-white"/>
-          </div>
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
-            Ready to Start Your Journey?
-          </h2>
-          <p className="mt-5 max-w-xl mx-auto text-white/90 md:text-lg">
-            Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
-          </p>
-          <div className="mt-10">
-             <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
-                 Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
-            </Button>
-          </div>
-        </div>
-      </section>
 
        {/* Testimonials Section */}
        <section className={`w-full bg-secondary ${sectionPadding}`}>
@@ -325,7 +304,27 @@ export default function TestimonialsPage() {
           </Carousel>
         </div>
       </section>
-      
+
+      {/* Call to Action */}
+      <section className={`w-full text-center ${sectionPadding} bg-primary`}>
+        <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
+          <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
+              <Star className="w-9 h-9 text-white"/>
+          </div>
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
+            Ready to Start Your Journey?
+          </h2>
+          <p className="mt-5 max-w-xl mx-auto text-white/90 md:text-lg">
+            Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
+          </p>
+          <div className="mt-10">
+             <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
+                 Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {isAuthModalOpen && (
         <AuthModal 
           isOpen={isAuthModalOpen} 
