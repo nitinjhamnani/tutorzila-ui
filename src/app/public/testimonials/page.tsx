@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import AuthModal from "@/components/auth/AuthModal";
 
+
 const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   phone: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
@@ -271,7 +272,6 @@ export default function TestimonialsPage() {
         </Card>
       </div>
 
-      {/* Call to Action */}
       <section className={`w-full text-center ${sectionPadding} bg-primary`}>
         <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
           <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
@@ -323,7 +323,7 @@ export default function TestimonialsPage() {
           </Carousel>
         </div>
       </section>
-      
+
       {isAuthModalOpen && (
         <AuthModal 
           isOpen={isAuthModalOpen} 
@@ -334,5 +334,3 @@ export default function TestimonialsPage() {
     </>
   );
 }
-
-    
