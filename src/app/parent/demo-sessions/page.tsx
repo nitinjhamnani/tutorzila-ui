@@ -110,6 +110,27 @@ const fetchParentDemos = async (token: string | null): Promise<DemoSession[]> =>
   });
 };
 
+const cancelDemoApi = async ({ demoId, reason, token }: { demoId: string; reason: string; token: string | null }) => {
+    if (!token) throw new Error("Authentication token not found.");
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+    const response = await fetch(`${apiBaseUrl}/api/demo/cancel`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'TZ-DMO-ID': demoId,
+            'accept': '*/*',
+        },
+        body: JSON.stringify({ message: reason }),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to cancel the demo session.");
+    }
+    
+    return true; // Assuming success on 2xx status
+};
+
 
 export default function ParentDemoSessionsPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -126,6 +147,30 @@ export default function ParentDemoSessionsPage() {
     queryFn: () => fetchParentDemos(token),
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: cancelDemoApi,
+    onMutate: () => {
+      showLoader("Cancelling demo...");
+    },
+    onSuccess: () => {
+        toast({
+            title: "Demo Cancelled",
+            description: "The demo session has been successfully cancelled.",
+        });
+        queryClient.invalidateQueries({ queryKey: ['parentDemos', token] });
+    },
+    onError: (error: Error) => {
+        toast({
+            variant: "destructive",
+            title: "Cancellation Failed",
+            description: error.message,
+        });
+    },
+    onSettled: () => {
+        hideLoader();
+    },
   });
 
   useEffect(() => {
@@ -159,21 +204,14 @@ export default function ParentDemoSessionsPage() {
     return allParentDemos.filter((d) => d.status === activeFilterCategory);
   }, [allParentDemos, activeFilterCategory]);
   
-  const handleMutationSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['parentDemos', token] });
-  };
-
   const handleUpdateSession = useCallback((updatedDemo: DemoSession) => {
-    handleMutationSuccess();
+    queryClient.invalidateQueries({ queryKey: ['parentDemos', token] });
     toast({ title: "Demo Updated", description: `Your demo with ${updatedDemo.tutorName} has been updated.`});
-  }, [handleMutationSuccess, toast]);
+  }, [queryClient, toast, token]);
 
   const handleCancelSession = useCallback((sessionId: string, reason: string) => {
-    // This would be a mutation call
-    console.log("Cancel requested for demo:", sessionId, "Reason:", reason);
-    handleMutationSuccess();
-    toast({ title: "Demo Cancelled", description: "The demo session has been cancelled." });
-  }, [handleMutationSuccess, toast]);
+    cancelMutation.mutate({ demoId: sessionId, reason, token });
+  }, [cancelMutation, token]);
 
 
   if (isCheckingAuth || !user) {
