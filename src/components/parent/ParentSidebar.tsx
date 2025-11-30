@@ -3,7 +3,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/Logo";
@@ -64,11 +64,11 @@ export function ParentSidebar(props: ParentSidebarProps) {
  props.isMobile
  ? cn( // Mobile specific positioning & sizing
  "fixed z-40 w-60 transform",
- `top-[var(--header-height)] h-[calc(100vh_-_var(--header-height,0px))]`,
+ `top-[var(--header-height)] h-[calc(100vh_-_var(--header-height,0px))]`, // Correct height for mobile
  props.isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
  )
  : cn( // Desktop specific positioning & sizing
- "relative md:flex md:flex-col", // Removed h-full
+ "relative md:flex md:flex-col",
  props.isNavbarCollapsed ? "w-20" : "w-60"
  )
       )}
