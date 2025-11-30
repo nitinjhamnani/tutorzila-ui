@@ -52,6 +52,7 @@ import {
   Users as UsersIcon,
   ShieldCheck,
   Search,
+  Phone,
 } from "lucide-react";
 import { AddUserModal } from "@/components/admin/modals/AddUserModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -128,6 +129,7 @@ export default function AdminTutorsPage() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
   const initialFilters = {
+    phone: "",
     subjects: [],
     grade: '',
     board: '',
@@ -142,6 +144,7 @@ export default function AdminTutorsPage() {
 
   const tutorSearchParams = useMemo(() => {
     const params = new URLSearchParams();
+    if(appliedFilters.phone) params.append('phone', appliedFilters.phone);
     if(appliedFilters.subjects.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
     if(appliedFilters.grade) params.append('grades', appliedFilters.grade);
     if(appliedFilters.board) params.append('boards', appliedFilters.board);
@@ -399,6 +402,19 @@ export default function AdminTutorsPage() {
                 </DialogDescription>
               </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="phone-filter-modal">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="phone-filter-modal"
+                        placeholder="Enter phone number..."
+                        value={filters.phone}
+                        onChange={(e) => handleFilterChange('phone', e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
                   <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="subjects-filter-modal">Subjects</Label>
                         <MultiSelectCommand
