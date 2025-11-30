@@ -6,7 +6,7 @@ import Link from "next/link";
 // import { Logo } from "./Logo"; // Removed incorrect Logo import
 import Image from "next/image"; // Ensure Image is imported
 import logoAsset from '@/assets/images/logo.png';
-import { Github, Twitter, Facebook, Instagram, Home, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap, Linkedin, MessageSquareText } from "lucide-react";
+import { Github, Twitter, Facebook, Instagram, Home, BookOpen, Info, FileText, ShieldCheck, Mail, LogIn, UserPlus, Phone, MapPin, HelpCircle, GraduationCap, Linkedin, MessageSquareText, MessageSquareQuote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"; 
 import { useState } from "react";
@@ -31,13 +31,13 @@ const footerLinks = [
       { label: "Privacy Policy", href: "/privacy-policy", icon: ShieldCheck },
       { label: "Terms & Conditions", href: "/terms-and-conditions", icon: FileText },
       { label: "FAQ", href: "/faq", icon: HelpCircle },
-      { label: "Testimonials", href: "/testimonials", icon: MessageSquareText },
     ],
   },
   {
     title: "Connect",
     links: [
       { label: "Contact Us", href: "/contact-us", icon: Mail },
+      { label: "Feedback", href: "/feedback", icon: MessageSquareQuote },
     ],
   },
 ];
