@@ -24,13 +24,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone, User, Mail } from "lucide-react";
+import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone, User, Mail, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import AuthModal from "@/components/auth/AuthModal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const feedbackSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -84,11 +85,11 @@ const StarRating = ({
 };
 
 export default function FeedbackPage() {
-  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signup');
-
+  const [submissionStatus, setSubmissionStatus] = useState<'success' | 'error' | null>(null);
+  
   const form = useForm<FeedbackFormValues>({
     resolver: zodResolver(feedbackSchema),
     defaultValues: {
@@ -102,16 +103,37 @@ export default function FeedbackPage() {
 
   async function onSubmit(values: FeedbackFormValues) {
     setIsSubmitting(true);
-    console.log("Feedback Submitted:", values);
+    setSubmissionStatus(null);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const requestBody = {
+      userType: values.role.toUpperCase(),
+      name: values.name,
+      phone: values.phone,
+      feedback: values.comment,
+      rating: values.rating,
+    };
 
-    toast({
-      title: "Thank You for Your Feedback!",
-      description: "Your feedback has been submitted successfully.",
-    });
-    form.reset();
-    setIsSubmitting(false);
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+      const response = await fetch(`${apiBaseUrl}/api/auth/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit feedback. Please try again later.");
+      }
+      
+      setSubmissionStatus('success');
+      form.reset();
+
+    } catch (error) {
+      console.error("Feedback submission failed:", error);
+      setSubmissionStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const handleTriggerSignUp = () => {
@@ -121,6 +143,10 @@ export default function FeedbackPage() {
 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const sectionPadding = "py-10 md:py-16";
+
+  const closeDialog = () => {
+    setSubmissionStatus(null);
+  };
 
   return (
     <>
@@ -251,6 +277,38 @@ export default function FeedbackPage() {
           </CardContent>
         </Card>
       </div>
+
+       <Dialog open={submissionStatus !== null} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent className="sm:max-w-sm text-center p-8 bg-card rounded-xl">
+          {submissionStatus === 'success' ? (
+            <>
+              <DialogHeader>
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 mb-4 animate-in fade-in zoom-in-75 duration-500">
+                  <CheckCircle2 className="h-10 w-10 text-green-600" />
+                </div>
+                <DialogTitle className="text-2xl font-bold text-foreground">Feedback Submitted!</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-2">
+                  Thank you for sharing your thoughts. Your feedback helps us improve Tutorzila for everyone.
+                </DialogDescription>
+              </DialogHeader>
+              <Button onClick={closeDialog} className="w-full mt-6">Done</Button>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 mb-4 animate-in fade-in zoom-in-75 duration-500">
+                  <XCircle className="h-10 w-10 text-red-600" />
+                </div>
+                <DialogTitle className="text-2xl font-bold text-foreground">Submission Failed</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-2">
+                  We couldn't submit your feedback at this time. Please try again later.
+                </DialogDescription>
+              </DialogHeader>
+              <Button onClick={closeDialog} variant="destructive" className="w-full mt-6">Try Again</Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <section className={`w-full text-center ${sectionPadding} bg-primary`}>
         <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
