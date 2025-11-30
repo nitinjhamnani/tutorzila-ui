@@ -1,7 +1,7 @@
-
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -89,7 +89,8 @@ export default function FeedbackPage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signup');
   const [submissionStatus, setSubmissionStatus] = useState<'success' | 'error' | null>(null);
-  
+  const router = useRouter();
+
   const form = useForm<FeedbackFormValues>({
     resolver: zodResolver(feedbackSchema),
     defaultValues: {
@@ -144,9 +145,14 @@ export default function FeedbackPage() {
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const sectionPadding = "py-10 md:py-16";
 
-  const closeDialog = () => {
+  const closeSuccessDialog = () => {
     setSubmissionStatus(null);
+    router.push('/');
   };
+
+  const closeErrorDialog = () => {
+    setSubmissionStatus(null);
+  }
 
   return (
     <>
@@ -278,8 +284,16 @@ export default function FeedbackPage() {
         </Card>
       </div>
 
-       <Dialog open={submissionStatus !== null} onOpenChange={(open) => !open && closeDialog()}>
-        <DialogContent className="sm:max-w-sm text-center p-8 bg-card rounded-xl">
+       <Dialog open={submissionStatus !== null} onOpenChange={(open) => !open && (submissionStatus === 'success' ? closeSuccessDialog() : closeErrorDialog())}>
+        <DialogContent 
+          className="sm:max-w-sm text-center p-8 bg-card rounded-xl"
+          onPointerDownOutside={(e) => {
+            if (submissionStatus === 'success') {
+              e.preventDefault();
+            }
+          }}
+          hideCloseButton={submissionStatus === 'success'}
+        >
           {submissionStatus === 'success' ? (
             <>
               <DialogHeader>
@@ -291,7 +305,7 @@ export default function FeedbackPage() {
                   Thank you for sharing your thoughts. Your feedback helps us improve Tutorzila for everyone.
                 </DialogDescription>
               </DialogHeader>
-              <Button onClick={closeDialog} className="w-full mt-6">Done</Button>
+              <Button onClick={closeSuccessDialog} className="w-full mt-6">Done</Button>
             </>
           ) : (
             <>
@@ -304,7 +318,7 @@ export default function FeedbackPage() {
                   We couldn't submit your feedback at this time. Please try again later.
                 </DialogDescription>
               </DialogHeader>
-              <Button onClick={closeDialog} variant="destructive" className="w-full mt-6">Try Again</Button>
+              <Button onClick={closeErrorDialog} variant="destructive" className="w-full mt-6">Try Again</Button>
             </>
           )}
         </DialogContent>
