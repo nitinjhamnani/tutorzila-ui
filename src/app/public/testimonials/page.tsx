@@ -108,6 +108,11 @@ export default function TestimonialsPage() {
     },
     mode: "onTouched",
   });
+  
+  const handleTriggerSignUp = () => {
+    setAuthModalInitialView('signup');
+    setIsAuthModalOpen(true);
+  };
 
   async function onSubmit(values: TestimonialFormValues) {
     setIsSubmitting(true);
@@ -123,11 +128,6 @@ export default function TestimonialsPage() {
     form.reset();
     setIsSubmitting(false);
   }
-
-  const handleTriggerSignUp = () => {
-    setAuthModalInitialView('signup');
-    setIsAuthModalOpen(true);
-  };
 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const sectionPadding = "py-10 md:py-16";
@@ -201,6 +201,7 @@ export default function TestimonialsPage() {
                             {...field}
                             onChange={(e) => {
                                 const value = e.target.value;
+                                // Allow only numeric input
                                 const numericValue = value.replace(/[^0-9]/g, '');
                                 field.onChange(numericValue);
                             }}
@@ -271,9 +272,9 @@ export default function TestimonialsPage() {
           </CardContent>
         </Card>
       </div>
-
-       {/* Call to Action */}
-       <section className={`w-full text-center ${sectionPadding} bg-primary`}>
+      
+        {/* Call to Action */}
+        <section className={`w-full text-center ${sectionPadding} bg-primary`}>
           <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
             <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
                 <Star className="w-9 h-9 text-white"/>
