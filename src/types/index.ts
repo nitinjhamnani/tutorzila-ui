@@ -1,5 +1,6 @@
 
 
+
 export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
@@ -366,4 +367,17 @@ export interface TutorDashboardMetrics {
   demoScheduled: number;
   profileViews: number;
   averageRating: number;
+}
+
+export interface AdminFeedback {
+  id: string;
+  phone: string;
+  userType: "PARENT" | "TUTOR";
+  authorName: string;
+  content: string;
+  rating: number;
+  isPublished: boolean;
+  publishedBy: string;
+  createdAt: string; // ISO 8601 date string
+  updatedAt: string; // ISO 8601 date string
 }

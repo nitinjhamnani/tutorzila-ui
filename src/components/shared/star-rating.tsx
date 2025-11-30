@@ -1,4 +1,6 @@
-import { Star, StarHalf, StarOff } from 'lucide-react';
+
+import { Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface StarRatingProps {
   rating: number;
@@ -13,28 +15,22 @@ export default function StarRating({
   size = 16,
   className,
 }: StarRatingProps) {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 >= 0.5;
-  const emptyStars = totalStars - fullStars - (hasHalfStar ? 1 : 0);
-
-  if (rating < 0 || rating > totalStars) {
-    return (
-      <div className={`flex items-center ${className}`}>
-        <StarOff size={size} className="text-muted-foreground" />
-        <span className="ml-1 text-xs text-muted-foreground">No rating</span>
-      </div>
-    );
-  }
-  
   return (
-    <div className={`flex items-center ${className}`}>
-      {[...Array(fullStars)].map((_, i) => (
-        <Star key={`full-${i}`} fill="currentColor" size={size} className="text-yellow-400" />
-      ))}
-      {hasHalfStar && <StarHalf key="half" fill="currentColor" size={size} className="text-yellow-400" />}
-      {[...Array(emptyStars < 0 ? 0 : emptyStars)].map((_, i) => (
-        <Star key={`empty-${i}`} size={size} className="text-yellow-400 opacity-50" />
-      ))}
+    <div className={cn('flex items-center', className)}>
+      {[...Array(totalStars)].map((_, index) => {
+        const starValue = index + 1;
+        return (
+          <Star
+            key={index}
+            size={size}
+            className={cn(
+              'transition-colors',
+              starValue <= rating ? 'text-yellow-400' : 'text-gray-300'
+            )}
+            fill={starValue <= rating ? 'currentColor' : 'none'}
+          />
+        );
+      })}
     </div>
   );
 }
