@@ -70,11 +70,11 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
     { href: "/parent/payments", label: "My Payments", icon: DollarSign, disabled: false },
-    { href: "/parent/support", label: "My Support", icon: LifeBuoy, disabled: false },
   ];
 
   const accountSettingsNavItems = [
-    { href: "/parent/my-account", label: "My Account", icon: UserCircle, disabled: false },
+    { href: "/parent/my-account", label: "Account", icon: UserCircle, disabled: false },
+    { href: "/parent/support", label: "Support", icon: LifeBuoy, disabled: false },
     { href: "/parent/terms", label: "Terms", icon: FileText, disabled: false },
   ];
 
