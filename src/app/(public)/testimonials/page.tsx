@@ -191,6 +191,12 @@ export default function TestimonialsPage() {
                             placeholder="XXXXXXXXXX"
                             maxLength={10}
                             {...field}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Allow only numeric input
+                                const numericValue = value.replace(/[^0-9]/g, '');
+                                field.onChange(numericValue);
+                            }}
                             disabled={isSubmitting}
                           />
                         </FormControl>
