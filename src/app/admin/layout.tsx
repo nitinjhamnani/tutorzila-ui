@@ -25,6 +25,8 @@ import {
   UsersRound,
   Presentation,
   Ticket,
+  MessageSquareQuote,
+  MessageSquareText,
 } from "lucide-react";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
@@ -35,6 +37,8 @@ const adminNavItems = [
   { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
   { href: "/admin/demos", label: "Demos", icon: Presentation },
   { href: "/admin/support", label: "Support", icon: Ticket, disabled: false },
+  { href: "/admin/feedbacks", label: "Feedbacks", icon: MessageSquareQuote, disabled: false },
+  { href: "/admin/queries", label: "Queries", icon: MessageSquareText, disabled: false },
 ];
 
 const logoutNavItem = { label: "Log Out", icon: LogOut, onClick: () => {} };

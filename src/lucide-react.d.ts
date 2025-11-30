@@ -147,11 +147,6 @@ declare module "lucide-react" {
     export const KeyRound: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Share: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Check: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const EyeOff: React.FC<React.SVGProps<SVGSVGElement>>;
     export const Radio: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const FlaskConical: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const Microscope: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const Target: React.FC<React.SVGProps<SVGSVGElement>>;
-    export const Linkedin: React.FC<React.SVGProps<SVGSVGElement>>;
   }
 }
