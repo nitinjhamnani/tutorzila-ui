@@ -1,6 +1,5 @@
 
 
-
 export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
@@ -380,4 +379,19 @@ export interface AdminFeedback {
   publishedBy: string;
   createdAt: string; // ISO 8601 date string
   updatedAt: string; // ISO 8601 date string
+}
+
+export interface UserQuery {
+  id: string;
+  subject: string;
+  message: string;
+  name: string;
+  email: string;
+  remarks: string;
+  createdAt: string; // ISO date
+  assignedTo: string;
+  assignedOn: string; // ISO date
+  updatedBy: string;
+  updatedAt: string; // ISO date
+  resolved: boolean;
 }
