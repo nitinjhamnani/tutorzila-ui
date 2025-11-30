@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -29,11 +30,12 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import AuthModal from "@/components/auth/AuthModal";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const feedbackSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
-  email: z.string().email({ message: "Please enter a valid email address." }),
   phone: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
+  role: z.enum(["parent", "tutor"], { required_error: "Please select your role." }),
   rating: z.number().min(1, "Please provide a rating.").max(5),
   comment: z.string().min(20, "Your feedback must be at least 20 characters.").max(500, "Your feedback cannot exceed 500 characters."),
 });
@@ -91,7 +93,6 @@ export default function FeedbackPage() {
     resolver: zodResolver(feedbackSchema),
     defaultValues: {
       name: "",
-      email: "",
       phone: "",
       rating: 0,
       comment: "",
@@ -127,7 +128,7 @@ export default function FeedbackPage() {
         <div className="text-center mb-12 animate-in fade-in duration-500 ease-out">
           <h1 className="text-4xl font-bold text-primary tracking-tight">Share Your Feedback</h1>
           <p className="mt-2 text-md text-muted-foreground max-w-2xl mx-auto">
-            We value your opinion! Let us know how we're doing and how we can improve our services for parents like you.
+            We value your opinion! Let us know how we're doing and how we can improve our services.
           </p>
         </div>
 
@@ -135,7 +136,7 @@ export default function FeedbackPage() {
           <CardHeader className="p-6 pb-4">
             <CardTitle className="text-2xl font-semibold text-primary flex items-center">
               <MessageSquareQuote className="mr-2.5 h-6 w-6" />
-              Parent Feedback Form
+              Feedback Form
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -167,19 +168,6 @@ export default function FeedbackPage() {
                     </FormItem>
                   )}
                 />
-                 <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center"><Mail className="h-4 w-4 mr-2"/>Your Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="you@example.com" {...field} disabled={isSubmitting} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="phone"
@@ -199,6 +187,37 @@ export default function FeedbackPage() {
                           }}
                           disabled={isSubmitting}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>You are a...</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+                          disabled={isSubmitting}
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="parent" />
+                            </FormControl>
+                            <FormLabel className="font-normal">Parent</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="tutor" />
+                            </FormControl>
+                            <FormLabel className="font-normal">Tutor</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
