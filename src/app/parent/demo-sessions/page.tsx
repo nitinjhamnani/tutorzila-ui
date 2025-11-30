@@ -19,7 +19,7 @@ import {
   Loader2,
   Edit3,
 } from "lucide-react";
-import { ParentDemoSessionCard } from "@/components/parent/components/ParentDemoSessionCard";
+import { ParentDemoSessionCard } from "@/app/parent/components/ParentDemoSessionCard";
 import type { DemoSession, User, EnquiryDemo } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
