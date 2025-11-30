@@ -204,7 +204,7 @@ export default function ContactUsPage() {
                   />
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
                     <Send className="mr-2 h-4 w-4" />
-                    {isSubmitting ? "Submitting..." : "Submit Ticket"}
+                    {isSubmitting ? "Submitting..." : "Send Query"}
                   </Button>
                 </form>
               </Form>
@@ -295,5 +295,3 @@ export default function ContactUsPage() {
     </>
   );
 }
-
-    
