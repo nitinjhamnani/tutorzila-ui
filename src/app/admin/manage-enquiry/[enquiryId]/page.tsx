@@ -662,9 +662,10 @@ function ManageEnquiryContent() {
 
 
   const getInitialFilters = useCallback(() => {
-    if (!enquiry) return { subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
+    if (!enquiry) return { phone: "", subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
     const location = (typeof enquiry.location === 'object' && enquiry.location) ? enquiry.location : { city: "", area: "" };
     return {
+      phone: "",
       subjects: enquiry.subject || [],
       grade: enquiry.gradeLevel || '',
       board: enquiry.board || '',
@@ -690,6 +691,7 @@ function ManageEnquiryContent() {
     queryKey: ['assignableTutors', enquiryId, stringifiedFilters],
     queryFn: () => {
       const params = new URLSearchParams();
+      if (appliedFilters.phone) params.append('phone', appliedFilters.phone);
       if (appliedFilters.subjects?.length > 0) params.append('subjects', appliedFilters.subjects.join(','));
       if (appliedFilters.grade) params.append('grades', appliedFilters.grade);
       if (appliedFilters.board) params.append('boards', appliedFilters.board);
@@ -721,7 +723,7 @@ function ManageEnquiryContent() {
   };
   
   const handleClearFilters = () => {
-    const clearedFilters = { subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
+    const clearedFilters = { phone: "", subjects: [], grade: '', board: '', isOnline: false, isOffline: false, city: "", area: "" };
     setFilters(clearedFilters);
     setAppliedFilters(clearedFilters);
     setIsFilterModalOpen(false);
@@ -1158,7 +1160,7 @@ const closeEnquiryMutation = useMutation({
       toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy enquiry details." });
     });
   };
-
+  
   const genderDisplayMap: Record<string, string> = {
     "MALE": "Male",
     "FEMALE": "Female",
@@ -1278,6 +1280,19 @@ const closeEnquiryMutation = useMutation({
                 </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+                <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="phone-filter-modal">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="phone-filter-modal"
+                        placeholder="Enter phone number..."
+                        value={filters.phone}
+                        onChange={(e) => handleFilterChange('phone', e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="subjects-filter-modal">Subjects</Label>
                   <MultiSelectCommand
@@ -2040,6 +2055,7 @@ export default function ManageEnquiryPage() {
     
 
     
+
 
 
 
