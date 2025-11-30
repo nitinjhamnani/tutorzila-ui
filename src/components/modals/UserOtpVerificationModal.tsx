@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
-import { ShieldCheck, RefreshCw, Loader2 } from "lucide-react";
+import { ShieldCheck, RefreshCw, Mail, Phone, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -98,11 +98,11 @@ export function UserOtpVerificationModal({
         onOpenChange(false);
     },
     onError: (error: Error) => {
-        toast({
-            variant: "destructive",
-            title: "Verification Failed",
-            description: error.message,
+        form.setError("otp", {
+            type: "manual",
+            message: "Invalid OTP provided. Please provide the correct OTP.",
         });
+        form.resetField("otp");
     }
   });
 
