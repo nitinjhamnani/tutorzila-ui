@@ -18,7 +18,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger, // Added DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -29,7 +29,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -62,6 +61,8 @@ import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 const EnquiryInfoItem = ({
   icon: Icon,
@@ -69,12 +70,14 @@ const EnquiryInfoItem = ({
   value,
   children,
   className,
+  tooltipContent,
 }: {
   icon?: React.ElementType;
-  label?: string;
+  label?: string | React.ReactNode;
   value?: string | string[] | LocationDetails | number | null;
   children?: React.ReactNode;
   className?: string;
+  tooltipContent?: string;
 }) => {
   if (!value && !children && value !== 0) return null;
   
@@ -104,7 +107,7 @@ const EnquiryInfoItem = ({
     displayText = value as string;
   }
   
-  if (label?.toLowerCase().includes('fees') || label?.toLowerCase().includes('rate')) {
+  if (typeof label === 'string' && (label.toLowerCase().includes('fees') || label.toLowerCase().includes('rate'))) {
     displayText = `₹${displayText}`;
   }
 
@@ -112,10 +115,21 @@ const EnquiryInfoItem = ({
   return (
     <div className={cn("space-y-0.5", className)}>
       {label && (
-         <span className="text-xs text-muted-foreground font-medium flex items-center">
-            {Icon && <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80" />}
-            {label}
-        </span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-xs text-muted-foreground font-medium flex items-center cursor-default">
+                {Icon && <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/80" />}
+                {label}
+              </span>
+            </TooltipTrigger>
+            {tooltipContent && (
+              <TooltipContent>
+                <p className="max-w-[200px] text-xs">{tooltipContent}</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       )}
       {!label && Icon && <Icon className="w-3.5 h-3.5 text-primary/80" />}
       {displayText && <div className={cn("text-sm text-foreground/90", !label && "pl-0")}>{children ? null : displayText}</div>}
@@ -473,7 +487,8 @@ export default function ParentEnquiryDetailsPage() {
 
   const locationInfo = typeof requirement.location === 'object' && requirement.location ? requirement.location : null;
   const hasLocationInfo = !!(locationInfo?.address && locationInfo.address.trim() !== '');
-  const hasPreferences = !!(genderValue || startValue || (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0));
+  const hasScheduleInfo = (requirement.preferredDays && requirement.preferredDays.length > 0) || (requirement.preferredTimeSlots && requirement.preferredTimeSlots.length > 0);
+  const hasPreferences = !!(genderValue || startValue);
   const budgetInfo = requirement.budget;
 
   return (
@@ -537,7 +552,14 @@ export default function ParentEnquiryDetailsPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pl-6">
                         {budgetInfo.daysPerWeek && <EnquiryInfoItem label="Sessions per Week" value={budgetInfo.daysPerWeek} icon={CalendarDays} />}
                         {budgetInfo.hoursPerDay && <EnquiryInfoItem label="Hours per Session" value={budgetInfo.hoursPerDay} icon={Clock} />}
-                        {budgetInfo.totalFees && <EnquiryInfoItem label="Total Monthly Fees" value={budgetInfo.totalFees} icon={Coins} />}
+                        {budgetInfo.totalFees && (
+                            <EnquiryInfoItem 
+                                label={<>Estimated Monthly Fees <span className="text-primary">*</span></>}
+                                value={budgetInfo.totalFees} 
+                                icon={Coins} 
+                                tooltipContent="This is just estimated fees as actual fees will be calculated at the time of starting class."
+                            />
+                        )}
                         {budgetInfo.finalRate && <EnquiryInfoItem label="Final Hourly Rate" value={budgetInfo.finalRate} icon={DollarSign} />}
                       </div>
                     </section>
@@ -691,4 +713,4 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 
-    
+}
