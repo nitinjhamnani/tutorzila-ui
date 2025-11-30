@@ -211,7 +211,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
               </Button>
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-transparent">
                     <Avatar className="h-9 w-9 border-2 border-primary/30">
                       <AvatarImage src={user.avatar || undefined} alt={user.name} />
                       <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
