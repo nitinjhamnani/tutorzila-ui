@@ -92,8 +92,7 @@ export function ParentEnquiryCard({
   return (
       <Card
         className={cn(
-          "bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full",
-          isPastEnquiry && "opacity-70 bg-muted/30"
+          "bg-card rounded-xl shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full"
         )}
       >
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
@@ -123,15 +122,14 @@ export function ParentEnquiryCard({
         </CardHeader>
 
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 text-xs flex-grow">
-          <InfoItem icon={GraduationCap} label="Grade" value={requirement.gradeLevel} />
+          <InfoItem icon={GraduationCap} text={requirement.gradeLevel} />
           {requirement.board && (
-            <InfoItem icon={Building} label="Board" value={requirement.board} />
+            <InfoItem icon={Building} text={requirement.board} />
           )}
           {requirement.teachingMode && requirement.teachingMode.length > 0 && (
             <InfoItem
               icon={RadioTower}
-              label="Mode"
-              value={requirement.teachingMode.join(", ")}
+              text={requirement.teachingMode.join(", ")}
             />
           )}
         </CardContent>
@@ -156,19 +154,6 @@ export function ParentEnquiryCard({
                 )}
             </div>
            <div className="flex items-center gap-2 self-end sm:self-center">
-            {isPastEnquiry && onReopen && (
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReopen(requirement.id);
-                }}
-                className="text-xs py-1.5 px-2.5 h-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
-              >
-                <Archive className="mr-1.5 h-3 w-3" /> Reopen
-              </Button>
-            )}
             <Button
                 asChild
                 size="sm"
