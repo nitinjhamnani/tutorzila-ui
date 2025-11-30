@@ -19,7 +19,7 @@ import {
   Loader2,
   Edit3,
 } from "lucide-react";
-import { ParentDemoSessionCard } from "@/app/parent/components/ParentDemoSessionCard";
+import { ParentDemoCard } from "@/app/parent/components/ParentDemoSessionCard";
 import type { DemoSession, User, EnquiryDemo } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -216,7 +216,7 @@ export default function ParentDemoSessionsPage() {
     return (
         <div className="grid grid-cols-1 gap-4 md:gap-5">
             {filteredDemos.map((demo) => (
-            <ParentDemoSessionCard
+            <ParentDemoCard
                 key={demo.id}
                 demo={demo}
                 onUpdateSession={handleUpdateSession}
