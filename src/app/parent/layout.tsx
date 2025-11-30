@@ -26,7 +26,7 @@ import {
   Bell,
   PanelLeft,
   ShoppingBag,
-  SearchCheck, 
+  SearchCheck,
   LifeBuoy,
   FileText,
 } from "lucide-react";
@@ -70,7 +70,6 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
     { href: "/parent/payments", label: "My Payments", icon: DollarSign, disabled: false },
-    { href: "/parent/support", label: "My Support", icon: LifeBuoy, disabled: false },
   ];
 
   const accountSettingsNavItems = [
