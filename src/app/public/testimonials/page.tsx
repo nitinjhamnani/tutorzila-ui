@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AuthModal from "@/components/auth/AuthModal";
+
 
 const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -126,7 +128,7 @@ export default function TestimonialsPage() {
     setAuthModalInitialView('signup');
     setIsAuthModalOpen(true);
   };
-  
+
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const sectionPadding = "py-10 md:py-16";
 
@@ -271,24 +273,24 @@ export default function TestimonialsPage() {
       </div>
 
        {/* Call to Action */}
-      <section className={`w-full text-center ${sectionPadding} bg-primary`}>
-        <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
-          <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
-              <Star className="w-9 h-9 text-white"/>
+       <section className={`w-full text-center ${sectionPadding} bg-primary`}>
+          <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
+            <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
+                <Star className="w-9 h-9 text-white"/>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
+              Ready to Start Your Journey?
+            </h2>
+            <p className="mt-5 max-w-xl mx-auto text-white/90 md:text-lg">
+              Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
+            </p>
+            <div className="mt-10">
+               <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
+                   Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
+              </Button>
+            </div>
           </div>
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
-            Ready to Start Your Journey?
-          </h2>
-          <p className="mt-5 max-w-xl mx-auto text-white/90 md:text-lg">
-            Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
-          </p>
-          <div className="mt-10">
-             <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
-                 Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
-            </Button>
-          </div>
-        </div>
-      </section>
+        </section>
 
        {/* Testimonials Section */}
        <section className={`w-full bg-secondary ${sectionPadding}`}>
@@ -323,31 +325,31 @@ export default function TestimonialsPage() {
         </div>
       </section>
 
-        {/* Newsletter Section */}
-        <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
-            <div className={`${containerPadding} text-center`}>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-white">
-                    Stay Updated with Tutorzila
-                </h2>
-                <p className="mt-4 max-w-xl mx-auto text-white/90 md:text-lg">
-                    Subscribe to our newsletter for the latest updates on tutors, special offers, and educational tips.
-                </p>
-                <div className="mt-8 max-w-lg mx-auto">
-                    <form className="flex flex-col sm:flex-row gap-3">
-                        <Input
-                            type="email"
-                            placeholder="Enter your email address"
-                            className="flex-grow bg-card/10 border-white/30 text-white placeholder:text-white/70 focus:bg-white focus:text-card-foreground py-3.5 px-4 text-base h-auto"
-                            aria-label="Email address"
-                        />
-                        <Button type="submit" variant="secondary" size="lg" className="shrink-0 text-secondary-foreground shadow-md hover:shadow-lg transition-shadow">
-                            Subscribe
-                        </Button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
+      {/* Newsletter Section */}
+      <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
+          <div className={`${containerPadding} text-center`}>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-white">
+                  Stay Updated with Tutorzila
+              </h2>
+              <p className="mt-4 max-w-xl mx-auto text-white/90 md:text-lg">
+                  Subscribe to our newsletter for the latest updates on tutors, special offers, and educational tips.
+              </p>
+              <div className="mt-8 max-w-lg mx-auto">
+                  <form className="flex flex-col sm:flex-row gap-3">
+                      <Input
+                          type="email"
+                          placeholder="Enter your email address"
+                          className="flex-grow bg-card/10 border-white/30 text-white placeholder:text-white/70 focus:bg-white focus:text-card-foreground py-3.5 px-4 text-base h-auto"
+                          aria-label="Email address"
+                      />
+                      <Button type="submit" variant="secondary" size="lg" className="shrink-0 text-secondary-foreground shadow-md hover:shadow-lg transition-shadow">
+                          Subscribe
+                      </Button>
+                  </form>
+              </div>
+          </div>
+      </section>
+      
       {isAuthModalOpen && (
         <AuthModal 
           isOpen={isAuthModalOpen} 
@@ -358,5 +360,3 @@ export default function TestimonialsPage() {
     </>
   );
 }
-
-    
