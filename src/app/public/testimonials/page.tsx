@@ -31,11 +31,10 @@ import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
-  phoneNumber: z.string().length(10, "Phone number must be 10 digits.").regex(/^\d+$/, "Phone number must be digits only."),
+  phone: z.string().length(10, "Please enter a valid 10-digit phone number.").regex(/^\d+$/, "Phone number must be digits only."),
   role: z.enum(["parent", "tutor"], { required_error: "Please select your role." }),
   rating: z.number().min(1, "Please provide a rating.").max(5),
   comment: z.string().min(20, "Your feedback must be at least 20 characters.").max(500, "Your feedback cannot exceed 500 characters."),
@@ -92,7 +91,7 @@ export default function TestimonialsPage() {
     resolver: zodResolver(testimonialSchema),
     defaultValues: {
       name: "",
-      phoneNumber: "",
+      phone: "",
       rating: 0,
       comment: "",
     },
@@ -162,40 +161,34 @@ export default function TestimonialsPage() {
                     </FormItem>
                   )}
                 />
-                 <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <div className="flex gap-2">
-                        <Select defaultValue="IN" disabled>
-                            <SelectTrigger className="w-auto min-w-[120px] bg-input">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="IN">India (+91)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormField
-                            control={form.control}
-                            name="phoneNumber"
-                            render={({ field }) => (
-                                <FormItem className="flex-1">
-                                    <FormControl>
-                                    <div className="relative">
-                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            type="tel"
-                                            placeholder="XXXXXXXXXX"
-                                            {...field}
-                                            disabled={isSubmitting}
-                                            className="pl-10"
-                                        />
-                                    </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                 </FormItem>
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center gap-2">
+                           <div className="flex h-10 w-auto items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+                            +91
+                          </div>
+                          <div className="relative flex-grow">
+                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="XXXXXXXXXX"
+                              {...field}
+                              type="tel"
+                              maxLength={10}
+                              className="pl-10"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <FormField
                   control={form.control}
                   name="role"
@@ -291,5 +284,3 @@ export default function TestimonialsPage() {
     </>
   );
 }
-
-    
