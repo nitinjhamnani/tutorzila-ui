@@ -50,7 +50,6 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
   const demoDate = new Date(demo.date);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const subjectInitials = getSubjectInitials(demo.subject);
 
   const getStatusBadgeClasses = () => {
     switch (demo.status) {
@@ -90,19 +89,20 @@ export function TutorDemoCard({ demo, onUpdateSession, onCancelSession }: TutorD
       setIsCancelModalOpen(false);
   };
 
+  const cardTitle = `${demo.mode === 'Online' ? 'Online' : 'Offline'} Demo: ${demo.subject}`;
+  const AvatarIcon = demo.mode === 'Online' ? RadioTower : UsersIcon;
+
   return (
     <>
       <Card className="bg-card rounded-lg shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
-              <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
-                {subjectInitials}
-              </AvatarFallback>
+             <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground flex items-center justify-center">
+              <AvatarIcon className="h-5 w-5" />
             </Avatar>
             <div className="flex-grow min-w-0">
               <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
-                {demo.subject} ({demo.mode === "Offline (In-person)" ? "Offline" : demo.mode})
+                {cardTitle}
               </CardTitle>
               <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
                 <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
