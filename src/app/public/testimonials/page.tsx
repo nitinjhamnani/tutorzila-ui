@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -26,15 +25,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone } from "lucide-react";
+import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, User, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
-  phone: z.string().length(10, "Please enter a valid 10-digit phone number.").regex(/^\d+$/, "Phone number must be digits only."),
+  phone: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   role: z.enum(["parent", "tutor"], { required_error: "Please select your role." }),
   rating: z.number().min(1, "Please provide a rating.").max(5),
   comment: z.string().min(20, "Your feedback must be at least 20 characters.").max(500, "Your feedback cannot exceed 500 characters."),
@@ -135,7 +136,7 @@ export default function TestimonialsPage() {
           <CardContent className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
+                 <FormField
                   control={form.control}
                   name="rating"
                   render={({ field }) => (
@@ -153,7 +154,7 @@ export default function TestimonialsPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Your Name</FormLabel>
+                      <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80"/>Your Name</FormLabel>
                       <FormControl>
                         <Input placeholder="John Doe" {...field} disabled={isSubmitting} />
                       </FormControl>
@@ -161,34 +162,41 @@ export default function TestimonialsPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <div className="flex items-center gap-2">
-                           <div className="flex h-10 w-auto items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
-                            +91
-                          </div>
-                          <div className="relative flex-grow">
-                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              placeholder="XXXXXXXXXX"
-                              {...field}
-                              type="tel"
-                              maxLength={10}
-                              className="pl-10"
-                              disabled={isSubmitting}
-                            />
-                          </div>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormItem>
+                    <FormLabel className="text-foreground flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80"/>Phone Number</FormLabel>
+                    <div className="flex gap-2">
+                        <Select defaultValue="+91" disabled>
+                            <SelectTrigger className="w-[80px] bg-input border-border focus:border-primary focus:ring-primary/30">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="+91">IN +91</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                            <FormItem className="flex-1">
+                                <FormControl>
+                                <Input
+                                    type="tel"
+                                    placeholder="XXXXXXXXXX"
+                                    maxLength={10}
+                                    {...field}
+                                    disabled={isSubmitting}
+                                    onChange={(e) => {
+                                      const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                                      field.onChange(numericValue);
+                                    }}
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    </div>
+                </FormItem>
                  <FormField
                   control={form.control}
                   name="role"
