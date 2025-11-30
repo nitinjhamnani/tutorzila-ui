@@ -167,6 +167,10 @@ export function UserOtpVerificationModal({
                       inputMode="numeric"
                       maxLength={6}
                       placeholder="••••••"
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                        field.onChange(numericValue);
+                      }}
                       className="text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
                       disabled={mutation.isPending}
                     />
