@@ -28,6 +28,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -95,6 +102,7 @@ import {
   CalendarClock,
   Share2,
   Trash2,
+  MoreVertical,
 } from "lucide-react";
 import { TutorProfileModal } from "@/components/admin/modals/TutorProfileModal";
 import { TutorContactModal } from "@/components/admin/modals/TutorContactModal";
@@ -1463,7 +1471,7 @@ const closeEnquiryMutation = useMutation({
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg border-0">
         <CardHeader className="p-4 sm:p-5 relative">
-            <div className="flex items-center gap-4 flex-grow">
+            <div className="flex items-start justify-between gap-4">
               <div className="flex-grow">
                 <div className="flex items-center gap-2 flex-wrap">
                   <CardTitle className="text-xl font-semibold text-primary">
@@ -1514,23 +1522,51 @@ const closeEnquiryMutation = useMutation({
                   </div>
                 </div>
               </div>
+              <div className="flex items-start gap-4">
+                 <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 absolute top-4 right-4">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setIsParentInfoModalOpen(true)}>
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Parent Details</span>
+                    </DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => setIsSessionDetailsModalOpen(true)}>
+                      <DollarSign className="mr-2 h-4 w-4" />
+                      <span>Session & Budget</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsDetailsModalOpen(true)}>
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      <span>Preferences</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
+                      <Edit3 className="mr-2 h-4 w-4" />
+                      <span>Edit Enquiry</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleOpenNotesModal}>
+                      <ClipboardEdit className="mr-2 h-4 w-4" />
+                      <span>Add/Edit Notes</span>
+                    </DropdownMenuItem>
+                     <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleOpenShareModal}>
+                      <Share2 className="mr-2 h-4 w-4" />
+                      <span>Share Enquiry</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-            <Avatar className="absolute top-4 right-4 h-10 w-10 border-2 border-primary/20 shrink-0">
+            <Avatar className="absolute top-4 right-16 h-10 w-10 border-2 border-primary/20 shrink-0">
                 <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
                     {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
                 </AvatarFallback>
             </Avatar>
         </CardHeader>
-        <CardFooter className="flex flex-wrap justify-between gap-2 p-4 sm:p-5 border-t">
+        <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsParentInfoModalOpen(true)}><User className="mr-1.5 h-3.5 w-3.5" />Parent</Button>
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsSessionDetailsModalOpen(true)}><DollarSign className="mr-1.5 h-3.5 w-3.5" />Session &amp; Budget</Button>
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsDetailsModalOpen(true)}><CalendarDays className="mr-1.5 h-3.5 w-3.5" />Preferences</Button>
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={() => setIsEditModalOpen(true)}><Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleOpenNotesModal}><ClipboardEdit className="mr-1.5 h-3.5 w-3.5" /> Notes</Button>
-            <Button variant="outline" size="sm" className="text-xs py-1.5 px-3 h-auto" onClick={handleOpenShareModal}><Share2 className="mr-1.5 h-3.5 w-3.5" /> Share</Button>
-          </div>
-          <div className="hidden sm:flex sm:flex-row gap-2 w-full sm:w-auto justify-end">
             {(enquiry.status === "open" || enquiry.status === "reopened") && (
               <Button variant="primary-outline" size="sm" className="w-full sm:w-auto text-xs h-8 px-3 rounded-md" onClick={handleOpenAcceptModal}>
                 <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Accept
@@ -2009,3 +2045,4 @@ export default function ManageEnquiryPage() {
     
 
     
+
