@@ -27,6 +27,8 @@ import {
   Ticket,
   MessageSquareQuote,
   MessageSquareText,
+  School,
+  ListChecks
 } from "lucide-react";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 
@@ -36,6 +38,9 @@ const adminNavItems = [
   { href: "/admin/parents", label: "Parents", icon: UsersRound },
   { href: "/admin/enquiries", label: "Enquiries", icon: Briefcase },
   { href: "/admin/demos", label: "Demos", icon: Presentation },
+  { href: "/admin/classes", label: "Classes", icon: School, disabled: false },
+  { href: "/admin/payments", label: "Payments", icon: DollarSign, disabled: false },
+  { href: "/admin/transactions", label: "Transactions", icon: ListChecks, disabled: false },
   { href: "/admin/support", label: "Support", icon: Ticket, disabled: false },
   { href: "/admin/feedbacks", label: "Feedbacks", icon: MessageSquareQuote, disabled: false },
   { href: "/admin/queries", label: "Queries", icon: MessageSquareText, disabled: false },
