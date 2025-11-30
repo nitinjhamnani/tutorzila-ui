@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -97,11 +96,6 @@ export default function TestimonialsPage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signup');
 
-  const handleTriggerSignUp = () => {
-    setAuthModalInitialView('signup');
-    setIsAuthModalOpen(true);
-  };
-
   const form = useForm<TestimonialFormValues>({
     resolver: zodResolver(testimonialSchema),
     defaultValues: {
@@ -112,6 +106,11 @@ export default function TestimonialsPage() {
     },
     mode: "onTouched",
   });
+  
+  const handleTriggerSignUp = () => {
+    setAuthModalInitialView('signup');
+    setIsAuthModalOpen(true);
+  };
 
   async function onSubmit(values: TestimonialFormValues) {
     setIsSubmitting(true);
@@ -200,6 +199,7 @@ export default function TestimonialsPage() {
                             {...field}
                             onChange={(e) => {
                                 const value = e.target.value;
+                                // Allow only numeric input
                                 const numericValue = value.replace(/[^0-9]/g, '');
                                 field.onChange(numericValue);
                             }}
@@ -284,8 +284,8 @@ export default function TestimonialsPage() {
             Whether you&apos;re looking for a tutor or want to share your expertise, Tutorzila is the place to connect and grow.
           </p>
           <div className="mt-10">
-             <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
-                 Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
+            <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
+                Sign Up Now <Send className="ml-2.5 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -323,7 +323,7 @@ export default function TestimonialsPage() {
           </Carousel>
         </div>
       </section>
-      
+
       {/* Newsletter Section */}
       <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
           <div className={`${containerPadding} text-center`}>
