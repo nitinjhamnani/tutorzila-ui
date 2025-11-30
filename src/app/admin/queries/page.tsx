@@ -22,15 +22,26 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   MessageSquareText,
   Loader2,
   ShieldAlert,
   Mail,
   User,
   Phone,
+  Info,
+  Eye,
 } from "lucide-react";
 import type { UserQuery } from "@/types";
 import { format, parseISO } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 const fetchUserQueries = async (
   token: string | null
@@ -56,6 +67,8 @@ const fetchUserQueries = async (
 export default function AdminQueriesPage() {
   const { token } = useAuthMock();
   const { showLoader, hideLoader } = useGlobalLoader();
+  const [selectedQuery, setSelectedQuery] = useState<UserQuery | null>(null);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const {
     data: queries = [],
@@ -76,11 +89,16 @@ export default function AdminQueriesPage() {
     }
   }, [isLoading, showLoader, hideLoader]);
 
+  const handleViewDetails = (query: UserQuery) => {
+    setSelectedQuery(query);
+    setIsInfoModalOpen(true);
+  };
+
   const renderTableBody = () => {
     if (isLoading) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-48 text-center">
+          <TableCell colSpan={5} className="h-48 text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
             <p className="mt-2 text-sm text-muted-foreground">
               Loading queries...
@@ -93,7 +111,7 @@ export default function AdminQueriesPage() {
     if (error) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-48 text-center text-destructive">
+          <TableCell colSpan={5} className="h-48 text-center text-destructive">
             <ShieldAlert className="mx-auto h-8 w-8" />
             <p className="mt-2 font-semibold">Error fetching queries</p>
             <p className="text-xs">{(error as Error).message}</p>
@@ -105,7 +123,7 @@ export default function AdminQueriesPage() {
     if (queries.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-48 text-center">
+          <TableCell colSpan={5} className="h-48 text-center">
             <MessageSquareText className="mx-auto h-12 w-12 text-muted-foreground/30" />
             <p className="mt-4 font-semibold text-muted-foreground">
               No queries found.
@@ -124,7 +142,6 @@ export default function AdminQueriesPage() {
           </div>
         </TableCell>
         <TableCell className="max-w-xs truncate">{query.subject}</TableCell>
-        <TableCell className="max-w-sm text-muted-foreground truncate">{query.message}</TableCell>
         <TableCell>
           {format(parseISO(query.createdAt), "MMM d, yyyy")}
         </TableCell>
@@ -133,14 +150,17 @@ export default function AdminQueriesPage() {
             {query.resolved ? "Resolved" : "Open"}
           </Badge>
         </TableCell>
-         <TableCell className="text-xs text-muted-foreground">
-          {query.assignedTo || "Unassigned"}
+        <TableCell>
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewDetails(query)}>
+                <Info className="h-4 w-4" />
+            </Button>
         </TableCell>
       </TableRow>
     ));
   };
 
   return (
+    <>
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
         <CardHeader className="p-0">
@@ -161,10 +181,9 @@ export default function AdminQueriesPage() {
               <TableRow className="bg-muted/50">
                 <TableHead>User</TableHead>
                 <TableHead>Subject</TableHead>
-                <TableHead>Message</TableHead>
                 <TableHead>Received On</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Assigned To</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>{renderTableBody()}</TableBody>
@@ -172,5 +191,25 @@ export default function AdminQueriesPage() {
         </CardContent>
       </Card>
     </div>
+    
+    <Dialog open={isInfoModalOpen} onOpenChange={setIsInfoModalOpen}>
+        <DialogContent className="sm:max-w-md bg-card">
+            <DialogHeader>
+                <DialogTitle>Query from {selectedQuery?.name}</DialogTitle>
+                <DialogDescription>
+                    Full message details for the submitted query.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+                <p className="text-sm text-foreground/80 bg-muted/50 p-3 rounded-md max-h-60 overflow-y-auto">
+                    {selectedQuery?.message}
+                </p>
+            </div>
+            <DialogFooter>
+                <Button onClick={() => setIsInfoModalOpen(false)}>Close</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+    </>
   );
 }
