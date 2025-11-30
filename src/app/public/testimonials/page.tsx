@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
+import AuthModal from "@/components/auth/AuthModal";
 import {
   Select,
   SelectContent,
@@ -38,7 +39,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import AuthModal from "@/components/auth/AuthModal";
 
 
 const testimonialSchema = z.object({
@@ -123,7 +123,7 @@ export default function TestimonialsPage() {
     form.reset();
     setIsSubmitting(false);
   }
-
+  
   const handleTriggerSignUp = () => {
     setAuthModalInitialView('signup');
     setIsAuthModalOpen(true);
@@ -201,6 +201,7 @@ export default function TestimonialsPage() {
                             {...field}
                             onChange={(e) => {
                                 const value = e.target.value;
+                                // Allow only numeric input
                                 const numericValue = value.replace(/[^0-9]/g, '');
                                 field.onChange(numericValue);
                             }}
@@ -271,7 +272,8 @@ export default function TestimonialsPage() {
           </CardContent>
         </Card>
       </div>
-
+      
+      {/* Call to Action */}
       <section className={`w-full text-center ${sectionPadding} bg-primary`}>
         <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
           <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
@@ -323,7 +325,7 @@ export default function TestimonialsPage() {
           </Carousel>
         </div>
       </section>
-
+      
       {isAuthModalOpen && (
         <AuthModal 
           isOpen={isAuthModalOpen} 
