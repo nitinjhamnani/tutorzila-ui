@@ -34,6 +34,14 @@ import {
   ArrowDownCircle, 
   FileText, 
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { TutorSidebar } from "@/components/tutor/TutorSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { AddToHomeScreenModal } from "@/components/modals/AddToHomeScreenModal"; 
@@ -54,6 +62,15 @@ const fetchTutorId = async (token: string | null): Promise<string> => {
     throw new Error("Failed to fetch tutor ID.");
   }
   return response.text();
+};
+
+const getInitials = (name?: string): string => {
+  if (!name) return "?";
+  const parts = name.split(" ");
+  if (parts.length > 1 && parts[0] && parts[parts.length - 1]) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`;
+  }
+  return name.slice(0, 1).toUpperCase();
 };
 
 
@@ -191,27 +208,51 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                 variant="ghost" 
                 size="icon" 
                 className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" 
-                onClick={() => setIsAddToHomeScreenModalOpen(true)}
-                aria-label="Add to Home Screen"
+                aria-label="Notifications"
               >
-                <ArrowDownCircle className="w-4 h-4" />
-                <span className="sr-only">Add to Home Screen</span>
+                <Bell className="w-4 h-4" />
+                <span className="sr-only">Notifications</span>
               </Button>
-               <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" 
-                onClick={handleViewProfileClick}
-                disabled={isFetchingTutorId}
-                aria-label="View Public Profile"
-              >
-                {isFetchingTutorId ? (
-                   <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-                <span className="sr-only">View Public Profile</span>
-              </Button>
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                    <Avatar className="h-9 w-9 border-2 border-primary/30">
+                      <AvatarImage src={user.avatar || undefined} alt={user.name} />
+                      <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsAddToHomeScreenModalOpen(true)}>
+                    <ArrowDownCircle className="mr-2 h-4 w-4" />
+                    <span>Add to Home Screen</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleViewProfileClick} disabled={isFetchingTutorId}>
+                     {isFetchingTutorId ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Eye className="mr-2 h-4 w-4" />
+                    )}
+                    <span>View Public Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
         )}
