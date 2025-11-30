@@ -124,7 +124,7 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
           </div>
         </CardContent>
 
-        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-end items-center gap-2">
+        <CardFooter className="p-0 pt-3 sm:pt-4 flex justify-end items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
               <Button size="sm" asChild className="text-xs px-3 py-1.5">
                 <Link href={demo.joinLink} target="_blank" rel="noopener noreferrer">
