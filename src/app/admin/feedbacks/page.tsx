@@ -22,14 +22,26 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   MessageSquareQuote,
   Loader2,
   ShieldAlert,
   Star as StarIcon,
+  Info,
+  Settings,
+  Eye,
 } from "lucide-react";
 import type { AdminFeedback } from "@/types";
 import { format, parseISO } from "date-fns";
 import StarRating from "@/components/shared/star-rating";
+import { Button } from "@/components/ui/button";
 
 const fetchAdminFeedbacks = async (
   token: string | null
@@ -55,6 +67,9 @@ const fetchAdminFeedbacks = async (
 export default function AdminFeedbacksPage() {
   const { token } = useAuthMock();
   const { showLoader, hideLoader } = useGlobalLoader();
+  const [selectedFeedback, setSelectedFeedback] = useState<AdminFeedback | null>(null);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const {
     data: feedbacks = [],
@@ -76,11 +91,21 @@ export default function AdminFeedbacksPage() {
     }
   }, [isLoading, showLoader, hideLoader]);
 
+  const handleViewDetails = (feedback: AdminFeedback) => {
+    setSelectedFeedback(feedback);
+    setIsInfoModalOpen(true);
+  };
+
+  const handleOpenSettings = (feedback: AdminFeedback) => {
+    setSelectedFeedback(feedback);
+    setIsSettingsModalOpen(true);
+  };
+
   const renderTableBody = () => {
     if (isLoading) {
       return (
         <TableRow>
-          <TableCell colSpan={5} className="h-48 text-center">
+          <TableCell colSpan={6} className="h-48 text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
             <p className="mt-2 text-sm text-muted-foreground">
               Loading feedbacks...
@@ -93,7 +118,7 @@ export default function AdminFeedbacksPage() {
     if (error) {
       return (
         <TableRow>
-          <TableCell colSpan={5} className="h-48 text-center text-destructive">
+          <TableCell colSpan={6} className="h-48 text-center text-destructive">
             <ShieldAlert className="mx-auto h-8 w-8" />
             <p className="mt-2 font-semibold">Error fetching feedbacks</p>
             <p className="text-xs">{(error as Error).message}</p>
@@ -105,7 +130,7 @@ export default function AdminFeedbacksPage() {
     if (feedbacks.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={5} className="h-48 text-center">
+          <TableCell colSpan={6} className="h-48 text-center">
             <MessageSquareQuote className="mx-auto h-12 w-12 text-muted-foreground/30" />
             <p className="mt-4 font-semibold text-muted-foreground">
               No feedbacks found.
@@ -133,11 +158,22 @@ export default function AdminFeedbacksPage() {
         <TableCell>
           {format(parseISO(feedback.createdAt), "MMM d, yyyy")}
         </TableCell>
+        <TableCell>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleViewDetails(feedback)}>
+                    <Info className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleOpenSettings(feedback)}>
+                    <Settings className="h-4 w-4" />
+                </Button>
+            </div>
+        </TableCell>
       </TableRow>
     ));
   };
 
   return (
+    <>
     <div className="space-y-6">
       <Card className="bg-card rounded-xl shadow-lg p-4 sm:p-5 border-0">
         <CardHeader className="p-0">
@@ -161,6 +197,7 @@ export default function AdminFeedbacksPage() {
                 <TableHead>Rating</TableHead>
                 <TableHead>Feedback</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>{renderTableBody()}</TableBody>
@@ -168,5 +205,49 @@ export default function AdminFeedbacksPage() {
         </CardContent>
       </Card>
     </div>
+    
+    {/* Info Modal */}
+    <Dialog open={isInfoModalOpen} onOpenChange={setIsInfoModalOpen}>
+        <DialogContent className="sm:max-w-md bg-card">
+            <DialogHeader>
+                <DialogTitle>Feedback from {selectedFeedback?.authorName}</DialogTitle>
+                <DialogDescription>
+                    Full feedback message and rating details.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+                <div className="flex items-center gap-2">
+                    <StarRating rating={selectedFeedback?.rating || 0} size={20} />
+                    <span className="font-semibold text-lg">({selectedFeedback?.rating}/5)</span>
+                </div>
+                <p className="text-sm text-foreground/80 bg-muted/50 p-3 rounded-md max-h-60 overflow-y-auto">
+                    {selectedFeedback?.content}
+                </p>
+            </div>
+            <DialogFooter>
+                <Button onClick={() => setIsInfoModalOpen(false)}>Close</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
+    {/* Settings Modal */}
+     <Dialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen}>
+        <DialogContent className="sm:max-w-md bg-card">
+            <DialogHeader>
+                <DialogTitle>Manage Feedback</DialogTitle>
+                <DialogDescription>
+                    Approve or disapprove this feedback for public display.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-8 text-center text-muted-foreground">
+                <p>(Approval/Disapproval controls will go here)</p>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsSettingsModalOpen(false)}>Cancel</Button>
+                <Button>Save Changes</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+    </>
   );
 }
