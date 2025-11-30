@@ -192,8 +192,9 @@ export default function TestimonialsPage() {
                             maxLength={10}
                             {...field}
                             onChange={(e) => {
-                              const numericValue = e.target.value.replace(/[^0-9]/g, '');
-                              field.onChange(numericValue);
+                                const value = e.target.value;
+                                const numericValue = value.replace(/[^0-9]/g, '');
+                                field.onChange(numericValue);
                             }}
                             disabled={isSubmitting}
                           />
@@ -298,3 +299,5 @@ export default function TestimonialsPage() {
     </>
   );
 }
+
+    
