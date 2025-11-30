@@ -25,7 +25,7 @@ export default function PrivacyPolicyPage() {
             <li><b>Personal Information:</b> Name, email address, phone number, location (city, area).</li>
             <li><b>Tutor Specific Information:</b> Qualifications, experience, subjects, boards taught, bank account details for payment processing.</li>
             <li><b>Parent Specific Information:</b> Student's name, grade level, and specific tuition requirements.</li>
-            <li><b>Financial Information:</b> We collect first-month fees from Parents and process payments to Tutors. We may use third-party payment gateways, and your payment information is handled securely by them. We do not store your full card details.</li>
+            <li><b>Financial Information:</b> We collect fees from Parents and process payments to Tutors. We may use third-party payment gateways, and your payment information is handled securely by them. We do not store your full card details.</li>
           </ul>
         </>
       ),
@@ -40,7 +40,7 @@ export default function PrivacyPolicyPage() {
             <li>To create and manage your account on our Platform.</li>
             <li>To connect Parents with suitable Tutors based on requirements.</li>
             <li>To facilitate communication between users.</li>
-            <li>To process payments, including the tutor registration fee and the first month's tuition fee.</li>
+            <li>To process payments, including the tutor registration fee and the tuition fee.</li>
             <li>To improve our services, and for internal analytics and research.</li>
             <li>To send you transactional emails, service announcements, and promotional communications (from which you can opt-out).</li>
           </ul>
