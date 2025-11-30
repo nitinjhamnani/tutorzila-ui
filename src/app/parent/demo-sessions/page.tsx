@@ -7,17 +7,19 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
-  CalendarDays,
-  MessageSquareQuote,
-  PlusCircle,
   ListFilter,
-  ChevronDown,
-  Clock as ClockIcon,
+  PlusCircle,
+  MessageSquareQuote,
+  XIcon,
   CheckCircle,
-  XCircle as CancelIcon, 
+  Clock as ClockIcon,
+  ChevronDown,
+  CalendarDays,
+  XCircle as CancelIcon, // Using CancelIcon as XCircle
+  Loader2,
   Edit3,
 } from "lucide-react";
-import { ParentDemoSessionCard } from "@/components/parent/ParentDemoSessionCard";
+import { ParentDemoSessionCard } from "@/components/parent/components/ParentDemoSessionCard";
 import type { DemoSession, User, EnquiryDemo } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -35,21 +37,17 @@ import { format, addMinutes, parse } from "date-fns";
 import type { NextStepDecisionValue } from "@/components/modals/FeedbackModal";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 
 
-const demoStatusCategories = [
-  "All Demos",
+const allDemoStatusesForPage = [
   "Scheduled",
-  "Requested",
   "Completed",
   "Cancelled",
 ] as const;
-type DemoStatusCategory = (typeof demoStatusCategories)[number];
+type DemoStatusCategory = (typeof allDemoStatusesForPage)[number];
 
-const statusIcons: Record<Exclude<DemoStatusCategory, "All Demos">, React.ElementType> = {
+const statusIcons: Record<DemoStatusCategory, React.ElementType> = {
   Scheduled: ClockIcon,
-  Requested: MessageSquareQuote,
   Completed: CheckCircle,
   Cancelled: CancelIcon,
 };
@@ -165,55 +163,17 @@ export default function ParentDemoSessionsPage() {
     queryClient.invalidateQueries({ queryKey: ['parentDemos', token] });
   };
 
-  const handleReschedule = useCallback((demoId: string, newDate: Date, newStartTime: string, newEndTime: string, reason: string) => {
-    // This would be a mutation call
-    console.log("Reschedule requested by parent for demo:", demoId, newDate, newStartTime, newEndTime, reason);
+  const handleUpdateSession = useCallback((updatedDemo: DemoSession) => {
     handleMutationSuccess();
-    toast({ title: "Reschedule Requested", description: "The tutor has been notified of your reschedule request." });
+    toast({ title: "Demo Updated", description: `Your demo with ${updatedDemo.tutorName} has been updated.`});
   }, [handleMutationSuccess, toast]);
 
-  const handleCancel = useCallback((demoId: string) => {
+  const handleCancelSession = useCallback((sessionId: string, reason: string) => {
     // This would be a mutation call
-    console.log("Cancel requested for demo:", demoId);
+    console.log("Cancel requested for demo:", sessionId, "Reason:", reason);
     handleMutationSuccess();
     toast({ title: "Demo Cancelled", description: "The demo session has been cancelled." });
   }, [handleMutationSuccess, toast]);
-
-  const handleEditRequest = useCallback((demoId: string, newDate: Date, newStartTime: string, newEndTime: string, meetingUrl?: string) => {
-    // This would be a mutation call
-    console.log("Edit request for demo:", demoId, newDate, newStartTime, newEndTime, meetingUrl);
-    handleMutationSuccess();
-    toast({ title: "Demo Request Updated", description: `Your demo request has been updated. The tutor will be notified.` });
-  }, [handleMutationSuccess, toast]);
-
-  const handleWithdrawRequest = useCallback((demoId: string) => {
-    // This would be a mutation call
-    console.log("Withdraw request for demo:", demoId);
-    handleMutationSuccess();
-    toast({ title: "Request Withdrawn", description: `Demo request has been withdrawn.` });
-  }, [handleMutationSuccess, toast]);
-
-  const handleGiveFeedback = useCallback((demoId: string, rating: number, comment?: string, nextStepDecision?: NextStepDecisionValue) => {
-    // This would be a mutation call
-    console.log("Feedback submitted for demo:", demoId, rating, comment, nextStepDecision);
-    handleMutationSuccess();
-    toast({
-      title: "Feedback Submitted",
-      description: "We have noted your feedback. Our team will connect with you shortly."
-    });
-
-    if (nextStepDecision === "start_classes") {
-        handleStartClassesRequest(demoId);
-    }
-  }, [handleMutationSuccess, toast]); 
-
-  const handleStartClassesRequest = useCallback((demoId: string) => {
-    console.log("Start classes requested for demo:", demoId);
-    toast({
-      title: "Start Classes Requested",
-      description: `A request to start regular classes has been initiated. Our team will connect with you.`,
-    });
-  }, [toast]);
 
 
   if (isCheckingAuth || !user) {
@@ -259,12 +219,8 @@ export default function ParentDemoSessionsPage() {
             <ParentDemoSessionCard
                 key={demo.id}
                 demo={demo}
-                onReschedule={handleReschedule}
-                onCancel={handleCancel}
-                onEditRequest={handleEditRequest}
-                onWithdrawRequest={handleWithdrawRequest}
-                onGiveFeedback={handleGiveFeedback}
-                onStartClassesRequest={handleStartClassesRequest}
+                onUpdateSession={handleUpdateSession}
+                onCancelSession={handleCancelSession}
             />
             ))}
         </div>
