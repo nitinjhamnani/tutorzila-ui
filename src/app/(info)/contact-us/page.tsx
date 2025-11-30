@@ -136,10 +136,10 @@ export default function ContactUsPage() {
           <Card className="bg-card border rounded-lg shadow-lg">
             <CardHeader className="bg-muted/30 p-6 rounded-t-lg">
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                  <MessageSquare className="w-6 h-6 text-primary"/> Raise a Support Ticket
+                  <MessageSquare className="w-6 h-6 text-primary"/> Have a Question?
               </CardTitle>
               <CardDescription className="text-md text-muted-foreground mt-1">
-                Have an issue? Fill out the form below and we'll get back to you.
+                Post your queries below and we'll get back to you.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 md:p-8">
@@ -295,3 +295,5 @@ export default function ContactUsPage() {
     </>
   );
 }
+
+    
