@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,17 +15,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, User, MessageSquare, Send, LifeBuoy, Building, Phone, MapPin, Star, Quote as QuoteIcon } from "lucide-react";
+import { Mail, User, MessageSquare, Send, LifeBuoy, Building, Phone, MapPin, Star, Quote as QuoteIcon, CheckCircle2, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
 import AuthModal from "@/components/auth/AuthModal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
+  phone: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   subject: z.string().min(5, { message: "Subject must be at least 5 characters." }),
   message: z.string().min(20, { message: "Message must be at least 20 characters." }),
 });
@@ -36,38 +38,63 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 export default function ContactUsPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<'success' | 'error' | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signup');
+  const router = useRouter();
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       subject: "",
       message: "",
     },
+    mode: "onTouched",
   });
 
   async function onSubmit(values: ContactFormValues) {
     setIsSubmitting(true);
-    console.log("Contact Form Submitted:", values);
+    setSubmissionStatus(null);
+    
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+      const response = await fetch(`${apiBaseUrl}/api/auth/query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'accept': '*/*' },
+        body: JSON.stringify(values),
+      });
 
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        throw new Error("Failed to send your query. Please try again later.");
+      }
+      
+      setSubmissionStatus('success');
+      form.reset();
 
-    toast({
-      title: "Ticket Submitted!",
-      description: "Thank you for contacting us. We will get back to you shortly.",
-    });
-    form.reset();
-    setIsSubmitting(false);
+    } catch (error) {
+      console.error("Query submission failed:", error);
+      setSubmissionStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
   
   const handleTriggerSignUp = () => {
     setAuthModalInitialView('signup');
     setIsAuthModalOpen(true);
   };
+  
+  const closeSuccessDialog = () => {
+    setSubmissionStatus(null);
+    router.push('/');
+  };
+
+  const closeErrorDialog = () => {
+    setSubmissionStatus(null);
+  }
 
   const containerPadding = "container mx-auto px-6 sm:px-8 md:px-10 lg:px-12";
   const sectionPadding = "py-10 md:py-16";
@@ -152,7 +179,7 @@ export default function ContactUsPage() {
                       <FormItem>
                         <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80"/>Full Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="John Doe" {...field} />
+                          <Input placeholder="John Doe" {...field} disabled={isSubmitting}/>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -165,7 +192,31 @@ export default function ContactUsPage() {
                       <FormItem>
                         <FormLabel className="flex items-center"><Mail className="mr-2 h-4 w-4 text-primary/80"/>Email Address</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="you@example.com" {...field} />
+                          <Input type="email" placeholder="you@example.com" {...field} disabled={isSubmitting}/>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80"/>Phone Number</FormLabel>
+                        <FormControl>
+                           <Input
+                            type="tel"
+                            placeholder="Your 10-digit phone number"
+                            maxLength={10}
+                            {...field}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                const numericValue = value.replace(/[^0-9]/g, '');
+                                field.onChange(numericValue);
+                            }}
+                            disabled={isSubmitting}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -178,7 +229,7 @@ export default function ContactUsPage() {
                       <FormItem>
                         <FormLabel className="flex items-center"><MessageSquare className="mr-2 h-4 w-4 text-primary/80"/>Subject</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Issue with payment" {...field} />
+                          <Input placeholder="e.g., Issue with payment" {...field} disabled={isSubmitting}/>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -196,6 +247,7 @@ export default function ContactUsPage() {
                             className="resize-none"
                             rows={6}
                             {...field}
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -212,6 +264,46 @@ export default function ContactUsPage() {
           </Card>
         </div>
       </div>
+
+       <Dialog open={submissionStatus !== null} onOpenChange={(open) => !open && (submissionStatus === 'success' ? closeSuccessDialog() : closeErrorDialog())}>
+        <DialogContent 
+          className="sm:max-w-sm text-center p-8 bg-card rounded-xl"
+          onPointerDownOutside={(e) => {
+            if (submissionStatus === 'success') {
+              e.preventDefault();
+            }
+          }}
+          hideCloseButton={submissionStatus === 'success'}
+        >
+          {submissionStatus === 'success' ? (
+            <>
+              <DialogHeader>
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 mb-4 animate-in fade-in zoom-in-75 duration-500">
+                  <CheckCircle2 className="h-10 w-10 text-green-600" />
+                </div>
+                <DialogTitle className="text-2xl font-bold text-foreground">Query Submitted!</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-2">
+                  Thank you for contacting us. We have received your query and will get back to you shortly.
+                </DialogDescription>
+              </DialogHeader>
+              <Button onClick={closeSuccessDialog} className="w-full mt-6">Done</Button>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 mb-4 animate-in fade-in zoom-in-75 duration-500">
+                  <XCircle className="h-10 w-10 text-red-600" />
+                </div>
+                <DialogTitle className="text-2xl font-bold text-foreground">Submission Failed</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-2">
+                  We couldn't submit your query at this time. Please try again later.
+                </DialogDescription>
+              </DialogHeader>
+              <Button onClick={closeErrorDialog} variant="destructive" className="w-full mt-6">Try Again</Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
       
       <section className={`w-full text-center ${sectionPadding} bg-primary`}>
         <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
