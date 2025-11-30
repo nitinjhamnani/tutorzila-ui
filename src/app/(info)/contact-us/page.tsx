@@ -104,7 +104,7 @@ export default function ContactUsPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Email</h3>
-                  <a href="mailto:zilicsventures@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">zilicsventures@gmail.com</a>
+                  <a href="mailto:support@tutorzila.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">support@tutorzila.com</a>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -113,7 +113,7 @@ export default function ContactUsPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Location</h3>
-                  <p className="text-sm text-muted-foreground">Delhi, India</p>
+                  <p className="text-sm text-muted-foreground">Bangalore, India</p>
                 </div>
               </div>
             </div>
