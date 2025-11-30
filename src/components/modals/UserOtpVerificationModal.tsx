@@ -93,6 +93,8 @@ export function UserOtpVerificationModal({
   const queryClient = useQueryClient();
   const [timer, setTimer] = useState(600);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
+  const [attempts, setAttempts] = useState(3);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
@@ -110,11 +112,15 @@ export function UserOtpVerificationModal({
         onOpenChange(false);
     },
     onError: (error: Error) => {
-        form.setError("otp", {
-            type: "manual",
-            message: "Invalid OTP provided. Please provide the correct OTP.",
-        });
-        form.resetField("otp");
+        const newAttempts = attempts - 1;
+        setAttempts(newAttempts);
+        form.resetField("otp"); // Clear the input field
+
+        if (newAttempts > 0) {
+            setErrorMessage(`Invalid OTP. You have ${newAttempts} ${newAttempts > 1 ? 'attempts' : 'attempt'} remaining.`);
+        } else {
+            setErrorMessage("You have exceeded the maximum number of attempts. Please request a new OTP.");
+        }
     }
   });
 
@@ -122,6 +128,8 @@ export function UserOtpVerificationModal({
     if (isOpen) {
       form.reset();
       setTimer(600);
+      setAttempts(3);
+      setErrorMessage(null);
     }
   }, [isOpen, form]);
 
@@ -148,12 +156,15 @@ export function UserOtpVerificationModal({
   };
 
   const onSubmit: SubmitHandler<OtpFormValues> = async (data) => {
+    if (attempts <= 0) return;
+    setErrorMessage(null); // Clear previous error on new submission
     mutation.mutate(data.otp);
   };
   
   const typeTitle = verificationType.charAt(0).toUpperCase() + verificationType.slice(1);
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
+  const isSubmitDisabled = mutation.isPending || !form.formState.isValid || attempts <= 0;
 
   return (
     <>
@@ -197,10 +208,14 @@ export function UserOtpVerificationModal({
                         const numericValue = e.target.value.replace(/[^0-9]/g, '');
                         field.onChange(numericValue);
                       }}
-                      className="text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm"
-                      disabled={mutation.isPending}
+                      className={cn(
+                        "text-center text-base tracking-[0.3em] py-2.5 h-11 bg-input border-border focus:border-primary focus:ring-primary/30 shadow-sm",
+                        errorMessage && "border-destructive focus:border-destructive"
+                      )}
+                      disabled={mutation.isPending || attempts <= 0}
                     />
                   </FormControl>
+                   {errorMessage && <p className="text-xs font-medium text-destructive">{errorMessage}</p>}
                   <FormMessage />
                 </FormItem>
               )}
@@ -211,7 +226,7 @@ export function UserOtpVerificationModal({
             <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-end pt-2">
               <Button
                 type="submit"
-                disabled={mutation.isPending || !form.formState.isValid}
+                disabled={isSubmitDisabled}
                 className="w-full sm:w-auto"
               >
                 {mutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Verifying...</> : "Verify Code"}
