@@ -240,7 +240,7 @@ export default function ParentDashboardPage() {
     { title: "Demo Sessions", description: "Manage demo class requests & schedules.", IconEl: MessageSquareQuote, href: "/parent/demo-sessions", buttonText: "Manage Demos", disabled: false },
     { title: "My Payments", description: "View your payment history.", IconEl: DollarSign, href: "/parent/payments", buttonText: "View Payments", disabled: false },
     { title: "My Account", description: "Update your profile settings.", IconEl: UserCog, href: "/parent/my-account", buttonText: "Go to Account" },
-    { title: "Support", description: "Get help or report issues.", IconEl: LifeBuoy, href: "#", buttonText: "Get Support", disabled: true },
+    { title: "Support", description: "Get help or report issues.", IconEl: LifeBuoy, href: "/parent/support", buttonText: "Get Support" },
   ];
 
   return (
