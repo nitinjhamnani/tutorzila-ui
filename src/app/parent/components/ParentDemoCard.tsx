@@ -5,36 +5,75 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { DemoSession } from "@/types";
 import { cn } from "@/lib/utils";
-import { CalendarDays, Clock, User, Video, XCircle, CheckCircle, MessageSquareQuote, RadioTower, Users as UsersIcon, Settings } from "lucide-react";
+import { CalendarDays, Clock, User, Video, XCircle, CheckCircle, MessageSquareQuote, RadioTower, Users as UsersIcon, Settings, Edit3, GraduationCap, ShieldCheck, Info } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+
 import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import Link from "next/link";
 
 interface ParentDemoCardProps {
   demo: DemoSession;
   onUpdateSession: (updatedDemo: DemoSession) => void;
-  onCancelSession: (sessionId: string) => void;
+  onCancelSession: (sessionId: string, reason: string) => void;
 }
+
+const parentCancellationReasons = [
+  { id: "tutor_unresponsive", label: "Tutor is not responsive" },
+  { id: "found_another_tutor", label: "I have found another tutor" },
+  { id: "not_liked_profile", label: "I am not interested in this profile anymore" },
+  { id: "other_reason", label: "Other" },
+];
+
+
+const InfoItem = ({ icon: Icon, label, value, className }: { icon: React.ElementType; label: string; value?: string; className?: string; }) => {
+  if (!value) return null;
+  return (
+    <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
+      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px]" />
+      <div className="min-w-0 flex-1">
+        <strong className="text-muted-foreground font-medium">{label}</strong>&nbsp;
+        <span className="text-foreground/90 break-words">{value}</span>
+      </div>
+    </div>
+  );
+};
+
 
 export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: ParentDemoCardProps) {
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
   const demoDate = new Date(demo.date);
 
-  const getInitials = (name = "") => {
-    const parts = name.trim().split(" ");
-    return parts.length > 1 ? `${parts[0][0]}${parts[1][0]}` : parts[0].slice(0, 2);
+  const getStatusBadgeClasses = () => {
+    switch (demo.status) {
+      case "Scheduled":
+        return "bg-primary text-primary-foreground";
+      case "Requested":
+        return "bg-yellow-500 text-white";
+      case "Completed":
+        return "bg-green-600 text-white";
+      case "Cancelled":
+        return "bg-destructive text-destructive-foreground";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
   };
-
-  const statusBadgeClasses = {
-    Scheduled: "bg-blue-100 text-blue-700",
-    Requested: "bg-yellow-100 text-yellow-700",
-    Completed: "bg-green-100 text-green-700",
-    Cancelled: "bg-red-100 text-red-700",
-  }[demo.status] || "bg-muted text-muted-foreground";
 
   const StatusIcon = () => {
     const iconProps = "w-3 h-3 mr-1";
@@ -47,48 +86,52 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
     }
   };
 
-  const ModeIcon = () => {
-    const iconProps = "w-3 h-3 mr-1";
-    return demo.mode === "Online" ? <RadioTower className={iconProps} /> : <UsersIcon className={iconProps} />;
+  const cardTitle = `${demo.mode === 'Online' ? 'Online' : 'Offline'} Demo: ${demo.subject}`;
+  const AvatarIcon = demo.mode === 'Online' ? RadioTower : UsersIcon;
+
+  const handleConfirmCancel = () => {
+    if (cancelReason) {
+      onCancelSession(demo.id, cancelReason);
+      setIsCancelModalOpen(false);
+    }
   };
 
+
   return (
-    <Dialog open={isManageModalOpen} onOpenChange={setIsManageModalOpen}>
-      <Card className="shadow border p-4 sm:p-5">
-        <CardHeader className="flex flex-row justify-between items-start space-x-4 p-0 mb-2">
+    <>
+      <Card className="bg-card rounded-lg shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
+        <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-9 w-9">
-              <AvatarFallback>{getInitials(demo.tutorName)}</AvatarFallback>
+             <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground flex items-center justify-center">
+              <AvatarIcon className="h-5 w-5" />
             </Avatar>
-            <div className="space-y-0.5">
-              <CardTitle className="text-base font-semibold">{demo.subject} with {demo.tutorName}</CardTitle>
-              <CardDescription className="text-xs text-muted-foreground">
-                {format(demoDate, "PPP")} — {demo.startTime} to {demo.endTime}
+            <div className="flex-grow min-w-0">
+              <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+                {cardTitle}
+              </CardTitle>
+              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
+                <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
+                With {demo.tutorName}
               </CardDescription>
             </div>
           </div>
-        </CardHeader>
-
-        <CardContent className="text-xs space-y-2">
-          <div className="flex items-center">
-            <User className="w-3.5 h-3.5 mr-1 text-primary/70" />
-            Student: {demo.studentName}
-          </div>
-          <div className="flex items-center">
-            <CalendarDays className="w-3.5 h-3.5 mr-1 text-primary/70" />
-            Grade: {demo.gradeLevel} {demo.board && `(${demo.board})`}
-          </div>
-        </CardContent>
-
-        <CardFooter className="flex justify-between items-center border-t pt-3 mt-2">
-          <div className="flex gap-2 items-center">
-             <Badge className="text-[10px] px-2 py-0.5 bg-muted text-muted-foreground">
-              <ModeIcon />
-              {demo.mode === "Offline (In-person)" ? "Offline" : demo.mode}
+           <div className="absolute top-0 right-0">
+             <Badge
+              className={cn("text-[10px] px-2 py-0.5 font-semibold", getStatusBadgeClasses())}
+            >
+              <StatusIcon />
+              {demo.status}
             </Badge>
           </div>
+        </CardHeader>
+        <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 text-xs flex-grow">
+          <InfoItem icon={GraduationCap} label="Grade:" value={demo.gradeLevel} />
+          {demo.board && <InfoItem icon={ShieldCheck} label="Board:" value={demo.board} />}
+          <InfoItem icon={CalendarDays} label="Date:" value={format(demoDate, "MMM d, yyyy")} />
+          <InfoItem icon={Clock} label="Time:" value={`${demo.startTime} - ${demo.endTime}`} />
+        </CardContent>
 
-          <div className="flex items-center gap-2">
+        <CardFooter className="p-0 pt-3 sm:pt-4 flex justify-end items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
               <Button size="sm" asChild className="text-xs px-3 py-1.5">
                 <Link href={demo.joinLink} target="_blank" rel="noopener noreferrer">
@@ -102,31 +145,49 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
                 size="sm"
                 variant="destructive"
                 className="text-xs px-3 py-1.5"
-                onClick={() => onCancelSession(demo.id)}
+                onClick={() => setIsCancelModalOpen(true)}
               >
                 <XCircle className="w-3 h-3 mr-1" />
                 Cancel
               </Button>
             )}
-          </div>
         </CardFooter>
-
-        {demo.status === "Scheduled" && (
-          <DialogContent className="p-0">
-            <ManageDemoModal
-              demoSession={demo}
-              onUpdateSession={(updated) => {
-                onUpdateSession(updated);
-                setIsManageModalOpen(false);
-              }}
-              onCancelSession={() => {
-                onCancelSession(demo.id);
-                setIsManageModalOpen(false);
-              }}
-            />
-          </DialogContent>
-        )}
       </Card>
-    </Dialog>
+
+      <AlertDialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to cancel?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will cancel the demo session with {demo.tutorName}. Please provide a reason for cancellation.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Label htmlFor="cancellation-reason" className="text-sm font-medium text-foreground mb-3 block">
+              Reason for Cancellation
+            </Label>
+            <RadioGroup
+              id="cancellation-reason"
+              value={cancelReason}
+              onValueChange={setCancelReason}
+              className="flex flex-col space-y-2"
+            >
+              {parentCancellationReasons.map((reason) => (
+                <div key={reason.id} className="flex items-center space-x-3 space-y-0">
+                  <RadioGroupItem value={reason.label} id={`parent-cancel-${reason.id}`} />
+                  <Label htmlFor={`parent-cancel-${reason.id}`} className="font-normal">{reason.label}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancel} disabled={!cancelReason.trim()}>
+              Confirm Cancellation
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
