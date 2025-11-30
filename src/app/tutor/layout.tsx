@@ -65,12 +65,8 @@ const fetchTutorId = async (token: string | null): Promise<string> => {
 };
 
 const getInitials = (name?: string): string => {
-  if (!name) return "?";
-  const parts = name.split(" ");
-  if (parts.length > 1 && parts[0] && parts[parts.length - 1]) {
-    return `${parts[0][0]}${parts[parts.length - 1][0]}`;
-  }
-  return name.slice(0, 1).toUpperCase();
+  if (!name || name.trim() === "") return "?";
+  return name.trim().slice(0, 1).toUpperCase();
 };
 
 
@@ -218,7 +214,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                     <Avatar className="h-9 w-9 border-2 border-primary/30">
                       <AvatarImage src={user.avatar || undefined} alt={user.name} />
-                      <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                         {getInitials(user.name)}
                       </AvatarFallback>
                     </Avatar>
