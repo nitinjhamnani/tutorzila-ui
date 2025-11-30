@@ -31,12 +31,17 @@ import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 
 const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
-  country: z.string().min(1, "Country code is required."),
   phone: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   role: z.enum(["parent", "tutor"], { required_error: "Please select your role." }),
   rating: z.number().min(1, "Please provide a rating.").max(5),
@@ -44,10 +49,6 @@ const testimonialSchema = z.object({
 });
 
 type TestimonialFormValues = z.infer<typeof testimonialSchema>;
-
-const MOCK_COUNTRIES = [
-  { country: "IN", countryCode: "+91", label: "India (+91)" },
-];
 
 const StarRating = ({
   rating,
@@ -98,11 +99,11 @@ export default function TestimonialsPage() {
     resolver: zodResolver(testimonialSchema),
     defaultValues: {
       name: "",
-      country: "IN",
       phone: "",
       rating: 0,
       comment: "",
     },
+    mode: "onTouched",
   });
 
   async function onSubmit(values: TestimonialFormValues) {
@@ -169,58 +170,40 @@ export default function TestimonialsPage() {
                     </FormItem>
                   )}
                 />
-                 <div className="space-y-2">
-                    <FormLabel className="text-foreground">Phone Number</FormLabel>
-                    <div className="flex gap-2">
-                      <FormField
-                        control={form.control}
-                        name="country"
-                        render={({ field }) => (
-                          <FormItem className="w-auto min-w-[120px]"> 
-                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
-                              <FormControl>
-                                <SelectTrigger className="bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg py-3 text-base h-10">
-                                  <SelectValue placeholder="Country" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {MOCK_COUNTRIES.map(c => (
-                                  <SelectItem key={c.country} value={c.country} className="text-sm">{c.label}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormControl>
-                              <div className="relative">
-                                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input
-                                  type="tel"
-                                  pattern="[0-9]*"
-                                  placeholder="XXXXXXXXXX"
-                                  {...field}
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    const numericValue = value.replace(/[^0-9]/g, '');
-                                    field.onChange(numericValue);
-                                  }}
-                                  className="pl-12 pr-4 py-3 text-base bg-input border-border focus:border-primary focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg h-10"
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">Phone Number</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <Select defaultValue="+91" disabled>
+                          <SelectTrigger className="w-[80px] bg-muted">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="+91">+91</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormControl>
+                          <Input
+                            type="tel"
+                            placeholder="XXXXXXXXXX"
+                            maxLength={10}
+                            {...field}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                const numericValue = value.replace(/[^0-9]/g, '');
+                                field.onChange(numericValue);
+                            }}
+                            disabled={isSubmitting}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <FormField
                   control={form.control}
                   name="role"
