@@ -105,7 +105,7 @@ export default function AdminFeedbacksPage() {
     if (isLoading) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-48 text-center">
+          <TableCell colSpan={5} className="h-48 text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
             <p className="mt-2 text-sm text-muted-foreground">
               Loading feedbacks...
@@ -118,7 +118,7 @@ export default function AdminFeedbacksPage() {
     if (error) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-48 text-center text-destructive">
+          <TableCell colSpan={5} className="h-48 text-center text-destructive">
             <ShieldAlert className="mx-auto h-8 w-8" />
             <p className="mt-2 font-semibold">Error fetching feedbacks</p>
             <p className="text-xs">{(error as Error).message}</p>
@@ -130,7 +130,7 @@ export default function AdminFeedbacksPage() {
     if (feedbacks.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-48 text-center">
+          <TableCell colSpan={5} className="h-48 text-center">
             <MessageSquareQuote className="mx-auto h-12 w-12 text-muted-foreground/30" />
             <p className="mt-4 font-semibold text-muted-foreground">
               No feedbacks found.
@@ -151,9 +151,6 @@ export default function AdminFeedbacksPage() {
         </TableCell>
         <TableCell>
           <StarRating rating={feedback.rating} size={16} />
-        </TableCell>
-        <TableCell className="max-w-sm">
-          <p className="truncate">{feedback.content}</p>
         </TableCell>
         <TableCell>
           {format(parseISO(feedback.createdAt), "MMM d, yyyy")}
@@ -195,7 +192,6 @@ export default function AdminFeedbacksPage() {
                 <TableHead>Author</TableHead>
                 <TableHead>User Type</TableHead>
                 <TableHead>Rating</TableHead>
-                <TableHead>Feedback</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
