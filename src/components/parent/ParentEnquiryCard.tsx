@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Clock,
   GraduationCap,
@@ -44,28 +43,21 @@ const getInitials = (subject?: string[]): string => {
 
 const InfoItem = ({
   icon: Icon,
-  label,
-  value,
+  text,
   className,
 }: {
-  icon?: React.ElementType;
-  label?: string;
-  value?: string | string[];
+  icon: React.ElementType;
+  text?: string | string[];
   className?: string;
 }) => {
-  if (!value || (Array.isArray(value) && value.length === 0)) return null;
-  const displayText = Array.isArray(value) ? value.join(", ") : value;
+  if (!text || (Array.isArray(text) && text.length === 0)) return null;
+  const displayText = Array.isArray(text) ? text.join(", ") : text;
   return (
     <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
-      {Icon && (
-        <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px]" />
-      )}
-      {label && (
-        <strong className="text-muted-foreground font-medium whitespace-nowrap">
-          {label}:&nbsp;
-        </strong>
-      )}
-      <span className="text-foreground/90 break-words">{displayText}</span>
+      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px]" />
+      <div className="min-w-0 flex-1">
+        <span className="text-foreground/90 break-words">{displayText}</span>
+      </div>
     </div>
   );
 };
@@ -78,12 +70,17 @@ export function ParentEnquiryCard({
   const postedDate = parseISO(requirement.postedAt);
   const timeAgo = formatDistanceToNow(postedDate, { addSuffix: true });
   const subjectInitials = getInitials(requirement.subject);
-  const isPastEnquiry = requirement.status === "closed";
   const { showLoader } = useGlobalLoader();
 
-  const locationString = typeof requirement.location === 'object' && requirement.location !== null
-    ? [requirement.location.area, requirement.location.city, requirement.location.country].filter(Boolean).join(', ')
-    : requirement.location;
+  const locationObject = typeof requirement.location === 'object' && requirement.location !== null
+    ? requirement.location
+    : null;
+
+  const locationString = locationObject
+    ? [locationObject.area, locationObject.city].filter(Boolean).join(', ')
+    : typeof requirement.location === 'string'
+    ? requirement.location
+    : '';
     
   const handleManageClick = () => {
     showLoader("Loading enquiry details...");
@@ -96,22 +93,24 @@ export function ParentEnquiryCard({
         )}
       >
         <CardHeader className="p-0 pb-3 sm:pb-4 relative">
-          <div className="flex items-start space-x-3">
-            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
-              <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
-                {subjectInitials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-grow min-w-0 space-y-0.5">
-              <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words pr-16">
-                {Array.isArray(requirement.subject)
-                  ? requirement.subject.join(", ")
-                  : requirement.subject}
-              </CardTitle>
-              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground flex items-center">
-                <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" />{" "}
-                Posted {timeAgo}
-              </CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start space-x-3 flex-grow min-w-0">
+              <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground">
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-full text-base">
+                  {subjectInitials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-grow min-w-0 space-y-0.5">
+                <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words pr-16">
+                  {Array.isArray(requirement.subject)
+                    ? requirement.subject.join(", ")
+                    : requirement.subject}
+                </CardTitle>
+                <CardDescription className="text-[11px] sm:text-xs text-muted-foreground flex items-center">
+                  <Clock className="w-3 h-3 inline mr-1 text-muted-foreground/80" />{" "}
+                  Posted {timeAgo}
+                </CardDescription>
+              </div>
             </div>
             <div className="absolute top-0 right-0">
               <Badge variant="default" className="text-xs">
