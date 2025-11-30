@@ -61,7 +61,8 @@ export function AppHeader() {
     "/privacy-policy",
     "/faq",
     "/contact-us",
-    "/about-us"
+    "/about-us",
+    "/testimonials"
   ];
   const isTransparentPath = transparentHeaderPaths.includes(pathname) || pathname.startsWith('/tutors/');
   
