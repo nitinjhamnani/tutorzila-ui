@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -62,7 +61,8 @@ export function AppHeader() {
     "/faq",
     "/contact-us",
     "/about-us",
-    "/testimonials"
+    "/testimonials",
+    "/feedback"
   ];
   const isTransparentPath = transparentHeaderPaths.includes(pathname) || pathname.startsWith('/tutors/');
   
