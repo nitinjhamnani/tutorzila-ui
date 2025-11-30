@@ -18,6 +18,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger, // Added DialogTrigger
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -28,6 +29,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -619,14 +621,32 @@ export default function ParentEnquiryDetailsPage() {
                       </Button>
                     )}
                     {requirement.status !== "closed" ? (
-                      <Button variant="outline" size="xs" className="text-xs py-1.5 px-2.5 h-auto" onClick={handleOpenCloseEnquiryModal}>
+                      <Button variant="destructive" size="sm" onClick={handleOpenCloseEnquiryModal}>
                         <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
                       </Button>
                     ) : (
-                       <Button variant="outline" size="sm" onClick={() => reopenMutation.mutate()} disabled={reopenMutation.isPending}>
-                        {reopenMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Archive className="mr-2 h-4 w-4" />}
-                        {reopenMutation.isPending ? "Reopening..." : "Reopen Enquiry"}
-                      </Button>
+                       <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Archive className="mr-2 h-4 w-4" /> Reopen Enquiry
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will reopen your tuition requirement, and tutors will be able to apply again.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => reopenMutation.mutate()} disabled={reopenMutation.isPending}>
+                              {reopenMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                              Confirm Reopen
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     )}
                 </div>
               </CardFooter>
@@ -670,6 +690,5 @@ export default function ParentEnquiryDetailsPage() {
       )}
     </main>
   );
-}
 
     
