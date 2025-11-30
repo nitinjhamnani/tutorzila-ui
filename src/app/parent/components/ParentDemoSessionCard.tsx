@@ -45,6 +45,21 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
   const [cancelReason, setCancelReason] = useState("");
   const demoDate = new Date(demo.date);
 
+  const getStatusBadgeClasses = () => {
+    switch (demo.status) {
+      case "Scheduled":
+        return "bg-primary text-primary-foreground";
+      case "Requested":
+        return "bg-yellow-500 text-white";
+      case "Completed":
+        return "bg-green-600 text-white";
+      case "Cancelled":
+        return "bg-destructive text-destructive-foreground";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
+  };
+
   const StatusIcon = () => {
     const iconProps = "w-3 h-3 mr-1";
     switch (demo.status) {
@@ -69,22 +84,32 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
 
   return (
     <>
-      <Card className="shadow border p-4 sm:p-5">
-        <CardHeader className="flex flex-row justify-between items-start space-x-4 p-0 mb-2">
+      <Card className="bg-card rounded-lg shadow-lg border-0 w-full overflow-hidden p-4 sm:p-5 flex flex-col h-full">
+        <CardHeader className="p-0 pb-3 sm:pb-4 relative">
           <div className="flex items-start space-x-3">
              <Avatar className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full shadow-sm bg-primary text-primary-foreground flex items-center justify-center">
               <AvatarIcon className="h-5 w-5" />
             </Avatar>
-            <div className="space-y-0.5">
-              <CardTitle className="text-base font-semibold">{cardTitle}</CardTitle>
-              <CardDescription className="text-xs text-muted-foreground">
+            <div className="flex-grow min-w-0">
+              <CardTitle className="text-base font-semibold text-primary group-hover:text-primary/90 transition-colors break-words">
+                {cardTitle}
+              </CardTitle>
+              <CardDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 flex items-center">
+                <User className="w-3 h-3 mr-1 text-muted-foreground/80" />
                 With {demo.tutorName}
               </CardDescription>
             </div>
           </div>
+           <div className="absolute top-0 right-0">
+             <Badge
+              className={cn("text-[10px] px-2 py-0.5 font-semibold", getStatusBadgeClasses())}
+            >
+              <StatusIcon />
+              {demo.status}
+            </Badge>
+          </div>
         </CardHeader>
-
-        <CardContent className="text-xs space-y-2">
+        <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 text-xs flex-grow">
           <div className="flex items-center">
             <User className="w-3.5 h-3.5 mr-1 text-primary/70" />
             Student: {demo.studentName}
@@ -99,13 +124,7 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-between items-center border-t pt-3 mt-2">
-          <Badge variant="default" className={cn("text-[10px] px-2 py-0.5", demo.status === 'Scheduled' ? 'bg-primary' : 'bg-muted')}>
-              <StatusIcon />
-              {demo.status}
-          </Badge>
-
-          <div className="flex items-center gap-2">
+        <CardFooter className="p-0 pt-3 sm:pt-4 border-t border-border/20 flex justify-end items-center gap-2">
             {demo.joinLink && demo.status === "Scheduled" && (
               <Button size="sm" asChild className="text-xs px-3 py-1.5">
                 <Link href={demo.joinLink} target="_blank" rel="noopener noreferrer">
@@ -125,7 +144,6 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
                 Cancel
               </Button>
             )}
-          </div>
         </CardFooter>
       </Card>
 
