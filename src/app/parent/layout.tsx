@@ -70,6 +70,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
     { href: "/parent/payments", label: "My Payments", icon: DollarSign, disabled: false },
+    { href: "/parent/support", label: "My Support", icon: LifeBuoy, disabled: false },
   ];
 
   const accountSettingsNavItems = [
@@ -104,6 +105,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   }
   
   if (hasMounted && (!isAuthenticated || (user && user.role !== 'parent'))) {
+    
     return null;
   }
    if (!user && hasMounted) { 
@@ -127,7 +129,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               size="icon"
               onClick={isMobile ? toggleMobileNav : toggleNavbarCollapsed}
               className="text-gray-600 hover:text-white hover:bg-primary/80"
-              aria-label={isMobile ? (isMobileNavOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
+              aria-label={isMobile ? (isNavbarOpen ? "Close sidebar" : "Open sidebar") : (isNavbarCollapsed ? "Expand sidebar" : "Collapse sidebar")}
             >
               <MenuIcon className="h-6 w-6" />
             </Button>
