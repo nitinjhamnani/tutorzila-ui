@@ -15,6 +15,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -48,8 +58,15 @@ interface UserOtpVerificationModalProps {
 const verifyOtpApi = async (token: string | null, verificationId: string, otp: string) => {
     if (!token) throw new Error("Authentication token is required.");
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const response = await fetch(`${apiBaseUrl}/api/verify/otp?verificationId=${encodeURIComponent(verificationId)}&otp=${otp}`, {
-        method: 'GET',
+    // The verificationId in this context is the user's email or phone, not an ID from a previous API call.
+    // The API seems to expect the identifier directly.
+    const endpoint = verificationId.includes('@')
+        ? `/api/verify/otp?verificationId=${encodeURIComponent(verificationId)}&otp=${otp}`
+        : `/api/verify/otp?verificationId=${encodeURIComponent(verificationId)}&otp=${otp}`;
+
+
+    const response = await fetch(`${apiBaseUrl}${endpoint}`, {
+        method: 'GET', // Method is GET as per previous implementations
         headers: {
             'Authorization': `Bearer ${token}`,
             'accept': '*/*',
@@ -75,6 +92,7 @@ export function UserOtpVerificationModal({
   const { token } = useAuthMock();
   const queryClient = useQueryClient();
   const [timer, setTimer] = useState(600);
+  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
 
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
@@ -84,16 +102,10 @@ export function UserOtpVerificationModal({
   const mutation = useMutation({
     mutationFn: (otp: string) => verifyOtpApi(token, identifier, otp),
     onSuccess: (updatedUserDetails) => {
-        queryClient.setQueryData(['tutorAccountDetails', token], (oldData: any) => {
-            if (!oldData) return undefined;
-            return {
-                ...oldData,
-                userDetails: {
-                    ...oldData.userDetails,
-                    ...updatedUserDetails,
-                }
-            };
-        });
+        // Invalidate queries to refetch user data after successful verification
+        queryClient.invalidateQueries({ queryKey: ["tutorAccountDetails", token] });
+        queryClient.invalidateQueries({ queryKey: ["parentAccountDetails", token] });
+        
         onSuccess();
         onOpenChange(false);
     },
@@ -121,6 +133,19 @@ export function UserOtpVerificationModal({
       return () => clearInterval(interval);
     }
   }, [timer, isOpen]);
+  
+  const handleOpenChange = (open: boolean) => {
+    if (!open && !mutation.isSuccess) {
+      setIsConfirmingClose(true);
+    } else {
+      onOpenChange(open);
+    }
+  };
+
+  const handleConfirmClose = () => {
+    onOpenChange(false);
+    setIsConfirmingClose(false);
+  };
 
   const onSubmit: SubmitHandler<OtpFormValues> = async (data) => {
     mutation.mutate(data.otp);
@@ -131,7 +156,8 @@ export function UserOtpVerificationModal({
   const seconds = timer % 60;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent 
         className="sm:max-w-md bg-card p-0 rounded-lg overflow-hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
@@ -195,5 +221,20 @@ export function UserOtpVerificationModal({
         </Form>
       </DialogContent>
     </Dialog>
+     <AlertDialog open={isConfirmingClose} onOpenChange={setIsConfirmingClose}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Closing this will cancel the verification process. You can try again from your account page.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsConfirmingClose(false)}>No, continue</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Yes, cancel</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
