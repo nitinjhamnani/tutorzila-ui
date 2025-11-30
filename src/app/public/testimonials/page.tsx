@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -26,12 +26,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone, Send as SendIcon } from "lucide-react";
+import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
-import AuthModal from "@/components/auth/AuthModal";
 import {
   Select,
   SelectContent,
@@ -39,7 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import AuthModal from "@/components/auth/AuthModal";
 
 const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -98,6 +97,11 @@ export default function TestimonialsPage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialView, setAuthModalInitialView] = useState<'signin' | 'signup'>('signup');
 
+  const handleTriggerSignUp = () => {
+    setAuthModalInitialView('signup');
+    setIsAuthModalOpen(true);
+  };
+
   const form = useForm<TestimonialFormValues>({
     resolver: zodResolver(testimonialSchema),
     defaultValues: {
@@ -108,11 +112,6 @@ export default function TestimonialsPage() {
     },
     mode: "onTouched",
   });
-  
-  const handleTriggerSignUp = () => {
-    setAuthModalInitialView('signup');
-    setIsAuthModalOpen(true);
-  };
 
   async function onSubmit(values: TestimonialFormValues) {
     setIsSubmitting(true);
@@ -201,7 +200,6 @@ export default function TestimonialsPage() {
                             {...field}
                             onChange={(e) => {
                                 const value = e.target.value;
-                                // Allow only numeric input
                                 const numericValue = value.replace(/[^0-9]/g, '');
                                 field.onChange(numericValue);
                             }}
@@ -274,7 +272,7 @@ export default function TestimonialsPage() {
       </div>
 
        {/* Call to Action */}
-       <section className={`w-full text-center ${sectionPadding} bg-primary`}>
+      <section className={`w-full text-center ${sectionPadding} bg-primary`}>
         <div className={`${containerPadding} animate-in fade-in zoom-in-95 duration-700 ease-out`}>
           <div className="inline-block p-4 bg-primary-foreground/10 rounded-full mb-5 shadow-sm">
               <Star className="w-9 h-9 text-white"/>
@@ -287,7 +285,7 @@ export default function TestimonialsPage() {
           </p>
           <div className="mt-10">
              <Button size="lg" variant="secondary" className="shadow-xl text-secondary-foreground hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-100 animate-pulse-once py-3.5 px-8 text-base" onClick={handleTriggerSignUp}>
-                 Sign Up Now <SendIcon className="ml-2.5 h-4.5 w-4.5" />
+                 Sign Up Now <Send className="ml-2.5 h-4.5 w-4.5" />
             </Button>
           </div>
         </div>
@@ -325,7 +323,7 @@ export default function TestimonialsPage() {
           </Carousel>
         </div>
       </section>
-
+      
       {/* Newsletter Section */}
       <section className={`w-full bg-primary text-primary-foreground ${sectionPadding}`}>
           <div className={`${containerPadding} text-center`}>
@@ -350,7 +348,7 @@ export default function TestimonialsPage() {
               </div>
           </div>
       </section>
-
+      
       {isAuthModalOpen && (
         <AuthModal 
           isOpen={isAuthModalOpen} 
