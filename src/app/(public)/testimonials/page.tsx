@@ -26,14 +26,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Star, MessageSquareQuote, Send, Quote as QuoteIcon } from "lucide-react";
+import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
 import { TestimonialCard } from "@/components/shared/TestimonialCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 
 const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
+  phone: z.string().length(10, { message: "Phone number must be 10 digits." }).regex(/^\d+$/, "Phone number must be digits only."),
   role: z.enum(["parent", "tutor"], { required_error: "Please select your role." }),
   rating: z.number().min(1, "Please provide a rating.").max(5),
   comment: z.string().min(20, "Your feedback must be at least 20 characters.").max(500, "Your feedback cannot exceed 500 characters."),
@@ -90,9 +99,11 @@ export default function TestimonialsPage() {
     resolver: zodResolver(testimonialSchema),
     defaultValues: {
       name: "",
+      phone: "",
       rating: 0,
       comment: "",
     },
+    mode: "onTouched",
   });
 
   async function onSubmit(values: TestimonialFormValues) {
@@ -155,6 +166,35 @@ export default function TestimonialsPage() {
                       <FormControl>
                         <Input placeholder="John Doe" {...field} disabled={isSubmitting} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">Phone Number</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <Select defaultValue="+91" disabled>
+                          <SelectTrigger className="w-[80px] bg-muted">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="+91">+91</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormControl>
+                          <Input
+                            type="tel"
+                            placeholder="XXXXXXXXXX"
+                            maxLength={10}
+                            {...field}
+                            disabled={isSubmitting}
+                          />
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
