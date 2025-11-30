@@ -108,7 +108,7 @@ export default function TutorSpecificLayout({ children }: { children: ReactNode 
   ];
 
   const accountSettingsNavItems = [
-    { href: "/tutor/my-account", label: "My Account", icon: UserCircle, disabled: false },
+    { href: "/tutor/my-account", label: "Account", icon: UserCircle, disabled: false },
     { href: "/tutor/support", label: "Support", icon: LifeBuoy, disabled: false },
     { href: "/tutor/terms", label: "Terms", icon: FileText, disabled: false },
   ];
