@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -54,6 +53,7 @@ import {
   VenetianMask,
   Coins,
   DollarSign,
+  Archive,
 } from "lucide-react";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -191,12 +191,12 @@ const updateEnquiry = async ({ enquiryId, token, formData }: { enquiryId: string
     grade: formData.gradeLevel,
     board: formData.board,
     addressName: locationDetails?.name || locationDetails?.address || "",
-    address: locationDetails?.address || "",
-    city: locationDetails?.city || "",
-    state: locationDetails?.state || "",
-    country: locationDetails?.country || "",
-    area: locationDetails?.area || "",
-    pincode: locationDetails?.pincode || "",
+    address: locationDetails?.address,
+    city: locationDetails?.city,
+    state: locationDetails?.state,
+    country: locationDetails?.country,
+    area: locationDetails?.area,
+    pincode: locationDetails?.pincode,
     googleMapsLink: locationDetails?.googleMapsUrl || "",
     availabilityDays: formData.preferredDays,
     availabilityTime: formData.preferredTimeSlots,
@@ -245,6 +245,28 @@ const closeEnquiry = async ({ enquiryId, token, reason }: { enquiryId: string, t
     throw new Error("Failed to close enquiry.");
   }
   return true;
+};
+
+const reopenEnquiryApi = async ({ enquiryId, token }: { enquiryId: string; token: string | null; }) => {
+  if (!token) throw new Error("Authentication token is required.");
+  
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const response = await fetch(`${apiBaseUrl}/api/manage/enquiry/reopen`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'TZ-ENQ-ID': enquiryId,
+      'Content-Type': 'application/json',
+      'accept': '*/*',
+    },
+    body: JSON.stringify({ message: "Reopened by Parent" }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to reopen enquiry." }));
+    throw new Error(errorData.message);
+  }
+  return response.json();
 };
 
 const closeReasons = [
@@ -352,6 +374,19 @@ export default function ParentEnquiryDetailsPage() {
       });
     },
   });
+
+  const reopenMutation = useMutation({
+    mutationFn: () => reopenEnquiryApi({ enquiryId: id, token }),
+    onSuccess: (updatedData) => {
+        toast({ title: "Enquiry Reopened", description: "Your requirement is now active again." });
+        queryClient.invalidateQueries({ queryKey: ['parentEnquiries'] });
+        queryClient.setQueryData(['parentEnquiryDetails', id], (old: any) => ({ ...old, requirement: {...old.requirement, status: 'reopened'} }));
+    },
+    onError: (error: Error) => {
+        toast({ variant: "destructive", title: "Failed to Reopen", description: error.message });
+    }
+  });
+
 
   useEffect(() => {
     if (!isCheckingAuth && !isAuthenticated) {
@@ -472,7 +507,7 @@ export default function ParentEnquiryDetailsPage() {
                           </div>
                       </div>
                   </div>
-                    {requirement.status === "open" && (
+                    {requirement.status !== "closed" && (
                     <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                         <DialogTrigger asChild>
                         <Button variant="default" size="icon" className="h-8 w-8 absolute top-4 right-4 text-primary-foreground bg-primary hover:bg-primary/90">
@@ -583,9 +618,16 @@ export default function ParentEnquiryDetailsPage() {
                           </Link>
                       </Button>
                     )}
-                    <Button variant="outline" size="xs" className="text-xs py-1.5 px-2.5 h-auto" onClick={handleOpenCloseEnquiryModal}>
-                      <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
-                    </Button>
+                    {requirement.status !== "closed" ? (
+                      <Button variant="outline" size="xs" className="text-xs py-1.5 px-2.5 h-auto" onClick={handleOpenCloseEnquiryModal}>
+                        <XCircle className="mr-1.5 h-3.5 w-3.5" /> Close Enquiry
+                      </Button>
+                    ) : (
+                       <Button variant="outline" size="sm" onClick={() => reopenMutation.mutate()} disabled={reopenMutation.isPending}>
+                        {reopenMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Archive className="mr-2 h-4 w-4" />}
+                        {reopenMutation.isPending ? "Reopening..." : "Reopen Enquiry"}
+                      </Button>
+                    )}
                 </div>
               </CardFooter>
             </Card>
@@ -629,3 +671,5 @@ export default function ParentEnquiryDetailsPage() {
     </main>
   );
 }
+
+    
