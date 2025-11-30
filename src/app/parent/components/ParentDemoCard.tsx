@@ -5,7 +5,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { DemoSession } from "@/types";
 import { cn } from "@/lib/utils";
-import { CalendarDays, Clock, User, Video, XCircle, CheckCircle, MessageSquareQuote, RadioTower, Users as UsersIcon, Settings, Edit3, GraduationCap, ShieldCheck, Info } from "lucide-react";
+import { CalendarDays, Clock, User, Video, XCircle, CheckCircle, MessageSquareQuote, RadioTower, Users as UsersIcon, Settings, Edit3, GraduationCap, ShieldCheck, Info, XOctagon } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,8 +22,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-import { ManageDemoModal } from "@/components/modals/ManageDemoModal";
 import Link from "next/link";
 
 interface ParentDemoCardProps {
@@ -141,13 +139,13 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
             )}
 
             {demo.status === "Scheduled" && (
-              <Button
-                size="sm"
-                variant="destructive"
-                className="text-xs px-3 py-1.5"
+               <Button
+                size="xs"
+                variant="outline"
+                className="text-[10px] sm:text-[11px] py-1 px-2 h-auto"
                 onClick={() => setIsCancelModalOpen(true)}
               >
-                <XCircle className="w-3 h-3 mr-1" />
+                <XOctagon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
                 Cancel
               </Button>
             )}
@@ -191,5 +189,3 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
     </>
   );
 }
-
-    
