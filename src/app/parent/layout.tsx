@@ -29,7 +29,23 @@ import {
   SearchCheck,
   LifeBuoy,
   FileText,
+  Eye,
+  ArrowDownCircle,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AddToHomeScreenModal } from "@/components/modals/AddToHomeScreenModal";
+
+const getInitials = (name?: string): string => {
+  if (!name || name.trim() === "") return "?";
+  return name.trim().slice(0, 1).toUpperCase();
+};
 
 export default function ParentSpecificLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -40,6 +56,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   const [hasMounted, setHasMounted] = useState(false);
   const [isNavbarOpen, setIsNavbarOpen] = useState(!isMobile); // For mobile off-canvas
   const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(false); // For desktop collapse
+  const [isAddToHomeScreenModalOpen, setIsAddToHomeScreenModalOpen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -113,13 +130,13 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
   }
 
   return (
+    <>
     <div className="flex flex-col h-screen bg-secondary">
       {/* Integrated Header */}
       {hasMounted && (
         <header
           className={cn(
-            "bg-card shadow-sm w-full p-4 flex items-center justify-between",
-            "sticky top-0 z-40", 
+            "bg-card shadow-sm w-full px-2 flex items-center justify-between sticky top-0 z-40 shrink-0",
             "h-[var(--header-height)]"
           )}
         >
@@ -137,6 +154,55 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
               <Logo className="h-16 w-auto p-0" />
             </Link>
           </div>
+           <div className="flex items-center gap-2 md:gap-3">
+               <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground hover:text-white hover:bg-primary/80 relative h-8 w-8" 
+                aria-label="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="sr-only">Notifications</span>
+              </Button>
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-transparent">
+                    <Avatar className="h-9 w-9 border-2 border-primary/30">
+                      <AvatarImage src={user.avatar || undefined} alt={user.name} />
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsAddToHomeScreenModalOpen(true)}>
+                    <ArrowDownCircle className="mr-2 h-4 w-4" />
+                    <span>Add to Home Screen</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/parent/my-enquiries">
+                      <Eye className="mr-2 h-4 w-4" />
+                      <span>View My Enquiries</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
         </header>
       )}
 
@@ -170,5 +236,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
         />
       )}
     </div>
+    <AddToHomeScreenModal isOpen={isAddToHomeScreenModalOpen} onOpenChange={setIsAddToHomeScreenModalOpen} />
+    </>
   );
 }
