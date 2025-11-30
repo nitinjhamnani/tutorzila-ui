@@ -69,6 +69,7 @@ export default function ParentSpecificLayout({ children }: { children: ReactNode
     { href: "/parent/my-enquiries", label: "My Enquiries", icon: ListChecks },
     { href: "/parent/find-tutor", label: "Find Tutors", icon: SearchCheck }, 
     { href: "/parent/demo-sessions", label: "Demo Sessions", icon: MessageSquareQuote, disabled: false },
+    { href: "/parent/classes", label: "My Classes", icon: School, disabled: false },
     { href: "/parent/payments", label: "My Payments", icon: DollarSign, disabled: false },
   ];
 
