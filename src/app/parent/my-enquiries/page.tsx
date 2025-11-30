@@ -38,7 +38,7 @@ import {
   Loader2,
   XCircle
 } from "lucide-react";
-import { PostRequirementModal } from "@/components/common/modals/PostRequirementModal";
+import { ParentEnquiryModal } from "@/components/parent/modals/ParentEnquiryModal";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
@@ -163,9 +163,11 @@ export default function ParentMyEnquiriesPage() {
                 </DialogTrigger>
             </CardHeader>
           </Card>
-          <DialogContent className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
-            <PostRequirementModal
-              startFromStep={2} // Logged-in parents start from step 2
+          <DialogContent 
+            className="sm:max-w-[625px] p-0 bg-card rounded-xl overflow-hidden"
+            onPointerDownOutside={(e) => e.preventDefault()}
+          >
+            <ParentEnquiryModal 
               onSuccess={handleSuccess}
             />
           </DialogContent>
