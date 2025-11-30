@@ -743,7 +743,7 @@ function ManageEnquiryContent() {
     mutationFn: (formData: EditEnquiryFormValues) => updateEnquiry({ enquiryId, token, formData }),
     onSuccess: (updatedData) => {
         toast({ title: "Enquiry Updated!", description: "The requirement has been successfully updated." });
-        const { enquirySummary, enquiryDetails } = updatedData.enquiryResponse;
+        const { enquirySummary, enquiryDetails } = updatedData;
         queryClient.setQueryData<TuitionRequirement>(['adminEnquiryDetails', enquiryId], (oldData) => {
             if (!oldData) return undefined;
             const transformStringToArray = (str: string | null | undefined): string[] => {
@@ -776,7 +776,7 @@ function ManageEnquiryContent() {
                     ...(enquirySummary.offline ? ["Offline (In-person)"] : []),
                 ],
                 scheduleDetails: enquiryDetails.notes,
-                additionalNotes: enquiryDetails.additionalNotes,
+                additionalNotes: updatedData.remarks || enquiryDetails.additionalNotes,
                 preferredDays: transformStringToArray(enquiryDetails.availabilityDays),
                 preferredTimeSlots: transformStringToArray(enquiryDetails.availabilityTime),
                 status: enquirySummary.status?.toLowerCase() || oldData.status,
@@ -2040,5 +2040,6 @@ export default function ManageEnquiryPage() {
     
 
     
+
 
 
