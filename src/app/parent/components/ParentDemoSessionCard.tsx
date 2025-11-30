@@ -5,11 +5,10 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { DemoSession } from "@/types";
 import { cn } from "@/lib/utils";
-import { CalendarDays, Clock, User, Video, XCircle, CheckCircle, MessageSquareQuote, RadioTower, Users as UsersIcon, Settings, Edit3 } from "lucide-react";
+import { CalendarDays, Clock, User, Video, XCircle, CheckCircle, MessageSquareQuote, RadioTower, Users as UsersIcon, Settings, Edit3, GraduationCap, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +37,21 @@ const parentCancellationReasons = [
   { id: "not_liked_profile", label: "I am not interested in this profile anymore" },
   { id: "other_reason", label: "Other" },
 ];
+
+
+const InfoItem = ({ icon: Icon, label, value, className }: { icon: React.ElementType; label: string; value?: string; className?: string; }) => {
+  if (!value) return null;
+  return (
+    <div className={cn("flex items-start text-xs w-full min-w-0", className)}>
+      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 shrink-0 mt-[1px]" />
+      <div className="min-w-0 flex-1">
+        <strong className="text-muted-foreground font-medium">{label}</strong>&nbsp;
+        <span className="text-foreground/90 break-words">{value}</span>
+      </div>
+    </div>
+  );
+};
+
 
 export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: ParentDemoCardProps) {
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
@@ -110,18 +124,10 @@ export function ParentDemoCard({ demo, onUpdateSession, onCancelSession }: Paren
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-2 sm:pt-3 space-y-1.5 text-xs flex-grow">
-          <div className="flex items-center">
-            <User className="w-3.5 h-3.5 mr-1 text-primary/70" />
-            Student: {demo.studentName}
-          </div>
-          <div className="flex items-center">
-            <CalendarDays className="w-3.5 h-3.5 mr-1 text-primary/70" />
-            Date: {format(demoDate, "PPP")}
-          </div>
-           <div className="flex items-center">
-            <Clock className="w-3.5 h-3.5 mr-1 text-primary/70" />
-            Time: {demo.startTime} to {demo.endTime}
-          </div>
+          <InfoItem icon={GraduationCap} label="Grade:" value={demo.gradeLevel} />
+          {demo.board && <InfoItem icon={ShieldCheck} label="Board:" value={demo.board} />}
+          <InfoItem icon={CalendarDays} label="Date:" value={format(demoDate, "MMM d, yyyy")} />
+          <InfoItem icon={Clock} label="Time:" value={`${demo.startTime} - ${demo.endTime}`} />
         </CardContent>
 
         <CardFooter className="p-0 pt-3 sm:pt-4 flex justify-end items-center gap-2">
