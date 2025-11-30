@@ -28,6 +28,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useGlobalLoader } from "@/hooks/use-global-loader";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface ParentEnquiryCardProps {
   requirement: TuitionRequirement;
