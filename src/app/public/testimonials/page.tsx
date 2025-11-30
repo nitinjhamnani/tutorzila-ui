@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, User, Phone } from "lucide-react";
+import { Star, MessageSquareQuote, Send, Quote as QuoteIcon, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MOCK_TESTIMONIALS } from "@/lib/mock-data";
@@ -136,7 +136,7 @@ export default function TestimonialsPage() {
           <CardContent className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                 <FormField
+                <FormField
                   control={form.control}
                   name="rating"
                   render={({ field }) => (
@@ -154,7 +154,7 @@ export default function TestimonialsPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4 text-primary/80"/>Your Name</FormLabel>
+                      <FormLabel>Your Name</FormLabel>
                       <FormControl>
                         <Input placeholder="John Doe" {...field} disabled={isSubmitting} />
                       </FormControl>
@@ -163,40 +163,37 @@ export default function TestimonialsPage() {
                   )}
                 />
                 <FormItem>
-                    <FormLabel className="text-foreground flex items-center"><Phone className="mr-2 h-4 w-4 text-primary/80"/>Phone Number</FormLabel>
-                    <div className="flex gap-2">
-                        <Select defaultValue="+91" disabled>
-                            <SelectTrigger className="w-[80px] bg-input border-border focus:border-primary focus:ring-primary/30">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="+91">IN +91</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                            <FormItem className="flex-1">
-                                <FormControl>
-                                <Input
-                                    type="tel"
-                                    placeholder="XXXXXXXXXX"
-                                    maxLength={10}
-                                    {...field}
-                                    disabled={isSubmitting}
-                                    onChange={(e) => {
-                                      const numericValue = e.target.value.replace(/[^0-9]/g, '');
-                                      field.onChange(numericValue);
-                                    }}
-                                />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                    </div>
+                  <FormLabel className="flex items-center">Phone Number</FormLabel>
+                  <div className="flex items-center gap-2">
+                    <Select defaultValue="+91" disabled>
+                      <SelectTrigger className="w-auto bg-input border-border focus:border-primary focus:ring-primary/30">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="+91">IN (+91)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input 
+                              type="tel" 
+                              placeholder="9876543210" 
+                              {...field} 
+                              disabled={isSubmitting}
+                              maxLength={10}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </FormItem>
+
                  <FormField
                   control={form.control}
                   name="role"
