@@ -1559,11 +1559,6 @@ const closeEnquiryMutation = useMutation({
                 </DropdownMenu>
               </div>
             </div>
-            <Avatar className="absolute top-4 right-16 h-10 w-10 border-2 border-primary/20 shrink-0">
-                <AvatarFallback className="text-base bg-primary/10 text-primary font-bold">
-                    {enquiry.createdBy === 'PARENT' ? 'P' : enquiry.createdBy === 'ADMIN' ? 'A' : '?'}
-                </AvatarFallback>
-            </Avatar>
         </CardHeader>
         <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-5 border-t">
           <div className="flex flex-wrap gap-2">
@@ -2045,4 +2040,5 @@ export default function ManageEnquiryPage() {
     
 
     
+
 
