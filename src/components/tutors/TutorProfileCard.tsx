@@ -4,8 +4,8 @@
 
 import type { TutorProfile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { BookOpen, GraduationCap, Laptop, Users, MapPin, Briefcase, ShieldCheck, Bookmark } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BookOpen, GraduationCap, Laptop, Users, MapPin, Briefcase, ShieldCheck, Bookmark, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -57,14 +57,13 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
   let base = parentContextBaseUrl || '/tutors/';
   if (parentContextBaseUrl && !parentContextBaseUrl.endsWith('/')) {
     base += '/';
-  } else if (!parentContextBaseUrl && !base.endsWith('/')) {
+  } else if (!base.endsWith('/')) {
     base += '/';
   }
   const linkHref = `${base}${tutor.id}`;
 
   return (
-    <Link href={linkHref} passHref legacyBehavior>
-      <a className="block group cursor-pointer h-full">
+    <div className="block group cursor-pointer h-full">
         <Card className={cn(
           "w-full h-full",
           "flex flex-col p-4 sm:p-5",
@@ -75,7 +74,7 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
           <CardHeader className="flex flex-row items-start justify-between gap-3 p-0 mb-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <Avatar className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-primary/20 shadow-sm shrink-0">
-                <AvatarFallback className="text-sm sm:text-base bg-primary text-primary-foreground font-semibold">
+                 <AvatarFallback className="text-sm sm:text-base bg-primary text-primary-foreground font-semibold">
                   {tutor.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -107,9 +106,15 @@ export function TutorProfileCard({ tutor, parentContextBaseUrl, hideRating = fal
 
           <CardFooter className="p-0 mt-3 pt-3 border-t border-border/20 flex justify-between items-center">
             {tutor.location && <InfoItem icon={MapPin} text={tutor.location} />}
+            <Link href={linkHref} passHref legacyBehavior>
+                <Button asChild size="sm" variant="outline" className="text-xs py-1.5 px-3 h-auto">
+                    <a>
+                        <Eye className="w-3.5 h-3.5 mr-1"/> View Profile
+                    </a>
+                </Button>
+            </Link>
           </CardFooter>
         </Card>
-      </a>
-    </Link>
+    </div>
   );
 }
