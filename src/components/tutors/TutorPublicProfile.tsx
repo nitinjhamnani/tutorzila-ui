@@ -94,7 +94,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Left Column */}
         <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-[calc(var(--header-height,0px)+1.5rem)]">
           <Card className="overflow-hidden shadow-lg border border-border/30 rounded-xl bg-card">
