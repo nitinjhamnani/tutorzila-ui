@@ -72,7 +72,7 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
       <div className="flex flex-col">
         <span className="font-medium text-foreground mb-1">{label}</span>
         <div className="flex flex-wrap gap-1">
-          {items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item}</Badge>)}
+          {items.map(item => <Badge key={item} variant="secondary" className="font-normal">{item.replace(" (In-person)", "")}</Badge>)}
         </div>
       </div>
     </div>
@@ -81,17 +81,6 @@ const InfoBadgeList = ({ icon: Icon, label, items }: { icon: React.ElementType; 
 
 
 export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
-    const teachingModeText = Array.isArray(tutor.teachingMode) ? tutor.teachingMode.join(' & ') : tutor.teachingMode;
-
-    const TeachingModeIcon =
-      Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online") && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
-        ? Laptop
-        : Array.isArray(tutor.teachingMode) && tutor.teachingMode.includes("Online")
-        ? Laptop
-        : Array.isArray(tutor.teachingMode) && (tutor.teachingMode.includes("In-person") || tutor.teachingMode.includes("Offline (In-person)"))
-        ? UsersIcon
-        : Laptop;
-
   return (
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
@@ -141,10 +130,7 @@ export function TutorPublicProfile({ tutor }: TutorPublicProfileProps) {
                 <InfoBadgeList icon={BookOpen} label="Subjects" items={tutor.subjects}/>
                 <InfoBadgeList icon={GraduationCap} label="Grades" items={tutor.gradeLevelsTaught}/>
                 <InfoBadgeList icon={Award} label="Boards" items={tutor.boardsTaught}/>
-                <InfoItem icon={RadioTower} label="Teaching Mode">
-                    {teachingModeText}
-                    {tutor.isHybrid && <Badge variant="outline" className="ml-2">Hybrid</Badge>}
-                </InfoItem>
+                <InfoBadgeList icon={RadioTower} label="Teaching Mode" items={tutor.teachingMode} />
                 {tutor.location && <InfoItem icon={MapPin} label="Address">{tutor.location}</InfoItem>}
             </CardContent>
           </Card>
