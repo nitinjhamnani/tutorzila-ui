@@ -1,5 +1,4 @@
 
-
 export type UserRole = "parent" | "tutor" | "admin";
 
 export interface User {
@@ -330,6 +329,22 @@ export interface TutorTransaction {
   mode?: string;
   date: string; // ISO date string
   summary: string;
+}
+
+export interface AdminTransaction {
+  id: string;
+  userId: string;
+  userType: "PARENT" | "TUTOR" | "ADMIN";
+  transactionType: "ACTIVATION" | "DEMO" | "SESSION" | "REFUND" | "OTHER";
+  amountInPaise: number;
+  amountInRupee: number;
+  pgType: "PHONE_PE" | "RAZORPAY" | "CASH" | "BANK_TRANSFER";
+  pgOrderId: string;
+  pgState: string;
+  mode: string;
+  transactionStatus: "INITIATED" | "PENDING" | "COMPLETED" | "SUCCESS" | "FAILED" | "FAILURE";
+  initiatedAt: string; // ISO date string
+  completedAt: string; // ISO date string
 }
 
 export interface ConversationSummary {
