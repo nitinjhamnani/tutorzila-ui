@@ -66,11 +66,13 @@ import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Input } from "@/components/ui/input";
 
 
-const fetchAdminTutors = async (token: string | null, params: URLSearchParams): Promise<ApiTutor[]> => {
+const fetchAdminTutors = async (token: string | null, params: URLSearchParams, showAll: boolean): Promise<ApiTutor[]> => {
   if (!token) throw new Error("Authentication token not found.");
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const response = await fetch(`${apiBaseUrl}/api/search/tutors?${params.toString()}`, {
+  const endpoint = showAll ? '/api/search/tutors/all' : `/api/search/tutors?${params.toString()}`;
+  
+  const response = await fetch(`${apiBaseUrl}${endpoint}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'accept': '*/*',
@@ -119,12 +121,12 @@ const getInitials = (name: string): string => {
 
 export default function AdminTutorsPage() {
   const { token } = useAuthMock();
-  const { toast } = useToast();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { hideLoader, showLoader } = useGlobalLoader();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAllTutors, setShowAllTutors] = useState(false);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
@@ -156,8 +158,8 @@ export default function AdminTutorsPage() {
   }, [appliedFilters]);
 
   const { data: tutors = [], isLoading, error } = useQuery<ApiTutor[]>({
-    queryKey: ['adminAllTutors', token, tutorSearchParams.toString()],
-    queryFn: () => fetchAdminTutors(token, tutorSearchParams),
+    queryKey: ['adminAllTutors', token, tutorSearchParams.toString(), showAllTutors],
+    queryFn: () => fetchAdminTutors(token, tutorSearchParams, showAllTutors),
     enabled: !!token,
     staleTime: 0,
     refetchOnWindowFocus: false,
@@ -387,115 +389,121 @@ export default function AdminTutorsPage() {
             className="pl-10 w-full bg-card"
           />
         </div>
-        <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 w-full sm:w-auto flex-shrink-0 bg-card text-primary border-primary">
-                <ListFilter className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Filter</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-card sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Filter Tutors</DialogTitle>
-                <DialogDescription>
-                  Refine the list of tutors based on specific criteria.
-                </DialogDescription>
-              </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="phone-filter-modal">Phone Number</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="phone-filter-modal"
-                        placeholder="Enter phone number..."
-                        value={filters.phone}
-                        onChange={(e) => handleFilterChange('phone', e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="subjects-filter-modal">Subjects</Label>
-                        <MultiSelectCommand
-                          options={allSubjectsList}
-                          selectedValues={filters.subjects}
-                          onValueChange={(value) => handleFilterChange('subjects', value)}
-                          placeholder="Select subjects..."
-                          className="w-full"
+        <div className="flex items-center space-x-4 w-full sm:w-auto">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="show-all-tutors" checked={showAllTutors} onCheckedChange={(checked) => setShowAllTutors(!!checked)} />
+              <Label htmlFor="show-all-tutors" className="font-medium text-sm">Show all tutors</Label>
+            </div>
+            <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+                <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 w-full sm:w-auto flex-shrink-0 bg-card text-primary border-primary" disabled={showAllTutors}>
+                    <ListFilter className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Filter</span>
+                </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-card sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Filter Tutors</DialogTitle>
+                    <DialogDescription>
+                    Refine the list of tutors based on specific criteria.
+                    </DialogDescription>
+                </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="phone-filter-modal">Phone Number</Label>
+                        <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="phone-filter-modal"
+                            placeholder="Enter phone number..."
+                            value={filters.phone}
+                            onChange={(e) => handleFilterChange('phone', e.target.value)}
+                            className="pl-10"
                         />
-                  </div>
+                        </div>
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="subjects-filter-modal">Subjects</Label>
+                            <MultiSelectCommand
+                            options={allSubjectsList}
+                            selectedValues={filters.subjects}
+                            onValueChange={(value) => handleFilterChange('subjects', value)}
+                            placeholder="Select subjects..."
+                            className="w-full"
+                            />
+                    </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="grade-filter-modal">Grade</Label>
+                        <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
+                                <SelectTrigger id="grade-filter-modal">
+                                <SelectValue placeholder="Select Grade" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {gradeLevelsList.map(grade => (
+                                    <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="board-filter-modal">Board</Label>
+                            <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
+                            <SelectTrigger id="board-filter-modal">
+                                <SelectValue placeholder="Select Board" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {boardsList.map(board => (
+                                    <SelectItem key={board} value={board}>{board}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="space-y-2">
-                      <Label htmlFor="grade-filter-modal">Grade</Label>
-                      <Select onValueChange={(value) => handleFilterChange('grade', value)} value={filters.grade}>
-                            <SelectTrigger id="grade-filter-modal">
-                              <SelectValue placeholder="Select Grade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                              {gradeLevelsList.map(grade => (
-                                  <SelectItem key={grade} value={grade}>{grade}</SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                  </div>
+                        <Label htmlFor="city-filter-modal">City</Label>
+                        <Select onValueChange={handleCityChange} value={filters.city}>
+                            <SelectTrigger id="city-filter-modal">
+                                <SelectValue placeholder="Select City" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all-cities">All Cities</SelectItem>
+                                {uniqueCities.map(loc => (
+                                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="space-y-2">
-                      <Label htmlFor="board-filter-modal">Board</Label>
-                        <Select onValueChange={(value) => handleFilterChange('board', value)} value={filters.board}>
-                          <SelectTrigger id="board-filter-modal">
-                              <SelectValue placeholder="Select Board" />
-                          </SelectTrigger>
-                          <SelectContent>
-                              {boardsList.map(board => (
-                                  <SelectItem key={board} value={board}>{board}</SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                  </div>
-                  <div className="space-y-2">
-                      <Label htmlFor="city-filter-modal">City</Label>
-                      <Select onValueChange={handleCityChange} value={filters.city}>
-                          <SelectTrigger id="city-filter-modal">
-                              <SelectValue placeholder="Select City" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all-cities">All Cities</SelectItem>
-                              {uniqueCities.map(loc => (
-                                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                  </div>
-                  <div className="space-y-2">
-                      <Label htmlFor="area-filter-modal">Area</Label>
-                      <Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}>
-                          <SelectTrigger id="area-filter-modal">
-                              <SelectValue placeholder="Select Area" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all-areas">All Areas</SelectItem>
-                              {uniqueAreasInCity.map(loc => (
-                                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                  </div>
-                  <div className="flex items-center space-x-4 pt-5 md:col-span-2">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
-                          <Label htmlFor="online-filter-modal" className="font-medium">Online</Label>
-                      </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
-                          <Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label>
-                      </div>
-                  </div>
-              </div>
-              <DialogFooter className="gap-2 sm:justify-between">
-                  <Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
-                  <Button type="button" onClick={handleApplyFilters}>Apply Filters</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                        <Label htmlFor="area-filter-modal">Area</Label>
+                        <Select onValueChange={handleAreaChange} value={filters.area} disabled={!filters.city}>
+                            <SelectTrigger id="area-filter-modal">
+                                <SelectValue placeholder="Select Area" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all-areas">All Areas</SelectItem>
+                                {uniqueAreasInCity.map(loc => (
+                                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center space-x-4 pt-5 md:col-span-2">
+                            <div className="flex items-center space-x-2">
+                            <Checkbox id="online-filter-modal" checked={filters.isOnline} onCheckedChange={(checked) => handleFilterChange('isOnline', !!checked)} />
+                            <Label htmlFor="online-filter-modal" className="font-medium">Online</Label>
+                        </div>
+                            <div className="flex items-center space-x-2">
+                            <Checkbox id="offline-filter-modal" checked={filters.isOffline} onCheckedChange={(checked) => handleFilterChange('isOffline', !!checked)} />
+                            <Label htmlFor="offline-filter-modal" className="font-medium">Offline</Label>
+                        </div>
+                    </div>
+                </div>
+                <DialogFooter className="gap-2 sm:justify-between">
+                    <Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
+                    <Button type="button" onClick={handleApplyFilters}>Apply Filters</Button>
+                </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </div>
       </div>
       
       <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
