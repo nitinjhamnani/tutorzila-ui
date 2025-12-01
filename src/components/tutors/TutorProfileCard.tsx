@@ -25,9 +25,9 @@ const InfoItem = ({ icon: Icon, text, className }: { icon: React.ElementType; te
   if (!text || (Array.isArray(text) && text.length === 0)) return null;
   const displayText = Array.isArray(text) ? text.join(", ") : text;
   return (
-    <div className={cn("flex items-center text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors", className)}>
-      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 group-hover:text-primary/90 transition-colors shrink-0" />
-      <span className="truncate text-[12.5px] font-medium">{displayText}</span>
+    <div className={cn("flex items-start text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors", className)}>
+      <Icon className="w-3.5 h-3.5 mr-1.5 text-primary/70 group-hover:text-primary/90 transition-colors shrink-0 mt-0.5" />
+      <span className="text-[12.5px] font-medium break-words">{displayText}</span>
     </div>
   );
 };
