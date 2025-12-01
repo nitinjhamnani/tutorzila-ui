@@ -318,7 +318,7 @@ export default function ParentFindTutorPage() {
           <BookOpen className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Subjects
         </Label>
         <MultiSelectCommand
-          options={allSubjectsConstant}
+          options={allSubjectsList}
           selectedValues={tempSubjectFilter}
           onValueChange={setTempSubjectFilter}
           placeholder="Select subjects..."
@@ -468,3 +468,5 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
     </div>
   );
 }
+
+    
