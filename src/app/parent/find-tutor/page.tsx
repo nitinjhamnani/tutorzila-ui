@@ -122,6 +122,7 @@ const fetchTutors = async (token: string | null, params: URLSearchParams): Promi
 
 
 const modeOptionsList: { value: string; label: string }[] = [
+  { value: "All", label: "All Modes" },
   { value: "Online", label: "Online" },
   { value: "Offline (In-person)", label: "Offline (In-person)" },
 ];
@@ -244,7 +245,7 @@ export default function ParentFindTutorPage() {
   const renderTutorList = () => {
     if (isLoadingTutors) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                 {[...Array(6)].map((_, i) => (
                     <Card key={i} className="w-full h-[280px] p-4">
                         <div className="flex items-center gap-3">
@@ -278,7 +279,7 @@ export default function ParentFindTutorPage() {
     
     if (tutorProfiles.length > 0) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
           {tutorProfiles.map((tutor) => (
             <div key={tutor.id} className="relative group">
               <TutorProfileCard
@@ -317,7 +318,7 @@ export default function ParentFindTutorPage() {
           <BookOpen className="w-3.5 h-3.5 mr-1.5 text-primary/70"/>Subjects
         </Label>
         <MultiSelectCommand
-          options={allSubjectsList}
+          options={allSubjectsConstant}
           selectedValues={tempSubjectFilter}
           onValueChange={setTempSubjectFilter}
           placeholder="Select subjects..."
@@ -454,7 +455,7 @@ function FilterItem({ icon: Icon, label, value, onValueChange, options }: Filter
       <Select value={value} onValueChange={onValueChange}>
         <FormSelectTrigger
           id={`${label.toLowerCase().replace(/\s+/g, '-')}-filter`}
-          className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 shadow-sm rounded-lg h-9 text-xs"
+          className="bg-input border-border focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg rounded-lg h-9 text-xs"
         >
           <FormSelectValue />
         </FormSelectTrigger>
