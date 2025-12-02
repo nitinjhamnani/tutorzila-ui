@@ -110,12 +110,6 @@ export default function AdminAllEnquiriesPage() {
     return searchFiltered.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
   }, [searchTerm, allRequirements, activeTab]);
 
-  const categoryCounts = useMemo(() => ({
-    all: allRequirements.length,
-    applied: allRequirements.filter(req => (req.applicantsCount ?? 0) > 0).length,
-    assigned: allRequirements.filter(req => req.status === "matched").length,
-  }), [allRequirements]);
-
   useEffect(() => {
     if (isLoading) {
       showLoader("Fetching enquiries...");
@@ -226,19 +220,19 @@ export default function AdminAllEnquiriesPage() {
                         value="all" 
                         className="text-sm px-4 py-2.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-card data-[state=inactive]:border data-[state=inactive]:border-border data-[state=inactive]:text-foreground data-[state=inactive]:hover:bg-primary/10 data-[state=inactive]:hover:border-primary/50"
                     >
-                        All Enquiries <Badge className="ml-2 bg-secondary text-secondary-foreground">{categoryCounts.all}</Badge>
+                        All Enquiries
                     </TabsTrigger>
                     <TabsTrigger 
                         value="applied" 
                         className="text-sm px-4 py-2.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-card data-[state=inactive]:border data-[state=inactive]:border-border data-[state=inactive]:text-foreground data-[state=inactive]:hover:bg-primary/10 data-[state=inactive]:hover:border-primary/50"
                     >
-                        Applied <Badge className="ml-2 bg-secondary text-secondary-foreground">{categoryCounts.applied}</Badge>
+                        Applied
                     </TabsTrigger>
                     <TabsTrigger 
                         value="assigned" 
                         className="text-sm px-4 py-2.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-card data-[state=inactive]:border data-[state=inactive]:border-border data-[state=inactive]:text-foreground data-[state=inactive]:hover:bg-primary/10 data-[state=inactive]:hover:border-primary/50"
                     >
-                        Assigned <Badge className="ml-2 bg-secondary text-secondary-foreground">{categoryCounts.assigned}</Badge>
+                        Assigned
                     </TabsTrigger>
                 </TabsList>
                 <div className="relative w-full sm:max-w-xs">
@@ -269,3 +263,4 @@ export default function AdminAllEnquiriesPage() {
     
 
     
+
