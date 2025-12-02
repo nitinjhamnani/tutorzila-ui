@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import type { TuitionRequirement, User } from "@/types";
@@ -25,6 +25,21 @@ import { format } from 'date-fns';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MultiSelectCommand, type Option as MultiSelectOption } from "@/components/ui/multi-select-command";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { allSubjectsList, boardsList, gradeLevelsList, teachingModeOptions } from "@/lib/constants";
+
 
 const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -65,11 +80,19 @@ const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequire
     board: item.board,
     teachingMode: [
       ...(item.online ? ["Online"] : []),
-      ...(item.offline ? ["Offline"] : []),
+      ...(item.offline ? ["Offline (In-person)"] : []),
     ],
     applicantsCount: item.assignedTutors,
   }));
 };
+
+const initialFilters = {
+  subjects: [],
+  grade: 'All',
+  board: 'All',
+  teachingMode: [],
+};
+
 
 export default function AdminAllEnquiriesPage() {
   const { user, token, isAuthenticated, isCheckingAuth } = useAuthMock();
@@ -79,6 +102,11 @@ export default function AdminAllEnquiriesPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState(initialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
+
 
   const { data: allRequirements = [], isLoading, error } = useQuery({
     queryKey: ['adminAllEnquiries', token],
@@ -90,16 +118,32 @@ export default function AdminAllEnquiriesPage() {
   
   const filteredAndSortedRequirements = useMemo(() => {
     let requirements = allRequirements;
+
+    // Tab filtering
     if (activeTab === "applied") {
         requirements = allRequirements.filter(req => (req.applicantsCount ?? 0) > 0);
     } else if (activeTab === "assigned") {
         requirements = allRequirements.filter(req => req.status === "matched");
     }
 
-    let searchFiltered = requirements;
+    // Modal filters
+    if (appliedFilters.subjects.length > 0) {
+      requirements = requirements.filter(req => req.subject.some(s => appliedFilters.subjects.includes(s)));
+    }
+    if (appliedFilters.grade !== 'All') {
+      requirements = requirements.filter(req => req.gradeLevel === appliedFilters.grade);
+    }
+    if (appliedFilters.board !== 'All') {
+      requirements = requirements.filter(req => req.board === appliedFilters.board);
+    }
+    if (appliedFilters.teachingMode.length > 0) {
+      requirements = requirements.filter(req => req.teachingMode?.some(m => appliedFilters.teachingMode.includes(m)));
+    }
+
+    // Search term filtering
     if (searchTerm) {
       const lowercasedFilter = searchTerm.toLowerCase();
-      searchFiltered = requirements.filter((req) => {
+      requirements = requirements.filter((req) => {
         const includesEnquiryCode = req.enquiryCode?.toLowerCase().includes(lowercasedFilter);
         const includesStudentName = req.studentName?.toLowerCase().includes(lowercasedFilter);
         const includesSubject = req.subject.some(s => s.toLowerCase().includes(lowercasedFilter));
@@ -109,8 +153,8 @@ export default function AdminAllEnquiriesPage() {
       });
     }
 
-    return searchFiltered.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
-  }, [searchTerm, allRequirements, activeTab]);
+    return requirements.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+  }, [searchTerm, allRequirements, activeTab, appliedFilters]);
 
   const totalPages = Math.ceil(filteredAndSortedRequirements.length / itemsPerPage);
 
@@ -121,8 +165,8 @@ export default function AdminAllEnquiriesPage() {
   }, [filteredAndSortedRequirements, currentPage, itemsPerPage]);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [searchTerm, activeTab]);
+    setCurrentPage(1); 
+  }, [searchTerm, activeTab, appliedFilters]);
 
 
   useEffect(() => {
@@ -132,6 +176,17 @@ export default function AdminAllEnquiriesPage() {
       hideLoader();
     }
   }, [isLoading, showLoader, hideLoader]);
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setIsFilterModalOpen(false);
+  };
+  
+  const handleClearFilters = () => {
+    setFilters(initialFilters);
+    setAppliedFilters(initialFilters);
+    setIsFilterModalOpen(false);
+  };
 
   const renderTableBody = () => {
     if (isLoading) {
@@ -210,7 +265,7 @@ export default function AdminAllEnquiriesPage() {
   const renderEnquiryList = () => {
     return (
        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-        <CardHeader className="p-4 border-b">
+        <CardHeader className="p-4 border-b flex flex-row items-center justify-between">
              <div className="relative w-full sm:max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -220,6 +275,80 @@ export default function AdminAllEnquiriesPage() {
                 className="pl-10 w-full bg-background"
               />
             </div>
+             <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+                <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-9">
+                        <LucideFilterIcon className="w-4 h-4 mr-2" />
+                        Filter
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Filter Enquiries</DialogTitle>
+                        <DialogDescription>
+                            Refine the list of enquiries based on specific criteria.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+                        <div className="space-y-2 md:col-span-2">
+                            <Label>Subjects</Label>
+                            <MultiSelectCommand
+                                options={allSubjectsList}
+                                selectedValues={filters.subjects}
+                                onValueChange={(value) => setFilters(prev => ({...prev, subjects: value}))}
+                                placeholder="Select subjects..."
+                                className="w-full"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Grade</Label>
+                            <Select onValueChange={(value) => setFilters(prev => ({...prev, grade: value}))} value={filters.grade}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All">All Grades</SelectItem>
+                                    {gradeLevelsList.map(grade => <SelectItem key={grade} value={grade}>{grade}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Board</Label>
+                            <Select onValueChange={(value) => setFilters(prev => ({...prev, board: value}))} value={filters.board}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All">All Boards</SelectItem>
+                                    {boardsList.map(board => <SelectItem key={board} value={board}>{board}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label>Teaching Mode</Label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            {teachingModeOptions.map(item => (
+                                <div key={item.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={`mode-filter-${item.id}`}
+                                        checked={filters.teachingMode.includes(item.id)}
+                                        onCheckedChange={(checked) => {
+                                            setFilters(prev => ({
+                                                ...prev,
+                                                teachingMode: checked
+                                                    ? [...prev.teachingMode, item.id]
+                                                    : prev.teachingMode.filter(m => m !== item.id)
+                                            }));
+                                        }}
+                                    />
+                                    <Label htmlFor={`mode-filter-${item.id}`} className="font-normal">{item.label}</Label>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter className="gap-2 sm:justify-between">
+                        <Button type="button" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
+                        <Button type="button" onClick={handleApplyFilters}>Apply Filters</Button>
+                    </DialogFooter>
+                </DialogContent>
+             </Dialog>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
@@ -314,18 +443,4 @@ export default function AdminAllEnquiriesPage() {
     </div>
   );
 }
-    
 
-
-
-
-
-
-
-    
-
-    
-
-
-
-    
