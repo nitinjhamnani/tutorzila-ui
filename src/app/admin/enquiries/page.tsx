@@ -133,37 +133,81 @@ export default function AdminAllEnquiriesPage() {
     }
   }, [isLoading, showLoader, hideLoader]);
 
-  const renderEnquiryList = () => {
+  const renderTableBody = () => {
     if (isLoading) {
-      return null; // The global loader is now handling the loading state.
+      return (
+        <TableBody>
+          {[...Array(5)].map((_, i) => (
+            <TableRow key={i}>
+              <TableCell colSpan={9}>
+                <Skeleton className="h-8 w-full" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      );
     }
-
+    
     if (error) {
       return (
-        <Card className="text-center py-12 bg-destructive/10 border-destructive/20 rounded-lg shadow-sm col-span-full">
-            <CardContent className="flex flex-col items-center">
-                <ErrorIcon className="w-16 h-16 text-destructive mx-auto mb-5" />
-                <p className="text-xl font-semibold text-destructive mb-1.5">Error Fetching Enquiries</p>
-                <p className="text-sm text-destructive/80 max-w-sm mx-auto">{(error as Error).message}</p>
-            </CardContent>
-        </Card>
+        <TableBody>
+          <TableRow>
+            <TableCell colSpan={9} className="text-center text-destructive py-10">
+              <ErrorIcon className="mx-auto h-8 w-8 mb-2"/>
+              <p className="font-semibold">Error Fetching Enquiries</p>
+              <p className="text-sm">{(error as Error).message}</p>
+            </TableCell>
+          </TableRow>
+        </TableBody>
       );
     }
 
     if (paginatedRequirements.length === 0) {
       return (
-        <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out col-span-full">
-          <CardContent className="flex flex-col items-center">
-            <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-5" />
-            <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              There are currently no tuition enquiries matching your search or filter.
-            </p>
-          </CardContent>
-        </Card>
+        <TableBody>
+          <TableRow>
+            <TableCell colSpan={9} className="text-center py-12">
+               <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <ListChecks className="h-12 w-12 text-primary/30" />
+                <p className="font-semibold">No Enquiries Found</p>
+                <p className="text-sm">There are no tuition enquiries matching your search or filter.</p>
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
       );
     }
-    
+
+    return (
+      <TableBody>
+        {paginatedRequirements.map((req) => (
+          <TableRow key={req.id}>
+            <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
+            <TableCell className="font-medium text-foreground">{req.studentName}</TableCell>
+            <TableCell className="font-medium">
+              <div className="text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</div>
+            </TableCell>
+            <TableCell className="text-xs">{req.gradeLevel}</TableCell>
+            <TableCell className="text-xs">{req.board}</TableCell>
+            <TableCell className="text-xs">{req.teachingMode?.join(' / ')}</TableCell>
+            <TableCell className="text-xs">{format(new Date(req.postedAt), "MMM d, yyyy")}</TableCell>
+            <TableCell>
+              <Badge variant="default">{req.status.charAt(0).toUpperCase() + req.status.slice(1)}</Badge>
+            </TableCell>
+            <TableCell>
+              <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                <Link href={`/admin/manage-enquiry/${req.id}`}>
+                  <Settings className="h-4 w-4" />
+                </Link>
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    );
+  };
+
+  const renderEnquiryList = () => {
     return (
        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
         <CardHeader className="p-4 border-b">
@@ -192,31 +236,7 @@ export default function AdminAllEnquiriesPage() {
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {paginatedRequirements.map((req) => (
-                <TableRow key={req.id}>
-                  <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
-                  <TableCell className="font-medium text-foreground">{req.studentName}</TableCell>
-                  <TableCell className="font-medium">
-                    <div className="text-foreground">{Array.isArray(req.subject) ? req.subject.join(', ') : req.subject}</div>
-                  </TableCell>
-                  <TableCell className="text-xs">{req.gradeLevel}</TableCell>
-                  <TableCell className="text-xs">{req.board}</TableCell>
-                  <TableCell className="text-xs">{req.teachingMode?.join(' / ')}</TableCell>
-                  <TableCell className="text-xs">{format(new Date(req.postedAt), "MMM d, yyyy")}</TableCell>
-                  <TableCell>
-                    <Badge variant="default">{req.status.charAt(0).toUpperCase() + req.status.slice(1)}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                      <Link href={`/admin/manage-enquiry/${req.id}`}>
-                        <Settings className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            {renderTableBody()}
           </Table>
         </CardContent>
          <CardFooter className="flex justify-between items-center py-3 px-4 border-t">
