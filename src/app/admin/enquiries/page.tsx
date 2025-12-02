@@ -86,7 +86,7 @@ export default function AdminAllEnquiriesPage() {
     refetchOnWindowFocus: false,
   });
   
-  const filteredRequirements = useMemo(() => {
+  const filteredAndSortedRequirements = useMemo(() => {
     let requirements = allRequirements;
     if (activeTab === "applied") {
         requirements = allRequirements.filter(req => (req.applicantsCount ?? 0) > 0);
@@ -94,17 +94,27 @@ export default function AdminAllEnquiriesPage() {
         requirements = allRequirements.filter(req => req.status === "matched");
     }
 
-    if (!searchTerm) return requirements;
-    const lowercasedFilter = searchTerm.toLowerCase();
-    return requirements.filter((req) => {
-      const includesEnquiryCode = req.enquiryCode?.toLowerCase().includes(lowercasedFilter);
-      const includesStudentName = req.studentName?.toLowerCase().includes(lowercasedFilter);
-      const includesSubject = req.subject.some(s => s.toLowerCase().includes(lowercasedFilter));
-      const includesGrade = req.gradeLevel.toLowerCase().includes(lowercasedFilter);
-      const includesMode = req.teachingMode?.some(m => m.toLowerCase().includes(lowercasedFilter));
-      return includesEnquiryCode || includesStudentName || includesSubject || includesGrade || includesMode;
-    });
+    let searchFiltered = requirements;
+    if (searchTerm) {
+      const lowercasedFilter = searchTerm.toLowerCase();
+      searchFiltered = requirements.filter((req) => {
+        const includesEnquiryCode = req.enquiryCode?.toLowerCase().includes(lowercasedFilter);
+        const includesStudentName = req.studentName?.toLowerCase().includes(lowercasedFilter);
+        const includesSubject = req.subject.some(s => s.toLowerCase().includes(lowercasedFilter));
+        const includesGrade = req.gradeLevel.toLowerCase().includes(lowercasedFilter);
+        const includesMode = req.teachingMode?.some(m => m.toLowerCase().includes(lowercasedFilter));
+        return includesEnquiryCode || includesStudentName || includesSubject || includesGrade || includesMode;
+      });
+    }
+
+    return searchFiltered.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
   }, [searchTerm, allRequirements, activeTab]);
+
+  const categoryCounts = useMemo(() => ({
+    all: allRequirements.length,
+    applied: allRequirements.filter(req => (req.applicantsCount ?? 0) > 0).length,
+    assigned: allRequirements.filter(req => req.status === "matched").length,
+  }), [allRequirements]);
 
   useEffect(() => {
     if (isLoading) {
@@ -131,7 +141,7 @@ export default function AdminAllEnquiriesPage() {
       );
     }
 
-    if (filteredRequirements.length === 0) {
+    if (filteredAndSortedRequirements.length === 0) {
       return (
         <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out col-span-full">
           <CardContent className="flex flex-col items-center">
@@ -163,7 +173,7 @@ export default function AdminAllEnquiriesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRequirements.map((req) => (
+              {filteredAndSortedRequirements.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
                   <TableCell className="font-medium text-foreground">{req.studentName}</TableCell>
@@ -211,10 +221,25 @@ export default function AdminAllEnquiriesPage() {
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col sm:flex-row items-center gap-4 justify-between mb-4">
-                <TabsList className="bg-card p-1 rounded-lg shadow-sm border">
-                    <TabsTrigger value="all">All Enquiries</TabsTrigger>
-                    <TabsTrigger value="applied">Applied</TabsTrigger>
-                    <TabsTrigger value="assigned">Assigned</TabsTrigger>
+                <TabsList className="bg-transparent p-0 gap-2 h-auto">
+                    <TabsTrigger 
+                        value="all" 
+                        className="text-sm px-4 py-2.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-card data-[state=inactive]:border data-[state=inactive]:border-border data-[state=inactive]:text-foreground data-[state=inactive]:hover:bg-primary/10 data-[state=inactive]:hover:border-primary/50"
+                    >
+                        All Enquiries <Badge className="ml-2 bg-secondary text-secondary-foreground">{categoryCounts.all}</Badge>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value="applied" 
+                        className="text-sm px-4 py-2.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-card data-[state=inactive]:border data-[state=inactive]:border-border data-[state=inactive]:text-foreground data-[state=inactive]:hover:bg-primary/10 data-[state=inactive]:hover:border-primary/50"
+                    >
+                        Applied <Badge className="ml-2 bg-secondary text-secondary-foreground">{categoryCounts.applied}</Badge>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value="assigned" 
+                        className="text-sm px-4 py-2.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-card data-[state=inactive]:border data-[state=inactive]:border-border data-[state=inactive]:text-foreground data-[state=inactive]:hover:bg-primary/10 data-[state=inactive]:hover:border-primary/50"
+                    >
+                        Assigned <Badge className="ml-2 bg-secondary text-secondary-foreground">{categoryCounts.assigned}</Badge>
+                    </TabsTrigger>
                 </TabsList>
                 <div className="relative w-full sm:max-w-xs">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
