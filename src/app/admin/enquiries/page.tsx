@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { useGlobalLoader } from "@/hooks/use-global-loader";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const fetchAdminEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -75,6 +76,7 @@ export default function AdminAllEnquiriesPage() {
   const router = useRouter();
   const { showLoader, hideLoader } = useGlobalLoader();
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
 
   const { data: allRequirements = [], isLoading, error } = useQuery({
     queryKey: ['adminAllEnquiries', token],
@@ -85,9 +87,16 @@ export default function AdminAllEnquiriesPage() {
   });
   
   const filteredRequirements = useMemo(() => {
-    if (!searchTerm) return allRequirements;
+    let requirements = allRequirements;
+    if (activeTab === "applied") {
+        requirements = allRequirements.filter(req => (req.applicantsCount ?? 0) > 0);
+    } else if (activeTab === "assigned") {
+        requirements = allRequirements.filter(req => req.status === "matched");
+    }
+
+    if (!searchTerm) return requirements;
     const lowercasedFilter = searchTerm.toLowerCase();
-    return allRequirements.filter((req) => {
+    return requirements.filter((req) => {
       const includesEnquiryCode = req.enquiryCode?.toLowerCase().includes(lowercasedFilter);
       const includesStudentName = req.studentName?.toLowerCase().includes(lowercasedFilter);
       const includesSubject = req.subject.some(s => s.toLowerCase().includes(lowercasedFilter));
@@ -95,7 +104,7 @@ export default function AdminAllEnquiriesPage() {
       const includesMode = req.teachingMode?.some(m => m.toLowerCase().includes(lowercasedFilter));
       return includesEnquiryCode || includesStudentName || includesSubject || includesGrade || includesMode;
     });
-  }, [searchTerm, allRequirements]);
+  }, [searchTerm, allRequirements, activeTab]);
 
   useEffect(() => {
     if (isLoading) {
@@ -129,7 +138,7 @@ export default function AdminAllEnquiriesPage() {
             <ListChecks className="w-16 h-16 text-primary/30 mx-auto mb-5" />
             <p className="text-xl font-semibold text-foreground/70 mb-1.5">No Enquiries Found</p>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              There are currently no tuition enquiries matching your search.
+              There are currently no tuition enquiries matching your search or filter.
             </p>
           </CardContent>
         </Card>
@@ -200,19 +209,27 @@ export default function AdminAllEnquiriesPage() {
             </CardHeader>
         </Card>
         
-        <div className="flex flex-col sm:flex-row items-center gap-4 justify-between">
-            <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by code, subject, grade..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full bg-card"
-              />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex flex-col sm:flex-row items-center gap-4 justify-between mb-4">
+                <TabsList className="bg-card p-1 rounded-lg shadow-sm border">
+                    <TabsTrigger value="all">All Enquiries</TabsTrigger>
+                    <TabsTrigger value="applied">Applied</TabsTrigger>
+                    <TabsTrigger value="assigned">Assigned</TabsTrigger>
+                </TabsList>
+                <div className="relative w-full sm:max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by code, subject, grade..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-full bg-card"
+                  />
+                </div>
             </div>
-        </div>
-
-        {renderEnquiryList()}
+            <TabsContent value="all">{renderEnquiryList()}</TabsContent>
+            <TabsContent value="applied">{renderEnquiryList()}</TabsContent>
+            <TabsContent value="assigned">{renderEnquiryList()}</TabsContent>
+        </Tabs>
     </div>
   );
 }
@@ -223,5 +240,7 @@ export default function AdminAllEnquiriesPage() {
 
 
 
+
+    
 
     
