@@ -14,8 +14,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2, Settings, Search, User as UserIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { FilterIcon as LucideFilterIcon, Star, CheckCircle, Bookmark, ListChecks, ChevronDown, Briefcase, XIcon, BookOpen, Users as UsersIcon, MapPin, RadioTower, XCircle as ErrorIcon, Loader2, Settings, Search, User as UserIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAuthMock } from "@/hooks/use-auth-mock";
 import { useQuery } from "@tanstack/react-query";
@@ -77,6 +77,8 @@ export default function AdminAllEnquiriesPage() {
   const { showLoader, hideLoader } = useGlobalLoader();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const { data: allRequirements = [], isLoading, error } = useQuery({
     queryKey: ['adminAllEnquiries', token],
@@ -110,6 +112,19 @@ export default function AdminAllEnquiriesPage() {
     return searchFiltered.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
   }, [searchTerm, allRequirements, activeTab]);
 
+  const totalPages = Math.ceil(filteredAndSortedRequirements.length / itemsPerPage);
+
+  const paginatedRequirements = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredAndSortedRequirements.slice(startIndex, endIndex);
+  }, [filteredAndSortedRequirements, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [searchTerm, activeTab]);
+
+
   useEffect(() => {
     if (isLoading) {
       showLoader("Fetching enquiries...");
@@ -135,7 +150,7 @@ export default function AdminAllEnquiriesPage() {
       );
     }
 
-    if (filteredAndSortedRequirements.length === 0) {
+    if (paginatedRequirements.length === 0) {
       return (
         <Card className="text-center py-12 bg-card border rounded-lg shadow-sm animate-in fade-in zoom-in-95 duration-500 ease-out col-span-full">
           <CardContent className="flex flex-col items-center">
@@ -151,6 +166,17 @@ export default function AdminAllEnquiriesPage() {
     
     return (
        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
+        <CardHeader className="p-4 border-b">
+             <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by code, subject, grade..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full bg-background"
+              />
+            </div>
+        </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -167,7 +193,7 @@ export default function AdminAllEnquiriesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAndSortedRequirements.map((req) => (
+              {paginatedRequirements.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell className="font-medium text-foreground">{req.enquiryCode}</TableCell>
                   <TableCell className="font-medium text-foreground">{req.studentName}</TableCell>
@@ -193,6 +219,31 @@ export default function AdminAllEnquiriesPage() {
             </TableBody>
           </Table>
         </CardContent>
+         <CardFooter className="flex justify-between items-center py-3 px-4 border-t">
+          <div className="text-xs text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </CardFooter>
       </Card>
     )
   };
@@ -214,7 +265,7 @@ export default function AdminAllEnquiriesPage() {
         </Card>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex flex-col sm:flex-row items-center gap-4 justify-between mb-4">
+            <div className="flex items-center gap-4 justify-start mb-4">
                 <TabsList className="bg-transparent p-0 gap-2 h-auto">
                     <TabsTrigger 
                         value="all" 
@@ -235,15 +286,6 @@ export default function AdminAllEnquiriesPage() {
                         Assigned
                     </TabsTrigger>
                 </TabsList>
-                <div className="relative w-full sm:max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by code, subject, grade..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-full bg-card"
-                  />
-                </div>
             </div>
             <TabsContent value="all">{renderEnquiryList()}</TabsContent>
             <TabsContent value="applied">{renderEnquiryList()}</TabsContent>
@@ -264,3 +306,6 @@ export default function AdminAllEnquiriesPage() {
 
     
 
+
+
+    
