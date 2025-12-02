@@ -265,7 +265,7 @@ export default function AdminAllEnquiriesPage() {
   const renderEnquiryList = () => {
     return (
        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-        <CardHeader className="p-4 border-b flex flex-row items-center justify-between">
+        <CardHeader className="p-4 border-b flex flex-col sm:flex-row items-center justify-between gap-4">
              <div className="relative w-full sm:max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -277,9 +277,9 @@ export default function AdminAllEnquiriesPage() {
             </div>
              <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-9">
-                        <LucideFilterIcon className="w-4 h-4 mr-2" />
-                        Filter
+                    <Button variant="outline" size="sm" className="h-9 w-9 p-0 sm:w-auto sm:px-4 sm:py-1.5">
+                        <LucideFilterIcon className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Filter</span>
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-lg bg-card">

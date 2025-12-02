@@ -43,6 +43,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const fetchParentEnquiries = async (token: string | null): Promise<TuitionRequirement[]> => {
   if (!token) throw new Error("Authentication token not found.");
@@ -284,41 +285,32 @@ export default function ParentMyEnquiriesPage() {
           </DialogContent>
         </Dialog>
 
-         <div className="flex justify-end mb-4 sm:mb-6">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                    variant="default"
-                    size="sm"
-                    className="text-xs sm:text-sm py-2.5 px-3 sm:px-4 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md rounded-lg flex items-center justify-between gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                    <span>
-                        {activeFilterCategory} ({categoryCounts[activeFilterCategory]})
-                    </span>
-                    <ChevronDown className="w-4 h-4 opacity-70" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[220px]">
-                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+         <div className="mb-4 sm:mb-6">
+            <ScrollArea className="w-full">
+              <div className="flex items-center gap-2 pb-2">
                 {(Object.keys(statusIcons) as EnquiryStatusCategory[]).map((category) => {
-                  const Icon = statusIcons[category];
-                  return (
-                    <DropdownMenuItem
-                      key={category}
-                      onClick={() => setActiveFilterCategory(category)}
-                      className={cn(
-                          "text-sm",
-                          activeFilterCategory === category && "bg-primary text-primary-foreground"
-                      )}
-                    >
-                      <Icon className="mr-2 h-4 w-4" />
-                      {category} ({categoryCounts[category]})
-                    </DropdownMenuItem>
-                  );
+                    const Icon = statusIcons[category];
+                    return (
+                      <Button
+                          key={category}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveFilterCategory(category)}
+                          className={cn(
+                              "text-xs sm:text-sm py-2 px-4 rounded-full h-auto transition-all duration-300 whitespace-nowrap",
+                              activeFilterCategory === category
+                                ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                                : "bg-card text-foreground border-border hover:bg-primary/10 hover:border-primary/50"
+                          )}
+                      >
+                          <Icon className="mr-2 h-4 w-4" />
+                          {category} ({categoryCounts[category]})
+                      </Button>
+                    );
                 })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </div>
+              <ScrollBar orientation="horizontal" className="p-0"/>
+            </ScrollArea>
         </div>
 
 
