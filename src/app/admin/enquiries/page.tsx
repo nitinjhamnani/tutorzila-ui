@@ -265,7 +265,7 @@ export default function AdminAllEnquiriesPage() {
   const renderEnquiryList = () => {
     return (
        <Card className="bg-card rounded-xl shadow-lg border-0 overflow-hidden">
-        <CardHeader className="p-4 border-b flex flex-col sm:flex-row items-center justify-between gap-4">
+        <CardHeader className="p-4 border-b flex flex-row items-center justify-between gap-4">
              <div className="relative w-full sm:max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
