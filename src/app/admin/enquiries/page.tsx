@@ -282,7 +282,7 @@ export default function AdminAllEnquiriesPage() {
                         Filter
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
+                <DialogContent className="sm:max-w-lg bg-card">
                     <DialogHeader>
                         <DialogTitle>Filter Enquiries</DialogTitle>
                         <DialogDescription>
@@ -443,4 +443,3 @@ export default function AdminAllEnquiriesPage() {
     </div>
   );
 }
-
