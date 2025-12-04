@@ -42,7 +42,7 @@ const signUpSchema = z.object({
   password: z.string()
       .min(8, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
       .regex(/[A-Z]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol.")
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol."),
+      .regex(/[!@#$%^&*(),.?\":{}|<>]/, "Password must be at least 8 characters long and include an uppercase letter and a special symbol."),
   role: z.enum(["parent", "tutor"], { required_error: "You must select a role (Parent or Tutor)." }),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to continue.",
@@ -132,6 +132,11 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
       hideLoader();
 
       if (response.ok) {
+        if (typeof (window as any).gtag === 'function') {
+          (window as any).gtag('event', 'conversion', {
+            'send_to': 'AW-17759434933/NMnACJW968obELXxrZRC',
+          });
+        }
         if (onShowOtp) {
           onShowOtp(fullPhoneNumber, "phone");
         }
