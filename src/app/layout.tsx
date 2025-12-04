@@ -7,6 +7,7 @@ import './globals.css';
 import Providers from '@/components/providers';
 import { GlobalLoader } from '@/components/shared/GlobalLoader';
 import { AppLayoutClient } from '@/components/shared/AppLayoutClient';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Tutorzila - Find Home Tutors in Bangalore & Online Tutors Across India',
@@ -67,6 +68,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=AW-17759434933`}
+        />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-17759434933');
+            `,
+          }}
         />
       </head>
       <body>
