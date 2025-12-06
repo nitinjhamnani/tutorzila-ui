@@ -132,9 +132,11 @@ export function SignUpForm({ onSuccess, onSwitchForm, onClose, onShowOtp }: Sign
       hideLoader();
 
       if (response.ok) {
+        console.log("gtag function:", typeof (window as any).gtag);
+        console.log("Conversion event fired for sign-up.");
         if (typeof (window as any).gtag === 'function') {
           (window as any).gtag('event', 'conversion', {
-            'send_to': 'AW-17759434933/NMnACJW968obELXxrZRC',
+            'send_to': 'AW-17759434933/NM nACJW968obELXxrZRC',
           });
         }
         if (onShowOtp) {

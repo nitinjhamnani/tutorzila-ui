@@ -371,9 +371,13 @@ export interface Message {
 
 export interface AdminDashboardData {
   noOfParent: number;
-  noOfTutors: number;
+  noOfRegisteredTutors: number;
+  noOfUnregisteredTutors: number;
   noOfOpenEnquiries: number;
   noOfActiveEnquiries: number;
+  noOfAppliedEnquiries: number;
+  noOfAssignedEnquiries: number;
+  noOfScheduledDemo: number;
 }
 
 export interface TutorDashboardMetrics {

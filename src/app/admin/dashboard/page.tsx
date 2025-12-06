@@ -20,6 +20,9 @@ import {
   CalendarCheck,
   Camera,
   BookOpen,
+  UserCheck as UserCheckIcon,
+  UserX,
+  Presentation,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -141,7 +144,7 @@ export default function AdminDashboardPage() {
         <div className="space-y-6">
             <Skeleton className="h-24 w-full rounded-xl" />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+                {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
             </div>
             <Skeleton className="h-10 w-1/4 rounded-lg mt-4" />
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
@@ -156,10 +159,14 @@ export default function AdminDashboardPage() {
   }
   
   const adminMetrics: MetricCardProps[] = [
-    { title: "Total Tutors", value: String(dashboardData?.noOfTutors || 0), IconEl: Users, description: "All registered tutors", iconColor: "text-primary" },
     { title: "Total Parents", value: String(dashboardData?.noOfParent || 0), IconEl: UsersRound, description: "All registered parents", iconColor: "text-primary" },
-    { title: "Open Enquiries", value: String(dashboardData?.noOfOpenEnquiries || 0), IconEl: BookOpen, description: "Awaiting tutor assignment", iconColor: "text-primary" },
-    { title: "Active Enquiries", value: String(dashboardData?.noOfActiveEnquiries || 0), IconEl: Briefcase, description: "Currently in progress", iconColor: "text-primary" },
+    { title: "Registered Tutors", value: String(dashboardData?.noOfRegisteredTutors || 0), IconEl: UserCheckIcon, description: "Verified & active tutors", iconColor: "text-green-600" },
+    { title: "Unregistered Tutors", value: String(dashboardData?.noOfUnregisteredTutors || 0), IconEl: UserX, description: "Pending verification", iconColor: "text-orange-500" },
+    { title: "Open Enquiries", value: String(dashboardData?.noOfOpenEnquiries || 0), IconEl: BookOpen, description: "Awaiting tutor assignment", iconColor: "text-blue-500" },
+    { title: "Active Enquiries", value: String(dashboardData?.noOfActiveEnquiries || 0), IconEl: Briefcase, description: "Currently in progress", iconColor: "text-indigo-500" },
+    { title: "Applied Enquiries", value: String(dashboardData?.noOfAppliedEnquiries || 0), IconEl: Briefcase, description: "Tutors have applied", iconColor: "text-purple-500" },
+    { title: "Assigned Enquiries", value: String(dashboardData?.noOfAssignedEnquiries || 0), IconEl: Users, description: "Tutors assigned", iconColor: "text-pink-500" },
+    { title: "Scheduled Demos", value: String(dashboardData?.noOfScheduledDemo || 0), IconEl: Presentation, description: "Demos in the pipeline", iconColor: "text-teal-500" },
   ];
   
   const adminQuickActions: AdminQuickActionCardProps[] = [
