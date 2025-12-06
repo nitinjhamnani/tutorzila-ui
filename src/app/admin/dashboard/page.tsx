@@ -38,21 +38,19 @@ interface MetricCardProps {
   value: string;
   IconEl: ElementType;
   description: string;
-  iconBg?: string;
-  iconColor?: string;
 }
 
-function MetricCard({ title, value, IconEl, description, iconBg = "bg-primary/10", iconColor = "text-primary" }: MetricCardProps) {
+function MetricCard({ title, value, IconEl, description }: MetricCardProps) {
   return (
     <Card className="bg-card rounded-xl shadow-lg p-5 border-0 transform transition-all hover:-translate-y-1 hover:shadow-xl">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs text-muted-foreground">{title}</p>
-          <h3 className={cn("text-2xl font-bold mt-0.5", iconColor)}>{value}</h3>
+          <h3 className="text-2xl font-bold mt-0.5 text-primary">{value}</h3>
           <p className="text-xs text-muted-foreground mt-1">{description}</p>
         </div>
         {IconEl && (
-          <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0", iconBg, iconColor)}>
+          <div className="w-10 h-10 flex items-center justify-center rounded-lg text-sm shrink-0 bg-primary/10 text-primary">
             <IconEl className="w-5 h-5" />
           </div>
         )}
@@ -159,14 +157,14 @@ export default function AdminDashboardPage() {
   }
   
   const adminMetrics: MetricCardProps[] = [
-    { title: "Total Parents", value: String(dashboardData?.noOfParent || 0), IconEl: UsersRound, description: "All registered parents", iconColor: "text-primary" },
-    { title: "Registered Tutors", value: String(dashboardData?.noOfRegisteredTutors || 0), IconEl: UserCheckIcon, description: "Verified & active tutors", iconColor: "text-green-600" },
-    { title: "Unregistered Tutors", value: String(dashboardData?.noOfUnregisteredTutors || 0), IconEl: UserX, description: "Pending verification", iconColor: "text-orange-500" },
-    { title: "Open Enquiries", value: String(dashboardData?.noOfOpenEnquiries || 0), IconEl: BookOpen, description: "Awaiting tutor assignment", iconColor: "text-blue-500" },
-    { title: "Active Enquiries", value: String(dashboardData?.noOfActiveEnquiries || 0), IconEl: Briefcase, description: "Currently in progress", iconColor: "text-indigo-500" },
-    { title: "Applied Enquiries", value: String(dashboardData?.noOfAppliedEnquiries || 0), IconEl: Briefcase, description: "Tutors have applied", iconColor: "text-purple-500" },
-    { title: "Assigned Enquiries", value: String(dashboardData?.noOfAssignedEnquiries || 0), IconEl: Users, description: "Tutors assigned", iconColor: "text-pink-500" },
-    { title: "Scheduled Demos", value: String(dashboardData?.noOfScheduledDemo || 0), IconEl: Presentation, description: "Demos in the pipeline", iconColor: "text-teal-500" },
+    { title: "Total Parents", value: String(dashboardData?.noOfParent || 0), IconEl: UsersRound, description: "All registered parents" },
+    { title: "Registered Tutors", value: String(dashboardData?.noOfRegisteredTutors || 0), IconEl: UserCheckIcon, description: "Verified & active tutors" },
+    { title: "Unregistered Tutors", value: String(dashboardData?.noOfUnregisteredTutors || 0), IconEl: UserX, description: "Pending verification" },
+    { title: "Open Enquiries", value: String(dashboardData?.noOfOpenEnquiries || 0), IconEl: BookOpen, description: "Awaiting tutor assignment" },
+    { title: "Active Enquiries", value: String(dashboardData?.noOfActiveEnquiries || 0), IconEl: Briefcase, description: "Currently in progress" },
+    { title: "Applied Enquiries", value: String(dashboardData?.noOfAppliedEnquiries || 0), IconEl: Briefcase, description: "Tutors have applied" },
+    { title: "Assigned Enquiries", value: String(dashboardData?.noOfAssignedEnquiries || 0), IconEl: Users, description: "Tutors assigned" },
+    { title: "Scheduled Demos", value: String(dashboardData?.noOfScheduledDemo || 0), IconEl: Presentation, description: "Demos in the pipeline" },
   ];
   
   const adminQuickActions: AdminQuickActionCardProps[] = [
