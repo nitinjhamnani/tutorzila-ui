@@ -87,7 +87,7 @@ export function AdminSidebar({
               href={item.disabled ? "#" : item.href}
               onClick={() => handleNavLinkClick(item.href)}
               className={cn(
-                "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out",
+                "flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out cursor-pointer",
                 isActive
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
