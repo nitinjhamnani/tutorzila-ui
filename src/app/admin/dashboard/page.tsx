@@ -45,7 +45,7 @@ function MetricCard({ title, value, IconEl, description }: MetricCardProps) {
     <Card className="bg-card rounded-xl shadow-lg p-5 border-0 transform transition-all hover:-translate-y-1 hover:shadow-xl">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-muted-foreground">{title}</p>
+          <p className="text-xs text-muted-foreground font-semibold">{title}</p>
           <h3 className="text-2xl font-bold mt-0.5 text-primary">{value}</h3>
           <p className="text-xs text-muted-foreground mt-1">{description}</p>
         </div>
